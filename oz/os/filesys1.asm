@@ -17,8 +17,8 @@ xdef    OSRen
 xdef    OSDel
 xdef    FileNameDate
 
-xref    CopyMemHL_DE                            ; [Kernel0]/misc5.asm
-xref    GetOSFrame_HL                           ; [Kernel0]/misc5.asm
+xref    CopyMemHL_DE                            ; [Kernel0]/memmisc.asm
+xref    GetOSFrame_HL                           ; [Kernel0]/memmisc.asm
 xref    DORHandleFree                           ; [Kernel0]/dor.asm
 xref    DORHandleFreeDirect                     ; [Kernel0]/dor.asm
 xref    DORHandleInUse                          ; [Kernel0]/dor.asm

@@ -23,11 +23,11 @@ xref    AllocHandle                             ; [Kernel0]/handle.asm
 xref    FreeHandle                              ; [Kernel0]/handle.asm
 xref    VerifyHandle                            ; [Kernel0]/handle.asm
 
-xref    FixPtr                                  ; [Kernel0]/misc5.asm
-xref    CopyMemBHL_DE                           ; [Kernel0]/misc5.asm
-xref    CopyMemDE_BHL                           ; [Kernel0]/misc5.asm
-xref    PutOSFrame_BC                           ; [Kernel0]/misc5.asm
-xref    PutOSFrame_DE                           ; [Kernel0]/misc5.asm
+xref    FixPtr                                  ; [Kernel0]/memmisc.asm
+xref    CopyMemBHL_DE                           ; [Kernel0]/memmisc.asm
+xref    CopyMemDE_BHL                           ; [Kernel0]/memmisc.asm
+xref    PutOSFrame_BC                           ; [Kernel0]/memmisc.asm
+xref    PutOSFrame_DE                           ; [Kernel0]/memmisc.asm
 
 xref    FreeMemData0                            ; [Kernel0]/filesys3.asm
 xref    InitMemHandle                           ; [Kernel0]/filesys3.asm

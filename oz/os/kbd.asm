@@ -47,7 +47,7 @@ xdef    IsForeignKey                            ; is char capsable
 ;xref    BfPb                                    ; [Kernel0]/lowram.def.asm
 xref    SwitchOff                               ; [Kernel0]/nmi.asm
 xref    MaySetEsc                               ; [Kernel0]/esc.asm
-xref    MS2BankA                                ; [Kernel0]/misc5.asm
+xref    MS2BankA                                ; [Kernel0]/memmisc.asm
 xref    UpdateRnd                               ; [Kernel0]/random.asm
 xref    DrawOZWd                                ; [Kernel0]/ozwindow.asm
 

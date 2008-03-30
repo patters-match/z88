@@ -49,7 +49,7 @@ ELSE
         xref    OSAlm                           ; [Kernel0]/misc2.asm
         xref    OSPrt                           ; [Kernel0]/osprt.asm
         xref    OzCallInvalid                   ; [Kernel0]/misc2.asm
-        xref    OSFramePop                      ; [Kernel0]/misc4.asm
+        xref    OSFramePop                      ; [Kernel0]/stkframe.asm
         xref    OSAxp                           ; [Kernel0]/memory.asm
         xref    OSFc                            ; [Kernel0]/memory.asm
         xref    OSMal                           ; [Kernel0]/memory.asm
@@ -58,9 +58,9 @@ ELSE
         xref    OSMgb                           ; [Kernel0]/memory.asm
         xref    OSMop                           ; [Kernel0]/memory.asm
         xref    OSMpb                           ; [Kernel0]/memory.asm
-        xref    CopyMemBHL_DE                   ; [Kernel0]/misc5.asm
-        xref    OSBde                           ; [Kernel0]/misc5.asm
-        xref    OSFn                            ; [Kernel0]/misc5.asm
+        xref    CopyMemBHL_DE                   ; [Kernel0]/memmisc.asm
+        xref    OSBde                           ; [Kernel0]/memmisc.asm
+        xref    OSFn                            ; [Kernel0]/memmisc.asm
         xref    OSBlp                           ; [Kernel0]/scrdrv4.asm
         xref    OSSr                            ; [Kernel0]/scrdrv4.asm
         xref    OSDom                           ; [Kernel0]/process2.asm

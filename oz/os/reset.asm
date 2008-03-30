@@ -48,7 +48,7 @@ xdef    Reset
 xdef    ExpandMachine
 
 xref    InitBufKBD_RX_TX                        ; [K0]/buffer.asm
-xref    MS1BankA                                ; [K0]/misc5.asm
+xref    MS1BankA                                ; [K0]/memmisc.asm
 xref    ResetHandles                            ; [K0]/handle.asm
 xref    ResetTimeout                            ; [K0]/nmi.asm
 xref    InitRAM                                 ; [K0]/memory.asm

@@ -71,12 +71,12 @@ xdef    ScrollUp
 xdef    SetScrAttr
 xdef    ToggleScrDrvFlags
 
-xref    AtoN_upper                              ; [Kernel0]/misc5.asm
-xref    MS1BankA                                ; [Kernel0]/misc5.asm
+xref    AtoN_upper                              ; [Kernel0]/memmisc.asm
+xref    MS1BankA                                ; [Kernel0]/memmisc.asm
 xref    Delay300Kclocks                         ; [Kernel0]/boot.asm
 xref    DrawOZwd                                ; [Kernel0]/ozwindow.asm
-xref    OSFramePop                              ; [Kernel0]/misc4.asm
-xref    OSFramePush                             ; [Kernel0]/misc4.asm
+xref    OSFramePop                              ; [Kernel0]/stkframe.asm
+xref    OSFramePush                             ; [Kernel0]/stkframe.asm
 xref    RdHeaderedData                          ; [Kernel0]/filesys3.asm
 xref    WrHeaderedData                          ; [Kernel0]/filesys3.asm
 

@@ -16,12 +16,12 @@ xdef    OSHt
 xdef    ReadRTC
 xdef    OSUst
 
-xref    OSFramePush                             ; [Kernel0]/misc4.asm
-xref    OSFramePop                              ; [Kernel0]/misc4.asm
-xref    PutOSFrame_BC                           ; [Kernel0]/misc5.asm
-xref    GetOSFrame_HL                           ; [Kernel0]/misc5.asm
-xref    PutOSFrame_HL                           ; [Kernel0]/misc5.asm
-xref    PokeHLinc                               ; [Kernel0]/misc5.asm
+xref    OSFramePush                             ; [Kernel0]/stkframe.asm
+xref    OSFramePop                              ; [Kernel0]/stkframe.asm
+xref    PutOSFrame_BC                           ; [Kernel0]/memmisc.asm
+xref    GetOSFrame_HL                           ; [Kernel0]/memmisc.asm
+xref    PutOSFrame_HL                           ; [Kernel0]/memmisc.asm
+xref    PokeHLinc                               ; [Kernel0]/memmisc.asm
 
 
 

@@ -16,9 +16,9 @@ xdef    NqRDS
 xref    CursorRight                             ; [Kernel0]/scrdrv4.asm
 xref    ScreenClose                             ; [Kernel0]/scrdrv4.asm
 xref    ScreenOpen                              ; [Kernel0]/scrdrv4.asm
-xref    GetOSFrame_DE                           ; [Kernel0]/misc5.asm
-xref    GetOSFrame_HL                           ; [Kernel0]/misc5.asm
-xref    PokeHLinc                               ; [Kernel0]/misc5.asm
+xref    GetOSFrame_DE                           ; [Kernel0]/memmisc.asm
+xref    GetOSFrame_HL                           ; [Kernel0]/memmisc.asm
+xref    PokeHLinc                               ; [Kernel0]/memmisc.asm
 
 xref    GetCrsrYX                               ; [Kernel1]/scrdrv1.asm
 xref    GetWindowNum                            ; [Kernel1]/scrdrv1.asm

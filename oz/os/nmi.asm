@@ -54,8 +54,8 @@ xdef    HW_NMI2
 xdef    NMIEntry
 
 xref    DrawOZwd                                ; [Kernel0]/ozwindow.asm
-xref    OSFramePush                             ; [Kernel0]/misc4.asm
-xref    OSFramePopX                             ; [Kernel0]/misc4.asm
+xref    OSFramePush                             ; [Kernel0]/stkframe.asm
+xref    OSFramePopX                             ; [Kernel0]/stkframe.asm
 xref    MayDrawOZwd                             ; [Kernel0]/misc3.asm
 
 

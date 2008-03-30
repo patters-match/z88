@@ -16,7 +16,7 @@ xdef    InitHandle
 xdef    RAMxDOR                                 ; MountAllRAM
 
 xref    GetDORType                              ; [Kernel0]/dor.asm
-xref    S2VerifySlotType                        ; [Kernel0]/misc5.asm
+xref    S2VerifySlotType                        ; [Kernel0]/memmisc.asm
 
 
 

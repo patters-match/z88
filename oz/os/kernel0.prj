@@ -38,9 +38,10 @@ esc.asm
 filesys2.asm
 ossi0.asm
 time.asm
-misc4.asm
+stkframe.asm
+knlbind.asm
 handle.asm
-misc5.asm
+memmisc.asm
 int.asm
 random.asm
 kbd.asm

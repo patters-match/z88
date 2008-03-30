@@ -60,19 +60,19 @@ xref    VerifyHandleBank                        ; [Kernel0]/dor.asm
 xref    RdKbBuffer                              ; [Kernel0]/osin.asm
 ;xref    BfSta                                   ; [Kernel0]/buffer.asm
 
-xref    OSFramePop                              ; [Kernel0]/misc4.asm
-xref    OSFramePush                             ; [Kernel0]/misc4.asm
+xref    OSFramePop                              ; [Kernel0]/stkframe.asm
+xref    OSFramePush                             ; [Kernel0]/stkframe.asm
 
-xref    CopyMemHL_DE                            ; [Kernel0]/misc5.asm
-xref    GetOSFrame_DE                           ; [Kernel0]/misc5.asm
-xref    GetOSFrame_HL                           ; [Kernel0]/misc5.asm
-xref    MS2BankA                                ; [Kernel0]/misc5.asm
-xref    MS2BankK1                               ; [Kernel0]/misc5.asm
-xref    PeekHLinc                               ; [Kernel0]/misc5.asm
-xref    PokeHLinc                               ; [Kernel0]/misc5.asm
-xref    PutOSFrame_BC                           ; [Kernel0]/misc5.asm
-xref    PutOSFrame_DE                           ; [Kernel0]/misc5.asm
-xref    PutOSFrame_HL                           ; [Kernel0]/misc5.asm
+xref    CopyMemHL_DE                            ; [Kernel0]/memmisc.asm
+xref    GetOSFrame_DE                           ; [Kernel0]/memmisc.asm
+xref    GetOSFrame_HL                           ; [Kernel0]/memmisc.asm
+xref    MS2BankA                                ; [Kernel0]/memmisc.asm
+xref    MS2BankK1                               ; [Kernel0]/memmisc.asm
+xref    PeekHLinc                               ; [Kernel0]/memmisc.asm
+xref    PokeHLinc                               ; [Kernel0]/memmisc.asm
+xref    PutOSFrame_BC                           ; [Kernel0]/memmisc.asm
+xref    PutOSFrame_DE                           ; [Kernel0]/memmisc.asm
+xref    PutOSFrame_HL                           ; [Kernel0]/memmisc.asm
 
 xref    OSPrtPrint                              ; [Kernel1]/printer.asm
 xref    FileNameDate                            ; [Kernel1]/filesys1.asm

@@ -14,8 +14,8 @@ xdef    OSWtb
 xdef    MayWrt
 xdef    OSWrt
 
-xref    PutOSFrame_BHL                          ; [Kernel0]/misc5.asm
-xref    FixPtr                                  ; [Kernel0]/misc5.asm
+xref    PutOSFrame_BHL                          ; [Kernel0]/memmisc.asm
+xref    FixPtr                                  ; [Kernel0]/memmisc.asm
 xref    GetHlpTokens                            ; [Kernel0]/mth0.asm
 xref    PrintChar                               ; [Kernel0]/mth0.asm
 xref    fsMS2BankB                              ; [Kernel0]/filesys3.asm

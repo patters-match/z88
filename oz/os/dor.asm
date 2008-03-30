@@ -57,17 +57,17 @@ xref    AllocHandle                             ; [Kernel0]/handle.asm
 xref    FindHandle                              ; [Kernel0]/handle.asm
 xref    FreeHandle                              ; [Kernel0]/handle.asm
 xref    VerifyHandle                            ; [Kernel0]/handle.asm
-xref    ClearMemHL_A                            ; [Kernel0]/misc5.asm
-xref    CopyMemDE_HL                            ; [Kernel0]/misc5.asm
-xref    CopyMemHL_DE                            ; [Kernel0]/misc5.asm
-xref    GetOSFrame_DE                           ; [Kernel0]/misc5.asm
-xref    MS2BankA                                ; [Kernel0]/misc5.asm
-xref    MS2BankB                                ; [Kernel0]/misc5.asm
-xref    PeekHL                                  ; [Kernel0]/misc5.asm
-xref    PeekHLinc                               ; [Kernel0]/misc5.asm
-xref    PutOSFrame_BC                           ; [Kernel0]/misc5.asm
-xref    OSFramePop                              ; [Kernel0]/misc4.asm
-xref    OSFramePush                             ; [Kernel0]/misc4.asm
+xref    ClearMemHL_A                            ; [Kernel0]/memmisc.asm
+xref    CopyMemDE_HL                            ; [Kernel0]/memmisc.asm
+xref    CopyMemHL_DE                            ; [Kernel0]/memmisc.asm
+xref    GetOSFrame_DE                           ; [Kernel0]/memmisc.asm
+xref    MS2BankA                                ; [Kernel0]/memmisc.asm
+xref    MS2BankB                                ; [Kernel0]/memmisc.asm
+xref    PeekHL                                  ; [Kernel0]/memmisc.asm
+xref    PeekHLinc                               ; [Kernel0]/memmisc.asm
+xref    PutOSFrame_BC                           ; [Kernel0]/memmisc.asm
+xref    OSFramePop                              ; [Kernel0]/stkframe.asm
+xref    OSFramePush                             ; [Kernel0]/stkframe.asm
 
 xref    InitHandle                              ; [Kernel1]/misc1.asm
 

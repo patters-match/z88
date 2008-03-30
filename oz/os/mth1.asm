@@ -66,9 +66,9 @@ xref    DORHandleFree                           ; [Kernel0]/dor.asm
 xref    InitHlpActiveCmd                        ; [Kernel0]/process3.asm
 xref    InitHlpActiveHelp                       ; [Kernel0]/process3.asm
 xref    SetHlpActiveHelp                        ; [Kernel0]/process3.asm
-xref    OSBixS1                                 ; [Kernel0]/misc4.asm
-xref    OSBoxS1                                 ; [Kernel0]/misc4.asm
-xref    ReserveStkBuf                           ; [Kernel0]/misc5.asm
+xref    OSBixS1                                 ; [Kernel0]/stkframe.asm
+xref    OSBoxS1                                 ; [Kernel0]/stkframe.asm
+xref    ReserveStkBuf                           ; [Kernel0]/memmisc.asm
 xref    RdStdinNoTO                             ; [Kernel0]/osin.asm
 xref    sub_EF92                                ; [Kernel0]/osin.asm
 xref    sub_EFBB                                ; [Kernel0]/osin.asm

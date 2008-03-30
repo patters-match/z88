@@ -46,16 +46,16 @@ xdef    OSSpMain
 xdef    OSNqMain
 xdef    defDev
 
-xref    ClearMemHL_A                            ; [K0]/misc5.asm
-xref    CopyMemDE_HL                            ; [K0]/misc5.asm
-xref    GetOSFrame_DE                           ; [K0]/misc5.asm
-xref    GetOSFrame_HL                           ; [K0]/misc5.asm
-xref    PeekHLinc                               ; [K0]/misc5.asm
-xref    PokeHLinc                               ; [K0]/misc5.asm
-xref    PutOSFrame_BC                           ; [K0]/misc5.asm
-xref    PutOSFrame_DE                           ; [K0]/misc5.asm
-xref    PutOSFrame_HL                           ; [K0]/misc5.asm
-xref    S2VerifySlotType                        ; [K0]/misc5.asm
+xref    ClearMemHL_A                            ; [K0]/memmisc.asm
+xref    CopyMemDE_HL                            ; [K0]/memmisc.asm
+xref    GetOSFrame_DE                           ; [K0]/memmisc.asm
+xref    GetOSFrame_HL                           ; [K0]/memmisc.asm
+xref    PeekHLinc                               ; [K0]/memmisc.asm
+xref    PokeHLinc                               ; [K0]/memmisc.asm
+xref    PutOSFrame_BC                           ; [K0]/memmisc.asm
+xref    PutOSFrame_DE                           ; [K0]/memmisc.asm
+xref    PutOSFrame_HL                           ; [K0]/memmisc.asm
+xref    S2VerifySlotType                        ; [K0]/memmisc.asm
 
 xref    FreeMemData                             ; [K0]/filesys3.asm
 xref    InitFsMemHandle                         ; [K0]/filesys3.asm

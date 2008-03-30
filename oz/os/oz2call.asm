@@ -45,9 +45,9 @@ xdef    CallOS2byte
 
 xdef    OzCallInvalid
 
-xref    MS2BankA                                ; [Kernel0]/misc5.asm
-xref    MS2BankK1                               ; [Kernel0]/misc5.asm
-xref    OSFramePushMain                         ; [Kernel0]/misc4.asm
+xref    MS2BankA                                ; [Kernel0]/memmisc.asm
+xref    MS2BankK1                               ; [Kernel0]/memmisc.asm
+xref    OSFramePushMain                         ; [Kernel0]/stkframe.asm
 
 xref    OSPrtPrint                              ; [Kernel1]/printer.asm
 

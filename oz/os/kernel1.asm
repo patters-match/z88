@@ -48,33 +48,33 @@ IF COMPILE_BINARY
 
         xdef    SetPendingOZwd                  ; [Kernel0]/misc3.asm
 
-        xdef    OSFramePop                      ; [Kernel0]/misc4.asm
-        xdef    OSFramePush                     ; [Kernel0]/misc4.asm
-        xdef    OSBixS1                         ; [Kernel0]/misc4.asm
-        xdef    OSBoxS1                         ; [Kernel0]/misc4.asm
+        xdef    OSFramePop                      ; [Kernel0]/stkframe.asm
+        xdef    OSFramePush                     ; [Kernel0]/stkframe.asm
+        xdef    OSBixS1                         ; [Kernel0]/stkframe.asm
+        xdef    OSBoxS1                         ; [Kernel0]/stkframe.asm
 
-        xdef    AtoN_upper                      ; [Kernel0]/misc5.asm
-        xdef    ClearMemHL_A                    ; [Kernel0]/misc5.asm
-        xdef    CopyMemBHL_DE                   ; [Kernel0]/misc5.asm
-        xdef    CopyMemDE_BHL                   ; [Kernel0]/misc5.asm
-        xdef    CopyMemDE_HL                    ; [Kernel0]/misc5.asm
-        xdef    CopyMemHL_DE                    ; [Kernel0]/misc5.asm
-        xdef    FixPtr                          ; [Kernel0]/misc5.asm
-        xdef    GetOSFrame_DE                   ; [Kernel0]/misc5.asm
-        xdef    GetOSFrame_HL                   ; [Kernel0]/misc5.asm
-        xdef    KPrint                          ; [Kernel0]/misc5.asm
-        xdef    MS1BankA                        ; [Kernel0]/misc5.asm
-        xdef    PeekBHL, PeekBHLinc, PeekHLinc  ; [Kernel0]/misc5.asm
-        xdef    IncBHL                          ; [Kernel0]/misc5.asm
-        xdef    PokeBHL                         ; [Kernel0]/misc5.asm
-        xdef    PokeHLinc                       ; [Kernel0]/misc5.asm
-        xdef    PutOSFrame_BC                   ; [Kernel0]/misc5.asm
-        xdef    PutOSFrame_DE                   ; [Kernel0]/misc5.asm
-        xdef    PutOSFrame_HL                   ; [Kernel0]/misc5.asm
-        xdef    PutOSFrame_BHL                  ; [Kernel0]/misc5.asm
-        xdef    PutOSFrame_CDE                  ; [Kernel0]/misc5.asm
-        xdef    ReserveStkBuf                   ; [Kernel0]/misc5.asm
-        xdef    S2VerifySlotType                ; [Kernel0]/misc5.asm
+        xdef    AtoN_upper                      ; [Kernel0]/memmisc.asm
+        xdef    ClearMemHL_A                    ; [Kernel0]/memmisc.asm
+        xdef    CopyMemBHL_DE                   ; [Kernel0]/memmisc.asm
+        xdef    CopyMemDE_BHL                   ; [Kernel0]/memmisc.asm
+        xdef    CopyMemDE_HL                    ; [Kernel0]/memmisc.asm
+        xdef    CopyMemHL_DE                    ; [Kernel0]/memmisc.asm
+        xdef    FixPtr                          ; [Kernel0]/memmisc.asm
+        xdef    GetOSFrame_DE                   ; [Kernel0]/memmisc.asm
+        xdef    GetOSFrame_HL                   ; [Kernel0]/memmisc.asm
+        xdef    KPrint                          ; [Kernel0]/memmisc.asm
+        xdef    MS1BankA                        ; [Kernel0]/memmisc.asm
+        xdef    PeekBHL, PeekBHLinc, PeekHLinc  ; [Kernel0]/memmisc.asm
+        xdef    IncBHL                          ; [Kernel0]/memmisc.asm
+        xdef    PokeBHL                         ; [Kernel0]/memmisc.asm
+        xdef    PokeHLinc                       ; [Kernel0]/memmisc.asm
+        xdef    PutOSFrame_BC                   ; [Kernel0]/memmisc.asm
+        xdef    PutOSFrame_DE                   ; [Kernel0]/memmisc.asm
+        xdef    PutOSFrame_HL                   ; [Kernel0]/memmisc.asm
+        xdef    PutOSFrame_BHL                  ; [Kernel0]/memmisc.asm
+        xdef    PutOSFrame_CDE                  ; [Kernel0]/memmisc.asm
+        xdef    ReserveStkBuf                   ; [Kernel0]/memmisc.asm
+        xdef    S2VerifySlotType                ; [Kernel0]/memmisc.asm
         xdef    ScrDrv_SOH_A
 
         xdef    AllocHandle                     ; [Kernel0]/handle.asm

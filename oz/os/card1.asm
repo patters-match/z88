@@ -41,8 +41,8 @@ xdef    StoreCardIDs
 xdef    ChkCardChange
 
 xref    AddRAMCard                              ; [Kernel0]/cardmgr.asm
-xref    MS1BankA                                ; [Kernel0]/misc5.asm
-xref    S2VerifySlotType                        ; [Kernel0]/misc5.asm
+xref    MS1BankA                                ; [Kernel0]/memmisc.asm
+xref    S2VerifySlotType                        ; [Kernel0]/memmisc.asm
 xref    DrawOZwd                                ; [Kernel0]/ozwindow.asm
 xref    OZwd__fail                              ; [Kernel0]/ozwindow.asm
 xref    OZwd_card                               ; [Kernel0]/ozwindow.asm

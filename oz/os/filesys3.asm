@@ -46,11 +46,11 @@ xdef    WrFileByte
 xdef    WrHeaderedData
 
 xref    AllocHandle                             ; [Kernel0]/handle.asm
-xref    FPtr2MemPtrBindS2                       ; [Kernel0]/misc5.asm
-xref    MS12BankCB                              ; [Kernel0]/misc5.asm
-xref    MS1BankA                                ; [Kernel0]/misc5.asm
-xref    MS2BankA                                ; [Kernel0]/misc5.asm
-xref    MS2BankB                                ; [Kernel0]/misc5.asm
+xref    FPtr2MemPtrBindS2                       ; [Kernel0]/memmisc.asm
+xref    MS12BankCB                              ; [Kernel0]/memmisc.asm
+xref    MS1BankA                                ; [Kernel0]/memmisc.asm
+xref    MS2BankA                                ; [Kernel0]/memmisc.asm
+xref    MS2BankB                                ; [Kernel0]/memmisc.asm
 xref    OZwd__fail                              ; [Kernel0]/ozwindow.asm
 xref    RestoreScreen                           ; [Kernel0]/scrdrv4.asm
 xref    SaveScreen                              ; [Kernel0]/scrdrv4.asm

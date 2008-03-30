@@ -45,8 +45,8 @@ xdef    OSAlmMain
 
 xref    AllocHandle                             ; [Kernel0]/handle.asm
 xref    FreeHandle                              ; [Kernel0]/handle.asm
-xref    CopyMemHL_DE                            ; [Kernel0]/misc5.asm
-xref    GetOSFrame_HL                           ; [Kernel0]/misc5.asm
+xref    CopyMemHL_DE                            ; [Kernel0]/memmisc.asm
+xref    GetOSFrame_HL                           ; [Kernel0]/memmisc.asm
 xref    DecActiveAlm                            ; [Kernel0]/int.asm
 xref    IncActiveAlm                            ; [Kernel0]/int.asm
 xref    MaySetPendingAlmTask                    ; [Kernel0]/int.asm

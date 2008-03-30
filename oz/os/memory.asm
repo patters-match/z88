@@ -71,13 +71,13 @@ xdef    Chk128KB
 xdef    Chk128KBslot0
 xdef    MountAllRAM                             ; [Kernel0]/cardmgr.asm, [Kernel1]/misc1.asm
 
-xref    MS2BankK1                               ; [Kernel0]/misc5.asm
-xref    MS1BankA                                ; [Kernel0]/misc5.asm
-xref    MS2BankA                                ; [Kernel0]/misc5.asm
-xref    PutOSFrame_BHL                          ; [Kernel0]/misc5.asm
-xref    PutOSFrame_DE                           ; [Kernel0]/misc5.asm
-xref    OSFramePop                              ; [Kernel0]/misc4.asm
-xref    OSFramePush                             ; [Kernel0]/misc4.asm
+xref    MS2BankK1                               ; [Kernel0]/memmisc.asm
+xref    MS1BankA                                ; [Kernel0]/memmisc.asm
+xref    MS2BankA                                ; [Kernel0]/memmisc.asm
+xref    PutOSFrame_BHL                          ; [Kernel0]/memmisc.asm
+xref    PutOSFrame_DE                           ; [Kernel0]/memmisc.asm
+xref    OSFramePop                              ; [Kernel0]/stkframe.asm
+xref    OSFramePush                             ; [Kernel0]/stkframe.asm
 xref    AllocHandle                             ; [Kernel0]/handle.asm
 xref    FreeHandle                              ; [Kernel0]/handle.asm
 xref    VerifyHandle                            ; [Kernel0]/handle.asm

@@ -38,10 +38,10 @@
 
 xdef    OSOut, OSBout, OSPout, OsOutKernel
 
-xref    OSFramePush                             ; misc4.asm
-xref    OSFramePopX                             ; misc4.asm
-xref    OSBixS1, OSBoxS1                        ; misc4.asm
-xref    GetOSFrame_HL, PutOSFrame_HL, PeekHLinc ; misc5.asm
+xref    OSFramePush                             ; stkframe.asm
+xref    OSFramePopX                             ; stkframe.asm
+xref    OSBixS1, OSBoxS1                        ; stkframe.asm
+xref    GetOSFrame_HL, PutOSFrame_HL, PeekHLinc ; memmisc.asm
 xref    OSOutMain                               ; scrdrv1.asm
 
 

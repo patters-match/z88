@@ -11,8 +11,8 @@ xdef    NqSp_ret
 xdef    OSNq
 xdef    OSSp
 
-xref    OSFramePop                              ; [Kernel0]/misc4.asm
-xref    OSFramePush                             ; [Kernel0]/misc4.asm
+xref    OSFramePop                              ; [Kernel0]/stkframe.asm
+xref    OSFramePush                             ; [Kernel0]/stkframe.asm
 
 xref    OSNqMain                                ; [Kernel1]/nqsp.asm
 xref    OSSpMain                                ; [Kernel1]/nqsp.asm

@@ -60,12 +60,12 @@ xref    PageNToPagePtr                          ; [Kernel0]/memory.asm
 xref    fsMS2BankB                              ; [Kernel0]/filesys3.asm
 xref    fsRestoreS2                             ; [Kernel0]/filesys3.asm
 xref    GetAppDOR                               ; [Kernel0]/mth0.asm
-xref    OSBixS1                                 ; [Kernel0]/misc4.asm
-xref    OSBoxS1                                 ; [Kernel0]/misc4.asm
-xref    MS1BankA                                ; [Kernel0]/misc5.asm
-xref    MS2BankA                                ; [Kernel0]/misc5.asm
-xref    PutOSFrame_BHL                          ; [Kernel0]/misc5.asm
-xref    PutOSFrame_DE                           ; [Kernel0]/misc5.asm
+xref    OSBixS1                                 ; [Kernel0]/stkframe.asm
+xref    OSBoxS1                                 ; [Kernel0]/stkframe.asm
+xref    MS1BankA                                ; [Kernel0]/memmisc.asm
+xref    MS2BankA                                ; [Kernel0]/memmisc.asm
+xref    PutOSFrame_BHL                          ; [Kernel0]/memmisc.asm
+xref    PutOSFrame_DE                           ; [Kernel0]/memmisc.asm
 
 xref    CopyMTHApp_Help                         ; [Kernel1]/mth1.asm
 

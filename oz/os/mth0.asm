@@ -48,10 +48,10 @@ xdef    SetHlpAppChgFile
 xdef    SkipNTopics
 xdef    ScrDrv_SOH_A
 
-xref    OSBixS1                                 ; [Kernel0]/misc4.asm
-xref    OSBoxS1                                 ; [Kernel0]/misc4.asm
-xref    AtoN_upper                              ; [Kernel0]/misc5.asm
-xref    MS2BankK1                               ; [Kernel0]/misc5.asm
+xref    OSBixS1                                 ; [Kernel0]/stkframe.asm
+xref    OSBoxS1                                 ; [Kernel0]/stkframe.asm
+xref    AtoN_upper                              ; [Kernel0]/memmisc.asm
+xref    MS2BankK1                               ; [Kernel0]/memmisc.asm
 xref    fsMS2BankB                              ; [Kernel0]/filesys3.asm
 xref    fsRestoreS2                             ; [Kernel0]/filesys3.asm
 xref    GetHandlePtr                            ; [Kernel0]/dor.asm

@@ -43,8 +43,8 @@ xdef    OSAlm
 xdef    DoAlarms
 
 xref    OSOff                                   ; [Kernel0]/nmi.asm
-xref    OSFramePush                             ; [Kernel0]/misc4.asm
-xref    OSFramePopX                             ; [Kernel0]/misc4.asm
+xref    OSFramePush                             ; [Kernel0]/stkframe.asm
+xref    OSFramePopX                             ; [Kernel0]/stkframe.asm
 
 xref    OSAlmMain                               ; [Kernel1]/osalm.asm
 xref    SetPendingOZwd                          ; [Kernel0]/ozwindow.asm

@@ -20,8 +20,8 @@ xdef    OSNqProcess
 
 xref    GetAppDOR                               ; [Kernel0]/mth0.asm
 xref    NQAin                                   ; [Kernel0]/process2.asm
-xref    PutOSFrame_BC                           ; [Kernel0]/misc5.asm
-xref    CopyMemBHL_DE                           ; [Kernel0]/misc5.asm
+xref    PutOSFrame_BC                           ; [Kernel0]/memmisc.asm
+xref    CopyMemBHL_DE                           ; [Kernel0]/memmisc.asm
 
 
 ;       ----

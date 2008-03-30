@@ -43,8 +43,8 @@ xref    Delay300Kclocks                         ; [Kernel0]/boot.asm
 xref    ExpandMachine                           ; [Kernel0]/reset13.asm
 xref    InitSlotRAM                             ; [Kernel0]/memory.asm
 xref    MountAllRAM                             ; [Kernel0]/resetx.asm
-xref    MS12BankCB                              ; [Kernel0]/misc5.asm
-xref    MS2BankK1                               ; [Kernel0]/misc5.asm
+xref    MS12BankCB                              ; [Kernel0]/memmisc.asm
+xref    MS2BankK1                               ; [Kernel0]/memmisc.asm
 xref    NMIMain                                 ; [Kernel0]/nmi.asm
 
 xref    ChkCardChange                           ; [Kernel1]/card1.asm

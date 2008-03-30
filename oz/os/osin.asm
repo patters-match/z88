@@ -63,10 +63,10 @@ xref    ResetTimeout                            ; [Kernel0]/nmi.asm
 xref    ExtQualifiers                           ; [Kernel0]/kbd.asm
 xref    IsForeignKey                            ; [Kernel0]/kbd.asm
 xref    MayDrawOZwd                             ; [Kernel0]/misc3.asm
-xref    OSFramePop                              ; [Kernel0]/misc4.asm
-xref    OSFramePush                             ; [Kernel0]/misc4.asm
-xref    AtoN_upper                              ; [Kernel0]/misc5.asm
-xref    PutOSFrame_BC                           ; [Kernel0]/misc5.asm
+xref    OSFramePop                              ; [Kernel0]/stkframe.asm
+xref    OSFramePush                             ; [Kernel0]/stkframe.asm
+xref    AtoN_upper                              ; [Kernel0]/memmisc.asm
+xref    PutOSFrame_BC                           ; [Kernel0]/memmisc.asm
 xref    BfGbt                                   ; [Kernel0]/buffer.asm
 xref    BfPur                                   ; [Kernel0]/buffer.asm
 xref    DoAlarms                                ; [Kernel0]/osalm0.asm

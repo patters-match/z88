@@ -44,9 +44,9 @@ xdef    OSMap
 
 xref    Chk128KB                                ; [Kernel0]/memory.asm
 xref    GetWindowFrame                          ; [Kernel0]/scrdrv2.asm
-xref    PeekHLinc                               ; [Kernel0]/misc5.asm
-xref    PokeBHL                                 ; [Kernel0]/misc5.asm
-xref    PutOSFrame_BC                           ; [Kernel0]/misc5.asm
+xref    PeekHLinc                               ; [Kernel0]/memmisc.asm
+xref    PokeBHL                                 ; [Kernel0]/memmisc.asm
+xref    PutOSFrame_BC                           ; [Kernel0]/memmisc.asm
 xref    ScreenClose                             ; [Kernel0]/scrdrv4.asm
 xref    ScreenOpen                              ; [Kernel0]/scrdrv4.asm
 

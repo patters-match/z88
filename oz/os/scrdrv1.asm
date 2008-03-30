@@ -55,8 +55,8 @@ xdef    GetWindowNum                            ; screen driver code reference
 xdef    ScrDrvAttrTable                         ; screen driver code reference
 
 
-xref    AtoN_upper                              ; [Kernel0]/misc5.asm
-xref    CopyMemDE_BHL                           ; [Kernel0]/misc5.asm
+xref    AtoN_upper                              ; [Kernel0]/memmisc.asm
+xref    CopyMemDE_BHL                           ; [Kernel0]/memmisc.asm
 
 xref    CallFuncDE                              ; [Kernel0]/scrdrv4.asm
 xref    ClearCarry                              ; [Kernel0]/scrdrv4.asm

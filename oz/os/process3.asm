@@ -75,11 +75,11 @@ xref    DrawOZwd                                ; [Kernel0]/ozwindow.asm
 xref    InitApplWd                              ; [Kernel0]/scrdrv3.asm
 xref    ScreenClose                             ; [Kernel0]/scrdrv4.asm
 xref    ScreenOpen                              ; [Kernel0]/scrdrv4.asm
-xref    MS1BankB                                ; [Kernel0]/misc5.asm
-xref    MS2BankK1                               ; [Kernel0]/misc5.asm
-xref    PutOSFrame_BHL                          ; [Kernel0]/misc5.asm
-xref    OSFramePush                             ; [Kernel0]/misc4.asm
-xref    OSFramePop                              ; [Kernel0]/misc4.asm
+xref    MS1BankB                                ; [Kernel0]/memmisc.asm
+xref    MS2BankK1                               ; [Kernel0]/memmisc.asm
+xref    PutOSFrame_BHL                          ; [Kernel0]/memmisc.asm
+xref    OSFramePush                             ; [Kernel0]/stkframe.asm
+xref    OSFramePop                              ; [Kernel0]/stkframe.asm
 xref    SetActiveAppDOR                         ; [Kernel0]/mth0.asm
 
 xref    ChkStkLimits                            ; [Kernel1]/process1.asm

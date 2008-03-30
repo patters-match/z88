@@ -15,11 +15,11 @@
 
 xdef    OSCli
 
-xref    OSFramePop                              ; [Kernel0]/misc4.asm
-xref    OSFramePush                             ; [Kernel0]/misc4.asm
-xref    AtoN_upper                              ; [Kernel0]/misc5.asm
-xref    PutOSFrame_BC                           ; [Kernel0]/misc5.asm
-xref    PutOSFrame_DE                           ; [Kernel0]/misc5.asm
+xref    OSFramePop                              ; [Kernel0]/stkframe.asm
+xref    OSFramePush                             ; [Kernel0]/stkframe.asm
+xref    AtoN_upper                              ; [Kernel0]/memmisc.asm
+xref    PutOSFrame_BC                           ; [Kernel0]/memmisc.asm
+xref    PutOSFrame_DE                           ; [Kernel0]/memmisc.asm
 xref    SetPendingOZwd                          ; [Kernel0]/misc3.asm
 xref    RdKbBuffer                              ; [Kernel0]/osin.asm
 xref    ExtQualifiers                           ; [Kernel0]/kbd.asm
