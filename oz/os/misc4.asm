@@ -15,8 +15,6 @@ xdef    OSFramePush
 xdef    OSFramePushMain
 xdef    OSFramePop
 xdef    OSFramePopX
-xdef    OSBox
-xdef    OSBix
 xdef    OSBixS1
 xdef    OSBoxS1
 
@@ -78,62 +76,6 @@ xref    MS1BankA                                ; [Kernel0]/misc5.asm
         pop     de                              ; 0A - DE
         pop     hl                              ; 0C - HL
         jp      OZCallReturn1                   ; restore S2S3 and return
-
-;       ----
-
-;       restore bindings after OS_Bix
-
-.OSBox
-        exx
-        ld      (BLSC_SR1), de
-        jr      bix_3
-
-;       ----
-
-; bind in extended address
-
-.OSBix
-        exx
-        ld      de, (BLSC_SR1)                  ; remember S2S1 in de'
-        push    bc
-        inc     b
-        dec     b
-        jr      nz, bix_far                     ; bind in BHL
-
-        ld      b, (iy+OSFrame_S3)
-        ld      c, (iy+OSFrame_S2)
-        bit     7, h
-        jr      z, bix_4                        ; not kernel space, no bankswitching
-
-        bit     6, h
-        jr      z, bix_S2                       ; HL in S2 - S1=caller S2, S2=caller S3
-
-;       HL in S3
-
-        ld      c, b                            ; S1=caller S3
-        ld      b, d                            ; S2=caller S2
-        jr      bix_S2
-
-.bix_far
-        ld      c, b                            ; S1=B
-        inc     b                               ; S2=B+1
-.bix_S2
-        ld      (BLSC_SR1), bc                  ; store pointers
-        pop     bc
-
-        ld      b, 0                            ; HL=local
-        res     7, h                            ; S1 fix
-        set     6, h
-.bix_3
-        push    bc
-        ld      bc, (BLSC_SR1)
-        call    MS12BankCB
-
-.bix_4
-        pop     bc
-        ex      af, af'
-        or      a
-        jp      OZCallReturn1
 
 ; -----------------------------------------------------------------------------
 ;
