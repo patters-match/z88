@@ -23,6 +23,8 @@
 
 @echo off
 
+del *.err
+
 :COMPILE_KEYMAPS
 ..\..\tools\mpm\mpm -bg -DOZ_SLOT%1 -I..\def keymaps.asm
 dir *.err 2>nul >nul || goto COMPILE_LORES1
