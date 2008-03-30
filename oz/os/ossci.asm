@@ -42,8 +42,22 @@ xref    InitSBF                                 ; [Kernel0]/scrdrv3.asm
 xref    ScreenClose                             ; [Kernel0]/scrdrv4.asm
 xref    ScreenOpen                              ; [Kernel0]/scrdrv4.asm
 
-xref    OSSciTable                              ; [Kernel1]/osscitable.asm
+; -----------------------------------------------------------------------------
+;
+; granularity table used by OSSci
+; ! must start a page in kernel 1 !
+;
+; -----------------------------------------------------------------------------
 
+.OSSciTable
+        defb 0, 3, 6, 7, 5, 5                   ; #low bits ignored
+
+IF (<$linkaddr(OSSciTable)) <> 0
+        ERROR "OS_SCI table must start a page at $00!"
+ENDIF
+
+; -----------------------------------------------------------------------------
+;
 ; alter screen information
 ;
 ;IN:    A=reason code
@@ -57,6 +71,8 @@ xref    OSSciTable                              ; [Kernel1]/osscitable.asm
 ;OUT:   Fc=0, BHL = old pointer address
 ;       Fc=1, A=error if fail
 ;chg:   AFBCDEHL/....
+;
+; -----------------------------------------------------------------------------
 
 .OSSci
         or      a

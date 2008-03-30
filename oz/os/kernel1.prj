@@ -22,7 +22,7 @@
 ;***************************************************************************************************
 
 kernel1.asm
-osscitable.asm
+ossci.asm
 clitables.asm
 osepr/osepr.asm
 osepr/eprreqst.asm
@@ -57,7 +57,6 @@ osfep/feprdcfla.asm
 osfep/fepstdhd.asm
 osfep/fepwrblk.asm
 osfep/fepwrbyt.asm
-ossci.asm
 reset.asm
 misc1.asm
 osalm1.asm
