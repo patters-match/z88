@@ -40,7 +40,7 @@ ossi0.asm
 time.asm
 stkframe.asm
 knlbind.asm
-handle.asm
+handle0.asm
 memmisc.asm
 int.asm
 random.asm

@@ -1,5 +1,5 @@
 ; **************************************************************************************************
-; Handle functions
+; Handle functions in kernel 0
 ;
 ; This file is part of the Z88 operating system, OZ.     0000000000000000      ZZZZZZZZZZZZZZZZZZZ
 ;                                                       000000000000000000   ZZZZZZZZZZZZZZZZZZZ
@@ -30,7 +30,7 @@
 ; $Id$
 ; ***************************************************************************************************
 
-        Module Handle
+        Module Handle0
 
         include "error.def"
         include "handle.def"

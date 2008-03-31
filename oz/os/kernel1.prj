@@ -58,7 +58,7 @@ osfep/fepstdhd.asm
 osfep/fepwrblk.asm
 osfep/fepwrbyt.asm
 reset.asm
-misc1.asm
+handle1.asm
 osalm1.asm
 oscli.asm
 process1.asm
