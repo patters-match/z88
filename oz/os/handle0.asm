@@ -51,6 +51,7 @@ xdef    VerifyHandle
 xref    OSFramePush                             ; [Kernel0]/stkframe.asm
 xref    OSFramePop                              ; [Kernel0]/stkframe.asm
 xref    PutOSFrame_HL                           ; [Kernel0]/stkframe.asm
+xref    OSFnMain                                ; [Kernel1]/handle1.asm
 
 ; -----------------------------------------------------------------------------
 ;
@@ -326,44 +327,6 @@ xref    PutOSFrame_HL                           ; [Kernel0]/stkframe.asm
 
 .OSFn
         call    OSFramePush
-        ld      h, b                            ; exg a,b
-        ld      b, a
-        ld      a, h
-        call    osfn_ah
+        call    OSFnMain
         jp      OSFramePop
 
-.osfn_ah
-        djnz    osfn_vh
-
-;       FN_AH, allocate handle
-
-;IN:    B=type
-;OUT:   Fc=0, IX=handle
-;       Fc=1, A=error
-
-        jp      AllocHandle
-
-.osfn_vh
-        djnz    osfn_fh
-
-;       FN_VH, verify handle
-;IN:    IX=handle, B=type
-;OUT:   Fc=0 if OK
-;       Fc=1, A=error
-
-        jp      VerifyHandle
-
-.osfn_fh
-        djnz    osfn_unk
-
-;       FN_FH, free handle
-;IN:    IX=handle, B=type
-;OUT:   Fc=0 if OK
-;       Fc=1, A=error
-
-        jp      FreeHandle
-
-.osfn_unk
-        ld      a, RC_Unk
-        scf
-        ret

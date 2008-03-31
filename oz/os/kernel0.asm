@@ -86,8 +86,9 @@ IF COMPILE_BINARY
         xdef    ChkCardChange                   ; [Kernel1]/card1.asm
         xdef    StoreCardIDs                    ; [Kernel1]/card1.asm
 
-        xdef    InitHandle                      ; [Kernel1]/misc1.asm
-        xdef    RAMxDOR                         ; [Kernel1]/misc1.asm
+        xdef    OSFnMain                        ; [Kernel1]/handle1.asm
+        xdef    InitHandle                      ; [Kernel1]/handle1.asm
+        xdef    RAMxDOR                         ; [Kernel1]/handle1.asm
 
         xdef    FileNameDate                    ; [Kernel1]/filesys1.asm
         xdef    IsSpecialHandle                 ; [Kernel1]/filesys1.asm
