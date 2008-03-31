@@ -141,12 +141,12 @@ xref    Zero_ctrlprefix                         ; [Kernel1]/scrdrv1.asm
         ex      de, hl
         ld      a, (hl)
         ld      e, a                            ; tLo
-        xor     $FF                             ; !! 'cpl'
+        cpl
         ld      c, a                            ; ~tLo
         inc     hl
         ld      a, (hl)
         ld      d, a                            ; tHi
-        xor     $FF                             ; !! 'cpl'
+        cpl
         ld      b, a                            ; ~tHi
         pop     hl
         pop     af
@@ -409,8 +409,7 @@ xref    Zero_ctrlprefix                         ; [Kernel1]/scrdrv1.asm
 .ScrollLock
         ld      a, $bf                          ; row6
         in      a, (BL_KBD)
-        add     a, $50                          ; check for sh-l and <> !! add a,$51
-        inc     a
+        add     a, $51                          ; check for sh-l and <>
         jr      z, ScrollLock
         ret
 
@@ -444,7 +443,7 @@ xref    Zero_ctrlprefix                         ; [Kernel1]/scrdrv1.asm
 .ff_2
         call    ceol_1
         ret     c
-        call    GetWdStartX                     ; !! stupidity, ld it here
+        ld      l, (ix+wdf_startx)
         ld      e, (ix+wdf_flagsHi)
         push    de
         res     WDFH_B_VSCROLL, (ix+wdf_flagsHi)
@@ -455,7 +454,6 @@ xref    Zero_ctrlprefix                         ; [Kernel1]/scrdrv1.asm
 
 .GetWdStartXY
         ld      h, (ix+wdf_starty)
-.GetWdStartX
         ld      l, (ix+wdf_startx)
         ret
 
