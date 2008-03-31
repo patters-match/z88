@@ -49,6 +49,8 @@ ELSE
         xref    OSAlm                           ; [Kernel0]/misc2.asm
         xref    OSPrt                           ; [Kernel0]/osprt.asm
         xref    OzCallInvalid                   ; [Kernel0]/misc2.asm
+        xref    OSBix                           ; [Kernel0]/knlbind.asm
+        xref    OSBox                           ; [Kernel0]/knlbind.asm
         xref    OSFramePop                      ; [Kernel0]/stkframe.asm
         xref    OSAxp                           ; [Kernel0]/memory.asm
         xref    OSFc                            ; [Kernel0]/memory.asm
@@ -145,8 +147,8 @@ ENDIF
         jp      OSMfr
         jp      OSMgb
         jp      OSMpb
-        jp      OzCallInvalid                   ; OSBix removed
-        jp      OzCallInvalid                   ; OSBox removed
+        jp      OSBix
+        jp      OSBox
         jp      OSNq
         jp      OSSp
         jp      OSSr
