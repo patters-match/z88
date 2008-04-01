@@ -149,7 +149,7 @@ xref    StorePrefixed                           ; [Kernel1]/scrdrv1.asm
         inc     hl
         pop     af
         inc     a
-        cp      37                              ; 37 translations
+        cp      SV_PRINTER_TRANSLATIONS
         jr      nz, init_1
 
         call    InitAttrs
@@ -233,7 +233,6 @@ xref    StorePrefixed                           ; [Kernel1]/scrdrv1.asm
         ld      (StackBufPtr), hl
 
         ld      (prtInChar), a
-        ld      ix, phnd_Com
         call    PrntCharMain2
         jr      PrntExit
 
@@ -277,12 +276,12 @@ xref    StorePrefixed                           ; [Kernel1]/scrdrv1.asm
         or      a
         jr      z, PutChar
 
-        ld      bc, 37
+        ld      bc, SV_PRINTER_TRANSLATIONS
         ld      hl, Translations
         cpir
         jr      nz, PutChar                     ; not found, print as is
 
-        ld      a, 36                           ; print output string
+        ld      a, SV_PRINTER_TRANSLATIONS-1    ; print output string
         sub     c
         call    GetNq_BC
         inc     bc
@@ -361,7 +360,8 @@ xref    StorePrefixed                           ; [Kernel1]/scrdrv1.asm
         pop     hl
         ret     z
 
-        OZ      OS_Pb                           ; write byte to printer handle
+        ld      ix, phnd_Com                    ; serial port process handle
+        OZ      OS_Pb                           ; write byte...
         ret
 
 ;       ----
@@ -490,7 +490,6 @@ xref    StorePrefixed                           ; [Kernel1]/scrdrv1.asm
 ;       $ - output hex char
 
 .SendHex
-        ld      ix, phnd_Com
         ld      hl, (CtrlBuf)
         inc     hl                              ; skip '$'
 
@@ -500,7 +499,7 @@ xref    StorePrefixed                           ; [Kernel1]/scrdrv1.asm
 
         ld      a, (hl)
         inc     hl
-        call    AtoH                            ; high nybble
+        call    AtoH                            ; high nibble
         ret     nc
         add     a, a                            ; *16
         add     a, a
@@ -508,7 +507,7 @@ xref    StorePrefixed                           ; [Kernel1]/scrdrv1.asm
         add     a, a
         ld      c, a
         ld      a, (hl)
-        call    AtoH                            ; low nybble
+        call    AtoH                            ; low nibble
         ret     nc
         add     a, c
         jp      PutChar
@@ -527,8 +526,7 @@ xref    StorePrefixed                           ; [Kernel1]/scrdrv1.asm
         cp      16
         ret
 
-;       [ - turn filter on
-
+; [ - turn filter on
 .FilterOn
         push    de
         ld      l, SI_SFT                       ; soft reset serial
@@ -542,8 +540,7 @@ xref    StorePrefixed                           ; [Kernel1]/scrdrv1.asm
         ld      bc, PA_Pon                      ; print Pon
         jr      PrntOSNq
 
-;       ] - turn filter off
-
+; ] - turn filter off
 .FilterOff
         ld      bc, PA_Pof                      ; print Pof
         call    PrntOSNq
@@ -552,8 +549,7 @@ xref    StorePrefixed                           ; [Kernel1]/scrdrv1.asm
         res     PRT_B_ENABLED, (hl)
         ret
 
-;       h - microspace
-
+; h - microspace
 .Microspace
         ld      a, (CtrlLen)                    ; length<>2, exit
         xor     2
@@ -582,17 +578,14 @@ xref    StorePrefixed                           ; [Kernel1]/scrdrv1.asm
         ld      bc, PA_Mis                      ; print Mis
         ld      de, (StackBufPtr)
 
-;       get parameter and print it
-
+; get parameter and print it
 .PrntOSNq
         ld      a, $20
         OZ      OS_Nq
 
-;       print stack buffer
-
+; print stack buffer
 .PrntStackBuffer
         ld      b, a
-        ld      ix, phnd_Com
         ld      a, b                            ; length = 0, exit
         or      a
         ret     z
@@ -606,8 +599,7 @@ xref    StorePrefixed                           ; [Kernel1]/scrdrv1.asm
         djnz    psb_1
         ret
 
-;       reset attributes
-
+; reset attributes
 .ResetAttrs
         ld      hl, AttrUserdef
         ld      b, 8
@@ -628,8 +620,7 @@ xref    StorePrefixed                           ; [Kernel1]/scrdrv1.asm
         or      a
         ret
 
-;       p - set page length
-
+; p - set page length
 .SetPageLen
         ld      a, (CtrlLen)                    ; length<>2, exit
         xor     2
@@ -645,11 +636,9 @@ xref    StorePrefixed                           ; [Kernel1]/scrdrv1.asm
         ret
 
 ;       ----
-
 .ApplyAttrs
         ld      hl, AttrUserdef
         ld      b, 8
-
 .aa_1
         ld      a, (hl)
         bit     PRA_B_PENDING, a
@@ -670,7 +659,6 @@ xref    StorePrefixed                           ; [Kernel1]/scrdrv1.asm
         ret
 
 ;       ----
-
 .ToggleAttr
         push    bc
         push    hl
@@ -706,7 +694,6 @@ xref    StorePrefixed                           ; [Kernel1]/scrdrv1.asm
         ret
 
 ;       ----
-
 .PrntSpaces
         ld      a, (PendingSpaces)
         or      a
@@ -715,8 +702,6 @@ xref    StorePrefixed                           ; [Kernel1]/scrdrv1.asm
         push    bc
         ld      b, a
         ld      a, ' '
-        ld      ix, phnd_Com
-
 .spc_1
         call    PutChar
         jr      c, spc_2
@@ -731,8 +716,6 @@ xref    StorePrefixed                           ; [Kernel1]/scrdrv1.asm
         ret
 
 ;       ----
-
-
 .DoOSNq
         ld      de, 2
         OZ      OS_Nq                           ; enquire (fetch) parameter

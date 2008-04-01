@@ -69,6 +69,7 @@ defc    SV_HANDLE_RAM          = $0800          ; 1024 bytes, all used
 defc    SV_EXTERN_RAM          = $0C00          ; 1024 bytes, 406 used
 ; $1000-$17FF is swap ram
 defc    SV_PROCESS_RAM         = $1800
+defc    SV_PRINTER_TRANSLATIONS = 37            ; number of translation entries in printer filter
 
 ; --------------------
 ; KERNEL VARIABLE AREA
@@ -166,7 +167,7 @@ defvars SV_KERNEL_RAM
         eAppHelp_2              ds.p    1
         eAppTokens_2            ds.p    1
                                 ds.b    13      ; panel bug if removed (try to reduce and define correctly length to erase)
-                                
+
 ; System (16):
         pAppEnvHandle           ds.w    1
         uwFreeRAMPages          ds.w    1
@@ -208,7 +209,7 @@ defvars SV_KERNEL_RAM
         CtrlBuf                 ds.w    1
         CtrlLen                 ds.b    1
         prtInChar               ds.b    1
-        Translations            ds.b    37
+        Translations            ds.b    SV_PRINTER_TRANSLATIONS
         PlaceHolderChar         ds.b    1
         PendingSpaces           ds.b    1
         Rows                    ds.b    1
