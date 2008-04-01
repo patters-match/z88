@@ -42,8 +42,8 @@
         include "sysvar.def"
 
 
-xdef    OSPrtInit                               ; [Kernel0]/pagfi.asm
-xdef    OSPrtPrint                              ; [Kernel0]/misc2.asm
+xdef    OSPrtInit
+xdef    OSPrtPrint
 
 xref    ScreenOpen                              ; [Kernel0]/scrdrv4.asm
 xref    ScreenClose                             ; [Kernel0]/scrdrv4.asm

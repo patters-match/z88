@@ -43,12 +43,12 @@ ELSE
         xref    OSDly                           ; [Kernel0]/osin.asm
         xref    OSPur                           ; [Kernel0]/osin.asm
         xref    OSXin                           ; [Kernel0]/osin.asm
-        xref    CallDC                          ; [Kernel0]/misc2.asm
-        xref    CallGN                          ; [Kernel0]/misc2.asm
-        xref    CallOS2byte                     ; [Kernel0]/misc2.asm
-        xref    OSAlm                           ; [Kernel0]/misc2.asm
+        xref    CallDC                          ; [Kernel0]/oz2call.asm
+        xref    CallGN                          ; [Kernel0]/oz2call.asm
+        xref    CallOS2byte                     ; [Kernel0]/oz2call.asm
+        xref    OSAlm                           ; [Kernel0]/osalm0.asm
         xref    OSPrt                           ; [Kernel0]/osprt.asm
-        xref    OzCallInvalid                   ; [Kernel0]/misc2.asm
+        xref    OzCallInvalid                   ; [Kernel0]/oz2call.asm
         xref    OSBix                           ; [Kernel0]/knlbind.asm
         xref    OSBox                           ; [Kernel0]/knlbind.asm
         xref    OSFramePop                      ; [Kernel0]/stkframe.asm
@@ -80,7 +80,7 @@ ELSE
         xref    OSOp                            ; [Kernel0]/filesys2.asm
         xref    OSPb                            ; [Kernel0]/filesys2.asm
         xref    OSPbt                           ; [Kernel0]/filesys2.asm
-        xref    OSCli                           ; [Kernel0]/oscli0.asm
+        xref    OSCli                           ; [Kernel0]/oscli.asm
         xref    OSDor                           ; [Kernel0]/dor.asm
         xref    OSErc                           ; [Kernel0]/error.asm
         xref    OSErh                           ; [Kernel0]/error.asm

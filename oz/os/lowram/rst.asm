@@ -160,10 +160,10 @@
         jr      OZCallReturnCommon
 
 .OZCallReturn1                                  ; ret with AFBCDEHL
-        exx                                     ; called from buffer.asm, memory.asm, misc4.asm, ossi.asm
+        exx                                     ; called from buffer.asm, memory.asm, stkframe.asm, ossi.asm
 
 .OZCallReturn2                                  ; ret with AFbcdehl
-        ex      af, af'                         ; called from buffer.asm, error.asm, esc.asm, memory.asm, misc2.asm, oscli0.asm
+        ex      af, af'                         ; called from buffer.asm, error.asm, esc.asm, memory.asm, oz2call.asm, oscli.asm
 
 .OZCallReturn3                                  ; ret with afbcdehl
         exx                                     ; called from buffer.asm

@@ -30,7 +30,7 @@
 ; $Id$
 ;***************************************************************************************************
 
-        Module  misc2
+        Module  OZ2call
 
         include "error.def"
         include "director.def"
