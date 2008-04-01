@@ -90,7 +90,7 @@ IF COMPILE_BINARY
         xdef    Chk128KBslot0                   ; [Kernel0]/memory.asm
         xdef    MountAllRAM                     ; [Kernel0]/memory.asm
         xdef    VerifySlotType                  ; [Kernel0]/memory.asm
-        
+
         xdef    GetDORType                      ; [Kernel0]/dor.asm
         xdef    DORHandleFreeDirect             ; [Kernel0]/dor.asm
         xdef    DORHandleFree                   ; [Kernel0]/dor.asm
@@ -139,6 +139,7 @@ IF COMPILE_BINARY
         xdef    sub_EFBB                        ; [Kernel0]/osin.asm
         xdef    RdKbBuffer                      ; [Kernel0]/osin.asm
 
+        xdef    OSPbtMain                       ; [Kernel0]/filesys2.asm
         xdef    FreeMemData                     ; [Kernel0]/filesys3.asm
         xdef    FreeMemData0                    ; [Kernel0]/filesys3.asm
         xdef    InitFsMemHandle                 ; [Kernel0]/filesys3.asm

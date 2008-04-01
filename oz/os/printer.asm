@@ -47,13 +47,16 @@ xdef    OSPrtPrint
 
 xref    ScreenOpen                              ; [Kernel0]/scrdrv4.asm
 xref    ScreenClose                             ; [Kernel0]/scrdrv4.asm
+xref    OSPbtMain                               ; [Kernel0]/filesys2.asm
 xref    OSIsq                                   ; [Kernel1]/scrdrv1.asm
 xref    StorePrefixed                           ; [Kernel1]/scrdrv1.asm
 
 
 ; -----------------------------------------------------------------------------
 ;       OSPrtPrint
-;       print control sequence or char to printer filter
+;       Print control sequence or char to printer filter.
+;       Called from OS_PRT.
+;       Stack frame is established (OSFramePush).
 ;
 ;       IN:     A = character to be written to printer filter
 ;       OUT:    success Fc = 0, failure Fc = 1 and A = RC_ESC or RC_WP
@@ -321,7 +324,6 @@ xref    StorePrefixed                           ; [Kernel1]/scrdrv1.asm
         ld      hl, Flags
         bit     PRT_B_ALLOWLF, (hl)             ; next line if allowed
         jr      nz, lf_1
-
         jr      PutChar                         ; otherwise just CR
 
 ;       ----
@@ -334,7 +336,6 @@ xref    StorePrefixed                           ; [Kernel1]/scrdrv1.asm
         ld      hl, Flags                       ; was LF done by CR already?
         bit     PRT_B_ALLOWLF, (hl)
         ret     nz
-
         ld      a, 10                           ; otherwise print LF
 
 .lf_1
@@ -361,7 +362,10 @@ xref    StorePrefixed                           ; [Kernel1]/scrdrv1.asm
         ret     z
 
         ld      ix, phnd_Com                    ; serial port process handle
-        OZ      OS_Pb                           ; write byte...
+        push    bc
+        ld      bc, -1                          ; no timeout
+        call    OSPbtMain                       ; write byte to port...
+        pop     bc
         ret
 
 ;       ----

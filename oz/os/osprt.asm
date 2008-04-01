@@ -46,9 +46,6 @@ xref    OSPrtPrint                              ; [Kernel1]/printer.asm
 
 .OSPrt
         call    OSFramePush
-;        ex      af, af'                         ; we need screen because prt sequence buffer is in SBF
-;        call    ScreenOpen                      ; !! this is also done in OSPrtMain, unnecessary here?
-;        ex      af, af'
 
         ld      hl, (ubCLIActiveCnt)            ; !! just L
         inc     l
@@ -64,9 +61,5 @@ xref    OSPrtPrint                              ; [Kernel1]/printer.asm
 
 .prt_2
         extcall OSPrtPrint, OZBANK_KNL1
-
 .prt_x
-;        ex      af, af'
-;        call    ScreenClose
-;        ex      af, af'
         jp      OSFramePop
