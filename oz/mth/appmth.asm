@@ -1664,107 +1664,624 @@ xdef    FlashStoreTopics, FlashStoreCommands, FlashStoreHelp
 ; MTH for PrinterEd application...
 ;
 .PrinterEdTopics
-        defb    0
-        defb    4,$DC,0,4
-        defb    4,$FD,0,4
-        defb    0
+        defb    0	; Start topic marker
+
+.PrinterEd_tpc1
+        defb    PrinterEd_tpc1_end-PrinterEd_tpc1+1	; Length of topic
+        defm    $dc
+        defb    $00	; Topic attribute
+.PrinterEd_tpc1_end
+        defb    PrinterEd_tpc1_end-PrinterEd_tpc1+1
+
+.PrinterEd_tpc2
+        defb    PrinterEd_tpc2_end-PrinterEd_tpc2+1	; Length of topic
+        defm    $fd
+        defb    $00	; Topic attribute
+.PrinterEd_tpc2_end
+        defb    PrinterEd_tpc2_end-PrinterEd_tpc2+1
+
+        defb    0	; End topic marker
+
 .PrinterEdCommands
-        defm    0
-        defm    8,$26,$4A,0,$97,$EC,0,8                                 ; Next Option
-        defm    7,$0D,$E1,0,$D2,0,7                                     ; ENTER
-        defm    7,$1B,$1B,0,$B1,0,7                                     ; ESCAPE
-        defm    7,$FD,$FD,0,$A7,1,7                                     ; Cursor LRUD
-        defm    7,$FC,$FC,0,$A8,0,7
-        defm    7,$24,$FF,0,$DA,0,7
-        defm    7,$25,$FE,0,$DB,0,7
-        defm    14,$27,$FB,0,"Page 1/2",1,14                            ; Page 1/2
-        defm    14,$28,$FA,0,"Page 2/2",0,14                            ; Page 2/2
-        defm    24,$2E,$49,$53,$4F,0,"ISO Translations",0,24            ; ISO Translations
-        defm    1
-        defm    8,$29,$46,$4C,0,$E1,0,8
-        defm    9,$2A,$46,$53,0,$BD,$65,0,9
-        defm    10,$2B,$46,$43,0,$4E,$ED,$65,0,10
-        defm    12,$2C,$46,"NEW",0,"New",0,12
-        defm    16,$2D,$46,$55,0,$B9,$64,$91,$82,$44,$72,$69,$76,$86,0,16
-        defb    0
+        defb    0	; Start command marker
+
+.PrinterEd_cmd1
+        defb    PrinterEd_cmd1_end-PrinterEd_cmd1+1	; Length of command
+        defb    $26	; command code
+        defm    "J", $00
+        defm    $97, $ec
+        defb    $00	; Command attribute
+.PrinterEd_cmd1_end
+        defb    PrinterEd_cmd1_end-PrinterEd_cmd1+1
+
+.PrinterEd_cmd2
+        defb    PrinterEd_cmd2_end-PrinterEd_cmd2+1	; Length of command
+        defb    $0d	; command code
+        defm    $e1, $00
+        defm    $d2
+        defb    $00	; Command attribute
+.PrinterEd_cmd2_end
+        defb    PrinterEd_cmd2_end-PrinterEd_cmd2+1
+
+.PrinterEd_cmd3
+        defb    PrinterEd_cmd3_end-PrinterEd_cmd3+1	; Length of command
+        defb    $1b	; command code
+        defm    $1b, $00
+        defm    $b1
+        defb    $00	; Command attribute
+.PrinterEd_cmd3_end
+        defb    PrinterEd_cmd3_end-PrinterEd_cmd3+1
+
+.PrinterEd_cmd4
+        defb    PrinterEd_cmd4_end-PrinterEd_cmd4+1	; Length of command
+        defb    $fd	; command code
+        defm    $fd, $00
+        defm    $a7
+        defb    $01	; Command attribute
+.PrinterEd_cmd4_end
+        defb    PrinterEd_cmd4_end-PrinterEd_cmd4+1
+
+.PrinterEd_cmd5
+        defb    PrinterEd_cmd5_end-PrinterEd_cmd5+1	; Length of command
+        defb    $fc	; command code
+        defm    $fc, $00
+        defm    $a8
+        defb    $00	; Command attribute
+.PrinterEd_cmd5_end
+        defb    PrinterEd_cmd5_end-PrinterEd_cmd5+1
+
+.PrinterEd_cmd6
+        defb    PrinterEd_cmd6_end-PrinterEd_cmd6+1	; Length of command
+        defb    $24	; command code
+        defm    $ff, $00
+        defm    $da
+        defb    $00	; Command attribute
+.PrinterEd_cmd6_end
+        defb    PrinterEd_cmd6_end-PrinterEd_cmd6+1
+
+.PrinterEd_cmd7
+        defb    PrinterEd_cmd7_end-PrinterEd_cmd7+1	; Length of command
+        defb    $25	; command code
+        defm    $fe, $00
+        defm    $db
+        defb    $00	; Command attribute
+.PrinterEd_cmd7_end
+        defb    PrinterEd_cmd7_end-PrinterEd_cmd7+1
+
+.PrinterEd_cmd8
+        defb    PrinterEd_cmd8_end-PrinterEd_cmd8+1	; Length of command
+        defb    $27	; command code
+        defm    $fb, $00
+        defm    "Page 1/2"
+        defb    $01	; Command attribute
+.PrinterEd_cmd8_end
+        defb    PrinterEd_cmd8_end-PrinterEd_cmd8+1
+
+.PrinterEd_cmd9
+        defb    PrinterEd_cmd9_end-PrinterEd_cmd9+1	; Length of command
+        defb    $28	; command code
+        defm    $fa, $00
+        defm    "Page 2/2"
+        defb    $00	; Command attribute
+.PrinterEd_cmd9_end
+        defb    PrinterEd_cmd9_end-PrinterEd_cmd9+1
+
+.PrinterEd_cmd10
+        defb    PrinterEd_cmd10_end-PrinterEd_cmd10+1	; Length of command
+        defb    $2e	; command code
+        defm    "ISO", $00
+        defm    "ISO Translations"
+        defb    $00	; Command attribute
+.PrinterEd_cmd10_end
+        defb    PrinterEd_cmd10_end-PrinterEd_cmd10+1
+
+        defb    1	; Command topic separator
+
+.PrinterEd_cmd11
+        defb    PrinterEd_cmd11_end-PrinterEd_cmd11+1	; Length of command
+        defb    $29	; command code
+        defm    "FL", $00
+        defm    $e1
+        defb    $00	; Command attribute
+.PrinterEd_cmd11_end
+        defb    PrinterEd_cmd11_end-PrinterEd_cmd11+1
+
+.PrinterEd_cmd12
+        defb    PrinterEd_cmd12_end-PrinterEd_cmd12+1	; Length of command
+        defb    $2a	; command code
+        defm    "FS", $00
+        defm    $bd, "e"
+        defb    $00	; Command attribute
+.PrinterEd_cmd12_end
+        defb    PrinterEd_cmd12_end-PrinterEd_cmd12+1
+
+.PrinterEd_cmd13
+        defb    PrinterEd_cmd13_end-PrinterEd_cmd13+1	; Length of command
+        defb    $2b	; command code
+        defm    "FC", $00
+        defm    "N", $ed, "e"
+        defb    $00	; Command attribute
+.PrinterEd_cmd13_end
+        defb    PrinterEd_cmd13_end-PrinterEd_cmd13+1
+
+.PrinterEd_cmd14
+        defb    PrinterEd_cmd14_end-PrinterEd_cmd14+1	; Length of command
+        defb    $2c	; command code
+        defm    "FNEW", $00
+        defm    "New"
+        defb    $00	; Command attribute
+.PrinterEd_cmd14_end
+        defb    PrinterEd_cmd14_end-PrinterEd_cmd14+1
+
+.PrinterEd_cmd15
+        defb    PrinterEd_cmd15_end-PrinterEd_cmd15+1	; Length of command
+        defb    $2d	; command code
+        defm    "FU", $00
+        defm    $b9, "d", $91, $82, "Driv", $86
+        defb    $00	; Command attribute
+.PrinterEd_cmd15_end
+        defb    PrinterEd_cmd15_end-PrinterEd_cmd15+1
+
+        defb    0	; End command marker
+
 
 ; ********************************************************************************************************************
 ; MTH for Panel popdown...
 ;
+
 .PanelTopics
-        defb    0
-        defb    4,$DC,0,4
-        defb    4,$FD,0,4
-        defb    0
+        defb    0	; Start topic marker
+
+.Panel_tpc1
+        defb    Panel_tpc1_end-Panel_tpc1+1	; Length of topic
+        defm    $dc
+        defb    $00	; Topic attribute
+.Panel_tpc1_end
+        defb    Panel_tpc1_end-Panel_tpc1+1
+
+.Panel_tpc2
+        defb    Panel_tpc2_end-Panel_tpc2+1	; Length of topic
+        defm    $fd
+        defb    $00	; Topic attribute
+.Panel_tpc2_end
+        defb    Panel_tpc2_end-Panel_tpc2+1
+
+        defb    0	; End topic marker
+
 .PanelCommands
-        defb    0
-        defb    8,$26,$4A,0,$97,$EC,0,8                                 ; <>J Next Option
-        defb    7,$0D,$E1,0,$D2,0,7                                     ; ENTER
-        defb    7,$1B,$1B,0,$B1,0,7                                     ; ESC
-        defb    7,$FD,$FD,0,$A7,1,7                                     ; Cursor LRUD
-        defb    7,$FC,$FC,0,$A8,0,7
-        defb    7,$24,$FF,0,$DA,0,7
-        defb    7,$25,$FE,0,$DB,0,7
-        defb    1
-        defb    8,$29,$46,$4C,0,$E1,0,8                                 ; <>FL
-        defb    9,$2A,$46,$53,0,$BD,$65,0,9                             ; <>FS
-        defb    12,$2C,$46,$4E,$45,$57,0,$4E,$65,$77,0,12               ; <>FNEW
-        defb    0
+        defb    0	; Start command marker
+.Panel_cmd1
+        defb    Panel_cmd1_end-Panel_cmd1+1	; Length of command
+        defb    $26	; command code
+        defm    "J", $00
+        defm    $97, $ec
+        defb    $00	; Command attribute
+.Panel_cmd1_end
+        defb    Panel_cmd1_end-Panel_cmd1+1
+
+.Panel_cmd2
+        defb    Panel_cmd2_end-Panel_cmd2+1	; Length of command
+        defb    $0d	; command code
+        defm    $e1, $00
+        defm    $d2
+        defb    $00	; Command attribute
+.Panel_cmd2_end
+        defb    Panel_cmd2_end-Panel_cmd2+1
+
+.Panel_cmd3
+        defb    Panel_cmd3_end-Panel_cmd3+1	; Length of command
+        defb    $1b	; command code
+        defm    $1b, $00
+        defm    $b1
+        defb    $00	; Command attribute
+.Panel_cmd3_end
+        defb    Panel_cmd3_end-Panel_cmd3+1
+
+.Panel_cmd4
+        defb    Panel_cmd4_end-Panel_cmd4+1	; Length of command
+        defb    $fd	; command code
+        defm    $fd, $00
+        defm    $a7
+        defb    $01	; Command attribute
+.Panel_cmd4_end
+        defb    Panel_cmd4_end-Panel_cmd4+1
+
+.Panel_cmd5
+        defb    Panel_cmd5_end-Panel_cmd5+1	; Length of command
+        defb    $fc	; command code
+        defm    $fc, $00
+        defm    $a8
+        defb    $00	; Command attribute
+.Panel_cmd5_end
+        defb    Panel_cmd5_end-Panel_cmd5+1
+
+.Panel_cmd6
+        defb    Panel_cmd6_end-Panel_cmd6+1	; Length of command
+        defb    $24	; command code
+        defm    $ff, $00
+        defm    $da
+        defb    $00	; Command attribute
+.Panel_cmd6_end
+        defb    Panel_cmd6_end-Panel_cmd6+1
+
+.Panel_cmd7
+        defb    Panel_cmd7_end-Panel_cmd7+1	; Length of command
+        defb    $25	; command code
+        defm    $fe, $00
+        defm    $db
+        defb    $00	; Command attribute
+.Panel_cmd7_end
+        defb    Panel_cmd7_end-Panel_cmd7+1
+
+        defb    1	; Command topic separator
+
+.Panel_cmd8
+        defb    Panel_cmd8_end-Panel_cmd8+1	; Length of command
+        defb    $29	; command code
+        defm    "FL", $00
+        defm    $e1
+        defb    $00	; Command attribute
+.Panel_cmd8_end
+        defb    Panel_cmd8_end-Panel_cmd8+1
+
+.Panel_cmd9
+        defb    Panel_cmd9_end-Panel_cmd9+1	; Length of command
+        defb    $2a	; command code
+        defm    "FS", $00
+        defm    $bd, "e"
+        defb    $00	; Command attribute
+.Panel_cmd9_end
+        defb    Panel_cmd9_end-Panel_cmd9+1
+
+.Panel_cmd10
+        defb    Panel_cmd10_end-Panel_cmd10+1	; Length of command
+        defb    $2c	; command code
+        defm    "FNEW", $00
+        defm    "New"
+        defb    $00	; Command attribute
+.Panel_cmd10_end
+        defb    Panel_cmd10_end-Panel_cmd10+1
+
+        defb    0	; End command marker
+
 
 ; ********************************************************************************************************************
 ; MTH for Filer popdown...
 ;
 .FilerTopics
-        defb    0
-        defb    4,$D8,0,4
-        defb    0
+        defb    0	; Start topic marker
+
+.Filer_tpc1
+        defb    Filer_tpc1_end-Filer_tpc1+1	; Length of topic
+        defm    $d8
+        defb    $00	; Topic attribute
+.Filer_tpc1_end
+        defb    Filer_tpc1_end-Filer_tpc1+1
+
+        defb    0	; End topic marker
+
 .FilerCommands
-        defb    0
-        defb    15,$21,$43,$46,0,$43,$91,$95,$6F,$67,$75,$82,$FD,0,15   ; Catalogue Files
-        defb    8,$25,$43,$4F,0,$DE,0,8                                 ; Copy
-        defb    11,$26,$52,$45,0,$52,$A2,$ED,$65,0,11                   ; Rename
-        defb    10,$27,$45,$52,0,$45,$E2,$EB,0,10                       ; Erase
-        defb    12,$2A,$45,$58,0,$E8,$65,$63,$75,$AF,0,12               ; Execute
-        defb    9,$0D,$E1,0,$E3,$F8,$BA,0,9                             ; Select First File
-        defb    12,$20,$D1,0,$E3,$E8,$74,$E2,$20,$BA,0,12               ; Select Extra File
-        defb    6,$20,$E2,0,4,6                                         ; ???
-        defb    12,$2B,$43,$44,0,$43,$8D,$91,$82,$B6,1,12               ; Create Directory
-        defb    9,$28,$53,$49,0,$E3,$B6,0,9                             ; Select Directory
-        defb    9,$2E,$FB,0,$B9,$20,$B6,0,9                             ; Up Directory
-        defb    9,$2F,$FA,0,$AC,$20,$B6,0,9                             ; Down Directory
-        defb    7,$FD,$FD,0,$A7,0,7                                     ; Cursor Right
-        defb    7,$FC,$FC,0,$A8,0,7                                     ; Cursor Left
-        defb    7,$FF,$FF,0,$DA,0,7                                     ; Cursor Up
-        defb    7,$FE,$FE,0,$DB,0,7                                     ; Cursor Down
-        defb    15,$22,$43,$45,0,$43,$91,$95,$6F,$67,$75,$82,$EE,1,15   ; Catalogue EPROM
-        defb    11,$23,$45,$53,0,$BD,$82,$BB,$EE,0,11                   ; Save to EPROM
-        defb    17,$24,$45,$46,0,$46,$65,$74,$B4,$20,$66,$72,$6F,$D7,$EE,0,17   ; Fetch from EPROM
-        defb    13,$29,$53,$56,0,$E3,$44,$65,$76,$69,$C9,0,13           ; Select Device
-        defb    11,$2C,$54,$43,0,$54,$8D,$82,$DE,0,11                   ; Tree Copy
-        defb    11,$2D,$4E,$4D,0,$4E,$ED,$82,$F7,0,11                   ; Name Match
-        defb    0
+        defb    0	; Start command marker
+
+.Filer_cmd1
+        defb    Filer_cmd1_end-Filer_cmd1+1	; Length of command
+        defb    $21	; command code
+        defm    "CF", $00
+        defm    "C", $91, $95, "ogu", $82, $fd
+        defb    $00	; Command attribute
+.Filer_cmd1_end
+        defb    Filer_cmd1_end-Filer_cmd1+1
+
+.Filer_cmd2
+        defb    Filer_cmd2_end-Filer_cmd2+1	; Length of command
+        defb    $25	; command code
+        defm    "CO", $00
+        defm    $de
+        defb    $00	; Command attribute
+.Filer_cmd2_end
+        defb    Filer_cmd2_end-Filer_cmd2+1
+
+.Filer_cmd3
+        defb    Filer_cmd3_end-Filer_cmd3+1	; Length of command
+        defb    $26	; command code
+        defm    "RE", $00
+        defm    "R", $a2, $ed, "e"
+        defb    $00	; Command attribute
+.Filer_cmd3_end
+        defb    Filer_cmd3_end-Filer_cmd3+1
+
+.Filer_cmd4
+        defb    Filer_cmd4_end-Filer_cmd4+1	; Length of command
+        defb    $27	; command code
+        defm    "ER", $00
+        defm    "E", $e2, $eb
+        defb    $00	; Command attribute
+.Filer_cmd4_end
+        defb    Filer_cmd4_end-Filer_cmd4+1
+
+.Filer_cmd5
+        defb    Filer_cmd5_end-Filer_cmd5+1	; Length of command
+        defb    $2a	; command code
+        defm    "EX", $00
+        defm    $e8, "ecu", $af
+        defb    $00	; Command attribute
+.Filer_cmd5_end
+        defb    Filer_cmd5_end-Filer_cmd5+1
+
+.Filer_cmd6
+        defb    Filer_cmd6_end-Filer_cmd6+1	; Length of command
+        defb    $0d	; command code
+        defm    $e1, $00
+        defm    $e3, $f8, $ba
+        defb    $00	; Command attribute
+.Filer_cmd6_end
+        defb    Filer_cmd6_end-Filer_cmd6+1
+
+.Filer_cmd7
+        defb    Filer_cmd7_end-Filer_cmd7+1	; Length of command
+        defb    $20	; command code
+        defm    $d1, $00
+        defm    $e3, $e8, "t", $e2, " ", $ba
+        defb    $00	; Command attribute
+.Filer_cmd7_end
+        defb    Filer_cmd7_end-Filer_cmd7+1
+
+.Filer_cmd8
+        defb    Filer_cmd8_end-Filer_cmd8+1	; Length of command
+        defb    $20	; command code
+        defm    $e2, $00
+        defm    $04
+        defb    $04	; Command attribute
+.Filer_cmd8_end
+        defb    Filer_cmd8_end-Filer_cmd8+1
+
+.Filer_cmd9
+        defb    Filer_cmd9_end-Filer_cmd9+1	; Length of command
+        defb    $2b	; command code
+        defm    "CD", $00
+        defm    "C", $8d, $91, $82, $b6
+        defb    $01	; Command attribute
+.Filer_cmd9_end
+        defb    Filer_cmd9_end-Filer_cmd9+1
+
+.Filer_cmd10
+        defb    Filer_cmd10_end-Filer_cmd10+1	; Length of command
+        defb    $28	; command code
+        defm    "SI", $00
+        defm    $e3, $b6
+        defb    $00	; Command attribute
+.Filer_cmd10_end
+        defb    Filer_cmd10_end-Filer_cmd10+1
+
+.Filer_cmd11
+        defb    Filer_cmd11_end-Filer_cmd11+1	; Length of command
+        defb    $2e	; command code
+        defm    $fb, $00
+        defm    $b9, " ", $b6
+        defb    $00	; Command attribute
+.Filer_cmd11_end
+        defb    Filer_cmd11_end-Filer_cmd11+1
+
+.Filer_cmd12
+        defb    Filer_cmd12_end-Filer_cmd12+1	; Length of command
+        defb    $2f	; command code
+        defm    $fa, $00
+        defm    $ac, " ", $b6
+        defb    $00	; Command attribute
+.Filer_cmd12_end
+        defb    Filer_cmd12_end-Filer_cmd12+1
+.Filer_cmd13
+        defb    Filer_cmd13_end-Filer_cmd13+1	; Length of command
+        defb    $fd	; command code
+        defm    $fd, $00
+        defm    $a7
+        defb    $00	; Command attribute
+.Filer_cmd13_end
+        defb    Filer_cmd13_end-Filer_cmd13+1
+
+.Filer_cmd14
+        defb    Filer_cmd14_end-Filer_cmd14+1	; Length of command
+        defb    $fc	; command code
+        defm    $fc, $00
+        defm    $a8
+        defb    $00	; Command attribute
+.Filer_cmd14_end
+        defb    Filer_cmd14_end-Filer_cmd14+1
+
+.Filer_cmd15
+        defb    Filer_cmd15_end-Filer_cmd15+1	; Length of command
+        defb    $ff	; command code
+        defm    $ff, $00
+        defm    $da
+        defb    $00	; Command attribute
+.Filer_cmd15_end
+        defb    Filer_cmd15_end-Filer_cmd15+1
+
+.Filer_cmd16
+        defb    Filer_cmd16_end-Filer_cmd16+1	; Length of command
+        defb    $fe	; command code
+        defm    $fe, $00
+        defm    $db
+        defb    $00	; Command attribute
+.Filer_cmd16_end
+        defb    Filer_cmd16_end-Filer_cmd16+1
+
+.Filer_cmd17
+        defb    Filer_cmd17_end-Filer_cmd17+1	; Length of command
+        defb    $22	; command code
+        defm    "CE", $00
+        defm    "C", $91, $95, "ogu", $82, $ee
+        defb    $01	; Command attribute
+.Filer_cmd17_end
+        defb    Filer_cmd17_end-Filer_cmd17+1
+
+.Filer_cmd18
+        defb    Filer_cmd18_end-Filer_cmd18+1	; Length of command
+        defb    $23	; command code
+        defm    "ES", $00
+        defm    $bd, $82, $bb, $ee
+        defb    $00	; Command attribute
+.Filer_cmd18_end
+        defb    Filer_cmd18_end-Filer_cmd18+1
+
+.Filer_cmd19
+        defb    Filer_cmd19_end-Filer_cmd19+1	; Length of command
+        defb    $24	; command code
+        defm    "EF", $00
+        defm    "Fet", $b4, " fro", $d7, $ee
+        defb    $00	; Command attribute
+.Filer_cmd19_end
+        defb    Filer_cmd19_end-Filer_cmd19+1
+
+.Filer_cmd20
+        defb    Filer_cmd20_end-Filer_cmd20+1	; Length of command
+        defb    $29	; command code
+        defm    "SV", $00
+        defm    $e3, "Devi", $c9
+        defb    $00	; Command attribute
+.Filer_cmd20_end
+        defb    Filer_cmd20_end-Filer_cmd20+1
+
+.Filer_cmd21
+        defb    Filer_cmd21_end-Filer_cmd21+1	; Length of command
+        defb    $2c	; command code
+        defm    "TC", $00
+        defm    "T", $8d, $82, $de
+        defb    $00	; Command attribute
+.Filer_cmd21_end
+        defb    Filer_cmd21_end-Filer_cmd21+1
+
+.Filer_cmd22
+        defb    Filer_cmd22_end-Filer_cmd22+1	; Length of command
+        defb    $2d	; command code
+        defm    "NM", $00
+        defm    "N", $ed, $82, $f7
+        defb    $00	; Command attribute
+.Filer_cmd22_end
+        defb    Filer_cmd22_end-Filer_cmd22+1
+
+        defb    0	; End command marker
+
 
 ; ********************************************************************************************************************
 ; MTH for Terminal popdown...
 ;
 .TerminalTopics
-        defb    0
-        defb    4,$D8,0,4
-        defb    0
+        defb    0	; Start topic marker
+
+.Terminal_tpc1
+        defb    Terminal_tpc1_end-Terminal_tpc1+1	; Length of topic
+        defm    $d8
+        defb    $00	; Topic attribute
+.Terminal_tpc1_end
+        defb    Terminal_tpc1_end-Terminal_tpc1+1
+
+        defb    0	; End topic marker
+
 .TerminalCommands
-        defb    0
-        defb    7,2,$E3,0,$E0,0,7                               ; Rubout
-        defb    14,3,$D3,0,$42,$61,$63,$6B,$73,$70,$61,$C9,0,14 ; Backspace
-        defb    8,1,$D1,0,$E8,$FC,0,8                           ; Exit
-        defb    7,6,$FD,0,$A7,1,7                               ; Cursor Right
-        defb    7,7,$FC,0,$A8,0,7                               ; Cursor Left
-        defb    7,4,$FF,0,$DA,0,7                               ; Cursor Up
-        defb    7,5,$FE,0,$DB,0,7                               ; Cursor Down
-        defb    9,8,$F8,0,$9C,$20,$30,1,9                       ; Function 0
-        defb    9,9,$F9,0,$9C,$20,$31,0,9                       ; Function 1
-        defb    9,$0A,$FA,0,$9C,$20,$32,0,9                     ; Function 2
-        defb    9,$0B,$FB,0,$9C,$20,$33,0,9                     ; Function 3
-        defb    0
+        defb    0	; Start command marker
+
+.Terminal_cmd1
+        defb    Terminal_cmd1_end-Terminal_cmd1+1	; Length of command
+        defb    $02	; command code
+        defm    $e3, $00
+        defm    $e0
+        defb    $00	; Command attribute
+.Terminal_cmd1_end
+        defb    Terminal_cmd1_end-Terminal_cmd1+1
+
+.Terminal_cmd2
+        defb    Terminal_cmd2_end-Terminal_cmd2+1	; Length of command
+        defb    $03	; command code
+        defm    $d3, $00
+        defm    "Backspa", $c9
+        defb    $00	; Command attribute
+.Terminal_cmd2_end
+        defb    Terminal_cmd2_end-Terminal_cmd2+1
+
+.Terminal_cmd3
+        defb    Terminal_cmd3_end-Terminal_cmd3+1	; Length of command
+        defb    $01	; command code
+        defm    $d1, $00
+        defm    $e8, $fc
+        defb    $00	; Command attribute
+.Terminal_cmd3_end
+        defb    Terminal_cmd3_end-Terminal_cmd3+1
+
+.Terminal_cmd4
+        defb    Terminal_cmd4_end-Terminal_cmd4+1	; Length of command
+        defb    $06	; command code
+        defm    $fd, $00
+        defm    $a7
+        defb    $01	; Command attribute
+.Terminal_cmd4_end
+        defb    Terminal_cmd4_end-Terminal_cmd4+1
+
+.Terminal_cmd5
+        defb    Terminal_cmd5_end-Terminal_cmd5+1	; Length of command
+        defb    $07	; command code
+        defm    $fc, $00
+        defm    $a8
+        defb    $00	; Command attribute
+.Terminal_cmd5_end
+        defb    Terminal_cmd5_end-Terminal_cmd5+1
+
+.Terminal_cmd6
+        defb    Terminal_cmd6_end-Terminal_cmd6+1	; Length of command
+        defb    $04	; command code
+        defm    $ff, $00
+        defm    $da
+        defb    $00	; Command attribute
+.Terminal_cmd6_end
+        defb    Terminal_cmd6_end-Terminal_cmd6+1
+
+.Terminal_cmd7
+        defb    Terminal_cmd7_end-Terminal_cmd7+1	; Length of command
+        defb    $05	; command code
+        defm    $fe, $00
+        defm    $db
+        defb    $00	; Command attribute
+.Terminal_cmd7_end
+        defb    Terminal_cmd7_end-Terminal_cmd7+1
+
+.Terminal_cmd8
+        defb    Terminal_cmd8_end-Terminal_cmd8+1	; Length of command
+        defb    $08	; command code
+        defm    $f8, $00
+        defm    $9c, " 0"
+        defb    $01	; Command attribute
+.Terminal_cmd8_end
+        defb    Terminal_cmd8_end-Terminal_cmd8+1
+
+.Terminal_cmd9
+        defb    Terminal_cmd9_end-Terminal_cmd9+1	; Length of command
+        defb    $09	; command code
+        defm    $f9, $00
+        defm    $9c, " 1"
+        defb    $00	; Command attribute
+.Terminal_cmd9_end
+        defb    Terminal_cmd9_end-Terminal_cmd9+1
+
+.Terminal_cmd10
+        defb    Terminal_cmd10_end-Terminal_cmd10+1	; Length of command
+        defb    $0a	; command code
+        defm    $fa, $00
+        defm    $9c, " 2"
+        defb    $00	; Command attribute
+.Terminal_cmd10_end
+        defb    Terminal_cmd10_end-Terminal_cmd10+1
+
+.Terminal_cmd11
+        defb    Terminal_cmd11_end-Terminal_cmd11+1	; Length of command
+        defb    $0b	; command code
+        defm    $fb, $00
+        defm    $9c, " 3"
+        defb    $00	; Command attribute
+.Terminal_cmd11_end
+        defb    Terminal_cmd11_end-Terminal_cmd11+1
+
+        defb    0	; End command marker
+
 
 
 ; ********************************************************************************************************************
