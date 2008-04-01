@@ -33,10 +33,7 @@
         Module  OZ2call
 
         include "error.def"
-        include "director.def"
-        include "memory.def"
         include "sysvar.def"
-
         include "lowram.def"
 
 xdef    CallDC
@@ -48,8 +45,6 @@ xdef    OzCallInvalid
 xref    MS2BankA                                ; [Kernel0]/memmisc.asm
 xref    MS2BankK1                               ; [Kernel0]/memmisc.asm
 xref    OSFramePushMain                         ; [Kernel0]/stkframe.asm
-
-xref    OSPrtPrint                              ; [Kernel1]/printer.asm
 
 ;       all 2-byte calls use OSframe
 
