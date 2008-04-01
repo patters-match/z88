@@ -56,22 +56,102 @@ xdef    FlashStoreTopics, FlashStoreCommands, FlashStoreHelp
 ; ********************************************************************************************************************
 ; MTH for Index popdown...
 ;
+; "Commands"
 .IndexTopics
-        defb    0
-        defb    4,$D8,0,4
-        defb    0
+
+        defb    0	; Start topic marker
+.Index_tpc1
+        defb    Index_tpc1_end-Index_tpc1+1	; Length of topic
+        defm    $d8
+        defb    $00	; Topic attribute
+.Index_tpc1_end
+        defb    Index_tpc1_end-Index_tpc1+1
+        defb    0	; End topic marker
+
 .IndexCommands
-        defb    0
-        defb    11,5,$E1,0,$E8,$65,$63,$75,$AF,0,11
-        defb    7,6,$1B,0,$B1,0,7
-        defb    17,8,$43,$41,$52,$44,0,$43,$8C,$B2,$44,$69,$73,$D9,$FB,0,17
-        defb    7,1,$FD,0,$A7,1,7
-        defb    7,2,$FC,0,$A8,0,7
-        defb    7,3,$FF,0,$DA,0,7
-        defb    7,4,$FE,0,$DB,0,7
-        defb    23,7,$4B,$49,$4C,$4C,0,$80,$4B,$49,$4C,$4C,$20,$41,$43,$54,$49,$56,$49,$54,$59,9,23
-        defb    23,9,$50,$55,$52,$47,$45,0,$80,$50,$55,$52,$47,$45,$20,$53,$59,$53,$54,$45,$4D,8,23
-        defb    0
+        defb    0	; Start command marker
+.Index_cmd1
+        defb    Index_cmd1_end-Index_cmd1+1	; Length of command
+        defb    $05	; command code
+        defm    $e1, $00
+        defm    $e8, "ecu", $af
+        defb    $00	; Command attribute
+.Index_cmd1_end
+        defb    Index_cmd1_end-Index_cmd1+1
+
+.Index_cmd2
+        defb    Index_cmd2_end-Index_cmd2+1	; Length of command
+        defb    $06	; command code
+        defm    $1b, $00
+        defm    $b1
+        defb    $00	; Command attribute
+.Index_cmd2_end
+        defb    Index_cmd2_end-Index_cmd2+1
+
+.Index_cmd3
+        defb    Index_cmd3_end-Index_cmd3+1	; Length of command
+        defb    $08	; command code
+        defm    "CARD", $00
+        defm    "C", $8c, $b2, "Dis", $d9, $fb
+        defb    $00	; Command attribute
+.Index_cmd3_end
+        defb    Index_cmd3_end-Index_cmd3+1
+
+.Index_cmd4
+        defb    Index_cmd4_end-Index_cmd4+1	; Length of command
+        defb    $01	; command code
+        defm    $fd, $00
+        defm    $a7
+        defb    $01	; Command attribute
+.Index_cmd4_end
+        defb    Index_cmd4_end-Index_cmd4+1
+
+.Index_cmd5
+        defb    Index_cmd5_end-Index_cmd5+1	; Length of command
+        defb    $02	; command code
+        defm    $fc, $00
+        defm    $a8
+        defb    $00	; Command attribute
+.Index_cmd5_end
+        defb    Index_cmd5_end-Index_cmd5+1
+
+.Index_cmd6
+        defb    Index_cmd6_end-Index_cmd6+1	; Length of command
+        defb    $03	; command code
+        defm    $ff, $00
+        defm    $da
+        defb    $00	; Command attribute
+.Index_cmd6_end
+        defb    Index_cmd6_end-Index_cmd6+1
+
+.Index_cmd7
+        defb    Index_cmd7_end-Index_cmd7+1	; Length of command
+        defb    $04	; command code
+        defm    $fe, $00
+        defm    $db
+        defb    $00	; Command attribute
+.Index_cmd7_end
+        defb    Index_cmd7_end-Index_cmd7+1
+
+.Index_cmd8
+        defb    Index_cmd8_end-Index_cmd8+1	; Length of command
+        defb    $07	; command code
+        defm    "KILL", $00
+        defm    $80, "KILL ACTIVITY"
+        defb    $09	; Command attribute
+.Index_cmd8_end
+        defb    Index_cmd8_end-Index_cmd8+1
+
+.Index_cmd9
+        defb    Index_cmd9_end-Index_cmd9+1	; Length of command
+        defb    $09	; command code
+        defm    "PURGE", $00
+        defm    $80, "PURGE SYSTEM"
+        defb    $08	; Command attribute
+.Index_cmd9_end
+        defb    Index_cmd9_end-Index_cmd9+1
+        defb    0	; End command marker
+
 
 
 ; ********************************************************************************************************************
@@ -79,8 +159,8 @@ xdef    FlashStoreTopics, FlashStoreCommands, FlashStoreHelp
 ;
 .PipeDreamTopics
         defb    0	; Start topic marker
-		
-; "Blocks"		
+
+; "Blocks"
 .PipeDream_tpc1
         defb    PipeDream_tpc1_end-PipeDream_tpc1+1	; Length of topic
         defm    $c5, "s"
@@ -137,7 +217,7 @@ xdef    FlashStoreTopics, FlashStoreCommands, FlashStoreHelp
         defb    PipeDream_tpc7_end-PipeDream_tpc7+1
         defb    0	; End topic marker
 
-		
+
 .PipeDreamCommands
         defb    0
 
@@ -158,7 +238,7 @@ xdef    FlashStoreTopics, FlashStoreCommands, FlashStoreHelp
         defb    $00	; Command attribute
 .PipeDream_cmd2_end
         defb    PipeDream_cmd2_end-PipeDream_cmd2+1
-		
+
 .PipeDream_cmd3
         defb    PipeDream_cmd3_end-PipeDream_cmd3+1	; Length of command
         defb    $04	; command code
@@ -167,7 +247,7 @@ xdef    FlashStoreTopics, FlashStoreCommands, FlashStoreHelp
         defb    $00	; Command attribute
 .PipeDream_cmd3_end
         defb    PipeDream_cmd3_end-PipeDream_cmd3+1
-		
+
 .PipeDream_cmd4
         defb    PipeDream_cmd4_end-PipeDream_cmd4+1	; Length of command
         defb    $05	; command code
@@ -185,7 +265,7 @@ xdef    FlashStoreTopics, FlashStoreCommands, FlashStoreHelp
         defb    $00	; Command attribute
 .PipeDream_cmd5_end
         defb    PipeDream_cmd5_end-PipeDream_cmd5+1
-		
+
 .PipeDream_cmd6
         defb    PipeDream_cmd6_end-PipeDream_cmd6+1	; Length of command
         defb    $07	; command code
@@ -194,7 +274,7 @@ xdef    FlashStoreTopics, FlashStoreCommands, FlashStoreHelp
         defb    $00	; Command attribute
 .PipeDream_cmd6_end
         defb    PipeDream_cmd6_end-PipeDream_cmd6+1
-		
+
 .PipeDream_cmd7
         defb    PipeDream_cmd7_end-PipeDream_cmd7+1	; Length of command
         defb    $03	; command code
@@ -203,7 +283,7 @@ xdef    FlashStoreTopics, FlashStoreCommands, FlashStoreHelp
         defb    $00	; Command attribute
 .PipeDream_cmd7_end
         defb    PipeDream_cmd7_end-PipeDream_cmd7+1
-		
+
 .PipeDream_cmd8
         defb    PipeDream_cmd8_end-PipeDream_cmd8+1	; Length of command
         defb    $08	; command code
@@ -221,7 +301,7 @@ xdef    FlashStoreTopics, FlashStoreCommands, FlashStoreHelp
         defb    $00	; Command attribute
 .PipeDream_cmd9_end
         defb    PipeDream_cmd9_end-PipeDream_cmd9+1
-		
+
 .PipeDream_cmd10
         defb    PipeDream_cmd10_end-PipeDream_cmd10+1	; Length of command
         defb    $09	; command code
@@ -230,7 +310,7 @@ xdef    FlashStoreTopics, FlashStoreCommands, FlashStoreHelp
         defb    $00	; Command attribute
 .PipeDream_cmd10_end
         defb    PipeDream_cmd10_end-PipeDream_cmd10+1
-		
+
 .PipeDream_cmd11
         defb    PipeDream_cmd11_end-PipeDream_cmd11+1	; Length of command
         defb    $0b	; command code
@@ -239,7 +319,7 @@ xdef    FlashStoreTopics, FlashStoreCommands, FlashStoreHelp
         defb    $01	; Command attribute
 .PipeDream_cmd11_end
         defb    PipeDream_cmd11_end-PipeDream_cmd11+1
-		
+
 .PipeDream_cmd12
         defb    PipeDream_cmd12_end-PipeDream_cmd12+1	; Length of command
         defb    $0c	; command code
@@ -248,7 +328,7 @@ xdef    FlashStoreTopics, FlashStoreCommands, FlashStoreHelp
         defb    $00	; Command attribute
 .PipeDream_cmd12_end
         defb    PipeDream_cmd12_end-PipeDream_cmd12+1
-		
+
 .PipeDream_cmd13
         defb    PipeDream_cmd13_end-PipeDream_cmd13+1	; Length of command
         defb    $0d	; command code
@@ -257,7 +337,7 @@ xdef    FlashStoreTopics, FlashStoreCommands, FlashStoreHelp
         defb    $00	; Command attribute
 .PipeDream_cmd13_end
         defb    PipeDream_cmd13_end-PipeDream_cmd13+1
-		
+
         defb    1	; Command topic separator
 
 .PipeDream_cmd14
@@ -268,7 +348,7 @@ xdef    FlashStoreTopics, FlashStoreCommands, FlashStoreHelp
         defb    $00	; Command attribute
 .PipeDream_cmd14_end
         defb    PipeDream_cmd14_end-PipeDream_cmd14+1
-		
+
 .PipeDream_cmd15
         defb    PipeDream_cmd15_end-PipeDream_cmd15+1	; Length of command
         defb    $0f	; command code
@@ -277,7 +357,7 @@ xdef    FlashStoreTopics, FlashStoreCommands, FlashStoreHelp
         defb    $00	; Command attribute
 .PipeDream_cmd15_end
         defb    PipeDream_cmd15_end-PipeDream_cmd15+1
-		
+
 .PipeDream_cmd16
         defb    PipeDream_cmd16_end-PipeDream_cmd16+1	; Length of command
         defb    $20	; command code
@@ -286,7 +366,7 @@ xdef    FlashStoreTopics, FlashStoreCommands, FlashStoreHelp
         defb    $00	; Command attribute
 .PipeDream_cmd16_end
         defb    PipeDream_cmd16_end-PipeDream_cmd16+1
-		
+
 .PipeDream_cmd17
         defb    PipeDream_cmd17_end-PipeDream_cmd17+1	; Length of command
         defb    $21	; command code
@@ -294,7 +374,7 @@ xdef    FlashStoreTopics, FlashStoreCommands, FlashStoreHelp
         defb    $04	; Command attribute
 .PipeDream_cmd17_end
         defb    PipeDream_cmd17_end-PipeDream_cmd17+1
-		
+
 .PipeDream_cmd18
         defb    PipeDream_cmd18_end-PipeDream_cmd18+1	; Length of command
         defb    $22	; command code
@@ -303,7 +383,7 @@ xdef    FlashStoreTopics, FlashStoreCommands, FlashStoreHelp
         defb    $00	; Command attribute
 .PipeDream_cmd18_end
         defb    PipeDream_cmd18_end-PipeDream_cmd18+1
-		
+
 .PipeDream_cmd19
         defb    PipeDream_cmd19_end-PipeDream_cmd19+1	; Length of command
         defb    $14	; command code
@@ -312,7 +392,7 @@ xdef    FlashStoreTopics, FlashStoreCommands, FlashStoreHelp
         defb    $00	; Command attribute
 .PipeDream_cmd19_end
         defb    PipeDream_cmd19_end-PipeDream_cmd19+1
-		
+
 .PipeDream_cmd20
         defb    PipeDream_cmd20_end-PipeDream_cmd20+1	; Length of command
         defb    $15	; command code
@@ -321,7 +401,7 @@ xdef    FlashStoreTopics, FlashStoreCommands, FlashStoreHelp
         defb    $00	; Command attribute
 .PipeDream_cmd20_end
         defb    PipeDream_cmd20_end-PipeDream_cmd20+1
-		
+
 .PipeDream_cmd21
         defb    PipeDream_cmd21_end-PipeDream_cmd21+1	; Length of command
         defb    $0e	; command code
@@ -330,7 +410,7 @@ xdef    FlashStoreTopics, FlashStoreCommands, FlashStoreHelp
         defb    $00	; Command attribute
 .PipeDream_cmd21_end
         defb    PipeDream_cmd21_end-PipeDream_cmd21+1
-		
+
 .PipeDream_cmd22
         defb    PipeDream_cmd22_end-PipeDream_cmd22+1	; Length of command
         defb    $13	; command code
@@ -339,7 +419,7 @@ xdef    FlashStoreTopics, FlashStoreCommands, FlashStoreHelp
         defb    $00	; Command attribute
 .PipeDream_cmd22_end
         defb    PipeDream_cmd22_end-PipeDream_cmd22+1
-		
+
 .PipeDream_cmd23
         defb    PipeDream_cmd23_end-PipeDream_cmd23+1	; Length of command
         defb    $1a	; command code
@@ -348,7 +428,7 @@ xdef    FlashStoreTopics, FlashStoreCommands, FlashStoreHelp
         defb    $01	; Command attribute
 .PipeDream_cmd23_end
         defb    PipeDream_cmd23_end-PipeDream_cmd23+1
-		
+
 .PipeDream_cmd24
         defb    PipeDream_cmd24_end-PipeDream_cmd24+1	; Length of command
         defb    $1b	; command code
@@ -357,7 +437,7 @@ xdef    FlashStoreTopics, FlashStoreCommands, FlashStoreHelp
         defb    $00	; Command attribute
 .PipeDream_cmd24_end
         defb    PipeDream_cmd24_end-PipeDream_cmd24+1
-		
+
 .PipeDream_cmd25
         defb    PipeDream_cmd25_end-PipeDream_cmd25+1	; Length of command
         defb    $1c	; command code
@@ -366,7 +446,7 @@ xdef    FlashStoreTopics, FlashStoreCommands, FlashStoreHelp
         defb    $00	; Command attribute
 .PipeDream_cmd25_end
         defb    PipeDream_cmd25_end-PipeDream_cmd25+1
-		
+
 .PipeDream_cmd26
         defb    PipeDream_cmd26_end-PipeDream_cmd26+1	; Length of command
         defb    $1d	; command code
@@ -375,7 +455,7 @@ xdef    FlashStoreTopics, FlashStoreCommands, FlashStoreHelp
         defb    $00	; Command attribute
 .PipeDream_cmd26_end
         defb    PipeDream_cmd26_end-PipeDream_cmd26+1
-		
+
 .PipeDream_cmd27
         defb    PipeDream_cmd27_end-PipeDream_cmd27+1	; Length of command
         defb    $16	; command code
@@ -384,7 +464,7 @@ xdef    FlashStoreTopics, FlashStoreCommands, FlashStoreHelp
         defb    $00	; Command attribute
 .PipeDream_cmd27_end
         defb    PipeDream_cmd27_end-PipeDream_cmd27+1
-		
+
 .PipeDream_cmd28
         defb    PipeDream_cmd28_end-PipeDream_cmd28+1	; Length of command
         defb    $17	; command code
@@ -393,7 +473,7 @@ xdef    FlashStoreTopics, FlashStoreCommands, FlashStoreHelp
         defb    $00	; Command attribute
 .PipeDream_cmd28_end
         defb    PipeDream_cmd28_end-PipeDream_cmd28+1
-		
+
 .PipeDream_cmd29
         defb    PipeDream_cmd29_end-PipeDream_cmd29+1	; Length of command
         defb    $19	; command code
@@ -402,7 +482,7 @@ xdef    FlashStoreTopics, FlashStoreCommands, FlashStoreHelp
         defb    $00	; Command attribute
 .PipeDream_cmd29_end
         defb    PipeDream_cmd29_end-PipeDream_cmd29+1
-		
+
 .PipeDream_cmd30
         defb    PipeDream_cmd30_end-PipeDream_cmd30+1	; Length of command
         defb    $18	; command code
@@ -411,7 +491,7 @@ xdef    FlashStoreTopics, FlashStoreCommands, FlashStoreHelp
         defb    $00	; Command attribute
 .PipeDream_cmd30_end
         defb    PipeDream_cmd30_end-PipeDream_cmd30+1
-		
+
 .PipeDream_cmd31
         defb    PipeDream_cmd31_end-PipeDream_cmd31+1	; Length of command
         defb    $1f	; command code
@@ -420,7 +500,7 @@ xdef    FlashStoreTopics, FlashStoreCommands, FlashStoreHelp
         defb    $01	; Command attribute
 .PipeDream_cmd31_end
         defb    PipeDream_cmd31_end-PipeDream_cmd31+1
-		
+
 .PipeDream_cmd32
         defb    PipeDream_cmd32_end-PipeDream_cmd32+1	; Length of command
         defb    $1e	; command code
@@ -429,7 +509,7 @@ xdef    FlashStoreTopics, FlashStoreCommands, FlashStoreHelp
         defb    $00	; Command attribute
 .PipeDream_cmd32_end
         defb    PipeDream_cmd32_end-PipeDream_cmd32+1
-		
+
 .PipeDream_cmd33
         defb    PipeDream_cmd33_end-PipeDream_cmd33+1	; Length of command
         defb    $11	; command code
@@ -438,7 +518,7 @@ xdef    FlashStoreTopics, FlashStoreCommands, FlashStoreHelp
         defb    $00	; Command attribute
 .PipeDream_cmd33_end
         defb    PipeDream_cmd33_end-PipeDream_cmd33+1
-		
+
 .PipeDream_cmd34
         defb    PipeDream_cmd34_end-PipeDream_cmd34+1	; Length of command
         defb    $11	; command code
@@ -446,7 +526,7 @@ xdef    FlashStoreTopics, FlashStoreCommands, FlashStoreHelp
         defb    $04	; Command attribute
 .PipeDream_cmd34_end
         defb    PipeDream_cmd34_end-PipeDream_cmd34+1
-		
+
 .PipeDream_cmd35
         defb    PipeDream_cmd35_end-PipeDream_cmd35+1	; Length of command
         defb    $12	; command code
@@ -466,7 +546,7 @@ xdef    FlashStoreTopics, FlashStoreCommands, FlashStoreHelp
         defb    $00	; Command attribute
 .PipeDream_cmd36_end
         defb    PipeDream_cmd36_end-PipeDream_cmd36+1
-		
+
 .PipeDream_cmd37
         defb    PipeDream_cmd37_end-PipeDream_cmd37+1	; Length of command
         defb    $24	; command code
@@ -475,7 +555,7 @@ xdef    FlashStoreTopics, FlashStoreCommands, FlashStoreHelp
         defb    $00	; Command attribute
 .PipeDream_cmd37_end
         defb    PipeDream_cmd37_end-PipeDream_cmd37+1
-		
+
 .PipeDream_cmd38
         defb    PipeDream_cmd38_end-PipeDream_cmd38+1	; Length of command
         defb    $24	; command code
@@ -483,7 +563,7 @@ xdef    FlashStoreTopics, FlashStoreCommands, FlashStoreHelp
         defb    $04	; Command attribute
 .PipeDream_cmd38_end
         defb    PipeDream_cmd38_end-PipeDream_cmd38+1
-		
+
 .PipeDream_cmd39
         defb    PipeDream_cmd39_end-PipeDream_cmd39+1	; Length of command
         defb    $25	; command code
@@ -492,7 +572,7 @@ xdef    FlashStoreTopics, FlashStoreCommands, FlashStoreHelp
         defb    $00	; Command attribute
 .PipeDream_cmd39_end
         defb    PipeDream_cmd39_end-PipeDream_cmd39+1
-		
+
 .PipeDream_cmd40
         defb    PipeDream_cmd40_end-PipeDream_cmd40+1	; Length of command
         defb    $26	; command code
@@ -501,7 +581,7 @@ xdef    FlashStoreTopics, FlashStoreCommands, FlashStoreHelp
         defb    $00	; Command attribute
 .PipeDream_cmd40_end
         defb    PipeDream_cmd40_end-PipeDream_cmd40+1
-		
+
 .PipeDream_cmd41
         defb    PipeDream_cmd41_end-PipeDream_cmd41+1	; Length of command
         defb    $27	; command code
@@ -510,7 +590,7 @@ xdef    FlashStoreTopics, FlashStoreCommands, FlashStoreHelp
         defb    $00	; Command attribute
 .PipeDream_cmd41_end
         defb    PipeDream_cmd41_end-PipeDream_cmd41+1
-		
+
 .PipeDream_cmd42
         defb    PipeDream_cmd42_end-PipeDream_cmd42+1	; Length of command
         defb    $29	; command code
@@ -519,7 +599,7 @@ xdef    FlashStoreTopics, FlashStoreCommands, FlashStoreHelp
         defb    $00	; Command attribute
 .PipeDream_cmd42_end
         defb    PipeDream_cmd42_end-PipeDream_cmd42+1
-		
+
 .PipeDream_cmd43
         defb    PipeDream_cmd43_end-PipeDream_cmd43+1	; Length of command
         defb    $29	; command code
@@ -527,7 +607,7 @@ xdef    FlashStoreTopics, FlashStoreCommands, FlashStoreHelp
         defb    $04	; Command attribute
 .PipeDream_cmd43_end
         defb    PipeDream_cmd43_end-PipeDream_cmd43+1
-		
+
 .PipeDream_cmd44
         defb    PipeDream_cmd44_end-PipeDream_cmd44+1	; Length of command
         defb    $2f	; command code
@@ -536,7 +616,7 @@ xdef    FlashStoreTopics, FlashStoreCommands, FlashStoreHelp
         defb    $00	; Command attribute
 .PipeDream_cmd44_end
         defb    PipeDream_cmd44_end-PipeDream_cmd44+1
-		
+
 .PipeDream_cmd45
         defb    PipeDream_cmd45_end-PipeDream_cmd45+1	; Length of command
         defb    $36	; command code
@@ -545,7 +625,7 @@ xdef    FlashStoreTopics, FlashStoreCommands, FlashStoreHelp
         defb    $00	; Command attribute
 .PipeDream_cmd45_end
         defb    PipeDream_cmd45_end-PipeDream_cmd45+1
-		
+
 .PipeDream_cmd46
         defb    PipeDream_cmd46_end-PipeDream_cmd46+1	; Length of command
         defb    $38	; command code
@@ -554,7 +634,7 @@ xdef    FlashStoreTopics, FlashStoreCommands, FlashStoreHelp
         defb    $01	; Command attribute
 .PipeDream_cmd46_end
         defb    PipeDream_cmd46_end-PipeDream_cmd46+1
-		
+
 .PipeDream_cmd47
         defb    PipeDream_cmd47_end-PipeDream_cmd47+1	; Length of command
         defb    $35	; command code
@@ -563,7 +643,7 @@ xdef    FlashStoreTopics, FlashStoreCommands, FlashStoreHelp
         defb    $00	; Command attribute
 .PipeDream_cmd47_end
         defb    PipeDream_cmd47_end-PipeDream_cmd47+1
-		
+
 .PipeDream_cmd48
         defb    PipeDream_cmd48_end-PipeDream_cmd48+1	; Length of command
         defb    $37	; command code
@@ -572,7 +652,7 @@ xdef    FlashStoreTopics, FlashStoreCommands, FlashStoreHelp
         defb    $00	; Command attribute
 .PipeDream_cmd48_end
         defb    PipeDream_cmd48_end-PipeDream_cmd48+1
-		
+
 .PipeDream_cmd49
         defb    PipeDream_cmd49_end-PipeDream_cmd49+1	; Length of command
         defb    $34	; command code
@@ -581,7 +661,7 @@ xdef    FlashStoreTopics, FlashStoreCommands, FlashStoreHelp
         defb    $00	; Command attribute
 .PipeDream_cmd49_end
         defb    PipeDream_cmd49_end-PipeDream_cmd49+1
-		
+
 .PipeDream_cmd50
         defb    PipeDream_cmd50_end-PipeDream_cmd50+1	; Length of command
         defb    $2c	; command code
@@ -590,7 +670,7 @@ xdef    FlashStoreTopics, FlashStoreCommands, FlashStoreHelp
         defb    $00	; Command attribute
 .PipeDream_cmd50_end
         defb    PipeDream_cmd50_end-PipeDream_cmd50+1
-		
+
 .PipeDream_cmd51
         defb    PipeDream_cmd51_end-PipeDream_cmd51+1	; Length of command
         defb    $39	; command code
@@ -599,7 +679,7 @@ xdef    FlashStoreTopics, FlashStoreCommands, FlashStoreHelp
         defb    $00	; Command attribute
 .PipeDream_cmd51_end
         defb    PipeDream_cmd51_end-PipeDream_cmd51+1
-		
+
 .PipeDream_cmd52
         defb    PipeDream_cmd52_end-PipeDream_cmd52+1	; Length of command
         defb    $33	; command code
@@ -608,7 +688,7 @@ xdef    FlashStoreTopics, FlashStoreCommands, FlashStoreHelp
         defb    $00	; Command attribute
 .PipeDream_cmd52_end
         defb    PipeDream_cmd52_end-PipeDream_cmd52+1
-		
+
 .PipeDream_cmd53
         defb    PipeDream_cmd53_end-PipeDream_cmd53+1	; Length of command
         defb    $31	; command code
@@ -617,7 +697,7 @@ xdef    FlashStoreTopics, FlashStoreCommands, FlashStoreHelp
         defb    $01	; Command attribute
 .PipeDream_cmd53_end
         defb    PipeDream_cmd53_end-PipeDream_cmd53+1
-		
+
 .PipeDream_cmd54
         defb    PipeDream_cmd54_end-PipeDream_cmd54+1	; Length of command
         defb    $2b	; command code
@@ -626,7 +706,7 @@ xdef    FlashStoreTopics, FlashStoreCommands, FlashStoreHelp
         defb    $00	; Command attribute
 .PipeDream_cmd54_end
         defb    PipeDream_cmd54_end-PipeDream_cmd54+1
-		
+
 .PipeDream_cmd55
         defb    PipeDream_cmd55_end-PipeDream_cmd55+1	; Length of command
         defb    $28	; command code
@@ -635,7 +715,7 @@ xdef    FlashStoreTopics, FlashStoreCommands, FlashStoreHelp
         defb    $00	; Command attribute
 .PipeDream_cmd55_end
         defb    PipeDream_cmd55_end-PipeDream_cmd55+1
-		
+
 .PipeDream_cmd56
         defb    PipeDream_cmd56_end-PipeDream_cmd56+1	; Length of command
         defb    $2e	; command code
@@ -644,7 +724,7 @@ xdef    FlashStoreTopics, FlashStoreCommands, FlashStoreHelp
         defb    $00	; Command attribute
 .PipeDream_cmd56_end
         defb    PipeDream_cmd56_end-PipeDream_cmd56+1
-		
+
 .PipeDream_cmd57
         defb    PipeDream_cmd57_end-PipeDream_cmd57+1	; Length of command
         defb    $2a	; command code
@@ -653,7 +733,7 @@ xdef    FlashStoreTopics, FlashStoreCommands, FlashStoreHelp
         defb    $00	; Command attribute
 .PipeDream_cmd57_end
         defb    PipeDream_cmd57_end-PipeDream_cmd57+1
-		
+
 .PipeDream_cmd58
         defb    PipeDream_cmd58_end-PipeDream_cmd58+1	; Length of command
         defb    $30	; command code
@@ -662,7 +742,7 @@ xdef    FlashStoreTopics, FlashStoreCommands, FlashStoreHelp
         defb    $00	; Command attribute
 .PipeDream_cmd58_end
         defb    PipeDream_cmd58_end-PipeDream_cmd58+1
-		
+
 .PipeDream_cmd59
         defb    PipeDream_cmd59_end-PipeDream_cmd59+1	; Length of command
         defb    $32	; command code
@@ -671,7 +751,7 @@ xdef    FlashStoreTopics, FlashStoreCommands, FlashStoreHelp
         defb    $00	; Command attribute
 .PipeDream_cmd59_end
         defb    PipeDream_cmd59_end-PipeDream_cmd59+1
-		
+
 .PipeDream_cmd60
         defb    PipeDream_cmd60_end-PipeDream_cmd60+1	; Length of command
         defb    $2d	; command code
@@ -680,7 +760,7 @@ xdef    FlashStoreTopics, FlashStoreCommands, FlashStoreHelp
         defb    $00	; Command attribute
 .PipeDream_cmd60_end
         defb    PipeDream_cmd60_end-PipeDream_cmd60+1
-				
+
         defb    1
 
 .PipeDream_cmd61
@@ -691,7 +771,7 @@ xdef    FlashStoreTopics, FlashStoreCommands, FlashStoreHelp
         defb    $00	; Command attribute
 .PipeDream_cmd61_end
         defb    PipeDream_cmd61_end-PipeDream_cmd61+1
-		
+
 .PipeDream_cmd62
         defb    PipeDream_cmd62_end-PipeDream_cmd62+1	; Length of command
         defb    $3b	; command code
@@ -700,7 +780,7 @@ xdef    FlashStoreTopics, FlashStoreCommands, FlashStoreHelp
         defb    $00	; Command attribute
 .PipeDream_cmd62_end
         defb    PipeDream_cmd62_end-PipeDream_cmd62+1
-		
+
 .PipeDream_cmd63
         defb    PipeDream_cmd63_end-PipeDream_cmd63+1	; Length of command
         defb    $3c	; command code
@@ -709,7 +789,7 @@ xdef    FlashStoreTopics, FlashStoreCommands, FlashStoreHelp
         defb    $00	; Command attribute
 .PipeDream_cmd63_end
         defb    PipeDream_cmd63_end-PipeDream_cmd63+1
-		
+
 .PipeDream_cmd64
         defb    PipeDream_cmd64_end-PipeDream_cmd64+1	; Length of command
         defb    $3d	; command code
@@ -718,7 +798,7 @@ xdef    FlashStoreTopics, FlashStoreCommands, FlashStoreHelp
         defb    $01	; Command attribute
 .PipeDream_cmd64_end
         defb    PipeDream_cmd64_end-PipeDream_cmd64+1
-		
+
 .PipeDream_cmd65
         defb    PipeDream_cmd65_end-PipeDream_cmd65+1	; Length of command
         defb    $3e	; command code
@@ -727,7 +807,7 @@ xdef    FlashStoreTopics, FlashStoreCommands, FlashStoreHelp
         defb    $00	; Command attribute
 .PipeDream_cmd65_end
         defb    PipeDream_cmd65_end-PipeDream_cmd65+1
-		
+
 .PipeDream_cmd66
         defb    PipeDream_cmd66_end-PipeDream_cmd66+1	; Length of command
         defb    $3f	; command code
@@ -736,7 +816,7 @@ xdef    FlashStoreTopics, FlashStoreCommands, FlashStoreHelp
         defb    $00	; Command attribute
 .PipeDream_cmd66_end
         defb    PipeDream_cmd66_end-PipeDream_cmd66+1
-		
+
 .PipeDream_cmd67
         defb    PipeDream_cmd67_end-PipeDream_cmd67+1	; Length of command
         defb    $40	; command code
@@ -745,7 +825,7 @@ xdef    FlashStoreTopics, FlashStoreCommands, FlashStoreHelp
         defb    $00	; Command attribute
 .PipeDream_cmd67_end
         defb    PipeDream_cmd67_end-PipeDream_cmd67+1
-		
+
         defb    1
 
 .PipeDream_cmd68
@@ -756,7 +836,7 @@ xdef    FlashStoreTopics, FlashStoreCommands, FlashStoreHelp
         defb    $00	; Command attribute
 .PipeDream_cmd68_end
         defb    PipeDream_cmd68_end-PipeDream_cmd68+1
-		
+
 .PipeDream_cmd69
         defb    PipeDream_cmd69_end-PipeDream_cmd69+1	; Length of command
         defb    $42	; command code
@@ -765,7 +845,7 @@ xdef    FlashStoreTopics, FlashStoreCommands, FlashStoreHelp
         defb    $00	; Command attribute
 .PipeDream_cmd69_end
         defb    PipeDream_cmd69_end-PipeDream_cmd69+1
-		
+
 .PipeDream_cmd70
         defb    PipeDream_cmd70_end-PipeDream_cmd70+1	; Length of command
         defb    $43	; command code
@@ -774,7 +854,7 @@ xdef    FlashStoreTopics, FlashStoreCommands, FlashStoreHelp
         defb    $00	; Command attribute
 .PipeDream_cmd70_end
         defb    PipeDream_cmd70_end-PipeDream_cmd70+1
-		
+
 .PipeDream_cmd71
         defb    PipeDream_cmd71_end-PipeDream_cmd71+1	; Length of command
         defb    $44	; command code
@@ -783,7 +863,7 @@ xdef    FlashStoreTopics, FlashStoreCommands, FlashStoreHelp
         defb    $00	; Command attribute
 .PipeDream_cmd71_end
         defb    PipeDream_cmd71_end-PipeDream_cmd71+1
-		
+
 .PipeDream_cmd72
         defb    PipeDream_cmd72_end-PipeDream_cmd72+1	; Length of command
         defb    $46	; command code
@@ -792,7 +872,7 @@ xdef    FlashStoreTopics, FlashStoreCommands, FlashStoreHelp
         defb    $00	; Command attribute
 .PipeDream_cmd72_end
         defb    PipeDream_cmd72_end-PipeDream_cmd72+1
-		
+
 .PipeDream_cmd73
         defb    PipeDream_cmd73_end-PipeDream_cmd73+1	; Length of command
         defb    $45	; command code
@@ -801,7 +881,7 @@ xdef    FlashStoreTopics, FlashStoreCommands, FlashStoreHelp
         defb    $00	; Command attribute
 .PipeDream_cmd73_end
         defb    PipeDream_cmd73_end-PipeDream_cmd73+1
-		
+
 .PipeDream_cmd74
         defb    PipeDream_cmd74_end-PipeDream_cmd74+1	; Length of command
         defb    $47	; command code
@@ -810,7 +890,7 @@ xdef    FlashStoreTopics, FlashStoreCommands, FlashStoreHelp
         defb    $01	; Command attribute
 .PipeDream_cmd74_end
         defb    PipeDream_cmd74_end-PipeDream_cmd74+1
-		
+
 .PipeDream_cmd75
         defb    PipeDream_cmd75_end-PipeDream_cmd75+1	; Length of command
         defb    $48	; command code
@@ -819,7 +899,7 @@ xdef    FlashStoreTopics, FlashStoreCommands, FlashStoreHelp
         defb    $00	; Command attribute
 .PipeDream_cmd75_end
         defb    PipeDream_cmd75_end-PipeDream_cmd75+1
-		
+
 .PipeDream_cmd76
         defb    PipeDream_cmd76_end-PipeDream_cmd76+1	; Length of command
         defb    $49	; command code
@@ -828,7 +908,7 @@ xdef    FlashStoreTopics, FlashStoreCommands, FlashStoreHelp
         defb    $00	; Command attribute
 .PipeDream_cmd76_end
         defb    PipeDream_cmd76_end-PipeDream_cmd76+1
-		
+
 .PipeDream_cmd77
         defb    PipeDream_cmd77_end-PipeDream_cmd77+1	; Length of command
         defb    $4a	; command code
@@ -837,7 +917,7 @@ xdef    FlashStoreTopics, FlashStoreCommands, FlashStoreHelp
         defb    $00	; Command attribute
 .PipeDream_cmd77_end
         defb    PipeDream_cmd77_end-PipeDream_cmd77+1
-		
+
 .PipeDream_cmd78
         defb    PipeDream_cmd78_end-PipeDream_cmd78+1	; Length of command
         defb    $4b	; command code
@@ -846,7 +926,7 @@ xdef    FlashStoreTopics, FlashStoreCommands, FlashStoreHelp
         defb    $00	; Command attribute
 .PipeDream_cmd78_end
         defb    PipeDream_cmd78_end-PipeDream_cmd78+1
-		
+
 .PipeDream_cmd79
         defb    PipeDream_cmd79_end-PipeDream_cmd79+1	; Length of command
         defb    $4c	; command code
@@ -855,7 +935,7 @@ xdef    FlashStoreTopics, FlashStoreCommands, FlashStoreHelp
         defb    $01	; Command attribute
 .PipeDream_cmd79_end
         defb    PipeDream_cmd79_end-PipeDream_cmd79+1
-		
+
 .PipeDream_cmd80
         defb    PipeDream_cmd80_end-PipeDream_cmd80+1	; Length of command
         defb    $4d	; command code
@@ -864,7 +944,7 @@ xdef    FlashStoreTopics, FlashStoreCommands, FlashStoreHelp
         defb    $00	; Command attribute
 .PipeDream_cmd80_end
         defb    PipeDream_cmd80_end-PipeDream_cmd80+1
-		
+
 .PipeDream_cmd81
         defb    PipeDream_cmd81_end-PipeDream_cmd81+1	; Length of command
         defb    $4e	; command code
@@ -873,7 +953,7 @@ xdef    FlashStoreTopics, FlashStoreCommands, FlashStoreHelp
         defb    $00	; Command attribute
 .PipeDream_cmd81_end
         defb    PipeDream_cmd81_end-PipeDream_cmd81+1
-		
+
 .PipeDream_cmd82
         defb    PipeDream_cmd82_end-PipeDream_cmd82+1	; Length of command
         defb    $4f	; command code
@@ -882,7 +962,7 @@ xdef    FlashStoreTopics, FlashStoreCommands, FlashStoreHelp
         defb    $00	; Command attribute
 .PipeDream_cmd82_end
         defb    PipeDream_cmd82_end-PipeDream_cmd82+1
-		
+
 .PipeDream_cmd83
         defb    PipeDream_cmd83_end-PipeDream_cmd83+1	; Length of command
         defb    $50	; command code
@@ -891,7 +971,7 @@ xdef    FlashStoreTopics, FlashStoreCommands, FlashStoreHelp
         defb    $00	; Command attribute
 .PipeDream_cmd83_end
         defb    PipeDream_cmd83_end-PipeDream_cmd83+1
-		
+
 .PipeDream_cmd84
         defb    PipeDream_cmd84_end-PipeDream_cmd84+1	; Length of command
         defb    $51	; command code
@@ -902,7 +982,7 @@ xdef    FlashStoreTopics, FlashStoreCommands, FlashStoreHelp
         defb    PipeDream_cmd84_end-PipeDream_cmd84+1
 
         defb    1
-		
+
 .PipeDream_cmd85
         defb    PipeDream_cmd85_end-PipeDream_cmd85+1	; Length of command
         defb    $52	; command code
@@ -922,7 +1002,7 @@ xdef    FlashStoreTopics, FlashStoreCommands, FlashStoreHelp
         defb    $00	; Command attribute
 .PipeDream_cmd86_end
         defb    PipeDream_cmd86_end-PipeDream_cmd86+1
-		
+
 .PipeDream_cmd87
         defb    PipeDream_cmd87_end-PipeDream_cmd87+1	; Length of command
         defb    $54	; command code
@@ -931,7 +1011,7 @@ xdef    FlashStoreTopics, FlashStoreCommands, FlashStoreHelp
         defb    $00	; Command attribute
 .PipeDream_cmd87_end
         defb    PipeDream_cmd87_end-PipeDream_cmd87+1
-		
+
 .PipeDream_cmd88
         defb    PipeDream_cmd88_end-PipeDream_cmd88+1	; Length of command
         defb    $55	; command code
@@ -940,7 +1020,7 @@ xdef    FlashStoreTopics, FlashStoreCommands, FlashStoreHelp
         defb    $01	; Command attribute
 .PipeDream_cmd88_end
         defb    PipeDream_cmd88_end-PipeDream_cmd88+1
-		
+
 .PipeDream_cmd89
         defb    PipeDream_cmd89_end-PipeDream_cmd89+1	; Length of command
         defb    $56	; command code
@@ -949,7 +1029,7 @@ xdef    FlashStoreTopics, FlashStoreCommands, FlashStoreHelp
         defb    $00	; Command attribute
 .PipeDream_cmd89_end
         defb    PipeDream_cmd89_end-PipeDream_cmd89+1
-		
+
 .PipeDream_cmd90
         defb    PipeDream_cmd90_end-PipeDream_cmd90+1	; Length of command
         defb    $57	; command code
@@ -958,7 +1038,7 @@ xdef    FlashStoreTopics, FlashStoreCommands, FlashStoreHelp
         defb    $00	; Command attribute
 .PipeDream_cmd90_end
         defb    PipeDream_cmd90_end-PipeDream_cmd90+1
-		
+
 .PipeDream_cmd91
         defb    PipeDream_cmd91_end-PipeDream_cmd91+1	; Length of command
         defb    $58	; command code
@@ -967,7 +1047,7 @@ xdef    FlashStoreTopics, FlashStoreCommands, FlashStoreHelp
         defb    $00	; Command attribute
 .PipeDream_cmd91_end
         defb    PipeDream_cmd91_end-PipeDream_cmd91+1
-		
+
 .PipeDream_cmd92
         defb    PipeDream_cmd92_end-PipeDream_cmd92+1	; Length of command
         defb    $59	; command code
@@ -976,7 +1056,7 @@ xdef    FlashStoreTopics, FlashStoreCommands, FlashStoreHelp
         defb    $00	; Command attribute
 .PipeDream_cmd92_end
         defb    PipeDream_cmd92_end-PipeDream_cmd92+1
-		
+
 .PipeDream_cmd93
         defb    PipeDream_cmd93_end-PipeDream_cmd93+1	; Length of command
         defb    $5a	; command code
@@ -985,7 +1065,7 @@ xdef    FlashStoreTopics, FlashStoreCommands, FlashStoreHelp
         defb    $00	; Command attribute
 .PipeDream_cmd93_end
         defb    PipeDream_cmd93_end-PipeDream_cmd93+1
-		
+
 .PipeDream_cmd94
         defb    PipeDream_cmd94_end-PipeDream_cmd94+1	; Length of command
         defb    $5b	; command code
@@ -994,7 +1074,7 @@ xdef    FlashStoreTopics, FlashStoreCommands, FlashStoreHelp
         defb    $00	; Command attribute
 .PipeDream_cmd94_end
         defb    PipeDream_cmd94_end-PipeDream_cmd94+1
-		
+
 .PipeDream_cmd95
         defb    PipeDream_cmd95_end-PipeDream_cmd95+1	; Length of command
         defb    $5c	; command code
@@ -1003,7 +1083,7 @@ xdef    FlashStoreTopics, FlashStoreCommands, FlashStoreHelp
         defb    $00	; Command attribute
 .PipeDream_cmd95_end
         defb    PipeDream_cmd95_end-PipeDream_cmd95+1
-		
+
 .PipeDream_cmd96
         defb    PipeDream_cmd96_end-PipeDream_cmd96+1	; Length of command
         defb    $5d	; command code
@@ -1012,7 +1092,7 @@ xdef    FlashStoreTopics, FlashStoreCommands, FlashStoreHelp
         defb    $01	; Command attribute
 .PipeDream_cmd96_end
         defb    PipeDream_cmd96_end-PipeDream_cmd96+1
-		
+
 .PipeDream_cmd97
         defb    PipeDream_cmd97_end-PipeDream_cmd97+1	; Length of command
         defb    $5e	; command code
@@ -1030,76 +1110,555 @@ xdef    FlashStoreTopics, FlashStoreCommands, FlashStoreHelp
         defb    $00	; Command attribute
 .PipeDream_cmd98_end
         defb    PipeDream_cmd98_end-PipeDream_cmd98+1
-		
+
         defb    0
 
-		
+
 ; ********************************************************************************************************************
 ; MTH for Diary application...
 ;
 .DiaryTopics
-        defb    0
-        defb    5,$C5,$73,0,5
-        defb    4,$DC,0,4
-        defb    6,$45,$64,$FC,1,6
-        defb    4,$FD,0,4
-        defb    0
+        defb    0	; Start topic marker
+
+.Diary_tpc1
+        defb    Diary_tpc1_end-Diary_tpc1+1	; Length of topic
+        defm    $c5, "s"
+        defb    $00	; Topic attribute
+.Diary_tpc1_end
+        defb    Diary_tpc1_end-Diary_tpc1+1
+
+.Diary_tpc2
+        defb    Diary_tpc2_end-Diary_tpc2+1	; Length of topic
+        defm    $dc
+        defb    $00	; Topic attribute
+.Diary_tpc2_end
+        defb    Diary_tpc2_end-Diary_tpc2+1
+
+.Diary_tpc3
+        defb    Diary_tpc3_end-Diary_tpc3+1	; Length of topic
+        defm    "Ed", $fc
+        defb    $01	; Topic attribute
+.Diary_tpc3_end
+        defb    Diary_tpc3_end-Diary_tpc3+1
+
+.Diary_tpc4
+        defb    Diary_tpc4_end-Diary_tpc4+1	; Length of topic
+        defm    $fd
+        defb    $00	; Topic attribute
+.Diary_tpc4_end
+        defb    Diary_tpc4_end-Diary_tpc4+1
+
+        defb    0	; End topic marker
+
 .DiaryCommands
-        defb    0
-        defb    10,$20,$5A,0,$DD,$6B,$20,$C5,0,10               ; Mark Block
-        defb    12,$21,$51,0,$43,$8B,$8C,$20,$DD,$6B,0,12       ; Clear Mark
-        defb     8,$22,$42,$43,0,$DE,0,8                        ; Copy
-        defb    11,$23,$42,$4D,0,$4D,$6F,$76,$65,0,11           ; Move
-        defb    10,$24,$42,$44,0,$44,$C7,$AF,0,10               ; Delete
-        defb    13,$25,$42,$4C,0,$4C,$69,$73,$74,$2F,$FE,0,13   ; List/Print
-        defb    12,$26,$42,$53,$45,0,$53,$65,$8C,$B4,1,12       ; Search
-        defb    12,$29,$42,$52,$50,0,$C8,$D9,$61,$C9,0,12       ; Replace
-        defb    10,$27,$42,$4E,$4D,0,$97,$F7,0,10               ; Next Match
-        defb    10,$28,$42,$50,$4D,0,$98,$F7,0,10               ; Previous Match
-        defb    1
-        defb     8,$F5,$F5,0,$DF,$A9,0,8                        ; End of Line
-        defb    12,$F4,$F4,0,$53,$74,$8C,$84,$89,$A9,0,12       ; Start of Line
-        defb     8,$30,$F7,0,$F8,$A9,0,8                        ; First Line
-        defb    10,$2F,$F6,0,$4C,$61,$CA,$A9,0,10               ; Last Line
-        defb    10,$2B,$43,$53,$50,0,$BD,$BE,0,10               ; Save position
-        defb    13,$2C,$43,$52,$50,0,$C8,$73,$74,$8F,$BE,0,13   ; Restore position
-        defb     7,$0D,$E1,0,$D2,0,7                            ; ENTER
-        defb     8,$F9,$F9,0,$97,$D3,1,8                        ; Next Word
-        defb     8,$F8,$F8,0,$98,$D3,0,8                        ; Previous Word
-        defb     8,$32,$FB,0,$D4,$B9,0,8                        ; Screen Up
-        defb     8,$31,$FA,0,$D4,$AC,0,8                        ; Screen Down
-        defb     7,$FD,$FD,0,$A7,0,7                            ; Cursor Right
-        defb     7,$FC,$FC,0,$A8,0,7                            ; Cursor Left
-        defb     7,$2E,$FF,0,$DA,0,7                            ; Cursor Up
-        defb     7,$2D,$FE,0,$DB,0,7                            ; Cursor Down
-        defb     9,$2A,$E2,0,$54,$41,$42,1,9                    ; Tab
-        defb    11,$33,$43,$54,0,$54,$6F,$64,$FB,0,11           ; Today
-        defb    11,$39,$43,$46,$41,$44,0,$F8,$AD,0,11           ; First Active Day
-        defb    13,$38,$43,$4C,$41,$44,0,$4C,$61,$CA,$AD,0,13   ; Last Active Day
-        defb     8,$36,$F1,0,$97,$AD,0,8                        ; Next Active Day
-        defb     8,$37,$F0,0,$98,$AD,0,8                        ; Previous Active Day
-        defb     9,$35,$F3,0,$98,$44,$FB,0,9                    ; Previous Day
-        defb     9,$34,$F2,0,$97,$44,$FB,0,9                    ; Next Day
-        defb    1
-        defb     7,$7F,$E3,0,$E0,0,7                            ; Rubout
-        defb     8,7,$47,0,$96,$E9,0,8                          ; Delete Character
-        defb     6,7,$D3,0,4,6                                  ;
-        defb     8,$15,$55,0,$CB,$E9,0,8                        ; Insert Character
-        defb     8,$14,$54,0,$96,$D3,0,8                        ; Delete Word
-        defb    10,4,$44,0,$96,$BB,$DF,$A9,0,10                 ; Delete to End of Line
-        defb    8,$3A,$59,0,$96,$A9,0,8                         ; Delete Line
-        defb    6,$3A,$C3,0,4,6                                 ;
-        defb    8,$3C,$4E,0,$CB,$A9,0,8                         ; Insert Line
-        defb    7,$16,$56,0,$EA,1,7                             ; Insert/Overtype
-        defb    7,$13,$53,0,$FF,0,7                             ; Swap Case
-        defb    8,$3F,$4A,0,$97,$EC,0,8                         ; Next Option
-        defb    16,$3E,$45,$4D,$46,0,$4D,$65,$6D,$8F,$D6,$46,$8D,$65,0,16       ; Memory Free
-        defb    13,$3D,$45,$53,$4C,0,$53,$D9,$69,$84,$A9,1,13           ; Split Line
-        defb    13,$3B,$45,$4A,$4C,0,$4A,$6F,$A3,$A9,$73,0,13           ; Join Lines
-        defb    1
-        defb    8,$40,$46,$4C,0,$E1,0,8                                 ; Load
-        defb    9,$41,$46,$53,0,$BD,$65,0,9                             ; Save
-        defb    0
+        defb    0	; Start command marker
+
+; Mark Block
+.Diary_cmd1
+        defb    Diary_cmd1_end-Diary_cmd1+1	; Length of command
+        defb    $20	; command code
+        defm    "Z", $00
+        defm    $dd, "k ", $c5
+        defb    $00	; Command attribute
+.Diary_cmd1_end
+        defb    Diary_cmd1_end-Diary_cmd1+1
+
+; Clear Mark
+.Diary_cmd2
+        defb    Diary_cmd2_end-Diary_cmd2+1	; Length of command
+        defb    $21	; command code
+        defm    "Q", $00
+        defm    "C", $8b, $8c, " ", $dd, "k"
+        defb    $00	; Command attribute
+.Diary_cmd2_end
+        defb    Diary_cmd2_end-Diary_cmd2+1
+
+; Copy
+.Diary_cmd3
+        defb    Diary_cmd3_end-Diary_cmd3+1	; Length of command
+        defb    $22	; command code
+        defm    "BC", $00
+        defm    $de
+        defb    $00	; Command attribute
+.Diary_cmd3_end
+        defb    Diary_cmd3_end-Diary_cmd3+1
+
+; Move
+.Diary_cmd4
+        defb    Diary_cmd4_end-Diary_cmd4+1	; Length of command
+        defb    $23	; command code
+        defm    "BM", $00
+        defm    "Move"
+        defb    $00	; Command attribute
+.Diary_cmd4_end
+        defb    Diary_cmd4_end-Diary_cmd4+1
+
+; Delete
+.Diary_cmd5
+        defb    Diary_cmd5_end-Diary_cmd5+1	; Length of command
+        defb    $24	; command code
+        defm    "BD", $00
+        defm    "D", $c7, $af
+        defb    $00	; Command attribute
+.Diary_cmd5_end
+        defb    Diary_cmd5_end-Diary_cmd5+1
+
+; List/Print
+.Diary_cmd6
+        defb    Diary_cmd6_end-Diary_cmd6+1	; Length of command
+        defb    $25	; command code
+        defm    "BL", $00
+        defm    "List/", $fe
+        defb    $00	; Command attribute
+.Diary_cmd6_end
+        defb    Diary_cmd6_end-Diary_cmd6+1
+
+; Search
+.Diary_cmd7
+        defb    Diary_cmd7_end-Diary_cmd7+1	; Length of command
+        defb    $26	; command code
+        defm    "BSE", $00
+        defm    "Se", $8c, $b4
+        defb    $01	; Command attribute
+.Diary_cmd7_end
+        defb    Diary_cmd7_end-Diary_cmd7+1
+
+; Replace
+.Diary_cmd8
+        defb    Diary_cmd8_end-Diary_cmd8+1	; Length of command
+        defb    $29	; command code
+        defm    "BRP", $00
+        defm    $c8, $d9, "a", $c9
+        defb    $00	; Command attribute
+.Diary_cmd8_end
+        defb    Diary_cmd8_end-Diary_cmd8+1
+
+; Next Match
+.Diary_cmd9
+        defb    Diary_cmd9_end-Diary_cmd9+1	; Length of command
+        defb    $27	; command code
+        defm    "BNM", $00
+        defm    $97, $f7
+        defb    $00	; Command attribute
+.Diary_cmd9_end
+        defb    Diary_cmd9_end-Diary_cmd9+1
+
+; Previous Match
+.Diary_cmd10
+        defb    Diary_cmd10_end-Diary_cmd10+1	; Length of command
+        defb    $28	; command code
+        defm    "BPM", $00
+        defm    $98, $f7
+        defb    $00	; Command attribute
+.Diary_cmd10_end
+        defb    Diary_cmd10_end-Diary_cmd10+1
+
+        defb    1	; Command topic separator
+
+; End of Line
+.Diary_cmd11
+        defb    Diary_cmd11_end-Diary_cmd11+1	; Length of command
+        defb    $f5	; command code
+        defm    $f5, $00
+        defm    $df, $a9
+        defb    $00	; Command attribute
+.Diary_cmd11_end
+        defb    Diary_cmd11_end-Diary_cmd11+1
+
+; Start of Line
+.Diary_cmd12
+        defb    Diary_cmd12_end-Diary_cmd12+1	; Length of command
+        defb    $f4	; command code
+        defm    $f4, $00
+        defm    "St", $8c, $84, $89, $a9
+        defb    $00	; Command attribute
+.Diary_cmd12_end
+        defb    Diary_cmd12_end-Diary_cmd12+1
+
+; First Line
+.Diary_cmd13
+        defb    Diary_cmd13_end-Diary_cmd13+1	; Length of command
+        defb    $30	; command code
+        defm    $f7, $00
+        defm    $f8, $a9
+        defb    $00	; Command attribute
+.Diary_cmd13_end
+        defb    Diary_cmd13_end-Diary_cmd13+1
+
+; Last Line
+.Diary_cmd14
+        defb    Diary_cmd14_end-Diary_cmd14+1	; Length of command
+        defb    $2f	; command code
+        defm    $f6, $00
+        defm    "La", $ca, $a9
+        defb    $00	; Command attribute
+.Diary_cmd14_end
+        defb    Diary_cmd14_end-Diary_cmd14+1
+
+; Save position
+.Diary_cmd15
+        defb    Diary_cmd15_end-Diary_cmd15+1	; Length of command
+        defb    $2b	; command code
+        defm    "CSP", $00
+        defm    $bd, $be
+        defb    $00	; Command attribute
+.Diary_cmd15_end
+        defb    Diary_cmd15_end-Diary_cmd15+1
+
+; Restore position
+.Diary_cmd16
+        defb    Diary_cmd16_end-Diary_cmd16+1	; Length of command
+        defb    $2c	; command code
+        defm    "CRP", $00
+        defm    $c8, "st", $8f, $be
+        defb    $00	; Command attribute
+.Diary_cmd16_end
+        defb    Diary_cmd16_end-Diary_cmd16+1
+
+; ENTER
+.Diary_cmd17
+        defb    Diary_cmd17_end-Diary_cmd17+1	; Length of command
+        defb    $0d	; command code
+        defm    $e1, $00
+        defm    $d2
+        defb    $00	; Command attribute
+.Diary_cmd17_end
+        defb    Diary_cmd17_end-Diary_cmd17+1
+
+; Next Word
+.Diary_cmd18
+        defb    Diary_cmd18_end-Diary_cmd18+1	; Length of command
+        defb    $f9	; command code
+        defm    $f9, $00
+        defm    $97, $d3
+        defb    $01	; Command attribute
+.Diary_cmd18_end
+        defb    Diary_cmd18_end-Diary_cmd18+1
+
+; Previous Word
+.Diary_cmd19
+        defb    Diary_cmd19_end-Diary_cmd19+1	; Length of command
+        defb    $f8	; command code
+        defm    $f8, $00
+        defm    $98, $d3
+        defb    $00	; Command attribute
+.Diary_cmd19_end
+        defb    Diary_cmd19_end-Diary_cmd19+1
+
+; Screen Up
+.Diary_cmd20
+        defb    Diary_cmd20_end-Diary_cmd20+1	; Length of command
+        defb    $32	; command code
+        defm    $fb, $00
+        defm    $d4, $b9
+        defb    $00	; Command attribute
+.Diary_cmd20_end
+        defb    Diary_cmd20_end-Diary_cmd20+1
+
+; Screen Down
+.Diary_cmd21
+        defb    Diary_cmd21_end-Diary_cmd21+1	; Length of command
+        defb    $31	; command code
+        defm    $fa, $00
+        defm    $d4, $ac
+        defb    $00	; Command attribute
+.Diary_cmd21_end
+        defb    Diary_cmd21_end-Diary_cmd21+1
+
+; Cursor Right
+.Diary_cmd22
+        defb    Diary_cmd22_end-Diary_cmd22+1	; Length of command
+        defb    $fd	; command code
+        defm    $fd, $00
+        defm    $a7
+        defb    $00	; Command attribute
+.Diary_cmd22_end
+        defb    Diary_cmd22_end-Diary_cmd22+1
+
+; Cursor Left
+.Diary_cmd23
+        defb    Diary_cmd23_end-Diary_cmd23+1	; Length of command
+        defb    $fc	; command code
+        defm    $fc, $00
+        defm    $a8
+        defb    $00	; Command attribute
+.Diary_cmd23_end
+        defb    Diary_cmd23_end-Diary_cmd23+1
+
+; Cursor Up
+.Diary_cmd24
+        defb    Diary_cmd24_end-Diary_cmd24+1	; Length of command
+        defb    $2e	; command code
+        defm    $ff, $00
+        defm    $da
+        defb    $00	; Command attribute
+.Diary_cmd24_end
+        defb    Diary_cmd24_end-Diary_cmd24+1
+
+; Cursor Down
+.Diary_cmd25
+        defb    Diary_cmd25_end-Diary_cmd25+1	; Length of command
+        defb    $2d	; command code
+        defm    $fe, $00
+        defm    $db
+        defb    $00	; Command attribute
+.Diary_cmd25_end
+        defb    Diary_cmd25_end-Diary_cmd25+1
+
+; Tab
+.Diary_cmd26
+        defb    Diary_cmd26_end-Diary_cmd26+1	; Length of command
+        defb    $2a	; command code
+        defm    $e2, $00
+        defm    "TAB"
+        defb    $01	; Command attribute
+.Diary_cmd26_end
+        defb    Diary_cmd26_end-Diary_cmd26+1
+
+; Today
+.Diary_cmd27
+        defb    Diary_cmd27_end-Diary_cmd27+1	; Length of command
+        defb    $33	; command code
+        defm    "CT", $00
+        defm    "Tod", $fb
+        defb    $00	; Command attribute
+.Diary_cmd27_end
+        defb    Diary_cmd27_end-Diary_cmd27+1
+
+; First Active Day
+.Diary_cmd28
+        defb    Diary_cmd28_end-Diary_cmd28+1	; Length of command
+        defb    $39	; command code
+        defm    "CFAD", $00
+        defm    $f8, $ad
+        defb    $00	; Command attribute
+.Diary_cmd28_end
+        defb    Diary_cmd28_end-Diary_cmd28+1
+
+; Last Active Day
+.Diary_cmd29
+        defb    Diary_cmd29_end-Diary_cmd29+1	; Length of command
+        defb    $38	; command code
+        defm    "CLAD", $00
+        defm    "La", $ca, $ad
+        defb    $00	; Command attribute
+.Diary_cmd29_end
+        defb    Diary_cmd29_end-Diary_cmd29+1
+
+; Next Active Day
+.Diary_cmd30
+        defb    Diary_cmd30_end-Diary_cmd30+1	; Length of command
+        defb    $36	; command code
+        defm    $f1, $00
+        defm    $97, $ad
+        defb    $00	; Command attribute
+.Diary_cmd30_end
+        defb    Diary_cmd30_end-Diary_cmd30+1
+
+; Previous Active Day
+.Diary_cmd31
+        defb    Diary_cmd31_end-Diary_cmd31+1	; Length of command
+        defb    $37	; command code
+        defm    $f0, $00
+        defm    $98, $ad
+        defb    $00	; Command attribute
+.Diary_cmd31_end
+        defb    Diary_cmd31_end-Diary_cmd31+1
+
+; Previous Day
+.Diary_cmd32
+        defb    Diary_cmd32_end-Diary_cmd32+1	; Length of command
+        defb    $35	; command code
+        defm    $f3, $00
+        defm    $98, "D", $fb
+        defb    $00	; Command attribute
+.Diary_cmd32_end
+        defb    Diary_cmd32_end-Diary_cmd32+1
+
+; Next Day
+.Diary_cmd33
+        defb    Diary_cmd33_end-Diary_cmd33+1	; Length of command
+        defb    $34	; command code
+        defm    $f2, $00
+        defm    $97, "D", $fb
+        defb    $00	; Command attribute
+.Diary_cmd33_end
+        defb    Diary_cmd33_end-Diary_cmd33+1
+
+        defb    1	; Command topic separator
+
+; Rubout
+.Diary_cmd34
+        defb    Diary_cmd34_end-Diary_cmd34+1	; Length of command
+        defb    $7f	; command code
+        defm    $e3, $00
+        defm    $e0
+        defb    $00	; Command attribute
+.Diary_cmd34_end
+        defb    Diary_cmd34_end-Diary_cmd34+1
+
+; Delete Character
+.Diary_cmd35
+        defb    Diary_cmd35_end-Diary_cmd35+1	; Length of command
+        defb    $07	; command code
+        defm    "G", $00
+        defm    $96, $e9
+        defb    $00	; Command attribute
+.Diary_cmd35_end
+        defb    Diary_cmd35_end-Diary_cmd35+1
+
+; Insert Character
+.Diary_cmd36
+        defb    Diary_cmd36_end-Diary_cmd36+1	; Length of command
+        defb    $07	; command code
+        defm    $d3, $00
+        defm    $04
+        defb    $04	; Command attribute
+.Diary_cmd36_end
+        defb    Diary_cmd36_end-Diary_cmd36+1
+
+.Diary_cmd37
+        defb    Diary_cmd37_end-Diary_cmd37+1	; Length of command
+        defb    $15	; command code
+        defm    "U", $00
+        defm    $cb, $e9
+        defb    $00	; Command attribute
+.Diary_cmd37_end
+        defb    Diary_cmd37_end-Diary_cmd37+1
+
+; Delete Word
+.Diary_cmd38
+        defb    Diary_cmd38_end-Diary_cmd38+1	; Length of command
+        defb    $14	; command code
+        defm    "T", $00
+        defm    $96, $d3
+        defb    $00	; Command attribute
+.Diary_cmd38_end
+        defb    Diary_cmd38_end-Diary_cmd38+1
+
+; Delete to End of Line
+.Diary_cmd39
+        defb    Diary_cmd39_end-Diary_cmd39+1	; Length of command
+        defb    $04	; command code
+        defm    "D", $00
+        defm    $96, $bb, $df, $a9
+        defb    $00	; Command attribute
+.Diary_cmd39_end
+        defb    Diary_cmd39_end-Diary_cmd39+1
+
+; Delete Line
+.Diary_cmd40
+        defb    Diary_cmd40_end-Diary_cmd40+1	; Length of command
+        defb    $3a	; command code
+        defm    "Y", $00
+        defm    $96, $a9
+        defb    $00	; Command attribute
+.Diary_cmd40_end
+        defb    Diary_cmd40_end-Diary_cmd40+1
+
+.Diary_cmd41
+        defb    Diary_cmd41_end-Diary_cmd41+1	; Length of command
+        defb    $3a	; command code
+        defm    $c3, $00
+        defm    $04
+        defb    $04	; Command attribute
+.Diary_cmd41_end
+        defb    Diary_cmd41_end-Diary_cmd41+1
+
+.Diary_cmd42
+        defb    Diary_cmd42_end-Diary_cmd42+1	; Length of command
+        defb    $3c	; command code
+        defm    "N", $00
+        defm    $cb, $a9
+        defb    $00	; Command attribute
+.Diary_cmd42_end
+        defb    Diary_cmd42_end-Diary_cmd42+1
+
+; Insert/Overtype
+.Diary_cmd43
+        defb    Diary_cmd43_end-Diary_cmd43+1	; Length of command
+        defb    $16	; command code
+        defm    "V", $00
+        defm    $ea
+        defb    $01	; Command attribute
+.Diary_cmd43_end
+        defb    Diary_cmd43_end-Diary_cmd43+1
+
+; Swap Case
+.Diary_cmd44
+        defb    Diary_cmd44_end-Diary_cmd44+1	; Length of command
+        defb    $13	; command code
+        defm    "S", $00
+        defm    $ff
+        defb    $00	; Command attribute
+.Diary_cmd44_end
+        defb    Diary_cmd44_end-Diary_cmd44+1
+
+; Next Option
+.Diary_cmd45
+        defb    Diary_cmd45_end-Diary_cmd45+1	; Length of command
+        defb    $3f	; command code
+        defm    "J", $00
+        defm    $97, $ec
+        defb    $00	; Command attribute
+.Diary_cmd45_end
+        defb    Diary_cmd45_end-Diary_cmd45+1
+
+; Memory Free
+.Diary_cmd46
+        defb    Diary_cmd46_end-Diary_cmd46+1	; Length of command
+        defb    $3e	; command code
+        defm    "EMF", $00
+        defm    "Mem", $8f, $d6, "F", $8d, "e"
+        defb    $00	; Command attribute
+.Diary_cmd46_end
+        defb    Diary_cmd46_end-Diary_cmd46+1
+
+; Split Line
+.Diary_cmd47
+        defb    Diary_cmd47_end-Diary_cmd47+1	; Length of command
+        defb    $3d	; command code
+        defm    "ESL", $00
+        defm    "S", $d9, "i", $84, $a9
+        defb    $01	; Command attribute
+.Diary_cmd47_end
+        defb    Diary_cmd47_end-Diary_cmd47+1
+
+; Join Lines
+.Diary_cmd48
+        defb    Diary_cmd48_end-Diary_cmd48+1	; Length of command
+        defb    $3b	; command code
+        defm    "EJL", $00
+        defm    "Jo", $a3, $a9, "s"
+        defb    $00	; Command attribute
+.Diary_cmd48_end
+        defb    Diary_cmd48_end-Diary_cmd48+1
+
+        defb    1	; Command topic separator
+
+; Load
+.Diary_cmd49
+        defb    Diary_cmd49_end-Diary_cmd49+1	; Length of command
+        defb    $40	; command code
+        defm    "FL", $00
+        defm    $e1
+        defb    $00	; Command attribute
+.Diary_cmd49_end
+        defb    Diary_cmd49_end-Diary_cmd49+1
+
+; Save
+.Diary_cmd50
+        defb    Diary_cmd50_end-Diary_cmd50+1	; Length of command
+        defb    $41	; command code
+        defm    "FS", $00
+        defm    $bd, "e"
+        defb    $00	; Command attribute
+.Diary_cmd50_end
+        defb    Diary_cmd50_end-Diary_cmd50+1
+
+        defb    0	; End command marker
+
+
 
 ; ********************************************************************************************************************
 ; MTH for PrinterEd application...
