@@ -27,7 +27,7 @@
 ; Copyright of original (binary) implementation, V4.0:
 ; (C) 1987,88 by Trinity Concepts Limited, Protechnic Computers Limited & Operating Systems Limited.
 ;
-; $Id: osprt.asm 2490 2006-08-02 14:09:15Z gbs $
+; $Id$
 ;***************************************************************************************************
 
         module OSPrt

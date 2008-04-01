@@ -27,7 +27,7 @@
 ; Copyright of original (binary) implementation, V4.0:
 ; (C) 1987,88 by Trinity Concepts Limited, Protechnic Computers Limited & Operating Systems Limited.
 ;
-; $Id: ossi0.asm 2005 2005-11-23 21:31:34Z gbs $
+; $Id$
 ;***************************************************************************************************
 
         Module OSSi0
