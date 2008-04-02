@@ -48,6 +48,7 @@
         include "sysvar.def"
         include "sysapps.def"
         include "keyboard.def"
+        include "handle.def"
 
         include "../os/lowram/lowram.def"
         include "dc.def"
@@ -326,8 +327,7 @@ xref    ldIX_DE
         call    GetFirstCli                     ; if we have running CLI rebind it's output to printer
         jr      z, dcalt_19
 
-        ld      bc, NQ_Phn
-        OZ      OS_Nq                           ; get printer indirected handle
+        ld      ix, phnd_Phn                    ; get printer indirected handle
         ld      e, RB_OPT                       ; rebind output tee into it
         jr      dcalt_29
 
@@ -361,7 +361,7 @@ xref    ldIX_DE
 
         call    GetFirstCli
         jr      z, dcalt_23
-        ld      hl, Ssgn_name                   ; rebind CLI's output to SS.sgn
+        ld      hl, Ssgn_name                   ; rebind CLI's output to S.sgn
         call    OpenWrite
         jr      c, dcalt_31
         ld      e, RB_OPT
@@ -459,12 +459,12 @@ xref    ldIX_DE
 .RedirInKsgn_cli
         defm    ".T<"
 .Ksgn_name
-        defm    ":Ram.-/K.sgn",13
+        defm    ":RAM.-/K.sgn",13
         defm    ".S",0
 .RedirOutSsgn_cli
         defm    ".T>"
 .Ssgn_name
-        defm    ":Ram.-/S.sgn",13
+        defm    ":RAM.-/S.sgn",13
         defm    ".S",0
 
 ;       ----
@@ -867,6 +867,7 @@ xref    ldIX_DE
         inc     hl
         cp      $20
         jr      nc, dcnam_2
+.dcnam_0
         xor     a
 .dcnam_2
         OZ      GN_Wbe                          ; write A to BDE
@@ -875,9 +876,7 @@ xref    ldIX_DE
         jr      z, dcnam_3
         dec     c
         jr      nz, dcnam_1
-        xor     a                               ; !! use code above to save 2 bytes
-        OZ      GN_Wbe
-
+        jr      dcnam_0
 .dcnam_3
         pop     de
         OZ      OS_Box                          ; Restore bindings after OS_Bix
@@ -1010,22 +1009,18 @@ xref    ldIX_DE
 ;       ----
 
 ; get the director memory handle
-
 .dqdmh
         ld      ix, (pIdxMemHandle)
         ret
 
 ; reset serial port and get NQ_Com
-
 .dqchn
         ld      l, SI_SFT
         OZ      OS_Si                           ; serial soft reset
-        ld      bc, NQ_Com
-        OZ      OS_Nq                           ; read comms handle
+        ld      ix, phnd_Com
         ret
 
 ; get input-T handle
-
 .dqtin
         ld      ix,0
         call    GetFirstCli
@@ -1034,7 +1029,6 @@ xref    ldIX_DE
         jr      ReturnCliHandle
 
 ; get output-T handle
-
 .dqtot
         ld      ix,0
         call    GetFirstCli
@@ -1043,7 +1037,6 @@ xref    ldIX_DE
         jr      ReturnCliHandle
 
 ; get printer-T handle
-
 .dqtpr
         ld      ix,0
         call    GetFirstCli
@@ -1052,23 +1045,18 @@ xref    ldIX_DE
         jr      ReturnCliHandle
 
 ; get IN handle
-
 .dqinp
-        ld      bc, NQ_Ihn
-        OZ      OS_Nq
+        ld      ix, phnd_Ihn
         ret
 
 ; get OUT handle
-
 .dqout
-        ld      bc, NQ_Ohn
-        OZ      OS_Nq
+        ld      ix, phnd_Ohn
         ret
-; get printer indirected handle
 
+; get printer indirected handle
 .dqprt
-        ld      bc, NQ_Phn
-        OZ      OS_Nq
+        ld      ix, phnd_Phn
         ret
 
 .ReturnCliHandle
@@ -1081,8 +1069,6 @@ xref    ldIX_DE
         push    de
         pop     ix
         rst     OZ_MPB                          ; restore S1
-
-.dcnq_ret
         ret
 
 ;       ----
@@ -1623,17 +1609,11 @@ xref    ldIX_DE
         ld      (iy+cli_instream+1), b
         ld      (iy+cli_instream), c
 
-        ld      bc, NQ_Shn
-        OZ      OS_Nq                           ; read screen handle
-        push    ix
-        pop     bc
+        ld      bc, phnd_Shn                    ; read screen handle
         ld      (iy+cli_outstream+1), b
         ld      (iy+cli_outstream), c
 
-        ld      bc, NQ_Rhn
-        OZ      OS_Nq                           ; read direct printer handle
-        push    ix
-        pop     bc
+        ld      bc, phnd_Rhn                    ; read direct printer handle
         ld      (iy+cli_prtstream+1), b
         ld      (iy+cli_prtstream), c
 
@@ -1713,11 +1693,7 @@ xref    ldIX_DE
 ;       ----
 
 .CompareIX_INP
-        push    ix
-        ld      bc, NQ_Ihn
-        OZ      OS_Nq                           ; read IN handle
-        ex      (sp), ix                        ; pop ix
-        pop     bc                              ; handle into bc
+        ld      bc, phnd_Ihn                    ; IN handle
         push    ix
         pop     hl
         or      a
@@ -1736,49 +1712,41 @@ xref    ldIX_DE
         call    OZ_MGB
         push    bc
 
-        ld      c, (iy+OSFrame_A)
+        ld      c, (iy+OSFrame_A)               ; get A from caller API
         call    GetCLI
-        jr      c, dcrbd_8
-        ld      a, c                            ; !! use djnz
-
-        cp      RB_IN                           ; input stream
-        jr      nz, dcrbd_1
-        ld      bc, cli_instream
+        jr      c, dcrbd_8                      ; CLI currently not running...
+        ld      b,c
+        inc     b
+        djnz    dcrbd_1
+        ld      bc, cli_instream                ; A = RB_IN, input stream
         ld      a, CLIS_INOPEN
         jr      dcrbd_7
-
 .dcrbd_1
-        cp      RB_OUT                          ; output stream
-        jr      nz, dcrbd_2
-        ld      bc, cli_outstream
+        djnz    dcrbd_2
+        ld      bc, cli_outstream               ; A = RB_OUT, output stream
         ld      a, CLIS_OUTOPEN
         jr      dcrbd_7
-
 .dcrbd_2
-        cp      RB_PRT                          ; printer stream
-        jr      nz, dcrbd_3
-        ld      bc, cli_prtstream
+        djnz    dcrbd_3
+        ld      bc, cli_prtstream               ; A = RB_PRT, printer stream
         ld      a, CLIS_PRTOPEN
         jr      dcrbd_7
 
 .dcrbd_3
-        cp      RB_INT                          ; input stream T
-        jr      nz, dcrbd_4
-        ld      bc, cli_instreamT
+        djnz    dcrbd_4
+        ld      bc, cli_instreamT               ; A = RB_INT, input stream T
         ld      a, CLIS_INTOPEN
         jr      dcrbd_7
 
 .dcrbd_4
-        cp      RB_OPT                          ; output stream T
-        jr      nz, dcrbd_5
-        ld      bc, cli_outstreamT
+        djnz    dcrbd_5
+        ld      bc, cli_outstreamT              ; A = RB_OPT, output stream T
         ld      a, CLIS_OUTTOPEN
         jr      dcrbd_7
 
 .dcrbd_5
-        cp      RB_PTT                          ; printer stream T
-        jr      nz, dcrbd_6
-        ld      bc, cli_prtstreamT
+        djnz    dcrbd_6
+        ld      bc, cli_prtstreamT              ; A = RB_PTT, printer stream T
         ld      a, CLIS_PRTTOPEN
         jr      dcrbd_7
 
@@ -2153,10 +2121,7 @@ xref    ldIX_DE
         jr      nc, dcout_1
 
         push    af                              ; no CLI, output to screen
-        push    bc
-        ld      bc, NQ_Shn
-        OZ      OS_Nq                           ; get screen handle
-        pop     bc
+        ld      ix, phnd_Shn                    ; screen handle
         ld      a, c
         OZ      OS_Pb                           ; write byte A to screen
         pop     af
