@@ -1082,7 +1082,7 @@ xref    Chr2VDU_tbl                             ; [Kernel1]/key2chrt.asm
 
 ;       special chars
 ;
-;       ASCII, LORES, control byte (bit 0 : 0 use lores 00-FF, 1 use 100-1FF / bit 1 : 2 lores, bit 2: 3 lores)
+;       ASCII, LORES, control byte (bit 0 : 0 use lores 00-FF, 1 use 100-1FF / bit 1 : width 2 lores, bit 2: width 3 lores)
 ;
 
         defb    $27,$60,0                       ; grave accent
