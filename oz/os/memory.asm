@@ -29,7 +29,7 @@
 ; (C) 1987,88 by Trinity Concepts Limited, Protechnic Computers Limited & Operating Systems Limited.
 ;
 ; $Id$
-;***************************************************************************************************
+; ***************************************************************************************************
 
         Module Memory
 
@@ -86,7 +86,6 @@ xref    FilePtr2MemPtr                          ; [Kernel0]/filesys3.asm
 xref    MemPtr2FilePtr                          ; [Kernel0]/filesys3.asm
 xref    OZwd__fail                              ; [Kernel0]/ozwindow.asm
 
-xref    MemCallAttrVerify                       ; [Kernel1]/memory1.asm
 xref    RAMxDOR                                 ; [Kernel1]/misc1.asm
 
 defc    DM_RAM                  =$81
@@ -2305,4 +2304,41 @@ defc    DM_RAM                  =$81
         ld      a, (ubSlotRamSize)              ; RAM in slot 0
         cp      128/16
         ld      a, $21
+        ret
+
+
+.MemCallAttrVerify
+        ld      a, HND_MEM                      ; first verify handle type
+        call    VerifyHandle
+        ret     c
+        inc     b                               ; check allocation size !! wouldn't this be easier with cp?
+        dec     b
+        jp      z, mcav_1                       ; 0-255, ok
+        dec     b
+        jr      nz, mcav_err                    ; >256, fail
+        inc     c
+        dec     c
+        ret     z                               ; 256 - ok
+        scf                                     ; ?? why like this?
+.mcav_1
+        inc     c
+        inc     c
+        jr      nz, mcav_2                      ; not FE
+        dec     (iy+OSFrame_C)                  ; ?? FE->FD
+        dec     c                               ; ff
+        ret
+.mcav_2
+        dec     c
+        dec     c
+        dec     c
+        jr      nz, mcav_3
+        inc     c                               ; 1 -> 2
+        inc     c
+        ret
+.mcav_3
+        inc     c
+        ret     nz                              ; not 0? ok
+.mcav_err
+        ld      a, RC_Fail
+        scf
         ret

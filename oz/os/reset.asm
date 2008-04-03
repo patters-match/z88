@@ -28,7 +28,7 @@
 ; (C) 1987,88 by Trinity Concepts Limited, Protechnic Computers Limited & Operating Systems Limited.
 ;
 ; $Id$
-;***************************************************************************************************
+; ***************************************************************************************************
 
         Module Reset
 
@@ -59,7 +59,6 @@ xref    Chk128KB                                ; [K0]/memory.asm
 xref    FirstFreeRAM                            ; [K0]/memory.asm
 xref    IntSecond                               ; [K0]/int.asm
 
-xref    InitData                                ; [K1]/initdata.asm
 xref    TimeReset                               ; [K1]/timeres.asm
 xref    defDev                                  ; [K1]/spnq1.asm
 
@@ -362,3 +361,12 @@ ENDIF
         ld      c, [elapsedtime_centisecs - ((elapsedtime_centisecs/65536) * 65536)] % 256
         OZ      GN_Pmt                          ; set clock according to current time of compilation
         jr      tr_2
+
+.InitData
+        defb    BL_SR2, OZBANK_KNL1                ; SR2 = kernel bank 1
+        defb    BL_TMK, BM_TACKTICK|BM_TACKSEC|BM_TACKMIN
+        defb    BL_INT, BM_INTFLAP|BM_INTBTL|BM_INTTIME|BM_INTGINT
+        defb    BL_TACK, BM_TMKTICK|BM_TMKSEC|BM_TMKMIN
+        defb    BL_ACK, BM_ACKA19|BM_ACKFLAP|BM_ACKBTL|BM_ACKKEY
+        defb    BL_EPR, 0                       ; reset EPROM port
+        defb    0

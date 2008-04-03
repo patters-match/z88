@@ -65,10 +65,8 @@ process1.asm
 card1.asm
 filesys1.asm
 osmap.asm
-memory1.asm
 mth1.asm
 spnq1.asm
-initdata.asm
 scrdrv1.asm
 ossr.asm
 key2chrt.asm

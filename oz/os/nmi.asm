@@ -28,7 +28,7 @@
 ; (C) 1987,88 by Trinity Concepts Limited, Protechnic Computers Limited & Operating Systems Limited.
 ;
 ; $Id$
-;***************************************************************************************************
+; ***************************************************************************************************
 
         Module NMI
 
@@ -68,7 +68,7 @@ defc    NMI_B_HALT      =0
         ld      bc, $7f<<8 | BL_KBD             ; row7, kbd port
         in      a, (c)
         rlca                                    ; we rotate shifts to bit0 to use inc near the end
-        ld      d, a                            ; SQR ESC IDX LCK  .   /   £  SHR
+        ld      d, a                            ; SQR ESC IDX LCK  .   /   ï¿½  SHR
 
         ld      b, $bf                          ; row6
         in      a, (c)

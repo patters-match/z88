@@ -1,5 +1,5 @@
 ; **************************************************************************************************
-; OS_Alm entry and alarm mangement in interruption.
+; OS_Alm entry and alarm mangement during interrupt (kernel 0).
 ;
 ; This file is part of the Z88 operating system, OZ.     0000000000000000      ZZZZZZZZZZZZZZZZZZZ
 ;                                                       000000000000000000   ZZZZZZZZZZZZZZZZZZZ
@@ -28,7 +28,7 @@
 ; (C) 1987,88 by Trinity Concepts Limited, Protechnic Computers Limited & Operating Systems Limited.
 ;
 ; $Id$
-;***************************************************************************************************
+; ***************************************************************************************************
 
         Module Alarm0
 

@@ -24,7 +24,7 @@
 ; (C) Gunther Strube (gbs@users.sf.net), 2005-2006
 ;
 ; $Id$
-;***************************************************************************************************
+; ***************************************************************************************************
 
         Module Kernel_Lower16K
 
@@ -95,8 +95,6 @@ IF COMPILE_BINARY
         xdef    OpenMem                         ; [Kernel1]/filesys1.asm
         xdef    OSDel                           ; [Kernel1]/filesys1.asm
         xdef    OSRen                           ; [Kernel1]/filesys1.asm
-
-        xdef    MemCallAttrVerify               ; [Kernel1]/memory1.asm
 
         xdef    Key2Chr_tbl                     ; [Kernel1]/key2chrt.asm
 
