@@ -112,13 +112,15 @@ NEW
   890 O%=1
   900 I%=FNNextApp(O%)
   910 PROCload(FNbankfile$(C$,TopBank%),bank%)
-  915 OZROM%=0
-  920 IF FNGetb(&3FFB)<>&81 THEN PROCSetw(&3FF8,NewCardID%) ELSE OZROM%=1
-  930 IF ForcedSize%=-1 THEN PROCSetb(&3FFC,FNtotsize) ELSE PROCSetb(&3FFC,ForcedSize%)
+  915 IF FNGetb(&3FFB)=&81 THEN OZROM%=1 ELSE OZROM%=0
+  917 IF OZROM%=1 PRINT "Techy options (if previously selected) are ignored for OZ ROM..."
+  920 IF OZROM%=0 THEN PROCSetw(&3FF8,NewCardID%)
+  932 IF ForcedSize%=-1 THEN PROCSetb(&3FFC,FNtotsize) 
+  935 IF OZROM%=0 AND ForcedSize%<>-1 THEN PROCSetb(&3FFC,ForcedSize%)
   940 PROCSetw(&3FC6,AppOffset(I%))
   950 PROCSetb(&3FC8,FNnewbank(AppCard(I%),AppBank(I%)))
   960 IF OZROM%=0 THEN PROCSetb(&3FF6,&FF):PROCSetb(&3FF7,&FF)
-  970 IF EPFS$="Y" OR EPFS$="y" THEN PROCSetb(&3FF6,ASC("o")):PROCSetb(&3FF7,ASC("z"))
+  970 IF OZROM%=0 AND (EPFS$="Y" OR EPFS$="y") THEN PROCSetb(&3FF6,ASC("o")):PROCSetb(&3FF7,ASC("z"))
   980 REPEAT
   990   O%=O%+1
  1000   J%=FNNextApp(O%)
@@ -135,7 +137,7 @@ NEW
 
  1100 DEF PROCDispTitle
  1110 CLS
- 1120 PRINT r1$;"  RomCombiner v2.06 (c) Garry Lancaster, 2000-2008  ";r0$;
+ 1120 PRINT r1$;"  RomCombiner v2.07 (c) Garry Lancaster, 2000-2008  ";r0$;
  1130 PRINT "  Pause mode ";
  1140 IF WaitLS% THEN PRINT "ON "; ELSE PRINT "OFF";
  1150 PRINT "  Display mode ";

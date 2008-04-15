@@ -40,7 +40,7 @@ NEW
 
  1100 DEF PROCDispTitle
  1110 CLS
- 1120 PRINT r1$;"  RomCombiner v2.06 (c) Garry Lancaster, 2000-2008  ";r0$;
+ 1120 PRINT r1$;"  RomCombiner v2.07 (c) Garry Lancaster, 2000-2008  ";r0$;
  1130 PRINT "  Pause mode ";
  1140 IF WaitLS% THEN PRINT "ON "; ELSE PRINT "OFF";
  1150 PRINT "  Display mode ";
@@ -264,8 +264,8 @@ NEW
  5890 CLOSE#X%
  5895 PRINT "OZ ROM bank files have been completed."
  5900 PRINT "'romupdate.cfg' file was also created for OZ ROM bank files."
- 5910 PRINT "Use RomUpdate.bas to blow new OZ ROM to slot 1."
- 5920 PRINT "Press any key to continue"+CHR$(7)
- 5930 K=GET
+ 5910 PRINT "Use RomUpdate.bas to blow new OZ ROM to slot 1."+CHR$(7)
+ 5920 INPUT "Do you want to run RomUpdate.bas now (Y/N)?";Q$
+ 5930 IF ASC(Q$)=ASC("Y") OR ASC(Q$)=ASC("y") THEN RUN ":*//RomUpdate.bas"
  5940 ENDPROC
 SA."RomUtil.bas"

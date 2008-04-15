@@ -1,3 +1,13 @@
+ROMCombiner v2.07 - What's New?
+===============================
+
+Overriding techy options and displaying a message about it when an OZ ROM is being combined.
+New Y/N option to execute "RomUpdate.bas" when Romcombiner has completed the OZ ROM image.
+
+Gunther Strube, 15th April 2008
+
+
+
 ROMCombiner v2.06 - What's New?
 ===============================
 
