@@ -82,7 +82,6 @@ IF COMPILE_BINARY
         xdef    VerifyHandle                    ; [Kernel0]/handle.asm
         xdef    ResetHandles                    ; [Kernel0]/handle.asm
 
-        xdef    OSSp_89                         ; [Kernel0]/memory.asm
         xdef    InitRAM                         ; [Kernel0]/memory.asm
         xdef    MarkSwapRAM                     ; [Kernel0]/memory.asm
         xdef    MarkSystemRAM                   ; [Kernel0]/memory.asm

@@ -64,7 +64,6 @@ xdef    OSMgb
 xdef    OSMop
 xdef    OSMopMain
 xdef    OSMpb
-xdef    OSSp_89
 xdef    PageNToPagePtr
 xdef    VerifySlotType
 xdef    Chk128KB
@@ -2153,25 +2152,6 @@ defc    DM_RAM                  =$81
         inc     c
         exx
         jr      cup2_1                          ; and check next
-
-;       ----
-
-;       nop OZ entry  !! get rid of all calls to this
-
-.OSSp_89
-        cp      3
-        ccf
-        ld      a, RC_Unk
-        ret     c                               ; !! just ret, Fc set correctly
-        ld      hl, ossp89_1
-        add     hl, bc
-        jp      (hl)
-
-.ossp89_1
-        jp      ossp89_2
-.ossp89_2
-        or      a                               ; Fc=0
-        ret
 
 
 ; ******************************************************************************************************

@@ -68,7 +68,6 @@ xref    ScreenOpen                              ; [K0]/scrdrv4.asm
 xref    GetWindowFrame                          ; [K0]/scrdrv2.asm
 xref    NqRDS                                   ; [K0]/scrdrv2.asm
 xref    NqSp_ret                                ; [K0]/spnq0.asm
-xref    OSSp_89                                 ; [K0]/memory.asm
 xref    VerifyHandle                            ; [K0]/handle.asm
 
 xref    ScrD_GetMargins                         ; [K1]/scrdrv1.asm
@@ -188,7 +187,7 @@ xref    Keymap_FI
         jp      SpPanel
         jp      Sp_nop
         jp      Sp_nop
-        jp      OSSp_89
+        jp      Sp_nop
 
 ;OSSp_DC
         push    iy
