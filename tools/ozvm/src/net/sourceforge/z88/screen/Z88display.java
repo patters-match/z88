@@ -114,7 +114,7 @@ public class Z88display extends JLabel implements MouseListener {
 	 * Internal helper class that represent each frame to be saved
 	 * into the animated Gif screen movie file.
 	 */
-	private class ScreenFrameAction {
+	private class ScreenFrameAction implements Runnable {
 		private static final int actionEncodeFrame = 1;
 		private static final int actionCloseGifFile = 2;
 
@@ -151,20 +151,23 @@ public class Z88display extends JLabel implements MouseListener {
 			if (gifFrame != null)
 				gifFrame.setDelay(frameDelay);
 		}
-				
-		/** execute the action */
-		public void action() throws IOException {
-			if (fileAction == actionEncodeFrame) {
-				gifEnc.encodeFrame(outStream, gifFrame);
-			}
+                
+        /** execute the action */
+        public void run() 
+        {
+            try {
+				if (fileAction == actionEncodeFrame) {
+					gifEnc.encodeFrame(outStream, gifFrame);
+				}
 
-			if (fileAction == actionCloseGifFile) {
-				// the write GIF TRAILER
-				outStream.write(';');
-				outStream.close();
-				outStream = null;
-			}			
-		}
+				if (fileAction == actionCloseGifFile) {
+					// the write GIF TRAILER
+					outStream.write(';');
+					outStream.close();
+					outStream = null;
+				}			
+            } catch (IOException ex) {}
+        }				
 	}
 		
 	/** The internal screen frame renderer */
@@ -393,14 +396,7 @@ public class Z88display extends JLabel implements MouseListener {
 	 * previously registered tasks). 
 	 */
 	private void scheduleFrameAction(final ScreenFrameAction frame) {		
-		movieHelper.addTask( new Runnable() {
-			public void run() {
-				try {
-					frame.action();
-				} catch (IOException e) {
-				}
-			}
-		});							
+		movieHelper.addTask( frame );							
 	}
 			
 	/**
