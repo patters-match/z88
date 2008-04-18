@@ -79,13 +79,35 @@ public class SlotInfo {
 		else
 			bankNo = ((slotNo & 3) << 6) | 0x3F;
 		
-		if ( (memory.getByte(0x3FFB, bankNo) == 0x80 | memory.getByte(0x3FFB, bankNo) == 0x81) &
-			memory.getByte(0x3FFE, bankNo) == 'O' & memory.getByte(0x3FFF, bankNo) == 'Z')
+		if ( memory.getByte(0x3FFB, bankNo) == 0x80  &
+                        memory.getByte(0x3FFE, bankNo) == 'O' & memory.getByte(0x3FFF, bankNo) == 'Z')
 			return true;
 		else
 			return false;
 	}
-	
+
+	/**
+	 * Check if specified slot contains an OZ Operating system.
+         * ($3FFB = $81 and $3FFE = 'OZ' watermark)
+	 * 
+	 * @return true if OZ Rom is available in slot, otherwise false
+	 */
+	public boolean isOzRom(final int slotNo) {
+		int bankNo;
+		
+		// point to watermark in top bank of slot, offset 0x3Fxx
+		if (slotNo == 0) 
+			bankNo = 0x1F;	// top bank of slot 0 512K ROM Area
+		else
+			bankNo = ((slotNo & 3) << 6) | 0x3F;
+		
+		if ( memory.getByte(0x3FFB, bankNo) == 0x81 & 
+                        memory.getByte(0x3FFE, bankNo) == 'O' & memory.getByte(0x3FFF, bankNo) == 'Z')
+			return true;
+		else
+			return false;
+	}
+        
 	/**
 	 * Check if there's a File header available at absolute bank, offset $3FC0-$3FFF.
 	 * 
