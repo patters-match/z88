@@ -123,8 +123,13 @@ IF !OZ_SLOT1
         jr      z, Boot_reset                   ; not application ROM? skip
         ld      a, ($bffd)                      ; subtype
         cp      'Z'
-        jp      z, $bff8                        ; enter ROM
-ENDIF
+        jr      nz, Boot_reset
+
+        ld      bc, $7FB2                       ; OZ ROM exists in slot 1, poll fro ESC to boot from ROM.0 instead...
+        in      a, (c)
+        cp      @11011111                       ; Escape key is pressed?
+        jp      nz,$bff8                        ; ESC not pressed, boot ROM.1
+ENDIF                                           ; else fall through and boot ROM.0
 
 .Boot_reset
         ld      a, OZBANK_KNL1
