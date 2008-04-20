@@ -21,6 +21,7 @@ defc banksize = 16384
 if POPDOWN
  defc RAM_pages = 17408/256                     ; total RAM DOR pages, 17K bytes continuous memory from upper 8K segment 0 ($2000 onwards)
  defc buffer = $2000                            ; use segment 0 onwards as 16K buffer to load a complete 16K bank from file
+ defc ozstack = $1FFE                           ; top of OZ System Stack address for OZ ROM update...
  defc linebuffer = buffer                       ; the line parsing buffer for config file 'romupdate.cfg' (use bank buffer)
  defc vararea = buffer+banksize                 ; runtime variables just after 16K buffer
 endif
