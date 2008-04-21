@@ -1,3 +1,21 @@
+; *************************************************************************************
+; RomUpdate
+; (C) Gunther Strube (gbs@users.sf.net) 2005-2007
+;
+; RomUpdate is free software; you can redistribute it and/or modify it under the terms of the
+; GNU General Public License as published by the Free Software Foundation;
+; either version 2, or (at your option) any later version.
+; RomUpdate is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+; See the GNU General Public License for more details.
+; You should have received a copy of the GNU General Public License along with RomUpdate;
+; see the file COPYING. If not, write to the
+; Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+;
+; $Id$
+;
+; *************************************************************************************
+
      Module EprFetchToRAM
 
      LIB FileEprFileImage
@@ -42,7 +60,7 @@
                     push ix                       ; preserve IX
                     push iy                       ; preserve original IY
 
-                    push bc 
+                    push bc
                     push de
                     push hl
 
@@ -62,7 +80,7 @@
                     res  6,h                      ; discard segment mask, if any...
                     res  7,d
                     res  6,d
-                    push bc 
+                    push bc
                     push de
                     push hl
                     call FileEprFileImage         ; BHL now points at first byte of file image (not file entry)
@@ -170,7 +188,7 @@
 
 ; In :
 ;         DE = local pointer to start of block (located in current address space)
-;         BHL = extended address to start of destination 
+;         BHL = extended address to start of destination
 ;              (bits 7,6 of B is the slot mask)
 ;              (bits 7,6 of H = MM_Sx segment mask for BHL)
 ;         IY = size of block (at DE) to copy
@@ -224,13 +242,13 @@
 ; Out:
 ;    Fc = 0
 ;         BHL = points at next free byte in RAM buffer
-;         DE = points beyond last byte of source 
+;         DE = points beyond last byte of source
 ;
 ; Registers changed after return:
 ;    ......../IXIY same
 ;    AFBCDEHL/.... different
 ;
-.CopyBlock 
+.CopyBlock
                     exx
                     push iy
                     pop  hl                  ; use hl as 16bit decrement counter
