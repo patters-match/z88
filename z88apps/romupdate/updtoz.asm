@@ -52,7 +52,7 @@
                     ld   c,a                            ; make sure that we have an AMD/STM 512K flash chip in slot X
                     call FlashWriteSupport
                     jr   nc, flash_found
-                    jp   ErrMsgOzRom                    ; "OZ ROM cannot be updated. 512K Flash was not found in slot X"
+                    jp   ErrMsgOzRom                    ; "OZ ROM cannot be updated. Flash device was not found in slot X"
 
 .flash_found
                     or   a
