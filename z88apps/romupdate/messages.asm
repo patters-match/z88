@@ -766,7 +766,7 @@
 .cfgsyntax1_msg     defm "Syntax error at line ",0
 .cfgsyntax2_msg     defm " in 'romupdate.cfg' file.",0
 .noflashcard_msg    defm "No Flash Card found",0
-.noflashforoz_msg   defm "OZ ROM cannot be updated. 512K Flash was not found",0
+.noflashforoz_msg   defm "OZ ROM cannot be updated. Flash device was not found",0
 .noflsupp_msg       defm  ", or card not updateable in found slots.", 0
 .noadd_msg          defm " cannot be added to card.",0
 .noapp_found_msg    defm " was not found in any slot.",0
