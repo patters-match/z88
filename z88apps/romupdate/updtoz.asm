@@ -203,6 +203,13 @@
 
                     call CopyRamFile2Buffer             ; copy RAM bank file contents (IY points to bank file entry) to 16K RomUpdate buffer...
                     ld   b,(iy+2)                       ; destination bank number to slot 0
+                    res  7,b
+                    res  6,b                            ; remove slot mask of original destination bank number for bank file
+                    ld   a,(oz_slot)
+                    rrca
+                    rrca                                ; slot number -> slot mask
+                    or   b
+                    ld   b,a                            ; bank number in romupdate.cfg converted to specified slot "OZ.x" number
                     ld   a,(flash_algorithm)            ; use programming algorithm to blow bank to slot X
                     call BlowBufferToBank               ; action! NB: error trapping makes no sense, because the OZ ROM has been wiped out!
 
