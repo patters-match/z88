@@ -17,7 +17,6 @@
 ;
 ; ***************************************************************************************************
 
-     INCLUDE "integer.def"
 
 ; ***************************************************************************************************
 ; File Entry Management:
@@ -57,7 +56,7 @@
                     POP  BC
                     POP  DE                       ; divisor in CDE (current size of file)
                     LD   B,0                      ; dividend in BHL (remaining bytes of bank)
-                    CALL_OZ(Gn_D24)               ; <blocksize> = <FileSize> MOD <BankSpace>
+                    call Divu24                   ; <blocksize> = <FileSize> MOD <BankSpace>
                     EXX
                     POP  BC
                     POP  DE                       ; (restore current file size)
@@ -105,3 +104,50 @@
                     EXX
                     POP  AF
                     RET
+
+;       BHL/CDE -> BHL=quotient, CDE=remainder
+.Divu24
+                    push    hl
+                    xor     a
+                    ld      hl, 0
+                    exx                                     ;       alt
+                    pop     hl
+                    ld      b, 24
+.d24_2
+                    rl      l
+                    rl      h
+                    exx                                     ;       main
+                    rl      b
+                    rl      l
+                    rl      h
+                    rl      a
+                    push    af
+                    push    hl
+                    sbc     hl, de
+                    sbc     a, c
+                    ccf
+                    jr      c, d24_3
+                    pop     hl
+                    pop     af
+                    or      a
+                    jr      d24_4
+.d24_3
+                    inc     sp
+                    inc     sp
+                    inc     sp
+                    inc     sp
+.d24_4
+                    exx                                     ;       alt
+                    djnz    d24_2
+
+                    rl      l
+                    rl      h
+                    push    hl
+                    exx                                     ;       main
+                    rl      b
+                    ex      de, hl
+                    ld      c, a
+                    pop     hl
+                    or      a
+.d24_5
+                    ret
