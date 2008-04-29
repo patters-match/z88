@@ -25,6 +25,8 @@
      LIB ApplSegmentMask        ; Get segment mask (MM_Sx) of this executing code)
      LIB SafeSegmentMask        ; Get a 'safe' segment mask outside the current executing code
 
+     XDEF EprFetchToRAM
+
      include "error.def"
      include "memory.def"
 

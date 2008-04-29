@@ -33,11 +33,13 @@
      lib FlashEprCardErase                              ; erase complete Flash chip to FFs
      lib FlashEprBlockErase                             ; erase specified block on Flash chip
      lib MemDefBank                                     ; Bind bank, defined in B, into segment C. Return old bank binding in B
+     lib MemGetBank                                     ; Return bank binding in B of segment C
      lib ApplEprType                                    ; poll slot for application card type
 
      xdef Update_OzRom
      xref suicide, FlashWriteSupport, ErrMsgOzRom
      xref BlowBufferToBank, MsgUpdOzRom
+     xref EprFetchToRAM
      xref hrdreset_msg, MsgOZUpdated
      xref SopNln
 
@@ -220,6 +222,27 @@
                     djnz update_ozrom_loop              ; blow bank to slot 0...
                     ret
 
+
+; *************************************************************************************
+; Copy the bank file contents located in EPROM/FLASH File are to RomUpdate 16K buffer.
+;
+; IN:
+;       IY points a three byte data block that points to file entry in file area
+;
+;       -----------------------------------------------------------------------------------
+;       byte 0:               byte 1:                byte 2:
+;       [low byte offset]     [high byte offset]     [bank no in file area]
+;
+.CopyEprFile2Buffer
+                    ld   c, [buffer/256] >> 6           ; MS_Sx
+                    call MemGetBank                     ; get bank binding of start of buffer
+                    ld   c,b
+                    ld   de,buffer                      ; CDE = ext. pointer to RAM buffer
+                    ld   l,(iy+0)
+                    ld   h,(iy+1)
+                    ld   b,(iy+2)                       ; BHL = pointer to File Area entry
+                    call EprFetchToRAM
+                    ret
 
 
 ; *************************************************************************************
