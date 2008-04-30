@@ -19,10 +19,13 @@
      MODULE ConfigFile
 
      lib IsSpace, IsAlpha, IsAlNum, IsDigit, StrChr, ToUpper
+     lib FileEprFindFile, FileEprFileSize
+     lib MemGetBank
 
-     xdef ReadConfigFile
+     xdef ReadConfigFile, LoadEprFile
      xref ErrMsgNoCfgfile, ErrMsgCfgSyntax
      xref ValidateBankFile, OpenBankFile
+     xref EprFetchToRAM
 
      include "sysvar.def"
      include "handle.def"
@@ -516,10 +519,20 @@
                     ld   de,filename                    ; output buffer for expanded filename (max 128 byte)...
                     ld   a, OP_IN
                     oz   GN_Opf
-                    jp   c,ErrMsgNoCfgfile              ; couldn't open config file!
-                    call LoadBuffer                     ; load config file into memory
+                    jr   c,no_cfg_file                  ; couldn't open config file in RAM filing system
+                    call LoadRamCfgFile                 ; load config file into memory
                     oz   GN_Cl                          ; config file loaded, just close handle...
                     ret
+.no_cfg_file
+                    ld   c,3
+                    ld   de,eprcfgfilename              ; try to get "/romupdate.cfg" in slot 3 file area...
+                    call FileEprFindFile                ; search for <buf1> filename on File Eprom...
+                    jp   c, ErrMsgNoCfgfile             ; File Eprom or File Entry was not available
+                    jp   nz, ErrMsgNoCfgfile            ; File Entry was not found...
+                    call LoadEprCfgFile
+                    ret
+
+
 ; *************************************************************************************
 
 
@@ -539,7 +552,7 @@
 ;    ......../IXIY  same
 ;    AFBCDEHL/....  different
 ;
-.LoadBuffer
+.LoadRamCfgFile
                     ld   bc, SIZEOF_LINEBUFFER-1  ; read max. bytes into buffer, if possible
                     ld   hl,0
                     ld   de, linebuffer           ; point at buffer to load file bytes
@@ -558,7 +571,68 @@
                     ld   (hl),0                   ; null-terminate end of loaded information
                     ld   (bufferend),hl           ; end of buffer is byte after last newline
 
-                    ld   de, (bufferend)          ; DE: return L-end
+                    ex   de,hl                    ; DE: return L-end
+                    ld   hl, linebuffer           ; HL: return L-start
+                    ret
+; *************************************************************************************
+
+
+; *************************************************************************************
+;
+; Load complete file from File Area into buffer.
+;
+;  IN:
+;         BHL = pointer to File entry
+;
+; OUT:
+;         (buffer contains file)
+;
+; Registers changed after return:
+;
+;    ......../IXIY  same
+;    AFBCDEHL/....  different
+;
+.LoadEprFile
+                    push bc
+                    ld   c, [buffer/256] >> 6           ; MS_Sx
+                    call MemGetBank                     ; get bank binding of start of buffer
+                    ld   c,b
+                    pop  af
+                    ld   b,a                            ; BHL = pointer to File Area entry
+                    ld   de,buffer                      ; CDE = ext. pointer to RAM buffer
+                    call EprFetchToRAM
+                    ret
+; *************************************************************************************
+
+
+; *************************************************************************************
+;
+; Load complete config file into buffer (it will never exceed 16K!)
+;
+;  IN:
+;         BHL = pointer to File entry of "romupdate.cfg" file.
+;
+; OUT:    HL = pointer to start of buffer information.
+;         DE = pointer to end of buffer information
+;         Fz = 1, if EOF reached, otherwise Fz = 0
+;
+; Registers changed after return:
+;
+;    ......../IXIY  same
+;    AFBCDEHL/....  different
+;
+.LoadEprCfgFile
+                    call LoadEprFile              ; config file loaded into buffer
+                    call FileEprFileSize          ; get size of config file in CDE
+                    ld   hl,buffer
+                    add  hl,de
+                    dec  hl                       ; HL points at end of block
+                    ld   (hl),CR                  ; append a new line if last line of file is missing it...
+                    inc  hl
+                    ld   (hl),0                   ; null-terminate end of loaded information
+                    ld   (bufferend),hl           ; end of buffer is byte after last newline
+
+                    ex   de,hl                    ; DE: return L-end
                     ld   hl, linebuffer           ; HL: return L-start
                     ret
 ; *************************************************************************************
@@ -653,4 +727,5 @@
 .start_separators   defm 0, '"', "'", ";,.({})+-*/%^=&~|:!<>#", 13, 10
 .end_separators
 
+.eprcfgfilename     defm "/"
 .cfgfilename        defm "romupdate.cfg",0

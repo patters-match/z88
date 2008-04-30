@@ -39,7 +39,7 @@
      xdef Update_OzRom
      xref suicide, FlashWriteSupport, ErrMsgOzRom
      xref BlowBufferToBank, MsgUpdOzRom
-     xref EprFetchToRAM
+     xref EprFetchToRAM, LoadEprFile
      xref hrdreset_msg, MsgOZUpdated
      xref SopNln
 
@@ -234,14 +234,10 @@
 ;       [low byte offset]     [high byte offset]     [bank no in file area]
 ;
 .CopyEprFile2Buffer
-                    ld   c, [buffer/256] >> 6           ; MS_Sx
-                    call MemGetBank                     ; get bank binding of start of buffer
-                    ld   c,b
-                    ld   de,buffer                      ; CDE = ext. pointer to RAM buffer
                     ld   l,(iy+0)
                     ld   h,(iy+1)
                     ld   b,(iy+2)                       ; BHL = pointer to File Area entry
-                    call EprFetchToRAM
+                    call LoadEprFile
                     ret
 
 
