@@ -2356,7 +2356,7 @@ enddef
         ld      b, 0
         OZ      GN_Pfs                          ; parse filename segment
         jr      nc, sdev_4
-        cp      9
+        cp      9                               ; extension used and  "/." used
         scf
         jr      nz, sdev_6
         ld      hl, f_SourceName
@@ -2973,7 +2973,7 @@ enddef
         ld      bc, 'X'*256+4
         call    ReadSrcRecord                   ; get X record
         jr      c, loc_FCEA
-        ld      bc, $8C0F
+        ld      bc, NQ_Out
         OZ      OS_Nq                           ; enquire (fetch) parameter
         ld      de, 0
         ld      a, $A0

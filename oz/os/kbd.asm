@@ -901,15 +901,19 @@ xref    DrawOZWd                                ; [Kernel0]/ozwindow.asm
 ; test if A is a foreign or a system key
 ;
 ;
-;   Fc=1 if $00-$A0, $A4-$B8, $C0-$C8, $D0-$D8, $E0-$E8 (not a foreign key)
-;   Fc=0 if $A1-$A3, $B9-$BF, $C9-$CF, $D9-$DF, $E9-$FF (is a foreign key)
+;   Fc=1 if SYSTEM KEY  ($00-$98, $9F-$A0, $A9-$B8, $C0-$C8, $D0-$D8, $E0-$E8, $F0-$FF)
+;   Fc=0 if FOREIGN KEY ($99-$9E, $A1-$A8, $B9-$BF, $C9-$CF, $D9-$DF, $E9-$EF)
 ;
-; Fix for OZ FI : now A1-AF is foreign, B0-B8 is system
 ; ---------------------------------------------------------------------------
 .IsForeignKey
         push    af
         ex      af, af'
         pop     af
+        cp      $99                             ; $00-$98 is system key (no to be translated)
+        ret     c
+        cp      $9F                             ; $99-$9E is foreign key
+        ccf                                     ; $9F-$A0 is sytem key
+        jr      nc, ifk_nc
         cp      $A1                             ; EXACT is a system key (processed by SD)
         ret     c
         cp      $A9

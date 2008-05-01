@@ -54,18 +54,18 @@ xdef    VDU2Chr_tbl
         defb    $A3                             ; � char code
 .VDU2Chr_tbl
         defb            $1F,$00                 ; Lores low byte, high byte in the font
-        defb    $91,$A1,$86,$00                 ; �
-        defb    $92,$BF,$87,$00                 ; �
-        defb    $93,$E1,$80,$00                 ; �
-        defb    $94,$ED,$81,$00                 ; �
-        defb    $95,$F3,$82,$00                 ; �
+        defb    $9b,$BF,$87,$00                 ; �
+        defb    $9c,$E1,$80,$00                 ; �
+        defb    $9d,$ED,$81,$00                 ; �
+        defb    $9e,$F3,$82,$00                 ; �
         defb    $A1,$A7,$01,$00                 ; �
-        defb    $A2,$B0,$02,$00                 ; �
-        defb    $A4,$80,$7F,$00                 ; �
-        defb    $A5,$F6,$1A,$00                 ; �
-        defb    $A6,$E4,$0F,$00                 ; �
-        defb    $AB,$D6,$0B,$00                 ; �
-        defb    $AC,$C4,$08,$00                 ; �
+        defb    $A2,$B0,$02,$00                 ; °
+        defb    $A4,$80,$7F,$00                 ; €
+        defb    $A5,$F6,$1A,$00                 ; ö
+        defb    $A6,$E4,$0F,$00                 ; ä
+        defb    $A7,$D6,$0B,$00                 ; �
+        defb    $A8,$C4,$08,$00                 ; �
+        defb    $ab,$A1,$86,$00                 ; 
         defb    $B9,$E0,$0D,$00                 ; �
         defb    $BA,$E2,$0E,$00                 ; �
         defb    $BB,$E8,$13,$00                 ; �

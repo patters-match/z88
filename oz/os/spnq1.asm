@@ -82,6 +82,7 @@ xref    Keymap_FR
 xref    Keymap_DE
 xref    Keymap_DK
 xref    Keymap_FI
+xref    Keymap_SP
 
 
 .OSNqWindow
@@ -1049,7 +1050,7 @@ xref    Keymap_FI
         defm    'L',$80|'F',$80|'I',>Keymap_FI  ; FI
         defm    'G',$80|'D',$80|'E',>Keymap_DE  ; DE ... to be verified
         defm    'A',$80|'U',$80|'S',>Keymap_UK  ; US (=UK)
-        defm    'P',$80|'S',$80|'P',>Keymap_UK  ; SP ... to be implemented
+        defm    'P',$80|'S',$80|'P',>Keymap_SP  ; SP
         defm    'I',$80|'I',$80|'T',>Keymap_UK  ; IT ... to be implemented
         defm    'N',$80|'N',$80|'O',>Keymap_DK  ; NO (=DK)
         defm    'W',$80|'C',$80|'H',>Keymap_UK  ; CH ... to be implemented

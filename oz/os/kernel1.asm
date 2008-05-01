@@ -194,6 +194,7 @@ IF COMPILE_BINARY
         xdef    Keymap_DE
         xdef    Keymap_DK
         xdef    Keymap_FI
+        xdef    Keymap_SP
 
         include "kernel0.def"                   ; get kernel 0 references and map them into kernel 1 project...
         include "../mth/keymaps.def"            ; get references for keymaps in MTH bank and bind them into kernel 1 project...
