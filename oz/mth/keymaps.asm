@@ -607,7 +607,7 @@ ENDIF
         defb    $5B,$1B                                 ; [  ESC
         defb    $5C,$1C                                 ; \  
         defb    $5D,$1D                                 ; ]
-        dzfb    $5F,$9F                                 ; special []_ command (equivalent to []-)
+        defb    $5F,$9F                                 ; special []_ command (equivalent to []-)
         defb    $A3,$1E                                 ; £
 
 .DeadTable_SP
