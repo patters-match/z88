@@ -216,80 +216,17 @@
                     ld   a,b
                     call MemDefBank                    ; Bind slot x bank into segment C
                     push bc                            ; preserve old bank binding of segment C
-                    ld   b,a                           ; but use current bank as reference...
 
-                    call CopyBlock
+                    push iy
+                    pop  bc
+                    ex   de,hl                         ; copy from one segment in (HL) to other segment at (DE) of size BC
+                    ldir
 
-                    ld   d,b                           ; preserve current Bank number of pointer...
                     pop  bc
                     call MemDefBank                    ; restore old segment C bank binding
-                    ld   b,d
 
                     pop  de
                     ld   c,e                           ; original C register restored...
                     pop  de
                     pop  ix
                     ret
-
-
-; ***************************************************************
-;
-; Copy Block to BHL already bound of IY length.
-;
-; In:
-;         C  = MS_Sx segment specifier
-;         DE = local pointer to start of block (available in current address space)
-;         BHL = extended address to start of destination (pointer into RAM buffer)
-;         IY = size of block to copy
-; Out:
-;    Fc = 0
-;         BHL = points at next free byte in RAM buffer
-;         DE = points beyond last byte of source
-;
-; Registers changed after return:
-;    ......../IXIY same
-;    AFBCDEHL/.... different
-;
-.CopyBlock
-                    exx
-                    push iy
-                    pop  hl                  ; use hl as 16bit decrement counter
-                    exx
-
-.CopyBlockLoop      exx
-                    ld   a,h
-                    or   l
-                    dec  hl
-                    exx
-                    ret  z                   ; block copied successfully
-                    push bc
-
-                    ld   a,(de)
-                    ld   (hl),a              ; copy the byte...
-
-                    inc  de                  ; buffer++
-                    ld   a,b
-                    push af
-
-                    ld   a,h                 ; BHL++
-                    and  @11000000           ; preserve segment mask
-
-                    res  7,h
-                    res  6,h                 ; strip segment mask to determine bank boundary crossing
-                    inc  hl                  ; ptr++
-                    bit  6,h                 ; crossed bank boundary?
-                    jr   z, not_crossed      ; no, offset still in current bank
-                    inc  b
-                    res  6,h                 ; yes, HL = 0, B++
-.not_crossed
-                    or   h                   ; re-establish original segment mask for bank offset
-                    ld   h,a
-
-                    pop  af
-                    cp   b                   ; was a new bank crossed?
-                    jr   z,CopyBlockLoop     ; no...
-
-                    push bc                  ; pointer crossed a new bank
-                    call MemDefBank          ; bind new bank into segment C...
-                    pop  bc
-                    jr   CopyBlockLoop
