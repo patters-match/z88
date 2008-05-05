@@ -59,7 +59,6 @@
 ; -------------------------------------------------------------------------
 ;
 .EprFetchToRAM
-                    push ix                       ; preserve IX
                     push iy                       ; preserve original IY
 
                     push bc
@@ -92,7 +91,6 @@
                     pop  de
                     pop  bc
                     pop  iy
-                    pop  ix
                     ret
 
 
@@ -110,9 +108,8 @@
                     exx
                     ret  z                        ; File entry was successfully copied to RAM buffer!
 .copy_file_block
-                    call FileEprTransferBlockSize ; get block size in hl' based on current BHL pointer & file size in cde'
-                    push iy                       ; preserve base pointer to local stack variables
-                    exx
+                    call FileEprTransferBlockSize ; get block size in hl' based on current BHL pointer
+                    exx                           ; and remaining file size in cde'
                     push bc
                     push de                       ; preserve remaining file size
                     push hl
@@ -125,7 +122,6 @@
                     pop  de
                     pop  bc                       ; restore remaining file size = CDE
                     exx
-                    pop  iy                       ; restore base pointer to local stack variables...
                     jr   copy_file_loop           ; then get next block from source file
 
 .EprCopyFileImage
@@ -160,7 +156,7 @@
 
                     ex   de,hl
                     ld   b,c                           ; BHL <- CDE
-                    call EprCopyToBuffer               ; DE now source block in current address space, BHL destination pointer
+                    call CopyFileBlockToBuffer         ; DE now source block in current address space, BHL destination pointer
                     exx
                     pop  bc
                     call MemDefBank                    ; restore old segment C bank binding of BHL source data block
@@ -203,8 +199,7 @@
 ;    ...CDE../IXIY ........ same
 ;    AFB...HL/.... afbcdehl different
 ;
-.EprCopyToBuffer
-                    push ix
+.CopyFileBlockToBuffer
                     push de                            ; preserve DE
                     push bc                            ; preserve C
 
@@ -228,5 +223,4 @@
                     pop  de
                     ld   c,e                           ; original C register restored...
                     pop  de
-                    pop  ix
                     ret
