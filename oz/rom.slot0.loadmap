@@ -56,7 +56,7 @@ apps/terminal/terminal.bin 071400               ; $D400: Terminal Application
 apps/calculator/calc.bin 071600                 ; $D600: Calculator popdown
 
 ; Bank 8: MTH and other static structures in last ROM bank
-mth/keymaps.bin 080000                          ; keyboard maps for UK, FR, DK, FI/SE & DE
+mth/keymaps.bin 080000                          ; keyboard maps for UK, FR, DK, FI/SE, DE & SP
 mth/hires1.bin 080800                           ; the HIRES1 font bitmap (OZ window symbols) 0E00-0FFF is free due to granularity
 mth/lores1.bin 081000                           ; the LORES1 font bitmap (Normal, Bold, Tiny, Symbol)
 mth/mth.bin 082000                              ; the System Token Table, MTH static structures and application DORs

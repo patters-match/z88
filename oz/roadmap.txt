@@ -60,7 +60,7 @@ DONE
 - Added Main help pages for all applications and popdowns (GBS).
 - 'CLI' symbol in right hand side now flashes while CLI is active (TP).
 - Implemented 1K File I/O buffer for file copy functionality in Filer, drastically speeding up file copying (16K in 2 secs!) (GBS).
-- BBC BASIC integrated with Patch (Richard Russel).
+- BBC BASIC integrated with Patch (Richard Russell).
 - EazyLink is new standard popdown for easy remote file management (GBS).
 - FlashStore integrated as standard Flash card management popdown. Uses new OS_Fep & OS_Epr interface instead of stdlib routines (GBS).
 - After reset, try to execute global RAM "Boot.cli" (anywhere in any RAM), if /Boot.cli was not found in slot 3 File Eprom. (GBS)
@@ -85,6 +85,7 @@ DONE
 	osscitable @ same page
 - Transform OSSci to be page independent (OSSciTable). P2
 - Transform OSCli to be page independent (Key2Meta routine). P2
+- Implemented Spanish keyboard and selection in Panel (TP).
 
 
 
