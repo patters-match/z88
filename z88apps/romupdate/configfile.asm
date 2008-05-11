@@ -23,9 +23,10 @@
      lib MemGetBank
 
      xdef ReadConfigFile, LoadEprFile
-     xref ErrMsgNoCfgfile, ErrMsgCfgSyntax
-     xref ValidateBankFile, OpenBankFile
-     xref EprFetchToRAM
+     xref ErrMsgNoCfgfile, ErrMsgCfgSyntax, ErrMsgBankFile, ErrMsgCrcFailBankFile
+     xref ValidateRamBankFile, OpenRamBankFile
+     xref MsgCrcCheckBankFile, LoadRamBankFile, CrcBuffer, CheckBankFileCrc
+     xref EprFetchToRAM, CopyRamFile2Buffer, CopyEprFile2Buffer
 
      include "sysvar.def"
      include "handle.def"
@@ -42,6 +43,8 @@
 ;
 .ReadConfigFile
                     call LoadConfigFile
+                    ld   (ozbank_loader),ix             ; the address of the bank loader routine
+                    
 
                     ld   (nextline),hl                  ; init pointer to beginning of first line
                     ld   hl,0
@@ -95,7 +98,7 @@
 ;
 .parse_16k_app_info
                     call ParseBankFileData              ; parse "<filename>",<crc>,<dor offset> from line...
-                    call ValidateBankFile               ; check CRC of bank file to be updated on card (replacing bank of found DOR)
+                    call ValidateRamBankFile            ; check CRC of RAM bank file to be updated on card (replacing bank of found DOR)
                     ld   a,upd_16kapp                   ; signal to execute Update 16K application: "<filename>",<crc>,<offset>
                     ret
 ; *************************************************************************************
@@ -143,17 +146,9 @@
                     jr   nz,parse_oz_banks              ; skip comments and empty lines...
 
                     call ParseBankFileData              ; found a line with an oz bank entry, collect oz bank data into variables...
-                    call ValidateBankFile               ; check CRC of oz bank file data just collected...
+                    call ValidateOzBankFile             ; check CRC of oz bank file data just collected...
 
-                    call OpenBankFile                   ; open file again, just to get low level file data
-                    ld   l,(ix+fhnd_firstblk)           ; get first 64 byte sector number of file
-                    ld   h,(ix+fhnd_firstblk_h)         ; get bank number of first sector of file
-                    oz   GN_cl
-
-                    ld   a,(bankfiledor)                ; destination bank number in slot 0 to blow oz bank
-                    ld   (iy+0),l
-                    ld   (iy+1),h
-                    ld   (iy+2),a                       ; register oz bank data
+                    inc  iy
                     inc  iy
                     inc  iy
                     inc  iy                             ; prepare for next oz data entry
@@ -169,6 +164,49 @@
                     jr   parse_oz_banks
 .end_parse_ozrom_info
                     ld   a,upd_ozrom                    ; signal to execute "Update OZ ROM" task...
+                    ret
+; *************************************************************************************
+
+
+; *************************************************************************************
+; CRC check OZ bank file, defined by filename in [bankfilename], by loading file into
+; a buffer and issue a CRC32 calculation, then compare the CRC fetched from the
+; configuration file in [bankfilecrc].
+;
+; Return to caller if the CRC matched, otherwise jump to error routine and exit program
+;
+.ValidateOzBankFile
+                    call MsgCrcCheckBankFile            ; display progress message for CRC check of bank file
+                    call LoadRamBankFile
+                    jr   c, try_load_epr_file           ; file was not found in RAM, try File Area in slot 1..
+
+                    call OpenRamBankFile                ; open file again, just to get low level file data
+                    ld   l,(ix+fhnd_firstblk)           ; get first 64 byte sector number of file
+                    ld   h,(ix+fhnd_firstblk_h)         ; get bank number of first sector of file
+                    ld   (iy+0),l
+                    ld   (iy+1),h
+                    oz   GN_cl
+                    jr   check_crc_ozfile                   
+.try_load_epr_file                    
+                    ld   a,'/'
+                    ld   (eprbankfilename),a            ; filename starts with "/" for File Area filenames..
+                    ld   c,1
+                    ld   de,eprbankfilename             ; try to get OZ bank file in slot 1 file area...
+                    call FileEprFindFile                ; search for filename on File Eprom...                    
+                    jp   c,ErrMsgBankFile               ; file not found ...
+                    ld   (iy+0),l
+                    ld   (iy+1),h
+                    ld   (iy+2),b                       ; register BHL source pointer of file entry
+                    call LoadEprFile                    ; then load file (BHL pointer to entry) into 16K buffer...                    
+.check_crc_ozfile
+                    ld   a,(bankfiledor)                
+                    ld   (iy+3),a                       ; register destination bank number in slot X to blow oz bank
+
+                    ld   hl,buffer
+                    ld   bc,banksize                    ; 16K buffer
+                    call CrcBuffer                      ; calculate CRC-32 of bank file, returned in DEHL
+                    call CheckBankFileCrc               ; check the CRC-32 of the bank file with the CRC of the config file
+                    jp   nz,ErrMsgCrcFailBankFile       ; CRC didn't match: the file is corrupt and will not be updated to card!
                     ret
 ; *************************************************************************************
 
@@ -503,7 +541,9 @@
 
 
 ; *************************************************************************************
-; Load 'romupdate.cfg' file into 16K buffer
+; Load 'romupdate.cfg' file into 16K buffer.
+; Try to open the file at current RAM directory, or try to find it in slot 1
+; file area (if available).
 ;
 ; Returns to caller with the following registers set, if config file was successfully
 ; loaded into buffer:
@@ -522,17 +562,17 @@
                     jr   c,no_cfg_file                  ; couldn't open config file in RAM filing system
                     call LoadRamCfgFile                 ; load config file into memory
                     oz   GN_Cl                          ; config file loaded, just close handle...
+                    ld   ix,CopyRamFile2Buffer          ; define the RAM bank loader when updating OZ to Flash..
                     ret
 .no_cfg_file
-                    ld   c,3
-                    ld   de,eprcfgfilename              ; try to get "/romupdate.cfg" in slot 3 file area...
+                    ld   c,1
+                    ld   de,eprcfgfilename              ; try to get "/romupdate.cfg" in slot 1 file area...
                     call FileEprFindFile                ; search for <buf1> filename on File Eprom...
                     jp   c, ErrMsgNoCfgfile             ; File Eprom or File Entry was not available
                     jp   nz, ErrMsgNoCfgfile            ; File Entry was not found...
                     call LoadEprCfgFile
+                    ld   ix,CopyEprFile2Buffer          ; define the EPR file area bank loader when updating OZ to Flash..
                     ret
-
-
 ; *************************************************************************************
 
 
@@ -565,6 +605,7 @@
                     ld   c,l                      ; number of bytes read physically from file
 
                     ex   de,hl
+.init_line_buffer
                     dec  hl                       ; HL points at end of block
                     ld   (hl),CR                  ; append a new line if last line of file is missing it...
                     inc  hl
@@ -574,6 +615,31 @@
                     ex   de,hl                    ; DE: return L-end
                     ld   hl, linebuffer           ; HL: return L-start
                     ret
+; *************************************************************************************
+
+
+; *************************************************************************************
+;
+; Load complete "romupdate.cfg" config file in File Area into buffer.
+;
+;  IN:
+;         BHL = pointer to File entry of "romupdate.cfg" file.
+;
+; OUT:    HL = pointer to start of buffer information.
+;         DE = pointer to end of buffer information
+;         Fz = 1, if EOF reached, otherwise Fz = 0
+;
+; Registers changed after return:
+;
+;    ......../IXIY  same
+;    AFBCDEHL/....  different
+;
+.LoadEprCfgFile
+                    call LoadEprFile              ; config file loaded into buffer
+                    call FileEprFileSize          ; get size of config file in CDE
+                    ld   hl,buffer
+                    add  hl,de                    ; file size is always < 16K (ignore C)
+                    jr   init_line_buffer
 ; *************************************************************************************
 
 
@@ -593,47 +659,8 @@
 ;    AFBCDEHL/....  different
 ;
 .LoadEprFile
-                    push bc
-                    ld   c, [buffer/256] >> 6           ; MS_Sx
-                    call MemGetBank                     ; get bank binding of start of buffer
-                    ld   c,b
-                    pop  af
-                    ld   b,a                            ; BHL = pointer to File Area entry
-                    ld   de,buffer                      ; CDE = ext. pointer to RAM buffer
+                    ld   de,buffer                      ; DE = pointer to RAM buffer
                     call EprFetchToRAM
-                    ret
-; *************************************************************************************
-
-
-; *************************************************************************************
-;
-; Load complete config file into buffer (it will never exceed 16K!)
-;
-;  IN:
-;         BHL = pointer to File entry of "romupdate.cfg" file.
-;
-; OUT:    HL = pointer to start of buffer information.
-;         DE = pointer to end of buffer information
-;         Fz = 1, if EOF reached, otherwise Fz = 0
-;
-; Registers changed after return:
-;
-;    ......../IXIY  same
-;    AFBCDEHL/....  different
-;
-.LoadEprCfgFile
-                    call LoadEprFile              ; config file loaded into buffer
-                    call FileEprFileSize          ; get size of config file in CDE
-                    ld   hl,buffer
-                    add  hl,de
-                    dec  hl                       ; HL points at end of block
-                    ld   (hl),CR                  ; append a new line if last line of file is missing it...
-                    inc  hl
-                    ld   (hl),0                   ; null-terminate end of loaded information
-                    ld   (bufferend),hl           ; end of buffer is byte after last newline
-
-                    ex   de,hl                    ; DE: return L-end
-                    ld   hl, linebuffer           ; HL: return L-start
                     ret
 ; *************************************************************************************
 

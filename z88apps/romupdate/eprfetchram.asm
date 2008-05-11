@@ -42,7 +42,7 @@
 ;
 ; IN:
 ;         BHL = pointer to file entry to be copied
-;         CDE = pointer to RAM buffer (max. 16K)
+;         DE = pointer to RAM buffer (max. 16K), available in current Z80 address space
 ; OUT:
 ;         Fc = 0,
 ;              File successfully copied to RAM buffer in CDE.
@@ -59,7 +59,7 @@
 ; -------------------------------------------------------------------------
 ;
 .EprFetchToRAM
-                    push iy                       ; preserve original IY
+                    push ix                       ; preserve original IX
 
                     push bc
                     push de
@@ -79,18 +79,16 @@
                     pop  bc
                     res  7,h
                     res  6,h                      ; discard segment mask, if any...
-                    res  7,d
-                    res  6,d
                     push bc
                     push de
                     push hl
                     call FileEprFileImage         ; BHL now points at first byte of file image (not file entry)
-                    call CopyFileEntry            ; Now, copy source file entry to RAM buffer in CDE
+                    call CopyFileEntry            ; Now, copy source file entry to RAM buffer at (DE)
 .exit_EprFetchToRAM
                     pop  hl
                     pop  de
                     pop  bc
-                    pop  iy
+                    pop  ix
                     ret
 
 
@@ -99,12 +97,7 @@
 .copy_file_loop
                     exx                           ; file size = 0?
                     ld   a,d
-                    or   e
-                    exx
-                    jr   nz, copy_file_block      ; No, bytes still left to copy...
-                    exx
-                    xor  a
-                    or   c
+                    or   e                        ; bank file sizes always 16bit...
                     exx
                     ret  z                        ; File entry was successfully copied to RAM buffer!
 .copy_file_block
@@ -113,10 +106,10 @@
                     push bc
                     push de                       ; preserve remaining file size
                     push hl
-                    pop  iy                       ; size of block to copy
+                    pop  ix                       ; size of block to copy
                     exx
 
-                    call EprCopyFileImage         ; copy file entry from BHL to CDE, block size IY
+                    call EprCopyFileImage         ; copy file entry from BHL to DE, block size IX
 
                     exx
                     pop  de
@@ -125,102 +118,41 @@
                     jr   copy_file_loop           ; then get next block from source file
 
 .EprCopyFileImage
-                    push iy
                     push bc
+if BBCBASIC
+                    set  7,h
+                    set  6,h                      ; use segment 3 to bind data block of file entry into address space
+else
+                    set  7,h                      ; for POPDOWN:
+                    res  6,h                      ; use segment 2 to bind data block of file entry into address space
+endif                                        
+                    ld   a,b
+                    exx
+                    ld   b,a
+if BBCBASIC                    
+                    ld   c, MS_S3                 ; BBCBASIC: Use C = MS_S3 for BHL source data block
+else
+                    ld   c, MS_S2                 ; POPDOWN: Use C = MS_S2 of BHL source data block                    
+endif                    
+                    call MemDefBank               ; Bind bank of source data into segment C
+                    push bc                       ; preserve old bank binding of segment C
+                    exx
 
-                    call SafeSegmentMask               ; get safe segments for BHL & CDE pointers (outside executing PC segment)
-                    push af
+                    push ix                       ; now BHL source block in current address space                    
+                    pop  bc
+                    ldir                          ; copy from one segment in (HL) to other segment at (DE) of size BC
+
+                    exx
+                    pop  bc
+                    call MemDefBank               ; restore old segment C bank binding of BHL source data block
+                    exx
+
                     res  7,h
                     res  6,h
-                    or   h
-                    ld   h,a                           ; HL[sgmask]
-                    call ApplSegmentMask               ; PC[sgmask]
-                    ex   (sp),hl
-                    xor  h
-                    res  7,d
-                    res  6,d
-                    or   d
-                    ld   d,a                           ; DE[sgmask] = PC[sgmask] XOR HL[sgmask]
-                    pop  hl
-
-                    push bc
-                    ld   a,h
-                    exx
-                    pop  bc
-                    rlca
-                    rlca
-                    ld   c,a                           ; C = MS_Sx of BHL source data block
-                    call MemDefBank                    ; Bind bank of source data into segment C
-                    push bc                            ; preserve old bank binding of segment C
-                    exx
-
-                    ex   de,hl
-                    ld   b,c                           ; BHL <- CDE
-                    call CopyFileBlockToBuffer         ; DE now source block in current address space, BHL destination pointer
-                    exx
-                    pop  bc
-                    call MemDefBank                    ; restore old segment C bank binding of BHL source data block
-                    exx
-
-                    res  7,d
-                    res  6,d
-                    add  iy,de                         ; block size + offset = updated block pointer (installed in HL below)
-                    push iy
-
-                    ex   de,hl
-                    ld   c,b
-                    res  7,d
-                    res  6,d                           ; return updated CDE destination pointer to caller
-
-                    pop  hl                            ; HL = updated byte beyond source block offset
-                    pop  af
-                    ld   b,a                           ; original B restored
-                    bit  6,h                           ; source pointer crossed bank boundary?
-                    jr   z,exit_EprCopyFileImage           ; nope (withing 16k offset)
-                    inc  b
-                    res  6,h                           ; source block copy reached boundary of bank...
-.exit_EprCopyFileImage
-                    pop  iy                            ; restored original IY
-                    ret
-
-
-; In :
-;         DE = local pointer to start of block (located in current address space)
-;         BHL = extended address to start of destination
-;              (bits 7,6 of B is the slot mask)
-;              (bits 7,6 of H = MM_Sx segment mask for BHL)
-;         IY = size of block (at DE) to copy
-; Out:
-;         Success:
-;              Fc = 0
-;              BHL updated
-;
-; Registers changed on return:
-;    ...CDE../IXIY ........ same
-;    AFB...HL/.... afbcdehl different
-;
-.CopyFileBlockToBuffer
-                    push de                            ; preserve DE
-                    push bc                            ; preserve C
-
-                    ld   a,h
-                    rlca
-                    rlca
-                    and  @00000011
-                    ld   c,a                           ; C = MS_Sx
-                    ld   a,b
-                    call MemDefBank                    ; Bind slot x bank into segment C
-                    push bc                            ; preserve old bank binding of segment C
-
-                    push iy
-                    pop  bc
-                    ex   de,hl                         ; copy from one segment in (HL) to other segment at (DE) of size BC
-                    ldir
-
-                    pop  bc
-                    call MemDefBank                    ; restore old segment C bank binding
-
-                    pop  de
-                    ld   c,e                           ; original C register restored...
-                    pop  de
+                    pop  bc                       ; original B restored
+                    
+                    inc  h                        ; source pointer crossed bank boundary?
+                    dec  h                        ; (HL = 0, because segment specifier went into next segment)
+                    ret  nz                       ; nope (within 16k offset)
+                    inc  b                        ; remaining file is in next bank
                     ret

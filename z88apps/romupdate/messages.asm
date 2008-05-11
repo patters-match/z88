@@ -750,7 +750,7 @@
 ; *************************************************************************************
 ; constants
 .bbcbas_progversion defm 12                   ; clear window before displaying program version (BBC BASIC only)
-.progversion_banner defm 1, "BRomUpdate V0.8.3 beta", 1,"B", 0
+.progversion_banner defm 1, "BRomUpdate V0.8.4 beta", 1,"B", 0
 
 .centerjustify      defm 1, "2JC", 0
 .leftjustify        defm 1, "2JN", 0
@@ -781,7 +781,7 @@
 .crcbankfile2_msg   defm " bank file.",0
 .crcerr_bfile1      defm 12,"CRC check failed for ", 0
 .crcerr_bfile2      defm "Bank file was possibly damaged by serial port transfer or", $0D, $0A
-.crcerr_bfile3      defm "because of corrupted RAM Filing System!",0
+.crcerr_bfile3      defm "because of corrupted Filing System!",0
 .crcerr_psvbnk_msg  defm "(temporary) passive bank files, possibly ", $0D, $0A, 0
 .fatal_err_msg      defm 12,"Fatal Error: ",0
 .erasect_err_msg    defm "Sector could not be formatted", $0D, $0A, 0

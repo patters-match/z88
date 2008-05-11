@@ -46,6 +46,7 @@ DEFVARS vararea
      nextdoroffset      ds.w 1                  ; the offset of the next DOR (the brother link of found application DOR)
      nextdorbank        ds.b 1                  ; the bank number of the next DOR (the brother link of found application DOR)
      appname            ds.w 1                  ; local pointer to null-terminated application/popdown DOR name of bank file to be updated
+     eprbankfilename    ds.b 1                  ; "/", when an filename needs to found in a File Area
      bankfilename       ds.b 128                ; filename of bank file to be patched to card (fetched from romupdate.cfg)
      bankfilecrc        ds.l 1                  ; CRC of bank file (fetched from from romupdate.cfg)
      bankfiledor        ds.w 1                  ; offset pointer to DOR in bank file
@@ -65,8 +66,9 @@ DEFVARS vararea
      flash_algorithm    ds.b 1                  ; algorithm to be used to blow banks
      total_ozbanks      ds.b 1                  ; no. of OZ ROM banks to update to slot
      parsed_ozbanks     ds.b 1                  ; no of oz bank entries parsed from config file
-     ozbanks            ds.b 16*3               ; reserve space for max. 16 OZ ROM banks. Each entry has the following format:
-                                                ; [first 64 byte sector of file] [bank of first sector] [destination bank in slot]
+     ozbanks            ds.l 32                 ; reserve space for max. 32 OZ ROM banks (512K). Each entry has the following format:
+                                                ; [three byte source file data] [destination bank in slot X for data]
+     ozbank_loader      ds.w 1                  ; address of routine, responsible for loading "OZ" bank file into buffer
      end_vararea
 ENDDEF
 

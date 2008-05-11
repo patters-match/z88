@@ -48,7 +48,7 @@
      xref CheckFlashWriteSupport, FlashWriteSupport
      xref GetSlotNo, GetSectorNo
      xref GetTotalFreeRam
-     xref LoadBankFile
+     xref LoadRamBankFile
 
 
 ; --------------------------------------------------------------------------------------------------------
@@ -258,7 +258,7 @@
                     ; --------------------------------------------------------------------------------------------------------
                     ; update bank file DOR with brother link of DOR from old application, and update all old relative banks
                     ; with new bank number location in sector. Finally, blow bank with updated DOR back to card
-                    call LoadBankFile                   ; get bank to be updated into buffer...
+                    call LoadRamBankFile                ; get bank to be updated into buffer...
                     ld   hl,buffer                      ; bank file is loaded in (buffer)
                     ld   bc,(bankfiledor)
                     add  hl,bc

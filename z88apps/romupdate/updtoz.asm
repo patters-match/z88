@@ -43,6 +43,9 @@
      xref hrdreset_msg, MsgOZUpdated
      xref SopNln
 
+     xdef CopyRamFile2Buffer, CopyEprFile2Buffer
+     
+     
 
 ; *************************************************************************************
 ; Update OZ ROM to slot X
@@ -195,16 +198,19 @@
 
 
 ; ----------------------------------------------------------------------------------------------------------------------
-; install OZ banks on Card, identified by ozbanks[] array.
+; Install OZ banks on Card, identified by ozbanks[] array.
 ;
 .InstallOZ
                     ld   iy,ozbanks                     ; get ready for first oz bank entry of [total_ozbanks]
                     ld   b,(iy-1)                       ; total of banks to update to slot X...
 .update_ozrom_loop
                     push bc
-
-                    call CopyRamFile2Buffer             ; copy RAM bank file contents (IY points to bank file entry) to 16K RomUpdate buffer...
-                    ld   b,(iy+2)                       ; destination bank number to slot 0
+                    ld   hl, ozbank_loader_ret
+                    push hl                             ; RET from OZ bank file loader routine
+                    ld   hl,(ozbank_loader)
+                    jp  (hl)                            ; copy bank file contents (IY points to bank file entry) to 16K RomUpdate buffer...
+.ozbank_loader_ret                    
+                    ld   b,(iy+3)                       ; bank data in buffer to be blown to bank no. in slot X
                     res  7,b
                     res  6,b                            ; remove slot mask of original destination bank number for bank file
                     ld   a,(oz_slot)
@@ -217,6 +223,7 @@
 
                     inc  iy
                     inc  iy
+                    inc  iy
                     inc  iy                             ; point at next bank data entry
                     pop  bc
                     djnz update_ozrom_loop              ; blow bank to slot 0...
@@ -224,14 +231,14 @@
 
 
 ; *************************************************************************************
-; Copy the bank file contents located in EPROM/FLASH File are to RomUpdate 16K buffer.
+; Copy the bank file contents located in EPROM/FLASH File area to RomUpdate 16K buffer.
 ;
 ; IN:
 ;       IY points a three byte data block that points to file entry in file area
 ;
 ;       -----------------------------------------------------------------------------------
 ;       byte 0:               byte 1:                byte 2:
-;       [low byte offset]     [high byte offset]     [bank no in file area]
+;       [low byte offset]     [high byte offset]     [bank no. in file area]
 ;
 .CopyEprFile2Buffer
                     ld   l,(iy+0)
@@ -244,10 +251,10 @@
 ; *************************************************************************************
 ; Copy the RAM bank file contents to RomUpdate 16K buffer.
 ;
-; IY points a three byte data block that contains pointers to start of the file:
+; IY points to a two byte data block that contains pointers to start of the file:
 ; -----------------------------------------------------------------------------------
-; byte 0:                        byte 1:                byte 2:
-; [first 64 byte sector of file] [bank of first sector] [destination bank in slot]
+; byte 0:                        byte 1:                
+; [first 64 byte sector of file] [bank of first sector]
 ; -----------------------------------------------------------------------------------
 ;
 .CopyRamFile2Buffer

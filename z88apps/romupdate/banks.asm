@@ -33,9 +33,9 @@
 
      xdef RegisterPreservedSectorBanks, PreserveSectorBanks, CheckPreservedSectorBanks
      xdef RestoreSectorBanks, DeletePreservedSectorBanks
-     xdef ValidateBankFile
+     xdef ValidateRamBankFile
      xdef BlowBufferToBank, CheckBankFreeSpace, IsBankUsed, CopyBank, CopyMemory
-     xdef OpenBankFile, LoadBankFile
+     xdef OpenRamBankFile, LoadRamBankFile, CheckBankFileCrc
 
 
 ; *************************************************************************************
@@ -561,9 +561,9 @@
 ;
 ; Return to caller if the CRC matched, otherwise jump to error routine and exit program
 ;
-.ValidateBankFile
+.ValidateRamBankFile
                     call MsgCrcCheckBankFile            ; display progress message for CRC check of bank file
-                    call LoadBankFile
+                    call LoadRamBankFile
                     jp   c,ErrMsgBankFile               ; couldn't open file (in use / not found?)...
 
                     ld   hl,buffer
@@ -636,14 +636,14 @@
 
 
 ; *************************************************************************************
-; Load specified bank file(name) into 16K buffer.
+; Load specified bank file(name) from RAM filing system into 16K buffer.
 ;
 ; Registers changed after return:
 ;    ......../..IY same
 ;    AFBCDEHL/IX.. different
 ;
-.LoadBankFile
-                    call OpenBankFile
+.LoadRamBankFile
+                    call OpenRamBankFile
                     ret  c
                     ld   bc,banksize
                     ld   de,buffer
@@ -657,10 +657,12 @@
 
 
 ; *************************************************************************************
-; Open bank file (for reading only), which is specified in [bankfilename] variable.
+; Open bank file in RAM filing system (for reading only), which is specified in 
+; [bankfilename] variable.
+;
 ; Returns the usual GN_Opf file parameters.
 ;
-.OpenBankFile
+.OpenRamBankFile
                     ld   bc,128
                     ld   hl,bankfilename                ; (local) filename to card image
                     ld   de,filename                    ; output buffer for expanded filename (max 128 byte)...
