@@ -1,6 +1,6 @@
 ; *************************************************************************************
 ; RomUpdate
-; (C) Gunther Strube (gbs@users.sf.net) 2005-2007
+; (C) Gunther Strube (gbs@users.sf.net) 2005-2008
 ;
 ; RomUpdate is free software; you can redistribute it and/or modify it under the terms of the
 ; GNU General Public License as published by the Free Software Foundation;
@@ -44,8 +44,8 @@
      xref SopNln
 
      xdef CopyRamFile2Buffer, CopyEprFile2Buffer
-     
-     
+
+
 
 ; *************************************************************************************
 ; Update OZ ROM to slot X
@@ -209,7 +209,7 @@
                     push hl                             ; RET from OZ bank file loader routine
                     ld   hl,(ozbank_loader)
                     jp  (hl)                            ; copy bank file contents (IY points to bank file entry) to 16K RomUpdate buffer...
-.ozbank_loader_ret                    
+.ozbank_loader_ret
                     ld   b,(iy+3)                       ; bank data in buffer to be blown to bank no. in slot X
                     res  7,b
                     res  6,b                            ; remove slot mask of original destination bank number for bank file
@@ -253,7 +253,7 @@
 ;
 ; IY points to a two byte data block that contains pointers to start of the file:
 ; -----------------------------------------------------------------------------------
-; byte 0:                        byte 1:                
+; byte 0:                        byte 1:
 ; [first 64 byte sector of file] [bank of first sector]
 ; -----------------------------------------------------------------------------------
 ;

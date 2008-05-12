@@ -1,6 +1,6 @@
 ; *************************************************************************************
 ; RomUpdate
-; (C) Gunther Strube (gbs@users.sf.net) 2005-2007
+; (C) Gunther Strube (gbs@users.sf.net) 2005-2008
 ;
 ; RomUpdate is free software; you can redistribute it and/or modify it under the terms of the
 ; GNU General Public License as published by the Free Software Foundation;
@@ -120,25 +120,25 @@
 .EprCopyFileImage
                     push bc
 if BBCBASIC
-                    set  7,h
+                    set  7,h                      ; for BBC BASIC:
                     set  6,h                      ; use segment 3 to bind data block of file entry into address space
 else
                     set  7,h                      ; for POPDOWN:
                     res  6,h                      ; use segment 2 to bind data block of file entry into address space
-endif                                        
+endif
                     ld   a,b
                     exx
                     ld   b,a
-if BBCBASIC                    
+if BBCBASIC
                     ld   c, MS_S3                 ; BBCBASIC: Use C = MS_S3 for BHL source data block
 else
-                    ld   c, MS_S2                 ; POPDOWN: Use C = MS_S2 of BHL source data block                    
-endif                    
+                    ld   c, MS_S2                 ; POPDOWN: Use C = MS_S2 of BHL source data block
+endif
                     call MemDefBank               ; Bind bank of source data into segment C
                     push bc                       ; preserve old bank binding of segment C
                     exx
 
-                    push ix                       ; now BHL source block in current address space                    
+                    push ix                       ; now BHL source block in current address space
                     pop  bc
                     ldir                          ; copy from one segment in (HL) to other segment at (DE) of size BC
 
@@ -150,9 +150,9 @@ endif
                     res  7,h
                     res  6,h
                     pop  bc                       ; original B restored
-                    
+
                     inc  h                        ; source pointer crossed bank boundary?
                     dec  h                        ; (HL = 0, because segment specifier went into next segment)
                     ret  nz                       ; nope (within 16k offset)
-                    inc  b                        ; remaining file is in next bank
+                    inc  b                        ; remaining block of file is in next bank of file area
                     ret

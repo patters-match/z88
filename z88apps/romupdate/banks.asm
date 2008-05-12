@@ -1,6 +1,6 @@
 ; *************************************************************************************
 ; RomUpdate
-; (C) Gunther Strube (gbs@users.sf.net) 2005-2007
+; (C) Gunther Strube (gbs@users.sf.net) 2005-2008
 ;
 ; RomUpdate is free software; you can redistribute it and/or modify it under the terms of the
 ; GNU General Public License as published by the Free Software Foundation;
@@ -657,7 +657,7 @@
 
 
 ; *************************************************************************************
-; Open bank file in RAM filing system (for reading only), which is specified in 
+; Open bank file in RAM filing system (for reading only), which is specified in
 ; [bankfilename] variable.
 ;
 ; Returns the usual GN_Opf file parameters.

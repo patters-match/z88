@@ -1,6 +1,6 @@
 ; *************************************************************************************
 ; RomUpdate
-; (C) Gunther Strube (gbs@users.sf.net) 2005-2007
+; (C) Gunther Strube (gbs@users.sf.net) 2005-2008
 ;
 ; RomUpdate is free software; you can redistribute it and/or modify it under the terms of the
 ; GNU General Public License as published by the Free Software Foundation;
@@ -44,7 +44,7 @@
 .ReadConfigFile
                     call LoadConfigFile
                     ld   (ozbank_loader),ix             ; the address of the bank loader routine
-                    
+
 
                     ld   (nextline),hl                  ; init pointer to beginning of first line
                     ld   hl,0
@@ -186,20 +186,20 @@
                     ld   (iy+0),l
                     ld   (iy+1),h
                     oz   GN_cl
-                    jr   check_crc_ozfile                   
-.try_load_epr_file                    
+                    jr   check_crc_ozfile
+.try_load_epr_file
                     ld   a,'/'
                     ld   (eprbankfilename),a            ; filename starts with "/" for File Area filenames..
                     ld   c,1
                     ld   de,eprbankfilename             ; try to get OZ bank file in slot 1 file area...
-                    call FileEprFindFile                ; search for filename on File Eprom...                    
+                    call FileEprFindFile                ; search for filename on File Eprom...
                     jp   c,ErrMsgBankFile               ; file not found ...
                     ld   (iy+0),l
                     ld   (iy+1),h
                     ld   (iy+2),b                       ; register BHL source pointer of file entry
-                    call LoadEprFile                    ; then load file (BHL pointer to entry) into 16K buffer...                    
+                    call LoadEprFile                    ; then load file (BHL pointer to entry) into 16K buffer...
 .check_crc_ozfile
-                    ld   a,(bankfiledor)                
+                    ld   a,(bankfiledor)
                     ld   (iy+3),a                       ; register destination bank number in slot X to blow oz bank
 
                     ld   hl,buffer
