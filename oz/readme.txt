@@ -72,11 +72,11 @@ and using an external card saves modifying the original Z88 altogether.
 OZ has been ported to slots 0 and 1, which enables you to blow the code to either slot. To compile it, use
 the following commands.
 
-        makerom.bat 0   (DOS Slot 0)
-        makerom.bat 1   (DOS slot 1)
+        makerom-slot0.bat   (DOS Slot 0)
+        makerom-slot1.bat   (DOS slot 1)
 or
-        ./makerom.sh 0  (UNIX slot 0)
-        ./makerom.sh 1  (UNIX slot 1)
+        ./makerom-slot0.sh  (UNIX slot 0)
+        ./makerom-slot1.sh  (UNIX slot 1)
 
 You use RomUpdate (/z88apps/romupdate) to actually blow the bank binaries to the flash card.
 Upload "romupdate.bas", "romupdate.crc", and the generated "romupdate.cfg" file with the
