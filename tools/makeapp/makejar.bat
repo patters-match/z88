@@ -29,11 +29,11 @@ mkdir ..\makeapp-builddir >nul
 
 :: compile the java classes of the project
 echo compiling java classes
-java -jar ..\jdk\ecj.jar -d ..\makeapp-builddir -nowarn -g:none -source 1.4 -target 1.4 net
+java -jar ..\jdk\ecj.jar -d ..\makeapp-builddir -nowarn -g:none -source 1.4 -target 1.4 src\net
 
 :: finally, build the executable jar
 cd ..\makeapp-builddir >nul
-java -jar ..\jdk\makejar.jar -cm ..\makeapp\makeapp.jar ..\makeapp\META-INF\MANIFEST.MF . >nul
+java -jar ..\jdk\makejar.jar -cm ..\makeapp\makeapp.jar ..\makeapp\src\META-INF\MANIFEST.MF . >nul
 
 :: clean up the temp build stuff
 cd ..\makeapp
