@@ -25,7 +25,7 @@
 # ***************************************************************************************************
 
 # get rid of previous generated ROM bank files
-rm -f oz.?? romupdate.cfg
+rm -f oz-*.?? romupdate.cfg
 
 # delete all compile output files
 find . -name "*.bin" | xargs rm -f

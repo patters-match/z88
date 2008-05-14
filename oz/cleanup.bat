@@ -25,7 +25,7 @@
 @echo off
 
 :: delete all compile output files in bank0 - bank7
-del /Q oz.?? romupdate.cfg
+del /Q oz-*.?? romupdate.cfg
 del /S /Q *.bin *.epr *.map *.obj *.lst *.err *.wrn *.sym 2>nul >nul
 
 :: only delete *.def files for OZ ROM (preserve \def!)
