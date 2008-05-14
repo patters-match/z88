@@ -52,7 +52,12 @@ public class MakeApp {
 	private RomBank[] banks;
 	private String outputFilename;
 	private String loadmapFilename;
-
+    private String revFromSvnWs;
+        
+        
+    public MakeApp() {
+        revFromSvnWs = new Svn(new File(System.getProperty("user.dir"))).getLatestRevision();
+    }
 
 	/**
 	 * Return Hex 8bit string in XXh zero prefixed format.
@@ -294,7 +299,6 @@ public class MakeApp {
 			int offsetEnd = 0;
 			int charByte = 0;
 
-			String revFromSvnWs = new Svn(new File(System.getProperty("user.dir"))).getLatestRevision();
 			if (revFromSvnWs.compareTo("0") != 0) {
 				// use latest Subversion revision number from .svn control dir...
 				revisionNo.append(revFromSvnWs);
@@ -552,16 +556,32 @@ public class MakeApp {
 	 */
 	private boolean createCard() {
 		int topBank = 0x3F;
+        String bFilename;
 
 		if (outputFilename == null) {
 			System.err.println("Couldn't create buffer, Output filename hasn't been defined yet!");
 			return false;
 		}
 
+        bFilename = outputFilename;
+		if (bFilename.indexOf(".") > 0) {
+			bFilename = bFilename.substring(0, bFilename.indexOf("."));
+		}
+                
+                if (romUpdateConfigFileType == 3 | romUpdateConfigFileType == 2) {
+                    // OZ binaries are being generated.. 
+                    // use filenames with SVN revision number and 's0' or 's1' to identify slot relationship.
+                    if (revFromSvnWs.compareTo("0") != 0) {
+                        bFilename += "-b" + revFromSvnWs;
+                    }
+                    
+                    bFilename += (romUpdateConfigFileType == 3) ? "s1": "s0";
+                }
+                
 		banks = new RomBank[appCardBanks]; // the card container
 		for (int b=appCardBanks-1; b>=0; b--) {
 			banks[b] = new RomBank(topBank--); 		// container filled with memory...
-			banks[b].setBankFileName(outputFilename);
+			banks[b].setBankFileName(bFilename);
 		}
 
 		return true;
