@@ -38,6 +38,7 @@
 void ParseLine (enum flag interpret);
 long GetConstant (char *evalerr);
 enum symbols GetSym (void);
+void SkipLine (FILE *fptr);
 int IndirectRegisters (void);
 int CheckCondition (void);
 int CheckRegister8 (void);

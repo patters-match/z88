@@ -48,7 +48,6 @@ void NewJRaddr (void);
 void Pass2info (expression_t *expression, unsigned long constrange, long lfileptr);
 void ReleaseFile (sourcefile_t *srcfile);
 void ReleasePathInfo(void);
-void SkipLine (FILE *fptr);
 void SourceFilePass1 (void);
 void SourceFilePass2 (void);
 void WriteListFileLine (void);

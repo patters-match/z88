@@ -74,6 +74,8 @@ enum symbols sym, ssym[] =
 char separators[] = " &\"\';,.({[]})+-*/%^=|:~<>!#";
 char ident[255];
 
+static enum flag cstyle_comment = OFF;
+
 void
 ParseLine (enum flag interpret)
 {
@@ -150,6 +152,7 @@ GetSym (void)
       sym = newline;
       return sym;
     }
+
   for (;;)
     {               /* Ignore leading white spaces, if any... */
       if (feof (srcasmfile))
@@ -188,9 +191,32 @@ GetSym (void)
            c = GetChar (srcasmfile);
            if (c == '*')
              sym = power;       /* '**' */
-           else
-             /* '*' was found, push this character back into stream for next read */
+           else if (c == '/') 
+             {
+               /* c-style end-comment, continue parsing after this marker */
+               cstyle_comment = OFF;
+               GetSym();               
+             } 
+           else 
+             {
+             /* push this character back into stream for next read */
              ungetc (c, srcasmfile);
+             }
+           break;
+
+         case divi:         /* c-style comment begin */
+           c = GetChar (srcasmfile);
+           if (c == '*') 
+             {
+               cstyle_comment = ON;
+               SkipLine (srcasmfile);    /* ignore comment block */
+               GetSym();               
+             } 
+           else 
+             {
+               /* push this character back into stream for next read */
+               ungetc (c, srcasmfile);
+             }
            break;
 
          case less:         /* '<' */
@@ -239,7 +265,20 @@ GetSym (void)
            break;
        }
 
-       return sym;
+       if (cstyle_comment == ON)
+         {
+           SkipLine (srcasmfile); 
+           return GetSym();
+         } 
+       else
+          return sym;
+    }
+
+  /* before going deeper into symbol parsing, check if we're in a c-style comment block... */
+  if (cstyle_comment == ON)
+    {
+      SkipLine (srcasmfile); 
+      return GetSym();
     }
 
   ident[chcount++] = (char) toupper (c);
@@ -389,6 +428,40 @@ GetSym (void)
 
   ident[chcount] = '\0';
   return sym;
+}
+
+
+
+void
+SkipLine (FILE *fptr)
+{
+  int c;
+
+  if (EOL == OFF)
+    {
+      while (!feof (fptr))
+        {
+          c = GetChar (fptr);
+          if ((c == '\n') || (c == EOF))
+            break;      /* get to beginning of next line... */
+          if ( c == '*' ) 
+            {
+              c = GetChar (fptr);
+              if ( c == '/' ) 
+                {
+                  if (cstyle_comment == ON) 
+                    {
+                      cstyle_comment = OFF;
+                      return;
+                    }
+                } 
+              else
+                ungetc (c, fptr);   /* puch character back into stream for next read */
+            }
+        }
+
+      EOL = ON;
+    }
 }
 
 
@@ -695,26 +768,26 @@ IndirectRegisters (void)
   reg16 = CheckRegister16 ();
   switch (reg16)
     {
-    case 0:			/* 0 to 2 = BC, DE, HL */
+    case 0:         /* 0 to 2 = BC, DE, HL */
     case 1:
     case 2:
       if (GetSym () == rparen)
-	{			/* (BC) | (DE) | (HL) | ? */
-	  GetSym ();
-	  return (reg16);	/* indicate (BC), (DE), (HL) */
-	}
+    {           /* (BC) | (DE) | (HL) | ? */
+      GetSym ();
+      return (reg16);   /* indicate (BC), (DE), (HL) */
+    }
       else
-	{
-	  ReportError (CURRENTFILE->fname, CURRENTFILE->line, 1);	/* Right bracket missing! */
-	  return -1;
-	}
+    {
+      ReportError (CURRENTFILE->fname, CURRENTFILE->line, 1);   /* Right bracket missing! */
+      return -1;
+    }
 
-    case 5:			/* 5, 6 = IX, IY */
+    case 5:         /* 5, 6 = IX, IY */
     case 6:
-      GetSym ();		/* prepare expression evaluation */
+      GetSym ();        /* prepare expression evaluation */
       return (reg16);
 
-    case -1:			/* sym could be a '+', '-' or a symbol... */
+    case -1:            /* sym could be a '+', '-' or a symbol... */
       return 7;
 
     default:

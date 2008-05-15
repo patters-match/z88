@@ -144,25 +144,6 @@ GetChar (FILE *fptr)
 }
 
 
-void
-SkipLine (FILE *fptr)
-{
-  int c;
-
-  if (EOL == OFF)
-    {
-      while (!feof (fptr))
-        {
-          c = GetChar (fptr);
-          if ((c == '\n') || (c == EOF))
-            break;      /* get to beginning of next line... */
-        }
-
-      EOL = ON;
-    }
-}
-
-
 /* ----------------------------------------------------------------
    Fetch a module filename from a project file, @projectfilename.
    Empty lines and comment lines are skipped until a real filename
