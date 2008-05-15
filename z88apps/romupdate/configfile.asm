@@ -177,9 +177,11 @@
 ;
 .ValidateOzBankFile
                     call MsgCrcCheckBankFile            ; display progress message for CRC check of bank file
-                    call LoadRamBankFile
-                    jr   c, try_load_epr_file           ; file was not found in RAM, try File Area in slot 1..
+                    call CheckConfigLocation
+                    jr   nz, try_load_epr_file          ; bank files must be located in File Area (with config file)
 
+                    call LoadRamBankFile                ; get bank file from RAM
+                    jp   c,ErrMsgBankFile               ; file not found ...
                     call OpenRamBankFile                ; open file again, just to get low level file data
                     ld   l,(ix+fhnd_firstblk)           ; get first 64 byte sector number of file
                     ld   h,(ix+fhnd_firstblk_h)         ; get bank number of first sector of file
@@ -573,6 +575,25 @@
                     call LoadEprCfgFile
                     ld   ix,CopyEprFile2Buffer          ; define the EPR file area bank loader when updating OZ to Flash..
                     ret
+; *************************************************************************************
+
+
+; *************************************************************************************
+; Check whether "romupdate.cfg" was located in RAM or in file area.
+;
+; return Fz = 1, if "romupdate.cfg" was found in RAM.
+;
+.CheckConfigLocation
+                    push de
+                    push hl
+                    ld   de,CopyRamFile2Buffer
+                    ld   hl,(ozbank_loader)
+                    cp   a
+                    sbc  hl,de
+                    pop  hl
+                    pop  de
+                    ret
+
 ; *************************************************************************************
 
 
