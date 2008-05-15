@@ -773,7 +773,7 @@
 .actvapps_msg       defm 1,"+KILL running applications in external slots before running RomUpdate.",0
 .wrongslot_msg      defm "Intel Flash Card can only be updated in slot 3.", $0D, $0A
                     defm "Insert Application Card in slot 3, and run RomUpdate again.", 0
-.notfound_msg       defm " bank file (to be updated on card) was not found.",0
+.notfound_msg       defm " bank file (to be updated) was not found with the romupdate.cfg file.",0
 .io_error_msg       defm " bank file was not properly loaded (possibly corrupted).",0
 .notcreated_msg     defm " (temporary) file could not be created (already in use or I/O error).",0
 .file_noroom_msg    defm " (temporary) file creation was rejected. File system space exhausted.", 0
