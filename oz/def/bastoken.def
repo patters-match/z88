@@ -25,6 +25,9 @@ lstoff
 ; $Id$
 ; ***************************************************************************************************
 
+IF !__BASTOKEN_DEF__
+define __BASTOKEN_DEF__
+
 
 ; BBC BASIC Z88 Tokens
 
@@ -156,5 +159,7 @@ lstoff
 	DEFC	BAS_UNTIL	 = 253
 	DEFC	BAS_WIDTH	 = 254
 	DEFC	BAS_OSCLI	 = 255
+
+ENDIF
 
 lston

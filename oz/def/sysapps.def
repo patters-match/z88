@@ -28,6 +28,9 @@ lstoff
 
 ; *** INTERNAL OPERATING SYSTEM USAGE ONLY ***
 
+IF !__SYSAPPS_DEF__
+define __SYSAPPS_DEF__
+
 IF OZ_SLOT1
         defc OZBANK_INDEX       = $7C & $3F     ; Bank of Index popdown entry
         defc OZBANK_DIARY       = $77 & $3F     ; Bank of Diary application entry
@@ -79,5 +82,7 @@ defc    ORG_TERMINAL       = $D400              ; Address entry of Terminal appl
 defc    ORG_IMPEXPORT      = $FAB1              ; Address entry of Imp/Export popdown (segment 3)
 defc    ORG_EAZYLINK       = $8000              ; Address entry of EazyLink popdown (segment 3)
 defc    ORG_FLASHSTORE     = $C000              ; Address entry of FlashStore popdown (segment 3)
+
+ENDIF
 
 lston

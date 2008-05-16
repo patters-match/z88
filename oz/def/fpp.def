@@ -30,6 +30,9 @@ lstoff
 
 ; Floating point package (FPP):
 
+IF !__FPP_DEF__
+define __FPP_DEF__
+
      DEFC FP_BAS = $A2             ; call Floating point package function
                                    ; (doesn't work properly)
 ; function codes:
@@ -76,5 +79,7 @@ lstoff
           DEFC FP_TST = $99        ; test number for zero and sign
           DEFC FP_CMP = $9C        ; compare two numbers
           DEFC FP_NEG = $9F        ; negate number
+
+ENDIF
 
 lston

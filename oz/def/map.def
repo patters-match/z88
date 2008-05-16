@@ -27,8 +27,10 @@ lstoff
 ; $Id$
 ; ***************************************************************************************************
 
-
 ; Graphic area (map) control
+
+IF !__MAPS_DEF__
+define __MAPS_DEF__
 
      DEFC Os_Map  = $F406     ; Map control
 
@@ -36,5 +38,7 @@ lstoff
      DEFC MP_DEF  = $02       ; define a map using Panel width
      DEFC MP_GRA  = $03       ; define a map of specific width
      DEFC MP_DEL  = $04       ; delete a map
+
+ENDIF
 
 lston

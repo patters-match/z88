@@ -29,6 +29,9 @@ lstoff
 
 ; File open system call:
 
+IF !__FILEIO_DEF__
+define __FILEIO_DEF__
+
      DEFC  GN_Opf = $6009          ; open file/stream (or device)
      DEFC  OS_Op  = $EA06          ; internal open
 
@@ -81,5 +84,7 @@ lstoff
           DEFC  GN_Wcl = $5409     ; close wildcard handler
           DEFC  GN_Wfn = $5609     ; get next filename match from wc.handler
           DEFC  GN_Wsm = $5C09     ; match filename segment to wildcard string
+
+ENDIF
 
 lston

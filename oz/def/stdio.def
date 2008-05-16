@@ -27,8 +27,10 @@ lstoff
 ; $Id$
 ; ***************************************************************************************************
 
-
 ; Standard I/O calls:
+
+IF !__STDIO_DEF__
+define __STDIO_DEF__
 
      DEFC  OS_In     = $2A         ; read a byte from std. input (keyboard)
      DEFC  OS_Tin    = $2D         ; read a byte from std. input, with timeout
@@ -67,7 +69,7 @@ lstoff
      DEFC IN_ALFT = $F0, IN_ARGT = $F1, IN_ADWN = $F2, IN_AUP  = $F3    ; SQUARE
 
 ;         SPACE          ESCAPE
-     defc IN_SPC  = $20, IN_ESC  = $1B    
+     defc IN_SPC  = $20, IN_ESC  = $1B
      defc IN_SSPC = $D0, IN_SESC = $D4                                  ; SHIFT
      defc IN_DSPC = $C0, IN_DESC = $C4                                  ; DIAMOND
      defc IN_ASPC = $B0, IN_AESC = $B4                                  ; SQUARE
@@ -149,5 +151,7 @@ lstoff
      DEFC SD_DTS = $7F        ; Delete toggle settings
      DEFC SD_UP  = $FE        ; Scroll screen upwards
      DEFC SD_DWN = $FF        ; Scroll screen downwards
+
+ENDIF
 
 lston

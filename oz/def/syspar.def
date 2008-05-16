@@ -27,6 +27,9 @@ lstoff
 ; $Id$
 ; ***************************************************************************************************
 
+IF !__SYSPAR_DEF__
+define __SYSPAR_DEF__
+
 
      DEFC OS_Nq   = $66  ; enquire (fetch) parameter
      DEFC OS_Sp   = $69  ; specify (set) parameter
@@ -52,7 +55,7 @@ lstoff
 
      DEFC NQ_Mfs   = $8900    ; read free space information
      DEFC NQ_Slt   = $8903    ; read slot type information
-     DEFC Nq_Mfp   = $8906    ; read free RAM space for specified slot, in pages, where 1 page = 256 bytes  (OZ 4.2 and newer) 
+     DEFC Nq_Mfp   = $8906    ; read free RAM space for specified slot, in pages, where 1 page = 256 bytes  (OZ 4.2 and newer)
 
      DEFC NQ_Dev   = $8C00    ; fetch current device
      DEFC NQ_Dir   = $8C03    ; fetch current directory
@@ -94,7 +97,7 @@ lstoff
 		DEFC CL_CH = 'W'	  ; Chweiss
 		DEFC CL_TR = 'T'	  ; Turkey
 		DEFC CL_FI = 'L'	  ; Finland
-                              
+
      DEFC PA_Iov   = $8010    ; Insert/Overtype 'I' or 'O'
      DEFC PA_Dat   = $8011    ; Date format 'E' or 'A'
      DEFC PA_Map   = $8012    ; PipeDream map 'Y' or 'N'
@@ -182,5 +185,7 @@ lstoff
           DEFC SP_Dev    = $8C00   ; Set current device
           DEFC SP_Dir    = $8C03   ; Set current directory
           DEFC SP_Fnm    = $8C06   ; Set current name match
+
+ENDIF
 
 lston

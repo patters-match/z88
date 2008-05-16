@@ -27,6 +27,9 @@ lstoff
 ; $Id$
 ; ***************************************************************************************************
 
+IF !__EPROM_DEF__
+define __EPROM_DEF__
+
 
           DEFC  OS_Epr = $F006     ; File (Eprom) Area Management Interface
 
@@ -55,5 +58,7 @@ lstoff
           DEFC  EP_Delete = $3c    ; Mark File Entry as deleted on Flash or UV Eprom    (OZ 4.2 and newer)
           DEFC  EP_Format = $3f    ; Create File Area in UV Eprom in slot 3             (OZ 4.2 and newer)
           DEFC  EP_WrBlk  = $42    ; Write a block of bytes to UV Eprom in slot 3       (OZ 4.2 and newer)
+
+ENDIF
 
 lston

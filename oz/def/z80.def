@@ -27,6 +27,9 @@ lstoff
 ; $Id$
 ; ***************************************************************************************************
 
+IF !__Z80_DEF__
+define __Z80_DEF__
+
 ; Z80 flags SZ-H-PNC
 
 defc    Z80F_B_C                =0
@@ -44,5 +47,7 @@ defc    Z80F_P                  =$04
 defc    Z80F_H                  =$10
 defc    Z80F_Z                  =$40
 defc    Z80F_S                  =$80
+
+ENDIF
 
 lston

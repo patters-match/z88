@@ -53,6 +53,9 @@ lstoff
 ;
 ; Constants are all uppercase
 
+IF !__SYSVAR_DEF__
+define __SYSVAR_DEF__
+
 include "kernel.def"                            ; to be removed (and renamed oz.def)
 include "z80.def"                               ; to be removed and inlined in each file
 
@@ -358,7 +361,6 @@ enddef
 ; ------------------------
 
 defvars SV_PROCESS_RAM
-
 ; Mailbox (83):
         MailBoxName             ds.b    17
         ubMailboxLength         ds.b    1
@@ -375,9 +377,10 @@ defvars SV_PROCESS_RAM
         pStkTempStkTop          ds.w    1
         stkBottom                               ; $185d
 ;                                               ; 5 bytes here ?
-
 enddef
 
 defc    unk_1864                =$1864          ; ?
+
+ENDIF
 
 lston

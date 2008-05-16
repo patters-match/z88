@@ -27,8 +27,10 @@ lstoff
 ; $Id$
 ; ***************************************************************************************************
 
-
 ; Integer manipulation:
+
+IF !__INTEGER_DEF__
+define __INTEGER_DEF__
 
       DEFC Gn_M16  = $7209         ; Unsigned 16bit multiplication
       DEFC Gn_D16  = $7409         ; Unsigned 16bit division
@@ -36,5 +38,7 @@ lstoff
       DEFC Gn_D24  = $7809         ; Unsigned 24bit division
       DEFC Gn_Gdn  = $1009         ; ASCII (decimal) to integer (binary) conversion
       DEFC Gn_Pdn  = $1209         ; Integer (binary) to ASCII (decimal) conversion
+
+ENDIF
 
 lston

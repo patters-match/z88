@@ -27,8 +27,10 @@ lstoff
 ; $Id$
 ; ***************************************************************************************************
 
-
 ; Filter manipulation:
+
+IF !__FILTER_DEF__
+define __FILTER_DEF__
 
      DEFC Gn_Flo  = $2209          ; Open a filter
      DEFC Gn_Flc  = $2409          ; Close a filter
@@ -36,5 +38,7 @@ lstoff
      DEFC Gn_Flr  = $2809          ; Read character from filter
      DEFC Gn_Flf  = $2A09          ; Flush filter
      DEFC Gn_Fpb  = $2C09          ; Push back character into filter
+
+ENDIF
 
 lston

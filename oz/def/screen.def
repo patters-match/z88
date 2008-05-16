@@ -27,8 +27,10 @@ lstoff
 ; $Id$
 ; ***************************************************************************************************
 
-
 ; Screen control:
+
+IF !__SCREEN_DEF__
+define __SCREEN_DEF__
 
      DEFC Os_Off  = $EC06          ; switch machine (screen) off
 
@@ -156,5 +158,7 @@ defc    LCDA_TINY               =$80    ; software flag
 defc    LCDA_SPECMASK           =$3C
 defc    LCDA_NULLCHAR           =$34
 defc    LCDA_LORESCURSOR        =$38
+
+ENDIF
 
 lston

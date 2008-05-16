@@ -29,6 +29,9 @@ lstoff
 
 ; *** INTERNAL OPERATING SYSTEM USAGE ONLY ***
 
+IF !__KERNEL_DEF__
+define __KERNEL_DEF__
+
 ; version:
 defc    OZVERSION               = $42
 
@@ -105,5 +108,6 @@ defvars 0
         OSFrame_OZPC            ds.w    1       ; RET address on SP back to address location of the OZ call
 enddef
 
+ENDIF
 
 lston

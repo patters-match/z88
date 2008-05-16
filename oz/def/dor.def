@@ -27,6 +27,9 @@ lstoff
 ; $Id$
 ; ***************************************************************************************************
 
+IF !__DOR_DEF__
+define __DOR_DEF__
+
 
      DEFC OS_Dor = $87             ; DOR interface
 
@@ -132,5 +135,7 @@ enddef
      defc CMDF_B_HELP    = 4
 
      defc CMDF_HELP      = $10
+
+ENDIF
 
 lston

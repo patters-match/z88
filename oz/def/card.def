@@ -29,6 +29,9 @@ lstoff
 
 ; Card header
 
+IF !__CARD_DEF__
+define __CARD_DEF__
+
         DEFC CH_TAG          =  $3FFE           ; card header tag
                 DEFC CT_ROM  =  'Z'<<8 | 'O'    ; "OZ" application ROM watermark
                 DEFC CT_EPR  =  'z'<<8 | 'o'    ; "oz" storage EPROM watermark
@@ -53,5 +56,7 @@ lstoff
         DEFC CH_EXT          =  $3FFB           ; external ID for application card
                 DEFC CX_APL  =  $80                     ; external application ID
                 DEFC CX_OS   =  $81                     ; operating system
+
+ENDIF
 
 lston

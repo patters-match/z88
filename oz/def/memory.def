@@ -27,8 +27,10 @@ lstoff
 ; $Id$
 ; ***************************************************************************************************
 
-
 ; Memory allocation, deallocation:
+
+IF !__MEMORY_DEF__
+define __MEMORY_DEF__
 
      DEFC Os_Mop = $4E             ; Open memory (allocate memory pool)
      DEFC Os_Mal = $54             ; Allocate memory
@@ -146,5 +148,7 @@ lstoff
      defc MAT_B_FULL       = 5
      defc MAT_B_ALLOCFIXED = 6
      defc MAT_B_SWAP       = 7
+
+ENDIF
 
 lston

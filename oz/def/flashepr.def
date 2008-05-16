@@ -33,6 +33,9 @@ lstoff
 ; ==========================================================================================
 ; New OZ system call interface (introduced in 4.2) to Handle Intel, Amd & Stm Flash memory
 
+IF !__FLASHEPR_DEF__
+define __FLASHEPR_DEF__
+
 DEFC  OS_Fep  = $C806
         ; Reason code in A, arguments in BC, DE, HL & IX
 
@@ -82,5 +85,6 @@ DEFC FE_AM29F080B = $01D5   ; 1Mb memory, 16 x 64K erasable sectors, 64 x 16K ba
 DEFC FE_ST29F080D = $20F1   ; 1Mb memory, 16 x 64K erasable sectors, 64 x 16K banks (z88 memory model)
 ; ==========================================================================================
 
+ENDIF
 
 lston

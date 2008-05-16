@@ -27,6 +27,8 @@ lstoff
 ; $Id$
 ; ***************************************************************************************************
 
+IF !__TIME_DEF__
+define __TIME_DEF__
 
      DEFC Gn_Gmt = $1A09      ; get (read) machine time in internal format
      DEFC Gn_Pmt = $1E09      ; put (set) machine date

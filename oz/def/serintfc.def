@@ -27,8 +27,10 @@ lstoff
 ; $Id$
 ; ***************************************************************************************************
 
-
 ; Low level serial port interface:
+
+IF !__SERIALINTERFACE_DEF__
+define __SERIALINTERFACE_DEF__
 
         DEFC Os_Si   = $8D         ; serial interface (low level)
 
@@ -45,7 +47,7 @@ lstoff
 ; *** INTERNAL OPERATING SYSTEM USAGE ONLY ***
 
 ; Parity:
-        
+
         defc PAR_B_PARITY = 7      ; has parity
         defc PAR_B_STICKY = 6      ; space or mark
         defc PAR_B_ODD    = 5      ; odd parity
@@ -70,5 +72,7 @@ lstoff
         defc TDRH_B_START   = 0
         defc TDRH_B_STOP    = 1
         defc TDRH_B_STOP2   = 2
+
+ENDIF
 
 lston

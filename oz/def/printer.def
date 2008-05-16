@@ -27,8 +27,10 @@ lstoff
 ; $Id$
 ; ***************************************************************************************************
 
-
 ; Printer filter call:
+
+IF !__PRINTER_DEF__
+define __PRINTER_DEF__
 
      DEFC Os_Prt  = $24            ; Send character directly to printer filter (low level)
 
@@ -62,5 +64,7 @@ lstoff
 
      defc PRT_ALLOWLF       = $01
      defc PRT_ENABLED       = $02
+
+ENDIF
 
 lston

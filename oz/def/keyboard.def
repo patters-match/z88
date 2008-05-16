@@ -30,6 +30,9 @@ lstoff
 
 ; *** INTERNAL OPERATING SYSTEM USAGE ONLY ***
 
+IF !__KEYBOARD_DEF__
+define __KEYBOARD_DEF__
+
 ; qualifiers:
 
 defc    QUAL_B_SHIFT            =0              ; use these instead of CLM_xxx as these are global
@@ -93,5 +96,7 @@ defc    KBF_DMND                =$10
 defc    KBF_KEY                 =$20
 defc    KBF_SQR                 =$40
 defc    KBF_LOCKED              =$80
+
+ENDIF
 
 lston

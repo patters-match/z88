@@ -49,6 +49,9 @@ lstoff
 
 ; *** General Definitions ***
 
+IF !__BLINK_DEF__
+define __BLINK_DEF__
+
 DEFC BLSC_PAGE =    $04            ; softcopy page is at $0400
 
 ; -----------------------------------------------------------------------------
@@ -400,5 +403,7 @@ DEFC BLSC_UAK  =    $04E6               ; its softcopy
      DEFC BM_UAKDCD      =    $40       ; Set to acknowledge DCD interrupt
      DEFC BM_UAKCTS      =    $20       ; Set to acknowledge CTS interrupt
 ; -----------------------------------------------------------------------------
+
+ENDIF
 
 lston

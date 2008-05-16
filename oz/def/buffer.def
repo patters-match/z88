@@ -31,6 +31,9 @@ lstoff
 
 ; *** INTERNAL OPERATING SYSTEM USAGE ONLY ***
 
+IF !__BUFFER_DEF__
+define __BUFFER_DEF__
+
 ; buffer data structure
 ; on negative side of the handle number
 defvars -3
@@ -40,5 +43,7 @@ defvars -3
 enddef
 
 defc    BF_SIZE                 = $FF           ; 1 page -1
+
+ENDIF
 
 lston

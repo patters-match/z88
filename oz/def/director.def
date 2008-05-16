@@ -27,8 +27,10 @@ lstoff
 ; $Id$
 ; ***************************************************************************************************
 
-
 ; Director/CLI low level access:
+
+IF !__DIRECTOR_DEF__
+define __DIRECTOR_DEF__
 
      DEFC Dc_Alt = $1A0C           ; Pass an alternative character
      DEFC Dc_Bye = $080C           ; Exiting current application (internal)
@@ -105,5 +107,7 @@ lstoff
 
      defc IDXF1_B_INSIDEOZ = 0
      defc IDXF1_B_INIT     = 1
+
+ENDIF
 
 lston

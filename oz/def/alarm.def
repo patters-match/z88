@@ -29,6 +29,9 @@ lstoff
 
 ; Alarm manipulation:
 
+IF !__ALARM_DEF__
+define __ALARM_DEF__
+
      DEFC Gn_Aab  = $6809          ; Allocate alarm block
      DEFC Gn_Fab  = $6A09          ; Free alarm block
      DEFC Gn_Lab  = $6C09          ; Link alarm block in chain
@@ -99,5 +102,7 @@ defc    ALRF_WEEK               =$10
 defc    ALRF_MONTH              =$20
 defc    ALRF_YEAR               =$40
 defc    ALRF_NEVER              =$80
+
+ENDIF
 
 lston

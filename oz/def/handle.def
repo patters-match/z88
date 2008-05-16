@@ -32,6 +32,10 @@ lstoff
 ; ***************************************************************************************************
 
 ; Handle functions:
+
+IF !__HANDLE_DEF__
+define __HANDLE_DEF__
+
 defc    Os_Fn                   =$7B            ; Miscellaneous OS functions (internal)
 
 ; OS_Fn reasons:
@@ -54,9 +58,9 @@ defc    NUMHANDLES              = 64            ; 96 handles starting at 'Handle
 defc    hnd_SIZEOF              = 16            ; each handle is 16 bytes length
 
 ; handle types:
-defc    HND_DEV                 =$01           ; device 
+defc    HND_DEV                 =$01           ; device
 defc    HND_FILE                =$02           ; file/directory
-defc    HND_MEM                 =$03           ; memory 
+defc    HND_MEM                 =$03           ; memory
 defc    HND_PROC                =$04           ; process
 defc    HND_ALRM                =$05           ; alarm
 defc    HND_TRHN                =$06           ; tri-handle
@@ -142,5 +146,7 @@ defc    thnd_Segment            =$04
 defc    thnd_AddrH              =$05
 defc    thnd_Bank               =$06
 defc    thnd_SubType            =$07
+
+ENDIF
 
 lston

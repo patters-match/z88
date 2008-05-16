@@ -27,9 +27,11 @@ lstoff
 ; $Id$
 ; ***************************************************************************************************
 
-
 ; Save / Restore manipulation:
 ; (screen, application mailbox, Page wait & Application card management)
+
+IF !__SAVERESTORE_DEF__
+define __SAVERESTORE_DEF__
 
      DEFC Os_Sr  = $6C             ; Save & Restore
 
@@ -50,5 +52,7 @@ lstoff
      defc MBOXNAMEMAXLEN = $11
      defc MAILBOXMAXLEN  = $40
      defc MAILBOXID      = $AA
+
+ENDIF
 
 lston

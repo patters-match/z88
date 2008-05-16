@@ -27,14 +27,16 @@ lstoff
 ; $Id$
 ; ***************************************************************************************************
 
-
 ; Interrupt calls: (performed as CALL OZ_DI or CALL OZ_EI)
+
+IF !__INTERRUPT_DEF__
+define __INTERRUPT_DEF__
 
      DEFC OZ_DI = $0051       ; Disable IM 1 interrupts
      DEFC OZ_EI = $0054       ; Enable IM 1 interrupts
 
 ; *** INTERNAL OPERATING SYSTEM USAGE ONLY ***
- 
+
 ; status:
 
 defc    IST_B_CLISHIFT          =0
@@ -82,5 +84,7 @@ defc    SF1_B_NOTOKENS          =7
 
 defc    SF1_OZDMND              =$10
 defc    SF1_OZSQUARE            =$20
+
+ENDIF
 
 lston

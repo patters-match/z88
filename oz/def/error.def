@@ -31,6 +31,10 @@ lstoff
 ; Error return codes:
 ; Codes marked with * are fatal errors
 
+IF !__ERROR_DEF__
+define __ERROR_DEF__
+
+
      DEFC RC_OK     = $00
      DEFC RC_Esc    = $01     ; Escape condition (e.g. ESC pressed)
      DEFC RC_Time   = $02     ; Timeout
@@ -98,5 +102,7 @@ lstoff
      DEFC Os_Erc = $72        ; Get error context
      DEFC Gn_Err = $4A09      ; Display an interactive error box
      DEFC Gn_Esp = $4C09      ; Return pointer to a system error message
+
+ENDIF
 
 lston

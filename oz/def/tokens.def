@@ -30,7 +30,11 @@ lstoff
 
 ; Token manipulation:
 
+IF !__TOKENS_DEF__
+DEFINE __TOKENS_DEF__
+
      DEFC Os_Wrt  = $CC06          ; Write token
      DEFC Os_Wtb  = $CA06          ; Write token base
+ENDIF
 
 lston
