@@ -1674,6 +1674,8 @@ public class CommandLine implements KeyListener {
 			debugGui.getCmdLineInputArea().setText("m " + Dz.addrToHex(memAddr,false));
 		} else {
 			// extended addressing
+                    memory.getBank(memBank).editMemory();
+                    
 			for (int memLines = 0;	memLines < 16; memLines++) {
 				int origAddr = memAddr;
 				memAddr	= getMemoryAscii(memLine, memAddr, memBank);

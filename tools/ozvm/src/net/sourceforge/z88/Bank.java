@@ -19,7 +19,10 @@
 
 package net.sourceforge.z88;
 
+import com.jhe.hexed.JHexEditor;
+import java.awt.event.WindowAdapter;
 import java.util.zip.CRC32;
+import javax.swing.JFrame;
 
 /**
  * This class represents the 16Kb Bank architecture. The characteristics of a bank can be
@@ -34,12 +37,13 @@ import java.util.zip.CRC32;
  * Please refer to hardware section of the Developer's Notes for a more detailed
  * description.
  */
-public abstract class Bank {
+public abstract class Bank extends WindowAdapter {
 	/** A bank contains 16384 bytes */
 	public static final int SIZE = 16384;
 
 	private int bankNo;
 	private int bankMem[];
+        private JFrame win;
 
 	public Bank() {
 		this.bankNo = -1; // This bank is not assigned to the 4Mb memory model
@@ -162,4 +166,13 @@ public abstract class Bank {
 
 		return crc.getValue();
 	}
+        
+        public void editMemory() {
+            win=new JFrame();
+            win.getContentPane().add(new JHexEditor(bankMem));
+            win.addWindowListener(this);
+            win.pack();      
+            win.show();
+        }
+        
 } /* Bank */
