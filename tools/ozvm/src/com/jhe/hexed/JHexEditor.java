@@ -78,13 +78,10 @@ public class JHexEditor extends JPanel implements FocusListener,AdjustmentListen
     {
         int n=(cursor/16);
 
-        System.out.print("- "+inicio+"<"+n+"<"+(lineas+inicio)+"("+lineas+")");
-
-        if(n<inicio) inicio=n;
-        else if(n>=inicio+lineas) inicio=n-(lineas-1);
-
-        System.out.println(" - "+inicio+"<"+n+"<"+(lineas+inicio)+"("+lineas+")");
-
+        if(n<inicio) 
+            inicio=n;
+        else if(n>=inicio+lineas) 
+            inicio=n-(lineas-1);
         repaint();
     }
 
@@ -177,6 +174,8 @@ public class JHexEditor extends JPanel implements FocusListener,AdjustmentListen
                 if(cursor<(buff.length-16)) cursor+=16;
                 actualizaCursor();
                 break;
+            default:
+                System.out.println(e.getKeyCode());
         }
     }
 
@@ -272,11 +271,10 @@ public class JHexEditor extends JPanel implements FocusListener,AdjustmentListen
             for(int n=ini;n<fin;n++)
             {
                 if(n==(cursor/16)) cuadro(g,0,y,8);
-                String s="0000000000000"+Integer.toHexString(n);
+                String s="0000000000000"+Integer.toHexString(n*16); // line offset address of buffer
                 s=s.substring(s.length()-8);
                 printString(g,s,0,y++);
             }
         }
     }
-
 }

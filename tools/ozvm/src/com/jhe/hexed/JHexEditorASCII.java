@@ -24,14 +24,11 @@ public class JHexEditorASCII extends JComponent implements MouseListener,KeyList
 
     public Dimension getPreferredSize()
     {
-        debug("getPreferredSize()");
         return getMinimumSize();
     }
 
     public Dimension getMinimumSize()
     {
-        debug("getMinimumSize()");
-
         Dimension d=new Dimension();
         FontMetrics fn=getFontMetrics(he.font);
         int h=fn.getHeight();
@@ -42,8 +39,6 @@ public class JHexEditorASCII extends JComponent implements MouseListener,KeyList
 
     public void paint(Graphics g)
     {
-        debug("paint("+g+")");
-        debug("cursor="+he.cursor+" buff.length="+he.buff.length);
         Dimension d=getMinimumSize();
         g.setColor(Color.white);
         g.fillRect(0,0,d.width,d.height);
@@ -82,25 +77,18 @@ public class JHexEditorASCII extends JComponent implements MouseListener,KeyList
 
     }
 
-    private void debug(String s)
-    {
-        if(he.DEBUG) System.out.println("JHexEditorASCII ==> "+s);
-    }
-
     // calcular la posicion del raton
     public int calcularPosicionRaton(int x,int y)
     {
         FontMetrics fn=getFontMetrics(he.font);
         x=x/(fn.stringWidth(" ")+1);
         y=y/fn.getHeight();
-        debug("x="+x+" ,y="+y);
         return x+((y+he.getInicio())*16);
     }
 
     // mouselistener
     public void mouseClicked(MouseEvent e)
     {
-        debug("mouseClicked("+e+")");
         he.cursor=calcularPosicionRaton(e.getX(),e.getY());
         this.requestFocus();
         he.repaint();
@@ -125,8 +113,6 @@ public class JHexEditorASCII extends JComponent implements MouseListener,KeyList
     //KeyListener
     public void keyTyped(KeyEvent e)
     {
-        debug("keyTyped("+e+")");
-
         he.buff[he.cursor]=(byte)e.getKeyChar();
 
         if(he.cursor!=(he.buff.length-1)) he.cursor++;
@@ -135,13 +121,11 @@ public class JHexEditorASCII extends JComponent implements MouseListener,KeyList
 
     public void keyPressed(KeyEvent e)
     {
-        debug("keyPressed("+e+")");
         he.keyPressed(e);
     }
 
     public void keyReleased(KeyEvent e)
     {
-        debug("keyReleased("+e+")");
     }
 
     public boolean isFocusTraversable()

@@ -98,6 +98,7 @@ public class Gui extends JFrame {
 	private JMenuItem gifMovieMenuItem;
 	private JMenuItem screenSnapshotMenuItem;
 	private JMenuItem fullScreenModeMenuItem;
+        private JMenuItem viewMemoryMenuItem;
 
 	private JCheckBoxMenuItem z88keyboardMenuItem;
 	private JCheckBoxMenuItem z88CardSlotsMenuItem;
@@ -307,6 +308,7 @@ public class Gui extends JFrame {
 			viewMenu.add(getRtmMessagesMenuItem());
 			viewMenu.add(getZ88keyboardMenuItem());
 			viewMenu.add(getZ88CardSlotsMenuItem());
+                        viewMenu.add(getViewMemoryMenuItem());
 			
 			if (OZvm.getInstance().isFullScreenSupported() == true) {			
 				viewMenu.add(getFullScreenModeMenuItem());
@@ -427,6 +429,27 @@ public class Gui extends JFrame {
 		return z88CardSlotsMenuItem;
 	}
 
+	public JMenuItem getViewMemoryMenuItem() {
+		if (viewMemoryMenuItem == null) {
+			viewMemoryMenuItem = new JMenuItem();
+			viewMemoryMenuItem.setSelected(false);
+			viewMemoryMenuItem.setText("View/edit memory");
+			viewMemoryMenuItem.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+                                    String input=JOptionPane.showInputDialog(
+                                            null, 
+                                            "Enter bank number (00-FF): ", 
+                                            "View/Edit Z88 Memory", 
+                                            JOptionPane.QUESTION_MESSAGE);
+                                    int bankNo = Integer.parseInt(input, 16);
+                                    Z88.getInstance().getMemory().getBank(bankNo).editMemory();
+				}
+			});
+		}
+
+		return viewMemoryMenuItem;
+	}
+        
 	private void addZ88ScreenPanel() {
 		if (fullScreenMode == false) {
 			final GridBagConstraints gridBagConstraints = new GridBagConstraints();
