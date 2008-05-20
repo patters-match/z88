@@ -171,7 +171,7 @@ public abstract class Bank extends WindowAdapter {
             win=new JFrame();
             win.getContentPane().add(new JHexEditor(bankMem));
             win.addWindowListener(this);
-            win.setTitle("Bank " + Dz.byteToHex(bankNo, true));
+            win.setTitle("Viewing Bank " + Dz.byteToHex(bankNo, true) + "    (press F5/SPACE to refresh contents)");
             win.pack();      
             win.show();
         }

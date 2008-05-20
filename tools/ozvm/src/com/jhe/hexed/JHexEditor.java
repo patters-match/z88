@@ -173,9 +173,11 @@ public class JHexEditor extends JPanel implements FocusListener,AdjustmentListen
             case 40:    // -->
                 if(cursor<(buff.length-16)) cursor+=16;
                 actualizaCursor();
+                break;            
+            case KeyEvent.VK_F5:
+            case KeyEvent.VK_SPACE:
+                actualizaCursor();
                 break;
-            default:
-                System.out.println(e.getKeyCode());
         }
     }
 
