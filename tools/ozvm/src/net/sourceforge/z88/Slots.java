@@ -1137,7 +1137,7 @@ public class Slots extends JPanel {
 	}
 
 	/**
-	 *.epr and .0 - .63 extension filter when browsing the filing system  
+	 * .bin, .epr and .0 - .63 extension filter when browsing the filing system  
 	 * for Application or File Cards.
 	 */
 	private class EpromFileFilter extends FileFilter {
@@ -1150,7 +1150,7 @@ public class Slots extends JPanel {
 
 			String extension = getExtension(f);
 			if (extension != null) {
-				if (extension.equalsIgnoreCase("epr") == true) {
+				if (extension.equalsIgnoreCase("epr") == true | extension.equalsIgnoreCase("bin") == true) {
 					// the Eprom file was polled successfully.
 					return true;
 				} else {
