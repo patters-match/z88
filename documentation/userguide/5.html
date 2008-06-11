@@ -1,0 +1,2105 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html><head><title>Cambridge Z88 User Guide - Section Five - PipeDream
+reference</title>
+
+<link rel="stylesheet" type="text/css" href="stylesheet.css">
+</head>
+<body>
+<h1>Section Five - PipeDream reference</h1>
+<p>This section describes all of the PipeDream commands that are
+available
+in each menu. To understand this chapter, you should already be
+familiar with the basic concepts of using PipeDream described in
+<span style="font-weight: bold;">Section Two - Using
+PipeDream</span>.</p>
+<p>All commands can be typed directly from the keyboard, as well
+as chosen
+from the appropriate menu. The keyboard equivalent for each command is
+shown to the right of the command name in the menu. For example, the <strong>Replicate</strong>
+command on the <strong>BLOCKS</strong> menu appears as</p>
+<p><span class="screen">Replicate </span><img style="vertical-align: middle;" alt="diamond" src="images/symb_diamond.png"><span class="screen">BRE</span></p>
+<p>This means that you can give the <span style="font-weight: bold;">Replicate</span> command by
+typing
+the&nbsp;<img style="vertical-align: middle;" alt="diamond" src="images/symb_diamond.png"> key
+followed by the keys <span class="type">B R E</span>.
+Note that the letters do not need to be in
+capitals:&nbsp;<img class="type" style="vertical-align: middle;" alt="diamond" src="images/symb_diamond.png"><span class="type">
+b r e</span> has the same effect. Also, you can hold down
+the&nbsp;<img style="vertical-align: middle;" alt="diamond" src="images/symb_diamond.png">
+key while typing the letter keys if you prefer.</p>
+<p>When, as in this example, the command equivalent is a sequence
+of two
+or three letters, the first letter will usually be the first letter of
+the menu name. For frequently-used commands, the key equivalent is a
+single letter with the&nbsp;<img style="vertical-align: middle;" alt="diamond" src="images/symb_diamond.png"> key (in
+a very few cases the&nbsp;<img style="vertical-align: middle;" alt="square" src="images/symb_square.png"> key). For
+example, the <span style="font-weight: bold;">Mark Block</span>
+command on the <span style="font-weight: bold;">BLOCKS</span>
+menu has the equivalent <img style="vertical-align: middle;" alt="diamond" src="images/symb_diamond.png">Z.</p>
+<p>Note that in the following screen diagrams the highlighting
+bar has
+been omitted for clarity.</p>
+<h2>Setting the options</h2>
+<p>Some commands present you with a table of options which allow
+you to
+set up the command to your requirements.</p>
+<p>To begin with, the cursor is positioned next to the first
+option; the
+cursor keys can be' used as normal to move up and down the list.</p>
+<p>Many of the options have only two possible alternatives: <span class="screen">Yes</span>
+and <span class="screen">No</span>.
+You can change the value shown either by typing <span class="type">Y</span>
+or <span class="type">N</span> as appropriate,
+or by using the <strong>Next Option</strong>
+command,&nbsp;<img style="vertical-align: middle;" alt="diamond" src="images/symb_diamond.png">J, which
+alternates between
+the
+available values. In the case of options which take specific values,
+such as <strong>Page Length</strong>, <strong>Next
+Option</strong> restores the default value.</p>
+<h1><a id="Operations on blocks of slots - BLOCKS">Operations
+on blocks of slots - BLOCKS</a></h1>
+<p><img style="width: 640px; height: 79px;" alt="" src="images/102.png"></p>
+<p>The commands on the <strong>BLOCKS</strong> menu
+enable you to manipulate
+documents to
+control exactly which areas are affected by a particular operation. A
+block can include anything from a single slot to a complete document.</p>
+<h2>Marking</h2>
+<p>Before giving any block command you identify the slots you
+wish to
+operate on using the <strong>Mark Block</strong> command.
+You can mark a single slot, a
+row of slots, a column of slots, or a rectangular block of slots
+spanning several rows and columns.</p>
+<p>You identify which block of slots you want to operate on by
+giving the
+<strong>Mark Block</strong> command at the top left-hand
+corner and bottom right-hand
+corner of the block. After giving the two <strong>Mark Block</strong>
+commands, all the
+selected slots in the block will be shown highlighted on the screen.</p>
+<h3>Mark Block -&nbsp;<img style="vertical-align: middle;" alt="diamond" src="images/symb_diamond.png">Z</h3>
+<p>Marks a single slot, or the top left-hand corner and bottom
+right-hand
+corner of a rectangular block of slots, to identify the slots to be
+operated on by subsequent block commands.</p>
+<h3>Clear Marks -&nbsp;<img style="vertical-align: middle;" alt="diamond" src="images/symb_diamond.png">Q</h3>
+<p>Clears any marked block previously set up with the <strong>Mark
+Block</strong>
+command.</p>
+<h2>Replicating slots</h2>
+<h3>Replicate -&nbsp;<img style="vertical-align: middle;" alt="diamond" src="images/symb_diamond.png">BRE</h3>
+<p>Reproduces the contents of a slot, or block of slots, in any
+part of
+the document. The following options are displayed:</p>
+<p><span class="screen">Range to copy from</span><br class="screen">
+<span class="screen">Range to copy to</span></p>
+<p>Each range is a block of slots identified by specifying the
+coordinates
+of its top left-hand corner and bottom right-hand corner. If necessary,
+extra rows and/or columns are created in the document to accommodate
+the new slots.</p>
+<p>The ranges can be one of the following forms:</p>
+<p><strong>1. Single slot
+to area</strong></p>
+<p><em>Range to copy from</em>: a single slot, eg A1.<br>
+<em>Range to copy to</em>: an area, eg B3 D7, or just a row
+or column range. The
+area can include the original slot, if required.</p>
+<p>The contents of the slot are copied over the entire area, as
+represented symbolically in the following diagram:</p>
+<p><img style="width: 439px; height: 211px;" alt="" src="images/103.png"></p>
+<p><strong>2. Column to area</strong></p>
+<p><em>Range to copy from</em>: a column array, eg A1
+A3.<br>
+<em>Range to copy to</em>: a single slot or a row array, eg
+B5 D5.</p>
+<p>The column is copied to the target column starting at either
+the single
+slot, or the range of slots given by the target row.</p>
+<p><img style="width: 441px; height: 208px;" alt="" src="images/104.png"></p>
+<p><strong>3. Row to area</strong></p>
+<p><em>Range to copy from</em>: a row array, eg A1C1.<br>
+<em>Range to copy to</em>: a single slot or a column array,
+eg B5 B7.</p>
+<p>The row is copied to the target row, starting either at the
+single slot
+or at the range of slots given by the target column, as shown on the
+following page:</p>
+<p><img style="width: 443px; height: 208px;" alt="" src="images/104_2.png"></p>
+<p><strong>4. Area to area</strong></p>
+<p><em>Range to copy from</em>: an area, eg A1 B2.<br>
+<em>Range to copy to</em>: a single slot,
+eg C5.</p>
+<p>The area is copied to the area with the top left-hand corner
+defined by
+the single slot.</p>
+<p><img style="width: 441px; height: 207px;" alt="" src="images/105.png"></p>
+<p>If the slots contain slot references, the references are
+updated to
+take account of their altered position, unless they are fixed with the
+$ operator.</p>
+<h2>Copy, Move, and Delete</h2>
+<h3>Copy -&nbsp;<img style="vertical-align: middle;" alt="diamond" src="images/symb_diamond.png">BC</h3>
+<p>Copies a marked block of slots to the position in the document
+indicated by the cursor. Slots in the document will be moved apart to
+make space for the block being copied, in contrast with the <strong>Replicate</strong>
+command which overwrites the target area.</p>
+<p>Slot references in the new block are updated as for the
+<strong>Replicate</strong>
+command, but references to slots within the block are not altered.</p>
+<h3>Move -&nbsp;<img style="vertical-align: middle;" alt="diamond" src="images/symb_diamond.png">BM</h3>
+<p>Moves a marked block of slots from its original position to
+the
+position indicated by the cursor. All slot references are updated as
+appropriate.</p>
+<p>Note that if you attempt to move a block of slots to a new
+position
+which overlaps the same rows or columns as the original block, the
+error</p>
+<p><span class="screen">Overlap</span></p>
+<p>will be displayed.</p>
+<h3>Delete -&nbsp;<img style="vertical-align: middle;" alt="diamond" src="images/symb_diamond.png">BD</h3>
+<p>Deletes a marked block of slots from the document. Since you
+will lose
+the information previously in those slots, it is a good idea to save a
+copy of your document before deleting a large area, so that you can
+revert to this if you accidentally delete valuable information.</p>
+<h2>Sorting</h2>
+<h3>Sort -&nbsp;<img style="vertical-align: middle;" alt="diamond" src="images/symb_diamond.png">BSO</h3>
+<p>Sorts a marked block of slots. Text slots are sorted into
+alphabetical
+order, expression slots into numeric order, and date slots into date
+order. The following options are displayed:</p>
+<p><span class="screen">Sort on column</span><br class="screen">
+<span class="screen">Sort in reverse order &nbsp;
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp;
+&nbsp;No</span><br class="screen">
+<span class="screen">Don't update references
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; No</span>&nbsp;</p>
+<p><em>Sort on column</em>: set to a column label (A,
+B, C etc) to specify
+which
+column within the marked block should be used to determine the ordering
+of the slots.</p>
+<p><em>Sort in reverse order</em>: by default, the
+marked block is sorted
+into
+ascending order, and any slot references are updated as appropriate.
+Setting this option to <span class="screen">Yes</span>
+will sort the specified column in
+descending order.</p>
+<p><em>Don't update references</em>: setting this
+option to <span class="screen">Yes</span> inhibits
+the
+updating of slot references within the block being sorted. This gives a
+faster sort operation, and can be used provided no slots within the
+sorted block are referred to either from within or from outside the
+sorted block.</p>
+<h2>Searching and replacing</h2>
+<h3>Search -&nbsp;<img style="vertical-align: middle;" alt="diamond" src="images/symb_diamond.png">BSE</h3>
+<p>Search is for a specified string within a single document, or
+a
+multi-file document. The following options are available:</p>
+<p><span class="screen">String to search for</span><br class="screen">
+<span class="screen">Search only range of columns
+&nbsp; &nbsp; &nbsp; No</span><br class="screen">
+<span class="screen">Equate upper and lower case
+&nbsp; &nbsp; &nbsp; &nbsp;Yes</span><br class="screen">
+<span class="screen">Search only
+marked block &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; No</span><br class="screen">
+<span class="screen">Search from current file &nbsp;
+&nbsp; &nbsp; &nbsp; &nbsp; No</span><br class="screen">
+<span class="screen">Search all files in list &nbsp;
+&nbsp; &nbsp; &nbsp; &nbsp; No</span>&nbsp;</p>
+<p>The string to be searched for is specified in the same way as
+for the
+<strong>Replace</strong> command, and the equivalent
+options have the same effect; see
+below.</p>
+<p>When the search is completed, a message such as</p>
+<p><span class="screen">27 found</span></p>
+<p>will be displayed where 27 is the number of matches since the
+last
+<strong>Search</strong> command.</p>
+<h3>Next Match -&nbsp;<img style="vertical-align: middle;" alt="diamond" src="images/symb_diamond.png">BNM</h3>
+<p>Following a <strong>Search</strong> command, the <strong>Next
+match</strong> command can be used
+to find
+the next occurrence of the specified string starting at the current
+cursor position.</p>
+<h3>Replace - <img style="vertical-align: middle;" alt="diamond" src="images/symb_diamond.png">BRP</h3>
+<p>Searches for and replaces occurrences of one specified string
+by
+another. The following options are displayed:</p>
+<p><span class="screen">String to search for</span><br class="screen">
+<span class="screen">Replace with</span><br class="screen">
+<span class="screen">Search only range of columns
+&nbsp; &nbsp; &nbsp;No</span><br class="screen">
+<span class="screen">Equate upper and lower case
+&nbsp; &nbsp;&nbsp; &nbsp;Yes</span><br class="screen">
+<span class="screen">Ask for
+confirmation &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+&nbsp; &nbsp;Yes</span><br class="screen">
+<span class="screen">Search only marked block &nbsp;
+&nbsp; &nbsp; &nbsp;&nbsp; No</span><br class="screen">
+<span class="screen">Search all files in list &nbsp;
+&nbsp; &nbsp; &nbsp; &nbsp;No</span></p>
+<p>By default, the <strong>Replace</strong> command
+replaces all occurrences of
+the first
+specified string with the second specified string throughout the
+current document, equating upper- and lower-case letters and prompting
+for confirmation before each replacement. For example</p>
+<p><span class="screen">String to search for
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+&nbsp;Cat</span><br class="screen">
+<span class="screen">Replace with &nbsp; &nbsp;
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+&nbsp; &nbsp; &nbsp;Dog</span></p>
+<p>will replace Cat with Dog, cat with dog, and CAT with
+DOG.</p>
+<p>On each
+occurrence of the search string, the prompt</p>
+<p><span class="screen">Replace: N, Y?</span></p>
+<p>will be displayed at the top of the screen. Answer <span class="type">Y</span> to
+perform the
+replacement, <span class="type">N</span> to proceed
+to the next occurrence of the search string,
+or press the <span class="key">ESC</span> key to
+cancel the command. When the command is
+completed, the message</p>
+<p><span class="screen">27 found</span></p>
+<p>(or as appropriate) will be displayed to show the total number
+of
+replacements that have been made.</p>
+<p><em>String to search for</em>: specifies the
+search string, which can
+be up to
+240 characters in length.</p>
+<p>Certain special sequences of characters can be used in the
+search
+string to represent characters which cannot be typed at the keyboard,
+or classes of search string:</p>
+<table class="frames">
+<tbody>
+<tr>
+<td><strong>Sequence</strong></td>
+<td><strong>Matches</strong></td>
+</tr>
+<tr>
+<td>^1..^8<br>
+^^<br>
+^?<br>
+^#<br>
+^S<br>
+^Rref<br>
+^R#<br>
+space<br>
+^B</td>
+<td>Highlight character<br>
+^<br>
+A single character &#8211; not space<br>
+Any number of non-space characters (ie a word)<br>
+A space<br>
+Slot reference ref<br>
+Any slot reference<br>
+One or more spaces, or across slots<br>
+Beginning of a slot (or line)</td>
+</tr>
+</tbody>
+</table>
+<p><em>Replace with</em>: specifies the string to
+replace each occurrence
+of the
+search string. The following special sequences of characters can be
+used:</p>
+<table class="frames">
+<tbody>
+<tr>
+<td><strong>Sequence</strong></td>
+<td><strong>Substitutes</strong></td>
+</tr>
+<tr>
+<td>^1..^8<br>
+^^<br>
+^?n<br>
+^#n<br>
+^S<br>
+^Rref<br>
+^R#n<br>
+space</td>
+<td>Highlight character <br>
+^<br>
+Character matching nth&nbsp;^? in search <br>
+String matching nth&nbsp;^# in search <br>
+A space<br>
+Slot reference ref <br>
+Slot reference matching nth&nbsp;^R# <br>
+Matching spaces or slot boundary</td>
+</tr>
+</tbody>
+</table>
+<p>Up to nine ^? fields, nine&nbsp;^# fields and
+nine&nbsp;^R# fields,
+numbered 1 to
+9, can be used in the same replace string.</p>
+<p>The&nbsp;^# wild field will match zero characters, as long
+as the
+string
+which has been searched for contains at least one character (otherwise
+the wild field would match all spaces).#</p>
+<h3>Search and Replace examples</h3>
+<p>The sequences ^1 to&nbsp;^8 represent highlight codes 1 to
+8. For
+example,
+all occurrences of <span class="type">PipeDream</span>
+could be put into bold with the
+options</p>
+<p><span class="screen">String to search for
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+&nbsp;PipeDream</span><br class="screen">
+<span class="screen">Replace with &nbsp; &nbsp;
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+&nbsp; &nbsp; &nbsp;</span><span class="screen">^</span><span class="screen">2PipeDream^2</span></p>
+<p>The sequence&nbsp;^B forces the search string to start at
+the
+beginning of a
+line. For example, all single spaces could be removed from the
+beginnings of lines with the options</p>
+<p><span class="screen">String to search for
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+&nbsp;&nbsp; ^B^S</span><br class="screen">
+<span class="screen">Replace with</span></p>
+<p>The sequence&nbsp;^# will match a sequence of characters
+not
+containing a
+space; ie a word, or a number. For example, to strip line numbers from
+spooled BASIC programs:</p>
+<p><span class="screen">String to search for
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+&nbsp;^B ^#</span><br class="screen">
+<span class="screen">Replace with &nbsp; &nbsp;
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+&nbsp; &nbsp;&nbsp; ^S</span>
+</p>
+<p>Where&nbsp;^# or&nbsp;^? have been used to search for
+any words or characters,
+the words or characters that were found can be inserted in the <em>Replace
+with</em> string using&nbsp;^#1 to&nbsp;^#9,
+or&nbsp;^?1
+to&nbsp;^?9 respectively. For example,</p>
+<p><span class="screen">String to search for
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+&nbsp;c^?r^? </span><br class="screen">
+<span class="screen">Replace with &nbsp; &nbsp;
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+&nbsp; &nbsp; &nbsp;^?2^?1ck</span>&nbsp;</p>
+<p>will change <span class="type">cart</span>
+to <span class="type">tack</span> and <span class="type">cord</span> to <span class="type">dock</span>.</p>
+<p>The sequence&nbsp;^Rref and&nbsp;^R# respectively
+match a specific slot
+reference, and any slot reference, in an expression slot. Thus,</p>
+<p><span class="screen">String to search for
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+&nbsp;^R#</span><br class="screen">
+<span class="screen">Replace with &nbsp; &nbsp;
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+&nbsp; &nbsp;&nbsp; ^R#1+1</span>&nbsp;</p>
+<p>will replace all slot reference A1 by A1+1, and so on.</p>
+<p><em>Search only range of columns</em>: enables you
+to specify a column
+range by
+entering a pair of column labels separated by a space: eg A G. The
+command is then restricted to the specified range of columns,
+inclusive.</p>
+<p><em>Equate upper and lower case</em>: by default,
+upper- and lower-case
+letters
+are treated as equivalent in the search string and the cases of letters
+in the replace string are altered to match the cases of the letters in
+corresponding positions of the matched string. Setting this option to <span class="screen">No</span> forces matches to be
+identical case. This means that, for example,
+specifying <span class="screen">Dog</span> to
+replace <span class="screen">Cat</span> will have
+no effect on cat or CAT.</p>
+<p><em>Ask for confirmation</em>: setting this option
+to <span class="screen">No</span> causes all
+strings to
+be replaced without prompting.</p>
+<p><em>Search only marked block</em>: setting this
+option to <span class="screen">Yes</span>
+restricts the
+search to a marked block of slots.</p>
+<p><em>Search from current file</em>: setting this
+option to <span class="screen">Yes</span> performs
+the
+search and replace operation throughout a multi-file document, starting
+at the top of the current file.</p>
+<p><em>Search all files in list</em>: setting this
+option to <span class="screen">Yes</span> performs
+the
+search and replace operation throughout a multi-file document, starting
+at the top of the first file. See <strong>Multi-file documents</strong>,
+p. 125.</p>
+<h2>Other block operations</h2>
+<h3>Word Count -&nbsp;<img style="vertical-align: middle;" alt="diamond" src="images/symb_diamond.png">BWC&nbsp;</h3>
+<p>Counts the words in the whole document, or in a block of slots
+if one
+has been marked, and displays the number of words, for example</p>
+<p><span class="screen">127 words</span></p>
+<p>at the top of the screen. Note that numbers and other symbols
+separated
+by spaces will contribute towards the word count.</p>
+<h3>New -&nbsp;<img style="vertical-align: middle;" alt="diamond" src="images/symb_diamond.png">BNEW</h3>
+<p>Clears the entire document. The query</p>
+<p><span class="screen">Overwrite text?</span>&nbsp;</p>
+<p>is given. If you clear the document (by answering <span class="screen">Yes</span>), this
+will
+cancel all file names and multi-file mode, resetting the Options Page
+options to their defaults, and resetting the screen display to its
+starting state of six columns, each 12 characters wide.</p>
+<h3>Recalculate -&nbsp;<img style="vertical-align: middle;" alt="diamond" src="images/symb_diamond.png">A</h3>
+<p>Recalculates all expression slots throughout the entire
+document. The
+order of recalculation is determined by the columns/rows Options Page
+setting.</p>
+<h1><a id="Moving about the document - CURSOR">Moving
+about the document - CURSOR</a></h1>
+<p><img style="width: 640px; height: 79px;" alt="" src="images/111.png"></p>
+<p>The commands on the <strong>CURSOR</strong> menu
+aim to provide the greatest
+possible
+flexibility for moving around a document. Because they are used so
+frequently, many of them have simple shorthand equivalents, which can
+save you a lot of time.</p>
+<p>You can move to the left or right a character, word, or column
+at a
+time, or to the start or end of a slot, or to the first or last column.</p>
+<p>You can move up or down the document a row at a time, a
+screenful at a
+time, or to the top or bottom of the column.</p>
+<p>You can also go directly to a specified slot by giving its
+coordinates.</p>
+<p>The commands on the <strong>CURSOR</strong> menu
+do not modify the document in
+any way,
+with the exception of the&nbsp;<span class="key">ENTER</span>
+command which will add a blank row at
+the bottom of the document if the cursor was previously at the bottom
+of the document.</p>
+<h2>Moving anywhere</h2>
+<h3>Go to Slot -&nbsp;<img style="vertical-align: middle;" alt="diamond" src="images/symb_diamond.png">CGS</h3>
+<p>Moves the cursor directly to a specified slot. After the prompt</p>
+<p><span class="screen">Go to
+slot</span></p>
+<p>type the coordinates of the slot you want to move to, followed
+by&nbsp;<span class="key">ENTER</span>. If the
+slot you specify is off the document, the cursor will
+be moved as far as possible in the direction of the specified slot.</p>
+<h3>Save Position -&nbsp;<img style="vertical-align: middle;" alt="diamond" src="images/symb_diamond.png">CSP</h3>
+<p>Saves the cursor position of the line containing the cursor in
+PipeDream. If you move to a new position, you can jump back to the
+previous position with the <strong>Restore Position</strong>
+command. Up to five
+positions can be saved.</p>
+<h3>Restore Position - <img style="vertical-align: middle;" alt="diamond" src="images/symb_diamond.png">CRP</h3>
+<p>Moves the cursor to the last position saved. If five positions
+have
+already been saved, the <strong>Save Position</strong>
+command will give a bleep
+warning.</p>
+<h2>Moving within a line/slot</h2>
+<h3>Cursor Right - <img style="vertical-align: middle;" alt="right" src="images/symb_right.png"><br>
+Cursor Left -&nbsp;<img style="vertical-align: middle;" alt="left" src="images/symb_left.png">&nbsp;</h3>
+<p>Moves the cursor to the next character in the slot, or the
+previous
+character in the slot respectively. <strong>Cursor Left</strong>
+will have no effect
+once the cursor reaches the beginning of the slot. <strong>Cursor
+Right</strong> will
+continue to move the cursor beyond the end of the slot, scrolling the
+slot left if it reaches the wrap point for the column.</p>
+<h3>Next Word -&nbsp;<span class="key">SHIFT</span><img style="vertical-align: middle;" alt="right" src="images/symb_right.png"><br>
+Previous Word - <span class="key">SHiFT</span><img style="vertical-align: middle;" alt="left" src="images/symb_left.png"></h3>
+<p>Moves the cursor to the first character of the next word in
+the slot,
+and the previous word in the slot respectively. If there are no more
+words in the current slot, <strong>Next Word</strong> will
+move the cursor to the first
+character of the next slot. Likewise, if the cursor is at the beginning
+of a slot, <strong>Previous Word</strong> will move the
+cursor to the end of the
+previous slot.</p>
+<h3>Beginning of Line - <img style="vertical-align: middle;" alt="diamond" src="images/symb_diamond.png"><img style="vertical-align: middle;" alt="left" src="images/symb_left.png"></h3>
+<p>Moves the cursor to the first character position in the slot.</p>
+<h3>End of
+Line -&nbsp;<img style="vertical-align: middle;" alt="diamond" src="images/symb_diamond.png"><img style="vertical-align: middle;" alt="right" src="images/symb_right.png"></h3>
+<p>Moves the cursor to the position after the last character in
+the slot.</p>
+<h2>Moving within a column</h2>
+<h3>ENTER -&nbsp;<span class="key">ENTER</span></h3>
+<p>Moves the cursor down to the next row and to the first
+character
+position in the current column. If the cursor is at the bottom of the
+document, the command will add an extra row to the document.</p>
+<h3>Cursor Up - <img style="vertical-align: middle;" alt="up" src="images/symb_up.png"><br>
+Cursor Down -&nbsp;<img style="vertical-align: middle;" alt="down" src="images/symb_down.png"></h3>
+<p>Moves the cursor to the same horizontal position in the
+previous line
+and the next line respectively: the cursor remains in the current
+column. <strong>Cursor Up</strong> will have no effect if
+the cursor is already on the
+top line of the document, and <strong>Cursor Down</strong>
+will have no effect if the
+cursor is already on the bottom line of the document.</p>
+<h3>Screen Up -&nbsp;<span class="key">SHIFT</span><img style="vertical-align: middle;" alt="up" src="images/symb_up.png"><br>
+Screen Down -&nbsp;<span class="key">SHIFT</span><img style="vertical-align: middle;" alt="down" src="images/symb_down.png"></h3>
+<p>Moves the cursor up or down a screenful at a time. With
+borders
+displayed this will be five lines at a time.</p>
+<h3>Top of Column - <img style="vertical-align: middle;" alt="diamond" src="images/symb_diamond.png"><img style="vertical-align: middle;" alt="up" src="images/symb_up.png"><br>
+Bottom of Column -&nbsp;<img style="vertical-align: middle;" alt="diamond" src="images/symb_diamond.png"><img style="vertical-align: middle;" alt="down" src="images/symb_down.png"></h3>
+<p>Moves the cursor to the top or bottom of the current column in
+the
+document respectively.</p>
+<h2>Moving between columns</h2>
+<h3>First Column -&nbsp;<img style="vertical-align: middle;" alt="diamond" src="images/symb_diamond.png">CFC or&nbsp;<img style="vertical-align: middle;" alt="diamond" src="images/symb_diamond.png"><span class="key">TAB</span><br>
+Last Column -&nbsp;<img style="vertical-align: middle;" alt="diamond" src="images/symb_diamond.png">CLC</h3>
+<p>These commands move the cursor to the first or left-most
+column on the
+document, and last or right-most column on the document respectively.
+The cursor stays in the same row, but will be moved to the first
+(left-most) character position in the specified column.</p>
+<h3>Next Column - <span class="key">TAB</span><br>
+Previous Column - <span class="key">SHIFT</span> <span class="key">TAB</span></h3>
+<p>Moves the cursor to the next column on the right, or
+the previous column on the left, respectively. The cursor remains in
+the same row, but moves to the beginning of the slot in the new column.</p>
+<h2>Summary of PipeDream cursor operations</h2>
+<p><img style="width: 640px; height: 285px;" alt="" src="images/114.png"></p>
+<h1><a id="Editing text and expressions - EDIT">Editing
+text and expressions - EDIT</a></h1>
+<p><img style="width: 640px; height: 81px;" alt="" src="images/115.png"></p>
+<p>The commands on the <strong>EDIT</strong> menu
+provide for various
+modifications on the
+contents of document. In the first place, there are commands which
+allow you to delete a character, word, slot, row or column on the
+document.</p>
+<p>You can also insert a row or a column, join two slots or split
+a slot,
+and insert a page break.</p>
+<p>Some of these commands are especially useful when working with
+multi-column documents: see <strong>Widths and margins in a
+multi-column
+document</strong>, p. 129.</p>
+<p>The remaining commands are divided into two groups; the first
+applies
+specifically to working with text, the second to working with
+expression slots:</p>
+<p><strong>Format Paragraph</strong> reformats a
+paragraph of text within a
+column, <strong>Swap
+Case</strong> swaps the case of a single character, and <strong>Insert/Overtype</strong>
+changes
+PipeDream between Insert and Overtype text entry modes.</p>
+<p><strong>Edit Expression</strong> allows you to
+enter an expression, <strong>Number to
+Text</strong>
+converts between an expression slot and a text slot and <strong>Insert
+Reference</strong> inserts a slot reference into an expression.</p>
+<h2>Editing within a line/slot</h2>
+<h3>Insert/Overtype -&nbsp;<img style="vertical-align: middle;" alt="diamond" src="images/symb_diamond.png">V</h3>
+<p>Switches the text entry mode between Insert and Overtype. The
+mode
+currently selected is displayed on the top line of the Options Page.</p>
+<p>In <strong>Insert mode</strong>, characters typed
+are inserted at the cursor
+position,
+and subsequent text on the line moves apart to make space.</p>
+<p>In <strong>Overtype mode</strong>, characters
+type over any text previously on
+the same
+line, in the same way as a correcting typewriter works.</p>
+<p>The mode you choose to work in is a matter of personal
+preference. The
+selected mode is specific to each PipeDream suspended activity; the
+default mode can be set in the Panel.</p>
+<h3>Rubout - <span class="key">DEL</span></h3>
+<p>The <strong>Rubout</strong> command, normally
+used by pressing the <span class="key">DEL</span>
+key,
+deletes to the
+left. Then <span class="key">DEL</span> key is used
+to remove a mistake in the line you have just
+typed. In Insert mode the remaining characters on the line move one
+position to the left. Note that <span class="key">DEL</span>
+will not jump back to the previous
+line when the left-hand margin of a page is reached.</p>
+<h3>Delete Character -&nbsp;<img style="vertical-align: middle;" alt="diamond" src="images/symb_diamond.png">G or&nbsp;<span class="key">SHIFT</span> <span class="key">DEL</span></h3>
+<p>Deletes to the right. You would normally use the <strong>Delete
+Character</strong>
+command to delete one or more characters in the middle of a line of
+text.</p>
+<h3>Insert Character -&nbsp;<img style="vertical-align: middle;" alt="diamond" src="images/symb_diamond.png">U</h3>
+<p>Inserts a space at the cursor position, leaving the cursor
+where it is
+and moving subsequent text on the line to the right. The <strong>Insert
+Character</strong> command is used when working in Overtype mode,
+to create
+spaces in which to insert additional text within a line.</p>
+<h3>Delete Word -&nbsp;<img style="vertical-align: middle;" alt="diamond" src="images/symb_diamond.png">T</h3>
+<p>Deletes all the characters from the current cursor position,
+up to but
+not including the first character of the next word. Normally you would
+position the cursor at the beginning of the word you want to delete,
+using the <strong>Next Word</strong> and <strong>Previous
+Word</strong> commands, and then give the
+<strong>Delete Word</strong> command to delete everything
+up to the next word. Note that
+<strong>Delete Word</strong> will not delete beyond the end
+of the current slot.</p>
+<h3>Delete to End of Slot -&nbsp;<img style="vertical-align: middle;" alt="diamond" src="images/symb_diamond.png">D</h3>
+<p>Deletes all characters from the current cursor position to the
+end of
+the slot.</p>
+<h3>Swap Case -&nbsp;<img style="vertical-align: middle;" alt="diamond" src="images/symb_diamond.png">S</h3>
+<p>Changes the case of the character under the cursor, and moves
+the
+cursor one position to the right.</p>
+<h2>Editing within a column</h2>
+<h3>Delete Row in Column -&nbsp;<img style="vertical-align: middle;" alt="diamond" src="images/symb_diamond.png">EDRC</h3>
+<p>Deletes the slot containing the cursor and closes up the gap,
+so that
+subsequent rows in the current column move up on the document. This
+command will typically be used when PipeDream is operating in Columns
+mode, so that the text in the current column does not have to remain
+aligned with the text in adjacent columns.</p>
+<h3>Insert Row in Column -&nbsp;<img style="vertical-align: middle;" alt="diamond" src="images/symb_diamond.png">EIRC</h3>
+<p>Inserts a row in the column containing the cursor. Subsequent
+rows in
+the current column are moved down to make space. The <strong>Insert
+Row in
+Column</strong> command is typically used when working in Columns
+mode, as it
+does not affect the text in columns to either side of the column
+containing the cursor. It is also useful for restoring the alignment of
+a table containing items in different columns.</p>
+<h3>Join Lines -&nbsp;<img style="vertical-align: middle;" alt="diamond" src="images/symb_diamond.png">EJL</h3>
+<p>Joins the text in the line below the current line onto the end
+of the
+current line, and closes up the gap so that subsequent slots in the
+current column are moved up one row.</p>
+<h3>Split Line -&nbsp;<img style="vertical-align: middle;" alt="diamond" src="images/symb_diamond.png">ESL</h3>
+<p>Splits the current line at the cursor position. The character
+at the
+cursor position and subsequent characters are moved to the next row and
+the cursor remains at the end of the current slot.</p>
+<h3>Format Paragraph -&nbsp;<img style="vertical-align: middle;" alt="diamond" src="images/symb_diamond.png">R</h3>
+<p>Reformats text from the line containing the cursor to the end
+of the
+paragraph. The lines of text will be split at the last space before the
+right-hand margin for the current column; see <strong>Starting
+PipeDream</strong>, p.
+36. If justification has been selected, with the Options Page <em>Justify</em>
+option (see p. 136), additional spaces will be added to each line to
+make the right-hand end always coincide with the wrap point. The end of
+the paragraph is determined by one of the following:</p>
+<p>A line beginning with at least one space</p>
+<p>An expression slot</p>
+<p>A slot with alignment other than free align; in other words,
+left
+align, right align or LCR align.</p>
+<p>You can prevent words from being split at a space by
+typing&nbsp;<img style="vertical-align: middle;" alt="diamond" src="images/symb_diamond.png">space,
+which is called an 'exact space' and is displayed on the screen
+as '...'. For example,</p>
+<p><span class="screen">27 ...KHz</span></p>
+<h2>Editing a document</h2>
+<h3>Delete Row -&nbsp;<img style="vertical-align: middle;" alt="diamond" src="images/symb_diamond.png">Y
+or&nbsp;<img style="vertical-align: middle;" alt="diamond" src="images/symb_diamond.png"><span class="key">DEL</span></h3>
+<p>Deletes the row containing the cursor across the entire
+document,
+closing up the gap. This command should be used with care, since the
+slot in every column on the current row will be deleted. The command is
+typically used when PipeDream is operating in Rows mode, in order to
+maintain alignment between text in adjacent columns.</p>
+<h3>Delete Column -&nbsp;<img style="vertical-align: middle;" alt="diamond" src="images/symb_diamond.png">EDC</h3>
+<p>Deletes the column containing the cursor. Note that all
+information in
+the column will be lost, so use this command with caution.</p>
+<h3>Insert Page -&nbsp;<img style="vertical-align: middle;" alt="diamond" src="images/symb_diamond.png">EIP</h3>
+<p>Normally, page breaks are inserted automatically by PipeDream.
+These
+are called 'soft' page breaks, and are represented by a horizontal line</p>
+<p><span class="screen">^^^^^^^^^^^^^^^^^^^^^^^^</span></p>
+<p>across the document between two rows. Their position will
+change if you
+alter the amount of text on a page, or change the margin settings on
+the Options Page.</p>
+<p>However, to force a page break to occur at a specific place in
+the
+document, such as before a new chapter, you can insert a 'hard' page
+break with the <strong>Insert Page</strong> command. Hard
+page breaks are displayed as a
+row on the document</p>
+<p><span class="screen">~~~~~~~~~~~~~~~~~~~~~~~~</span></p>
+<p>Using this command will insert a hard page break in the row
+containing
+the cursor. The command gives the prompt</p>
+<p><span class="screen">Specify no. of unbroken
+lines &nbsp; &nbsp; No</span>&nbsp;</p>
+<p>Pressing&nbsp;<span class="key">ENTER</span>
+executes the command, thereby ensuring that
+subsequent
+text
+will always start at the top of a new page.</p>
+<p>Alternatively, altering the option to <span class="screen">Yes</span>
+followed by a
+number enters
+a conditional hard page break. This means that a page break win occur
+if less than the specified number of lines is available on the current
+page. For example, before a table of ten lines one might insert a
+conditional hard page break with a value of 10 to ensure that all ten
+lines of the table were on the same page.</p>
+<p>If the conditional hard page break does not cause a page
+break, it will
+be displayed in column A as:</p>
+<p><span class="screen">~n</span></p>
+<h3>Insert Row -&nbsp;<img style="vertical-align: middle;" alt="diamond" src="images/symb_diamond.png">N</h3>
+<p>Inserts a blank row across the entire document before the row
+containing the cursor. Subsequent rows are moved down to make space.
+The <strong>Insert Row</strong> command is typically used
+when working in Rows mode (see
+the Options Page), since it maintains alignment between text in
+adjacent columns.</p>
+<h3>Insert Column -&nbsp;<img style="vertical-align: middle;" alt="diamond" src="images/symb_diamond.png">EIC</h3>
+<p>Inserts a blank column to the left of the column containing
+the cursor.
+The new column is created with an initial width of 12 characters, and
+an initial wrap-width of zero. The cursor remains in the new column.</p>
+<h3>Add Column -&nbsp;<img style="vertical-align: middle;" alt="diamond" src="images/symb_diamond.png">EAC</h3>
+<p>Adds a blank column at the right-hand side of the document.
+The new
+column is added with an initial width of 12 characters, and a
+wrap-width of zero so that text in the new column will wrap at the
+right-hand edge of the column.</p>
+<h2>Editing expression slots</h2>
+<h3>Insert Reference -&nbsp;<img style="vertical-align: middle;" alt="diamond" src="images/symb_diamond.png">K</h3>
+<p>Enables expressions to be built up by indicating, or 'pointing
+to',
+various slots to which an expression will refer. It inserts the
+coordinates of the slot containing the cursor into the expression being
+edited. To perform the command, move the block cursor to the required
+slot using the cursor keys, and type&nbsp;<img style="vertical-align: middle;" alt="diamond" src="images/symb_diamond.png">K.</p>
+<p>If an expression is not being edited, this command will have
+no effect.</p>
+<h3>Edit Expression -&nbsp;<img style="vertical-align: middle;" alt="diamond" src="images/symb_diamond.png">X</h3>
+<p>Sets the slot containing the cursor to an expression slot, or
+edits an
+existing expression slot.</p>
+<p>The slot is highlighted, and the cursor moves to the editing
+line above
+the top border at the centre of the screen. The current contents of the
+slot, if any, are displayed, and they can be edited using the cursor
+keys and line editing commands:</p>
+<table class="transperent">
+<tbody>
+<tr>
+<td><span class="key">DEL</span><br>
+<span class="key">SHIFT</span> <span class="key">DEL</span><br>
+<img style="vertical-align: middle;" alt="diamond" src="images/symb_diamond.png">V<br>
+<img style="vertical-align: middle;" alt="diamond" src="images/symb_diamond.png">U<br>
+<img style="vertical-align: middle;" alt="diamond" src="images/symb_diamond.png">T<br>
+<img style="vertical-align: middle;" alt="diamond" src="images/symb_diamond.png">D<br>
+<img style="vertical-align: middle;" alt="diamond" src="images/symb_diamond.png">K<br>
+<img style="vertical-align: middle;" alt="left" src="images/symb_left.png">,<img style="vertical-align: middle;" alt="right" src="images/symb_right.png"><br>
+<span class="key">SHIFT</span>&nbsp;<img style="vertical-align: middle;" alt="left" src="images/symb_left.png">, <span class="key">SHIFT</span>
+<img style="vertical-align: middle;" alt="right" src="images/symb_right.png"><br>
+<img style="vertical-align: middle;" alt="diamond" src="images/symb_diamond.png"><img style="vertical-align: middle;" alt="left" src="images/symb_left.png">,<img style="vertical-align: middle;" alt="diamond" src="images/symb_diamond.png"><img style="vertical-align: middle;" alt="right" src="images/symb_right.png"></td>
+<td>Rubout<br>
+Delete character<br>
+Insert/Overtype<br>
+Insert character<br>
+Delete word<br>
+Delete to end of slot<br>
+Insert reference<br>
+Cursor left/Cursor right<br>
+Previous word/Next word<br>
+Beginning of line/End
+of line</td>
+</tr>
+</tbody>
+</table>
+<p>Finally press&nbsp;<span class="key">ENTER</span>
+to enter the expression into the slot
+and display
+its value, or <span class="key">ESC</span> to leave
+the slot's previous value unaltered.</p>
+<h3>Escape - <span class="key">ESC</span></h3>
+<p>Exits from the Options Page, or from the options of any
+PipeDream
+command. <span class="key">ESC</span> will also
+abandon the editing of an expression and leave
+the contents of the slot being edited unchanged.</p>
+<h3>Number &lt; &gt; Text -&nbsp;<img style="vertical-align: middle;" alt="diamond" src="images/symb_diamond.png">ENT</h3>
+<p>Converts the slot containing the cursor between an expression
+slot and
+a text slot. This command allows a number inadvertently entered as text
+to be converted to an expression, or the equation in an expression slot
+to be displayed as text so that it can be printed out.</p>
+<p>The following procedure can be used to display, or print out,
+all the
+expressions within a particular area of a spreadsheet or document:</p>
+<ol>
+<li>Save the document first, as the procedure will alter it.</li>
+<li>Mark as much of the document as you wish to examine or
+print
+out.</li>
+<li>Type&nbsp;<img style="vertical-align: middle;" alt="diamond" src="images/symb_diamond.png">ENT.
+Expression slots within the marked block will
+display
+the expressions they contain. Note that text slots will display the
+error <span class="type">Typing error</span>.</li>
+<li>Press&nbsp;<img style="vertical-align: middle;" alt="diamond" src="images/symb_diamond.png">Q to
+clear the marked block, and, if necessary,
+increase the
+column widths so that the full expressions can be seen.</li>
+</ol>
+<h1><a id="Working with files - FILES">Working with
+files - FILES</a></h1>
+<p><img style="width: 640px; height: 80px;" alt="" src="images/122.png"></p>
+<p>The commands on the <strong>FILES</strong> menu
+allow you to load documents
+from the
+Cambridge Z88 filing system, and save documents to the filing system.</p>
+<p>You can create a document consisting of several files linked
+together
+by a List file. Commands are available to move to the next file or
+previous file, or go directly to the first file or last file in a
+multi-file document.</p>
+<p>For simple use of PipeDream you do not need to use files,
+since you can
+leave documents you are working on as suspended applications. However,
+since there is a small overhead in keeping suspended applications,
+saving a large number of small documents as files will prevent the
+inconveniences of memory low conditions.</p>
+<h2>File names</h2>
+<p>When you start PipeDream with a blank document, the document
+will have
+no File name associated with it, and it will show:</p>
+<p><span class="screen">File No File</span></p>
+<p>at the top right-hand side of the Options Page. A File name
+can be
+given to a document with the <strong>Name</strong>
+command. Loading a file, with the
+<strong>Load</strong> command, will set the File name to
+the name of the loaded file.</p>
+<p>The File name of the document is displayed in the Options
+Page, and is
+used as the default file name in the options for the <strong>Save</strong>
+and <strong>Name</strong>
+commands. The File name is also used to label PipeDream suspended
+activities, in the Index YOUR REF. column.</p>
+<h3>Name -&nbsp;<img style="vertical-align: middle;" alt="diamond" src="images/symb_diamond.png">FC</h3>
+<p>Sets the File name for the current document. Gives the prompt:</p>
+<p><span class="frames screen">New name of file</span></p>
+<p>The current File name, if any, will be displayed; this should
+be edited
+to the
+new name, followed by&nbsp;<span class="key">ENTER</span>.</p>
+<h2>Loading a document</h2>
+<h3>Load -&nbsp;<img style="vertical-align: middle;" alt="diamond" src="images/symb_diamond.png">FL</h3>
+<p>Loads a document of a given name from the filing system. The
+following
+options are displayed:</p>
+<p><span class="screen">Name of file to</span><span class="screen"> load<br>
+Insert at slot &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;No</span><br class="screen">
+<span class="screen">Limit to range of rows &nbsp;
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;No</span><br class="screen">
+<span class="screen">Load as plain text &nbsp;
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+&nbsp;No</span>&nbsp;</p>
+<p><em>Name of file to load</em>: specifies the file
+name. If a file of
+the same
+name but with the extension'<span class="type">.L</span>'
+exists, this file is taken as a List
+file; see <strong>Multi-file documents</strong>, p. 125.
+If not, the specified file is
+loaded.</p>
+<p>The File name, displayed in the Options Page, will be set to
+the name
+of the file loaded. In the case of a multi-file document, this will be
+the name of the current document, not the name of the List file.</p>
+<p>Instead of typing the file name, the file can be selected from
+the
+Filer. After typing&nbsp;<img style="vertical-align: middle;" alt="diamond" src="images/symb_diamond.png">FL, call
+the Filer by typing&nbsp;<img style="vertical-align: middle;" alt="square" src="images/symb_square.png">F, and
+select the
+required document using the cursor keys followed by&nbsp;<span class="key">ENTER</span> (see
+<strong>Selecting files</strong>, p. 85). You can then
+return to PipeDream from the
+Filer by pressing&nbsp;<span class="key">ESC</span>,
+and the full file name will have been entered
+for you. Press&nbsp;<span class="key">ENTER</span>
+to load the file.</p>
+<p>If the document in memory has been altered since last saving
+it, the
+message</p>
+<p><span class="screen">Overwrite text?</span></p>
+<p>will be displayed, and the document will only be loaded if <span class="type">Y</span>
+(or <span class="type">y</span>) is
+typed. If the document is too large to fit into memory, only the first
+section will be loaded, and the display will show the message</p>
+<p><span class="screen">Memory full</span></p>
+<p><em>Insert at slot</em>: appends the file to the
+document already in
+memory,
+either at the specified slot reference, or at the current cursor
+position if no slot reference is specified. Type <span class="type">Y</span>
+for the option</p>
+<p><span class="screen">Insert at slot &nbsp;
+&nbsp; &nbsp; &nbsp; &nbsp;&nbsp; &nbsp;
+&nbsp; &nbsp; &nbsp; Yes</span> </p>
+<p>and enter a slot reference.</p>
+<p><em>Limit to range of rows</em>: enables files too
+large for the
+available
+memory to be edited by splitting them up into sections. If the option
+is set to <span class="screen">Yes</span>, a range
+of rows can be entered as two numbers
+separated by a space. Only rows lying between the specified range,
+inclusive, will be loaded.</p>
+<p><em>Load as plain text</em>: if <span class="screen">Yes</span> is specified, the file is
+interpreted as
+plain text. Sections of text on each line separated by tabs are put
+into successive columns across each row of the PipeDream document.</p>
+<p>After loading a document, expression slots are recalculated
+twice, once
+to obtain the correct values of constant slots, and then again to
+ensure that references to constant slots have the correct values. If
+the document contains complicated forward referencing, it may need
+further recalculation before the values of slots stabilise.</p>
+<h2>Saving a document</h2>
+<h3>Save -&nbsp;<img style="vertical-align: middle;" alt="diamond" src="images/symb_diamond.png"> FS</h3>
+<p>If none of the options are changed, pressing&nbsp;<span class="key">ENTER</span> saves the
+whole of
+the current document to the name last set by the <strong>Load</strong>
+or <strong>Name</strong> commands.</p>
+<p>The following options are displayed:</p>
+<p><span class="screen">Name&nbsp;of file to
+save&nbsp;</span><br class="screen">
+<span class="screen">Save only range of columns &nbsp;
+&nbsp; &nbsp; &nbsp;No</span><br class="screen">
+<span class="screen">Save selection of rows &nbsp;
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;No</span><br class="screen">
+<span class="screen">Save marked block &nbsp;
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+&nbsp; No</span><br class="screen">
+<span class="screen">Save plain text
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+&nbsp; &nbsp; &nbsp; No</span>&nbsp;</p>
+<p><em>Name of file to save</em>: by default, the
+current File name is
+displayed,
+as shown in the Options Page. This can be edited to save the document
+under a different name.</p>
+<p><em>Save only range of columns</em>: altering this
+option to <span class="screen">Yes</span>
+allows you to
+specify a range of columns. This should be given as two column labels,
+separated by a space: for example, A F. Only the text within the range
+of columns, inclusive, will be saved.</p>
+<p><em>Save selection of rows</em>: altering this
+option to <span class="screen">Yes</span> allows
+you to
+enter an expression. Only rows for which the expression evaluates to
+TRUE will be saved.</p>
+<p>For example, column E in an inventory of goods may represent
+the
+quantity of each item in stock. To save a copy of the database which
+excluded out-of-stock items, you would type</p>
+<p><span class="screen">Save selection of rows
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;Yes
+E1&gt;0</span>&nbsp;</p>
+<p>All row references in the expression are incremented before
+the
+expression is evaluated for each row in the document. So in this
+example row 6 will be saved if E6&gt;0.</p>
+<p><em>Save marked block</em>: altering this option
+to <span class="screen">Yes</span> specifies that
+only the
+marked block of text should be saved.</p>
+<p><em>Save plain text</em>: altering this option to <span class="screen">Yes</span> will save the
+document as
+a plain text file, containing no special constructs. The contents of
+each successive column will be output separated by tab characters, with
+each row terminated by a return character.</p>
+<h2>Multi-file documents</h2>
+<p>Documents comprised of several different files can be edited
+and
+printed as a single document by means of a PipeDream List
+file</p>
+<p>The List file is a plain text file containing the names of all
+the
+files making up the entire document. It should be saved with the <em>Save
+plain text</em> option, with each file name on a separate line.</p>
+<p>The List file should be given a name with the extension'<span class="type">.L</span>'.
+A file
+with extension'<span class="type">.L</span>' is
+taken as a List file when loading, and the first
+document in the list will be loaded.</p>
+<p>Any error which occurs during the processing of a multi-file
+document
+cancels the multi-file mode after reporting the error, to avoid
+overwriting files with incorrect text.</p>
+<p>The following commands provide a convenient way of moving
+between files
+in a multi-file document:</p>
+<h3>Next File -&nbsp;<img style="vertical-align: middle;" alt="diamond" src="images/symb_diamond.png">FN&nbsp;</h3>
+<p>Loads the next file in a multi-file document, but first saves
+the
+current file if it has been altered since the last save
+command.</p>
+<h3>Previous File -&nbsp;<img style="vertical-align: middle;" alt="diamond" src="images/symb_diamond.png">FP&nbsp;</h3>
+<p>Loads the previous file in a multi-file document. The current
+document
+is saved if it has been altered since last saving it.</p>
+<h3>Top File -&nbsp;<img style="vertical-align: middle;" alt="diamond" src="images/symb_diamond.png">FT</h3>
+<p>Loads the first file in a multi-file document. The current
+document is
+first saved if it has been altered since last saving it.</p>
+<h3>Bottom File -&nbsp;<img style="vertical-align: middle;" alt="diamond" src="images/symb_diamond.png">FB</h3>
+<p>Loads the last document in a multi-file document. The current
+document
+is first saved if it has been altered since last saving it.</p>
+<h3>Multi-file example</h3>
+<p>For example, first create a List file in PipeDream, containing
+the
+following text:</p>
+<p><img style="width: 640px; height: 92px;" alt="" src="images/126.png"></p>
+<p>Take care not to add any blank lines after the last file name.
+Then
+save this as a plain text file called <span class="type">book.L</span>,
+by typing&nbsp;<img style="vertical-align: middle;" alt="diamond" src="images/symb_diamond.png">FS <span class="type">book.L</span>,
+and setting the <em>Save plain text</em> option to <span class="screen">Y</span>.</p>
+<p>Create three files, <span class="type">chapterone</span>,
+<span class="type">chaptertwo</span>, and <span class="type">chapterthree</span>,
+containing, for example, the following lines of text respectively:</p>
+<p><span class="type">This is the first chapter</span></p>
+<p><span class="type">This is the second chapter</span></p>
+<p><span class="type">This is chapter three</span></p>
+<p>Now load the multi-file document by typing&nbsp;<img style="vertical-align: middle;" alt="diamond" src="images/symb_diamond.png">FL <span class="type">book</span>.
+If you
+use the
+Filer to select the file you will need to delete the '<span class="type">.L</span>' extension
+from the end of the file name.</p>
+<p>Typing&nbsp;<img style="vertical-align: middle;" alt="diamond" src="images/symb_diamond.png">FN,&nbsp;<img style="vertical-align: middle;" alt="diamond" src="images/symb_diamond.png">FP,&nbsp;<img style="vertical-align: middle;" alt="diamond" src="images/symb_diamond.png">FT, and&nbsp;<img style="vertical-align: middle;" alt="diamond" src="images/symb_diamond.png">FB will then move between the
+three
+files.</p>
+<h1><a id="Altering the layout - LAYOUT">Altering
+the layout - LAYOUT</a></h1>
+<p><img style="width: 640px; height: 81px;" alt="" src="images/128.png"></p>
+<p>The commands in the <strong>LAYOUT</strong> menu
+allow you to specify how the
+information entered in a document is displayed.</p>
+<p>You can alter the width that any column occupies, and the
+column's
+right-hand margin, which determines the point at which lines of text
+entered into that column wrap onto the next line.</p>
+<p>You can also fix rows above the cursor position and columns to
+the left
+of the cursor position so that you can see information on one part of
+the document while editing information on another part.</p>
+<h2>Column widths and margins</h2>
+<h3>Width -&nbsp;<img style="vertical-align: middle;" alt="diamond" src="images/symb_diamond.png">W</h3>
+<p>Specifies the width that a column occupies on the document.
+The
+following options are displayed:</p>
+<p><span class="screen">New width</span><br class="screen">
+<span class="screen">Specify column &nbsp; &nbsp;
+&nbsp;&nbsp; &nbsp; &nbsp;&nbsp; &nbsp;
+&nbsp; &nbsp; &nbsp;No</span>&nbsp;</p>
+<p>If no column is specified, the column currently containing the
+cursor
+is assumed.</p>
+<h3>Set Margin -&nbsp;<img style="vertical-align: middle;" alt="diamond" src="images/symb_diamond.png">H</h3>
+<p>Alters the right-hand margin of a specified column. The margin
+is
+indicated by the right-hand margin pointer, <img style="vertical-align: middle;" alt="right-hand margin pointer" src="images/symb_pointer.png">, on the top border, and
+determines the point at which text typed into the column will wrap onto
+the next line.</p>
+<p>This command determines the area over which text is to be
+formatted
+within the column; thus, if the width is set to zero, it will be equal
+to the column width, and there will be no margin. The following options
+are displayed:</p>
+<p><span class="screen">New width</span><br class="screen">
+<span class="screen">Specify column &nbsp; &nbsp;
+&nbsp;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+&nbsp; &nbsp; No</span>&nbsp;</p>
+<p>If no column is specified, the column containing the cursor
+will be
+assumed.</p>
+<h3>Margin Left -&nbsp;<img style="vertical-align: middle;" alt="square" src="images/symb_square.png"><img style="vertical-align: middle;" alt="left" src="images/symb_left.png"><br>
+Margin Right -&nbsp;<img style="vertical-align: middle;" alt="square" src="images/symb_square.png"><img style="vertical-align: middle;" alt="right" src="images/symb_right.png"></h3>
+<p>These commands allow you to move the right-hand margin for a
+number of
+columns simultaneously.</p>
+<p>The commands move the right-hand margin pointer, <img style="vertical-align: middle;" alt="right-hand margin pointer" src="images/symb_pointer.png">, for the
+column
+containing the cursor one character position to the left or right
+respectively. They also set the wrap point of all columns between the
+current column and the wrap point so that they wrap at the same
+position.</p>
+<h2>Widths and margins in a multi-column document</h2>
+<p>By default, the wrap point for all columns is set to the
+right-hand
+edge of the screen, which is most appropriate for creating tables of
+information within a single column of text. The <strong>Insert
+on wrap</strong> option
+on the Options Page is initially set to Rows, ensuring that information
+in adjacent columns will remain aligned.</p>
+<p>It is also possible to create a document with two or more
+independent
+columns of text, like the layout of a newspaper.</p>
+<p>You do this by moving the right-hand margin for each column to
+the
+right-hand edge of the column. Setting the <strong>Insert on wrap</strong>
+Options Page
+option to Columns will then ensure that the text in each column can be
+edited without affecting adjacent columns.</p>
+<p>For example, the following steps can be used to create the
+three-column
+document shown below.</p>
+<ol>
+<li>Set the widths of columns A, B, and C to 24, by
+giving the <strong>Width</strong>
+command on the <strong>LAYOUT</strong> menu with the
+options
+<p><span class="screen">New width &nbsp;
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 24</span><br>
+<span class="screen">Specify column &nbsp;
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+&nbsp; &nbsp; &nbsp;Yes A</span></p>
+<p><span class="screen">New width &nbsp;
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 24</span><br>
+<span class="screen">Specify column
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+&nbsp; &nbsp; &nbsp; &nbsp;Yes B</span></p>
+<p><span class="screen">New width &nbsp;
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 24</span><br>
+<span class="screen">Specify column
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+&nbsp; &nbsp; &nbsp;&nbsp;
+Yes C</span></p>
+</li>
+<li>With the cursor in column A,&nbsp;move the right-hand
+margin to the right-hand edge of column A by pressing <img style="vertical-align: middle;" alt="square" src="images/symb_square.png"><img style="vertical-align: middle;" alt="left" src="images/symb_left.png"> until the
+right-hand margin pointer is just to the left of the A on the top
+border; see the diagram below. This will also position the left margin
+for columns B and C to the right-hand edge of those columns.</li>
+<li>Enter the Options Page, by typing&nbsp;<img style="vertical-align: middle;" alt="diamond" src="images/symb_diamond.png">O, and alter the <strong>Insert
+on wrap</strong> option to Columns by pressing&nbsp;<img style="vertical-align: middle;" alt="down" src="images/symb_down.png"> until the cursor is on the
+option line, and typing C to alter it to
+<p><span class="screen">Insert on wrap
+&nbsp;
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+&nbsp;&nbsp; &nbsp;&nbsp;C</span></p>
+<p>Press <span class="key">ESC</span> to
+exit from the Options Page.</p>
+</li>
+<li>Type the required text into each column; it will format
+automatically within the column width.</li>
+</ol>
+<p><img style="width: 640px; height: 91px;" alt="" src="images/130.png"></p>
+<h2>Alignment</h2>
+<p>Text can be aligned in one of the following ways:</p>
+<ol>
+<li>Left-aligned with the left-hand edge of the column.</li>
+<li>Right-aligned with the right-hand margin pointer.</li>
+<li>Centred between the left-hand edge of the column and the
+right-hand margin pointer.</li>
+<li>Components of the line can be left-aligned, centred, and
+right-aligned (LCR alignment).</li>
+</ol>
+<p>Text in a slot which has been aligned with one of the <strong>Align</strong>
+commands will not be reformatted by the <strong>Format Paragraph</strong>
+command.</p>
+<p>The results of expression slots can similarly be displayed
+left-aligned, centred, or right-aligned over the width of the column.</p>
+<h3>Right
+ight Align -&nbsp;<img style="vertical-align: middle;" alt="diamond" src="images/symb_diamond.png"> LAR<br>
+Left Align -&nbsp;<img style="vertical-align: middle;" alt="diamond" src="images/symb_diamond.png"> LAL</h3>
+<p>Aligns the text in the current slot to the right or left of
+the wrap-width of the current column, respectively. The alignment will
+be displayed when the cursor is moved off the slot. The <strong>Left
+Align</strong>
+command can, for example, be used to prevent text in a table from being
+inadvertently re-formatted with the <strong>Format Paragraph</strong>
+command.</p>
+<h3>Centre Align -&nbsp;<img style="vertical-align: middle;" alt="diamond" src="images/symb_diamond.png"> LAC</h3>
+<p>Centres the text in the slot containing the cursor, or a
+marked block of slots, over the wrap-width of the column containing it.</p>
+<h3>LCR Align -&nbsp;<img style="vertical-align: middle;" alt="diamond" src="images/symb_diamond.png"> LLCR</h3>
+<p>Aligns components of the slot containing the cursor, or the
+slots within a marked block, to the left, centre, and right of the
+column's text wrap-width. The line has the format</p>
+<p><span class="screen">/left/centre/right/</span></p>
+<p>where left, centre, and right represent text which will be
+respectively left-aligned, centred and right-aligned, and '/'
+represents
+an arbitrary delimiter, which must not occur elsewhere in the line of
+text.</p>
+<h3>Free Align -&nbsp;<img style="vertical-align: middle;" alt="diamond" src="images/symb_diamond.png"> LAF</h3>
+<p>Removes the alignment from a slot containing the cursor, or a
+marked block of slots. Text, or the results of expression slots, will
+be left-aligned in the slot.</p>
+<h2>Fixing rows and columns&nbsp;</h2>
+<h3>Fix Row -&nbsp;<img style="vertical-align: middle;" alt="diamond" src="images/symb_diamond.png">
+LFR&nbsp;</h3>
+<p>Fixes the row containing the cursor, and all rows above it, on
+the screen. If borders are displayed, the fixed rows are identified
+with horizontal lines in the left-hand border. Moving the cursor up or
+down on the document will scroll only those rows which have not been
+fixed, so the cursor can be moved to another part of the document while
+retaining the fixed rows on the screen. Giving the <strong>Fix
+Row</strong> command
+again frees the rows and restores the document to its original
+state.</p>
+<h3>Fix Column -&nbsp;<img style="vertical-align: middle;" alt="diamond" src="images/symb_diamond.png">LFC</h3>
+<p>Fixes the column containing the cursor, and all columns to its
+left, on the screen. If borders are displayed, the fixed columns are
+identified in the top border by solid lines. If the cursor is moved on
+the document, only the columns that have not been fixed will scroll, so
+that the cursor can be moved to another part of the document while
+retaining the fixed columns on the screen. Giving the <strong>Fix
+Column</strong>
+command again frees the columns.</p>
+<p>For example, the top row of headings and leftmost column of
+labels have been fixed in the following document by giving the
+commands&nbsp;<img style="vertical-align: middle;" alt="diamond" src="images/symb_diamond.png">LFR
+and&nbsp;<img style="vertical-align: middle;" alt="diamond" src="images/symb_diamond.png">LFC with
+the cursor in slot A1:</p>
+<p><img style="width: 640px; height: 91px;" alt="" src="images/132.png"></p>
+<p>The cursor can then be moved around to scroll the document
+while keeping the column headings and row labels in view.</p>
+<h2>Number formats&nbsp;</h2>
+<p>Expressions can be displayed with a specified number of
+decimal places, or in free format. Negative numbers can be displayed
+either with a minus sign, or with brackets as in financial notation.
+The results of expression slots can also be displayed with one or more
+leading
+characters, such as '£' and one or more trailing characters, such as
+'%'. The leading and trailing characters for the document are specified
+in the Options Page.</p>
+<p>The format in which any expression slot is displayed can be
+restored to the default specified in the Options Page by the <strong>Default
+Format</strong> command.</p>
+<p>All the format commands can be applied either to the single
+slot containing the cursor, or to a block of slots by marking them
+before giving the command.</p>
+<h3>Decimal Places -&nbsp;<img style="vertical-align: middle;" alt="diamond" src="images/symb_diamond.png">LDP&nbsp;</h3>
+<p>Sets the number of decimal places displayed by an expression
+slot, or a marked block of expression slots. Gives the prompt</p>
+<p><span class="screen">Number of decimal
+places&nbsp;</span><br class="screen">
+<span class="screen">Floating format
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp;
+&nbsp; &nbsp; &nbsp; &nbsp;&nbsp; &nbsp; No</span></p>
+<p>The number of decimal places may be set to a value from 0 to
+9, or floating format may be specified which uses the display format
+giving the most significant figures displayed in the available
+width.</p>
+<h3>Sign Brackets -&nbsp;<img style="vertical-align: middle;" alt="diamond" src="images/symb_diamond.png">LSB <br>
+Sign Minus -&nbsp;<img style="vertical-align: middle;" alt="diamond" src="images/symb_diamond.png">LSM&nbsp;</h3>
+<p>Specify that negative values in an expression slot or marked
+block of expression slots should be displayed in financial notation,
+enclosed in brackets, or with a minus sign prefix
+respectively.</p>
+<h3>Leading Characters -&nbsp;<img style="vertical-align: middle;" alt="diamond" src="images/symb_diamond.png">LCL&nbsp;<br>
+Trailing Characters -&nbsp;<img style="vertical-align: middle;" alt="diamond" src="images/symb_diamond.png">LCT&nbsp;</h3>
+<p>Specify that the leading or trailing characters defined in the
+Options Page should be displayed for the expression slot contained in
+the cursor or the marked block of expression slots. The default leading
+and trailing characters are '£' and '%' respectively, and these can be
+altered on the Options Page.</p>
+<h3>Default Format -&nbsp;<img style="vertical-align: middle;" alt="diamond" src="images/symb_diamond.png">LDF&nbsp;</h3>
+<p>Restores the expression slot containing the cursor, or a
+marked block of expression slots, to the default format as specified on
+the Options Page. Once any element of an expression slot's format
+has been altered with one of the commands <strong>Decimal Places</strong>,
+<strong>Sign
+Brackets</strong>, <strong>Sign Minus</strong>, <strong>Leading
+Characters</strong> or
+<strong>Trailing Characters</strong>, the slot's format is
+frozen and not be affected by
+subsequent alterations to the Options Page. Giving the <strong>Default
+Format</strong>
+command removes any specific format set on the slot.</p>
+<h1><a id="Document options - OPTIONS">Document
+options - OPTIONS</a></h1>
+<p><img style="width: 640px; height: 81px;" alt="" src="images/134.png"></p>
+<p>The <strong>OPTIONS</strong> menu contains only
+one command, <strong>Options Page</strong>,
+or&nbsp;<img style="vertical-align: middle;" alt="diamond" src="images/symb_diamond.png">O, which displays a page of
+information about the current document
+together with the global settings which may be altered to effect the
+way that commands operate on the document.</p>
+<p><img style="width: 640px; height: 91px;" alt="" src="images/134_2.png"></p>
+<p>You can return to a PipeDream document by pressing
+the&nbsp;<span class="key">ESC</span>
+key.</p>
+<h2>Information lines&nbsp;</h2>
+<p>The right-hand column of the Options Page display gives
+information about the current document.</p>
+<h3>File&nbsp;</h3>
+<p>The name of the document previously loaded with the <strong>Load</strong>
+command, or the name assigned to a document by the <strong>Name</strong>
+command (<img style="vertical-align: middle;" alt="diamond" src="images/symb_diamond.png">FC)
+on the <strong>FILES</strong> menu. If no name has been
+specified, it will show</p>
+<p><span class="screen">No File</span></p>
+<p>The name will also appear on the SUSPENDED ACTIVITIES list in
+the Index display.</p>
+<h3>Page&nbsp;</h3>
+<p>Shows the current page number of the line containing the
+cursor. This will correspond to the page numbering when the document is
+printed unless rows are fixed with the <strong>Fix Row</strong>
+command on the <strong>LAYOUT</strong>
+menu, or the Options Page page-length setting has been set to
+zero.</p>
+<h3>Insert/Overtype&nbsp;</h3>
+<p>Shows the current text entry mode selected by the
+<strong>Insert/Overtype</strong> command on the <strong>EDIT</strong>
+menu. The mode initially selected
+is Insert mode.</p>
+<h3>Microspace&nbsp;</h3>
+<p>Normally blank, displays the word <span class="screen">Microspace</span>
+if the
+microspace option has been selected from the <strong>PRINT</strong>
+menu.</p>
+<h3>Free&nbsp;</h3>
+<p>Displays the amount of space remaining for characters in the
+current document, to the nearest multiple of 256 characters. It is
+inadvisable to continue typing text into a document if there are less
+than approximately 300 free characters. In such a situation you are
+advised to make space in memory by freeing activities, or deleting
+files.</p>
+<h2>Option lines&nbsp;</h2>
+<p>This page is used to determine how text and expressions are
+displayed in a document (including the default setting for the display
+of expression results) and to set up the layout of a document ready for
+printing, specifying headers and footers, and margins at the top,
+bottom and left of the page. In addition, you can control the length of
+the page, the spacing of text, and the page numbering.</p>
+<h3>Altering options - Next Option&nbsp;</h3>
+<p>As with many other commands, Next Option,&nbsp;<img style="vertical-align: middle;" alt="diamond" src="images/symb_diamond.png">J will alternate
+between two available values, for example <span class="screen">Y</span>
+and <span class="screen">N</span> for <span class="screen">Yes</span> and <span class="screen">No</span>,
+or
+<span class="screen">T</span> and <span class="screen">N</span> for <span class="screen">Text</span>
+and <span class="screen">Numbers</span>.
+Alternatively, these values can be
+changed by typing the appropriate letter. In the case of options with
+more than two possible values,&nbsp;<img style="vertical-align: middle;" alt="diamond" src="images/symb_diamond.png">J will set the option back to
+its
+default value.</p>
+<p>Other options can be altered by moving the cursor to the
+appropriate item, with the&nbsp;<img style="vertical-align: middle;" alt="up" src="images/symb_up.png"> and&nbsp;<img style="vertical-align: middle;" alt="down" src="images/symb_down.png"> keys, and then editing the item
+with the line-editing
+commands <img style="vertical-align: middle;" alt="left" src="images/symb_left.png">, <img style="vertical-align: middle;" alt="right" src="images/symb_right.png">, <span class="key">DEL</span>
+key and <img style="vertical-align: middle;" alt="diamond" src="images/symb_diamond.png">G or <span class="key">SHIFT</span>
+<span class="key">DEL</span> to delete
+the character
+under the
+cursor. In numeric fields, such as <strong>Page length</strong>,
+Overtype mode is
+automatically set irrespective of the current Overtype/Insert mode
+setting.</p>
+<p>In the following list of options the default value is shown
+against each option.</p>
+<h2>Text format&nbsp;</h2>
+<p>Determines the formatting of text in the document.</p>
+<h3>Text/Numbers (T)&nbsp;</h3>
+<p>Set to <span class="screen">T</span>
+(Text) to make the default slot format text slots, or
+<span class="screen">N</span> (Numbers) for
+expression slots. In Numbers mode there is no need to
+type&nbsp;<img style="vertical-align: middle;" alt="diamond" src="images/symb_diamond.png">X before
+entering an expression, and the cursor keys&nbsp;<img style="vertical-align: middle;" alt="right" src="images/symb_right.png"> and&nbsp;<img style="vertical-align: middle;" alt="left" src="images/symb_left.png">
+will move directly between slots containing expressions; ie behave
+like&nbsp;<span class="key">TAB</span>
+and&nbsp;<span class="key">SHIFT</span>&nbsp;<span class="key">TAB</span>.</p>
+<h3>Borders (Y)&nbsp;</h3>
+<p>Set to <span class="screen">Y</span> (Yes)
+to display borders, or <span class="screen">N</span>
+(No) to hide borders.
+Hiding the borders allows a larger area of the sheet to be displayed,
+and can be useful for word-processing applications.</p>
+<h3>Justify (N)&nbsp;</h3>
+<p>Set to <span class="screen">N</span> (No
+justify) for ragged right margins, or <span class="screen">Y</span>
+(Yes) for
+even right-hand margins. To reformat a paragraph of text after changing
+this option, give the <span class="screen">Format
+Paragraph</span> command,&nbsp;<img style="vertical-align: middle;" alt="diamond" src="images/symb_diamond.png">R.</p>
+<h3>Wrap (Y)&nbsp;</h3>
+<p>Set to <span class="screen">Y</span> (Yes)
+to make text wrap automatically at the wrap
+point, or <span class="screen">N</span> (No) for no
+wrapping.</p>
+<h3>Insert on wrap (R)&nbsp;</h3>
+<p>Set to <span class="screen">R</span>
+(Rows) to maintain alignment between adjacent rows,
+or <span class="screen">C</span> (Columns) for
+creating independent columns of text; see <strong>Widths and
+margins in a multi-column document</strong>, p. 129.</p>
+<h2>Recalculation mode&nbsp;</h2>
+<p>The <span class="screen">Calc</span>
+options determine how expression slots are
+recalculated in the document.</p>
+<h3>Auto/Man (A)&nbsp;</h3>
+<p>Determines the recalculation of expression slots on the
+document.</p>
+<p>Set to <span class="screen">A</span>
+(Automatic) to recalculate the document every time an
+expression slot changes or <span class="screen">M</span>
+(Manual) for recalculation only with
+the&nbsp;<img style="vertical-align: middle;" alt="diamond" src="images/symb_diamond.png">A
+command. This option can be set to <span class="screen">M</span>
+to make entering data into a
+large spreadsheet, or working with large text documents,
+faster.</p>
+<h3>Columns/Rows (C)&nbsp;</h3>
+<p>Select the order of recalculation: <span class="screen">R</span>
+(Rows) across rows first,
+or <span class="screen">C</span> (Columns) down
+columns first.</p>
+<h2>Number formats&nbsp;</h2>
+<p>Determine the default display format for numerical expression
+slots.</p>
+<h3>Decimal places (2)&nbsp;</h3>
+<p>Select 0 to 9 decimal places or <span class="screen">F</span>
+for free format.</p>
+<h3>Minus/brackets (M)&nbsp;</h3>
+<p>Select <span class="screen">M</span>
+(Minus) to display negative numbers with a minus
+sign, or <span class="screen">B</span> (Brackets)
+for financial bracketed notation.</p>
+<h3>Lead chs. (£) <br>
+Trail chs. (%)&nbsp;</h3>
+<p>Specify up to 4 characters to be displayed in front of or
+after expression slots with&nbsp;<img style="vertical-align: middle;" alt="diamond" src="images/symb_diamond.png">LCL or&nbsp;<img style="vertical-align: middle;" alt="diamond" src="images/symb_diamond.png">LCT set.</p>
+<h2>Page format&nbsp;</h2>
+<p>Determines the spacing and pagination of the document when
+printed.</p>
+<h3>Page length (66)&nbsp;</h3>
+<p>Set to between 1 and 127 to specify the number of lines on
+each page, including margins, footer and header, or 0 to suppress page
+breaks altogether.</p>
+<h3>Line spacing (1)&nbsp;</h3>
+<p>You can specify from 0 to 255 additional blank lines to be
+inserted between each line of text.</p>
+<h3>Start page&nbsp;</h3>
+<p>You can set the current page number to 0 to 255.</p>
+<h2>Headers, footers, and margins&nbsp;</h2>
+<p>You can specify an additional header or footer line of text to
+appear at the top or bottom of each printed page respectively. Each
+line of text can consist of up to three components, which will be
+left-aligned, centred, and right-aligned.</p>
+<p>The left margin, and the margins above and below the header
+and footer, and between the header and footer and the page of text, can
+be separately altered to determine the layout of the printed
+page.</p>
+<p>Note that if a header or footer are specified, the number of
+lines of text on each page will be reduced accordingly.</p>
+<p><img style="width: 277px; height: 360px;" alt="" src="images/139.png"></p>
+<p>The complete page layout, with headers and footers and their
+associated margins, will be represented on the page map display at the
+right-hand side of the PipeDream screen.</p>
+<h3>Header&nbsp;<br>
+Footer&nbsp;</h3>
+<p>You can specify lines of text which will be printed out at the
+head and foot of each page. Each line has the format</p>
+<p><span class="screen">/left/centre/right/</span></p>
+<p>where left, centre, and right represent text which will be
+respectively left-aligned, centred and right-aligned, and '/'
+represents
+an arbitrary delimiter, which must not occur elsewhere in the line of
+text.</p>
+<h3>Title&nbsp;</h3>
+<p>A line of up to 244 characters can be entered in this field as
+a title for the document. The title can be included in the document, or
+in the footer or header, by giving the @T@ field; see p. 153.</p>
+<h2>Margins&nbsp;</h2>
+<p>You can specify the number of blank lines, from 0 to 255, to
+be left above the header, between header and text, between text and
+footer, and below the footer respectively. The left margin can specify
+a margin of 0 to 255 characters at the left of each page:</p>
+<p><span class="screen">Margins: Top 0
+</span><br class="screen">
+<span class="screen">&nbsp; &nbsp; &nbsp;
+Header 2
+</span><br class="screen">
+<span class="screen">&nbsp; &nbsp; &nbsp;
+Footer 2
+</span><br class="screen">
+<span class="screen">&nbsp; &nbsp; &nbsp;
+Bottom 8
+</span><br class="screen">
+<span class="screen">&nbsp; &nbsp; &nbsp;
+&nbsp; Left 0</span></p>
+<p>For example, a typical set-up might be</p>
+<p class="screen">Margins: Top 2 <br>
+&nbsp; &nbsp; &nbsp; Header 2 <br>
+&nbsp; &nbsp; &nbsp; Footer 2 <br>
+&nbsp; &nbsp; &nbsp; Bottom 2&nbsp;<br>
+&nbsp; &nbsp; &nbsp; &nbsp; Left 6
+<br>
+&nbsp; &nbsp; &nbsp; Header /@T@//Maxo Ltd/&nbsp;<br>
+&nbsp; &nbsp; &nbsp; Footer //Page @P@//</p>
+<p><span class="screen">&nbsp; &nbsp;
+&nbsp; &nbsp;Title Quarterly Report</span>&nbsp;</p>
+<p>The&nbsp;@-field <span class="screen">@P@</span>
+will be replaced by the current page
+number, and the&nbsp;@-field <span class="screen">@T@</span>
+by the Title. The resulting page
+layout would be as follows:</p>
+<p><img style="width: 276px; height: 361px;" alt="" src="images/140.png"></p>
+<h1><a id="Printing documents - PRINT">Printing
+documents - PRINT</a></h1>
+<p><img style="width: 640px; height: 79px;" alt="" src="images/141.png"></p>
+<p>The commands on the <strong>PRINT</strong> menu
+allow you to print your
+document and to take advantage of facilities offered by the printer,
+such as bold and underlined text, and alternative fonts.</p>
+<h3>Print -&nbsp;<img style="vertical-align: middle;" alt="diamond" src="images/symb_diamond.png">PO&nbsp;</h3>
+<p>Prints all or part of a document. The following options are
+displayed:</p>
+<p><span class="screen">Print only range of columns
+&nbsp; &nbsp; &nbsp;&nbsp; &nbsp;&nbsp; No</span><br class="screen">
+<span class="screen">Select rows to print
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+&nbsp; &nbsp; &nbsp;No</span><br class="screen">
+<span class="screen">Wait between pages &nbsp;
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+&nbsp; &nbsp; &nbsp;No</span>&nbsp;</p>
+<p>By default, the <strong>Print</strong> command
+prints the whole of the current
+document with no pause between pages.</p>
+<p>The starting page number is determined by the Options Page
+<strong>Start page</strong> setting, except when printing a
+marked block, or selected
+rows. In this case the pages will be numbered, starting at 1, and soft
+page breaks will be ignored.</p>
+<p><em>Print only range of columns</em>: setting this
+option to <span class="screen">Yes</span> will
+allow a column range to be specified. The column range should be given
+as two column labels, separated by a space. Only the columns within the
+specified range (inclusive) will be printed.</p>
+<p><em>Select rows to print</em>: setting this option
+to <span class="screen">Yes</span> will allow
+an expression to be entered. Rows will only be printed if the
+expression evaluates to a true or nonzero result. The expression can
+contain slot references; after each row the slot references are updated
+by one row, unless they are fixed with the $ operator.</p>
+<p>For example, a document containing text in column B could use
+column A to contain a '*' character, indicating the latest revisions to
+the document. To print out only the revised lines the option</p>
+<p><span class="screen">Select rows to print
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+&nbsp;&nbsp; &nbsp; Yes A1="*"</span></p>
+<p>could be specified. See also <strong>Printing selected
+rows</strong>, p. 57,
+for an example.</p>
+<p><em>Wait between pages</em>: setting this option
+to <span class="screen">Yes</span> gives a prompt
+between pages to allow single sheets to be inserted into the printer.
+The prompt</p>
+<p><span class="screen">Page n ..</span></p>
+<p>is displayed, where n is the page number. You can then press
+one of the following keys to control printing:</p>
+<p><span class="type">M</span> to miss the
+page
+<br>
+<span class="type">C</span> to continue printing all
+remaining pages without further prompting <br>
+Any other character (eg the space bar) to print the page
+<br>
+<span class="key">ESC</span> to abandon printing.</p>
+<p><em>Printing a marked block</em>: if a block of
+slots is marked when
+the <strong>Print</strong> command is given, only the
+marked slots will be
+printed.</p>
+<p><em>Multi-file documents</em>: if the <strong>Print</strong>
+command is given in a
+multi-file document, the current document will be saved if it is
+modified, and the entire multi-file document will be printed, starting
+with the first file.</p>
+<h3>Microspace pitch&nbsp;<img style="vertical-align: middle;" alt="diamond" src="images/symb_diamond.png">PM&nbsp;</h3>
+<p>Selects microspaced printed output. Gives the prompt</p>
+<p><span class="screen">Microspace printed output
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; No</span>&nbsp;</p>
+<p>Changing the option to <span class="screen">Yes</span>
+and pressing&nbsp;<span class="key">ENTER</span>
+causes
+subsequent output to be microspaced at the default spacing of 12/120ths
+of an inch, giving a pitch of 10 characters per inch. A number can be
+entered to specify an alternative spacing. For example, entering 10
+gives 12 characters per inch. <span class="screen">Microspace</span>
+is displayed at the
+top right-hand corner of the Options Page display if it has been
+selected.</p>
+<h2>Highlighting text&nbsp;</h2>
+<p>You can alter the style of text in your document by inserting
+one of eight highlight codes in front of the text, and the same code
+after the text to revert back to normal.</p>
+<h3>Highlight codes</h3>
+<p>The recommended assignment of the eight codes is as
+follows:</p>
+<table class="frames">
+<tbody>
+<tr>
+<td><strong>Code</strong></td>
+<td><strong>Function</strong></td>
+<td><strong>Printed example</strong></td>
+</tr>
+<tr>
+<td>1<br>
+2<br>
+3<br>
+4<br>
+5<br>
+6<br>
+7<br>
+8</td>
+<td>Underline<br>
+Bold<br>
+Extended sequence<br>
+Italic<br>
+Subscript<br>
+Superscript<br>
+Alternative font<br>
+User defined</td>
+<td><span style="text-decoration: underline;">underlined
+type</span><br>
+<span style="font-weight: bold;">bold type</span><br>
+&#279; &#1195; &#960;<br>
+<span style="font-style: italic;">italic type</span><br>
+<small><small>H<sub>2</sub>0</small></small><br>
+<small><small>e=mc<sup>2</sup></small></small><br>
+<span class="type">alternative font</span></td>
+</tr>
+</tbody>
+</table>
+<p>To obtain the right results when these codes are printed you
+may need to create a printer driver; see <strong>Section Nine -
+The Printer
+Editor</strong>.</p>
+<p>The codes are inserted into text with the following
+commands:</p>
+<p><strong>Underline (1) -&nbsp;<img style="vertical-align: middle;" alt="diamond" src="images/symb_diamond.png">PU</strong><br>
+<strong>Bold (2) -&nbsp;<img style="vertical-align: middle;" alt="diamond" src="images/symb_diamond.png">PB</strong><br>
+<strong>Extended Sequence (3) -&nbsp;<img style="vertical-align: middle;" alt="diamond" src="images/symb_diamond.png">PX</strong><br>
+<strong>Italic (4) -&nbsp;<img style="vertical-align: middle;" alt="diamond" src="images/symb_diamond.png">PI</strong><br>
+<strong>Subscript (5) -&nbsp;<img style="vertical-align: middle;" alt="diamond" src="images/symb_diamond.png">PL</strong><br>
+<strong>Superscript (6) -&nbsp;<img style="vertical-align: middle;" alt="diamond" src="images/symb_diamond.png">PR</strong><br>
+<strong>Alternative font (7) -&nbsp;<img style="vertical-align: middle;" alt="diamond" src="images/symb_diamond.png">PA</strong><br>
+<strong>User Defined (8) -&nbsp;<img style="vertical-align: middle;" alt="diamond" src="images/symb_diamond.png">PE</strong></p>
+<p>These commands insert the corresponding highlight code at the
+current cursor position. Successive occurrences of a highlight code
+enable and disable the corresponding printer facility.</p>
+<p>The effect of highlights 1, 2, 3, and 4 (underline, bold,
+extended sequences, and italic text styles) are displayed on the screen
+as underlined, bold, grey, and tiny characters respectively when the
+cursor is moved onto another slot. When the cursor is on the same slot,
+all highlight codes are displayed as the corresponding highlighted
+numbers <span class="screen" style="color: rgb(255, 255, 255); background-color: rgb(0, 0, 0);">
+1</span> to <span class="screen" style="color: rgb(255, 255, 255); background-color: rgb(0, 0, 0);">
+8</span>.</p>
+<p>Highlight characters are considered to be of zero width for
+formatting and justification.</p>
+<p><em>Note:</em> You can use&nbsp;<img style="vertical-align: middle;" alt="diamond" src="images/symb_diamond.png">SPACE to create an 'exact
+space' character.
+This may help to create continuous underlining of titles etc.</p>
+<h3>Insert Highlights -&nbsp;<img style="vertical-align: middle;" alt="diamond" src="images/symb_diamond.png">PHI&nbsp;</h3>
+<p>Inserts a specified highlight number in the text at the cursor
+position. Gives the prompt</p>
+<p><span class="screen">Highlight number</span></p>
+<p>Typing in a number between 1 and 8, followed by&nbsp;<span class="key">ENTER</span>, will
+insert the corresponding highlight code into the text.</p>
+<h3>Remove Highlights -&nbsp;<img style="vertical-align: middle;" alt="diamond" src="images/symb_diamond.png">PHR&nbsp;</h3>
+<p>Removes all occurrences of a specified highlight number from a
+given marked block of text. Gives the prompt</p>
+<p><span class="screen">Highlight number</span></p>
+<p>Typing a number between 1 and 8 followed by&nbsp;<span class="key">ENTER</span> will
+remove all occurrences
+of the corresponding highlight from the marked block.</p>
+<h3>Highlight Block -&nbsp;<img style="vertical-align: middle;" alt="diamond" src="images/symb_diamond.png">PHB&nbsp;</h3>
+<p>Highlights all words within a marked block of text with a
+given highlight number. Gives the prompt</p>
+<p><span class="screen">Highlight number</span></p>
+<p>Typing a number between 1 and 8 will remove any existing
+highlights of the same number and highlight all words in the marked
+block with pairs of the specified highlight character. Because
+individual words are highlighted, reformatting the highlighted block of
+text will leave the selected text correctly highlighted, and text will
+be printed correctly even if the highlighted block extends over a page
+break.</p>
+<h1><a id="Expression slots">Expression slots</a></h1>
+<p>Any slot in a PipeDream document can be designated as an
+expression slot, in which case the expression you type into it will be
+evaluated, and the result will be displayed in the corresponding
+position in the document.</p>
+<p>An expression is entered by giving the <strong>Edit
+Expression</strong> command
+on the <strong>EDIT</strong> menu, or by typing&nbsp;<img style="vertical-align: middle;" alt="diamond" src="images/symb_diamond.png">X. The cursor will then move
+to the
+editing line, at the top of the screen, until the expression is entered
+by typing&nbsp;<span class="key">ENTER</span>.</p>
+<p>Alternatively, if the Options Page <strong>Text/Numbers</strong>
+option is set
+to <span class="screen">N</span>, all entries are
+taken as expressions.</p>
+<h2>Expressions&nbsp;</h2>
+<p>Expressions can consist of numbers, functions performing
+operations on other expressions, references to other slots, or a
+combination of these combined by mathematical operators. Expressions
+can give a numerical result, a date, or a string of text. Illegal
+expressions will give an error as their result.</p>
+<h3>Numbers&nbsp;</h3>
+<p>Numbers can be expressed in normal notation, or scientific
+notation. For example,</p>
+<p><span class="type">1, -1.7632, 1.4e27, 0.001</span></p>
+<p>All calculations are performed to an accuracy of nine decimal
+places and numbers may lie between 1e38 and 1e-38.</p>
+<h3>Strings&nbsp;</h3>
+<p>Strings are entered between double quotes, and may contain
+spaces. A slot reference to a text slot returns a string.</p>
+<h3>Slot references</h3>
+<p>The form of a slot reference is</p>
+<p><em>column-label row-number</em></p>
+<p>separated by optional spaces, where</p>
+<p><em>column-label</em> designates one of the 64
+columns, A to Z,
+followed by AA to BN, and</p>
+<p><em>row-number</em> is from 1 to 32768.</p>
+<p>Slot references are normally 'relative'; the reference will be
+updated if the position of the slot containing the reference changes
+relative to other slots.</p>
+<p>Each half of the slot reference may be 'fixed' by preceding
+the column letter or the row number by a dollar sign. The possibilities
+are:</p>
+<table class="transperent">
+<tbody>
+<tr>
+<td><span class="type">A1</span><br>
+<span class="type">$A1</span><br>
+<span class="type">A$1</span><br>
+<span class="type">$A$1</span></td>
+<td>&nbsp;normal reference&nbsp;<br>
+&nbsp;fixed column reference <br>
+&nbsp;fixed row reference&nbsp;<br>
+&nbsp;fixed column, fixed row</td>
+</tr>
+</tbody>
+</table>
+<p>The fixed part of a reference is not altered when copied with
+the <strong>Replicate</strong> or <strong>Copy</strong>
+commands on the <strong>BLOCKS</strong> menu, or when
+placed in a
+selection expression for the <strong>Save</strong> and <strong>Print</strong>
+commands on the <strong>FILES</strong> and
+<strong>PRINT</strong> menus respectively.</p>
+<p>When a slot to which a slot reference refers is deleted, the
+slot reference is marked with a '%' sign to indicate that the reference
+is no longer valid. The expression containing the slot reference will
+display the <span class="screen">Badslot</span>
+error message.</p>
+<h3>Specifying a block of slots - Ranges</h3>
+<p>You can perform some functions on a block of slots, specified
+by the top left-hand corner of the block followed by the bottom
+right-hand corner of the block.</p>
+<p>For example</p>
+<p><span class="type"> A2 D8</span>&nbsp;</p>
+<p>specifies all the slots in the block between columns A and D,
+and rows 2 and 8 inclusive.</p>
+<p>In some cases the function only makes sense if the range is
+restricted to a single row (a 'row range') as in A1 D1, or a single
+column (a 'column range'), as in B8 B20.</p>
+<h3>Specifying several slots - Lists&nbsp;</h3>
+<p>Functions are available to count, choose from, or find the
+maximum or minimum of a list of elements. The elements in a list are
+separated by commas and can be simple slot references, or ranges. Each
+slot in a range is considered as a separate list element. For
+example,</p>
+<p><span class="type">13, B1 B5, C7,</span></p>
+<p>is a list containing the 7 elements <span class="type">13,
+B1, B2, B3, B4, B5,</span> and <span class="type">C7</span>.</p>
+<h3>Dates&nbsp;</h3>
+<p>Dates are entered in the format</p>
+<p><em>DD.MM.YYYY</em> or <em>MM.DD.YYYY</em></p>
+<p>depending on whether the Panel date-format setting is European
+or American.</p>
+<p>Dates can be sorted into chronological order, and the
+functions DAY, MONTH, and YEAR can be used to extract the values of the
+date's day, month, and year respectively.</p>
+<h2>Operators&nbsp;</h2>
+<p>The following operators can be used within
+expressions</p>
+<h3>Arithmetic&nbsp;</h3>
+<p>The arithmetic operators take two numbers as operands.</p>
+<table class="transperent">
+<tbody>
+<tr>
+<td>+<br>
+*<br>
+^&nbsp;</td>
+<td>add<br>
+multiply<br>
+raise to the power</td>
+<td>-<br>
+/</td>
+<td>subtract<br>
+divide</td>
+</tr>
+</tbody>
+</table>
+<p>Also, '+' and '-' may be used on date values. For example</p>
+<p><span class="type"> 12.10.1987 + 127</span></p>
+<p>will return the date 127 days after 12 October 87, or 16.2.88,
+assuming that European date format has been selected.</p>
+<h3>Relational</h3>
+<p>The relational operators can compare dates, strings, and
+numbers. Both operands must be of the same type, and the result is a
+logical value of FALSE=0 and TRUE=1.</p>
+<table class="transperent">
+<tbody>
+<tr>
+<td>&lt;<br>
+&lt;=<br>
+&lt;&gt;</td>
+<td>less than<br>
+less than or equal to<br>
+not equal to<br>
+</td>
+<td>=<br>
+&gt;<br>
+&gt;=</td>
+<td>equal to<br>
+greater than<br>
+greater than or equal to</td>
+</tr>
+</tbody>
+</table>
+<p>When strings are being compared, the following wildcards (as
+in the <strong>Replace</strong> command) can be included
+in the second string:</p>
+<table class="transperent">
+<tbody>
+<tr>
+<td>^?<br>
+^# <br>
+^^</td>
+<td>matches any single character<br>
+matches any number of characters<br>
+represents ^</td>
+</tr>
+</tbody>
+</table>
+<h3>Logical&nbsp;</h3>
+<p>The logical operators operate on numeric or logical values.
+Boolean FALSE is taken as zero, TRUE as non-zero.</p>
+<table class="transperent">
+<tbody>
+<tr>
+<td>&amp;<br>
+!</td>
+<td>AND<br>
+unary NOT</td>
+<td>¦</td>
+<td>OR</td>
+</tr>
+</tbody>
+</table>
+<h2>Functions&nbsp;</h2>
+<h3>ABS&nbsp;Absolute value&nbsp;</h3>
+<p>ABS(number)</p>
+<p>Returns the absolute positive value of the argument.</p>
+<h3>ACS Arc cosine&nbsp;</h3>
+<p>ACS(number)</p>
+<p>Returns the arc cosine of the argument, in radians.</p>
+<h3>ASN Arc sine&nbsp;</h3>
+<p>ASN(number)</p>
+<p>Returns the arc sine of the argument, in radians.</p>
+<h3>ATN Arc tangent</h3>
+<p>ATN(number)</p>
+<p>Returns the arc tangent of the argument, in radians.</p>
+<h3>CHOOSE Choose element from list&nbsp;</h3>
+<p>CHOOSE(list)</p>
+<p>Returns an element from the list, using the value of the first
+element as an index into the remaining elements. For example, if B4
+contains <span class="screen">17.2.1987</span></p>
+<p class="type">CHOOSE (MONTH(B4),"jan","feb","mar","apr")</p>
+<p>gives the result <span class="screen">feb</span>.</p>
+<h3> COL Column&nbsp;</h3>
+<p>COL</p>
+<p>The value of the column in which it is evaluated. Column A is
+1, column B is 2, etc.</p>
+<h3>COS Cosine</h3>
+<p>COS(radians)</p>
+<p>Returns the cosine of the argument.</p>
+<h3>COUNT Count the number of elements</h3>
+<p>COUNT(list)</p>
+<p>Returns the number of non-blank slots in the list.</p>
+<h3> DAY Day of date</h3>
+<p>DAY(date)</p>
+<p>Returns the day number of a date argument.</p>
+<p>For example, if slot A1 contains <span class="screen">17.3.1961</span>,
+then <span class="type">DAY (A1)</span> returns 17</p>
+<h3>DEG Degrees from radians</h3>
+<p>DEG(radians)</p>
+<p>Converts the argument, taken in radians, into degrees.</p>
+<h3>EXP Exponent</h3>
+<p>EXP(number)</p>
+<p>Returns the constant e (2.71828184..) raised to the specified
+power.</p>
+<h3> IF Conditional expression</h3>
+<p>IF(boolean,then,else)</p>
+<p>If the value of the first argument is TRUE, ie non-zero, the
+function returns then; otherwise the function returns else.</p>
+<p>For example, if slot A1 contains <span class="screen">-23</span>,</p>
+<p><span class="type"> IF(A1
+&lt;0,"Debit","Credit")</span></p>
+<p>would return Debit.</p>
+<h3>INDEX Index slot</h3>
+<p>INDEX(column,row)</p>
+<p>Returns the evaluated expression or string found at
+coordinates column, row.</p>
+<p>For example, if A2 contained
+<span class="screen">IF(100,"Debit","Credit")</span></p>
+<p><span class="type">INDEX(1,2)</span></p>
+<p>would return <span class="screen">Credit</span>.</p>
+<h3>INT Integer part</h3>
+<p> INT(number)</p>
+<p>Returns the integer part of the argument.</p>
+<h3>LN Logarithm to base e&nbsp;</h3>
+<p>LN(number)</p>
+<p>Returns the natural logarithm, log<sub>e</sub> of
+the argument.</p>
+<h3>LOG Logarithm to base 10</h3>
+<p>LOG(number)</p>
+<p>Returns the logarithm to base 10 of the argument.</p>
+<h3> LOOKUP Look up value in a table</h3>
+<p>LOOKUP(key,range1,range2)</p>
+<p>Returns the value in range2 corresponding to the position that
+key occurs in range1.</p>
+<p>key must be a cell reference. For example, the following sheet
+would result if <span class="type">LOOKUP(A3,A1 F1,A2 F2)</span>
+were placed at B4:</p>
+<p><img style="width: 640px; height: 93px;" alt="" src="images/151.png"></p>
+<p>If an exact match is found in range1, the function returns
+the value of the slot the same number of slots from the beginning of
+the second range.</p>
+<p>If key is not found in range1, the function returns the error</p>
+<p><span class="screen"> Lookup</span></p>
+<p>Wildcards '^?' and '^#' may be included in key.</p>
+<h3>MAX Maximum value in list</h3>
+<p>MAX(list)</p>
+<p>Returns the maximum value from the slots in the list.</p>
+<h3>MIN Minimum value in list</h3>
+<p>MIN(list)</p>
+<p>Returns the minimum value from the slots in the list.</p>
+<h3>MONTH Month of date</h3>
+<p> MONTH(date)</p>
+<p>Returns the month number of its date argument.</p>
+<p>For example, if A1 contains <span class="screen">12.6.1987</span>
+then <span class="type">MONTH(A1)</span>
+returns 6.</p>
+<h3>PI &#960;</h3>
+<p>PI</p>
+<p>Returns the value 3.141592653.</p>
+<h3>RAD Radians from degrees</h3>
+<p>RAD(degrees)</p>
+<p>Returns the argument, taken as degrees, converted into radians.</p>
+<h3> ROW Row</h3>
+<p>ROW</p>
+<p>The value of the row in which it is evaluated.</p>
+<h3>SGN Sign</h3>
+<p>SGN(number)</p>
+<p>Returns -1, 0, or 1 depending on whether the argument is
+negative, zero, or positive respectively.</p>
+<h3>SIN Sine</h3>
+<p>SIN(radians)</p>
+<p>Returns the sine of the argument, in radians.</p>
+<h3>SQR Square root</h3>
+<p>SQR(number)</p>
+<p>Returns the positive square-root of its argument.</p>
+<h3> SUM Sum</h3>
+<p>SUM(list)</p>
+<p>Returns the sum of the slots in the list.</p>
+<h3>TAN Tangent</h3>
+<p>TAN(radians)</p>
+<p>Returns the tangent of the argument, in radians.</p>
+<h3> YEAR Year of date</h3>
+<p>Returns the year number of its date argument.</p>
+<p>For example, if A1 contains <span class="screen">12.6.1987</span>
+then <span class="type">YEAR(A1)</span>
+returns
+87.</p>
+<h2>@ Fields</h2>
+<p>You can include the page number, the date, the file title from
+the Options Page, or the value of any expression slot within text in
+your document using the special PipeDream @-fields.</p>
+<p>The following @ fields are available:</p>
+<table class="frames">
+<tbody>
+<tr>
+<td><strong>Identifier</strong></td>
+<td><strong>Effect</strong></td>
+</tr>
+<tr>
+<td><span class="type">@P@</span> <br>
+<span class="type">@D@</span> <br>
+<span class="type">@T@</span> <br>
+<span class="type">@</span><em class="type">ref</em><span class="type">@</span> <br>
+<span class="type">@@</span>&nbsp;</td>
+<td>current page number
+<br>
+date
+<br>
+title defined in options page
+<br>
+value of slot <em>ref</em><br>
+@</td>
+</tr>
+</tbody>
+</table>
+<p>One or more '@' characters should be given after the
+identifier to determine the size of the @ field for formatting. For
+example,</p>
+<p><span class="type">@P@@@@</span>&nbsp;</p>
+<p>creates a field of four characters. Provided the value to be
+displayed is less than the size of the&nbsp;@-field, the line will
+be
+justified correctly.</p>
+<p>The field:</p>
+<p><span class="type">@ref@@@@@</span>&nbsp;</p>
+<p>will reserve five characters for the value of the slot
+indicated by the reference.</p>
+<p>If it is an expression slot, the value will be displayed in
+the same format as in the slot itself, with alignment ignored.</p>
+<p>When the cursor is not on a text slot with an @ field in it,
+the slot shows the value of the @ field. When the cursor is moved onto
+the slot, the actual @ identifier is shown, for editing.
+</p>
+</body></html>

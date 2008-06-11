@@ -1,13 +1,13 @@
-﻿body
+body
 {
 	background-color: #ffffff;
 	font-size: 14px;
-	font-family: Arial;
+	font-family: Arial, Helvetica, sans-serif;
 }
 TABLE.frames
 {
 	width: 640px;
-	border-collapse: collapse;	
+	border-collapse: collapse;	 
 }
 TABLE.frames TD
 {
@@ -48,7 +48,6 @@ TABLE.transperent TD
 H1
 {
     font-size: 30px;
-    font-family: Arial;
     border-top: black 2px solid;
     border-bottom: black 2px solid;
     padding-bottom: 12px;
@@ -59,7 +58,6 @@ H1
 H2
 {
     font-size: 20px;
-    font-family: Arial;
     border-top: black 2px solid;
     padding-top: 14px;
     margin-top: 40px;
@@ -68,7 +66,6 @@ H2
 H3
 {
     font-size: 16px;
-    font-family: Arial;
     margin-top: 10px;
     margin-bottom: 10px;
 }
@@ -80,12 +77,12 @@ LI
 .screen
 {
 	font-weight: bold;
-	font-family: 'Courier New';
-	font-size: 16px;
+	font-family: 'monospace';
+	font-size: 14px;
 }
 .type
 {
-	font-family: 'Courier New';
+	font-family: 'Courier New,Courier,monospace';
 }
 .key
 {
@@ -94,7 +91,7 @@ LI
 	border-top: #000000 1px solid;
 	padding-left: 1px;
 	font-size: 12px;
+	font-weight: normal;
 	border-left: #000000 1px solid;
 	border-bottom: #000000 1px solid;
-	font-family: 'arial';
 }
