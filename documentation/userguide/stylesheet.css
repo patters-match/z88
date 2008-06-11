@@ -77,12 +77,12 @@ LI
 .screen
 {
 	font-weight: bold;
-	font-family: 'Courier New,Courier,monospace';
+	font-family: Courier,monospace;
 	font-size: 14px;
 }
 .type
 {
-	font-family: 'Courier New,Courier,monospace';
+	font-family: Courier,monospace;
 }
 .key
 {
