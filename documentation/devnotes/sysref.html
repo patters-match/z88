@@ -1,0 +1,327 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="GENERATOR" content="Mozilla/4.51 [en] (X11; I; Linux 2.2.5-15 i686) [Netscape]">
+   <title>System calls reference</title>
+</head>
+<body>
+<table BORDER=0 CELLSPACING=0 CELLPADDING=0 WIDTH="100%" >
+<tr>
+<th ALIGN=CENTER COLSPAN="3">Z88 Developers' Notes</th>
+</tr>
+
+<tr>
+<td ALIGN=LEFT VALIGN=BOTTOM WIDTH="10%"><a href="manifest.html">Previous</a></td>
+<td ALIGN=CENTER VALIGN=BOTTOM WIDTH="80%"><a href="index.html">Contents</a></td>
+<td ALIGN=RIGHT VALIGN=BOTTOM WIDTH="10%"><a href="fppref.html">Next</a></td>
+</tr>
+</table>
+
+<hr WIDTH="100%">
+<p><b><font size=+1>30. System calls reference</font></b>
+<p>The following section is a complete reference of all the Z88 operating
+system calls. Each call is a separate document. This makes it easy to load
+the files directly into PipeDream for evaluation during software development.
+This brief list of topics is intended to make it easier to find a system
+call to perform the required function. The calls are listed in alphabetical
+order in the main body of "System calls Reference".
+<p>Many of the available calls were designed for use by the system and
+are of no help to the application author. Such calls are marked "(OZ usage)"
+or "(internal usage)". Some of the more esoteric calls will not work in
+all segments, where segment 3 is considered to be the most reliable. If
+you have some very bizarre bugs you may want to suspect a system call is
+not working to specifications. Where bugs are known about, or strongly
+suspected, this information is included with the system call specification.
+Feel free to contact us if you have discovered new information about OZ.
+<p>DC (director) calls are very low level, hence only three of the sixteen
+available are of use to applications. The GN (general) calls are safe in
+that they are unlikely to corrupt the system, but a little unreliable.
+OS (operating system) calls are more reliable, but because of their power,
+they'r easily able to disrupt the system - many are not for application
+use at all.
+
+<p><b>Alarms</b>
+<blockquote>
+<pre><a href="osalm.html">OS_Alm</a>, alarm manipulation (OZ usage)
+<a href="gnaab.html">GN_Aab</a>, allocate alarm block
+<a href="gnalp.html">GN_Alp</a>, process an expired alarm
+<a href="gnfab.html">GN_Fab</a>, free alarm block
+<a href="gnlab.html">GN_Lab</a>, link an alarm block into the alarm chain
+<a href="gnuab.html">GN_Uab</a>, unlink an alarm block from the alarm chain
+<a href="osalm.html">OS_Alm</a>, alarm manipulation (OZ usage)</pre>
+</blockquote>
+
+<b>Application</b>
+<blockquote>
+<pre><a href="dcnam.html">DC_Nam</a>, Name current application
+<a href="ospoll.html">OS_Poll</a>, poll for an application (OZ usage)
+<a href="dcpol.html">DC_Pol</a>, poll for card usage
+<a href="osent.html">OS_Ent</a>, enter an application (OZ usage)
+<a href="dcent.html">DC_Ent</a>, enter new application (low level OZ usage)
+<a href="osexit.html">OS_Exit</a>, exit an application (OZ usage)
+<a href="dcbye.html">DC_Bye</a>, exiting current application (OZ usage)
+<a href="osbye.html">OS_Bye</a>, exit application
+<a href="osstk.html">OS_Stk</a>, stack current process / application (OZ usage)
+<a href="osuse.html">OS_Use</a>, process card usage (OZ usage)</pre>
+</blockquote>
+
+<b>Arithmetic</b>
+<blockquote>
+<pre><a href="gnd16.html">GN_D16</a>, 16bit unsigned division
+<a href="gnd24.html">GN_D24</a>, 24bit unsigned division
+<a href="gngdn.html">GN_Gdn</a>, convert an ASCII string to a binary number
+<a href="gnm16.html">GN_M16</a>, 16bit unsigned multiplication
+<a href="gnm24.html">GN_M24</a>, 24bit unsigned multiplication
+<a href="gnpdn.html">GN_Pdn</a>, write number as decimal ASCII string
+<a href="fppref.html">FP_</a> Floating point arithmetic</pre>
+</blockquote>
+
+<b>Binding</b>
+<blockquote>
+<pre><a href="osmgb.html">OS_Mgb</a>, get old bank binding
+<a href="osmpb.html">OS_Mpb</a>, set (put) new bank binding
+<a href="osfc.html">OS_Fc</a>, fast code (bank binding)
+<a href="ozmgb.html">OZ_Mgb</a>, get old bank binding (ultra fast routine in LOWRAM, OZ V4.1 and newer)
+<a href="ozmpb.html">OZ_Mpb</a>, set new bank binding (ultra fast routine in LOWRAM, OZ V4.1 and newer)
+</pre>
+
+</blockquote>
+
+<b>Characters</b>
+<blockquote>
+<pre><a href="gncls.html">GN_Cls</a>, classify a character
+<a href="gnskc.html">GN_Skc</a>, skip character
+<a href="gnskd.html">GN_Skd</a>, skip to delimiter
+<a href="gnskt.html">GN_Skt</a>, skip to value</pre>
+</blockquote>
+
+<b>CLI</b>
+<blockquote>
+<pre><a href="dcicl.html">DC_Icl</a>, invoke new CLI
+<a href="dcin.html">DC_In</a>, read from CLI
+<a href="dcxin.html">DC_Xin</a>, examine CLI input
+<a href="dcrbd.html">DC_Rbd</a>, rebind streams in CLI layer
+<a href="oscli.html">OS_Cli</a>, CLI interface (OZ usage)</pre>
+</blockquote>
+
+<b>Close</b>
+<blockquote>
+<pre><a href="gncl.html">GN_Cl</a>, close file
+<a href="oscl.html">OS_Cl</a>, internal close (OZ usage)
+<a href="gnflc.html">GN_Flc</a>, close filter
+<a href="osmcl.html">OS_Mcl</a>, close (free) memory pool
+<a href="gnwcl.html">GN_Wcl</a>, close wildcard handler</pre>
+</blockquote>
+
+<b>Dates</b>
+<blockquote>
+<pre><a href="gngdt.html">GN_Gdt</a>, convert ASCII to internal date
+<a href="gndei.html">GN_Dei</a>, convert zoned format date to internal format
+<a href="gndie.html">GN_Die</a>, convert internal format date to zoned format
+<a href="gngmd.html">GN_Gmd</a>, get (read) machine date in internal format
+<a href="gnpdt.html">GN_Pdt</a>, write internal date as ASCII string
+<a href="gnpmd.html">GN_Pmd</a>, put (set) machine date</pre>
+</blockquote>
+
+<b>Delay</b>
+<blockquote>
+<pre><a href="osdly.html">OS_Dly</a>, fixed time delay</pre>
+</blockquote>
+
+<b>DOR manipulation</b>
+<blockquote>
+<pre><a href="osdor.html">OS_Dor</a>, DOR interface</pre>
+</blockquote>
+
+<b>Errors</b>
+<blockquote>
+<pre><a href="gnerr.html">GN_Err</a>, display system error box
+<a href="gnesp.html">GN_Esp</a>, return an extended pointer to a system error message
+<a href="oserc.html">OS_Erc</a>, get error context
+<a href="oserh.html">OS_Erh</a>, set error handler
+<a href="osesc.html">OS_Esc</a>, examine special condition</pre>
+</blockquote>
+
+<b>Extended addresses</b>
+<blockquote>
+<pre><a href="osbhl.html">OS_Bhl</a>, copy bytes from extended address
+<a href="gncme.html">GN_Cme</a>, compare null-terminated strings, one local, one extended
+<a href="gnrbe.html">GN_Rbe</a>, read byte at extended address
+<a href="gnwbe.html">GN_Wbe</a>, write byte at extended address
+<a href="osbde.html">OS_Bde</a>, copy bytes to extended address</pre>
+</blockquote>
+
+<b>File and stream operations</b>
+<blockquote>
+<pre><a href="gnopf.html">GN_Opf</a>, file or stream open
+<a href="gncl.html">GN_Cl</a>, close file
+<a href="gndel.html">GN_Del</a>, delete a file from memory
+<a href="gnren.html">GN_Ren</a>, rename file
+<a href="oscl.html">OS_Cl</a>, internal close (OZ usage)
+<a href="osdel.html">OS_Del</a>, file delete (OZ usage)
+<a href="osfrm.html">OS_Frm</a>, file read miscellaneous
+<a href="osfwm.html">OS_Fwm</a>, file write miscellaneous
+<a href="osgb.html">OS_Gb</a>, get byte from file (or device)
+<a href="osgbt.html">OS_Gbt</a>, get byte from file (or device) with timeout
+<a href="osmv.html">OS_Mv</a>, move bytes between stream and memory
+<a href="osop.html">OS_Op</a>, internal open (OZ usage)
+<a href="ospb.html">OS_Pb</a>, write byte to file, device
+<a href="ospbt.html">OS_Pbt</a>, write byte to file, device with timeout
+<a href="osren.html">OS_Ren</a>, file rename (OZ usage)</pre>
+</blockquote>
+
+<b>Filenames</b>
+<blockquote>
+<pre><a href="gnesa.html">GN_Esa</a>, read &amp; write to filename segments
+<a href="gnfcm.html">GN_Fcm</a>, produce compressed filename
+<a href="gnfex.html">GN_Fex</a>, expand a filename
+<a href="gnopw.html">GN_Opw</a>, open wildcard handler
+<a href="gnpfs.html">GN_Pfs</a>, parse filename segment
+<a href="gnprs.html">GN_Prs</a>, parse filename
+<a href="gnwcl.html">GN_Wcl</a>, close wildcard handle
+<a href="gnwfn.html">GN_Wfn</a>, fetch next match for wildcard string (handle)
+<a href="gnwsm.html">GN_Wsm</a>, match filename segment to wildcard string</pre>
+</blockquote>
+
+<b>Filters</b>
+<blockquote>
+<pre><a href="gnflo.html">GN_Flo</a>, open a filter
+<a href="gnflc.html">GN_Flc</a>, close filter
+<a href="gnflf.html">GN_Flf</a>, flush filter
+<a href="gnflr.html">GN_Flr</a>, read from filter
+<a href="gnflw.html">GN_Flw</a>, write character to filter
+<a href="gnfpb.html">GN_Fpb</a>, push back into filter</pre>
+</blockquote>
+
+<b>Input</b>
+<blockquote>
+<pre><a href="gnsip.html">GN_Sip</a>, system input line routine
+<a href="osin.html">OS_In</a>, wait for character from standard input
+<a href="ospur.html">OS_Pur</a>, purge keyboard buffer
+<a href="ostin.html">OS_Tin</a>, read character from standard input, with timeout
+<a href="osxin.html">OS_Xin</a>, examine input</pre>
+</blockquote>
+
+<b>Linked lists</b>
+<blockquote>
+<pre><a href="gnxnx.html">GN_Xnx</a>, index next entry in a linked list
+<a href="gnxdl.html">GN_Xdl</a>, delete an entry from a linked list
+<a href="gnxin.html">GN_Xin</a>, insert an entry into a linked list</pre>
+</blockquote>
+
+<b>Mailboxes</b>
+<blockquote>
+<pre><a href="ossr.html">OS_Sr</a>, save &amp; restore</pre>
+</blockquote>
+
+<b>Miscellaneous</b>
+<blockquote>
+<pre><a href="osoff.html">OS_Off</a>, Switch machine off
+<a href="osblp.html">OS_Blp</a>, Bleep generation
+<a href="ossr.html">OS_Sr</a>, Page Wait
+</blockquote>
+
+<b>Persistent Memory Cards</b>
+<blockquote><pre>
+<a href="osepr.html">OS_Epr</a>, File Card Interface (extended API in OZ V4.2)
+<a href="osfep.html">OS_Fep</a>, Flash Card Interface (OZ V4.2 and newer)
+</pre></blockquote>
+
+<b>Memory</b>
+<blockquote>
+<pre><a href="osbix.html">OS_Bix</a>, bind in extended address
+<a href="osbox.html">OS_Box</a>, restore bindings after <a href="osbix.html">OS_Bix</a>
+<a href="osfc.html">OS_Fc</a>, select fast code (fast bank switching)
+<a href="osmal.html">OS_Mal</a>, allocate memory
+<a href="osmcl.html">OS_Mcl</a>, close memory (free memory pool)
+<a href="osmfr.html">OS_Mfr</a>, free (previously allocated block) memory
+<a href="osmop.html">OS_Mop</a>, open memory (allocate memory pool)
+</blockquote>
+
+<b>Integer conversion</b>
+<blockquote>
+<pre><a href="gngdn.html">GN_Gdn</a>, convert an ASCII string to a binary number
+<a href="gnpdn.html">GN_Pdn</a>, write number as decimal ASCII string</pre>
+</blockquote>
+
+<b>Open</b>
+<blockquote>
+<pre><a href="gnopf.html">GN_Opf</a>, open file, device
+<a href="gnflo.html">GN_Flo</a>, open filter
+<a href="gnopw.html">GN_Opw</a>, open wildcard handler
+<a href="osmop.html">OS_Mop</a>, open memory (pool)</pre>
+</blockquote>
+
+<b>Output</b>
+<blockquote>
+<pre><a href="gnnln.html">GN_Nln</a>, send newline (CR/LF) to standard output
+<a href="gnsoe.html">GN_Soe</a>, write string at extended address to standard output
+<a href="gnsop.html">GN_Sop</a>, write string to standard output, local memory
+<a href="osbout.html">OS_Bout</a>, write string at extended or local address to standard output (fast block display, OZ V4.2 and newer)
+<a href="osout.html">OS_Out</a>, write character to standard output
+<a href="ospout.html">OS Pout</a>, write embedded string at PC to standard output (fast block display, OZ V4.2 and newer)
+<a href="osprt.html">OS_Prt</a>, output character to printer</pre>
+</blockquote>
+
+<b>Screen</b>
+<blockquote>
+<pre><a href="osmap.html">OS_Map</a>, high resolution graphics manipulation
+<a href="ossr.html">OS_Sr</a>, save &amp; restore screen file
+<a href="ossci.html">OS_Sci</a>, low level screen hardware interface
+<a href="osnq.html">OS_Nq</a>, fetch low level window information</pre>
+</blockquote>
+
+<b>Settings, System parameters</b>
+<blockquote>
+<pre><a href="ossp.html">OS_Sp</a>, set Panel and PrinterEd values
+<a href="osnq.html">OS_Nq</a>, read Panel and PrinterEd values</pre>
+</blockquote>
+
+<b>Time</b>
+<blockquote>
+<pre><a href="gngmt.html">GN_Gmt</a>, fetch machine time
+<a href="gngtm.html">GN_Gtm</a>, convert an ASCII string to a time in internal format
+<a href="gnmsc.html">GN_Msc</a>, miscellaneous time operations
+<a href="gnpmt.html">GN_Pmt</a>, put (set) machine time
+<a href="gnptm.html">GN_Ptm</a>, write internal time as ASCII string
+<a href="gnsdo.html">GN_Sdo</a>, send date and time to standard output
+<a href="osdly.html">OS_Dly</a>, delay a given period</pre>
+</blockquote>
+
+<b>Wildcards</b>
+<blockquote>
+<pre><a href="gnopw.html">GN_Opw</a>, open wildcard handler
+<a href="gnwcl.html">GN_Wcl</a>, close wildcard handle
+<a href="gnwfn.html">GN_Wfn</a>, fetch next match for wildcard string (handle)
+<a href="gnwsm.html">GN_Wsm</a>, match filename segment to wildcard string</pre>
+</blockquote>
+
+<b>Handles</b>
+<blockquote>
+<pre><a href="osgth.html">OS_Gth</a>, get tri-handle (OZ usage)
+<a href="osvth.html">OS_Vth</a>, verify tri-handle (OZ usage)
+<a href="osfth.html">OS_Fth</a>, free tri-handle (OZ usage)</pre>
+</blockquote>
+
+<hr WIDTH="100%">
+<table BORDER=0 CELLSPACING=0 CELLPADDING=0 WIDTH="100%" >
+<tr>
+<td ALIGN=LEFT VALIGN=TOP WIDTH="33%"><a href="manifest.html">Previous</a></td>
+
+<td ALIGN=CENTER VALIGN=TOP WIDTH="34%"><a href="index.html">Contents</a></td>
+
+<td ALIGN=RIGHT VALIGN=TOP WIDTH="33%"><a href="fppref.html">Next</a></td>
+</tr>
+
+<tr>
+<td ALIGN=LEFT VALIGN=TOP WIDTH="33%">Operating System Manifests</td>
+
+<td ALIGN=CENTER VALIGN=TOP WIDTH="34%">System calls reference</td>
+
+<td ALIGN=RIGHT VALIGN=TOP WIDTH="33%">The floating point package reference</td>
+</tr>
+</table>
+
+</body>
+</html>
