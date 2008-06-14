@@ -80,7 +80,7 @@
 
         inc     e
         dec     e
-        jr      z, check_flashchip              ; skip RAM check for upper 512K in slot 0 (always available)
+        jr      z, check_card_top               ; skip RAM check for upper 512K in slot 0 (always available)
         
         push    bc                              ; check for hybrid hardware; 512K RAM (bottom) and 512K Flash (top)
         ld      a,b                             
@@ -91,23 +91,28 @@
         ld      a,b
         pop     bc
         jr      c, unknown_flashmem             ; abort, if RAM card was found in slot C...
-.check_flashchip
+.check_card_top
         push    bc
         ld      b,a
-        CALL    NC,FetchCardID                  ; if not RAM, get info of AMD Flash Memory chip in top of slot (if avail in slot C)...
+        CALL    FetchCardID                     ; if not RAM, get info of AMD Flash Memory chip in top of slot (if avail in slot C)...
+        jr      c,check_card_bottom             ; flash chip not found 
+        call    FlashEprCardData                ; verify Flash Memory ID with known Manufacturer & Device Codes (could be bogus ID from Intel)
+        jr      c, check_card_bottom            ; an Intel Flash will fail when polled at the top, so check it now (at the bottom)...
+        inc     sp                              ; an AMD ID was found
+        inc     sp                              ; ignore old bank/segment parameters and return B = total banks of card to caller
+        jr      crddata_found
+.check_card_bottom
         pop     bc
-        jr      nc, get_crddata                 ; AMD flash found, get card ID data...
-
         ld      hl,MM_S1 << 8                   ; use segment 1 (not this executing segment which is MS_S2)
         call    CheckRam
         jr      c, unknown_flashmem             ; abort, if RAM card was found in bottom of slot C...
                             
         call    FetchCardID                     ; get info of intel Flash Memory at bottom of chip in HL (if avail in slot C)...
         jr      c, unknown_flashmem             ; no ID's were polled from a (potential FE card)
-.get_crddata
+
         call    FlashEprCardData                ; verify Flash Memory ID with known Manufacturer & Device Codes
         jr      c, unknown_flashmem
-                                                ; H = Manufacturer Code, L = Device Code
+.crddata_found                                  ; H = Manufacturer Code, L = Device Code
         pop     de                              ; B = banks on card, A = chip series (28F or 29F)
         ld      c,e                             ; original C restored
 .end_FlashEprCardId
