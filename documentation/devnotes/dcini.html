@@ -2,31 +2,31 @@
 
 <head>
 <meta http-equiv="Content-Type"
-content="text/html;	charset=iso-8859-1">
-<meta name="GENERATOR" content="Microsoft FrontPage	Express	2.0">
-<title>System Calls	Reference</title>
+content="text/html; charset=iso-8859-1">
+<meta name="GENERATOR" content="Microsoft FrontPage Express 2.0">
+<title>System Calls Reference</title>
 </head>
 
 <body>
 
 <table border="0" cellpadding="0" cellspacing="0" width="100%">
-	<tr>
-		<th	colspan="3">Z88	Developers'	Notes</th>
-	</tr>
-	<tr>
-		<td	valign="bottom"	width="10%"><a href="index.html">Contents</a></td>
-		<td	align="center" valign="bottom" width="80%">&nbsp;</td>
-		<td	align="right" valign="bottom" width="10%"><a
-		href="sysref.html">Contents&nbsp;of&nbsp;System&nbsp;Calls</a></td>
-	</tr>
+ <tr>
+  <th colspan="3">Z88 Developers' Notes</th>
+ </tr>
+ <tr>
+  <td valign="bottom" width="10%"><a href="index.html">Contents</a></td>
+  <td align="center" valign="bottom" width="80%">&nbsp;</td>
+  <td align="right" valign="bottom" width="10%"><a
+  href="sysref.html">Contents&nbsp;of&nbsp;System&nbsp;Calls</a></td>
+ </tr>
 </table>
 
 <hr>
 
-<p><font size="4"><b>DC_Ini, initialize	the	Director (INDEX)</b></font>
+<p><font size="4"><b>DC_Ini, initialize the Director (INDEX)</b></font>
 </p>
 
-<p><tt>RST 20H,	DEFW $060C</tt>	</p>
+<p><tt>RST 20H, DEFW $060C</tt> </p>
 
 <pre>IN:&nbsp; -
 
@@ -37,9 +37,9 @@ OUT: -
 <p>Notes: </p>
 
 <blockquote>
-	<p>Internal	operating system usage.<br>
-	Used to	enter the Index	for	the	first time.<br>
-	This call simply jumps to the Index	entry. </p>
+ <p>Internal operating system usage.<br>
+ Used to enter the Index for the first time.<br>
+ This call simply jumps to the Index entry. </p>
 </blockquote>
 
 <p>Bugs: </p>

@@ -1,38 +1,38 @@
-<!doctype html public "-//w3c//dtd html	4.0	transitional//en">
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
 <html>
 <head>
    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
-   <meta name="GENERATOR" content="Mozilla/4.6 [en]	(Win98;	I) [Netscape]">
+   <meta name="GENERATOR" content="Mozilla/4.6 [en] (Win98; I) [Netscape]">
    <title>System Calls Reference</title>
 </head>
 <body>
-<table BORDER=0	CELLSPACING=0 CELLPADDING=0	WIDTH="100%" >
+<table BORDER=0 CELLSPACING=0 CELLPADDING=0 WIDTH="100%" >
 <tr>
-<th	ALIGN=CENTER COLSPAN="3">Z88 Developers' Notes</th>
+<th ALIGN=CENTER COLSPAN="3">Z88 Developers' Notes</th>
 </tr>
 <tr>
-<td	ALIGN=LEFT VALIGN=BOTTOM WIDTH="10%"><a	href="index.html">Contents</a></td>
-<td	ALIGN=CENTER VALIGN=BOTTOM WIDTH="80%">&nbsp;</td>
-<td	ALIGN=RIGHT	VALIGN=BOTTOM WIDTH="10%"><a href="sysref.html">Contents&nbsp;of&nbsp;System&nbsp;Calls</a></td>
+<td ALIGN=LEFT VALIGN=BOTTOM WIDTH="10%"><a href="index.html">Contents</a></td>
+<td ALIGN=CENTER VALIGN=BOTTOM WIDTH="80%">&nbsp;</td>
+<td ALIGN=RIGHT VALIGN=BOTTOM WIDTH="10%"><a href="sysref.html">Contents&nbsp;of&nbsp;System&nbsp;Calls</a></td>
 </tr>
 </table>
 
-<hr	WIDTH="100%">
+<hr WIDTH="100%">
 <p>
 
-<b><font size=+1>OS_Off, switch	machine	off</font></b>
-<p><tt>RST 20H,	DEFW $EC06</tt>
+<b><font size=+1>OS_Off, switch machine off</font></b>
+<p><tt>RST 20H, DEFW $EC06</tt>
 <p>IN:
 <pre>&nbsp;&nbsp;&nbsp;&nbsp; -</pre>
 OUT:
 <pre>&nbsp;&nbsp;&nbsp;&nbsp; -</pre>
-Registers changed after	return:
-<pre>&nbsp;&nbsp;&nbsp;&nbsp; A.BCDEHL/IXIY	same
+Registers changed after return:
+<pre>&nbsp;&nbsp;&nbsp;&nbsp; A.BCDEHL/IXIY same
 &nbsp;&nbsp;&nbsp;&nbsp; .F....../.... different
 </pre>
 Notes:
-<blockquote>This switches the machine off -	the	equivalent of pressing
-both &lt;SHIFT>	keys down.</blockquote>
+<blockquote>This switches the machine off - the equivalent of pressing
+both &lt;SHIFT> keys down.</blockquote>
 Bugs:
 </body>
 </html>
