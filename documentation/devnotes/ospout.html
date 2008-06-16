@@ -1,32 +1,32 @@
-<!DOCTYPE html PUBLIC "-//w3c//dtd html 4.0 transitional//en">
+<!DOCTYPE html PUBLIC "-//w3c//dtd html	4.0	transitional//en">
 <html>
 <head>
  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
- <meta name="GENERATOR" content="Mozilla/4.6 [en] (Win98; I) [Netscape]">
+ <meta name="GENERATOR"	content="Mozilla/4.6 [en] (Win98; I) [Netscape]">
  <title>System Calls Reference</title>
 </head>
 
 <body>
 <table border="0" cellpadding="0" cellspacing="0" width="100%">
   <tbody>
-    <tr>
-      <th colspan="3" align="center">Z88 Developers' Notes</th>
-    </tr>
-    <tr>
-      <td align="left" valign="bottom" width="10%"><a href="index.html">Contents</a></td>
-      <td align="center" valign="bottom" width="80%">&nbsp;</td>
-      <td align="right" valign="bottom" width="10%"><a href="sysref.html">Contents&nbsp;of&nbsp;System&nbsp;Calls</a></td>
-    </tr>
+	<tr>
+	  <th colspan="3" align="center">Z88 Developers' Notes</th>
+	</tr>
+	<tr>
+	  <td align="left" valign="bottom" width="10%"><a href="index.html">Contents</a></td>
+	  <td align="center" valign="bottom" width="80%">&nbsp;</td>
+	  <td align="right"	valign="bottom"	width="10%"><a href="sysref.html">Contents&nbsp;of&nbsp;System&nbsp;Calls</a></td>
+	</tr>
   </tbody>
 </table>
 
-<hr width="100%">
+<hr	width="100%">
 <p>
 
-<b><font size="+1">OS_Pout, write embedded null-terminated string at caller (PC) to standard output.</font></b>
+<b><font size="+1">OS_Pout,	write embedded null-terminated string at caller	(PC) to	standard output.</font></b>
 </p>
 
-<p><tt>RST 20H, DEFB $93</tt>
+<p><tt>RST 20H,	DEFB $93</tt>
 </p>
 <p>IN:
 </p>
@@ -34,20 +34,20 @@
 <pre>&nbsp;&nbsp;&nbsp;&nbsp; -<br><br></pre>
 
 OUT:
-<pre>     Fc = 0 always (error handler is never provoked)<br><br></pre>
-Registers changed after return:
-<pre>     A.BCDEHL/IXIY same<br>     .F....../.... different<br></pre>
+<pre>	  Fc = 0 always	(error handler is never	provoked)<br><br></pre>
+Registers changed after	return:
+<pre>	  A.BCDEHL/IXIY	same<br>	 .F....../.... different<br></pre>
 
 <p></p>
 Example:
 <pre>
-        ...
-        OZ      OS_Pout
-        defm    1,"7#4",$20+1,$20+0,$20+18,$20+8,$83
-        defm    1,"2C4"
-        defm    1,"2JC", 0
-        ...
-        ret
+		...
+		OZ		OS_Pout
+		defm	1,"7#4",$20+1,$20+0,$20+18,$20+8,$83
+		defm	1,"2C4"
+		defm	1,"2JC", 0
+		...
+		ret
 </pre>
 
 Bugs:
@@ -58,16 +58,16 @@ Bugs:
 </p>
 <blockquote>
   <blockquote>
-    <blockquote><a href="gnnln.html">GN_Nln</a>, send newline (CR/LF) to standard output
+	<blockquote><a href="gnnln.html">GN_Nln</a>, send newline (CR/LF) to standard output
   <br>
-  <a href="gnsoe.html">GN_Soe</a>, write string at extended address to standard output
+  <a href="gnsoe.html">GN_Soe</a>, write string	at extended	address	to standard	output
   <br>
-  <a href="gnsop.html">GN_Sop</a>, write string to standard output, local memory<br>
-  <a href="osbout.html">OS_Bout</a>, <small><font size="+1"><small>write null-terminated string block at (B)HL to standard output<br>
-      </small></font></small><a href="osout.html">OS_Out</a>, <small>&nbsp;<font size="+1"><small>write character to standard
-output</small></font></small><a href="ospout.html"></a><small><font size="+1"><small><br>
-      </small></font></small></blockquote>
-    <small><font size="+1"><small></small></font></small></blockquote>
+  <a href="gnsop.html">GN_Sop</a>, write string	to standard	output,	local memory<br>
+  <a href="osbout.html">OS_Bout</a>, <small><font size="+1"><small>write null-terminated string	block at (B)HL to standard output<br>
+	  </small></font></small><a	href="osout.html">OS_Out</a>, <small>&nbsp;<font size="+1"><small>write	character to standard
+output</small></font></small><a	href="ospout.html"></a><small><font	size="+1"><small><br>
+	  </small></font></small></blockquote>
+	<small><font size="+1"><small></small></font></small></blockquote>
 </blockquote>
 
 </body>

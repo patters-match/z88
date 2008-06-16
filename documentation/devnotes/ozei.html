@@ -1,35 +1,35 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML	4.0	Transitional//EN">
 <HTML>
 <HEAD>
    <META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
-   <META NAME="GENERATOR" CONTENT="Mozilla/4.06 [fr]C-CCK-MCD   (Win95; I) [Netscape]">
+   <META NAME="GENERATOR" CONTENT="Mozilla/4.06	[fr]C-CCK-MCD	(Win95;	I) [Netscape]">
    <TITLE>System Calls Reference</TITLE>
 </HEAD>
 <BODY>
 &nbsp;
-<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0 WIDTH="100%" >
+<TABLE BORDER=0	CELLSPACING=0 CELLPADDING=0	WIDTH="100%" >
 <TR>
-<TH COLSPAN="3">Z88 Developers' Notes</TH>
+<TH	COLSPAN="3">Z88	Developers'	Notes</TH>
 </TR>
 
 <TR>
-<TD VALIGN=BOTTOM WIDTH="10%"><A HREF="index.html">Contents</A></TD>
+<TD	VALIGN=BOTTOM WIDTH="10%"><A HREF="index.html">Contents</A></TD>
 
-<TD ALIGN=CENTER VALIGN=BOTTOM WIDTH="80%">&nbsp;</TD>
+<TD	ALIGN=CENTER VALIGN=BOTTOM WIDTH="80%">&nbsp;</TD>
 
-<TD ALIGN=RIGHT VALIGN=BOTTOM NOWRAP WIDTH="10%"><A HREF="sysref.html">Contents
+<TD	ALIGN=RIGHT	VALIGN=BOTTOM NOWRAP WIDTH="10%"><A	HREF="sysref.html">Contents
 of System Calls</A></TD>
 </TR>
 </TABLE>
 
 <HR>
-<P><B><FONT SIZE=+1>OZ_Ei, Restore old interrupt state</FONT></B><TT></TT>
-<P><TT>CALL $0054</TT><TT></TT>
+<P><B><FONT	SIZE=+1>OZ_Ei, Restore old interrupt state</FONT></B><TT></TT>
+<P><TT>CALL	$0054</TT><TT></TT>
 <P><TT>IN:</TT><TT></TT>
 <P><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-A = old I register</TT>
+A =	old	I register</TT>
 <BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-Fc = old interrupt status (Fc = 1 disabled; Fc = 0 enabled)</TT><TT></TT>
+Fc = old interrupt status (Fc =	1 disabled;	Fc = 0 enabled)</TT><TT></TT>
 <P><TT>OUT:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -</TT><TT></TT>
 <P><TT>Registers changed after return:</TT>
 <BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -37,12 +37,12 @@ AFBCDEHL/IXIY same</TT>
 <BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 ......../.... different</TT><TT></TT>
 <P>Notes:
-<BLOCKQUOTE>It is very important to use this call and not use the Z80 interrupt
-instructions because of a hardware bug in the Z80, which allows for interrupts
+<BLOCKQUOTE>It is very important to	use	this call and not use the Z80 interrupt
+instructions because of	a hardware bug in the Z80, which allows	for	interrupts
 to occur while reading the interrupt status. Note that disabling interrupts
-should be avoided if possible and that NMI (Non Maskable Interrupts) will
-still occur. If a HALT is executed when interrupts are disabled the system
-will stop. HALT should not be used anyway, nor should EI, DI or IM &lt;n>.
+should be avoided if possible and that NMI (Non	Maskable Interrupts) will
+still occur. If	a HALT is executed when	interrupts are disabled	the	system
+will stop. HALT	should not be used anyway, nor should EI, DI or	IM &lt;n>.
 <BR>&nbsp;</BLOCKQUOTE>
 
 </BODY>
