@@ -303,10 +303,11 @@ Module SelectCard
                     call SlotWriteSupport
                     jr   nz, select_slot_loop     ; no Flash Card in slot...
                     jp   nc, execute_format       ; empty flash card in slot (no file area, and erase/write support)
-
+                    push af
                     CALL DispCmdWindow
                     CALL DispMainWindow
                     CALL FileEpromStatistics
+                    pop  af
                     call DispIntelSlotErr         ; Intel Flash Card found in slot, but no erase/write support in slot
                     cp   a
                     ret
