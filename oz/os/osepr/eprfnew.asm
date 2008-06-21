@@ -29,6 +29,7 @@
 
         lib ConvPtrToAddr, ConvAddrToPtr
 
+        include "error.def"
 
 ; ***************************************************************************************************
 ;
@@ -45,7 +46,9 @@
 ;    Fc = 0, File Eprom available
 ;         BHL = pointer to first byte of free space (B = absolute bank of slot C)
 ;
-;    Fc = 1, File Area was not found in slot C
+;    Fc = 1, 
+;         A = RC_Onf                        
+;         File Area was not found in slot C
 ;
 ; Registers changed after return:
 ;    ...CDE../IXIY same
@@ -80,6 +83,10 @@
         jr      exit_FileEprNewFileEntry
 .err_FileEprNewFileEntry
         scf
+        ld      a,RC_Onf                        ; return A = RC_Onf (File Area not found)
+        pop     de
+        pop     bc
+        ret
 .exit_FileEprNewFileEntry
         pop     de
         ld      a,b

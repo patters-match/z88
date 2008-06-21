@@ -217,6 +217,7 @@
 .get_freespace
         ld      (IY + CardType),A               ; preserve card type of chip in slot C
         call    FileEprFreeSpace                ; returned in DEBC (Fc = 0, Eprom available...)
+        jr      c, no_filearea
 
         ld      h,b
         ld      l,c                             ; HL = low word of 32bit free space...
@@ -253,6 +254,14 @@
         pop     de
         pop     ix
         ret
+.no_filearea        
+        pop     hl
+        pop     hl
+        pop     hl                              ; get rid of push'ed stack values
+        oz      Gn_Cl                           ; close file (not going to be saved...)
+        ld      a, RC_Onf
+        scf                                     ; indicate "No File area available"...
+        jr      end_filesave
 .no_room
         pop     hl                              ; remove redundant pointer to File Entry in buffer...
         oz      Gn_Cl                           ; close file (not going to be saved...)
