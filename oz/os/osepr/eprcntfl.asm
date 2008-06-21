@@ -24,9 +24,10 @@
 ;
 ; ***************************************************************************************************
 
-     xdef FileEprCntFiles
-     xref FileEprRequest, FileEprFileEntryInfo
+    xdef FileEprCntFiles
+    xref FileEprRequest, FileEprFileEntryInfo
 
+    include "error.def"
 
 ; ***************************************************************************************************
 ;
@@ -45,7 +46,9 @@
 ;         DE = total of (marked as) deleted files
 ;         (HL + DE are total files in the file area)
 ;
-;    Fc = 1, File Eprom was not found at slot C
+;    Fc = 1, 
+;         A = RC_Onf
+;         File Eprom was not found at slot C
 ;
 ; Registers changed after return:
 ;    ..BC..../IXIY same
@@ -61,7 +64,7 @@
         ld      e,c                             ; preserve slot number
         call    FileEprRequest                  ; check for presence of "oz" File Eprom in slot C
         jr      c, err_count_files
-        jr      nz, err_count_files             ; File Eprom not available in slot...
+        jr      nz, err_count_files             ; File Eprom (Area) not available in slot...
 
         ld      a,e
         and     @00000011                       ; slots (0), 1, 2 or 3 possible
@@ -89,12 +92,14 @@
         exx
         jr      scan_eprom
 .err_count_files
+        ld      a, RC_Onf
         scf
-        jr      exit_count_files
+        jr      exit_count_files2
 .finished
         cp      a                               ; Fc = 0, File Eprom parsed.
 .exit_count_files
         exx
+.exit_count_files2        
         pop     bc
         ret
 
