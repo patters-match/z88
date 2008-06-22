@@ -2,7 +2,7 @@
               FlashStore Application Version 1.9
 *********************************************************************
 
-User Manual 5th edition, updated 27th September 2007.
+User Manual 4th edition, updated 22nd June 2008.
 (Revised from 1st edition, Paris, 29 September 1997)
 
 
@@ -20,15 +20,6 @@ FAST ERASING - takes less than ten seconds to erase 1024K bytes.
 FAST SAVING  - takes three seconds to save a 20K file.
 LOW POWER    - takes a tenth of the power used by a standard EPROM.
 
-
-OZ 4.2
-======
-
-The flash card can be supplied with OZ 4.2 on it. If you have this you 
-need to put the flash card in slot 1, any memory you might have in slot 
-2 and give the Z88 a HARD RESET. You should then be running the new OZ 
-which can be checked by pressing the HELP key and then pressing the 
-left cursor key a few times.
 
 FLASH CARDS AND EPROMS
 ----------------------
@@ -67,17 +58,17 @@ the 64K split line occurs.  This FILE area is calculated by FlashStore
 when the Flash card is formatted and is displayed in the right-hand
 window.
 
-INTEL stopped making Flash EPROM chips which were suitable for the Z88
-in 2002 but at the end of 2004 AMD made a similar chip that we could
+INTEL stopped making Flash EPROM chips which were suitable for the Z88 
+in 2002 but at the end of 2004 AMD made a similar chip that we could 
 use if the FlashStore core software was changed.
 
-Gunther Strube re-wrote this program so the Flash card could still be
-used on the Z88 and added more features whilst he was at it. After the
-INTEL stocks are exhausted, the AMD versions will appear and the only
-difference the user will notice is that he can write to or erase the
-Flash card in any slot instead of just slot 3.
+Gunther Strube re-wrote this program so the Flash card could still be 
+used on the Z88 and added more features whilst he was at it. The INTEL 
+stocks are now exhausted, the AMD version are now being used and the 
+only difference the user will notice is that he can write to or erase 
+the Flash card in any slot instead of just slot 3.
 
-Rakewell only supply 1M Devices but Flashstore supports the following
+Rakewell only supply 1M Devices but Flashstore supports the following 
 chips which is displayed in the information window.
 
    INTEL                 AMD
@@ -85,6 +76,35 @@ chips which is displayed in the information window.
 I28F004S5 (512K)      AM29F010B (128K)
 I28F008SA (1024K)     AM29F040B (512K)
 I28F008S5 (1024K)     AM29F080B (1024K)
+
+
+EPROMs
+------
+
+Flashstore is able to fetch files on EPROM packs in any slot. You 
+should continue to use the Filer rather than Flashstore for all the 
+other functions.
+
+
+OZ 4.2
+======
+
+The flash card is now sold with two versions of the software on it. 
+These versions are with OZ 4.2 or without OZ 4.2.
+
+To use the OZ 4.2 version the flash card needs to be in slot 1, then 
+any RAM you have in slot 2 which still leaves slot 3 for additional 
+storage or RAM.
+
+To start running OZ 4.2 you need to do a HARD RESET (card flap open and 
+press the small reset swich on the left side of the Z88 with an unbent 
+paper clip.
+
+The Z88 will ignore your internal ROM and run from the external card.
+
+OZ 4.2 is in continous development, so check on our web site and 
+http://z88.wiki.sourceforge.net/What%27s+new+in+OZ+v4.2+%3F for 
+further information about it.
 
 
 FOREVER APPLICATION BUNDLE
@@ -166,7 +186,7 @@ ROM-creating facility. It is also very useful for developers, who can
 test software in a fraction of the usual time. DO NOT RUN THIS if you 
 are using OZ v4.2.
 
-Bootstrap
+Bootstrap - THIS IS NOT SUPPLIED ON OZ 4.2 VERSIONS
 =========
 
 Bootstrap is a popdown which runs automatically after every reset. It
@@ -189,6 +209,9 @@ in RAM, and the hard reset version on EPROM or card.
 Note that EPROM or card files must not contain any directory names (ie
 just /bootstrap.cli is accepted).
 
+This application only runs on original ROM Z88's, and it is being 
+phased out due to the incombatibility of running it under OZ 4.2.
+
 Other programs
 ==============
 
@@ -205,12 +228,15 @@ All files supplied are either zipped (.ZIP), Plain Text (.TXT) or in
 PipeDream (.PDD) format.  They are as follows:-
 
 ROMCOMBINER.ZIP     Adds Applications you already have
-FLASHSTORE.ZIP      The Application of FlashStore
-INSTALLER.TXT       Installer instructions
-WHATSNEW.TXT        What’s new in Forever
-XYMODEM.TXT         XY-Modem instructions
-UNZIP.TXT           Unzip Instructions
-ZIPUP.TXT           Zip up instructions
+ROMCOMBINER.TXT     Romcombiner instructions
+FLASHSTORE.ZIP      The Application of FlashStore - not supplied on OZ 
+                    4.2 versions 
+INSTALLER.TXT       Installer instructions 
+WHATSNEW.TXT        What's new in Forever 
+XYMODEM.TXT         XY-Modem instructions 
+UNZIP.TXT           Unzip Instructions 
+ZIPUP.TXT           Zip up instructions 
+ZETRIZ.TXT          Zetriz - (Game) instructions (on OZ 4.2 verion) 
 FLASH.TXT           This file
 
 Please take this opportunity to MAKE A COPY of these files before
@@ -283,9 +309,13 @@ files from two Flash Cards provided you have enough space.
 Using two Flash cards
 ---------------------
 
-You can have your Applications (including FlashStore) in slot 2 and
-read any of your "master" files from there, whilst using the another
-Flash card in slot 3 for current files.
+If you have the non OZ 4.2 version, you can have your Applications 
+(including FlashStore) in slot 2 and read any of your "master" files 
+from there, whilst using the another Flash card in slot 3 for current 
+files.
+
+In the OZ 4.2 verion (which is in slot 1 and RAM in slot 2) you still 
+have slot 3 to use the additional flash card to do what is described.
 
 To use two Flash cards first prepare the Flash card which you want to 
 use in slot 2, with your master files. This is done by using it in slot 
@@ -294,7 +324,6 @@ beforehand (to save space).
 
 When moving the Flash card from Slot 3 to 2, follow the following 
 rules.
-
 
 REMOVING AND INSERTING APPLICATIONS
 ===================================
@@ -528,8 +557,9 @@ the cursor that you wish to use. You may also press digits '0', '1',
 displayed at the top of the right-hand window with the file information 
 with current information of file data and space left on the card.
 
-The padlock indicates a read-only device. 'AMD' or 'INTEL' labels are
-displayed on top line of each visual card for identified flash chip.
+The padlock indicates a read-only device (like an EPROM or an INTEL 
+flash card not in slot 3). 'AMD' or 'INTEL' labels are displayed on top 
+line of each visual card for identified flash chip.
 
 Save to Card
 ------------
@@ -553,6 +583,15 @@ after pressing the ESC key.
 
 If the file does NOT save, this is usually because the filename has
 been mis-spelt or even that it does not exist.
+
+NOTE
+----
+
+Normally the display stays on when saving files, but if the file area 
+is on the same device as OZ, the display goes BLANK. 
+
+This is quite normal, just wait, the display will return after the file 
+has been saved.
 
 Fetch from Card
 ---------------
@@ -691,11 +730,11 @@ or <>PURGE in the INDEX.
 
 
 
-NEWS - NEW PRODUCTS
-===================
+NEWS - OTHER PRODUCTS
+=====================
 
 Use EazyLink, Z88 to PC transfer and more - written by Interlogic. A
-ROM with both Eazylink and FlashStore is out NOW.
+ROM with both Eazylink and FlashStore.
 
 Application 2006 has all the best applications written for the Z88. For 
 information and supply on any of these, contact Rakewell Ltd.
@@ -751,6 +790,6 @@ Software     Zlab - Thierry Peycru
 Production   Rakewell Ltd - Vic and Gill Gerhardi, Tony Firshman
 
 Rakewell Ltd Tel +44 (0) 1296 630617
-             Fax +44 (0) 1296 632491
+             Fax +44 (0) 1296 342491
              E-mail: vic@rakewell.com
              Web:    http://www.rakewell.com/
