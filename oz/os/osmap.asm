@@ -63,7 +63,8 @@ xref    RestoreActiveWd                         ; [Kernel1]/mth1.asm
 
 .OSMapMain
         ld      b, c
-        djnz    osmap_def
+        djnz    mp_def
+.mp_wr        
         push    hl                              ; write a line to the map
         ex      af, af'
         call    ScreenOpen                      ; get access to window data in segment 1, returns old bank binding in A
@@ -128,9 +129,9 @@ xref    RestoreActiveWd                         ; [Kernel1]/mth1.asm
 .osmap_3
         pop     hl
         ret
-.osmap_def
-        djnz    osmap_gra
-.osmap_5
+.mp_def
+        djnz    mp_gra
+._mp_def
         ex      af, af'                         ; define a map using the Panel default width
         call    ScreenOpen
         ex      af, af'
@@ -170,11 +171,12 @@ xref    RestoreActiveWd                         ; [Kernel1]/mth1.asm
         call    ScreenClose
         ex      af, af'
         jp      PutOSFrame_BC
-.osmap_gra
+        
+.mp_gra
         dec     b
-        jr      z, osmap_5                      ; gra
+        jr      z, _mp_def                      ; mp_def
         djnz    osmap_err
-        or      a                               ; del
+        or      a                               ; mp_del (do nothing!)
         ret
 .osmap_err
         ld      a, RC_Unk                       ; Unknown request (parameter in register) *
