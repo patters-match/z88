@@ -23,10 +23,6 @@
 # $Id$
 # ***************************************************************************************************
 
-# ensure that we have an up-to-date standard library
-# (NB: this is done temporarily while integrating Flash / File Area standard libraries into OZ)
-cd ../stdlib; ./makelib.sh; cd ../oz
-
 COMPILE_ERROR=0
 
 # create ostables.def (address pre-compilation) containing OS system base lookup table address in bank 0

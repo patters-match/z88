@@ -16,9 +16,4 @@
 ::
 :: *************************************************************************************
 
-:: ensure that we have an up-to-date standard library
-cd ..\..\..\stdlib
-call makelib.bat
-cd ..\oz\apps\flashstore
-
 ..\..\..\tools\mpm\mpm -b -DOZ_SLOT%1 -I..\..\def -l..\..\..\stdlib\standard.lib @flashstore

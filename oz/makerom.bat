@@ -24,6 +24,11 @@
 
 @echo off
 
+:: ensure that we have an up-to-date standard library, before compiling OZ
+cd ..\stdlib
+call makelib.bat
+cd ..\oz
+
 :: OZ ROM slot directive (first command line argument)
 set ozslot=%1
 

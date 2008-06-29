@@ -18,8 +18,5 @@
 #
 # *************************************************************************************
 
-# ensure that we have an up-to-date standard library
-cd ../../../stdlib; ./makelib.sh; cd ../oz/apps/eazylink
-
 # compile EazyLink application from scratch
 ../../../tools/mpm/mpm -b -DOZ_SLOT$1 -I../../def -l../../../stdlib/standard.lib @eazylink

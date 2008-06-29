@@ -24,6 +24,9 @@
 # $Id$
 # ***************************************************************************************************
 
+# ensure that we have an up-to-date standard library, before compiling OZ
+cd ../stdlib; ./makelib.sh; cd ../oz
+
 if test $# -eq 0; then
   # no slot directive is specified, compile ROM for slot 1 as default
   ozslot=1
