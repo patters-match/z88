@@ -59,5 +59,6 @@ call makejar.bat >nul
 cd %RETURN_PATH%
 
 :EXECUTE_MAKEJAR
+@ECHO on
 :: execute the makeapp executable and supply the arguments that was assigned this script
 java -jar %MAKEAPP_JAR% %*

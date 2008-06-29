@@ -19,10 +19,12 @@
 
 package net.sourceforge.z88.tools;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
+import org.tmatesoft.svn.core.SVNException;
+import org.tmatesoft.svn.core.wc.SVNClientManager;
+import org.tmatesoft.svn.core.wc.SVNRevision;
+import org.tmatesoft.svn.core.wc.SVNStatus;
+import org.tmatesoft.svn.core.wc.SVNStatusClient;
 
 /**
  * Fetch latest Subversion revision number from current working directory,
@@ -30,109 +32,32 @@ import java.io.IOException;
  * 'entries' file.
  */
 public class Svn {
-	private static final String svnRevisionWorkspaceFile = ".svn"
-			+ System.getProperty("file.separator") + "entries";
 
-	private static final String svnRevisionSearchPattern = "committed-rev=";
-
-	private File currentWorkingDir;
+	private File currentWorkingDir;        
+        private SVNClientManager clientManager;
 
 	public Svn(File cwd) {
 		currentWorkingDir = cwd;
+                clientManager = SVNClientManager.newInstance();
 	}
 
 	/**
 	 * Fetch latest Subversion revision number from current working directory
-	 * (and it's inherent sub directories) by scanning all ".svn/entries" file
-	 * and finding the latest revision number.
+         * using TMate's SVNKit library..
 	 * 
 	 * If no .svn workspace directory is found, "0" is returned.
 	 * 
 	 * @return
 	 */
 	public String getLatestRevision() {
-		return Integer.toString(scanForLatestSvnRevision(currentWorkingDir));
-	}
-
-	/**
-	 * Scan current directiry and subdirectories for SVN revision numbers by
-	 * looking SVN data in embedded .svn workspace directory for SVN revision
-	 * data, and return the highest found revision number.
-	 * 
-	 * If no .svn directory is found in the specified directory, 0 is returned.
-	 */
-	private int scanForLatestSvnRevision(File dir) {
-		int latestRevisionNo = 0;
-
-		if (dir.isDirectory()) {
-			latestRevisionNo = getRevisionFromSvnEntriesFile(dir.getAbsolutePath());
-
-			String[] children = dir.list();
-			for (int i = 0; i < children.length; i++) {
-				if (children[i].compareTo(".svn") != 0) {
-					File child = new File(dir, children[i]);
-					if (child.isDirectory()) {
-						int anotherRevisionNo = scanForLatestSvnRevision(child);
-						if (latestRevisionNo < anotherRevisionNo)
-							latestRevisionNo = anotherRevisionNo;
-					}
-				}
-			}
-		}
-
-		return latestRevisionNo;
-	}
-
-	/**
-	 * Fetch current Subversion revision number from specified directory (and
-	 * it's inherent sub directories) by looking into the ".svn/entries" file
-	 * and finding the line that contains the 'committed-rev="xxxx"' pattern
-	 * where 'xxxx' is the latest revision number.
-	 * 
-	 * If the file wasn't found, return 0.
-	 * 
-	 * @return
-	 */
-	private int getRevisionFromSvnEntriesFile(String cwd) {
-		int latestRevisionNo = 0;
-
-		try {
-			String str;
-
-			BufferedReader in = new BufferedReader(new FileReader(cwd
-					+ System.getProperty("file.separator")
-					+ svnRevisionWorkspaceFile));
-			while ((str = in.readLine()) != null) {
-				int foundRevision = str.indexOf(svnRevisionSearchPattern);
-				if (foundRevision >= 0) {
-					String revisionNo = str.substring(foundRevision
-							+ svnRevisionSearchPattern.length() + 1);
-					revisionNo = revisionNo.substring(0,
-							revisionNo.length() - 1);
-
-					int newRevision = Integer.parseInt(revisionNo);
-					if (latestRevisionNo < newRevision)
-						latestRevisionNo = newRevision;
-				} else {
-					// Try to evaluate SVN 1.4 file format, where revision numbers'
-					// are stored as numbers on separate lines.
-					try {
-						int newRevision = Integer.parseInt(str);
-						if (latestRevisionNo < newRevision)
-							latestRevisionNo = newRevision;
-					} catch (NumberFormatException e) {
-						// This line did not contain a valid SVN revision number!
-						continue;
-					}
-				}
-			}
-			in.close();
-		} catch (IOException e) {
-			// System.err.println("Couldn't open or read '" + cwd +
-			// System.getProperty("file.separator") + svnRevisionWorkspaceFile +
-			// "'");
-		}
-
-		return latestRevisionNo;
+            try {
+                // return Integer.toString(scanForLatestSvnRevision(currentWorkingDir));
+                SVNStatusClient stClient = clientManager.getStatusClient();
+                SVNStatus status = stClient.doStatus(currentWorkingDir, false);
+                SVNRevision rev = status.getCommittedRevision();
+                return Long.toString(rev.getNumber());
+            } catch (SVNException ex) {
+                return "0";
+            }
 	}
 }
