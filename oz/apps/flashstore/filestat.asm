@@ -23,7 +23,6 @@ Module FileAreaStatistics
      XDEF FileEpromStatistics, m16, IntAscii, DispKSize
      XDEF ksize_txt
 
-     lib CreateWindow              ; Create an OZ window (with options banner, title, etc)
      lib divu8                     ; Unsigned 8bit integer division
 
      XREF VduCursor                ; selectcard.asm
@@ -61,7 +60,7 @@ Module FileAreaStatistics
                     ld   bc,$004A
                     ld   de,$0812
                     ld   hl, buf1
-                    call CreateWindow
+                    oz   GN_Win
 
                     pop  hl
                     pop  de

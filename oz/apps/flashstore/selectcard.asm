@@ -24,7 +24,6 @@ Module SelectCard
      XDEF SelectFileArea, SelectCardCommand, SelectDefaultSlot, PollSlots, VduCursor
      XDEF selslot_banner, epromdev, DispSlotSize, DispHelpText
 
-     lib CreateWindow              ; Create an OZ window (with options banner, title, etc)
      lib ApplEprType               ; check for presence of application card in slot
 
      XREF DispCmdWindow,pwait, rdch     ; fsapp.asm
@@ -106,7 +105,7 @@ Module SelectCard
                     ld   bc, $0010
                     ld   de, $0838
                     pop  hl
-                    call CreateWindow        ; Device selection window.
+                    oz   GN_Win              ; Device selection window.
 
                     ld   a,3                 ; begin from slot 3...
 .disp_slot_loop
@@ -793,7 +792,7 @@ Module SelectCard
                     ld   a, 64 | '3'
                     ld   bc,$004B
                     ld   de,$0812
-                    call CreateWindow
+                    oz   GN_Win
                     pop  hl
                     call_oz GN_Sop           ; Display small help text in right side window
                     ret

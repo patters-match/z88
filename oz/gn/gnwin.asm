@@ -24,6 +24,8 @@
 
         include "stdio.def"
         include "map.def"
+        include "kernel.def"
+        include "memory.def"
 
         module GNWin
         xdef GNWin
@@ -63,6 +65,13 @@
 ; ----------------------------------------------------------------------
 ;
 .GNWin
+        push    bc
+        ld      b,0
+        oz      OS_Bix
+        pop     bc
+        push    de                              ; preserve old binding
+        ld      e,(iy+OSFrame_E)
+        ld      d,(iy+OSFrame_D)
 
         bit     7,a
         jr      nz, extended_window             ; create extended window (banner, bottom line)
@@ -86,6 +95,9 @@
         oz      Gn_Sop
         pop     af
         oz      OS_Out                          ; window ID to reset.
+.exit_gnwin
+        pop     de
+        oz      OS_Box
         ret
 
 .extended_window
@@ -171,7 +183,7 @@
         oz      Os_Out                          ; window created, no cursor, no v. scrolling
         ld      hl, EnableCurScroll
         oz      Gn_Sop                          ; Enable cursor and vertical scrolling
-        ret                                     ; finished, return to caller
+        jp      exit_gnwin                      ; finished, return to caller
 
 ; window with bottom line
 .window_bottomline
@@ -265,7 +277,7 @@
         oz      Os_Out                          ; window created, no cursor, no v. scrolling
         ld      hl, EnableCurScroll
         oz      Gn_Sop                          ; Enable cursor and vertical scrolling
-        ret                                     ; finished, return to caller
+        jp      exit_gnwin                      ; finished, return to caller
 
 
 ; ******************************************************************************

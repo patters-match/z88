@@ -33,7 +33,6 @@
      xdef CheckBarMode
 
      ; Library references
-     lib CreateWindow              ; Create an OZ window (with options banner, title, etc)
      lib ToLower                   ; convert Ascii character to lower case
 
      ; external functionality in other modules
@@ -449,7 +448,7 @@
                     ld   bc,$0000
                     ld   de,$0811
                     ld   hl, cmds_banner
-                    call CreateWindow
+                    oz   GN_win
 
                     ld   hl, menu_msg
                     call_oz(Gn_Sop)
@@ -515,7 +514,8 @@
                     ld   a,'2' | 128
                     ld   bc,$0013
                     ld   de,$0835
-                    jp   CreateWindow
+                    oz   GN_win
+                    ret
 ; *************************************************************************************
 
 
