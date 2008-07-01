@@ -113,9 +113,9 @@ Module FileAreaStatistics
                     push bc
                     ld   a,EP_Req
                     oz   OS_Epr                   ; check if there's a File Card in slot C
-                    jr   z, cont_statistics
+                    jr   nc, cont_statistics
                          pop  bc
-
+.no_filearea
                          call InitWindow
                          ld   hl, nofepr_msg
                          call_oz (Gn_Sop)
@@ -131,6 +131,7 @@ Module FileAreaStatistics
                     ld   (free),bc
                     ld   (free+2),de
                     pop  bc
+                    jr   c, no_filearea
                     ld   a,EP_TotSp
                     oz   OS_Epr                   ; get total used space on current File Eprom (active & deleted)
                     ld   (active),hl
