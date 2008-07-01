@@ -32,7 +32,9 @@
 
         Module OSTables
 
-        org     $FF00                           ; fixed start @ $00FF00
+        include "../def/kernel.def"
+        
+        org     OZCALLTBL                       ; fixed start
 
 xdef    OZCallTable
 

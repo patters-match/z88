@@ -77,6 +77,7 @@ xref    GNWsm
 xref    GNXdl
 xref    GNXin
 xref    GNXnx
+xref    GNWin
 
 ;       ----
 
@@ -141,10 +142,11 @@ xref    GNXnx
         defw    GNUab
         defw    GNAlp
 
-        defw    GNM16
-        defw    GND16
-        defw    GNM24
-        defw    GND24
+        defw    GNM16                           ; $7209
+        defw    GND16                           ; $7409
+        defw    GNM24                           ; $7609
+        defw    GND24                           ; $7809
+        defw    GNWin                           ; $7A09
 
 ;       ----
 

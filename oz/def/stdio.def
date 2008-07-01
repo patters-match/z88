@@ -42,6 +42,7 @@ define __STDIO_DEF__
      DEFC  GN_Sop    = $3A09       ; write string to std. output
      DEFC  GN_Soe    = $3C09       ; write string from extended address
      DEFC  GN_Sip    = $3809       ; system input line routine
+     DEFC  GN_Win    = $7A09       ; Create window (OZ 4.2 and newer)
      DEFC  OS_Pur    = $33         ; purge keyboard buffer (and reset timeout)
      DEFC  OS_Blp    = $D806       ; Bleep
 

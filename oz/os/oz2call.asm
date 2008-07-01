@@ -49,17 +49,17 @@ xref    OSFramePushMain                         ; [Kernel0]/stkframe.asm
 ;       all 2-byte calls use OSframe
 
 .CallDC
-        ld      a, OZBANK_DC                    ; Bank 2, $80xx
-        ld      d, >DCCALLTBL
+        ld      a, OZBANK_DC                    ; Bank DC, $80xx
+        ld      d, >DCCALLTBL                   ; dc/dc.asm
         jr      ozc
 .CallGN
-        ld      a, OZBANK_GN                    ; Bank 3, $80xx
-        ld      d, >GNCALLTBL
+        ld      a, OZBANK_GN                    ; Bank GN, $80xx
+        ld      d, >GNCALLTBL                   ; gn/gnmisc1.asm
         jr      ozc
 
 .CallOS2byte
         ld      a, OZBANK_KNL0                  ; Kernel0 bank, $FFxx
-        ld      d, >OZCALLTBL
+        ld      d, >OZCALLTBL                   ; os/ostables.asm
 
 .ozc                                            ; e contains 2nd opcode
         pop     bc                              ; S2/S3
