@@ -48,13 +48,13 @@
 ;               bit 7=1, 6=0: Standard window: left & right shelf brackets, left & right bars and banner
 ;               bit 7=0, 6=1: Standard window: left & right bars, no shelf brackets, no banner, no bottom line.
 ;               bit 7=0, 6=0: Standard window: no bars, no shelf brackets, no banners.
-;           1:  X coordinate (upper left corner) of Window (C)
-;           2:  Y coordinate (upper left corner) of Window (B)
+;           1:  X coordinate (upper left corner) of Window 
+;           2:  Y coordinate (upper left corner) of Window 
 ;           3:  WIDTH of Window (E) (inclusive banner & bottom line)
 ;           4:  HEIGHT of Window (D) (inclusive banner & bottom line)
-;           5:  low byte, high byte address of window banner text (HL). 
+;           5:  low byte, high byte address of window banner text  
 ;               Only necessary if bit 7 of window ID is enabled.
-;               Set this to 0, if you want to use a dynamic banner (to create a window with different banner each time)
+;               Set this to 0, if using a dynamic banner (to create a window with different banner each time)
 ;
 ;    OUT: None.
 ;
@@ -211,17 +211,17 @@
         add     a,d
         add     a,31                            ; y+height-1
         oz      Os_Out
-        ld      hl,bot_left_corner
-        oz      Gn_Sop                          ; first display bottom left corner
+        oz      OS_Pout
+        defm    1,"2*",'I',0                    ; first display bottom left corner
         ld      a,e
 .draw_bot_line
-        ld      hl,bot_line
-        oz      Gn_Sop                          ; draw bottom line
+        oz      OS_Pout
+        defm    1,"2*",'E',0                    ; draw bottom line
         dec     a                               ; of width E
         jr      nz,draw_bot_line
 
-        ld      hl,bot_right_corner
-        oz      Gn_Sop                          ; finish with bottom rigth corner
+        oz      OS_Pout
+        defm    1,"2*",'L',0                    ; finish with bottom rigth corner
 
         ld      hl,Def_Window                   ; now create window
         oz      Gn_Sop
@@ -348,10 +348,10 @@
         pop     af
         and     @11000000
         bit     7,h
-        ret     z                               ; not in GN segment..
+        ret     z                               ; not in GN segment (3)..
         bit     6,h
-        ret     z                               ; pointer in segment 0... don´t touch it...
-        res     7,h                             ; pointer in segment 2 or 3
+        ret     nz                              ; pointer in segment 1 - OK
+        res     7,h                             ; pointer in segment 2 or 3, define for segment 1
         res     6,h
         or      h                               ; banner and definition block are located in same bank
         ld      h,a                             ; mask segment specifier of OS_Bix for banner pointer
@@ -372,6 +372,3 @@
                     defm 1,"2A",0               ; apply attributes for banner width
 
 .xypos              defm 1,"3@",0               ; VDU cursor position (x and y sent later)
-.bot_left_corner    defm 1,"2*",'I',0           ; VDU bottom left corner
-.bot_line           defm 1,"2*",'E',0           ; VDU bottom line
-.bot_right_corner   defm 1,"2*",'L',0           ; VDU bottom right corner
