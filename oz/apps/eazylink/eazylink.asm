@@ -135,7 +135,6 @@
 
      INCLUDE "rtmvars.def"
 
-     LIB CreateWindow
      LIB CreateDirectory
      LIB createfilename
 
@@ -259,12 +258,9 @@
 ; Display Command Window - use window "2"
 ;
 .CommandWindow
-               LD   A,192 | '2'
-               LD   BC,$0000
-               LD   DE,$081A
-               LD   HL, command_banner
-               CALL CreateWindow
                LD   B,0
+               LD   HL, CmdWinDef
+               OZ   GN_Win
                LD   HL, cmds
                CALL_OZ(Gn_Sop)
                RET
@@ -281,12 +277,10 @@
 ;
 ; Display Log Window - use window "3"
 ;
-.LogWindow
-               LD   A,128 | '3'
-               LD   BC,$001C
-               LD   DE,$083E
-               LD   HL, menu_banner
-               CALL CreateWindow
+.LogWindow               
+               LD   B,0
+               LD   HL, LogWinDef
+               OZ   GN_Win
                RET
 
 
@@ -1852,3 +1846,14 @@
                LD   HL,error_message2
                CALL Write_message                 ; No flags will be changed...
                RET
+
+.CmdWinDef
+               DEFB '2' | 192
+               DEFW $0000
+               DEFW $081A
+               DEFW command_banner
+.LogWinDef
+               DEFB '3' | 128 
+               DEFW $001C
+               DEFW $083E
+               DEFW menu_banner
