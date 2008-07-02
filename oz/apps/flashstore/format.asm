@@ -66,7 +66,7 @@ Module FileAreaFormat
                     jr   z, no_format_available   ; no Flash Cards available that may be formatted...
                     jr   FormatFileArea
 .no_format_available
-                    LD   HL, ffm1_bnr
+                    LD   DE, ffm1_bnr
                     CALL DispMainWindow           ; create main window when displaying error message
                     LD   HL, noformat_msg         ; on FlashStore popdown startup.
                     CALL DispErrMsg
@@ -83,7 +83,7 @@ Module FileAreaFormat
                     ret  c                        ; user selected a non-formattable file-area...
                     ret  nz                       ; User cannot re-format an UV Eprom
 
-                    LD   HL, ffm1_bnr
+                    LD   DE, ffm1_bnr
                     CALL DispMainWindow           ; redraw main catalogue window for format command interaction...
                     JR   execute_format
 .preselect_slot
@@ -92,7 +92,7 @@ Module FileAreaFormat
 .execute_format
                     call ungreyscr
                     CALL FileEpromStatistics
-                    ld   hl,ffm1_bnr
+                    ld   DE,ffm1_bnr
                     CALL DispMainWindow
 
                     call GetCurrentSlot           ; C = (curslot)

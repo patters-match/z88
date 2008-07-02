@@ -66,7 +66,7 @@ Module BrowseFiles
 .DispFilesWindow
                     ld   hl, filearea_banner
                     ld   bc, filearea_banner_end-filearea_banner
-                    call FileAreaBannerText       ; HL = banner for file area window
+                    call FileAreaBannerText       ; DE = banner for file area window
                     call DispMainWindow
 
                     call PollFileArea
@@ -129,6 +129,8 @@ Module BrowseFiles
 ; IN:
 ;       HL = Base banner text
 ;       C  = length of banner text
+; OUT:
+;       DE = pointer to banner text
 ;
 .FileAreaBannerText
                     ld   de, buf3
@@ -144,7 +146,7 @@ Module BrowseFiles
                     ldir
                     xor  a
                     ld   (de),a                   ; null-terminate completed banner string
-                    pop  hl                       ; return pointer to start of banner text.
+                    pop  de                       ; return pointer to start of banner text.
                     ret
 ; *************************************************************************************
 

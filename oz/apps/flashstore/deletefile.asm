@@ -50,7 +50,7 @@ Module DeleteFile
 ; and evaluate whether a flash card supports byte programming in current slot.
 ;
 .InitDeleteCommand
-                    ld   hl,delfile_bnr
+                    ld   de,delfile_bnr
                     call DispMainWindow
 
                     call GetCurrentSlot           ; C = (curslot)

@@ -68,7 +68,7 @@ Module CopyFiles
 ; Copy ALL active files from current file card to another user defined file card.
 ;
 .CopyFileAreaCommand
-                    ld   hl,copy_banner
+                    ld   de,copy_banner
                     call DispMainWindow
 
                     ld   hl,0
@@ -159,7 +159,7 @@ Module CopyFiles
 ; Copy selected file in browsing window to another user selected file card.
 ;
 .QuickCopyFileCommand                             ; 'C' key pressed - copy single file entry to another slot
-                    ld   hl,copy_single_banner
+                    ld   de,copy_single_banner
                     call DispMainWindow
 
                     call GetCursorFilePtr         ; BHL <-- (CursorFilePtr), ptr to cur. file entry

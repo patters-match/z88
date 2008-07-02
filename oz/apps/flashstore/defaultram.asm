@@ -38,7 +38,7 @@ Module DefaultRamDevice
 ; Select Default RAM Device.
 ;
 .DefaultRamCommand
-                    ld   hl,defram_banner
+                    ld   de,defram_banner
                     call DispMainWindow
 
                     ld   hl, selctram_msg

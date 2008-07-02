@@ -59,7 +59,7 @@ Module RestoreFiles
 ; Restore ALL active files from current file card into a user defined RAM device (or path)
 ;
 .RestoreFilesCommand
-                    ld   hl,rest_banner
+                    ld   de,rest_banner
                     call DispMainWindow
 
                     ld   hl,0

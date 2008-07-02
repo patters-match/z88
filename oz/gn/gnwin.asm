@@ -36,11 +36,12 @@
 ;
 ; Cursor and vertical scrolling is enabled when window created.
 ; Window "1" is a base window for the extended window and will always be defined with max. screen size.
-; It is invisible (not created). You may use "1" for extended windows as well but results are unpredictable.
-; If no extended windows are created (bit 7,A = 0) then window "1" also available.
+; It is invisible (not created). You may use "1" for extended windows as well.
 ;
 ;    IN:
-;       BHL = pointer to 7 byte window definition block (if B=0, then local address)
+;        DE = (optional) "dynamic" pointer to banner (if banner pointer in definition block is 0)
+;       BHL = pointer to 7 byte window definition block (if B=0, then local pointer)
+;
 ;           Window Defintion Block offsets:
 ;           0:  A = window id ("2" - "6")
 ;               bit 7=1: 6=1: Extended window: left & right shelf brackets, left & right bars, banner and bottom line
@@ -51,7 +52,9 @@
 ;           2:  Y coordinate (upper left corner) of Window (B)
 ;           3:  WIDTH of Window (E) (inclusive banner & bottom line)
 ;           4:  HEIGHT of Window (D) (inclusive banner & bottom line)
-;           5:  low byte, high byte address of window banner text (HL). Only necessary if bit 7 of window ID is enabled.
+;           5:  low byte, high byte address of window banner text (HL). 
+;               Only necessary if bit 7 of window ID is enabled.
+;               Set this to 0, if you want to use a dynamic banner (to create a window with different banner each time)
 ;
 ;    OUT: None.
 ;
@@ -65,13 +68,17 @@
 ; ----------------------------------------------------------------------
 ;
 .GNWin
-        push    bc
-        ld      b,0
         oz      OS_Bix
-        pop     bc
         push    de                              ; preserve old binding
-        ld      e,(iy+OSFrame_E)
-        ld      d,(iy+OSFrame_D)
+
+        push    ix
+        push    hl
+        pop     ix
+        ld      a,(ix+0)                        ; get Window ID
+        ld      c,(ix+1)                        ; X
+        ld      b,(ix+2)                        ; Y
+        ld      e,(ix+3)                        ; W
+        ld      d,(ix+4)                        ; H
 
         bit     7,a
         jr      nz, extended_window             ; create extended window (banner, bottom line)
@@ -96,6 +103,7 @@
         pop     af
         oz      OS_Out                          ; window ID to reset.
 .exit_gnwin
+        pop     ix
         pop     de
         oz      OS_Box
         ret
@@ -105,7 +113,6 @@
         jp      nz, window_bottomline
 
 ; window with banner, right & left bars, no bottom line...
-        push    hl                              ; ptr. to banner on stack
         push    af                              ; window id on stack
         ld      a,'1'
         call    ReclaimWindow                   ; make sure that base window is text based
@@ -155,8 +162,8 @@
         ld      hl, BannerAttributes
         oz      Gn_Sop                          ; set tiny font, underline, reverse, centre just.
 
-        pop     hl                              ; get ptr. to banner
         push    af                              ; window id back on stack
+        call    getBanner                       ; get banner pointer in HL
         oz      Gn_Sop                          ; write banner at top line of window
 
         ld      hl,ApplyToggles                 ; define toggles
@@ -187,7 +194,6 @@
 
 ; window with bottom line
 .window_bottomline
-        push    hl                              ; ptr. to banner on stack
         push    af                              ; window id on stack
         ld      a,'1'
         call    ReclaimWindow                   ; make sure that base window is text based
@@ -249,8 +255,8 @@
         ld      hl, BannerAttributes
         oz      Gn_Sop                          ; set tiny font, underline, reverse, centre just.
 
-        pop     hl                              ; get ptr. to banner
         push    af                              ; window id back on stack
+        call    getBanner                       ; get banner pointer in HL
         oz      Gn_Sop                          ; write banner at top line of window
 
         ld      hl,ApplyToggles                 ; define toggles
@@ -326,6 +332,29 @@
         ld      a,d
         add     a,32
         oz      Os_Out                          ; height
+        ret
+
+; ******************************************************************************
+.getBanner
+        ld      l,(ix+5)
+        ld      h,(ix+6)
+        ld      a,h
+        or      l
+        jr      nz, osbixptr
+        ld      l,(iy+OSFrame_E)
+        ld      h,(iy+OSFrame_D)                ; HL = 0 in window definition block, use DE as dynamic banner
+.osbixptr        
+        push    ix
+        pop     af
+        and     @11000000
+        bit     7,h
+        ret     z                               ; not in GN segment..
+        bit     6,h
+        ret     z                               ; pointer in segment 0... don´t touch it...
+        res     7,h                             ; pointer in segment 2 or 3
+        res     6,h
+        or      h                               ; banner and definition block are located in same bank
+        ld      h,a                             ; mask segment specifier of OS_Bix for banner pointer
         ret
 
 ; Definitions used only by GN_win:

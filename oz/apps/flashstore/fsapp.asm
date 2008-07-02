@@ -444,11 +444,9 @@
                     pop  af
                     ret
 .dispcw
-                    ld   a,'1' | 128
-                    ld   bc,$0000
-                    ld   de,$0811
-                    ld   hl, cmds_banner
-                    oz   GN_win
+                    ld   b,0
+                    ld   hl, CmdWindowDef
+                    oz   GN_Win
 
                     ld   hl, menu_msg
                     call_oz(Gn_Sop)
@@ -460,6 +458,7 @@
                     ld   hl, grey_wrercmds        ; grey out commands that has no effect in current slot
                     call_oz(Gn_Sop)
                     ret
+
 ; *************************************************************************************
 
 
@@ -509,12 +508,11 @@
 ; *************************************************************************************
 ;
 ; IN:
-;    HL = pointer to banner
+;    DE = pointer to banner
 .DispMainWindow
-                    ld   a,'2' | 128
-                    ld   bc,$0013
-                    ld   de,$0835
-                    oz   GN_win
+                    ld   b,0
+                    ld   hl, MainWindowDef
+                    oz   GN_Win
                     ret
 ; *************************************************************************************
 
@@ -761,3 +759,13 @@
 .centerjustify      DEFM 1, "2JC", 0
 .leftjustify        DEFM 1, "2JN", 0
 .rightjustify       DEFM 1, "2JR", 0
+
+.CmdWindowDef       DEFB '1' | 128
+                    DEFW $0000
+                    DEFW $0811
+                    DEFW cmds_banner
+
+.MainWindowDef      DEFB '2' | 128
+                    DEFW $0013
+                    DEFW $0835
+                    DEFW 0                  ; dynamic banner pointer in DE

@@ -56,10 +56,9 @@ Module FileAreaStatistics
                     push de
                     push hl
 
-                    ld   a,'3' | 128
-                    ld   bc,$004A
-                    ld   de,$0812
-                    ld   hl, buf1
+                    ld   de, buf1
+                    ld   b,0
+                    ld   hl, FilestatWinDef
                     oz   GN_Win
 
                     pop  hl
@@ -564,3 +563,9 @@ Module FileAreaStatistics
                     DEFM 1, "2?Q", 1, "2?P", 1, "2?O", 1, "2?N", 1, "2?M", 1, "2?L", 1, "2?K", 1, "2?J"
                     DEFM 1, "2?I", 1, "2?H", 1, "2?G", 1, "2?F", 1, "2?E", 1, "2?D", 1, "2?C", 1, "2?B"
                     DEFM 1, "2?A", 1, "2?@", 0
+
+.FilestatWinDef     DEFB '3' | 128
+                    DEFW $004A
+                    DEFW $0812
+                    DEFW 0                  ; dynamic banner pointer in DE
+                    

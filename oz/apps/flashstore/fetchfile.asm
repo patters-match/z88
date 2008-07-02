@@ -67,7 +67,7 @@ Module FetchFile
 ; fetched into a specified RAM file.
 ;
 .FetchFileCommand
-                    ld   hl,fetch_bnr
+                    ld   de,fetch_bnr
                     call DispMainWindow
 
                     call GetCurrentSlot           ; C = (curslot)
@@ -107,7 +107,7 @@ Module FetchFile
 ; or be an 'active' file.
 ;
 .QuickFetchFile
-                    ld   hl,fetch_bnr
+                    ld   de,fetch_bnr
                     call DispMainWindow
 
                     call DisplayFreeRamDevs

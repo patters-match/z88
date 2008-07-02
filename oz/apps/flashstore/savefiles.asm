@@ -73,7 +73,7 @@ Module SaveFiles
 ; Backup RAM Card to Flash Card
 ;
 .BackupRamCommand
-                    ld   hl,bckp_bnr
+                    ld   de,bckp_bnr
                     call DispMainWindow
 
                     ld   hl,0
@@ -117,7 +117,7 @@ Module SaveFiles
 ; Save Files to Flash Card
 ;
 .SaveFilesCommand
-                    ld   hl,fsv1_bnr
+                    ld   de,fsv1_bnr
                     call DispMainWindow
 
                     call FilesAvailable

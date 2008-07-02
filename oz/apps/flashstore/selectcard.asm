@@ -61,7 +61,7 @@ Module SelectCard
                     call z,PollFileFormatSlots    ; investigate slots 1-3 for Flash Cards that can be formatted
                     or   a
                     jr   nz,continue_selcard
-                         ld   hl,selslot_banner
+                         ld   de,selslot_banner
                          call DispMainWindow
                          LD   HL, noformat_msg    ; no file areas, nor flash cards available!
                          CALL DispErrMsg
@@ -101,10 +101,9 @@ Module SelectCard
                     ld   hl, selectdevhelp
                     Call DispHelpText        ; display help text window
 
-                    ld   a, 128 | '2'
-                    ld   bc, $0010
-                    ld   de, $0838
-                    pop  hl
+                    pop  de                  ; window banner
+                    ld   b,0
+                    ld   hl, devselwindef
                     oz   GN_Win              ; Device selection window.
 
                     ld   a,3                 ; begin from slot 3...
@@ -304,6 +303,7 @@ Module SelectCard
                     jp   nc, execute_format       ; empty flash card in slot (no file area, and erase/write support)
                     push af
                     CALL DispCmdWindow
+                    ld   de,selslot_banner
                     CALL DispMainWindow
                     CALL FileEpromStatistics
                     pop  af
@@ -789,9 +789,8 @@ Module SelectCard
 ;
 .DispHelpText
                     push hl
-                    ld   a, 64 | '3'
-                    ld   bc,$004B
-                    ld   de,$0812
+                    ld   b,0
+                    ld   hl,helpwindef
                     oz   GN_Win
                     pop  hl
                     call_oz GN_Sop           ; Display small help text in right side window
@@ -938,3 +937,13 @@ Module SelectCard
                     DEFM 1,"2A",32+3,0         ; XOR 'display' menu bar (3 chars wide)
 .MenuBarOff         DEFM 1,"4-F-R"             ; disable flash & set normal video
                     DEFM 1,"2A",32+3,0         ; apply 'display' menu bar (3 chars wide)
+
+.devselwindef       DEFB '2' | 128
+                    DEFW $0010
+                    DEFW $0838
+                    DEFW 0                     ; dynamic banner pointer in DE
+                    
+.helpwindef         DEFB '3' | 64
+                    DEFW $004B
+                    DEFW $0812
+                    
