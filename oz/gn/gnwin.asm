@@ -120,10 +120,14 @@
         push    af                              ; window id on stack
         ld      a,'1'
         call    ReclaimWindow                   ; make sure that base window is text based
-        ld      hl,base_window                  ; init base window "1"
-        oz      Gn_Sop
-        ld      hl, xypos
-        oz      Gn_Sop
+        
+        oz      OS_Pout                         ; init base window "1"
+        defm    1,"7#1",32,32,32+94,32+8,128,1,"2H1"
+        defm    1,"4-SCR",0            
+        
+        oz      OS_Pout
+        defm    1,"3@",0                        ; VDU cursor position (x and y sent below..)        
+
         ld      a,c
         add     a,32
         oz      Os_Out                          ; X position stored...
@@ -187,8 +191,9 @@
         call    getBanner                       ; get banner pointer in HL
         oz      Gn_Sop                          ; write banner at top line of window
 
-        ld      hl,ApplyToggles                 ; define toggles
-        oz      Gn_Sop
+        oz      OS_Pout
+        defm    1,"3@",$20,$20,1,"2A",0         ; apply attributes for banner width        
+        
         ld      a,e
         oz      Os_Out                          ; of window width, then apply to window banner
 
@@ -217,8 +222,8 @@
         oz      Os_Out                          
         ld      a, @10000000                    ; no bars, no shelf brackets
         oz      Os_Out                          ; window created, no cursor, no v. scrolling
-        ld      hl, EnableCurScroll
-        oz      Gn_Sop                          ; Enable cursor and vertical scrolling
+        oz      OS_Pout
+        defm    1,"3+CS",0                      ; Enable cursor and vertical scrolling
         jp      exit_gnwin                      ; finished, return to caller
 
 
@@ -256,7 +261,7 @@
         ld      a,c
         add     a,32
         oz      Os_Out                          ; X position
-        ld      a,B
+        ld      a,b
         add     a,32
         oz      Os_Out                          ; Y position
         ld      a,e
@@ -295,20 +300,12 @@
         and     @00001111                       ; mask out window type bits...        
         or      @00110000                       ; adjust for Ascii "0" - "9"
         ret
-        
-        
+                
 ; Definitions used only by GN_win:
-;
-.base_window        defm 1,"7#1",32,32,32+94,32+8,128,1,"2H1" ; window VDU definitions
-                    defm 1,"4-SCR",0            ; reset any settings
+
 .def_window         defm 1,"7#",0               ; define window
 .ResetWindow        defm 1,"2C",0               ; window id
-.EnableCurScroll    defm 1,"3+CS",0
+
 .BannerAttributes   defm 1,"4+TUR"              ; set underline, tiny font in reverse
                     defm 1,"2JC"                ; centre text
                     defm 1,"3@",$20,$20,0       ; set cursor at (0,0) in window
-
-.ApplyToggles       defm 1,"3@",$20,$20
-                    defm 1,"2A",0               ; apply attributes for banner width
-
-.xypos              defm 1,"3@",0               ; VDU cursor position (x and y sent later)
