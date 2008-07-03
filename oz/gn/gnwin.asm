@@ -114,89 +114,8 @@
         ret
 
 .extended_window
-        bit     6,a
-        jp      nz, window_bottomline
+; window with banner, right & left bars, optional bottom line...
 
-; window with banner, right & left bars, no bottom line...
-        call    AscWindowID                     ; mask out type bits and convert to Ascii Window ID
-        push    af
-        ld      a,'1'
-        call    ReclaimWindow                   ; make sure that base window is text based
-        ld      hl,base_window                  ; init base window "1"
-        oz      Gn_Sop
-        ld      hl, xypos
-        oz      Gn_Sop
-        ld      a,C
-        add     a,32
-        oz      Os_Out                          ; X position stored...
-        ld      a,b
-        add     a,d
-        add     a,32                            ; y+height
-        oz      Os_Out
-
-        ld      hl,Def_Window                   ; now create window
-        oz      Gn_Sop
-        pop     af
-        push    af
-        oz      Os_Out                          ; window ID
-        inc     c                               ; window adjusted to bottom line
-        ld      a,c
-        add     a,32
-        oz      Os_Out                          ; at x,    (absolute coords)
-        ld      a,b
-        add     a,32
-        oz      Os_Out                          ; y        (rel. to base window)
-        ld      a,e
-        add     a,32                            ; width+32
-        ld      e,a
-        oz      Os_Out                          ; width    (rel. to base window)
-        ld      a,d
-        add     a,32
-        ld      d,a                             ; height+32
-        oz      Os_Out
-        ld      a, @10000011                    ; bars, shelf brackets ON
-        oz      OS_out
-
-        ld      hl,ResetWindow                  ; select & clear window area
-        oz      Gn_Sop
-        pop     af
-        oz      Os_Out                          ; of id in A
-
-        ld      hl, BannerAttributes
-        oz      Gn_Sop                          ; set tiny font, underline, reverse, centre just.
-
-        push    af                              ; window id back on stack
-        call    getBanner                       ; get banner pointer in HL
-        oz      Gn_Sop                          ; write banner at top line of window
-
-        ld      hl,ApplyToggles                 ; define toggles
-        oz      Gn_Sop
-        ld      a,e
-        oz      Os_Out                          ; of window width, then apply to window banner
-
-        ld      hl,Def_Window                   ; now create window within window
-        oz      Gn_Sop
-        pop     af
-        oz      Os_Out                          ; with id in A
-        ld      a,c
-        add     a,32
-        oz      Os_Out                          ; at x,
-        ld      a,b
-        add     a,33
-        oz      Os_Out                          ; y+1
-        ld      a,e
-        oz      Os_Out                          ; width
-        ld      a,d
-        sub     1
-        oz      Os_Out                          ; heigth - 1 (excl. banner)
-        ld      a, @10000000                    ; no bars, no shelf brackets
-        oz      Os_Out                          ; window created, no cursor, no v. scrolling
-        ld      hl, EnableCurScroll
-        oz      Gn_Sop                          ; Enable cursor and vertical scrolling
-        jp      exit_gnwin                      ; finished, return to caller
-
-; window with bottom line
-.window_bottomline
         call    AscWindowID                     ; mask out type bits and convert to Ascii Window ID
         push    af                              ; window id on stack
         ld      a,'1'
@@ -213,7 +132,9 @@
         add     a,31                            ; y+height-1
         oz      Os_Out
 
-; --- bottom line ---
+        bit     6,(ix+0)
+        jr      z, not_draw_line                ; the bottom line was not defined in the window attribute byte.
+
         oz      OS_Pout
         defm    1,"2*",'I',0                    ; first display bottom left corner
         ld      a,e
@@ -224,9 +145,9 @@
         jr      nz,draw_bot_line
 
         oz      OS_Pout
-        defm    1,"2*",'L',0                    ; finish with bottom rigth corner
-; --- bottom line ---
+        defm    1,"2*",'L',0                    ; finish with bottom right corner
 
+.not_draw_line
         ld      hl,Def_Window                   ; now create window
         oz      Gn_Sop
         pop     af
@@ -246,11 +167,11 @@
         ld      a,d
         add     a,32
         ld      d,a                             ; height+32
-
-; --- bottom line ---
-        sub     1
-; --- bottom line ---
-        oz      Os_Out                          ; heigth - 1 (excl. bottom line)
+        bit     6,(ix+0)
+        jr      z, no_adj_botline
+        sub     1                               ; adjust when a bottom line has been drawn... heigth - 1 (excl. bottom line)
+.no_adj_botline
+        oz      Os_Out                          
         ld      a, @10000011                    ; bars, shelf brackets ON
         oz      OS_out
 
@@ -280,13 +201,19 @@
         oz      Os_Out                          ; at x,
         ld      a,b
         add     a,33
+        bit     6,(ix+0)
+        jr      z, no_adj_botline2
+        sub     1
+.no_adj_botline2        
         oz      Os_Out                          ; y+1
         ld      a,e
         oz      Os_Out                          ; width
         ld      a,d
-; --- bottom line ---
-        sub     2                               ; heigth - 2 (excl. banner & bottom line)
-; --- bottom line ---
+        sub     1                               ; heigth - 1 (excl. banner)
+        bit     6,(ix+0)
+        jr      z, no_adj_botline3
+        sub     1                               ; heigth - 2 (excl. banner & bottom line)
+.no_adj_botline3
         oz      Os_Out                          
         ld      a, @10000000                    ; no bars, no shelf brackets
         oz      Os_Out                          ; window created, no cursor, no v. scrolling
