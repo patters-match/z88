@@ -938,12 +938,12 @@ Module SelectCard
 .MenuBarOff         DEFM 1,"4-F-R"             ; disable flash & set normal video
                     DEFM 1,"2A",32+3,0         ; apply 'display' menu bar (3 chars wide)
 
-.devselwindef       DEFB '2' | 128
+.devselwindef       DEFB 2 | 128
                     DEFW $0010
                     DEFW $0838
                     DEFW 0                     ; dynamic banner pointer in DE
                     
-.helpwindef         DEFB '3' | 64
+.helpwindef         DEFB 3 | 64
                     DEFW $004B
                     DEFW $0812
                     

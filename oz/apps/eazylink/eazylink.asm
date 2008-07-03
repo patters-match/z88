@@ -1848,12 +1848,12 @@
                RET
 
 .CmdWinDef
-               DEFB '2' | 192
+               DEFB 2 | 192
                DEFW $0000
                DEFW $081A
                DEFW command_banner
 .LogWinDef
-               DEFB '3' | 128 
+               DEFB 3 | 128 
                DEFW $001C
                DEFW $083E
                DEFW menu_banner

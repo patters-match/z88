@@ -760,12 +760,12 @@
 .leftjustify        DEFM 1, "2JN", 0
 .rightjustify       DEFM 1, "2JR", 0
 
-.CmdWindowDef       DEFB '1' | 128
+.CmdWindowDef       DEFB 1 | 128
                     DEFW $0000
                     DEFW $0811
                     DEFW cmds_banner
 
-.MainWindowDef      DEFB '2' | 128
+.MainWindowDef      DEFB 2 | 128
                     DEFW $0013
                     DEFW $0835
                     DEFW 0                  ; dynamic banner pointer in DE

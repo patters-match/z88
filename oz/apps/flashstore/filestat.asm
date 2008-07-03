@@ -564,7 +564,7 @@ Module FileAreaStatistics
                     DEFM 1, "2?I", 1, "2?H", 1, "2?G", 1, "2?F", 1, "2?E", 1, "2?D", 1, "2?C", 1, "2?B"
                     DEFM 1, "2?A", 1, "2?@", 0
 
-.FilestatWinDef     DEFB '3' | 128
+.FilestatWinDef     DEFB 3 | 128
                     DEFW $004A
                     DEFW $0812
                     DEFW 0                  ; dynamic banner pointer in DE

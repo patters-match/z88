@@ -33,28 +33,33 @@
 ; **********************************************************************************************************
 ;
 ; Standard window create with banner and bottom line.
-;
-; Cursor and vertical scrolling is enabled when window created.
-; Window "1" is a base window for the extended window and will always be defined with max. screen size.
-; It is invisible (not created). You may use "1" for extended windows as well.
+; Cursor and vertical scrolling is enabled when window is created.
 ;
 ;    IN:
 ;        DE = (optional) "dynamic" pointer to banner (if banner pointer in definition block is 0)
 ;       BHL = pointer to 7 byte window definition block (if B=0, then local pointer)
 ;
 ;           Window Defintion Block offsets:
-;           0:  A = window id ("2" - "6")
-;               bit 7=1: 6=1: Extended window: left & right shelf brackets, left & right bars, banner and bottom line
-;               bit 7=1, 6=0: Standard window: left & right shelf brackets, left & right bars and banner
+;           0:  A = window id. The ID is in range 1-6 (7 is used by OZ). 
+;               bit 7=1, 6=1, 5=1: Extended window: left & right shelf brackets, left & right bars, 8 pixel inverted top banner and bottom line
+;               bit 7=1, 6=1, 5=0: Extended window: left & right shelf brackets, left & right bars, 7 pixel inverted top banner and bottom line
+;               bit 7=1, 6=0, 5=1: Standard window: left & right shelf brackets, left & right bars and 8 pixel inverted banner
+;               bit 7=1, 6=0, 5=0: Standard window: left & right shelf brackets, left & right bars and 7 pixel inverted banner
 ;               bit 7=0, 6=1: Standard window: left & right bars, no shelf brackets, no banner, no bottom line.
 ;               bit 7=0, 6=0: Standard window: no bars, no shelf brackets, no banners.
 ;           1:  X coordinate (upper left corner) of Window 
 ;           2:  Y coordinate (upper left corner) of Window 
-;           3:  WIDTH of Window (E) (inclusive banner & bottom line)
-;           4:  HEIGHT of Window (D) (inclusive banner & bottom line)
+;           3:  WIDTH of Window (inclusive banner & bottom line)
+;           4:  HEIGHT of Window (inclusive banner & bottom line)
 ;           5:  low byte, high byte address of window banner text  
-;               Only necessary if bit 7 of window ID is enabled.
-;               Set this to 0, if using a dynamic banner (to create a window with different banner each time)
+;               Only specified if bit 7 of window ID is enabled.
+;               Set pointer to 0, if using a dynamic banner (to create the window with different banner each time)
+;
+;       Example (Extended window "2" with 8 pixel banner and bottom line):
+;           defb @11100000 | 2
+;           DEFW $0000
+;           DEFW $0811
+;           DEFW bannerptr
 ;
 ;    OUT: None.
 ;
@@ -85,14 +90,14 @@
         bit     6,a
         jr      nz, stdwindow_bars
 .stdwindow_nobars
-        and     @00111111                       ; mask out window type bits...
+        call    AscWindowID                     ; mask out type bits and convert to Ascii Window ID
         push    af
         call    stdwindow_dimens
         ld      a,128                           ; create standard window without bars
         jr      resetw
 
 .stdwindow_bars
-        and     @00111111                       ; mask out window type bits...
+        call    AscWindowID                     ; mask out type bits and convert to Ascii Window ID
         push    af
         call    stdwindow_dimens
         ld      a,129                           ; create standard window with bars
@@ -113,12 +118,10 @@
         jp      nz, window_bottomline
 
 ; window with banner, right & left bars, no bottom line...
-        push    af                              ; window id on stack
+        call    AscWindowID                     ; mask out type bits and convert to Ascii Window ID
+        push    af
         ld      a,'1'
         call    ReclaimWindow                   ; make sure that base window is text based
-        pop     af
-        and     @00111111                       ; mask out window type bits...
-        push    af
         ld      hl,base_window                  ; init base window "1"
         oz      Gn_Sop
         ld      hl, xypos
@@ -194,12 +197,10 @@
 
 ; window with bottom line
 .window_bottomline
+        call    AscWindowID                     ; mask out type bits and convert to Ascii Window ID
         push    af                              ; window id on stack
         ld      a,'1'
         call    ReclaimWindow                   ; make sure that base window is text based
-        pop     af
-        and     @00111111                       ; mask out window type bits...
-        push    af
         ld      hl,base_window                  ; init base window "1"
         oz      Gn_Sop
         ld      hl, xypos
@@ -211,6 +212,8 @@
         add     a,d
         add     a,31                            ; y+height-1
         oz      Os_Out
+
+; --- bottom line ---
         oz      OS_Pout
         defm    1,"2*",'I',0                    ; first display bottom left corner
         ld      a,e
@@ -222,6 +225,7 @@
 
         oz      OS_Pout
         defm    1,"2*",'L',0                    ; finish with bottom rigth corner
+; --- bottom line ---
 
         ld      hl,Def_Window                   ; now create window
         oz      Gn_Sop
@@ -242,7 +246,10 @@
         ld      a,d
         add     a,32
         ld      d,a                             ; height+32
+
+; --- bottom line ---
         sub     1
+; --- bottom line ---
         oz      Os_Out                          ; heigth - 1 (excl. bottom line)
         ld      a, @10000011                    ; bars, shelf brackets ON
         oz      OS_out
@@ -277,8 +284,10 @@
         ld      a,e
         oz      Os_Out                          ; width
         ld      a,d
-        sub     2
-        oz      Os_Out                          ; heigth - 2 (excl. banner & bottom line)
+; --- bottom line ---
+        sub     2                               ; heigth - 2 (excl. banner & bottom line)
+; --- bottom line ---
+        oz      Os_Out                          
         ld      a, @10000000                    ; no bars, no shelf brackets
         oz      Os_Out                          ; window created, no cursor, no v. scrolling
         ld      hl, EnableCurScroll
@@ -310,19 +319,16 @@
 ;
 ; Standard window dimensions (x,y,w,h)
 ;
-.window_vduinit     DEFM 1,"7#",0
 .stdwindow_dimens
         push    af
         call    ReclaimWindow                   ; use text in window...
-        ld      hl, window_vduinit
-        oz      Gn_Sop
+        oz      OS_Pout
+        defm    1,"7#",0
         pop     af
-        push    af                              ;
         oz      Os_Out                          ; VDU 1,"7#",<ID>
         ld      a,c
         add     a,32
         oz      Os_Out                          ; X position
-        pop     af
         ld      a,B
         add     a,32
         oz      Os_Out                          ; Y position
@@ -347,16 +353,23 @@
         push    ix
         pop     af
         and     @11000000
+        ret     z                               ; pointer is in segment 0, OK!
         bit     7,h
-        ret     z                               ; not in GN segment (3)..
-        bit     6,h
-        ret     nz                              ; pointer in segment 1 - OK
+        ret     z                               ; pointer in segment 1, OK!
         res     7,h                             ; pointer in segment 2 or 3, define for segment 1
         res     6,h
         or      h                               ; banner and definition block are located in same bank
         ld      h,a                             ; mask segment specifier of OS_Bix for banner pointer
         ret
 
+; ******************************************************************************
+; convert integer to 
+.AscWindowID
+        and     @00001111                       ; mask out window type bits...        
+        or      @00110000                       ; adjust for Ascii "0" - "9"
+        ret
+        
+        
 ; Definitions used only by GN_win:
 ;
 .base_window        defm 1,"7#1",32,32,32+94,32+8,128,1,"2H1" ; window VDU definitions
