@@ -40,18 +40,18 @@
 ;       BHL = pointer to 7 byte window definition block (if B=0, then local pointer)
 ;
 ;           Window Defintion Block offsets:
-;           0:  A = window id. The ID is in range 1-6 (7 is used by OZ). 
+;           0:  A = window id. The ID is in range 1-6 (7 is used by OZ).
 ;               bit 7=1, 6=1, 5=1: Extended window: left & right shelf brackets, left & right bars, 8 pixel inverted top banner and bottom line
 ;               bit 7=1, 6=1, 5=0: Extended window: left & right shelf brackets, left & right bars, 7 pixel inverted top banner and bottom line
 ;               bit 7=1, 6=0, 5=1: Standard window: left & right shelf brackets, left & right bars and 8 pixel inverted banner
 ;               bit 7=1, 6=0, 5=0: Standard window: left & right shelf brackets, left & right bars and 7 pixel inverted banner
 ;               bit 7=0, 6=1: Standard window: left & right bars, no shelf brackets, no banner, no bottom line.
 ;               bit 7=0, 6=0: Standard window: no bars, no shelf brackets, no banners.
-;           1:  X coordinate (upper left corner) of Window 
-;           2:  Y coordinate (upper left corner) of Window 
+;           1:  X coordinate (upper left corner) of Window
+;           2:  Y coordinate (upper left corner) of Window
 ;           3:  WIDTH of Window (inclusive banner & bottom line)
 ;           4:  HEIGHT of Window (inclusive banner & bottom line)
-;           5:  low byte, high byte address of window banner text  
+;           5:  low byte, high byte address of window banner text
 ;               Only specified if bit 7 of window ID is enabled.
 ;               Set pointer to 0, if using a dynamic banner (to create the window with different banner each time)
 ;
@@ -103,8 +103,8 @@
         ld      a,129                           ; create standard window with bars
 .resetw
         oz      Os_Out
-        ld      hl, ResetWindow                 ; clear window and enable cursor.
-        oz      Gn_Sop
+        oz      OS_Pout
+        defm    1,"2C",0                        ; clear window and enable cursor.
         pop     af
         oz      OS_Out                          ; window ID to reset.
 .exit_gnwin
@@ -118,26 +118,28 @@
 
         call    AscWindowID                     ; mask out type bits and convert to Ascii Window ID
         push    af                              ; window id on stack
-        ld      a,'1'
-        call    ReclaimWindow                   ; make sure that base window is text based
-        
+
         oz      OS_Pout                         ; init base window "1"
         defm    1,"7#1",32,32,32+94,32+8,128,1,"2H1"
-        defm    1,"4-SCR",0            
-        
+        defm    1,"4-SCR",0
+
         oz      OS_Pout
-        defm    1,"3@",0                        ; VDU cursor position (x and y sent below..)        
+        defm    1,"3@",0                        ; VDU cursor position (x and y sent below..)
 
         ld      a,c
         add     a,32
         oz      Os_Out                          ; X position stored...
         ld      a,b
         add     a,d
-        add     a,31                            ; y+height-1
+        add     a,32                            ; y+height
+        bit     6,(ix+0)
+        jr      z, no_adj_botline0
+        sub     1                               ; y+height-1 (for bottom line)
+.no_adj_botline0
         oz      Os_Out
 
         bit     6,(ix+0)
-        jr      z, not_draw_line                ; the bottom line was not defined in the window attribute byte.
+        jr      z, not_draw_botline             ; the bottom line was not defined in the window attribute byte.
 
         oz      OS_Pout
         defm    1,"2*",'I',0                    ; first display bottom left corner
@@ -147,13 +149,12 @@
         defm    1,"2*",'E',0                    ; draw bottom line
         dec     a                               ; of width E
         jr      nz,draw_bot_line
-
         oz      OS_Pout
         defm    1,"2*",'L',0                    ; finish with bottom right corner
 
-.not_draw_line
-        ld      hl,Def_Window                   ; now create window
-        oz      Gn_Sop
+.not_draw_botline
+        oz      OS_Pout
+        defm    1,"7#",0                        ; now create window
         pop     af
         push    af
         oz      Os_Out                          ; window ID
@@ -175,30 +176,33 @@
         jr      z, no_adj_botline
         sub     1                               ; adjust when a bottom line has been drawn... heigth - 1 (excl. bottom line)
 .no_adj_botline
-        oz      Os_Out                          
+        oz      Os_Out
         ld      a, @10000011                    ; bars, shelf brackets ON
         oz      OS_out
 
-        ld      hl,resetWindow                  ; select & clear window area
-        oz      Gn_Sop
+        oz      OS_Pout
+        defm    1,"2C",0                        ; select & clear window area
+
         pop     af
         oz      Os_Out                          ; of id in A
 
-        ld      hl, BannerAttributes
-        oz      Gn_Sop                          ; set tiny font, underline, reverse, centre just.
+        oz      OS_Pout
+        defm    1,"4+TUR"                       ; set underline, tiny font in reverse
+        defm    1,"2JC"                         ; centre text
+        defm    1,"3@",$20,$20,0                ; set cursor at (0,0) in window
 
         push    af                              ; window id back on stack
         call    getBanner                       ; get banner pointer in HL
         oz      Gn_Sop                          ; write banner at top line of window
 
         oz      OS_Pout
-        defm    1,"3@",$20,$20,1,"2A",0         ; apply attributes for banner width        
-        
+        defm    1,"3@",$20,$20,1,"2A",0         ; apply attributes for banner width
+
         ld      a,e
         oz      Os_Out                          ; of window width, then apply to window banner
 
-        ld      hl,Def_Window                   ; now create window within window
-        oz      Gn_Sop
+        oz      OS_Pout
+        defm    1,"7#",0                        ; now create window within window
         pop     af
         oz      Os_Out                          ; with id in A
         ld      a,c
@@ -209,7 +213,7 @@
         bit     6,(ix+0)
         jr      z, no_adj_botline2
         sub     1
-.no_adj_botline2        
+.no_adj_botline2
         oz      Os_Out                          ; y+1
         ld      a,e
         oz      Os_Out                          ; width
@@ -219,7 +223,7 @@
         jr      z, no_adj_botline3
         sub     1                               ; heigth - 2 (excl. banner & bottom line)
 .no_adj_botline3
-        oz      Os_Out                          
+        oz      Os_Out
         ld      a, @10000000                    ; no bars, no shelf brackets
         oz      Os_Out                          ; window created, no cursor, no v. scrolling
         oz      OS_Pout
@@ -229,34 +233,11 @@
 
 ; ******************************************************************************
 ;
-; Use window for text only.
-;
-; IN: A = window id ("1" - "6")
-;
-.ReclaimWindow
-        push    af
-        push    bc
-        push    de
-        push    hl
-        ld      bc, MP_DEL                      ; window must be a text window
-        oz      OS_Map                          ; reclaim window '1' for text
-        pop     hl
-        pop     de
-        pop     bc
-        pop     af
-        ret
-
-
-; ******************************************************************************
-;
 ; Standard window dimensions (x,y,w,h)
 ;
 .stdwindow_dimens
-        push    af
-        call    ReclaimWindow                   ; use text in window...
         oz      OS_Pout
         defm    1,"7#",0
-        pop     af
         oz      Os_Out                          ; VDU 1,"7#",<ID>
         ld      a,c
         add     a,32
@@ -273,6 +254,10 @@
         ret
 
 ; ******************************************************************************
+; Get banner pointer, using either static pointer from window definition
+; block or the dynamic DE(in) (if banner ptr is 0), then adjust it to
+; OS_Bix segment, if needed.
+;
 .getBanner
         ld      l,(ix+5)
         ld      h,(ix+6)
@@ -281,7 +266,7 @@
         jr      nz, osbixptr
         ld      l,(iy+OSFrame_E)
         ld      h,(iy+OSFrame_D)                ; HL = 0 in window definition block, use DE as dynamic banner
-.osbixptr        
+.osbixptr
         push    ix
         pop     af
         and     @11000000
@@ -295,17 +280,11 @@
         ret
 
 ; ******************************************************************************
-; convert integer to 
+; convert integer to
 .AscWindowID
-        and     @00001111                       ; mask out window type bits...        
+        and     @00001111                       ; mask out window type bits...
         or      @00110000                       ; adjust for Ascii "0" - "9"
         ret
-                
+
 ; Definitions used only by GN_win:
 
-.def_window         defm 1,"7#",0               ; define window
-.ResetWindow        defm 1,"2C",0               ; window id
-
-.BannerAttributes   defm 1,"4+TUR"              ; set underline, tiny font in reverse
-                    defm 1,"2JC"                ; centre text
-                    defm 1,"3@",$20,$20,0       ; set cursor at (0,0) in window
