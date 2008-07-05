@@ -210,10 +210,6 @@
         oz      Os_Out                          ; at x,
         ld      a,b
         add     a,33
-        bit     6,(ix+0)
-        jr      z, no_adj_botline2
-        sub     1
-.no_adj_botline2
         oz      Os_Out                          ; y+1
         ld      a,e
         oz      Os_Out                          ; width
