@@ -179,15 +179,21 @@
         oz      Os_Out
         ld      a, @10000011                    ; bars, shelf brackets ON
         oz      OS_out
-
         oz      OS_Pout
         defm    1,"2C",0                        ; select & clear window area
-
         pop     af
         oz      Os_Out                          ; of id in A
 
+        bit     5,(ix+0)
+        jr      z, banner7pxl
         oz      OS_Pout
-        defm    1,"4+TUR"                       ; set underline, tiny font in reverse
+        defm    1,"3+TR",0                      ; 8 pixel banner: just set tiny font in reverse
+        jr      drawbanner
+.banner7pxl
+        oz      OS_Pout
+        defm    1,"4+TUR",0                     ; 7 pixel banner: set underline & tiny font in reverse
+.drawbanner
+        oz      OS_Pout
         defm    1,"2JC"                         ; centre text
         defm    1,"3@",$20,$20,0                ; set cursor at (0,0) in window
 
@@ -202,7 +208,7 @@
         oz      Os_Out                          ; of window width, then apply to window banner
 
         oz      OS_Pout
-        defm    1,"7#",0                        ; now create window within window
+        defm    1,"7#",0                        ; now re-create window within window
         pop     af
         oz      Os_Out                          ; with id in A
         ld      a,c
@@ -281,6 +287,3 @@
         and     @00001111                       ; mask out window type bits...
         or      @00110000                       ; adjust for Ascii "0" - "9"
         ret
-
-; Definitions used only by GN_win:
-
