@@ -28,14 +28,34 @@
 </p>
 <p><tt>RST 20H, DEFW $7A09</tt>
 </p>
-<p>IN:
-</p>
-<pre>    DE = (optional) "dynamic" pointer to banner (if banner pointer in definition block is 0)<br>   BHL = pointer to 7 byte window definition block (if B=0, then local pointer)<br><br>         Window Defintion Block offsets:<br>           0:  A = window id. The ID is in range 1-6 (7 is used by OZ).<br>               bit 7=1, 6=1, 5=1: Extended window: left &amp; right shelf brackets, left &amp; right bars, 8 pixel inverted top banner and bottom line<br>               bit 7=1, 6=1, 5=0: Extended window: left &amp; right shelf brackets, left &amp; right bars, 7 pixel inverted top banner and bottom line<br>               bit 7=1, 6=0, 5=1: Standard window: left &amp; right shelf brackets, left &amp; right bars and 8 pixel inverted banner<br>               bit 7=1, 6=0, 5=0: Standard window: left &amp; right shelf brackets, left &amp; right bars and 7 pixel inverted banner<br>               bit 7=0, 6=1: Standard window: left &amp; right bars, no shelf brackets, no banner, no bottom line.<br>               bit 7=0, 6=0: Standard window: no bars, no shelf brackets, no banners.<br>           1:  X coordinate (upper left corner) of Window<br>           2:  Y coordinate (upper left corner) of Window<br>           3:  WIDTH of Window (inclusive banner &amp; bottom line)<br>           4:  HEIGHT of Window (inclusive banner &amp; bottom line)<br>           5:  low byte, high byte address of window banner text<br>               Only specified if bit 7 of window ID is enabled.<br>               Set pointer to 0, if using a dynamic banner (to create the window with different banner each time)<br></pre>
-
+<pre>
+IN:
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DE = (optional) "dynamic" pointer to banner (if banner pointer in definition block is 0)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; BHL = pointer to 7 byte window definition block (if B=0, then local pointer)
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Window Defintion Block offsets:
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0:&nbsp; A = window ID (bits 0-3). The ID is in range 1-8
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; bit 7=1, 6=1: Draw left &amp; right bars, shelf brackets, banner text, bottom line
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; bit 7=1, 6=0: Draw left &amp; right bars, shelf brackets, banner text
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; bit 7=0, 6=1: Draw left &amp; right bars
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; bit 7=0, 6=0: Just create window space (no visible borders)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; bit 5=1: 8 pixel inverted top banner (only evaluated with bit 7=1)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; bit 5=0: 7 pixel inverted top banner (only evaluated with bit 7=1)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; bit 4=1: For all windows: grey screen, then draw window to get a pop-up effect.
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 1:&nbsp; X coordinate (upper left corner) of Window
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 2:&nbsp; Y coordinate (upper left corner) of Window
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 3:&nbsp; WIDTH of Window (inclusive banner &amp; bottom line)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 4:&nbsp; HEIGHT of Window (inclusive banner &amp; bottom line)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 5:&nbsp; low byte, high byte address of window banner text
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Only specified if bit 7 of window ID is enabled.
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set pointer to 0, if using a dynamic banner (window with different banner each time)
+<br>
 OUT, if call successful: (always)
-<pre>&nbsp;&nbsp;&nbsp;&nbsp; Fc = 0</pre>
+&nbsp;&nbsp;&nbsp;&nbsp; Fc = 0
+
 Registers changed after return:
-<pre>&nbsp;&nbsp;&nbsp;&nbsp; A.BCDEHL/IXIY same<br>&nbsp;&nbsp;&nbsp;&nbsp; .F....../.... different</pre>
+&nbsp;&nbsp;&nbsp;&nbsp; A.BCDEHL/IXIY same<br>&nbsp;&nbsp;&nbsp;&nbsp; .F....../.... different
+</pre>
+
 
 Notes:
 <blockquote>Example of window definition block with extended window "2" having 8 pixel banner and bottom line:<br>
