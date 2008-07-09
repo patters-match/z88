@@ -75,24 +75,14 @@ xref    PutOsf_BHL
         ld      bc, 5<<8|10
         OZ      OS_Blp
 
+        ld      b,0
+        ld      hl, ErrWinDef
+        oz      GN_Win
+
         OZ      OS_Pout
-        defm    1,"6#8",$20+0,$20+0,$20+94,$20+8
-        defm    1,"2H8"
-        defm    1,"2G+"
-        defm    1,"7#8",$20+20,$20+0,$20+45,$20+8,$83
-        defm    1,"2C8"
-        defm    1,"3@",$20+0,$20+0
-        defm    1,"2C",$FD
+        defm    1,"2-C"
         defm    1,"2JC"
-        defm    1,"T","ERROR",1,"T"
-        defm    1,"2JN"
-        defm    1,"3@",$20+0,$20+0
-        defm    1,"R",1,"U"
-        defm    1,"2A",$20+45
-        defm    1,"U",1,"R"
-        defm    1,"3@",$20+0,$20+3
-        defm    1,"2JC"
-        defm    1,"3@",$20+0,$20+3,0
+        defm    1,"3@",$20+0,$20+2,0
 .get_errstr
         ld      a, (iy+OSFrame_A)               ; get error string
         OZ      GN_Esp
@@ -102,7 +92,7 @@ xref    PutOsf_BHL
         jr      nz, err_3                       ; non-fatal? handle it
 
         OZ      OS_Pout
-        defm    1,"3@",$20+0,$20+7
+        defm    1,"3@",$20+0,$20+5
         defm    1,"2C",$FD
         defm    1,"2JC"
         defm    1,"T","PRESS ",1,"R"," Q ",1,"R"," TO QUIT - FATAL ERROR",1,"T"
@@ -135,7 +125,7 @@ xref    PutOsf_BHL
 
 .err_3
         OZ      OS_Pout
-        defm    1,"3@",$20+0,$20+7
+        defm    1,"3@",$20+0,$20+5
         defm    1,"2C",$FD
         defm    1,"2JC"
         defm    1,"T","PRESS ",1,"R"," ESC ",1,"R"," TO RESUME",1,"T"
@@ -251,6 +241,16 @@ xref    PutOsf_BHL
         ld      l, a                            ; HL=string
         ld      a, c                            ; A=flags
         ret
+
+        defm    1,"6#8",$20+0,$20+0,$20+94,$20+8
+
+.ErrWinDef
+        defb @11010000 | 1
+        defw $0014
+        defw $082D
+        defw errbanner
+.errbanner
+        defm "ERROR", 0
 
 
 ;       ----
