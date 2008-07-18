@@ -1285,44 +1285,43 @@ xref    ZeroMem
 ;       ----
 
 .DrawCardWd
+        ld      b,0
+        ld      hl,CardWdBlock
+        OZ      GN_Win
+
         OZ      OS_Pout
-        defm    1,"6#8",$20+0,$20+0,$20+94,$20+8
-        defm    1,"2H8"
-        defm    1,"2G+"
-        defm    1,"7#4",$20+9,$20+0,$20+46,$20+8,$83
-        defm    1,"2C4"
-        defm    1,"2JC"
+        defm    1,"3@",$20+17,$20
         defm    1,"T"
-        defm    "CARDS"
-        defm    1,"2JN"
-        defm    1,"3@",$20+17,$20+1
         defm    "APPS"
         defm    1,"2X",$20+26
         defm    "FILES"
         defm    1,"2X",$20+37
         defm    "RAM"
         defm    1,"3@",$20+0,$20+0
-        defm    1,"R"
-        defm    1,"2A",$20+46
-        defm    1,"R"
         defm    1,"U"
         defm    1,"2A",$20+46
         defm    1,"U"
-        defm    1,"3@",$20+0,$20+3
+        defm    1,"3@",$20+0,$20+2
         defm    " SLOT 1",13,10
         defm    " SLOT 2",13,10
         defm    " SLOT 3"
-        defm    1,"3@",$20+0,$20+7
+        defm    1,"3@",$20+0,$20+6
         defm    1,"2JC"
         defm    "PRESS ", 1, SD_ESC, " TO RESUME"
         defm    1,"2JN"
-        defm    1,"T"
+        defm    1,"T",1,"C"
         defm    0
 
         call    DisplayCards
         jp      MainLoop
 
-;       ----
+.CardWdBlock
+        defb @10110000 | 4
+        defw $0009
+        defw $082E
+        defw cards_banner
+.cards_banner
+        defm "CARDS",0
 
 .DisplayCards
         ld      d, 3
@@ -1341,7 +1340,7 @@ xref    ZeroMem
 .DisplayCard
         push    de
         ld      a, d
-        add     a, 2
+        add     a, 1
         ld      c, a
         ld      b, 0
         call    MoveXY_BC
