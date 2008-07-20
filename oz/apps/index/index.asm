@@ -652,44 +652,23 @@ xref    ZeroMem
         cp      2
         jp      z, DrawCardWd                   ; card display
 
-        OZ      OS_Pout                         ; init application window
-        defm    1,"7#4",$20+1,$20+0,$20+18,$20+8,$83
-        defm    1,"2C4"
-        defm    1,"2JC"
-        defm    1,"T"
-        defm    "APPLICATIONS"
-        defm    1,"2JN"
-        defm    1,"3@",$20+0,$20+0
-        defm    1,"R"
-        defm    1,"2A",$20+18
-        defm    1,"R"
-        defm    " NAME         KEY"
-        defm    1,"3@",$20+0,$20+1
-        defm    1,"U"
-        defm    1,"2A",$20+18
-        defm    1,"U"
-        defm    1,"T"
+        ld      b,0                             ; draw application list window frame
+        ld      hl,ApplWdBlock
+        OZ      GN_Win
+
+        OZ      OS_Pout
+        defm    1,"T", 1,"U"
+        defm    " NAME          KEY"
         defm    1,"6#2",$20+1,$20+2,$20+18,$20+6
         defm    1,"2C2"
         defm    0
 
-        OZ      OS_Pout                         ; init process window
-        defm    1,"7#4",$20+21,$20,$20+56,$20+8,$83
-        defm    1,"2C4"
-        defm    1,"2JC"
-        defm    1,"T"
-        defm    "SUSPENDED ACTIVITIES"
-        defm    1,"2JN"
-        defm    1,"3@",$20+0,$20+0
-        defm    1,"R"
-        defm    1,"2A",$20+56
-        defm    1,"R"
+        ld      hl,ProcWdBlock                  ; draw process window frame
+        OZ      GN_Win
+
+        OZ      OS_Pout
+        defm    1,"T", 1,"U"
         defm    "YOUR REF.        APPLICATION  ---WHEN SUSPENDED--- CARDS"
-        defm    1,"3@",$20+0,$20+1
-        defm    1,"U"
-        defm    1,"2A",$20+56
-        defm    1,"U"
-        defm    1,"T"
         defm    1,"6#3",$20+21,$20+2,$20+56,$20+6
         defm    1,"2C3"
         defm    0
@@ -725,6 +704,22 @@ xref    ZeroMem
         jp      DrawHighlight
 
 ;       ----
+.ApplWdBlock
+        defb @10100000 | 2
+        defw $0000
+        defw $0812
+        defw appl_banner
+.appl_banner
+        defm "APPLICATIONS",0
+
+.ProcWdBlock
+        defb @10100000 | 3
+        defw $00014
+        defw $0838
+        defw proc_banner
+.proc_banner
+        defm "SUSPENDED ACTIVITIES",0
+
 
 .DrawAppWindow
         call    prt_selinit_wd2                 ; select & init appl window
