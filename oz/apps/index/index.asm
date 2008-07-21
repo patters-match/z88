@@ -318,14 +318,14 @@ xref    ZeroMem
 
 ;       process window
 
-        ld      a, (ubIdxTopProcess)
-        or      a
+        ld      hl, ubIdxTopProcess
+        inc     (hl)
+        dec     (hl)
         jr      z, up_2                         ; do full redraw
 
         call    ScrollDown
-        ld      a, (ubIdxTopProcess)            ; !! push/pop
-        dec     a
-        ld      (ubIdxTopProcess), a
+        dec     (hl)
+        ld      a,(hl)
         call    GetProcessByNum
         jp      c, Index                        ; error, shouldn't happen until confused!
         call    PrintProcess
@@ -1133,7 +1133,6 @@ xref    ZeroMem
         ld      (ubIdxSelectorPos), a
         ld      (ubIdxTopApplication), a
         ld      (ubIdxNApplDisplayed), a
-        xor     a
         ld      (ubIdxTopProcess), a
         ld      (ubIdxNProcDisplayed), a
         ret
@@ -1334,10 +1333,9 @@ xref    ZeroMem
 
 .DisplayCard
         push    de
-        ld      a, d
-        add     a, 1
-        ld      c, a
         ld      b, 0
+        ld      c, d
+        inc     c
         call    MoveXY_BC
 
         ld      c, (iy+3)
@@ -1405,7 +1403,7 @@ xref    ZeroMem
         ld      iy, UNSAFE_START-12
         inc     a
         ld      bc, 12
-        ld      d, 0
+        ld      d, b                            ; d = 0
 .gcd_1
         add     iy, bc
         inc     d
