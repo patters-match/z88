@@ -382,7 +382,7 @@ xdef    SysTokenBase
 .tokenED
         defm "am"
 .tokenEE
-        defm "EPROM"
+        defm $BA, " C", $8C, "d"
 .tokenEF
         defm $86, " "                           ; "er "
 .tokenF0

@@ -2171,12 +2171,12 @@ enddef
 .c_save
         defb    $C0
         defw    Save
-        defm    "Save to EPROM",0
+        defm    "Save to File Card",0
 
 .c_fetch
         defb    $0D
         defw    Fetch
-        defm    "Fetch from EPROM",0
+        defm    "Fetch from File Card",0
 
 .c_exec
         defb    $08
@@ -2211,7 +2211,7 @@ enddef
 .c_catE
         defb    $2C
         defw    CatalogueEPROM
-        defm    "Catalogue EPROM",0
+        defm    "Catalogue File Card",0
 
 
 ; --------------------------------------------------------------------------------------------------------------
