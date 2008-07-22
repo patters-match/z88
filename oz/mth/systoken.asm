@@ -382,7 +382,7 @@ xdef    SysTokenBase
 .tokenED
         defm "am"
 .tokenEE
-        defm $BA, " C", $8C, "d"
+        defm $BA, " C", $8C, "d"                ; "File Card"
 .tokenEF
         defm $86, " "                           ; "er "
 .tokenF0
