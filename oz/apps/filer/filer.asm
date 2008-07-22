@@ -281,19 +281,14 @@ enddef
         defm    1,"2C4"
         defb    0
 
-        ld      hl, JustifyC_txt
-        OZ      GN_Sop
-
-        pop     hl
-        push    hl
+        call    PrntJustifyC
 
         inc     hl                              ; command name into title bar
         inc     hl
         call    PrntTinyCaps
         OZ      GN_Sop
         call    PrntTinyCaps
-        ld      hl, JustifyN_txt
-        OZ      GN_Sop
+        call    PrntJustifyN
 
         ld      bc, 0                           ; reverse & underline  title
         call    Move_XY_BC
@@ -301,9 +296,7 @@ enddef
         ld      a, $20+80
         call    ApplyA
         call    PrntUndrlnRvrs
-
-        ld      hl, Init3_txt                   ; select wd3
-        OZ      GN_Sop
+        call    PrntSelWin3                     ; select wd3
 
         call    FreeDOR                         ; pre-command cleanup
         call    ZeroIX
@@ -324,8 +317,7 @@ enddef
         jp      nz, loc_ED87
 
 .loc_EC42
-        ld      hl, AskName_txt
-        OZ      GN_Sop                          ; write string to std. output
+        call    PrntAskName
 
         ld      a, (f_NumSelected)
         or      a
@@ -364,8 +356,7 @@ enddef
         bit     0, a                            ; destination filename?
         jr      z, loc_EC99
 
-        ld      hl, AskNewName_txt
-        OZ      GN_Sop                          ; write string to std. output
+        call    PrntAskNewName
         ld      de, f_DestName
         ld      bc, $1503
         call    InputLine
@@ -399,8 +390,10 @@ enddef
         jr      z, loc_ECCB
 
 .loc_ECBB
-        ld      hl, Confirm_txt
-        OZ      GN_Sop                          ; write string to std. output
+        OZ      OS_Pout
+        defm    1,"3@",$20+0,$20+5
+        defm    "Confirm each file",0
+
         xor     a
         call    GetYesNo
         jp      c, loc_ED92
@@ -420,7 +413,7 @@ enddef
         ld      (f_WildcardHandle), ix
         jp      c, loc_ED92
 .loc_ECE8
-        call    ClrWindow
+        call    PrntClrWindow
         call    PrntDotOpen
 
 .loc_ECEE
@@ -537,8 +530,7 @@ enddef
 .loc_EDB2
         pop     hl
         push    af
-        ld      hl, DotClose_txt
-        OZ      GN_Sop                          ; write string to std. output
+        call    PrntDotClose
         call    CloseDest
         ld      ix, (f_WildcardHandle)
         call    TstIX
@@ -769,8 +761,7 @@ enddef
 .right_1
         push    af
 
-        ld      hl, Init2_txt                   ; activate dir window
-        OZ      GN_Sop
+        call    PrntSelWin2                     ; activate dir window
         ld      a, 1
         ld      (f_ActiveWd), a
 
@@ -796,8 +787,7 @@ enddef
         jr      right_5
 
 .right_4
-        ld      hl, Init1_txt
-        OZ      GN_Sop                          ; write string to std. output
+        call    PrntSelWin1
 
         xor     a                               ; command window
         ld      (f_ActiveWd), a
@@ -839,8 +829,7 @@ enddef
 .left_1
         push    af
 
-        ld      hl, Init2_txt
-        OZ      GN_Sop                          ; write string to std. output
+        call    PrntSelWin2
         ld      a, 1                            ; dir window
         ld      (f_ActiveWd), a
 
@@ -864,8 +853,7 @@ enddef
         jr      left_5
 
 .left_4
-        ld      hl, Init1_txt                   ; activate cmd window
-        OZ      GN_Sop
+        call    PrntSelWin1                     ; activate cmd window
         xor     a                               ; command window
         ld      (f_ActiveWd), a
 
@@ -1121,19 +1109,17 @@ enddef
 ;       scroll window down and clear the first line
 
 .ScrollDown
-        ld      hl, ScrollDown_txt
-        OZ      GN_Sop                          ; write string to std. output
+        OZ      OS_Pout
+        defm    1,$FE,0
         ld      bc, 0
         call    Move_XY_BC
-        ld      hl, ClearEOL_txt
-        OZ      GN_Sop                          ; write string to std. output
-        ret
+        jp      PrntClearEOL
 
 ;       scroll window up and move to the last line
 .ScrollUp
         push    bc
-        ld      hl, ScrollUp_txt
-        OZ      GN_Sop                          ; write string to std. output
+        OZ      OS_Pout
+        defm    1,$FF,0
         ld      bc, 6
         call    Move_XY_BC
         pop     bc
@@ -1173,16 +1159,13 @@ enddef
         jr      c, loc_F163
 
 .loc_F15B
-        ld      a, 'N'
-        OZ      OS_Out
-        ld      a, 'M'
-        OZ      OS_Out
+        OZ      OS_Pout
+        defm    "NM",0
 
 .loc_F163
-        ld      hl, JustifyC_txt
-        OZ      GN_Sop
-        ld      hl, Directory_txt               ; "DIRECTORY "
-        OZ      GN_Sop
+        call    PrntJustifyC
+        OZ      OS_Pout
+        defm    "DIRECTORY ",0
 
         ld      hl, CurrentDir_txt              ; "."
         ld      bc, NBUFSIZE
@@ -1199,8 +1182,7 @@ enddef
         OZ      GN_Fcm                          ; compress to stdout
         pop     ix
 
-        ld      hl, JustifyN_txt                ; reverse title
-        OZ      GN_Sop
+        call    PrntJustifyN                    ; reverse title
         ld      bc, 0
         call    Move_XY_BC
         call    PrntUndrlnRvrs
@@ -1239,9 +1221,8 @@ enddef
         defb       0
 ;----
 .DrawCmdWindow
-        ld      hl, Init1_txt
-        OZ      GN_Sop                          ; write string to std. output
-        call    ClrWindow
+        call    PrntSelWin1
+        call    PrntClrWindow
 
         ld      b, 7
         ld      a, (f_SelectedCmd)
@@ -1262,9 +1243,8 @@ enddef
 
 .DrawDirWindow
         push    ix
-        ld      hl, Init2_txt                   ; init and clear wd2
-        OZ      GN_Sop
-        call    ClrWindow
+        call    PrntSelWin2                     ; init and clear wd2
+        call    PrntClrWindow
 
 .loc_F204
         ld      bc, (f_TopDirEntry)
@@ -1327,14 +1307,10 @@ enddef
 .p3m_2
         call    FindNodeByName                  ; Print selection marker if needed
         ld      a, ' '
+        OZ      OS_Out                          ; write a byte to std. output
         jr      c, p3m_3
-        ld      a, 1
-        OZ      OS_Out                          ; write a byte to std. output
-        ld      a, $F5                          ; bullet arrow right
-
+        call    PrntRightBulletArrow            ; bullet arrow right
 .p3m_3
-        OZ      OS_Out                          ; write a byte to std. output
-
         ld      a, (f_SourceType)               ; print files normally,
         cp      Dn_Fil                          ; dirs in tiny caps
         push    af
@@ -1572,10 +1548,8 @@ enddef
 .GetYesNo
         ld      c, a
         call    PrntCrsr
-
-        ld      hl, Questionmark_txt            ; " ? "
-        OZ      GN_Sop                          ; write string to std. output
-
+        OZ      OS_Pout
+        defm    " ? ",0
 .yn_1
         ld      a, c
         ld      hl, Yes_txt                     ; "Yes"
@@ -1679,10 +1653,7 @@ enddef
 
         ld      a, (f_SelectorPos)
         call    CrsrToPosA
-        ld      a, 1                            ; 1,$F5 - Bullet arrow Right
-        OZ      OS_Out
-        ld      a, $F5
-        OZ      OS_Out
+        call    PrntRightBulletArrow
 
         ld      a, (f_NumSelected)
         inc     a
@@ -2030,75 +2001,107 @@ enddef
         ld      (de), a
         ret
 
+.PrntRightBulletArrow
+        OZ      OS_Pout
+        defm    1, $F5, 0                       ; Bullet arrow Right
+        ret
+
+.PrntClearEOL
+        OZ      OS_Pout
+        defm    1,"2C",$FD,0
+        ret
+
+.PrntAskName
+        OZ      OS_Pout
+        defm    1,"3@",$20+13,$20+1
+        defm    "Name :",0
+        ret
+
+.PrntAskNewName
+        OZ      OS_Pout
+        defm    1,"3@",$20+9,$20+3
+        defm    "New name :",0
+        ret
 
 ; Clear current window and reset line count
+.PrntClrWindow
+        OZ      OS_Pout
+        defm    1,"3@",$20+0,$20+0
+        defm    1,"2C",$FE,0
 
-.ClrWindow
-        ld      hl, Cls_txt
-        OZ      GN_Sop
         xor     a
         ld      (f_OutLnCnt), a
         ret
 
+.PrntSelWin1
+        OZ      OS_Pout
+        defm    1,"2I1",0
+        ret
+
+.PrntSelWin2
+        OZ      OS_Pout
+        defm    1,"2I2",0
+        ret
+
+.PrntSelWin3
+        OZ      OS_Pout
+        defm    1,"2I3",0
+        ret
+
+.PrntJustifyN
+        OZ      OS_Pout
+        defm    1,"2JN",0
+        ret
+
+.PrntJustifyC
+        OZ      OS_Pout
+        defm    1,"2JC",0
+        ret
+
 .PrntDotClose
-        push    hl
-        ld      hl, DotClose_txt
-        jr      PrintStr
+        OZ      OS_Pout
+        defm    1,"2.]",0
+        ret
 
 .PrntDotOpen
-        push    hl
-        ld      hl, DotOpen_txt
-        jr      PrintStr
+        OZ      OS_Pout
+        defm    1,"2.[",0
+        ret
 
 .PrntCrsr
-        push    hl
-        ld      hl, Cursor_txt
-        jr      PrintStr
+        OZ      OS_Pout
+        defm    1,"C",0
+        ret
 
 .PrntTinyCaps
-        push    hl
-        ld      hl, Tiny_txt
-        OZ      GN_Sop                          ; write string to std. output
-        ld      hl, Caps_txt
-        jr      PrintStr
+        OZ      OS_Pout
+        defm    1,"T"
+        defm    1,"L",0
+        ret
 
 .PrntUndrlnRvrs
-        push    hl
-        ld      hl, Underline_txt
-        OZ      GN_Sop                          ; write string to std. output
-        pop     hl
-
+        OZ      OS_Pout
+        defm    1,"U",0
 .PrntReverse
-        push    hl
-        ld      hl, Reverse_txt
-
-.PrintStr
-        OZ      GN_Sop                          ; write string to std. output
-        pop     hl
+        OZ      OS_Pout
+        defm    1,"R",0
         ret
-;----
+
 .Move_XY_BC
-        push    hl
-        ld      hl, MoveXY_txt
-        OZ      GN_Sop                          ; write string to std. output
+        OZ      OS_Pout
+        defm    1,"3@",0
         ld      a, b
         add     a, $20 ; ' '
         OZ      OS_Out                          ; write a byte to std. output
         ld      a, c
         add     a, $20 ; ' '
         OZ      OS_Out                          ; write a byte to std. output
-        pop     hl
         ret
-; End of function Move_XY_BC
-;----
 
 ;       Apply screen changes to next A-32 bytes
-
 .ApplyA
-        push    af
-        ld      hl, Apply_txt
-        OZ      GN_Sop                          ; write string to std. output
-        pop     af
+        OZ      OS_Pout
+        defm    1,"2A",0
         OZ      OS_Out                          ; write a byte to std. output
         ret
 
@@ -2110,77 +2113,12 @@ enddef
 .cmds_banner
         defm "COMMANDS",0
 
-.AskName_txt
-        defm    1,"3@",$20+13,$20+1
-        defm    "Name :",0
-
-.AskNewName_txt
-        defm    1,"3@",$20+9,$20+3
-        defm    "New name :",0
-
-.Confirm_txt
-        defm    1,"3@",$20+0,$20+5
-        defm    "Confirm each file",0
-
-.AskSource_txt
-        defm    1,"3@",$20+11,$20+1
-        defm    "Source :",0
-
-.AskDest_txt
-        defm    1,"3@",$20+6,$20+3
-        defm    "Destination :",0
-
 .Yes_txt
         defm    "Yes",0
 .No_txt
         defm    "No ",0
 .to_txt
         defm    " to ",0
-.Questionmark_txt defm  " ? ",0
-
-
-
-.Init1_txt
-        defm    1,"2I1",0
-.Init2_txt
-        defm    1,"2I2",0
-.Init3_txt
-        defm    1,"2I3",0
-.Directory_txt
-        defm    "DIRECTORY ",0
-.DotClose_txt
-        defm    1,"2.]",0
-.DotOpen_txt
-        defm    1,"2.[",0
-.ScrollUp_txt
-        defm    1,$FF,0
-.ScrollDown_txt
-        defm    1,$FE,0
-.Tiny_txt
-        defm    1,"T",0
-.Caps_txt
-        defm    1,"L",0
-.Underline_txt
-        defm    1,"U",0
-.MoveXY_txt
-        defm    1,"3@",0
-;        defm    1,"2X",0                        ; !! unused $f74f
-.ClearEOL_txt
-        defm    1,"2C",$FD,0
-.Cls_txt
-        defm    1,"3@",$20+0,$20+0
-        defm    1,"2C",$FE
-        defb    0
-.Cursor_txt
-        defm    1,"C",0
-.JustifyN_txt
-        defm    1,"2JN",0
-.JustifyC_txt
-        defm    1,"2JC",0
-.Reverse_txt
-        defm    1,"R",0
-.Apply_txt
-        defm    1,"2A",0
 
 .CmdTable
         defw    c_catf
@@ -2338,8 +2276,7 @@ enddef
 
 ;----
 .SelectDevice
-        ld      hl, AskName_txt
-        OZ      GN_Sop                          ; write string to std. output
+        call    PrntAskName
 .sdev_1
         call    GetDev
 .sdev_2
@@ -2415,7 +2352,7 @@ enddef
 .cate_1
         ld      b, $20 ; ' '
         ld      hl, f_SourceName
-        ld      a, $0F
+        ld      a, EP_Dir
         OZ      OS_Epr                          ; File Eprom Manipulation Interface
         jr      c, cate_3
         ld      hl, f_SourceName
@@ -2426,7 +2363,7 @@ enddef
 .cate_2
         ld      b, $20 ; ' '
         ld      hl, f_SourceName
-        ld      a, $0F
+        ld      a, EP_Dir
         OZ      OS_Epr                          ; File Eprom Manipulation Interface
         jr      nc, cate_2
         pop     af
@@ -2497,18 +2434,15 @@ enddef
 ; End of function Fetch
 ;----
 .Rename
-        ld      hl, AskName_txt
-        OZ      GN_Sop                          ; write string to std. output
-        ld      hl, AskNewName_txt
-        OZ      GN_Sop                          ; write string to std. output
+        call    PrntAskName
+        call    PrntAskNewName
 
         xor     a
         ld      (f_StrBuffer), a
 
         ld      bc, $1501
         call    Move_XY_BC
-        ld      hl, ClearEOL_txt
-        OZ      GN_Sop                          ; write string to std. output
+        call    PrntClearEOL
         call    PrntCrsr
 
         ld      bc, NQ_Out
@@ -2522,9 +2456,7 @@ enddef
 
         ld      bc, $1503
         call    Move_XY_BC
-        ld      hl, ClearEOL_txt
-        OZ      GN_Sop                          ; write string to std. output
-
+        call    PrntClearEOL
 .ren_1
         ld      de, f_StrBuffer
         ld      c, 0
@@ -2635,7 +2567,7 @@ enddef
         OZ      GN_Opw                          ; open wildcard handler
         jp      c, tcopy_11
         ld      (f_WildcardHandle), ix
-        call    ClrWindow
+        call    PrntClrWindow
         call    PrntDotOpen
 .tcopy_5
         ld      de, f_SourceName
@@ -2772,8 +2704,7 @@ enddef
 ;----
 
 .CreateDir
-        ld      hl, AskName_txt
-        OZ      GN_Sop                          ; write string to std. output
+        call    PrntAskName
         xor     a
         ld      (f_SourceName), a
 
@@ -2807,10 +2738,8 @@ enddef
         or      a
         jr      nz, cf_8
 
-        ld      hl, AskName_txt
-        OZ      GN_Sop                          ; write string to std. output
+        call    PrntAskName
         call    PrntCrsr
-
 .cf_1
         ld      de, f_SourceName
         ld      c, 0
@@ -2868,7 +2797,7 @@ enddef
         ld      (f_WildcardHandle), ix
 
 .cf_8
-        call    ClrWindow
+        call    PrntClrWindow
         call    PrntDotOpen
 
 .cf_9
@@ -3045,8 +2974,7 @@ enddef
         jp      MainLoop
 ;----
 .SelectDir
-        ld      hl, AskName_txt
-        OZ      GN_Sop                          ; write string to std. output
+        call    PrntAskName
         call    GetDir
 .sdir_1
         ld      de, f_SourceName
@@ -3136,8 +3064,7 @@ enddef
 
 ;----
 .NameMatch
-        ld      hl, AskName_txt
-        OZ      GN_Sop                          ; write string to std. output
+        call    PrntAskName
         ld      bc, NQ_Fnm
         OZ      OS_Nq                           ; enquire (fetch) parameter
         ld      de, f_SourceName
@@ -3327,10 +3254,11 @@ enddef
         jr      ExpandFname
 
 .PrntSrcDest
-        ld      hl, AskSource_txt
-        OZ      GN_Sop
-        ld      hl, AskDest_txt
-        OZ      GN_Sop
+        OZ      OS_Pout
+        defm    1,"3@",$20+11,$20+1
+        defm    "Source :"
+        defm    1,"3@",$20+6,$20+3
+        defm    "Destination :",0
 
 .ResetSrcDestName
         xor     a
