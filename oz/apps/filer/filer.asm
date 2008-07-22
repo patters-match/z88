@@ -1144,20 +1144,11 @@ enddef
         xor     a
         ld      (f_NumDirEntries), a
 
+        ld      b,a
+        ld      hl,CmdsWdBlock
+        OZ      GN_Win
+
         OZ      OS_Pout
-        defm    1,"7#4",$20+1,$20+0,$20+24,$20+8,$83
-        defm    1,"2C4"
-        defm    1,"2JC"
-        defm    1,"T"
-        defm    "COMMANDS"
-        defm    1,"2JN"
-        defm    1,"3@",$20+0,$20+0
-        defm    1,"R"
-        defm    1,"U"
-        defm    1,"2A",$20+24
-        defm    1,"R"
-        defm    1,"U"
-        defm    1,"T"
         defm    1,"6#1",$20+1,$20+1,$20+24,$20+7
         defm    1,"2C1"
         defb    0
@@ -1165,7 +1156,6 @@ enddef
         OZ      OS_Pout
         defm    1,"7#4",$20+27,$20+0,$20+54,$20+8,$83
         defm    1,"6#2",$20+27,$20+1,$20+54,$20+7
-        defm    1,"2C2"
         defm    1,"2C4"
         defb    0
 
@@ -2111,6 +2101,14 @@ enddef
         pop     af
         OZ      OS_Out                          ; write a byte to std. output
         ret
+
+.CmdsWdBlock
+        defb @10000000 | 1
+        defw $0000
+        defw $0818
+        defw cmds_banner
+.cmds_banner
+        defm "COMMANDS",0
 
 .AskName_txt
         defm    1,"3@",$20+13,$20+1
