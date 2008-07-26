@@ -59,7 +59,7 @@ Reducing the map width to 64 pixels, or not using the map at all, allows
 for free use of all 64 user characters. The file attributes for BASIC's
 -1 channel ($FFFF) all hold interesting information:
 <pre>PTR#-1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; high word = no. of free handles in the system.
-    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; low word = ROM version code: $03 for V2.2 and 3.x versions, $42 for OZ V4.2 release.<br><br>EXT#-1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; free memory. This is an approximation and should be interpreted<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; with care. It is similar to the memory free indicators given by<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; PipeDream and the Diary (Z80asm uses it too).<br><br>EOF#-1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -1 = machine is expanded. 0 = standard 32K machine</pre>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; low word = ROM version code: $03 for V2.2 and 3.x versions, $04 for OZ V4.0 (UK), $42 for OZ V4.2 release.<br><br>EXT#-1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; free memory. This is an approximation and should be interpreted<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; with care. It is similar to the memory free indicators given by<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; PipeDream and the Diary (Z80asm uses it too).<br><br>EOF#-1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -1 = machine is expanded. 0 = standard 32K machine</pre>
 
 This information can be accessed by applications by using the <a href="osfrm.html">OS_Frm</a> system
 call, to read file attributes, and specifying a handle of $FFFF in the
