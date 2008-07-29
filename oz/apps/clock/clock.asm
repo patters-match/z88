@@ -42,7 +42,7 @@
         ; defined in clalalm.asm
         xref Exit, MoveToXb, MoveToXYbc
         xref ApplyToggles, JustifyC, JustifyN, ToggleTR, ToggleRvrs, ToggleTiny
-        xref ClrScr, ToggleCrsr, ClrEOL, PrntString, DATE_txt
+        xref ClrScr
         xref DisplayTime, KeyJump, KeyJump0, TableJump, NavigateTable, AskDate, AskTime
 
 

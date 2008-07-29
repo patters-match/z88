@@ -464,21 +464,17 @@
 
 
 .MoveToXb
-        push    hl
-        ld      hl, MoveToX_txt
-        OZ      GN_Sop
+        OZ      OS_Pout
+        defm    1,"2X", 0
         ld      a, $20
         add     a, b
         OZ      OS_Out
-        pop     hl
         ret
 
 
 .MoveToXYbc
-        push    hl
-        ld      hl, MoveToXY_txt
-        OZ      GN_Sop
-        pop     hl
+        OZ      OS_Pout
+        defm    1,"3@", 0
         ld      a, b
         add     a, $20
         OZ      OS_Out
@@ -489,85 +485,55 @@
 
 
 .ApplyToggles
-        push    af
-        push    hl
-        ld      hl, Apply_txt
-        OZ      GN_Sop
-        pop     hl
-        pop     af
+        OZ      OS_Pout
+        defm    1,"2A", 0
         OZ      OS_Out
         ret
 
 
 .JustifyC
-        push    hl
-        ld      hl, JustC_txt
-        jr      PrntString
+        OZ      OS_Pout
+        defm    1,"2JC", 0
+        ret
 
 
 .JustifyN
-        push    hl
-        ld      hl, JustN_txt
-        jr      PrntString
+        OZ      OS_Pout
+        defm    1,"2JN", 0
+        ret
 
 
 .ToggleTR
         call    ToggleTiny
-
-
 .ToggleRvrs
-        push    hl
-        ld      hl, Reverse_txt
-        jr      PrntString
+        OZ      OS_Pout
+        defm    1,"R", 0
+        ret
 
 
 .ToggleTiny
-        push    hl
-        ld      hl, Tiny_txt
-        jr      PrntString
+        OZ      OS_Pout
+        defm    1,"T", 0
+        ret
 
 
 .ClrScr
-        push    hl
-        ld      hl, Cls_txt
-        jr      PrntString
+        OZ      OS_Pout
+        defm    1,"3@",$20+0,$20+0
+        defm    1,"2C",$fe, 0
+        ret
 
 
 .ToggleCrsr
-        push    hl
-        ld      hl, Cursor_txt
-        jr      PrntString
+        OZ      OS_Pout
+        defm    1,"C", 0
+        ret
 
 
 .ClrEOL
-        push    hl
-        ld      hl, ClrEOL_txt
-
-.PrntString
-        OZ      GN_Sop
-        pop     hl
+        OZ      OS_Pout
+        defm    1,"2C",$fd, 0
         ret
 
 .DATE_txt
         defm    "DATE",0
-.MoveToXY_txt
-        defm    1,"3@", 0
-.MoveToX_txt
-        defm    1,"2X", 0
-.Cls_txt
-        defm    1,"3@",$20+0,$20+0
-        defm    1,"2C",$fe, 0
-.ClrEOL_txt
-        defm    1,"2C",$fd, 0
-.Cursor_txt
-        defm    1,"C", 0
-.Tiny_txt
-        defm    1,"T", 0
-.Apply_txt
-        defm    1,"2A", 0
-.JustC_txt
-        defm    1,"2JC", 0
-.JustN_txt
-        defm    1,"2JN", 0
-.Reverse_txt
-        defm    1,"R", 0
