@@ -3952,6 +3952,7 @@ public class Dz {
 		"OZ   GN_D16", /* E7 7409 */
 		"OZ   GN_M24", /* E7 7609 */
 		"OZ   GN_D24", /* E7 7809 */
+		"OZ   GN_WIN", /* E7 7A09 */
 		"OZ   UNKNOWN", };
 
 	private static final String ozfppStrMnem[] = {
@@ -4228,7 +4229,7 @@ public class Dz {
 					case 9 : /* GN 2 byte general calls */
 						strMnem = ozgnStrMnem;
 						i = opcode[instrOpcodeOffset++];
-						if ((i % 2 == 0) && (i >= 0x06 && i <= 0x78))
+						if ((i % 2 == 0) && (i >= 0x06 && i <= 0x7A))
 							i = (i / 2) - 3;
 						else
 							i = strMnem.length - 1; /* unknown parameter */
