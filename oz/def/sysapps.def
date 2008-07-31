@@ -31,6 +31,8 @@ lstoff
 IF !__SYSAPPS_DEF__
 define __SYSAPPS_DEF__
 
+; ----------------------------------------------------------------------------------------------
+; Application Bank location
 IF OZ_SLOT1
         defc OZBANK_INDEX       = $7C & $3F     ; Bank of Index popdown entry
         defc OZBANK_DIARY       = $77 & $3F     ; Bank of Diary application entry
@@ -64,7 +66,11 @@ ELSE
         defc OZBANK_EAZYLINK    = $0A           ; Bank of EazyLink popdown entry
         defc OZBANK_FLASHSTORE  = $0B           ; Bank of FlashStore popdown entry
 ENDIF
+; ----------------------------------------------------------------------------------------------
 
+
+; ----------------------------------------------------------------------------------------------
+; Application code start
 defc    ORG_INDEX          = $C000              ; Address entry of Index popdown (segment 3)
 defc    ORG_DIARY          = $C000              ; Address entry of Diary application (segment 3)
 defc    ORG_PIPEDREAM      = $8000              ; Address entry of PipeDream application (segment 2)
@@ -82,6 +88,18 @@ defc    ORG_TERMINAL       = $D400              ; Address entry of Terminal appl
 defc    ORG_IMPEXPORT      = $FAB1              ; Address entry of Imp/Export popdown (segment 3)
 defc    ORG_EAZYLINK       = $8000              ; Address entry of EazyLink popdown (segment 3)
 defc    ORG_FLASHSTORE     = $C000              ; Address entry of FlashStore popdown (segment 3)
+; ----------------------------------------------------------------------------------------------
+
+
+; ----------------------------------------------------------------------------------------------
+; Application workspace
+defc    INDEX_UNSAFE_WS         = $28
+defc    INDEX_UNSAFE_WS_START   = $1FFE-INDEX_UNSAFE_WS
+
+defc    FILER_UNSAFE_WS         = $230
+defc    FILER_UNSAFE_WS_START   = $1FFE-FILER_UNSAFE_WS
+; ----------------------------------------------------------------------------------------------
+
 
 ENDIF
 

@@ -125,6 +125,3 @@ defc    CLIS_INOPEN             =8
 defc    CLIS_PRTTOPEN           =4
 defc    CLIS_OUTTOPEN           =2
 defc    CLIS_INTOPEN            =1
-
-defc    INDEX_UNSAFE_WS         = $28                    
-defc    UNSAFE_START            = $1FFE-INDEX_UNSAFE_WS ; $01FD6 : 3*12

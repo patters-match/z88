@@ -43,10 +43,10 @@
         include "syspar.def"
         include "time.def"
         include "sysvar.def"
+        include "sysapps.def"
 
         include "../os/lowram/lowram.def"
         include "dc.def"
-
 
 xdef    Index
 xdef    addHL_2xA
@@ -1220,11 +1220,11 @@ xref    ZeroMem
 
 
 .cmd_card
-        ld      hl, UNSAFE_START
+        ld      hl, INDEX_UNSAFE_WS_START
         ld      b, 36
         call    ZeroMem
         ld      d, 3                            ; slot #
-        ld      iy, UNSAFE_START+3*12
+        ld      iy, INDEX_UNSAFE_WS_START+3*12
 
 .crd_1                                          ; slot loop
         ld      bc, -12
@@ -1400,7 +1400,7 @@ xref    ZeroMem
 ;       point IY to data of card A
 
 .GetCardData
-        ld      iy, UNSAFE_START-12
+        ld      iy, INDEX_UNSAFE_WS_START-12
         inc     a
         ld      bc, 12
         ld      d, b                            ; d = 0

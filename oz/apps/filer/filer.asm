@@ -50,10 +50,9 @@
 
         org ORG_FILER
 
-defc    f_Vars          = $1dce
 defc    NBUFSIZE        = 240
 
-defvars f_Vars
+defvars FILER_UNSAFE_WS_START
      f_Confirm               ds.b    1
      f_Flags1                ds.b    1
      f_OutLnCnt              ds.b    1       ; $1dd0
@@ -87,7 +86,7 @@ enddef
 
 .Filer
         xor     a                               ; clear variables up to and including two bytes of StrBuffer
-        ld      hl, f_Vars
+        ld      hl, FILER_UNSAFE_WS_START
         ld      b, 34
 .f_1
         ld      (hl), a
@@ -301,7 +300,7 @@ enddef
         call    FreeDOR                         ; pre-command cleanup
         call    ZeroIX
         call    ResetSrcDestName
-        ld      hl, f_Vars
+        ld      hl, FILER_UNSAFE_WS_START
         ld      b, 9
 .loc_EC2E
         ld      (hl), a
