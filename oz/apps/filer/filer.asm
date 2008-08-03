@@ -1,5 +1,5 @@
 ; **************************************************************************************************
-; Filer Popdown (Bank 2, addressed for segment 3).
+; Filer Popdown (addressed for segment 3).
 ;
 ; This file is part of the Z88 operating system, OZ.     0000000000000000      ZZZZZZZZZZZZZZZZZZZ
 ;                                                       000000000000000000   ZZZZZZZZZZZZZZZZZZZ
@@ -45,6 +45,7 @@
         include "stdio.def"
         include "syspar.def"
         include "time.def"
+        include "eprom.def"
         include "sysvar.def"
         include "sysapps.def"
 
@@ -55,28 +56,29 @@ defc    NBUFSIZE        = 240
 defvars FILER_UNSAFE_WS_START
      f_Confirm               ds.b    1
      f_Flags1                ds.b    1
-     f_OutLnCnt              ds.b    1       ; $1dd0
+     f_OutLnCnt              ds.b    1
      f_ParseFlags            ds.b    1
      f_nSrcSegments          ds.b    1
      f_SourceHandle          ds.w    1
      f_DestHandle            ds.w    1
                                      ; above variables get cleared every time a new command is executed
      f_ActiveWd              ds.b    1
-     f_SelectorPos           ds.b    1       ; $1dd8
+     f_SelectorPos           ds.b    1
      f_SelectedCmd           ds.b    1
      f_NumDirEntries         ds.b    1       ; visible entries
      f_Flags2                ds.b    1
      f_SavedCmdPos           ds.b    1
      f_SourceType            ds.b    1
      f_NumSelected           ds.b    1
-     f_CmdFlags              ds.b    1       ; $1de0
+     f_CmdFlags              ds.b    1
      f_TopDirEntry           ds.w    1
      f_MemPool               ds.w    1
      f_WildcardHandle        ds.w    1
      f_SourceNameEnd         ds.w    1
-     f_DestNameEnd           ds.w    1       ; $1de9
+     f_DestNameEnd           ds.w    1
      f_SelectedList          ds.w    1
      f_unk1ded               ds.b    1
+     f_filecardslot          ds.b    1
      f_StrBuffer             ds.b    17
      f_MatchString           ds.b    17
      f_SourceName            ds.b    NBUFSIZE
@@ -110,9 +112,27 @@ enddef
         ld      (f_MemPool), ix
         call    ZeroIX
 
+; Define the default slot for a File card, available in external slot 1-3, beginning to check for 3 downwards
+; default_filecard_slot. If no File area was found, default to slot 3 (as original Filer functionality).
+
+        ld      c,3
+.poll_slots_loop
+        push    bc                              ; preserve slot number...
+        ld      a,EP_Req
+        oz      OS_Epr                          ; File Eprom Card or area available in slot C?
+        pop     bc
+        jr      c,next_slot
+        jr      z, found_filearea
+.next_slot                                      ; no header was found, but a card was available of some sort
+        dec     c
+        jr      nz, poll_slots_loop             ; continue to check slot 1-3 for File Area...
+        ld      c,3                             ; no card found, Filer defaults to slot 3 for File Cards (EPROMs)
+.found_filearea
+        ld      a,c
+        ld      (f_filecardslot),a              ; use default slot X for File Card.
+
 .f_3
         call    InitDisplay
-
 .MainLoop
         OZ      OS_In                           ; read a byte from std. input
         jr      nc, loc_EAFF
@@ -1305,10 +1325,12 @@ enddef
 
 .p3m_2
         call    FindNodeByName                  ; Print selection marker if needed
+        jr      c, nobullit
+        call    PrntRightBulletArrow            ; bullet arrow right
+        jr      p3m_3
+.nobullit
         ld      a, ' '
         OZ      OS_Out                          ; write a byte to std. output
-        jr      c, p3m_3
-        call    PrntRightBulletArrow            ; bullet arrow right
 .p3m_3
         ld      a, (f_SourceType)               ; print files normally,
         cp      Dn_Fil                          ; dirs in tiny caps
@@ -2183,7 +2205,7 @@ enddef
         defm    "Execute ",0
 
 .c_seldir
-        defb     $0C
+        defb    $0C
         defw    SelectDir
         defm    "Select Directory",0
 
@@ -2344,42 +2366,43 @@ enddef
 .CatalogueEPROM
         call    ZeroIX
         call    PrntDotOpen
-        xor     a
-        ld      h, a
-        ld      l, a
-        OZ      OS_Erh                          ; Set (install) Error Handler
-.cate_1
-        ld      b, $20 ; ' '
-        ld      hl, f_SourceName
-        ld      a, EP_Dir
-        OZ      OS_Epr                          ; File Eprom Manipulation Interface
-        jr      c, cate_3
-        ld      hl, f_SourceName
-        OZ      GN_Sop                          ; write string to std. output
-        call    PntLF_pagewait
-        jr      nc, cate_1
-        push    af
-.cate_2
-        ld      b, $20 ; ' '
-        ld      hl, f_SourceName
-        ld      a, EP_Dir
-        OZ      OS_Epr                          ; File Eprom Manipulation Interface
-        jr      nc, cate_2
-        pop     af
-.cate_3
-        push    af
-        xor     a
-        ld      hl, FilerErrHandler
-        OZ      OS_Erh                          ; Set (install) Error Handler
-        pop     af
-        cp      9
-        scf
-        ret     nz
 
-        OZ      OS_Pout                         ; write string to std. output
+        ld      a,(f_filecardslot)
+        ld      c,a
+        push    bc                              ; preserve slot number...
+        ld      a,EP_Req
+        oz      OS_Epr                          ; File Eprom Card or area available in slot C?
+        pop     bc
+        ret     c
+        ret     nz                              ; no file area!
+
+        ld      a,EP_First
+        oz      OS_epr
+        jr      c, endoflist                    ; Empty file area...
+.cate_1
+        jr      z, cate_2                       ; ignore deleted files...
+        ld      c,0
+        ld      de,f_SourceName
+        ld      a,EP_Name
+        oz      OS_Epr                          ; Get filename of entry into local f_SourceName variable
+        ex      de,hl
+        OZ      GN_Sop                          ; write filename to std. output
+        ex      de,hl
+
+        push    bc
+        push    hl                              ; preserve pointer to current file entry while waiting for end user..
+        call    PntLF_pagewait                  ; Page Wait, of full screen
+        pop     hl
+        pop     bc
+        ret     c                               ; act on possible system pre-emption...
+.cate_2
+        ld      a,EP_Next
+        oz      OS_epr
+        jr      nc, cate_1                      ; display next file entry name (if it is not a deleted file...)
+.endoflist
+        OZ      OS_Pout                         ; Reached last entry...
         defm    "*END*",0
         jp      PntLF_pagewait
-; End of function CatalogueEPROM
 
 ;----
 .Save
@@ -2425,9 +2448,19 @@ enddef
         call    OpenFile                        ; write
         ld      (f_DestHandle), ix
         ret     c
-        ld      b, 0
-        ld      hl, f_SourceName
-        ld      a, EP_Load
+
+        ld      a,(f_filecardslot)
+        ld      c, a
+        ld      de,f_SourceName+6
+        ld      A,EP_Find
+        oz      OS_Epr                          ; search for filename in default File area...
+        ret     c
+        jr      z, found_eprfile
+        ld      a,RC_Onf
+        scf
+        ret                                     ; signal "not found"
+.found_eprfile
+        ld      a, EP_Fetch                     ; found a match
         OZ      OS_Epr                          ; read file from Eprom into RAM file
         ret
 ; End of function Fetch
@@ -2768,7 +2801,7 @@ enddef
         jr      nz, cf_4
         ld      (hl), '*'
         inc     hl
-        ld      (hl), 0                         ; !! ld (hl),a
+        ld      (hl), a                         ; null-terminate string
         dec     hl
 
 .cf_4
