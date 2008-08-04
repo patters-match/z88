@@ -136,7 +136,7 @@ Entry as deleted on Flash or UV Eprom
 &nbsp; (OZ 4.2 and newer)<br>
 
 <a href="#EP_Format">EP_Format = $3f</a> Create File
-Area in slot 3 (Eprom or Flash
+Area in slot C (Eprom or Flash
 Card)&nbsp;&nbsp;(OZ 4.2 and newer)<br>
 
 <a href="#EP_WrBlk">EP_WrBlk = $42</a>
@@ -1784,13 +1784,13 @@ A.BCDEHL/IXIY same</span><br style="font-family: monospace;">
 
 <span style="font-weight: bold;"><a name="EP_Format"></a>EP_Format
 ($3f) - Create
-File Area&nbsp;in slot 3, on UV Eprom or Flash Card
+File Area&nbsp;in slot C, on UV Eprom or Flash Card
 &nbsp;(OZ 4.2 and newer)</span><br>
 
 <br>
 
 Create file area header in UV Eprom Card (or Flash card, if available)
-in slot 3. On UV Eprom, only the 64 byte header is created - on Flash
+in slot C. On UV Eprom, only the 64 byte header is created - on Flash
 Card, the complete file area is formatted and a header created.<br>
 
 <br>
@@ -1798,7 +1798,7 @@ Card, the complete file area is formatted and a header created.<br>
 <span style="font-family: monospace;">IN:</span><br style="font-family: monospace;">
 
 <span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-None</span><br style="font-family: monospace;">
+C = slot number</span><br style="font-family: monospace;">
 
 <span style="font-family: monospace;"></span><span style="font-family: monospace;">OUT:</span><br style="font-family: monospace;">
 
@@ -1806,7 +1806,7 @@ None</span><br style="font-family: monospace;">
 Fc = 0,</span><br style="font-family: monospace;">
 
 <span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-File Area created in slot 3.</span><br style="font-family: monospace;">
+File Area created in slot C.</span><br style="font-family: monospace;">
 
 <br style="font-family: monospace;">
 

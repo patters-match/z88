@@ -364,6 +364,7 @@ defc    IObuffer = 256
         jr      nc, found_fepr                  ; File EPROM identified
 
         push    hl                              ; (preserve filename pointer while formatting header)
+        ld      c,3
         call    FormatCard                      ; no File header found, try to create file header in slot 3
         pop     hl
         jp      c, sv_11                        ; error? exit
@@ -576,25 +577,32 @@ defc    IObuffer = 256
 
 
 ; ***************************************************************************************************
-; Create file area header in UV Eprom card (or Flash card, if available) in slot 3.
+; Create file area header in UV Eprom card (or Flash card, if available) in slot C.
 ; On UV Eprom, on the header is created - on Flash, the complete file area is formatted.
-; Use OS_Fep, FEP_FFMT to format a file area in slots 0-2.
 ;
-; IN:   None.
+; IN:
+;       C = slot
 ;OUT:   Fc=0, File Area formatted (either Flash or UV Eprom) in slot 3.
 ;       Fc=1, A=error if fail
 ;chg:   AFBCDEHL/IX..
 ;
 .FormatCard
-        ld      c,3
-        call    FileEprRequest                  ; poll for potential file area in slot 3
+        call    FileEprRequest                  ; poll for potential file area in slot C
         ret     z                               ; "oz" file header was found, no need to format anything...
 
-        call    FlashEprFileFormat              ; first try to format a file area, assuming a flash card is inserted in slot 3
+        push    bc
+        call    FlashEprFileFormat              ; first try to format a file area, assuming a flash card is inserted in slot X
+        pop     bc
         ret     nc                              ; flash card formatted with an "oz" file header!
 
-        ld      c,3
-        call    FileEprRequest                  ; poll for potential file area in slot 3
+        ld      a,3
+        cp      c                               ; using slot 3 for UV EPROM?
+        jr      z, blow_uvhdr
+        ld      a,RC_BWR                        ; a header cannot be blown on UV EPROM in slots 0-2
+        scf
+        ret
+.blow_uvhdr
+        call    FileEprRequest                  ; poll for potential file area in slot C
         jr      nc, create_uv_hdr               ; create a sub file area (below application area)
         ld      b,$ff                           ; card is empty, create file header at top of card
 .create_uv_hdr
@@ -785,7 +793,7 @@ defc    IObuffer = 256
 ;       BHL=EPROM pointer
 ;       IX = handle to UV Eprom programming settings
 ;OUT:   Fc=0 if write succesfull
-;       Fc=1, A=error if fail
+;       Fc=1, A=RC_BWR
 ;chg:   AF....../....
 ;
 .BlowByte
