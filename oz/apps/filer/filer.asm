@@ -2421,10 +2421,25 @@ enddef
         scf
         ld      a, RC_Ftm                       ; File Type Mismatch
         ret     nz
-        ld      b, 0
+        ld      a,(f_filecardslot)
+        ld      c,a                             ; default slot of file area to save file in
+        push    bc
+        ld      a,EP_Req
+        oz      OS_Epr                          ; File Eprom Card or area available in slot C?
+        pop     bc
+        jr      c,create_filearea
+        jr      z, save_file
+.create_filearea
+        ld      a,EP_Format
+        oz      OS_Epr
+        ret     c                               ; couldn't create file area, abort file save..
+.save_file
         ld      hl, f_SourceName
-        ld      a, EP_Save
-        OZ      OS_Epr                          ; blow RAM file to Eprom
+        ld      d,h
+        ld      e,l                             ; DE points to beginning of I/O buffer
+        ld      ix, NBUFSIZE*2                  ; buffer size is the f_SourceName and f_Destname containers
+        ld      a, EP_SvFl
+        OZ      OS_Epr                          ; blow RAM file to Flash or UV Eprom in specified slot.
         ret
 ; End of function Save
 ;----
