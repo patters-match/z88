@@ -174,11 +174,11 @@ enddef
         sub     $20
         jr      z, ShEnter
         dec     a
-        cp      $0D
-        jp      z, ChDirUp
         cp      $0E
+        jp      z, ChDirUp
+        cp      $0F
         jp      z, ChDirDown
-        cp      $0D
+        cp      $0E
         jr      nc, MainLoop
         jp      DoCmd
 
@@ -916,7 +916,7 @@ enddef
         jr      up_5
 
 .up_2
-        ld      a, 12                           ; max_cmd
+        ld      a, TotalCommands-1              ; max_cmd
         sub     6                               ; window height
         jr      z, up_3                         ; !! eh?
         jr      c, up_3                         ; !! eh?
@@ -1024,7 +1024,7 @@ enddef
         ld      a, (f_SelectedCmd)
         ld      c, a
         add     a, 6                            ; !! change these two into
-        cp      12                              ; !! cp 6
+        cp      TotalCommands-1
         jr      nc, down_2
         call    ScrollUp
         ld      a, c
@@ -1038,7 +1038,7 @@ enddef
 .down_2
         xor     a
         ld      (f_SelectedCmd), a
-        ld      a, 13
+        ld      a, TotalCommands
         cp      8
         call    nc, DrawCmdWindow               ; !! nc?
         xor     a
@@ -1252,8 +1252,8 @@ enddef
         OZ      GN_Nln                          ; send newline (CR/LF) to std. output
         pop     af
         inc     a
-        cp      13
-        ret z
+        cp      TotalCommands
+        ret     z
         djnz    loc_F1E0
         ret
 
@@ -2109,6 +2109,7 @@ enddef
         ret
 
 .Move_XY_BC
+        push    af
         OZ      OS_Pout
         defm    1,"3@",0
         ld      a, b
@@ -2117,6 +2118,7 @@ enddef
         ld      a, c
         add     a, $20 ; ' '
         OZ      OS_Out                          ; write a byte to std. output
+        pop     af
         ret
 
 ;       Apply screen changes to next A-32 bytes
@@ -2141,6 +2143,8 @@ enddef
 .to_txt
         defm    " to ",0
 
+
+defc    TotalCommands = 14
 .CmdTable
         defw    c_catf
         defw    c_catE
@@ -2155,6 +2159,7 @@ enddef
         defw    c_crdir
         defw    c_tcopy
         defw    c_nmatch
+        defw    c_selfcd
 
 ;       flags in first byte
 ;       bit     mask                                    tcp cpy del cat sve ftc exe sdi mtc ren sde mkd EPR
@@ -2223,6 +2228,11 @@ enddef
         defb    $0C
         defw    SelectDevice
         defm    "Select Device",0
+
+.c_selfcd
+        defb    $2C
+        defw    SelectFileCard
+        defm    "Select File Card",0
 
 .c_crdir
         defb    $0C
@@ -2353,6 +2363,78 @@ enddef
 .sdev_7
         jp      ToggleCrsr
 ; End of function SelectDevice
+
+
+; *************************************************************************************
+; User selects File Card by using keys 1-3 or using <>J to toggle between available
+; slots.
+;
+; IN:
+;         (f_filecardslot)
+; OUT:
+;         Selected File Card slot, stored in (f_filecardslot).
+;
+.SelectFileCard
+        OZ      OS_Pout
+        defm    1,"2+C"
+        defm    1,"3@",$20+5,$20+1
+        defm    "Select slot for default File Card: ",0
+
+        xor     a
+        ld      bc, NQ_WCUR
+        oz      OS_Nq                           ; get current VDU cursor for current window
+.inp_dev_loop
+        call    Move_XY_BC                      ; put VDU cursor at (X,Y) = (C,B)
+        ld      a,(f_filecardslot)
+        or      48
+        oz      OS_Out                          ; display the pre-selected destination file card.
+        ld      a,8
+        oz      OS_Out                          ; put blinking cursor over slot number of device
+
+.getkey
+        OZ      OS_In                           ; get another device slot number from user
+        cp      0
+        jr      z, getkey
+        cp      IN_ESC
+        ret     z                               ; user aborted selection
+        cp      IN_ENT
+        ret     z                               ; user has selected a file card...
+        cp      LF
+        jr      z, toggle_device                ; <>J
+        cp      49
+        jr      c,inp_dev_loop
+        cp      52
+        jr      nc,inp_dev_loop                 ; only "1" to "3" allowed
+
+        sub     48
+        ld      e,a
+        call    CheckSlot
+        jr      nc, inp_dev_loop                ; there's a RAM card in selected slot, find a non-RAM card slot..
+        ld      a,e
+        ld      (f_filecardslot),a
+        jr      inp_dev_loop                    ; and let it be displayed.
+.toggle_device
+        ld      a,(f_filecardslot)
+.toggle_device_loop
+        inc     a
+        cp      4
+        jr      z, wrap_slot1                   ; only scan slots 1 - 3
+        ld      e,a
+        call    checkslot                       ; check if there's a RAM card in selected slot A
+        ld      a,e
+        ld      (f_filecardslot),a
+        jr      c, inp_dev_loop                 ; Yes, toggled to a new slot ...
+        jr      toggle_device_loop              ; No, didn't find a file area...
+.wrap_slot1
+        ld      a,0
+        jr      toggle_device_loop
+.checkslot
+        push    bc
+        ld      bc,Nq_Mfp
+        oz      OS_Nq                           ; check if there's a RAM card in selected slot A
+        pop     bc
+        ret
+
 ;----
 .Erase
         call    CloseSource

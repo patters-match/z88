@@ -2055,18 +2055,18 @@ xdef    FlashStoreTopics, FlashStoreCommands, FlashStoreHelp
 
 .Filer_cmd11
         defb    Filer_cmd11_end-Filer_cmd11+1	; Length of command
-        defb    $2e	; command code
+        defb    $2f	; command code
         defm    $fb, $00
-        defm    $b9, " ", $b6
+        defm    $b9, " ", $b6                   ; "Down Directory"
         defb    $00	; Command attribute
 .Filer_cmd11_end
         defb    Filer_cmd11_end-Filer_cmd11+1
 
 .Filer_cmd12
         defb    Filer_cmd12_end-Filer_cmd12+1	; Length of command
-        defb    $2f	; command code
+        defb    $30	; command code
         defm    $fa, $00
-        defm    $ac, " ", $b6
+        defm    $ac, " ", $b6                   ; "Down Directory"
         defb    $00	; Command attribute
 .Filer_cmd12_end
         defb    Filer_cmd12_end-Filer_cmd12+1
@@ -2141,6 +2141,15 @@ xdef    FlashStoreTopics, FlashStoreCommands, FlashStoreHelp
         defb    $00	; Command attribute
 .Filer_cmd20_end
         defb    Filer_cmd20_end-Filer_cmd20+1
+
+.Filer_cmd23
+        defb    Filer_cmd23_end-Filer_cmd23+1	; Length of command
+        defb    $2e	; command code
+        defm    "SE", $00
+        defm    $e3, $ee                        ; "Select File Card"
+        defb    $00	; Command attribute
+.Filer_cmd23_end
+        defb    Filer_cmd23_end-Filer_cmd23+1
 
 .Filer_cmd21
         defb    Filer_cmd21_end-Filer_cmd21+1	; Length of command
