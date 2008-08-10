@@ -2414,41 +2414,37 @@ defc    TotalCommands = 14
         jr      nc,inp_dev_loop                 ; only "1" to "3" allowed
 
         sub     48
-        push    bc
-        ld      b,a
         call    CheckSlot
-        ld      a,b
-        pop     bc
         jr      nc, inp_dev_loop                ; there's a RAM card in selected slot, find a non-RAM card slot..
         ld      (f_filecardslot),a
         jr      inp_dev_loop                    ; and let it be displayed.
 .toggle_device
-        push    bc
         ld      a,(f_filecardslot)
-        ld      b,0
+        ld      d,0
 .toggle_device_loop
         inc     a
-        inc     b
+        inc     d
         cp      4
         jr      z, wrap_slot1                   ; only scan slots 1 - 3
-        ld      c,a
         call    checkslot                       ; check if there's a RAM card in selected slot A
-        ld      a,c
         jr      nc, toggle_device_loop          ; This slot contains contains a RAM card, check next slot
         ld      (f_filecardslot),a
 .exit_toggle
-        pop     bc
         jr      inp_dev_loop                    ; toggle was achieved, get back to main input loop..
 .wrap_slot1
-        ld      a,b
+        ld      a,d
         cp      4
         jr      z, exit_toggle                  ; toggle was not possible, get back to main loop
         ld      a,0
         jr      toggle_device_loop
 .checkslot
         push    bc
+        ld      e,a                             ; preserve A (current slot number)
+        push    de
         ld      bc,Nq_Mfp
         oz      OS_Nq                           ; check if there's a RAM card in selected slot A
+        pop     de                              ; returns Fc = 1, if no RAM in slot...
+        ld      a,e                             ; (ignore RC_ error code)
         pop     bc
         ret
 
