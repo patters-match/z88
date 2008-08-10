@@ -2393,10 +2393,13 @@ defc    TotalCommands = 14
 
 .getkey
         OZ      OS_In                           ; get another device slot number from user
+        jr      nc, check_key
+        cp      RC_ESC
+        scf
+        ret     z                               ; user aborted selection
         cp      0
         jr      z, getkey
-        cp      IN_ESC
-        ret     z                               ; user aborted selection
+.check_key
         cp      IN_ENT
         ret     z                               ; user has selected a file card...
         cp      LF
