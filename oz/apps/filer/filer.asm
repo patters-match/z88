@@ -2469,8 +2469,11 @@ defc    TotalCommands = 14
         oz      OS_Epr                          ; File Eprom Card or area available in slot C?
         pop     bc
         ret     c
-        ret     nz                              ; no file area!
-
+        jr      z, check_entry
+        scf
+        ld      a,RC_ONF
+        ret                                     ; no file area!
+.check_entry
         ld      a,EP_First
         oz      OS_epr
         jr      c, endoflist                    ; Empty file area...
