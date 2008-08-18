@@ -587,7 +587,9 @@ defc    IObuffer = 256
 ;chg:   AFBCDEHL/IX..
 ;
 .FormatCard
+        push    bc
         call    FileEprRequest                  ; poll for potential file area in slot C
+        pop     bc
         ret     z                               ; "oz" file header was found, no need to format anything...
 
         push    bc
