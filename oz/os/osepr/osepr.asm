@@ -162,6 +162,7 @@
 ; ***************************************************************************************************
 .ozFileEprNextFile
         call    FileEprNextFile                 ; return BHL = pointer to next file entry or first byte of empty space
+        ret     c
         jr      ret_bhl_fz                      ; return Fz = 1, File Entry marked as deleted, otherwise active.
 
 
