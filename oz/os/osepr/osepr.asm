@@ -108,7 +108,8 @@
         jp      ozFileEprSaveRamFile            ; 39, EP_SvFl   (OZ 4.2 and newer)
         jp      FileEprDeleteFile               ; 3c, EP_Delete (OZ 4.2 and newer)
         jp      FormatCard                      ; 3f, EP_Format (OZ 4.2 and newer)
-        jp      ozBlowMem                       ; 42, EP_WrBlk  (OZ 4.2 and newer)
+        jp      EprNewFile                      ; 42, EP_NewFile(OZ 4.2 and newer)
+        jp      ozBlowMem                       ; 45, EP_WrBlk  (OZ 4.2 and newer)
 
 
 
@@ -162,7 +163,6 @@
 ; ***************************************************************************************************
 .ozFileEprNextFile
         call    FileEprNextFile                 ; return BHL = pointer to next file entry or first byte of empty space
-        ret     c
         jr      ret_bhl_fz                      ; return Fz = 1, File Entry marked as deleted, otherwise active.
 
 
@@ -281,7 +281,7 @@
         pop     ix
         ret     c                               ; unknown blowing algorithm context
         call    BlowMem
-        jr      ret_bhl_fz                      ; return updated BHL pointer (end of block +1) or error status
+        jp      ret_bhl_fz                      ; return updated BHL pointer (end of block +1) or error status
 
 
 ; ***************************************************************************************************
@@ -317,6 +317,7 @@
 ;chg:   AFBCDEHL/....
 
 .EprLoad
+        ld      c,3
         call    IsEPROM
         ret     c                               ; not EPROM? exit
 
@@ -345,15 +346,30 @@
 
 
 ; ***************************************************************************************************
-; Write file to File Area in slot 3
+; Write file to File Area in slot 3 (Flash / UV EPROM cards).
+; If file area does not exist, try to create it.
 ;
 ;IN:    HL=filename
 ;OUT:   Fc=0, success
 ;       Fc=1, A=error if fail
 ;chg:   AFBCDEHL/....
 ;
-defc    IObuffer = 256
 .EprSave
+        ld      c,3                             ; EP_SAVE only for slot 3 hardware
+
+
+; ***************************************************************************************************
+; Write file to File Area in slot C (Flash / UV EPROM cards).
+; If file area does not exist, try to create it.
+;
+;IN:    HL=filename
+;        C=slot
+;OUT:   Fc=0, success
+;       Fc=1, A=error if fail
+;chg:   AFBCDEHL/....
+;
+defc    IObuffer = 256
+.EprNewFile
         ld      b, 0
         push    ix
 
@@ -362,12 +378,13 @@ defc    IObuffer = 256
 
 .check_fepr
         call    IsEPROM
-        jr      nc, found_fepr                  ; File EPROM identified
+        jr      z, found_fepr                   ; File EPROM identified
 
+        push    bc
         push    hl                              ; (preserve filename pointer while formatting header)
-        ld      c,3
-        call    FormatCard                      ; no File header found, try to create file header in slot 3
+        call    FormatCard                      ; no File header found, try to create file header in slot C
         pop     hl
+        pop     bc
         jp      c, sv_11                        ; error? exit
         jr      check_fepr
 .found_fepr
@@ -386,23 +403,23 @@ defc    IObuffer = 256
         push    hl
         pop     ix                              ; pointer to original filename
 
+        push    bc
         ld      b, 0
         OZ      GN_Pfs                          ; skip path
+        pop     bc
 
-        ex      de,hl
-        ld      c,3                             ; EP_SAVE always in slot 3
+        ex      de,hl                           ; EP_SAVE always in slot C
         call    FileEprFindFile                 ; find earlier version (to be marked as deleted later)
         push    af                              ; and remember found status
         push    bc
         push    hl
 
-        ld      c,3                             ; blow file to slot 3
         push    ix
         pop     hl                              ; pointer to RAM filename (to blow to file area)
         push    iy
         pop     de                              ; pointer to base of I/O buffer
         ld      ix,IObuffer                     ; size of I/O buffer
-        call    FileEprSaveRamFile
+        call    FileEprSaveRamFile              ; blow file to slot C
 
         pop     hl                              ; get old file entry (if previously found)
         pop     bc
@@ -436,6 +453,7 @@ defc    IObuffer = 256
 ;chg:   AFBCDEHL/....
 
 .EprDir
+        ld      c,3
         call    IsEPROM
         ret     c                               ; not EPROM? exit
 
@@ -494,6 +512,7 @@ defc    IObuffer = 256
 ; ***************************************************************************************************
 ; Check if card in slot 3 contains a File Area
 ;
+;IN:    C=slot number
 ;OUT:   Fc=0 if success
 ;       Fc=1, A=error if fail
 ;chg:   AF....../....
@@ -503,7 +522,6 @@ defc    IObuffer = 256
         push    de
         push    bc
 
-        ld      c,3
         call    FileEprRequest                  ; poll for file area in slot 3
 
         pop     bc
@@ -525,11 +543,14 @@ defc    IObuffer = 256
 ;               A = RC_Onf. Sub type not recognized for UV Eprom
 ;
 ; Registers changed after return:
-;    ..BCDEHL/..IY same
-;    AF....../IX.. different
+;    ..B.DEHL/..IY same
+;    AF.C..../IX.. different
 ;
 .GetUvProgMode
+        push    bc
+        ld      c,3
         call    IsEPROM                         ; poll for file area in slot 3
+        pop     bc
         ret     c                               ; no "oz" header found
         jr      z, GetUvProgHandle              ; header found, A = sub type...
         ld      a, RC_Onf
@@ -554,9 +575,7 @@ defc    IObuffer = 256
 ;    AF....../IX.. different
 ;
 .GetUvProgHandle
-        push    hl
         push    de
-        push    bc
 
         ld      de, 7                           ; each entry is 7 bytes...
         ld      ix, UvEpromTypes                ; find subtype in programming table
@@ -571,9 +590,7 @@ defc    IObuffer = 256
         ld      a, RC_Onf
         scf
 .exit_GetUvProgMode
-        pop     bc
         pop     de
-        pop     hl
         ret
 
 
