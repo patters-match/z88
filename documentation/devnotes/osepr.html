@@ -1,9 +1,6 @@
 <!DOCTYPE html PUBLIC "-//w3c//dtd html 4.0 transitional//en">
 <html><head>
-<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"><title>OS_Epr, File Eprom Interface</title>
-
-</head>
-
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"><title>OS_Epr, File Eprom Interface</title></head>
 <body>
 <table border="0" cellpadding="0" cellspacing="0" width="100%">
 <tbody>
@@ -132,7 +129,7 @@ OZ V4.2.<br>
 <hr style="width: 100%; height: 2px;"><br>
 <a name="EP_SAVE"></a><b>EP_SAVE ($00) - blow
 RAM file to Eprom in slot 3.</b>
-<pre>IN:&nbsp; BHL = pointer to filename, (B=0 means local pointer)<br><br>OUT: Fc = 0, file successfully blown on File EPROM.<br>&nbsp;&nbsp;&nbsp;&nbsp; Fc = 1:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; A = RC_FAIL ($16), file couldn't be blown on EPROM.</pre>
+<pre>IN:&nbsp; BHL = pointer to filename, (B=0 means local pointer)<br><br>OUT: Fc = 0, file successfully blown on File EPROM.<br>&nbsp;&nbsp;&nbsp;&nbsp; Fc = 1:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; A = RC_FAIL ($16), file couldn't be blown on EPROM.<br><br><span style="font-family: monospace;">Registers changed after return:</span><br style="font-family: monospace;"><span style="font-family: monospace;"> &nbsp;..BCDEHL/IXIY same</span><span style="font-family: monospace;">&nbsp;<br>  AF....../.... different</span></pre>
 
 Write RAM file to UV
 Eprom card hardware in slot 3 (or available Flash hardware). If a file
@@ -143,7 +140,7 @@ path/filename, it will automatically marked as deleted.<br>
 <hr style="width: 100%; height: 2px;"><br>
 <a name="EP_LOAD"></a><b>EP_LOAD ($03) - read
 file from Eprom in slot 3 into RAM file.</b>
-<pre>IN:&nbsp; BHL = pointer to filename (to be found on EPROM)<br>&nbsp;&nbsp;&nbsp;&nbsp; IX = output file handle (to store contents of file on EPROM)<br><br><br>OUT: Fc = 0, file successfully moved to RAM filing system.<br>&nbsp;&nbsp;&nbsp;&nbsp; Fc = 1:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; A = RC_FAIL ($16), file EPROM not available.<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; A = RC_ROOM ($07), no room in filing system for data from EPROM.</pre>
+<pre>IN:&nbsp; BHL = pointer to filename (to be found on EPROM)<br>&nbsp;&nbsp;&nbsp;&nbsp; IX = output file handle (to store contents of file on EPROM)<br><br><br>OUT: Fc = 0, file successfully moved to RAM filing system.<br>&nbsp;&nbsp;&nbsp;&nbsp; Fc = 1:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; A = RC_FAIL ($16), file EPROM not available.<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; A = RC_ROOM ($07), no room in filing system for data from EPROM.<br><br><span style="font-family: monospace;">Registers changed after return:</span><br style="font-family: monospace;"><span style="font-family: monospace;"> &nbsp;..BCDEHL/IXIY same</span><span style="font-family: monospace;">&nbsp;<br>  AF....../.... different</span></pre>
 Notes:<br>
 <div style="margin-left: 40px;">Before calling OS_Epr and
 EP_LOAD you should create a
@@ -497,7 +494,7 @@ A..CDE../IXIY same</span><br style="font-family: monospace;">
 <hr style="width: 100%; height: 2px;"><br>
 <a name="EP_DIR"></a><b>EP_DIR ($0F) - Fetch
 filename from Eprom in slot 3:</b>
-<pre>IN:&nbsp; BHL = pointer to store returned filename (B=0 means local pointer).<br><br>OUT: Fc = 0:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Filename returned at (HL), null-terminated.<br>&nbsp;&nbsp;&nbsp;&nbsp; Fc = 1:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; A = RC_EOF ($09), no more filenames on File EPROM.<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; A = RC_FAIL ($16), File EPROM not available.</pre>
+<pre>IN:&nbsp; BHL = pointer to store returned filename (B=0 means local pointer).<br><br>OUT: Fc = 0:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Filename returned at (HL), null-terminated.<br>&nbsp;&nbsp;&nbsp;&nbsp; Fc = 1:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; A = RC_EOF ($09), no more filenames on File EPROM.<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; A = RC_FAIL ($16), File EPROM not available.<br><br><span style="font-family: monospace;">Registers changed after return:</span><br style="font-family: monospace;"><span style="font-family: monospace;"> &nbsp;..BCDEHL/IXIY same</span><span style="font-family: monospace;">&nbsp;<br>  AF....../.... different</span></pre>
 Notes:
 <br>
 <div style="margin-left: 40px;">The first EPR_DIR call
@@ -1230,7 +1227,7 @@ A.BCDEHL/IXIY same</span><br style="font-family: monospace;">
 <br>
 <a name="EP_NewFile"></a><b>EP_NewFile ($42) - Write
 RAM file to File Card&nbsp;in slot C </b><span style="font-weight: bold;">(OZ 4.2 and newer)</span>
-<pre>IN:&nbsp;   <br>       C = slot number<br>     BHL = pointer to filename, (B=0 means local pointer)<br><br>OUT: Fc = 0, file successfully written to File Card in slot C (Flash or UV Eprom Card).<br>&nbsp;&nbsp;&nbsp;&nbsp; Fc = 1:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; A = RC_ error code: file couldn't be written to Card in slot C, not found, in use, etc.<br></pre>
+<pre>IN:&nbsp;   <br>       C = slot number<br>     BHL = pointer to filename, (B=0 means local pointer)<br><br>OUT: Fc = 0, file successfully written to File Card in slot C (Flash or UV Eprom Card).<br>&nbsp;&nbsp;&nbsp;&nbsp; Fc = 1:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; A = RC_ error code: file couldn't be written to Card in slot C, not found, in use, etc.<br><br><span style="font-family: monospace;">Registers changed after return:</span><br style="font-family: monospace;"><span style="font-family: monospace;"> &nbsp;..BCDEHL/IXIY same</span><span style="font-family: monospace;">&nbsp;<br>  AF....../.... different</span><br></pre>
 Write RAM file to recognized card hardware in specified slot C (UV
 Eprom or Flash). Files written to UV Eprom only works in slot 3. Files
 written to Intel Flash Cards also only works in slot 3. Files written
