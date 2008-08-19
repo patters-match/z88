@@ -2108,6 +2108,19 @@ enddef
         defm    1,"R",0
         ret
 
+.PrntInSlotNo
+        OZ      OS_Pout
+        defm    1,"2I4",1,"2JN",1,"4+TRU"      ; select window of title banner, normal justification, tiny & reverse & underline
+        defm    1,"3@",0
+        add     $20
+        OZ      OS_Out                         ; display "IN SLOT " at 0,x (in the title banner)
+        OZ      OS_Pout
+        defm    $20,"IN SLOT ",0
+        ld      a,(f_filecardslot)
+        or      $30
+        OZ      OS_Out
+        jr      PrntSelWin3                    ; select window "3" for main text output of command
+
 .Move_XY_BC
         push    af
         OZ      OS_Pout
@@ -2462,8 +2475,12 @@ defc    TotalCommands = 14
         call    ZeroIX
         call    PrntDotOpen
 
+        ld      a,50
+        call    PrntInSlotNo                    ; print "IN SLOT x" at column 50 in banner of command window, where x is (f_filecardslot)
+
         ld      a,(f_filecardslot)
         ld      c,a
+
         push    bc                              ; preserve slot number...
         ld      a,EP_Req
         oz      OS_Epr                          ; File Eprom Card or area available in slot C?
@@ -2504,6 +2521,9 @@ defc    TotalCommands = 14
 
 ;----
 .Save
+        ld      a,49
+        call    PrntInSlotNo                    ; print "IN SLOT x" at column 48 in banner of command window, where x is (f_filecardslot)
+
         call    CloseSource
         ret     c
         ld      b, 0
@@ -2542,6 +2562,9 @@ defc    TotalCommands = 14
 ; End of function Save
 ;----
 .Fetch
+        ld      a,51
+        call    PrntInSlotNo                    ; print "IN SLOT x" at column 51 in banner of command window, where x is (f_filecardslot)
+
         call    PrntSrcDest
         call    InputSrcName
         ret     c
