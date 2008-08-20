@@ -50,10 +50,9 @@
         ld      a, SC_ENA
         OZ      OS_Esc
 
-        OZ      OS_Pout
-        defm    1,"7#5",$20+50,$20+0,$20+16,$20+8,$83
-        defm    1,"2C5"
-        defm    1,"3-SC", 0
+        ld      b,0
+        ld      hl, MainWindowDef
+        oz      GN_Win
 
         ld      ix, -7
         add     ix, sp
@@ -64,18 +63,10 @@
         call    ClrScr
 
         OZ      OS_Pout
-        defm    1,"3@",$20+0,$20+0
-        defm    1,"2JC"
-        defm    1,"T"
-        defm    1,"R"
-        defm    "CLOCK"
-        defm    1,"2JN"
-        defm    1,"3@",$20+0,$20+0
-        defm    1,"2A",$20+16
-        defm    1,"R"
-        defm    1,"3@",$20+0,$20+7
+        defm    1,"3-SC", 1,"T"
+        defm    1,"3@",$20+0,$20+6
         defm    "  EXIT     SET  "
-        defm    1,"T", 0
+        defm    1,"T",0
 
         call    ClkHighlight1
 
@@ -108,7 +99,7 @@
 
         xor     a
         ld      (de), a                         ; null-terminate string
-        ld      bc, 0<<8|2
+        ld      bc, 0<<8|1
         call    MoveToXYbc
         call    JustifyC
 
@@ -163,7 +154,7 @@
         inc     sp
         push    bc
 
-        ld      bc, 4<<8|6
+        ld      bc, 4<<8|5
         call    MoveToXYbc
         push    ix
         ld      ix, 2
@@ -260,7 +251,7 @@
 
 .ClkHighlight1
         call    ToggleTiny
-        ld      bc, 0<<8|7
+        ld      bc, 0<<8|6
         push    bc
         call    MoveToXYbc
         ld      a, $20+16
@@ -269,7 +260,7 @@
         ld      a, (ix+6)
         and     1
         jr      z, chl1_1
-        ld      b, 9
+        ld      b, 8
 .chl1_1
         call    MoveToXYbc
         call    ToggleRvrs
@@ -281,13 +272,13 @@
 
 .Cl_Set
         OZ      OS_Pout
-        defm    1,"3@",$20+0,$20+1
+        defm    1,"3@",$20+0,$20+0
         defm    1,"2C",$FE
         defm    1,"3@",$20+2,$20+1
         defm    1,"T"
         defm    1,"R"
         defm    "  NEW DATE  "
-        defm    1,"3@",$20+2,$20+5
+        defm    1,"3@",$20+2,$20+4
         defm    "  NEW TIME  "
         defm    1,"R"
         defm    1,"T", 0
@@ -327,19 +318,19 @@
         push    ix
         ld      bc, 3
         add     ix, bc
-        ld      bc, 3<<8|3
+        ld      bc, 3<<8|2
         call    AskDate
         pop     ix
         ret
 
 .SetTime
-        ld      bc, 4<<8|7
+        ld      bc, 4<<8|5
         jp      AskTime
 
 ;       ----
 
 .CsShowTime
-        ld      bc, 4<<8|7
+        ld      bc, 4<<8|5
         call    MoveToXYbc
         ld      a, $21                          ; show seconds, leading zeroes
         jp      DisplayTime
@@ -356,3 +347,10 @@
         defw    Exit
         defw    Cl_Set
 
+.MainWindowDef
+        DEFB    @10100000 | 5
+        DEFW    $0032
+        DEFW    $0810
+        DEFW    clock_banner
+.clock_banner
+        defm    "CLOCK",0
