@@ -364,10 +364,9 @@ enddef
 
         ld      (ix+dix_ubCrsrXPos), c
         push    af
-        ld      hl, RBToff_txt
-        OZ      GN_Sop                          ; write string  to std. output
+        OZ      OS_Pout
+        defm    1,"4-RBT",0
         call    RemoveError
-
         pop     af
         jp      nc, loc_C29F
 
@@ -405,8 +404,10 @@ enddef
 
 .loc_C186
         push    af
-        ld      hl, byte_E2E4
-        OZ      GN_Sop                          ; write string  to std. output
+        OZ      OS_Pout
+        defm    1,"6#2",$21,$20,$7D,$28
+        defm    1,"2C2",0
+
         ld      ix, (pMemHandleMulti)
         call    MayCloseMem
 
@@ -702,14 +703,10 @@ enddef
         dec     (ix+dix_ubCrsrYPos)
         jr      cup_2
 
-
 .cup_1
-        push    hl
-        ld      hl, ScrollDown_txt
-        OZ      GN_Sop                          ; write string  to std. output
-        pop     hl
+        OZ      OS_Pout
+        defm    1,$FE,0
         call    Cpy2e_CurrentLn_TopLn
-
 
 .cup_2
         jp      loc_C11B
@@ -750,8 +747,10 @@ enddef
         push    hl
         push    de
         push    bc
-        ld      hl, ScrollUp_txt
-        OZ      GN_Sop                          ; write string  to std. output
+
+        OZ      OS_Pout
+        defm    1,$FF,0
+
         call    GetTopLnPtrs
 
         OZ      GN_Xnx
@@ -2682,8 +2681,9 @@ enddef
         ld      hl, ReplaceYN_txt
         call    ShowError
 
-        ld      hl, MoveTo_txt
-        OZ      GN_Sop                          ; write string  to std. output
+        OZ      OS_Pout
+        defm    1,"3@",0
+
         ld      a, (ix+dix_ubCrsrXPos)
         add     a, $20
         OZ      OS_Out                          ; write a byte  to std. output
@@ -6094,8 +6094,12 @@ enddef
 .loc_DFC0
         OZ      GN_Sop                          ; write string  to std. output
         call    PrntClearEOL
-        ld      hl, TrailingSpc_tyxt
-        OZ      GN_Sop                          ; write string  to std. output
+
+        OZ      OS_Pout
+        defm    1,"2-R"
+        defm    1,"2X",$6E
+        defm    " ",0
+
         pop     bc
         pop     de
         pop     hl
@@ -6242,8 +6246,7 @@ enddef
         push    bc
 
 .search_1
-        ld      hl, byte_E3F6
-        OZ      GN_Sop                          ; write string  to std. output
+        call    InitWin4
 
         OZ      OS_Pout
         defm    "SEARCH DIARY"
@@ -6294,8 +6297,7 @@ enddef
         push    bc
 
 .replace_1
-        ld      hl, byte_E3F6
-        OZ      GN_Sop                          ; write string  to std. output
+        call    InitWin4
 
         OZ      OS_Pout
         defm    "DIARY REPLACE"
@@ -6354,8 +6356,7 @@ enddef
         push    bc
 
 .list_1
-        ld      hl, byte_E3F6
-        OZ      GN_Sop                          ; write string  to std. output
+        call    InitWin4
 
         oz      OS_Pout
         defm    "LIST DIARY"
@@ -6392,8 +6393,7 @@ enddef
         push    bc
 
 .load_1
-        ld      hl, byte_E3F6
-        OZ      GN_Sop                          ; write string  to std. output
+        call    InitWin4
 
         oz      OS_Pout
         defm    "LOAD (APPEND) FILE INTO DIARY"
@@ -6435,8 +6435,7 @@ enddef
         push    bc
 
 .save_2
-        ld      hl, byte_E3F6
-        OZ      GN_Sop                          ; write string  to std. output
+        call    InitWin4
 
         oz      OS_Pout
         defm    "SAVE FILE FROM DIARY"
@@ -6492,7 +6491,6 @@ enddef
 
 .loc_E15A
         ld      a, (de)
-        ld      hl, MoveTo_59_txt
         call    sub_E269
 
         inc     de
@@ -6510,19 +6508,13 @@ enddef
 ;       ----
 
 .PntYesNo
-        push    hl
         jr      z, pyn_1
-
-        ld      hl, Yes_txt
-        jr      pyn_2
-
-
+        OZ      OS_Pout
+        defm    "Yes",0
+        ret
 .pyn_1
-        ld      hl, No_txt
-
-.pyn_2
-        OZ      GN_Sop                          ; write string  to std. output
-        pop     hl
+        OZ      OS_Pout
+        defm    "No ",0
         ret
 
 ;       ----
@@ -6546,7 +6538,6 @@ enddef
         ld      a, (hl)
         ld      c, a                            ; bit mask
         ld      a, b
-        ld      hl, MoveTo_59_txt
         call    sub_E269
 
         ld      a, (ix+dix_ubFlags5E)
@@ -6554,7 +6545,6 @@ enddef
         call    PntYesNo
 
         ld      a, b
-        ld      hl, MoveTo_59_txt
         call    sub_E269
 
 
@@ -6735,7 +6725,8 @@ enddef
         defm    1,"3@",$20+0,0
         jr      disp_byte
 .sub_E269
-        OZ      GN_Sop                          ; write string  to std. output
+        OZ      OS_Pout
+        defm    1,"3@",$20+57, 0
 .disp_byte
         add     a, $20
         OZ      OS_Out                          ; write a byte  to std. output
@@ -6744,12 +6735,10 @@ enddef
 ;       ----
 
 .ToggleCursor
-        push    hl
         push    af
-        ld      hl, Cursor_txt
-        OZ      GN_Sop                          ; write string  to std. output
+        OZ      OS_Pout
+        defm    1,"C",0
         pop     af
-        pop     hl
         ret
 
 ;       ----
@@ -6813,8 +6802,6 @@ enddef
 
         dec     (ix+dix_ubTmp)
         call    z, MayPageWait
-
-
 .loc_E2C6
         push    af
         OZ      OS_Out                          ; write a byte  to std. output
@@ -6825,11 +6812,9 @@ enddef
         jr      z, loc_E2D2
 
         OZ      OS_Prt                          ; Send  character directly to printer filter
-
 .loc_E2D2
         inc     hl
         jr      loc_E2AB
-
 
 .loc_E2D5
         pop     hl
@@ -6871,41 +6856,6 @@ enddef
 
 ;       ----
 
-.ErrHandler
-        ret     z
-        cp      RC_Quit
-        jp      z, Quit
-        cp      a
-        ret
-
-.byte_E2E4
-        defm    1,"6#2",$21,$20,$7D,$28
-        defm    1,"2C2",0
-
-.MoveTo_txt
-        defm    1,"3@",0
-
-.Cursor_txt
-        defm    1,"C",0
-
-.ScrollUp_txt
-        defm    1,$FF,0
-
-.ScrollDown_txt
-        defm    1,$FE,0
-
-
-.RBToff_txt
-        defm    1,"4-RBT",0
-
-.CRLF_txt
-        defm    $0D,$0A,0
-
-.TrailingSpc_tyxt
-        defm    1,"2-R"
-        defm    1,"2X",$6E
-        defm    " ",0
-
 .PrntEndOfText
         OZ      OS_Pout
         defm    1,"3+RT"
@@ -6914,7 +6864,10 @@ enddef
         defm    1,"2C",$FE,0
         ret
 
-.byte_E3F6
+;       ----
+
+.InitWin4
+        OZ      OS_Pout
         defm    1,"7#4",$20+1,$20+0,$20+78,$20+8,$83
         defm    1,"2C4"
         defm    1,"2-C"
@@ -6922,6 +6875,19 @@ enddef
         defm    1,"3+TR"
         defm    1,"2C",$FD
         defm    1,"2JC",0
+        ret
+
+;       ----
+
+.ErrHandler
+        ret     z
+        cp      RC_Quit
+        jp      z, Quit
+        cp      a
+        ret
+
+.CRLF_txt
+        defm    $0D,$0A,0
 
 .SearchListWd_txt
         defm    1,"7#5",$20+1,$20+1,$20+78,$20+7,$81
@@ -6963,12 +6929,6 @@ enddef
         defw    SaveDiary
         defb    5,8                             ; block
 
-.MoveTo_59_txt
-        defm    1,"3@",$20+57, 0
-.Yes_txt
-        defm    "Yes",0
-
-.No_txt defm    "No ",0
 
 .NoMem_txt
         defm    "No memory for date conversion",0
