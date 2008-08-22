@@ -1,5 +1,5 @@
 ; **************************************************************************************************
-; Diary application (Bank 1, addressed for segment 3).
+; Diary application (addressed for segment 3).
 ;
 ; This file is part of the Z88 operating system, OZ.     0000000000000000      ZZZZZZZZZZZZZZZZZZZ
 ;                                                       000000000000000000   ZZZZZZZZZZZZZZZZZZZ
@@ -22,7 +22,7 @@
 ; Additional development improvements, comments, definitions and new implementations by
 ; (C) Jorma Oksanen (jorma.oksanen@gmail.com), 2003
 ; (C) Thierry Peycru (pek@users.sf.net), 2005
-; (C) Gunther Strube (gbs@users.sf.net), 2005
+; (C) Gunther Strube (gbs@users.sf.net), 2005-2008
 ;
 ; Copyright of original (binary) implementation, V4.0:
 ; (C) 1987,88 by Trinity Concepts Limited, Protechnic Computers Limited & Operating Systems Limited.
@@ -741,12 +741,8 @@ enddef
 
         jr      nz, cdn_3
 
-        push    hl
         call    MoveTo_0_ypos
-
-        ld      hl, ClearEOL_txt
-        OZ      GN_Sop                          ; write string  to std. output
-        pop     hl
+        call    PrntClearEOL
         jr      cdn_3
 
 
@@ -1057,8 +1053,7 @@ enddef
         ld      (ix+dix_FreeMem+1), b
         ld      (ix+dix_FreeMem+2), a
         ld      (ix+dix_FreeMem+3), 0
-        ld      hl, ErrorPre_txt
-        OZ      GN_Sop                          ; write string  to std. output
+        call    PrntErrorPre
         ld      bc, (eMem_dix_254)
         ld      hl, dix_FreeMem
         add     hl, bc
@@ -2886,8 +2881,7 @@ enddef
         push    de
         push    bc
         push    af
-        ld      hl, ErrorPre_txt
-        OZ      GN_Sop                          ; write string  to std. output
+        call    PrntErrorPre
         ld      hl, 2
         ld      d, h
         ld      e, h
@@ -5940,7 +5934,6 @@ enddef
         ld      hl, MemoryLow_txt
         call    ShowError
 
-
 .chkm_10
         pop     bc
         call    MayBindS1
@@ -5998,7 +5991,7 @@ enddef
 
         pop     hl
         pop     af
-        jr      c, loc_DF4C                     ; no more to print? "end of text"
+        jp      c, PrntEndOfText                ; no more to print? "end of text"
 
         call    TstBHL
 
@@ -6006,33 +5999,20 @@ enddef
 
         call    TstCurrentLine
 
-        jr      nz, loc_DF4C
+        jp      nz, PrntEndOfText
 
-        push    hl
-        ld      hl, ClearEOL_txt
-        OZ      GN_Sop                          ; write string  to std. output
-        pop     hl
+        call    PrntClearEOL
         jr      loc_DF42
-
 
 .loc_DF3F
         call    PrintOneLine
 
-
 .loc_DF42
         dec     (ix+dix_Tmp2)
-        jr      z, locret_DF52
+        ret     z
 
         OZ      GN_Xnx
         jr      loc_DF1D
-
-
-.loc_DF4C
-        ld      hl, EndOfText_txt
-        OZ      GN_Sop                          ; write string  to std. output
-
-.locret_DF52
-        ret
 
 ;       ----
 
@@ -6044,11 +6024,8 @@ enddef
 
         OZ      GN_Xnx
         jr      c, loc_DF63
-
         call    TstBHL
-
         jr      nz, loc_DF74
-
 
 .loc_DF63
         ld      a, (ix+dix_ubCrsrYPos)
@@ -6057,9 +6034,7 @@ enddef
         jr      nc, loc_DF74
 
         call    MoveTo_0Ya
-
-        ld      hl, EndOfText_txt
-        OZ      GN_Sop                          ; write string  to std. output
+        call    PrntEndOfText
 
 .loc_DF74
         call    MoveTo_0_ypos
@@ -6091,10 +6066,8 @@ enddef
         set     DF5B_B_REVERSELINE, (ix+dix_ubFlags5B)
 
 .loc_DF98
-        push    hl
-        ld      hl, Ron_txt
-        OZ      GN_Sop                          ; write string  to std. output
-        pop     hl
+        OZ      OS_Pout
+        defm    1,"2+R",0
 
 .loc_DFA0
         push    de
@@ -6120,8 +6093,7 @@ enddef
 
 .loc_DFC0
         OZ      GN_Sop                          ; write string  to std. output
-        ld      hl, ClearEOL_txt
-        OZ      GN_Sop                          ; write string  to std. output
+        call    PrntClearEOL
         ld      hl, TrailingSpc_tyxt
         OZ      GN_Sop                          ; write string  to std. output
         pop     bc
@@ -6150,23 +6122,23 @@ enddef
 ;       ----
 
 .ShowInsertMode
-        ld      hl, IModePre_txt
-        OZ      GN_Sop                          ; write string  to std. output
+        oz      OS_Pout
+        defm    1,"2I3"
+        defm    1,"3@",$20+0,$20+6
+        defm    1,"2C",$FD
+        defm    1,"2+T"
+        defm    1,"2JC",0
+
         bit     DF5B_B_OVERWRITE, (ix+dix_ubFlags5B)
         jr      z, sim_1
 
-        ld      hl, Overtype_txt
-        jr      sim_2
-
-
+        oz      OS_Pout
+        defm    "OVERTYPE",0
+        jp      PrntErrorPost
 .sim_1
-        ld      hl, Insert_txt
-
-.sim_2
-        OZ      GN_Sop                          ; write string  to std. output
-        ld      hl, ErrorPost_txt
-        OZ      GN_Sop                          ; write string  to std. output
-        ret
+        oz      OS_Pout
+        defm    "INSERT",0
+        jp      PrntErrorPost
 
 ;       ----
 
@@ -6185,9 +6157,20 @@ enddef
         ex      de, hl
         ld      (hl), 0
         pop     de
+
         push    af
-        ld      hl, ClearDateWd
-        OZ      GN_Sop                          ; write string  to std. output
+        oz      OS_Pout
+        defm    1,"2I3"
+        defm    1,"3@",$20+0,$20+1              ; clear lines 1-4
+        defm    1,"2C",$FD
+        defm    1,"3@",$20+0,$20+2
+        defm    1,"2C",$FD
+        defm    1,"3@",$20+0,$20+3
+        defm    1,"2C",$FD
+        defm    1,"3@",$20+0,$20+4
+        defm    1,"2C",$FD
+        defm    1,"3+TL"
+        defm    1,"2JC",0
         pop     af
         jr      nc, loc_E038
 
@@ -6205,12 +6188,8 @@ enddef
 
         cp      4
         jr      nz, loc_E039
-
-
 .loc_E041
-        ld      hl, ErrorPost_txt
-        OZ      GN_Sop                          ; write string  to std. output
-        ret
+        jp      PrntErrorPost
 
 
 .PrntLn
@@ -6265,8 +6244,29 @@ enddef
 .search_1
         ld      hl, byte_E3F6
         OZ      GN_Sop                          ; write string  to std. output
-        ld      hl, Search_txt
-        OZ      GN_Sop                          ; write string  to std. output
+
+        OZ      OS_Pout
+        defm    "SEARCH DIARY"
+        defm    1,"2JN"
+        defm    1,"2-R"
+        defm    1,"3@",$20+0,$20+2
+        defm    1,"3N",$20+28,"-"
+        defm    " STRING TO SEARCH FOR "
+        defm    1,"3N",$20+28,"-"
+        defm    1,"3@",$20+17,$20+4
+        defm    "EQUATE UPPER AND LOWER CASE "
+        defm    1,"3N",$20+11,"."
+        defm    1,"3@",$20+17,$20+5
+        defm    "SEARCH ONLY MARKED BLOCK "
+        defm    1,"3N",$20+14,"."
+        defm    1,"3@",$20+17,$20+6
+        defm    "PRODUCE LIST "
+        defm    1,"3N",$20+26,"."
+        defm    1,"3@",$20+17,$20+7
+        defm    "PRINT LIST "
+        defm    1,"3N",$20+28,"."
+        defm    1,"2-T",0
+
         ld      a, 3
         call    MoveTo_0Ya
 
@@ -6296,8 +6296,30 @@ enddef
 .replace_1
         ld      hl, byte_E3F6
         OZ      GN_Sop                          ; write string  to std. output
-        ld      hl, Replace_txt
-        OZ      GN_Sop                          ; write string  to std. output
+
+        OZ      OS_Pout
+        defm    "DIARY REPLACE"
+        defm    1,"2JN"
+        defm    1,"2-R"
+        defm    1,"3@",$20+0,$20+1
+        defm    1,"3N",$20+28,"-"
+        defm    " STRING TO SEARCH FOR "
+        defm    1,"3N",$20+28,"-"
+        defm    1,"3@",$20+0,$20+3
+        defm    1,"3N",$20+27,"-"
+        defm    " STRING TO REPLACE WITH "
+        defm    1,"3N",$20+27,"-"
+        defm    1,"3@",$20+17,$20+5
+        defm    "EQUATE UPPER AND LOWER CASE "
+        defm    1,"3N",$20+11,"."
+        defm    1,"3@",$20+17,$20+6
+        defm    "ASK FOR CONFIRMATION "
+        defm    1,"3N",$20+18,"."
+        defm    1,"3@",$20+17,$20+7
+        defm    "SEARCH ONLY MARKED BLOCK "
+        defm    1,"3N",$20+14,"."
+        defm    1,"2-T",0
+
         ld      a, 2
         call    MoveTo_0Ya
 
@@ -6313,7 +6335,7 @@ enddef
         add     hl, de
         OZ      GN_Sop                          ; write string  to std. output
         ld      de, RplcUI_tbl
-        jr      ExitList
+        jp      ExitList
 
 ;       ----
 
@@ -6334,10 +6356,24 @@ enddef
 .list_1
         ld      hl, byte_E3F6
         OZ      GN_Sop                          ; write string  to std. output
-        ld      hl, List_txt
-        OZ      GN_Sop                          ; write string  to std. output
+
+        oz      OS_Pout
+        defm    "LIST DIARY"
+        defm    1,"2JN"
+        defm    1,"2-R"
+        defm    1,"3@",$20+17,$20+3
+        defm    "LIST ON SCREEN "
+        defm    1,"3N",$20+24,"."
+        defm    1,"3@",$20+17,$20+4
+        defm    "LIST ON PRINTER "
+        defm    1,"3N",$20+23,"."
+        defm    1,"3@",$20+17,$20+5
+        defm    "LIST ONLY MARKED BLOCK "
+        defm    1,"3N",$20+16,"."
+        defm    1,"2-T",0
+
         ld      de, ListUI_tbl
-        jr      ExitList
+        jp      ExitList
 
 ;       ----
 
@@ -6358,8 +6394,20 @@ enddef
 .load_1
         ld      hl, byte_E3F6
         OZ      GN_Sop                          ; write string  to std. output
-        ld      hl, Load_txt
-        OZ      GN_Sop                          ; write string  to std. output
+
+        oz      OS_Pout
+        defm    "LOAD (APPEND) FILE INTO DIARY"
+        defm    1,"2JN"
+        defm    1,"2-R"
+        defm    1,"3@",$20+0,$20+2
+        defm    1,"3N",$20+28,"-"
+        defm    " NAME OF FILE TO LOAD "
+        defm    1,"3N",$20+28,"-"
+        defm    1,"3@",$20+17,$20+5
+        defm    "START LOADING DATA AT DIARY DATE "
+        defm    1,"3N",$20+6,"."
+        defm    1,"2-T",0
+
         ld      a, 3
         call    MoveTo_0Ya
 
@@ -6368,7 +6416,7 @@ enddef
         add     hl, de
         OZ      GN_Sop                          ; write string  to std. output
         ld      de, LoadUI_tbl
-        jr      ExitList
+        jp      ExitList
 
 ;       ----
 
@@ -6389,8 +6437,20 @@ enddef
 .save_2
         ld      hl, byte_E3F6
         OZ      GN_Sop                          ; write string  to std. output
-        ld      hl, Save_txt
-        OZ      GN_Sop                          ; write string  to std. output
+
+        oz      OS_Pout
+        defm    "SAVE FILE FROM DIARY"
+        defm    1,"2JN"
+        defm    1,"2-R"
+        defm    1,"3@",$20+0,$20+2
+        defm    1,"3N",$20+28,"-"
+        defm    " NAME OF FILE TO SAVE "
+        defm    1,"3N",$20+28,"-"
+        defm    1,"3@",$20+17,$20+5
+        defm    "SAVE ONLY MARKED BLOCK "
+        defm    1,"3N",$20+16,"."
+        defm    1,"2-T",0
+
         ld      a, 3
         call    MoveTo_0Ya
 
@@ -6618,39 +6678,50 @@ enddef
         pop     hl
         ret
 
-
+; IN: HL = ptr to error message
 .ShowError
-        push    hl
-        ld      hl, ErrorPre_txt
-        OZ      GN_Sop                          ; write string  to std. output
-        pop     hl
-        OZ      GN_Sop                          ; write string  to std. output
+        call    PrntErrorPre
+        OZ      GN_Sop                          ; write string to std. output
 
 .loc_E23A
-        ld      hl, ErrorPost_txt
-        OZ      GN_Sop                          ; write string  to std. output
+        call    PrntErrorPost
         set     DF5C_B_ERRORSHOWN, (ix+dix_ubFlags5C)   ;       local flag
         ret
-
 
 .RemoveError
         bit     DF5C_B_ERRORSHOWN, (ix+dix_ubFlags5C)
         jr      z, locret_E257
 
-        push    hl
-        ld      hl, byte_E750
-        OZ      GN_Sop                          ; write string  to std. output
-        pop     hl
-        res     DF5C_B_ERRORSHOWN, (ix+dix_ubFlags5C)
+        OZ      OS_Pout
+        defm    1,"2I3"
+        defm    1,"3@",$20+0,$20+5
+        defm    1,"2C",$FD
+        defm    1,"2I2",0
 
+        res     DF5C_B_ERRORSHOWN, (ix+dix_ubFlags5C)
 .locret_E257
         ret
 
 ;       ----
 
 .InitWd
-        ld      hl, InitWd_txt
-        OZ      GN_Sop                          ; write string  to std. output
+        OZ      OS_Pout
+        defm    1,"7#2",$21,$20,$6F,$28,$81
+        defm    1,"2C2"
+        defm    1,"2-C"
+        defm    1,"7#3",$71,$20,$2C,$28,$83
+        defm    1,"2C3"
+        defm    1,"2-C"
+        defm    1,"3+RT"
+        defm    1,"2JC"
+        defm    " DIARY DATE "
+        defm    1,"2-R"
+        defm    1,"3@",$20+0,$20+7
+        defm    "MODE"
+        defm    1,"2-T"
+        defm    1,"2JN"
+        defm    1,"2I2",0
+
         res     DF5C_B_ERRORSHOWN, (ix+dix_ubFlags5C)
         ret
 
@@ -6658,14 +6729,14 @@ enddef
 
 .MoveTo_0_ypos
         ld      a, (ix+dix_ubCrsrYPos)
-;       ----
 
 .MoveTo_0Ya
-        ld      hl, MoveTo0_txt
-;       ----
-
+        OZ      OS_Pout
+        defm    1,"3@",$20+0,0
+        jr      disp_byte
 .sub_E269
         OZ      GN_Sop                          ; write string  to std. output
+.disp_byte
         add     a, $20
         OZ      OS_Out                          ; write a byte  to std. output
         ret
@@ -6707,7 +6778,6 @@ enddef
 
 .mpw_1
         call    ListDiary
-
 
 .mpw_2
         ld      hl, SearchListWd_txt
@@ -6774,6 +6844,33 @@ enddef
 
 ;       ----
 
+.PrntClearEOL
+        oz      OS_Pout
+        defm    1,"2C",$FD,0
+        ret
+
+;       ----
+
+.PrntErrorPre
+        oz      OS_Pout
+        defm    1,"2I3"
+        defm    1,"3@",$20+0,$20+5
+        defm    1,"3+TR"
+        defm    1,"2C",$FD
+        defm    1,"2JC",0
+        ret
+
+;       ----
+
+.PrntErrorPost
+        oz      OS_Pout
+        defm    1,"5-TRLB"
+        defm    1,"2JN"
+        defm    1,"2I2",0
+        ret
+
+;       ----
+
 .ErrHandler
         ret     z
         cp      RC_Quit
@@ -6784,29 +6881,6 @@ enddef
 .byte_E2E4
         defm    1,"6#2",$21,$20,$7D,$28
         defm    1,"2C2",0
-
-.InitWd_txt
-        defm    1,"7#2",$21,$20,$6F,$28,$81
-        defm    1,"2C2"
-        defm    1,"2-C"
-        defm    1,"7#3",$71,$20,$2C,$28,$83
-        defm    1,"2C3"
-        defm    1,"2-C"
-        defm    1,"3+RT"
-        defm    1,"2JC"
-        defm    " DIARY DATE "
-        defm    1,"2-R"
-        defm    1,"3@",$20+0,$20+7
-        defm    "MODE"
-        defm    1,"2-T"
-        defm    1,"2JN"
-        defm    1,"2I2",0
-
-.ClearEOL_txt
-        defm    1,"2C",$FD,0
-
-.MoveTo0_txt
-        defm    1,"3@",$20+0,0
 
 .MoveTo_txt
         defm    1,"3@",0
@@ -6820,8 +6894,6 @@ enddef
 .ScrollDown_txt
         defm    1,$FE,0
 
-.Ron_txt
-        defm    1,"2+R",0
 
 .RBToff_txt
         defm    1,"4-RBT",0
@@ -6834,40 +6906,13 @@ enddef
         defm    1,"2X",$6E
         defm    " ",0
 
-.EndOfText_txt
+.PrntEndOfText
+        OZ      OS_Pout
         defm    1,"3+RT"
         defm    " END OF TEXT "
         defm    1,"3-RT"
         defm    1,"2C",$FE,0
-
-.IModePre_txt
-        defm    1,"2I3"
-        defm    1,"3@",$20+0,$20+6
-        defm    1,"2C",$FD
-        defm    1,"2+T"
-        defm    1,"2JC",0
-
-.Overtype_txt
-        defm    "OVERTYPE",0
-.Insert_txt
-        defm    "INSERT",0
-.ErrorPost_txt
-        defm    1,"5-TRLB"
-        defm    1,"2JN"
-        defm    1,"2I2",0
-
-.ClearDateWd
-        defm    1,"2I3"
-        defm    1,"3@",$20+0,$20+1              ; clear lines 1-4
-        defm    1,"2C",$FD
-        defm    1,"3@",$20+0,$20+2
-        defm    1,"2C",$FD
-        defm    1,"3@",$20+0,$20+3
-        defm    1,"2C",$FD
-        defm    1,"3@",$20+0,$20+4
-        defm    1,"2C",$FD
-        defm    1,"3+TL"
-        defm    1,"2JC",0
+        ret
 
 .byte_E3F6
         defm    1,"7#4",$20+1,$20+0,$20+78,$20+8,$83
@@ -6877,92 +6922,6 @@ enddef
         defm    1,"3+TR"
         defm    1,"2C",$FD
         defm    1,"2JC",0
-
-.Search_txt
-        defm    "SEARCH DIARY"
-        defm    1,"2JN"
-        defm    1,"2-R"
-        defm    1,"3@",$20+0,$20+2
-        defm    1,"3N",$20+28,"-"
-        defm    " STRING TO SEARCH FOR "
-        defm    1,"3N",$20+28,"-"
-        defm    1,"3@",$20+17,$20+4
-        defm    "EQUATE UPPER AND LOWER CASE "
-        defm    1,"3N",$20+11,"."
-        defm    1,"3@",$20+17,$20+5
-        defm    "SEARCH ONLY MARKED BLOCK "
-        defm    1,"3N",$20+14,"."
-        defm    1,"3@",$20+17,$20+6
-        defm    "PRODUCE LIST "
-        defm    1,"3N",$20+26,"."
-        defm    1,"3@",$20+17,$20+7
-        defm    "PRINT LIST "
-        defm    1,"3N",$20+28,"."
-        defm    1,"2-T",0
-
-.Replace_txt
-        defm    "DIARY REPLACE"
-        defm    1,"2JN"
-        defm    1,"2-R"
-        defm    1,"3@",$20+0,$20+1
-        defm    1,"3N",$20+28,"-"
-        defm    " STRING TO SEARCH FOR "
-        defm    1,"3N",$20+28,"-"
-        defm    1,"3@",$20+0,$20+3
-        defm    1,"3N",$20+27,"-"
-        defm    " STRING TO REPLACE WITH "
-        defm    1,"3N",$20+27,"-"
-        defm    1,"3@",$20+17,$20+5
-        defm    "EQUATE UPPER AND LOWER CASE "
-        defm    1,"3N",$20+11,"."
-        defm    1,"3@",$20+17,$20+6
-        defm    "ASK FOR CONFIRMATION "
-        defm    1,"3N",$20+18,"."
-        defm    1,"3@",$20+17,$20+7
-        defm    "SEARCH ONLY MARKED BLOCK "
-        defm    1,"3N",$20+14,"."
-        defm    1,"2-T",0
-
-.List_txt
-        defm    "LIST DIARY"
-        defm    1,"2JN"
-        defm    1,"2-R"
-        defm    1,"3@",$20+17,$20+3
-        defm    "LIST ON SCREEN "
-        defm    1,"3N",$20+24,"."
-        defm    1,"3@",$20+17,$20+4
-        defm    "LIST ON PRINTER "
-        defm    1,"3N",$20+23,"."
-        defm    1,"3@",$20+17,$20+5
-        defm    "LIST ONLY MARKED BLOCK "
-        defm    1,"3N",$20+16,"."
-        defm    1,"2-T",0
-
-.Load_txt
-        defm    "LOAD (APPEND) FILE INTO DIARY"
-        defm    1,"2JN"
-        defm    1,"2-R"
-        defm    1,"3@",$20+0,$20+2
-        defm    1,"3N",$20+28,"-"
-        defm    " NAME OF FILE TO LOAD "
-        defm    1,"3N",$20+28,"-"
-        defm    1,"3@",$20+17,$20+5
-        defm    "START LOADING DATA AT DIARY DATE "
-        defm    1,"3N",$20+6,"."
-        defm    1,"2-T",0
-
-.Save_txt
-        defm    "SAVE FILE FROM DIARY"
-        defm    1,"2JN"
-        defm    1,"2-R"
-        defm    1,"3@",$20+0,$20+2
-        defm    1,"3N",$20+28,"-"
-        defm    " NAME OF FILE TO SAVE "
-        defm    1,"3N",$20+28,"-"
-        defm    1,"3@",$20+17,$20+5
-        defm    "SAVE ONLY MARKED BLOCK "
-        defm    1,"3N",$20+16,"."
-        defm    1,"2-T",0
 
 .SearchListWd_txt
         defm    1,"7#5",$20+1,$20+1,$20+78,$20+7,$81
@@ -7013,19 +6972,6 @@ enddef
 
 .NoMem_txt
         defm    "No memory for date conversion",0
-
-.byte_E750
-        defm    1,"2I3"
-        defm    1,"3@",$20+0,$20+5
-        defm    1,"2C",$FD
-        defm    1,"2I2",0
-
-.ErrorPre_txt
-        defm    1,"2I3"
-        defm    1,"3@",$20+0,$20+5
-        defm    1,"3+TR"
-        defm    1,"2C",$FD
-        defm    1,"2JC",0
 
 .MemoryLow_txt
         defm    "MEMORY LOW",7,0
