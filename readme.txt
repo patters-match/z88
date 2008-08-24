@@ -82,13 +82,18 @@ Once you've got yourself the latest snapshot of the repository, you
 will get the following directory structure with lots of files in it:
 
 /documentation
-     /devnotes      Z88 Developers Notes, html files.
+     /devnotes      Z88 Developers Notes, html files (V4.2 or later).
      /servman       Z88 Service Manual, html files
      /userguide     Z88 User Guide (4th edition, in progress)
 
 /oz                 Z88 ROM, OZ V4.2 (in development)
-     /sysdef        OZ system manifests, used by Z88 assembler sources
-     /bankX         The 128K ROM organisation
+     /apps          The system applications; Index, PipeDream, Diary, etc.
+     /dc            The DC_xx system calls
+     /def           OZ system manifests, used by Z88 assembler sources
+     /fp            The floating Poitn Package
+     /gn            The GN_xx system calls
+     /mth           Menu/Topic/Help data structures of system apps
+     /os            The OZ kernel (drivers, file I/O, serial port etc)
 
 /stdlib             Standard library routines for Z88 applications
 
@@ -97,7 +102,8 @@ will get the following directory structure with lots of files in it:
      /fontbitmap    Generate asm source for ROM fonts & token table
      /jdk           Eclipse Java Compiler and the MakeJar utility
                     (these tools are used to compile executable Jar's
-                    for OZvm, MakeApp and FontBitMap applications)
+                    for OZvm, MakeApp and FontBitMap applications), and
+                    SVN Java Client libraries.
      /makeapp       Binary loader to make Z88 ROM & Application Cards
      /mpm           Z80/Z88 Cross Module Assembler & Linker
      /ozvm          Z88 Virtual Machine & Debugger
@@ -105,19 +111,19 @@ will get the following directory structure with lots of files in it:
 /wsapps             Generic workstation Z88 related applications
      z88transfer    EazyLink Client by Sergio Costas (requires Python)
 
-/www                http://z88.sf.net web site (in progress)
-
 /z88apps            Z88 Applications & popdowns (Z80 source code)
      /debugapp      An empty popdown for OZvm debugging (load/run code)
      /eazylink      EazyLink popdown & PcLink II emulation
      /epfetch       File Eprom Management
      /flashstore    Rakewell Flash Card File Management
      /flashstest    Rakewell Flash Card testing popdown
+     /freeram       Small utility to display free RAM graphically
      /fview         Simple Ascii File Viewer popdown.
      /intuition     Z88 Application Debugger/Disassembler
      /romcombiner   BBC BASIC utility to combine applications to card.
      /romupdate     BBC BASIC utility to update/add apps to Flash Cards
      /wavplay       Play polyphonic sounds on Z88 Loudspeaker
+     /xymodem       Dennis Grönings XY-MODEM Z88 transfer client
      /z80asm        Z80 Module Assembler application
      /zdis          Z80 disassembler
      /zetriz        Tetris game in map area.

@@ -62,11 +62,11 @@ directory.
 
 You've now ready to compile the Z88 rom! Just execute the makerom.bat script (or makerom.sh for Unix
 developers) and you will have the latest OZ rom compiled from SVN, that can be installed as a binary
-for slot 0 or slot 1. 
+for slot 0 or slot 1.
 
 To use slot 0 you need to have a 512K flash AMD chip fitted onto the original motherboard.
 
-To use slot 1 you just need a 1MB flash card in slot 1. OZ gets booted automatically by the built-in ROM 
+To use slot 1 you just need a 1MB flash card in slot 1. OZ gets booted automatically by the built-in ROM
 and using an external card saves modifying the original Z88 altogether.
 
 OZ has been ported to slots 0 and 1, which enables you to blow the code to either slot. To compile it, use
@@ -85,6 +85,8 @@ be cleared and the binaries blown; finally the Z88 is hard reset and OZ is boote
 
 You can install/run the rom binary in the Z88 emulator, OZvm (in /tools/ozvm), or using a conventional
 Eprom programmer and re-blow your 128K or larger chip to be inserted into a real Z88.
+The easiest way for run the compiled ROM is to execute the run-oz.bat/sh script which will run the
+emulator with the latest OZ installed in slot 1 and boot the "virtual" Z88.
 
 Important:
 The rom script only works with Mpm Assembler V1.2 build 8 or later.
