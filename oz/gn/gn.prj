@@ -25,7 +25,6 @@ gn.asm
 gnmisc1.asm
 gnaconv.asm
 gntime.asm
-gnmisc2.asm
 gnfilter.asm
 gnchario.asm
 gnsip.asm
