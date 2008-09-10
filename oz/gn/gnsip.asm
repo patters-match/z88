@@ -1,8 +1,34 @@
-; -----------------------------------------------------------------------------
-; Bank 3 @ S3
+; **************************************************************************************************
+; Genereric input line API, GN_Sip.
+;
+; This file is part of the Z88 operating system, OZ.     0000000000000000      ZZZZZZZZZZZZZZZZZZZ
+;                                                       000000000000000000   ZZZZZZZZZZZZZZZZZZZ
+; OZ is free software; you can redistribute it and/    0000            0000              ZZZZZ
+; or modify it under the terms of the GNU General      0000            0000            ZZZZZ
+; Public License as published by the Free Software     0000            0000          ZZZZZ
+; Foundation; either version 2, or (at your option)    0000            0000        ZZZZZ
+; any later version. OZ is distributed in the hope     0000            0000      ZZZZZ
+; that it will be useful, but WITHOUT ANY WARRANTY;    0000            0000    ZZZZZ
+; without even the implied warranty of MERCHANTA-       000000000000000000   ZZZZZZZZZZZZZZZZZZZZ
+; BILITY or FITNESS FOR A PARTICULAR PURPOSE. See        0000000000000000  ZZZZZZZZZZZZZZZZZZZZ
+; the GNU General Public License for more details.
+; You should have received a copy of the GNU General Public License along with OZ; see the file
+; COPYING. If not, write to:
+;                                  Free Software Foundation, Inc.
+;                                  59 Temple Place-Suite 330,
+;                                  Boston, MA 02111-1307, USA.
+;
+; Source code was reverse engineered from OZ 4.0 (UK) ROM and made compilable by Jorma Oksanen.
+; Additional development improvements, comments, definitions and new implementations by
+; (C) Jorma Oksanen (jorma.oksanen@gmail.com), 2003
+; (C) Thierry Peycru (pek@users.sf.net), 2007
+; (C) Gunther Strube (gbs@users.sf.net), 2007
+;
+; Copyright of original (binary) implementation, V4.0:
+; (C) 1987,88 by Trinity Concepts Limited, Protechnic Computers Limited & Operating Systems Limited.
 ;
 ; $Id$
-; -----------------------------------------------------------------------------
+; ***************************************************************************************************
 
         Module GNSip
 
@@ -325,11 +351,12 @@ xref    PutOsf_ABC
         ld      a, $13                          ; ^S
         jp      z, sip_special                  ; cursor at end? may exit
 
-        call    ClsBufChar                      ; ghet char and classify it
-        jr      nc, sip_28                      ; non-alpha, skip !! jr to 'inc de'
-        xor     $20
+        call    ClsBufChar                      ; get char and classify it
+        jr      nc, skip_char                   ; non-alpha, skip it..
+        call    InvCase                         ; inverse alpha (both ASCII and ISO)
 .sip_28
         call    Ld_DE_A                         ; put char back
+.skip_char
         inc     de                              ; advance cursor
         inc     c
         call    sip_PrChar
@@ -830,6 +857,35 @@ xref    PutOsf_ABC
         ret
 
 ;       ----
+.InvCase
+        cp      191
+        jr      nc,InvCaseISO
+        xor     $20                             ; normal ASCII alpha's can always be case inversed...
+        ret
+.InvCaseISO
+        push    bc
+        push    hl
+        ld      hl,InvCaseTable
+        ld      b, InvCaseTable_end-InvCaseTable
+.lookup
+        ld      c,(hl)
+        cp      c                               ; check for upper case -> lower case
+        jr      z, found_invcase
+        set     5,c                             ; check for lower case -> upper case
+        cp      c
+        inc     hl
+        jr      z, found_invcase
+        djnz    lookup
+        jr      exit_invcase
+.found_invcase
+        xor     $20                             ; case inverse the allowed ISO character
+.exit_invcase
+        pop     hl
+        pop     bc
+        ret
+.InvCaseTable
+        defb    196, 197, 198, 199, 203, 209, 214, 216, 220
+.InvCaseTable_end
 
 
 .SipExtended_tbl
