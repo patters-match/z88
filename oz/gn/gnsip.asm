@@ -1,5 +1,5 @@
 ; **************************************************************************************************
-; Genereric input line API, GN_Sip.
+; Generic input line API, GN_Sip.
 ;
 ; This file is part of the Z88 operating system, OZ.     0000000000000000      ZZZZZZZZZZZZZZZZZZZ
 ;                                                       000000000000000000   ZZZZZZZZZZZZZZZZZZZ

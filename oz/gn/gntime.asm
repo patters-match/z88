@@ -66,7 +66,6 @@ xref    GetSysTime
 xref    GN_ret1c
 xref    GNDeiMain
 xref    GNDieMain
-xref    Mulu16
 xref    Mulu24
 xref    Mulu40
 xref    PutOsf_ABC
