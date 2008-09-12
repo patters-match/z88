@@ -948,11 +948,41 @@
         ret     z                               ; end of line reached...
         oz      GN_Cls                          ; validate type of character
         jr      nc,move_cursor                  ; skip, not classified as an alpha character...
-        xor     $20                             ; invert character case
+        call    InvCase                         ; invert character case
         ld      (hl),a
         call    L_8687
 .move_cursor
         jp      MthKey_CursorRight              ; move cursor one character to the right
+
+.InvCase
+        cp      191
+        jr      nc,InvCaseISO
+        xor     $20                             ; normal ASCII alpha's can always be case inversed...
+        ret
+.InvCaseISO
+        push    bc
+        push    hl
+        ld      hl,InvCaseTable
+        ld      b, InvCaseTable_end-InvCaseTable
+.lookup
+        ld      c,(hl)
+        cp      c                               ; check for upper case -> lower case
+        jr      z, found_invcase
+        set     5,c                             ; check for lower case -> upper case
+        cp      c
+        inc     hl
+        jr      z, found_invcase
+        djnz    lookup
+        jr      exit_invcase
+.found_invcase
+        xor     $20                             ; case inverse the allowed ISO character
+.exit_invcase
+        pop     hl
+        pop     bc
+        ret
+.InvCaseTable
+        defb    196, 197, 198, 199, 203, 209, 214, 216, 220
+.InvCaseTable_end
 
 .L_866D
         call    L_857F
@@ -17254,6 +17284,9 @@
         call    L_FF99
         ld      (hl),$00
         ret
+
+        xor     a
+
 .L_FF99
         push    iy
         pop     ix
