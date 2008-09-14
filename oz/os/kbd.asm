@@ -878,12 +878,12 @@ xref    DrawOZWd                                ; [Kernel0]/ozwindow.asm
 .SpecInternal
 
         ld      c, 4
-        cp      $fc                             ; IN_LFT
+        cp      IN_LFT
         jr      nc, si_1                        ; cursor key
         ld      c, $10
-        cp      $e1                             ; this code relies on fact that (IN_ENTER)
+        cp      IN_ENTER                        ; this code relies on fact that (IN_ENTER)
         ret     c                               ; $e4 (internal ESC) is unused
-        cp      $e8                             ; IN_CAPS
+        cp      IN_CAPS
         ccf
         ret     c
 .si_1   bit     QB_DIAMOND, d

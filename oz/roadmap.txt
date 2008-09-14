@@ -10,10 +10,6 @@ TODO (with priorities):
 - Update OZ Developers Notes to reflect new APIs. P1
 - Free RAM display in Index <>CARD display. P1
 - Add Flash EPROM Format command in Filer. P1
-- Add Select EPROM device command in Filer. P1
-
-- Remove hardcoded IN keys in SpecInternal and IsForeignKey (kbd.asm) P2
-
 - Fixes of known OZ bugs (a good bunch of small stuff all around - see reference section in Dev Notes). P3
 - Validate flags in code after OS_Mpb -> OZ_MPB (fast bank switching) code replacements in OZ. P3
 
@@ -86,6 +82,8 @@ DONE
 - Transform OSSci to be page independent (OSSciTable). P2
 - Transform OSCli to be page independent (Key2Meta routine). P2
 - Implemented Spanish keyboard and selection in Panel (TP).
+- Add Select EPROM device command in Filer. P1
+- Remove hardcoded IN keys in SpecInternal and IsForeignKey (kbd.asm) P2
 
 
 
