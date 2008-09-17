@@ -39,6 +39,7 @@
         include "error.def"
         include "fileio.def"
         include "eprom.def"
+        include "flashepr.def"
         include "integer.def"
         include "memory.def"
         include "saverst.def"
@@ -112,8 +113,9 @@ enddef
         ld      (f_MemPool), ix
         call    ZeroIX
 
-; Define the default slot for a File card, available in external slot 1-3, beginning to check for 3 downwards
-; default_filecard_slot. If no File area was found, default to slot 3 (as original Filer functionality).
+; Define the default slot for a File card, available in external slot 1-3, beginning to check for 3 downwards,
+; including slot 0 (if 512K Flash has been installed with OZ 4.2 and special file area).
+; If no File area was found, default to slot 3 (as original Filer functionality).
 
         ld      c,3
 .poll_slots_loop
@@ -125,6 +127,8 @@ enddef
         jr      z, found_filearea
 .next_slot                                      ; no header was found, but a card was available of some sort
         dec     c
+        ld      a,-1
+        cp      c
         jr      nz, poll_slots_loop             ; continue to check slot 1-3 for File Area...
         ld      c,3                             ; no card found, Filer defaults to slot 3 for File Cards (EPROMs)
 .found_filearea
@@ -174,11 +178,11 @@ enddef
         sub     $20
         jr      z, ShEnter
         dec     a
-        cp      $0E
-        jp      z, ChDirUp
         cp      $0F
+        jp      z, ChDirUp
+        cp      $10
         jp      z, ChDirDown
-        cp      $0E
+        cp      $0F
         jr      nc, MainLoop
         jp      DoCmd
 
@@ -2157,7 +2161,7 @@ enddef
         defm    " to ",0
 
 
-defc    TotalCommands = 14
+defc    TotalCommands = 15
 .CmdTable
         defw    c_catf
         defw    c_catE
@@ -2173,6 +2177,7 @@ defc    TotalCommands = 14
         defw    c_tcopy
         defw    c_nmatch
         defw    c_selfcd
+        defw    c_crefcd
 
 ;       flags in first byte
 ;       bit     mask                                    tcp cpy del cat sve ftc exe sdi mtc ren sde mkd EPR
@@ -2246,6 +2251,11 @@ defc    TotalCommands = 14
         defb    $2C
         defw    SelectFileCard
         defm    "Select File Card",0
+
+.c_crefcd
+        defb    $2C
+        defw    CreateFileCard
+        defm    "Create File Card",0
 
 .c_crdir
         defb    $0C
@@ -2379,7 +2389,7 @@ defc    TotalCommands = 14
 
 
 ; *************************************************************************************
-; User selects File Card by using keys 1-3 or using <>J to toggle between available
+; User selects File Card by using keys 0-3 or using <>J to toggle between available
 ; slots.
 ;
 ; IN:
@@ -2388,15 +2398,10 @@ defc    TotalCommands = 14
 ;         Selected File Card slot, stored in (f_filecardslot).
 ;
 .SelectFileCard
-        OZ      OS_Pout
-        defm    1,"2+C"
-        defm    1,"3@",$20+5,$20+1
-        defm    "Select slot for default File Card"
-        defm    1,"3@",$20+5,$20+2
-        defm    "Use keys 1-3 or ",1, "+J to toggle. ", 1, SD_ENT, " to select."
-        defm    1,"3@",$20+5,$20+3
-        defm    "Slot ",0
+        ld      hl, selslottext
 
+.SelectSlotPrompt
+        call    PrntSelectSlotPrompt
         xor     a
         ld      bc, NQ_WCUR
         oz      OS_Nq                           ; get current VDU cursor for current window
@@ -2407,7 +2412,6 @@ defc    TotalCommands = 14
         oz      OS_Out                          ; display the pre-selected destination file card.
         ld      a,8
         oz      OS_Out                          ; put blinking cursor over slot number of device
-
 .getkey
         OZ      OS_In                           ; get another device slot number from user
         jr      nc, check_key
@@ -2421,16 +2425,19 @@ defc    TotalCommands = 14
         ret     z                               ; user has selected a file card...
         cp      LF
         jr      z,toggle_device                 ; <>J
-        cp      49
+        cp      $30
         jr      c,inp_dev_loop
-        cp      52
-        jr      nc,inp_dev_loop                 ; only "1" to "3" allowed
+        cp      $34
+        jr      nc,inp_dev_loop                 ; only "0" to "3" allowed
 
         sub     48
-        call    CheckSlot
+        jr      nz, check_for_ram
+        call    checkflash                      ; check if there is a flash chip in slot 0
+        jr      nc, possible_filecard           ; found it, register as selected device
+.check_for_ram
+        call    checkram
         jr      nc, inp_dev_loop                ; there's a RAM card in selected slot, find a non-RAM card slot..
-        ld      (f_filecardslot),a
-        jr      inp_dev_loop                    ; and let it be displayed.
+        jr      possible_filecard               ; and let it be displayed.
 .toggle_device
         ld      a,(f_filecardslot)
         ld      d,0
@@ -2438,19 +2445,32 @@ defc    TotalCommands = 14
         inc     a
         inc     d
         cp      4
-        jr      z, wrap_slot1                   ; only scan slots 1 - 3
-        call    checkslot                       ; check if there's a RAM card in selected slot A
-        jr      nc, toggle_device_loop          ; This slot contains contains a RAM card, check next slot
+        jr      z, wrap_slot1                   ; scan slots 0 - 3
+        cp      0
+        jr      nz, check_ram
+        call    checkflash                      ; check if there is a flash chip in slot 0
+        jr      nc, possible_filecard           ; found it, register as selected device
+.check_ram
+        call    checkram                        ; check if there's a RAM card in selected slot A
+        jr      nc, toggle_device_loop          ; This slot contains a RAM card, check next slot
+.possible_filecard
         ld      (f_filecardslot),a
-.exit_toggle
         jr      inp_dev_loop                    ; toggle was achieved, get back to main input loop..
 .wrap_slot1
         ld      a,d
         cp      4
-        jr      z, exit_toggle                  ; toggle was not possible, get back to main loop
-        ld      a,0
+        jr      z, inp_dev_loop                 ; toggle was not possible, get back to main loop
+        ld      a,-1
         jr      toggle_device_loop
-.checkslot
+.checkflash
+        push    bc
+        ld      c,a
+        ld      a,FEP_CDID
+        oz      OS_Fep
+        ld      a,c
+        pop     bc
+        ret
+.checkram
         push    bc
         ld      e,a                             ; preserve A (current slot number)
         push    de
@@ -2460,6 +2480,66 @@ defc    TotalCommands = 14
         ld      a,e                             ; (ignore RC_ error code)
         pop     bc
         ret
+.selslottext
+        defm    "Select slot for default File Card", 0
+
+; Init slot selection menu window with dynamic prompt text in HL
+.PrntSelectSlotPrompt
+        OZ      OS_Pout
+        defm    1,"2+C"
+        defm    1,"3@",$20+5,$20+1,0
+        oz      GN_Sop
+        OZ      OS_Pout
+        defm    1,"3@",$20+5,$20+2
+        defm    "Use keys 0-3 or ",1, "+J to toggle. ", 1, SD_ENT, " to select."
+        defm    1,"3@",$20+5,$20+3
+        defm    "Slot ",0
+        ret
+
+
+; *************************************************************************************
+; Create or re-format File Card by using keys 0-3 or using <>J to toggle between available
+; slots.
+;
+; IN:
+;         (f_filecardslot)
+; OUT:
+;         Selected File Card slot, stored in (f_filecardslot).
+;
+.CreateFileCard
+        ld      hl, crefcardtext
+        call    SelectSlotPrompt
+        ret     c                               ; user aborted slot selection with ESC...
+
+        ld      a,(f_filecardslot)
+        ld      c,a
+        ld      a, EP_Count
+        oz      OS_Epr
+        jr      c, no_file_area                 ; no file area found in slot C when checking for files.
+        add     hl,de
+        ld      a,h
+        or      l                               ; no files in file area?
+        ret     z                               ; yes, just return - no need to re-format..
+
+        OZ      OS_Pout
+        defm    1,"2-C"
+        defm    1,"3@",$20+5,$20+5
+        defm    "File area contains files. Re-format",0
+
+        xor     a
+        call    GetYesNo
+        ret     c                               ; user aborted command with ESC...
+        or      a
+        ret     nz                              ; user selected "No" to re-format existing file card contents
+.no_file_area
+        ld      a,(f_filecardslot)
+        ld      c,a
+        ld      a, EP_Format
+        oz      OS_Epr                          ; try to create file area in slot C and return error, if any.
+        ret
+.crefcardtext
+        defm    "Select slot to create or re-format File Card", 0
+
 
 ;----
 .Erase
