@@ -42,6 +42,7 @@
         include "sysvar.def"
         include "interrpt.def"
         include "card.def"
+        include "flashepr.def"
 
         xref PutOSFrame_BHL                     ; misc5.asm
         xref PutOSFrame_CDE                     ; misc5.asm
@@ -605,16 +606,13 @@ defc    IObuffer = 256
 ;chg:   AFBCDEHL/IX..
 ;
 .FormatCard
-        push    bc
-        call    FileEprRequest                  ; poll for potential file area in slot C
-        pop     bc
-        ret     z                               ; "oz" file header was found, no need to format anything...
-
-        push    bc
-        call    FlashEprFileFormat              ; first try to format a file area, assuming a flash card is inserted in slot X
-        pop     bc
-        ret     nc                              ; flash card formatted with an "oz" file header!
-
+        ld      a,FEP_CDID
+        oz      OS_Fep                          ; flash chip in slot C?
+        jr      c, check_uvslot                 ; no, try create file area on UV EPROM
+.flash_recognized
+        call    FlashEprFileFormat              ; try to format a file area, assuming a flash card is inserted in slot X
+        ret                                     ; flash card formatted with an "oz" file header, or return error
+.check_uvslot
         ld      a,3
         cp      c                               ; using slot 3 for UV EPROM?
         jr      z, blow_uvhdr
@@ -623,6 +621,7 @@ defc    IObuffer = 256
         ret
 .blow_uvhdr
         call    FileEprRequest                  ; poll for potential file area in slot C
+        ret     z                               ; "oz" file header was found on UV EPROM, cannot create anything...
         jr      nc, create_uv_hdr               ; create a sub file area (below application area)
         ld      b,$ff                           ; card is empty, create file header at top of card
 .create_uv_hdr
