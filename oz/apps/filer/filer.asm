@@ -113,9 +113,9 @@ enddef
         ld      (f_MemPool), ix
         call    ZeroIX
 
-; Define the default slot for a File card, available in external slot 1-3, beginning to check for 3 downwards,
+; Define the default slot for a File card, available in slots 0-3, beginning to check for 3 downwards,
 ; including slot 0 (if 512K Flash has been installed with OZ 4.2 and special file area).
-; If no File area was found, default to slot 3 (as original Filer functionality).
+; If no File area nor flash card was found, default to slot 3 (as original Filer functionality).
 
         ld      c,3
 .poll_slots_loop
@@ -126,15 +126,17 @@ enddef
         jr      c,next_slot
         jr      z, found_filearea
 .next_slot                                      ; no header was found, but a card was available of some sort
+        ld      a,FEP_CDID
+        oz      OS_Fep                          ; poll for a Flash Chip ID in slot C
+        jr      nc, found_filearea              ; found a Flash Card (but no file area) - use it as default..
         dec     c
         ld      a,-1
         cp      c
-        jr      nz, poll_slots_loop             ; continue to check slot 1-3 for File Area...
+        jr      nz, poll_slots_loop             ; continue to check slot 0-3 for File Area...
         ld      c,3                             ; no card found, Filer defaults to slot 3 for File Cards (EPROMs)
 .found_filearea
         ld      a,c
-        ld      (f_filecardslot),a              ; use default slot X for File Card.
-
+        ld      (f_filecardslot),a              ; use default slot X for (potential) File Card.
 .f_3
         call    InitDisplay
 .MainLoop
@@ -2536,7 +2538,13 @@ defc    TotalCommands = 15
         ld      c,a
         ld      a, EP_Format
         oz      OS_Epr                          ; try to create file area in slot C and return error, if any.
-        ret
+        ret     c
+
+        OZ      OS_Pout
+        defm    1,"2-C"
+        defm    1,"3@",$20+5,$20+6
+        defm    "File area created.",0
+        jp      PntLF_pagewait
 .crefcardtext
         defm    "Select slot to create or re-format File Card", 0
 
