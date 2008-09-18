@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # **************************************************************************************************
-# Run Z88 emulator with latest build of OZ, pre-installed in slot 1.
-# (C) Gunther Strube (gbs@users.sf.net) 2005-2007
+# Run Z88 emulator with latest build of OZ, pre-installed in slot 0 or 1.
+# (C) Gunther Strube (gbs@users.sf.net) 2005-2008
 #
 # This file is part of the Z88 operating system, OZ.     0000000000000000      ZZZZZZZZZZZZZZZZZZZ
 #                                                       000000000000000000   ZZZZZZZZZZZZZZZZZZZ
@@ -24,4 +24,11 @@
 # $Id$
 # ***************************************************************************************************
 
-java -jar ../tools/ozvm/z88.jar crd1 1024 29f oz.epr
+if [ ! -f "oz.bin" ]; then
+    # The emulator chooses AMD Flash as hardware type for 512K OZ ROM image for slot 0
+    java -jar ../tools/ozvm/z88.jar rom oz.bin
+fi
+
+if [ ! -f "oz.epr" ]; then
+    java -jar ../tools/ozvm/z88.jar crd1 1024 29f oz.epr
+fi

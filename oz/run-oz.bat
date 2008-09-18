@@ -1,5 +1,5 @@
 :: **************************************************************************************************
-:: Run Z88 emulator with latest build of OZ, pre-installed in slot 1
+:: Run Z88 emulator with latest build of OZ, pre-installed in slot 0 or 1
 ::
 :: (C) Gunther Strube (gbs@users.sf.net) 2005-2008
 ::
@@ -25,4 +25,13 @@
 
 @echo off
 
+if exist oz.bin goto RUN_SLOT0_OZ
+if exist oz.epr goto RUN_SLOT1_OZ
+
+:RUN_SLOT0_OZ
+java -jar ..\tools\ozvm\z88.jar rom oz.bin
+exit 0
+
+:RUN_SLOT1_OZ
 java -jar ..\tools\ozvm\z88.jar crd1 1024 29f oz.epr
+exit 0
