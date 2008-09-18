@@ -263,18 +263,26 @@
         dec     d
         jr      nz, erase_sector_loop           ; erase total of E sectors...
 .exit_ErasePtBlocks
+        ex      af,af'
+        ld      a,c                             ; get internal slot status
+        or      a
+        ex      af,af'                          ; Fz = 1 if slot 0...
+
         pop     bc                              ; top bank for header in formatted file area...
         pop     de
         ld      a,d                             ; A = FE_28F / FE_29F
-        ld      c,e                             ; C = Total of 16K banks on Flash Card                    
-        push    ix                              
+        ld      c,e                             ; C = Total of 16K banks on Flash Card
+        push    ix
         pop     hl                              ; create a new file header, or use header at (HL)
         jr      c, restore_regs0                ; error occurred during erase, skip create header...
-        dec     e                               
-        bit     5,e                             ; how big is flash chip?
+        ex      af,af'
+        jr      z, blow_hdr                     ; for slot 0, just blow header at top ROM bank (hybrid card logic only for external slots)
+        dec     e
+        bit     5,e                             ; how big is flash chip in external slot?
         jr      nz,blow_hdr                     ; adjust Bank No to upper 512K address space if chip is < 1Mb
-        set     5,b                             ; (because hybrid card have flash in upper 512k of address space)  
-.blow_hdr                    
+        set     5,b                             ; (because hybrid card have flash in upper 512k of address space)
+.blow_hdr
+        ex      af,af'                          ; restore FE_xxx type...
         call    FlashEprStdFileHeader           ; Create "oz" File Area Header in absolute bank B
 .restore_regs0
         ex      af,af'                          ; preserve return status
