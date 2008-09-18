@@ -1052,7 +1052,7 @@ enddef
         ld      (ix+dix_FreeMem+1), b
         ld      (ix+dix_FreeMem+2), a
         ld      (ix+dix_FreeMem+3), 0
-        call    PrntErrorPre
+        call    PrntTextXY
         ld      bc, (eMem_dix_254)
         ld      hl, dix_FreeMem
         add     hl, bc
@@ -2881,7 +2881,7 @@ enddef
         push    de
         push    bc
         push    af
-        call    PrntErrorPre
+        call    PrntTextXY
         ld      hl, 2
         ld      d, h
         ld      e, h
@@ -6128,7 +6128,7 @@ enddef
 .ShowInsertMode
         oz      OS_Pout
         defm    1,"2I3"
-        defm    1,"3@",$20+0,$20+6
+        defm    1,"3@",$20+0,$20+5
         defm    1,"2C",$FD
         defm    1,"2+T"
         defm    1,"2JC",0
@@ -6165,13 +6165,13 @@ enddef
         push    af
         oz      OS_Pout
         defm    1,"2I3"
-        defm    1,"3@",$20+0,$20+1              ; clear lines 1-4
+        defm    1,"3@",$20+0,$20+0              ; clear lines 1-4
         defm    1,"2C",$FD
+        defm    1,"3@",$20+0,$20+1
+        defm    1,"2C",$F
         defm    1,"3@",$20+0,$20+2
         defm    1,"2C",$FD
         defm    1,"3@",$20+0,$20+3
-        defm    1,"2C",$FD
-        defm    1,"3@",$20+0,$20+4
         defm    1,"2C",$FD
         defm    1,"3+TL"
         defm    1,"2JC",0
@@ -6184,7 +6184,7 @@ enddef
 
 
 .loc_E038
-        xor     a
+        ld      a,-1
 
 .loc_E039
         inc     a
@@ -6670,7 +6670,7 @@ enddef
 
 ; IN: HL = ptr to error message
 .ShowError
-        call    PrntErrorPre
+        call    PrntTextXY
         OZ      GN_Sop                          ; write string to std. output
 
 .loc_E23A
@@ -6695,18 +6695,18 @@ enddef
 ;       ----
 
 .InitWd
+        ld      b,0
+        ld      hl,DiaryDateWdBlock
+        OZ      GN_Win
+
         OZ      OS_Pout
-        defm    1,"7#2",$21,$20,$6F,$28,$81
+        defm    1,"7#2",$21,$20,$6E,$28,$81
         defm    1,"2C2"
+        defm    1,"2I3"
         defm    1,"2-C"
-        defm    1,"7#3",$71,$20,$2C,$28,$83
-        defm    1,"2C3"
-        defm    1,"2-C"
-        defm    1,"3+RT"
+        defm    1,"3@",$20+0,$20+6
+        defm    1,"2+T"
         defm    1,"2JC"
-        defm    " DIARY DATE "
-        defm    1,"2-R"
-        defm    1,"3@",$20+0,$20+7
         defm    "MODE"
         defm    1,"2-T"
         defm    1,"2JN"
@@ -6714,6 +6714,13 @@ enddef
 
         res     DF5C_B_ERRORSHOWN, (ix+dix_ubFlags5C)
         ret
+.DiaryDateWdBlock
+        defb @10100000 | 3
+        defw $0050
+        defw $080C
+        defw date_banner
+.date_banner
+        defm "DIARY DATE",0
 
 ;       ----
 
@@ -6836,10 +6843,10 @@ enddef
 
 ;       ----
 
-.PrntErrorPre
+.PrntTextXY
         oz      OS_Pout
         defm    1,"2I3"
-        defm    1,"3@",$20+0,$20+5
+        defm    1,"3@",$20+0,$20+4
         defm    1,"3+TR"
         defm    1,"2C",$FD
         defm    1,"2JC",0
