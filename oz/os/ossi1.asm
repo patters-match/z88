@@ -1,4 +1,5 @@
 ; **************************************************************************************************
+; OZ Low level serial port interface, called by INT handler and high level OS_Gbt/OS_Pbt.
 ;
 ; This file is part of the Z88 operating system, OZ.     0000000000000000      ZZZZZZZZZZZZZZZZZZZ
 ;                                                       000000000000000000   ZZZZZZZZZZZZZZZZZZZ

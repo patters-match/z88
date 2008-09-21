@@ -42,7 +42,6 @@
 
 xdef    Beep_X
 xdef    CallFuncDE
-xdef    ClearCarry
 xdef    ClearEOL
 xdef    ClearEOW
 xdef    ClearScr
@@ -692,15 +691,8 @@ xref    Zero_ctrlprefix                         ; [Kernel1]/scrdrv1.asm
 
 ;       ----
 
-.ClearCarry
-        cp      a                               ; nop routine, remove
-        ret
-
-;       ----
 
 .NewXYValid
-        call    ClearCarry
-        ret     c
         call    NewYValid
         ret     c
 

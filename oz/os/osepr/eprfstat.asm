@@ -1,5 +1,3 @@
-     module FileEprFileStatus
-
 ; **************************************************************************************************
 ; File Area functionality.
 ;
@@ -23,6 +21,8 @@
 ; $Id$
 ;
 ; ***************************************************************************************************
+
+        module FileEprFileStatus
 
         xdef FileEprFileStatus
         xref IncBHL, PeekBHL

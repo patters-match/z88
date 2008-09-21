@@ -1,5 +1,3 @@
-        module FlashEprStdFileHeader
-
 ; **************************************************************************************************
 ; OZ Flash Memory Management.
 ;
@@ -22,6 +20,8 @@
 ;
 ; $Id$
 ; ***************************************************************************************************
+
+        module FlashEprStdFileHeader
 
         xdef FlashEprStdFileHeader
 

@@ -1,5 +1,3 @@
-        module FileEprSaveRamFile
-
 ; **************************************************************************************************
 ; File Area functionality.
 ;
@@ -22,6 +20,8 @@
 ;
 ; $Id$
 ; ***************************************************************************************************
+
+        module FileEprSaveRamFile
 
         xdef FileEprSaveRamFile
 
@@ -254,7 +254,7 @@
         pop     de
         pop     ix
         ret
-.no_filearea        
+.no_filearea
         pop     hl
         pop     hl
         pop     hl                              ; get rid of push'ed stack values

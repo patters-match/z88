@@ -1,5 +1,3 @@
-     MODULE FlashEprCardId
-
 ; **************************************************************************************************
 ; OZ Flash Memory Management.
 ;
@@ -23,16 +21,18 @@
 ; $Id$
 ; ***************************************************************************************************
 
-     xdef FlashEprCardId
+        module FlashEprCardId
 
-     xref FlashEprCardData    ; get data about Flash type & size
-     xref AM29Fx_InitCmdMode  ; prepare for AMD Chip command mode
+        xdef FlashEprCardId
 
-     include "flashepr.def"
-     include "error.def"
-     include "memory.def"
+        xref FlashEprCardData    ; get data about Flash type & size
+        xref AM29Fx_InitCmdMode  ; prepare for AMD Chip command mode
 
-     include "lowram.def"
+        include "flashepr.def"
+        include "error.def"
+        include "memory.def"
+
+        include "lowram.def"
 
 
 ; ***************************************************************************************
@@ -81,10 +81,10 @@
         inc     e
         dec     e
         jr      z, check_card_top               ; skip RAM check for upper 512K in slot 0 (always available)
-        
+
         push    bc                              ; check for hybrid hardware; 512K RAM (bottom) and 512K Flash (top)
-        ld      a,b                             
-        or      $3f                             
+        ld      a,b
+        or      $3f
         ld      b,a                             ; point at top of bank of slot
 
         call    CheckRam
@@ -95,7 +95,7 @@
         push    bc
         ld      b,a
         CALL    FetchCardID                     ; if not RAM, get info of AMD Flash Memory chip in top of slot (if avail in slot C)...
-        jr      c,check_card_bottom             ; flash chip not found 
+        jr      c,check_card_bottom             ; flash chip not found
         call    FlashEprCardData                ; verify Flash Memory ID with known Manufacturer & Device Codes (could be bogus ID from Intel)
         jr      c, check_card_bottom            ; an Intel Flash will fail when polled at the top, so check it now (at the bottom)...
         inc     sp                              ; an AMD ID was found
@@ -106,7 +106,7 @@
         ld      hl,MM_S1 << 8                   ; use segment 1 (not this executing segment which is MS_S2)
         call    CheckRam
         jr      c, unknown_flashmem             ; abort, if RAM card was found in bottom of slot C...
-                            
+
         call    FetchCardID                     ; get info of intel Flash Memory at bottom of chip in HL (if avail in slot C)...
         jr      c, unknown_flashmem             ; no ID's were polled from a (potential FE card)
 

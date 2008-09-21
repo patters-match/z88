@@ -1,5 +1,3 @@
-     module FileEprNextFile
-
 ; **************************************************************************************************
 ; File Area functionality.
 ;
@@ -23,6 +21,8 @@
 ; $Id$
 ;
 ; ***************************************************************************************************
+
+        module FileEprNextFile
 
         xdef FileEprNextFile
         xref FileEprFileEntryInfo, FileEprFileStatus

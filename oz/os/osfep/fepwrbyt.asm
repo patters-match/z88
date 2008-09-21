@@ -1,5 +1,3 @@
-     MODULE FlashEprWriteByte
-
 ; **************************************************************************************************
 ; OZ Flash Memory Management.
 ;
@@ -22,6 +20,8 @@
 ;
 ; $Id$
 ; ***************************************************************************************************
+
+        module FlashEprWriteByte
 
         xdef FlashEprWriteByte, FEP_ExecBlowbyte_29F
 

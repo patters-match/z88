@@ -48,13 +48,7 @@
 
 ;       !! get rid of IY-based variables, use absolute addressing
 
-
-defc    UnsafeWorkspaceSize     = 0             ; From Application DOR
-defc    SafeWorkspaceSize       = $20           ; From Application DOR
-defc    UnsafeWorkspaceStart    = $1FFE - UnsafeWorkspaceSize
-defc    SafeWorkspaceStart      = UnsafeWorkspaceStart - SafeWorkspaceSize
-
-defc    p_Vars = SafeWorkspaceStart
+defc    p_Vars = PRTED_SAFE_WS_START
 
 defc    PRED_PAGE1              =$20
 defc    PRED_PAGE2              =$21
@@ -1527,7 +1521,7 @@ enddef
 .dsl_8
         ld      hl, (p_pPrFileName_33)          ; extract filename part
         xor     a
-        ld      bc, -1<<8|$32                   ; !! BUG !! C should be $20
+        ld      bc, $FF20
         ld      de, (p_pPrinterName_20)
         OZ      GN_Esa                          ; read/write filename segments
 
@@ -2294,7 +2288,7 @@ enddef
 ;       ----
 
 ;IN:    A=char
-;OUT:   A=nybble
+;OUT:   A=nibble
 ;       Fc=1 if not hex
 ;
 ;!! bug $: -> $3a-$30=10 -> 10-7=3 -> valid hex?

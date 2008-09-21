@@ -780,7 +780,7 @@ enddef
         add     a, c                            ; *3
         cp      b
         jr      c, right_1
-        ld      a, (f_NumDirEntries)            ; !! ld a,b
+        ld      a, b                            ; (f_NumDirEntries)
         dec     a
 
 .right_1
@@ -848,7 +848,7 @@ enddef
         add     a, 2
         cp      b
         jr      c, left_1
-        ld      a, (f_NumDirEntries)            ; !! ld a,b
+        ld      a, b                            ; (f_NumDirEntries)
         dec     a
 
 .left_1
@@ -903,7 +903,6 @@ enddef
         or      a
         jr      z, up_1                         ; top, need scrolling
 
-        ld      a, (f_SelectorPos)              ; !! remove
         dec     a
         ld      (f_SavedCmdPos), a
         jr      up_4
@@ -914,7 +913,6 @@ enddef
         jr      z, up_2                         ; first command, redraw
 
         call    ScrollDown
-        ld      a, (f_SelectedCmd)              ; !! push/pop would save one byte
         dec     a
         ld      (f_SelectedCmd), a
         call    GetCmdData
@@ -1074,7 +1072,7 @@ enddef
         call    ScrollUp
         ld      hl, (f_TopDirEntry)
         inc     hl
-        inc     hl
+        inc     hls
         inc     hl
         ld      (f_TopDirEntry), hl
         call    Print3Matches
@@ -1803,8 +1801,7 @@ enddef
         ld      a, (f_NumDirEntries)
         ld      b, a
         or      a
-        jr      z, rsm_2                        ; none selected, exit
-        ld      a, b                            ; !! remove
+        jp      z, ApplyReverse                 ; none selected, exit
 .rsm_1
         push    bc
         ld      a, b
@@ -1863,7 +1860,7 @@ enddef
         push    bc
         ld      a, d                            ; fix high byte for S2
         and     $3F
-        or      $80
+        or      MM_S2
         ld      d, a
         push    iy
         ex      (sp), hl
@@ -2935,7 +2932,6 @@ defc    TotalCommands = 15
         ret     nz
         call    PrntDotClose
         jr      VerifiedInput
-        defb    $C9                             ; !! ret, not used
 ;----
 
 .FindFilenameEnd

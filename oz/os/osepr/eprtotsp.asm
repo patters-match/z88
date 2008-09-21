@@ -1,5 +1,3 @@
-        module FileEprTotalSpace
-
 ; **************************************************************************************************
 ; File Area functionality.
 ;
@@ -23,6 +21,8 @@
 ; $Id$
 ;
 ; ***************************************************************************************************
+
+        module FileEprTotalSpace
 
         xdef FileEprTotalSpace
         xref FileEprRequest, FileEprFileEntryInfo

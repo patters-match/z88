@@ -1,5 +1,3 @@
-     module FileEprFileEntryInfo
-
 ; **************************************************************************************************
 ; File Area functionality.
 ;
@@ -23,6 +21,8 @@
 ; $Id$
 ;
 ; ***************************************************************************************************
+
+        module FileEprFileEntryInfo
 
         xdef FileEprFileEntryInfo
         xref IncBHL, PeekBHL, PeekBHLinc

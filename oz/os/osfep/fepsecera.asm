@@ -1,5 +1,3 @@
-        module FlashEprSectorErase
-
 ; **************************************************************************************************
 ; OZ Flash Memory Management.
 ;
@@ -22,6 +20,8 @@
 ;
 ; $Id$
 ; ***************************************************************************************************
+
+        module FlashEprSectorErase
 
         xdef FlashEprSectorErase
 
@@ -102,10 +102,10 @@
         ld      a,c
         and     @00000011                       ; only slots 0, 1, 2 or 3 possible
         jr      z, calc_bankno                  ; we're in slot 0, so flash chip can only be in lower 512K of slot 0
-        bit     5,b                             
-        jr      nz,calc_bankno                  ; bank no of sector is on lower 512K address (128K or 512K chip), 
+        bit     5,b
+        jr      nz,calc_bankno                  ; bank no of sector is on lower 512K address (128K or 512K chip),
         set     5,d                             ; then use upper 512K address lines (to be compatible with hybrid card)
-.calc_bankno     
+.calc_bankno
         rrca
         rrca                                    ; Converted to Slot mask $40, $80 or $C0
         or      d                               ; the absolute bank which is the bottom of the sector
@@ -113,12 +113,12 @@
 
         and     @00111111
         ld      c,a
-        bit     5,b    
+        bit     5,b
         jr      nz,check_size
         res     5,c                             ; Card < 1Mb: for calculation, adjust bank number within size of card...
-.check_size                    
+.check_size
         inc     c                               ; this is the X'th bank of the card..
-        ld      a,b                             
+        ld      a,b
         inc     a                               ; make sure that the Flash Memory Card (A = total 16K banks on Card)
         sub     c                               ; contains the sector (to be erased)
         jr      nc, sector_exists               ; (total_banks_on_card - sector_bank < 0) ...

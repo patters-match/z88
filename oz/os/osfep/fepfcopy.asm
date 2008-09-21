@@ -1,5 +1,3 @@
-        module FlashEprCopyFileEntry
-
 ; **************************************************************************************************
 ; OZ Flash Memory Management.
 ;
@@ -22,6 +20,8 @@
 ;
 ; $Id$
 ; ***************************************************************************************************
+
+        module FlashEprCopyFileEntry
 
         xdef FlashEprCopyFileEntry
 

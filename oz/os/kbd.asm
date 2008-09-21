@@ -1,4 +1,5 @@
 ; **************************************************************************************************
+; Keyboard low-level management.
 ;
 ; This file is part of the Z88 operating system, OZ.     0000000000000000      ZZZZZZZZZZZZZZZZZZZ
 ;                                                       000000000000000000   ZZZZZZZZZZZZZZZZZZZ
@@ -31,25 +32,25 @@
 
         Module Keyboard
 
-include "blink.def"
-include "stdio.def"
-include "sysvar.def"
-include "memory.def"
-include "interrpt.def"
-include "keyboard.def"
+        include "blink.def"
+        include "stdio.def"
+        include "sysvar.def"
+        include "memory.def"
+        include "interrpt.def"
+        include "keyboard.def"
 
-include "lowram.def"
+        include "lowram.def"
 
-xdef    ExtKbMain                               ; was KbMain
-xdef    ExtQualifiers                           ; was ApplyQualifiers
-xdef    IsForeignKey                            ; is char capsable
+        xdef    ExtKbMain                               ; was KbMain
+        xdef    ExtQualifiers                           ; was ApplyQualifiers
+        xdef    IsForeignKey                            ; is char capsable
 
-;xref    BfPb                                    ; [Kernel0]/lowram.def.asm
-xref    SwitchOff                               ; [Kernel0]/nmi.asm
-xref    MaySetEsc                               ; [Kernel0]/esc.asm
-xref    MS2BankA                                ; [Kernel0]/memmisc.asm
-xref    UpdateRnd                               ; [Kernel0]/random.asm
-xref    DrawOZWd                                ; [Kernel0]/ozwindow.asm
+        ;xref    BfPb                                    ; [Kernel0]/lowram.def.asm
+        xref    SwitchOff                               ; [Kernel0]/nmi.asm
+        xref    MaySetEsc                               ; [Kernel0]/esc.asm
+        xref    MS2BankA                                ; [Kernel0]/memmisc.asm
+        xref    UpdateRnd                               ; [Kernel0]/random.asm
+        xref    DrawOZWd                                ; [Kernel0]/ozwindow.asm
 
 ;       Stubs to bind keyboard data in/out S1
 

@@ -1,5 +1,3 @@
-     module FileEprFileSize
-
 ; **************************************************************************************************
 ; File Area functionality.
 ;
@@ -23,6 +21,8 @@
 ; $Id$
 ;
 ; ***************************************************************************************************
+
+        module FileEprFileSize
 
         xdef FileEprFileSize
         xref FileEprFileEntryInfo

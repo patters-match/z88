@@ -162,7 +162,7 @@ enddef
         ld      b, $10
         call    ClearMem
 
-        ld      a, $80                          ; S2
+        ld      a, MM_S2                        ; use segment 2 for memory pool access
         ld      bc, 0
         OZ      OS_Mop                          ; allocate memory pool, A=mask
         jp      c, loc_C0D9
@@ -196,9 +196,9 @@ enddef
         ld      (eIOBuf_242+2), a
 
         ld      c, MS_S2
-        rst     OZ_MPB                          ; bind  it in S2
+        rst     OZ_MPB                          ; bind it in S2
 
-        ld      a, $60                          ; S1, multiple  banks
+        ld      a, $60                          ; S1, multiple banks
         ld      bc, 0
         OZ      OS_Mop                          ; allocate memory pool, A=mask
         jp      c, loc_C0D9
@@ -210,7 +210,7 @@ enddef
 
         ld      b, a                            ; b00 into S1
         ld      c, MS_S1
-        rst     OZ_MPB                          ; Bind  bank B in slot C
+        rst     OZ_MPB                          ; Bind bank B in slot C
 
         ld      hl, (eMem_LineBuffers)
         ld      b, 237
@@ -259,7 +259,6 @@ enddef
 
 .loc_C0CA
         call    InitWd
-
         call    ShowInsertMode
 
         ld      (ix+dix_ubCommand), $25
@@ -267,51 +266,35 @@ enddef
 
         jr      nc, loc_C0E4
 
-
 .loc_C0D9
         ld      a, RC_Room                      ; No room
         jp      loc_C186
 
-
 .ClearMem
         xor     a
-
 .zm_1
         ld      (hl), a
         inc     hl
         djnz    zm_1
-
         ret
 
 ;       ----
 
 .loc_C0E4
         call    Cpy6_CrntDate_SrchDate
-
         call    CpyDate_Current_3
-
         call    sub_D700
-
         call    Cpy6_SrchDate_CrntDate
-
         jr      nc, loc_C107
-
 
 .loc_C0F2
         call    Cpy6_SrchLn_CrntLn
-
         call    Cpy6_CrntDate_SrchDate
-
         call    CpyDate_Current_2
-
         call    sub_D681
-
         call    CpyDate_2_Current
-
         call    Cpy6_SrchDate_CrntDate
-
         call    Cpy6_SrchLn_CrntLn
-
 
 .loc_C107
         call    PrintDate
@@ -319,22 +302,17 @@ enddef
         ld      (ix+dix_ubCrsrXPos), 0
         ld      (ix+dix_ubCrsrYPos), 0
         call    sub_D969
-
         call    RedrawDiaryWd
-
-
 .loc_C118
         call    GetCurrentLnPtrs
-
-
 .loc_C11B
         ld      de, lbuf_InputBuffer
         call    Cpy_BHL_BufDE
 
 
 .NextOption
-        ld      a, 5                            ; SC_ENA
-        OZ      OS_Esc                          ; Examine special condition
+        ld      a, SC_ENA
+        OZ      OS_Esc                          ; Enable ESC detection
         call    ShowEndOfText
 
         ld      hl, (eMem_LineBuffers)
@@ -349,9 +327,7 @@ enddef
 
 .loc_C13A
         call    CursorInBlock
-
         jr      nc, loc_C141
-
         set     6, a                            ; reverse
 
 .loc_C141
@@ -359,7 +335,7 @@ enddef
         ld      c, (ix+dix_ubCrsrXPos)
         call    ToggleCursor
 
-        OZ      GN_Sip                          ; system input  line routine
+        OZ      GN_Sip                          ; system input line routine
         call    ToggleCursor
 
         ld      (ix+dix_ubCrsrXPos), c
@@ -383,22 +359,17 @@ enddef
         cp      RC_Esc                          ; Escape condition (e.g. ESC pressed)
         jr      nz, loc_C17B
 
-        ld      a, 1                            ; SC_ACK !! already 1
-        OZ      OS_Esc                          ; Examine special condition
+        OZ      OS_Esc                          ; SC_ACK, Examine special condition
         jr      NextOption
-
 
 .loc_C17B
         cp      RC_Quit                         ; Request application to quit *
         jr      nz, NextOption
-
         jr      Quit
-
 
 .ErrQuit
         xor     a
         OZ      GN_Err                          ; Display an interactive error  box
-
 .Quit
         xor     a
 
@@ -416,7 +387,6 @@ enddef
 
         pop     af
         OZ      OS_Bye                          ; Application exit
-        jp      loc_C000
 
 
 .MayCloseMem
@@ -424,11 +394,9 @@ enddef
         pop     hl
         ld      a, l
         or      h
-        jr      z, locret_C1AA
+        ret     z
 
-        OZ      OS_Mcl                          ; Close memory  (free memory pool)
-
-.locret_C1AA
+        OZ      OS_Mcl                          ; Close memory (free memory pool)
         ret
 
 ;       ----
@@ -436,9 +404,7 @@ enddef
 .sub_C1AB
         ld      (ix+dix_ubCommand), $26
         call    CheckMemory
-
         call    nc, StoreCurrentLine
-
         call    sub_E14A
 
         set     DF5B_B_NEEDREDRAW, (ix+dix_ubFlags5B)
@@ -448,17 +414,13 @@ enddef
 .loc_C1BE
         ld      (ix+dix_ubCommand), $26
         call    CheckMemory
-
         call    nc, StoreCurrentLine
-
 
 .loc_C1C8
         call    CheckMemory
-
         jr      c, loc_C1EB
 
         call    CpyDate_Current_3
-
         call    RdMailDate
 
         ld      bc, (eMem_dix_254)
@@ -468,13 +430,10 @@ enddef
         ld      hl, dix_Date3
         add     hl, bc
         call    Cmp3_HL_DE
-
         jr      z, loc_C1EB
 
         call    sub_D76E
-
         jp      loc_C0E4
-
 
 .loc_C1EB
         call    GetCurrentLnPtrs
@@ -487,7 +446,6 @@ enddef
 
         call    RedrawDiaryWd
 
-
 .loc_C1FD
         jp      NextOption
 
@@ -496,7 +454,6 @@ enddef
 .DoWrap
         ld      (ix+dix_ubCommand), $22
         call    CheckMemory
-
         jr      nc, loc_C216
 
         ld      hl, 77                          ; lbuf_InputBuffer+77
@@ -504,7 +461,6 @@ enddef
         add     hl, de
         ld      (hl), 0
         jp      NextOption
-
 
 .loc_C216
         ld      bc, 78
@@ -515,7 +471,7 @@ enddef
         cpdr
         jr      nz, loc_C241                    ; no spaces, cut at 77
 
-        inc     hl                              ; change space  into NULL
+        inc     hl                              ; change space into NULL
         ld      (hl), 0
         inc     hl                              ; and move HL to next char
         inc     bc
@@ -533,7 +489,6 @@ enddef
 
         ldir                                    ; copy  chars
         jr      loc_C25D
-
 
 .loc_C241
         ld      bc, (eMem_LineBuffers)
@@ -555,18 +510,13 @@ enddef
         ex      de, hl                          ; NULL-terminate buf2
         ld      (hl), 0
         call    ReallocCurrent
-
         call    InsertEmptyLine
-
         call    Cpy_Buf2_InBuf
-
         call    ReallocCurrent
-
         call    RetreatCurrentPtrs
 
         ld      de, lbuf_InputBuffer
         call    Cpy_BHL_BufDE
-
         call    PrintCurrentLn
 
         ld      hl, lbuf_InputBuffer
@@ -579,16 +529,13 @@ enddef
         sub     c                               ; strlen()
         cp      (ix+dix_ubCrsrXPos)
         jr      c, loc_C291
-
         jp      nz, NextOption
-
 
 .loc_C291
         ld      c, a
         ld      a, (ix+dix_ubCrsrXPos)
         sub     c
         jr      z, loc_C299
-
         dec     a
 
 .loc_C299
@@ -605,7 +552,6 @@ enddef
         call    CheckMemory
 
         jp      c, NextOption
-
         jp      ToggleInsert
 
 
@@ -615,10 +561,8 @@ enddef
 
         ld      (ix+dix_ubCommand), $23
         call    CheckMemory
-
         jp      c, NextOption
-
-        jp      loc_C372                        ; move  to next line
+        jp      loc_C372                        ; move to next line
 
 
 .loc_C2C1
@@ -630,7 +574,6 @@ enddef
 
         ld      (ix+dix_ubCommand), a
         call    CheckMemory
-
         jp      c, NextOption
 
         sla     a
@@ -689,11 +632,9 @@ enddef
 
 .CursorUp
         call    CurrentHasPrevLine
-
         jp      z, NextOption
 
         call    ReallocCurrent
-
         call    RetreatCurrentPtrs
 
         xor     a
@@ -720,13 +661,9 @@ enddef
 
 .CursorDown
         call    CurrentHasNextLine
-
         jp      z, NextOption
-
-
 .cdn_1
         call    ReallocCurrent
-
         call    AdvanceCurrentPtrs
 
         ld      a, 7
@@ -735,13 +672,11 @@ enddef
 
         inc     (ix+dix_ubCrsrYPos)
         call    TstBHL
-
         jr      nz, cdn_3
 
         call    MoveTo_0_ypos
         call    PrntClearEOL
         jr      cdn_3
-
 
 .cdn_2
         push    hl
@@ -759,7 +694,6 @@ enddef
         pop     bc
         pop     de
         pop     hl
-
 .cdn_3
         jp      loc_C11B
 
@@ -772,30 +706,23 @@ enddef
         res     DF5B_B_OVERWRITE, (ix+dix_ubFlags5B)
         jr      tgi_2
 
-
 .tgi_1
         set     DF5B_B_OVERWRITE, (ix+dix_ubFlags5B)
 
 .tgi_2
         call    ShowInsertMode
-
         jp      NextOption
 
 ;       ----
 
 .DeleteLine
         call    ReallocCurrent
-
         call    Cpy_CurrentLine_eTmp
-
         call    TstCurrentLine
-
         jr      z, dln_1
 
         call    GetCurrentLnPtrs
-
         call    FreeCurrentLine
-
         jp      c, ErrQuit
 
         call    MayInactivateBlkSaved
@@ -804,30 +731,21 @@ enddef
         call    MayReplaceWithCurrent
 
         call    TstCurrentLine
-
         jr      nz, dln_3
-
-
 .dln_1
         call    CurrentHasPrevLine
-
         jr      z, dln_2
 
         call    RetreatCurrentPtrs
-
         xor     a
         cp      (ix+dix_ubCrsrYPos)
         jr      z, dln_2
 
         dec     (ix+dix_ubCrsrYPos)
         jr      dln_3
-
-
 .dln_2
         ld      (ix+dix_ubCrsrYPos), 0
         call    Cpy2e_CurrentLn_TopLn
-
-
 .dln_3
         jp      loc_D45C
 
@@ -835,17 +753,13 @@ enddef
 
 .JoinLines
         call    ReallocCurrent
-
         call    CurrentHasNextLine
-
-        jp      z, jln_err                      ; no next line? exit
+        jp      z,NextOption                    ; no next line? exit
 
         call    GetCurrentLnPtrs
-
         OZ      GN_Xnx
         call    TstBHL
-
-        jp      z, jln_err                      ; no next line? exit
+        jp      z,NextOption                    ; no next line? exit
 
         push    bc
         push    de
@@ -864,10 +778,7 @@ enddef
         jr      nz, jln_1                       ; next  not empty?
 
         call    PutCurrentLnPtrs
-
         jr      jln_del2
-
-
 .jln_1
         ld      bc, (eMem_LineBuffers)
         ld      hl, lbuf_InputBuffer
@@ -878,7 +789,7 @@ enddef
         inc     c                               ; #bytes left in buffer
         ld      a, c
         or      a
-        jr      z, jln_err
+        jp      z,NextOption                    ; no next line? exit
 
         dec     hl                              ; ptr to end(this)
         push    hl
@@ -891,7 +802,7 @@ enddef
 
 .jln_2
         ld      a, (hl)
-        cp      0
+        or      a
         jr      z, jln_4
 
         cp      $20
@@ -899,19 +810,15 @@ enddef
 
         ld      e, l                            ; remember breaking point
         ld      d, h
-
 .jln_3
         dec     c
         jr      z, jln_5
 
         inc     hl
         jr      jln_2
-
-
 .jln_4
         ld      e, l
         ld      d, h
-
 .jln_5
         pop     hl
         push    hl
@@ -931,7 +838,6 @@ enddef
         ex      de, hl
         ld      (hl), 0
         call    ReallocCurrent
-
         call    AdvanceCurrentPtrs
 
         pop     hl
@@ -953,42 +859,27 @@ enddef
         ldi
         cp      (hl)
         jr      nz, jln_6
-
         ldi
         call    ReallocCurrent
-
         jr      jln_x
-
-
-.jln_err
-        jp      NextOption
-
 
 .jln_del2
         call    Cpy_CurrentLine_eTmp
-
         call    FreeCurrentLine
-
         call    MayInactivateBlkSaved
-
-
 .jln_x
         call    RetreatCurrentPtrs
-
         jp      loc_D46B
 
 ;       ----
 
 .InsertLine
         call    ReallocCurrent
-
         call    GetCurrentLnPtrs
-
         call    Cpy_CurrentLine_eTmp
 
         ld      c, 4
         call    AllocBindMulti
-
         jp      c, NextOption
 
         call    InsertCurrentLine
@@ -998,7 +889,6 @@ enddef
         ld      (iy+3), 0                       ; length=0
         ld      hl, $1E
         call    MayReplaceWithCurrent
-
         jp      loc_D46B
 
 ;       ----
@@ -1022,22 +912,15 @@ enddef
 
         ldi
         jr      split_1
-
-
 .split_2
         ldi
         pop     hl                              ; terminate buf1
         ld      (hl), 0
         call    ReallocCurrent
-
         call    InsertEmptyLine
-
         call    Cpy_Buf2_InBuf
-
         call    ReallocCurrent
-
         call    RetreatCurrentPtrs
-
         jp      loc_D46B
 
 ;       ----
@@ -1064,18 +947,15 @@ enddef
         OZ      GN_Pdn                          ; Integer to ASCII conversion
         pop     ix
         ld      hl, Free_txt
-        OZ      GN_Sop                          ; write string  to std. output
+        OZ      GN_Sop                          ; write string to std. output
         call    loc_E23A
-
         jp      NextOption
 
 ;       ----
 
 .Tab
         call    ReallocCurrent
-
         call    Cpy_InBuf_Buf2
-
         ld      c, (ix+dix_ubCrsrXPos)
         ld      b, 0
         ld      hl, (eMem_LineBuffers)
@@ -1111,14 +991,12 @@ enddef
         ex      de, hl
         ld      (hl), 0
         call    ReallocCurrent
-
         call    GetCurrentLnPtrs
 
         bit     DF5C_B_APPND_NEWLINE, (ix+dix_ubFlags5C)
         call    nz, GetPrev
 
         call    PutCurrentLnPtrs
-
         jp      loc_D46B
 
 ;       ----
@@ -1137,25 +1015,17 @@ enddef
         jr      z, svp_2
 
         ld      b, a
-
 .svp_1
         add     hl, de
         djnz    svp_1
-
-
 .svp_2
         call    SaveState
-
         jr      svp_4
-
-
 .svp_3
         push    hl
         ld      hl, NoRoom_txt
         call    ShowError
-
         pop     hl
-
 .svp_4
         jp      NextOption
 
@@ -1181,13 +1051,11 @@ enddef
         add     hl, de
         jr      rsp_1
 
-
 .rsp_2
         push    hl
         pop     iy
         bit     0, (iy+6)
         jr      nz, rsp_4
-
 
 .rsp_3
         push    hl
@@ -1221,23 +1089,17 @@ enddef
         call    Cpy6_CrntDate_SrchDate
 
         call    sub_D72D
-
         jr      c, rsp_5
-
         jr      nz, rsp_5
 
         call    FindLineOnScreen
-
         jr      c, rsp_6
 
         call    PutCurrentLnPtrs
-
         ld      (ix+dix_ubCrsrYPos), a
         ld      de, lbuf_InputBuffer
         call    Cpy_BHL_BufDE
-
         jp      NextOption
-
 
 .rsp_5
         call    sub_D76E
@@ -1245,19 +1107,12 @@ enddef
         ld      hl, dix_Date3
         ld      de, dix_CurrentDate
         call    Cpy3_HL_DE
-
         call    sub_D700
-
         call    Cpy6_SrchDate_CrntDate
-
         jp      c, loc_C0F2
-
-
 .rsp_6
         call    sub_DAEE
-
         call    PrintDate
-
         jp      loc_D45C
 
 ;       ----
@@ -1272,13 +1127,10 @@ enddef
 
 .lln_1
         call    FindLineOnScreen
-
         jr      nc, lln_2                       ; on screen
 
         call    PutCurrentLnPtrs
-
         call    CurrentHasNextLine
-
         jr      z, lln_3
 
         OZ      GN_Xnx
@@ -1286,31 +1138,21 @@ enddef
 
         set     DF5B_B_NEEDREDRAW, (ix+dix_ubFlags5B)
         jr      lln_1
-
-
 .lln_2
         dec     a
         ld      (ix+dix_ubCrsrYPos), a
         call    GetPrev
-
         call    PutCurrentLnPtrs
-
         jr      lln_4
-
-
 .lln_3
         ld      (ix+dix_ubCrsrYPos), 7
-
 .lln_4
         ld      de, lbuf_InputBuffer
         call    Cpy_BHL_BufDE
 
         bit     DF5B_B_NEEDREDRAW, (ix+dix_ubFlags5B)
         jr      z, lln_5
-
         call    RedrawDiaryWd
-
-
 .lln_5
         jp      NextOption
 
@@ -1339,8 +1181,6 @@ enddef
         jr      z, fln_1
 
         call    RedrawDiaryWd
-
-
 .fln_1
         jp      NextOption
 
@@ -1348,34 +1188,24 @@ enddef
 
 .ScreenDown
         call    ReallocCurrent
-
         call    CurrentHasNextLine
-
         jp      z, NextOption
 
         ld      (ix+dix_ubTmp), 0
         call    GetCurrentLnPtrs
-
-
 .sdn_1
         OZ      GN_Xnx
         inc     (ix+dix_ubTmp)
         inc     (ix+dix_ubCrsrYPos)
         call    PutCurrentLnPtrs
-
         call    CurrentHasNextLine
-
         jr      z, sdn_2
 
         ld      a, 7
         cp      (ix+dix_ubTmp)
         jr      nz, sdn_1
-
-
 .sdn_2
         call    GetTopLnPtrs
-
-
 .sdn_3
         xor     a
         cp      (ix+dix_ubTmp)
@@ -1385,26 +1215,19 @@ enddef
         dec     (ix+dix_ubTmp)
         dec     (ix+dix_ubCrsrYPos)
         jr      sdn_3
-
-
 .sdn_4
         call    PutTopLnPtrs
-
         jp      loc_D45C
 
 ;       ----
 
 .ScreenUp
         call    ReallocCurrent
-
         call    CurrentHasPrevLine
-
         jp      z, NextOption
 
         ld      (ix+dix_ubTmp), 0
         call    GetCurrentLnPtrs
-
-
 .sup_1
         call    GetPrev
 
@@ -1413,25 +1236,19 @@ enddef
         call    PutCurrentLnPtrs
 
         call    CurrentHasPrevLine
-
         jr      z, sup_2
 
         ld      a, 7
         cp      (ix+dix_ubTmp)
         jr      nz, sup_1
-
-
 .sup_2
         call    GetTopLnPtrs
-
-
 .sup_3
         xor     a
         cp      (ix+dix_ubTmp)
         jr      z, sup_4
 
         call    TstPrevNode
-
         jr      z, sup_4
 
         call    GetPrev
@@ -1439,20 +1256,15 @@ enddef
         dec     (ix+dix_ubTmp)
         inc     (ix+dix_ubCrsrYPos)
         jr      sup_3
-
-
 .sup_4
         call    PutTopLnPtrs
-
         jp      loc_D45C
 
 ;       ----
 
 .NextDay
         call    StoreCurrentLine
-
         call    sub_D76E
-
         call    CpyDate_Current_2
 
         inc     (ix+dix_CurrentDate)
@@ -1462,16 +1274,13 @@ enddef
         jr      nz, nxd_1
 
         inc     (ix+dix_CurrentDate+2)
-
 .nxd_1
         jr      loc_C79E
 
 
 .PreviousDay
         call    StoreCurrentLine
-
         call    sub_D76E
-
         call    CpyDate_Current_2
 
         ld      a, (ix+dix_CurrentDate)
@@ -1491,14 +1300,11 @@ enddef
 
 .loc_C79E
         call    VerifyCurrentDate
-
         jr      nc, loc_C7AC
 
         ld      hl, DateRange_TXT
         call    ShowError
-
         call    CpyDate_2_Current
-
 
 .loc_C7AC
         jp      loc_C0E4
@@ -1507,11 +1313,8 @@ enddef
 
 .NextActiveDay
         call    StoreCurrentLine
-
         call    GetCurrentDatePtrs
-
         call    TstNextNode
-
         jp      z, NextOption
 
         OZ      GN_Xnx
@@ -1520,42 +1323,27 @@ enddef
 
 .PreviousActiveDay
         call    StoreCurrentLine
-
         call    GetCurrentDatePtrs
-
         call    TstPrevNode
-
         jp      z, NextOption
 
         call    GetPrev
-
-
 .loc_C7CF
         call    Cpy6_CrntDate_SrchDate
-
         call    PutCurrentDatePtrs
-
         call    MayRemoveDate
-
         call    Cpy6_CrntDate_SrchDate
-
         call    InitSearchDate
-
         call    Cpy6_SrchLn_CrntLn
-
         call    CpyDate_2_Current
-
         jp      loc_C107
 
 ;       ----
 
 .Today
         call    StoreCurrentLine
-
         call    sub_D76E
-
         call    GetCurrentDate
-
         jp      loc_C0E4
 
 ;       ----
@@ -1570,45 +1358,29 @@ enddef
 
 .actd_1
         call    StoreCurrentLine
-
         call    sub_D76E
-
         call    sub_DC8D
-
         call    GetSrchDatePtrs
-
         call    TstBHL
-
         jp      z, loc_C0F2
 
         bit     DF5D_B_0, (ix+dix_ubFlags5D)
         jr      nz, actd_4
-
-
 .actd_2
         OZ      GN_Xnx
         jr      c, actd_3
 
         call    TstBHL
-
-        jr      nz, actd_2                      ; loop  until last found
-
+        jr      nz, actd_2                      ; loop until last found
 
 .actd_3
         call    GetPrev
-
         call    PutSearchDatePtrs
-
-
 .actd_4
         call    InitSearchDate
-
         call    Cpy6_SrchDate_CrntDate
-
         call    Cpy6_SrchLn_CrntLn
-
         call    CpyDate_2_Current
-
         jp      loc_C107
 
 ;       ----
@@ -1623,8 +1395,6 @@ enddef
         jr      z, loc_C84B
 
         call    InactivateBlk
-
-
 .loc_C846
         ld      hl, dix_BlkStartLn
         jr      loc_C891
@@ -1638,14 +1408,10 @@ enddef
         ld      hl, dix_CurrentDate
         add     hl, bc
         call    Cmp3_HL_DE
-
         jr      c, loc_C876                     ; current < blkstart
-
         jr      nz, loc_C88E                    ; current > blkstart
 
         call    GetCurrentLnPtrs
-
-
 .loc_C862
         push    de
         ld      de, dix_BlkStartLn
@@ -1655,12 +1421,10 @@ enddef
         jr      z, loc_C876
 
         call    TstBHL
-
         jr      z, loc_C88E
 
         OZ      GN_Xnx
         jr      loc_C862
-
 
 .loc_C876
         ld      bc, (eMem_dix_254)              ; start -> end
@@ -1673,23 +1437,17 @@ enddef
         ldir
         res     DF2F_B_ACTIVE, (ix+dix_BlkStartFlags2F)
         jr      loc_C846                        ; make  new start
-
-
 .loc_C88E
         ld      hl, dix_BlkEndLn
-
 .loc_C891
         call    SaveState
-
         jp      loc_D465
 
 ;       ----
 
 .ClearMark
         call    StoreCurrentLine
-
         call    InactivateBlk
-
         jp      loc_D465
 
 ;       ----
@@ -1706,12 +1464,10 @@ enddef
         res     DF5B_B_FREEOLD, (ix+dix_ubFlags5B)      ; local flag
         jr      blk_1
 
-
 .Move
         set     DF5B_B_ALLOCNEW, (ix+dix_ubFlags5B)     ; allocate more
         set     DF5B_B_FREEOLD, (ix+dix_ubFlags5B)      ; free old
         jr      blk_1
-
 
 .Delete
         res     DF5B_B_ALLOCNEW, (ix+dix_ubFlags5B)
@@ -1720,13 +1476,12 @@ enddef
 .blk_1
         call    ReallocCurrent
 
-        ld      a, 5                            ; SC_ENA
-        OZ      OS_Esc                          ; Examine special condition
+        ld      a, SC_ENA
+        OZ      OS_Esc                          ; Enable ESC detection
         bit     DF2F_B_ACTIVE, (ix+dix_BlkStartFlags2F)
         jp      z, blk_err1
 
-        call    CursorInBlock                   ; !! should be  able to delete block with cursor in it
-
+        call    CursorInBlock                   ; !! should be able to delete block with cursor in it
         jp      c, blk_err2
 
         set     DF5B_B_ONEDAY, (ix+dix_ubFlags5B)       ; local flag
@@ -1736,31 +1491,23 @@ enddef
         ld      hl, dix_BlkStartDate
         ld      de, dix_Date3
         call    Cpy3_HL_DE
-
         call    sub_D700
-
         jr      blk_3
 
 
 .blk_2
         res     DF5B_B_ONEDAY, (ix+dix_ubFlags5B)
         call    MayRemoveDate
-
         jr      nc, blk_3
 
         call    GetSrchDatePtrs
-
         OZ      GN_Xnx
         jp      c, blk_4
 
         call    PutSearchDatePtrs
-
-
 .blk_3
         call    GetSrchDatePtrs
-
         call    TstBHL
-
         jp      z, blk_4
 
         ld      (ix+dix_eSrchLnPrev), 0
@@ -1793,22 +1540,15 @@ enddef
         ld      hl, dix_BlkEndDate
         add     hl, bc
         call    Cmp3_HL_DE
-
         jp      c, blk_4                        ; blkend<date2
-
-
 .blk_ln1
         call    GetSrchLnPtrs
-
-
 .blk_ln2
         OZ      GN_Xnx
         jr      c, blk_2
 
-
 .blk_ln3
         call    TstBHL
-
         jr      z, blk_2
 
         bit     DF5B_B_ONEDAY, (ix+dix_ubFlags5B)
@@ -1822,12 +1562,11 @@ enddef
         jr      nz, blk_ln2
 
         res     DF5B_B_ONEDAY, (ix+dix_ubFlags5B)
-
 .blk_ln4
         call    PutSearchLnPtrs
 
-        ld      a, 1
-        OZ      OS_Esc                          ; Examine special condition
+        ld      a, SC_ACK
+        OZ      OS_Esc                          ; Acknowledge ESC key
         jp      nz, blk_4
 
         bit     DF36_B_ACTIVE, (ix+dix_BlkEndFlags36)
@@ -1849,7 +1588,6 @@ enddef
         jr      z, blk_ln8
 
         call    CheckMemory
-
         jp      c, blk_4
 
         call    MayBindS1
@@ -1880,7 +1618,6 @@ enddef
         add     a, c
         ld      c, a
         call    AllocBindMulti
-
         jp      c, ErrQuit
 
         call    InsertCurrentLine
@@ -1942,14 +1679,12 @@ enddef
 .blk_ln9
         ld      de, dix_eCurrentLnPrev
         call    Cmp3_ePtr
-
         jr      nz, blk_ln10
 
         push    hl
         ld      hl, dix_eSrchLnPrev
         ld      de, dix_eCurrentLnPrev
         call    Cpy3_HL_DE
-
         pop     hl
 
 .blk_ln10
@@ -1961,9 +1696,7 @@ enddef
         add     a, 4
         ld      c, a
         call    FreeMultiMem
-
         jp      c, ErrQuit
-
 
 .blk_ln11
         bit     DF5B_B_BLOCKDONE, (ix+dix_ubFlags5B)
@@ -1973,42 +1706,29 @@ enddef
         jp      z, blk_ln1
 
         call    GetSrchLnPtrs
-
         jp      blk_ln3
-
 
 .blk_4
         bit     DF5B_B_FREEOLD, (ix+dix_ubFlags5B)      ; copy doesn't deselect block
         jr      z, blk_5
 
         call    InactivateBlk
-
-
 .blk_5
         ld      hl, dix_eCurrentLine
         ld      de, dix_eTmp
         call    Cpy3_HL_DE
-
         call    sub_DAEE
-
         call    RedrawDiaryWd
-
         jr      blk_x
-
-
 .blk_err1
         push    hl
         ld      hl, NoMarker_txt
         jr      blk_err
-
-
 .blk_err2
         push    hl
         ld      hl, Overlaps_TXT
-
 .blk_err
         call    ShowError
-
         pop     hl
 
 .blk_x
@@ -2025,10 +1745,8 @@ enddef
         res     DF5C_B_MATCHBACKW, (ix+dix_ubFlags5C)
         call    Search2
 
-
 .loc_CAA0
         ld      c, 77
-
 .loc_CAA2
         ld      a, 3
         call    MoveTo_0Ya
@@ -2051,7 +1769,6 @@ enddef
         jr      nz, loc_CAA2
 
         call    Search3
-
         jr      loc_CAA2
 
 
@@ -2082,7 +1799,6 @@ enddef
         call    sub_D581
 
         jp      c, sub_CD00
-
         jp      sub_CBF1
 
 ;       ----
@@ -2101,7 +1817,6 @@ enddef
         set     DF5C_B_SRCHRPLC, (ix+dix_ubFlags5C)
         res     DF5B_B_NEEDREDRAW, (ix+dix_ubFlags5B)
         call    sub_D581
-
         jp      c, loc_CBC6
 
         bit     DF5E_B_SEARCHBLOCK, (ix+dix_ubFlags5E)
@@ -2112,18 +1827,15 @@ enddef
 
         ld      hl, NoMarker_txt
         call    ShowError
-
         jp      loc_CBB6
 
 
 .loc_CB26
         call    CursorInBlock
-
         jr      c, loc_CB34
 
         ld      hl, NotMarked_TXT
         call    ShowError
-
         jp      loc_CBB6
 
 
@@ -2132,11 +1844,8 @@ enddef
 
         ld      de, lbuf_Buffer2
         call    Cpy_BHL_BufDE
-
         call    Cpy6_CrntDate_SrchDate
-
         call    CpyDate_Current_2
-
         call    Cpy6_CrntLn_SrchLn
 
         ld      c, (ix+dix_ubCrsrXPos)
@@ -2147,16 +1856,13 @@ enddef
 
 .loc_CB50
         call    SearchForw
-
         jr      nc, loc_CB85
 
         call    AdvanceSearchPos
 
         ld      c, 0
         jr      nc, loc_CB50
-
         jr      loc_CB6F
-
 
 .loc_CB5E
         ld      a, c
@@ -2165,9 +1871,7 @@ enddef
 
         dec     c
         call    SearchBack
-
         jr      nc, loc_CB85
-
 
 .loc_CB68
         call    AdvanceSearchPos
@@ -2185,9 +1889,7 @@ enddef
         call    ShowError
 
         call    GetCurrentLnPtrs
-
         jr      loc_CBB6
-
 
 .loc_CB85
         ld      (ix+dix_ubCrsrXPos), c
@@ -2203,7 +1905,6 @@ enddef
         jr      nz, loc_CBA9
 
         call    FindLineOnScreen
-
         jr      c, loc_CBAF
 
         call    PutCurrentLnPtrs
@@ -2214,13 +1915,10 @@ enddef
 
 .loc_CBA9
         call    Cpy6_SrchDate_CrntDate
-
         call    CpyDate_2_Current
-
 
 .loc_CBAF
         call    sub_DAEE
-
         set     DF5B_B_NEEDREDRAW, (ix+dix_ubFlags5B)
 
 .loc_CBB6
@@ -2232,7 +1930,6 @@ enddef
         bit     DF5B_B_NEEDREDRAW, (ix+dix_ubFlags5B)
         call    nz, Redraw
 
-
 .loc_CBC6
         jp      NextOption
 
@@ -2241,18 +1938,16 @@ enddef
 .List
         call    ReallocCurrent
 
-        ld      a, 6                            ; SC_DIS
-        OZ      OS_Esc                          ; Examine special condition
+        ld      a, SC_DIS
+        OZ      OS_Esc                          ; Disable ESC detection
         ld      (ix+dix_ubFlags5E), $10         ; DF5E_MAKESEARCHLIST
         res     DF5C_B_MATCHBACKW, (ix+dix_ubFlags5C)
         res     DF5C_B_SRCHRPLC, (ix+dix_ubFlags5C)
         call    List2
 
-
 .loc_CBDF
         ld      de, ListUI_tbl
         call    DoUI
-
         jp      c, Quit
 
         cp      IN_ESC
@@ -2265,13 +1960,11 @@ enddef
 
 .sub_CBF1
         call    ToggleCursor
-
         call    CheckMemory
-
         jp      c, sub_CD00
 
-        ld      a, 5
-        OZ      OS_Esc                          ; Examine special condition
+        ld      a, SC_ENA
+        OZ      OS_Esc                          ; Enable ESC detection
         res     DF5C_B_2, (ix+dix_ubFlags5C)
         ld      (ix+dix_ubTmp), 7
         bit     DF5C_B_SRCHRPLC, (ix+dix_ubFlags5C)
@@ -2280,31 +1973,22 @@ enddef
         bit     DF5E_B_LST_SV_BLOCK, (ix+dix_ubFlags5E)
         jr      loc_CC16
 
-
 .loc_CC12
         bit     DF5E_B_SEARCHBLOCK, (ix+dix_ubFlags5E)
 
 .loc_CC16
         jr      nz, loc_CC20
-
         call    sub_DC8D
-
         call    InitSearchDate
-
         jr      loc_CC34
-
 
 .loc_CC20
         call    sub_DCEC
-
         jr      c, loc_CC2D
 
         call    InitSearchDate
-
         call    sub_DD06
-
         jr      nc, loc_CC34
-
 
 .loc_CC2D
         set     DF5C_B_2, (ix+dix_ubFlags5C)
@@ -2325,7 +2009,6 @@ enddef
         jp      z, sub_CD00
 
         call    InitWd
-
         call    ShowInsertMode
 
         ld      c, 0
@@ -2337,9 +2020,7 @@ enddef
         bit     DF5E_B_MAKESEARCHLIST, (ix+dix_ubFlags5E)
         jr      z, loc_CC66
 
-        ld      hl, SearchListWd_txt
-        OZ      GN_Sop                          ; write string  to std. output
-
+        call    PrntSearchListWd
 .loc_CC66
         bit     DF5E_B_PRINTSEARCHLIST, (ix+dix_ubFlags5E)
         jr      z, loc_CC74
@@ -2359,7 +2040,6 @@ enddef
         or      a                               ; Fc=0
         bit     DF5C_B_SRCHRPLC, (ix+dix_ubFlags5C)
         call    nz, SearchForw
-
         jr      c, loc_CCE7
 
         ld      l, (ix+dix_Date2)
@@ -2367,7 +2047,6 @@ enddef
         ld      b, (ix+dix_Date2+2)
         ld      de, dix_Date3
         call    Cmp3_ePtr
-
         jr      z, loc_CCD6                     ; still same date, just print
 
         ld      hl, dix_Date2
@@ -2405,7 +2084,6 @@ enddef
         ld      hl, CRLF_txt
         call    PrintList
 
-
 .loc_CCD6
         ld      hl, lbuf_Buffer2
         ld      de, (eMem_LineBuffers)
@@ -2417,18 +2095,15 @@ enddef
 
 
 .loc_CCE7
-        ld      a, 1
-        OZ      OS_Esc                          ; Examine special condition
+        ld      a, SC_ACK
+        OZ      OS_Esc                          ; Acknowledge escape
         jr      nz, loc_CCF9
 
         call    AdvanceSearchPos
-
         jr      nc, srch_loop
 
         bit     DF5E_B_MAKESEARCHLIST, (ix+dix_ubFlags5E)
         call    nz, MayPageWait
-
-
 .loc_CCF9
         bit     DF5E_B_PRINTSEARCHLIST, (ix+dix_ubFlags5E)
         call    nz, PrtFormFeed
@@ -2437,7 +2112,6 @@ enddef
 
 .sub_CD00
         call    sub_E14A
-
         bit     DF5C_B_SRCHRPLC, (ix+dix_ubFlags5C)
         call    nz, sub_D581
 
@@ -2450,7 +2124,6 @@ enddef
 
 .loc_CD16
         call    GetCurrentLnPtrs
-
         jp      loc_D45C
 
 ;       ----
@@ -2458,8 +2131,8 @@ enddef
 .Replace
         call    ReallocCurrent
 
-        ld      a, 6
-        OZ      OS_Esc                          ; Examine special condition
+        ld      a, SC_DIS                       ; Disable escape detection.
+        OZ      OS_Esc
         ld      (ix+dix_ubFlags5E), $41
         res     DF5C_B_MATCHBACKW, (ix+dix_ubFlags5C)
         set     DF5C_B_SRCHRPLC, (ix+dix_ubFlags5C)
@@ -2468,8 +2141,6 @@ enddef
         ld      (ix+dix_uwFoundCount), a
         ld      (ix+dix_uwFoundCount+1), a
         call    Replace2
-
-
 .loc_CD3D
         ld      c, 77
 
@@ -2495,7 +2166,6 @@ enddef
         jr      nz, loc_CD3F
 
         call    Replace3
-
         jr      loc_CD3F
 
 
@@ -2563,39 +2233,30 @@ enddef
 
 
 .loc_CDC1
-        ld      a, 5
-        OZ      OS_Esc                          ; Examine special condition
+        ld      a, SC_ENA                       ; Enable escape detection
+        OZ      OS_Esc
         call    InitWd
 
         call    ShowInsertMode
-
         call    sub_D581
-
         jp      c, loc_CF54
 
         call    CheckMemory
-
         jp      c, loc_CF4F
 
         bit     DF5E_B_SEARCHBLOCK, (ix+dix_ubFlags5E)
         jr      nz, loc_CDE5
 
         call    sub_DC8D
-
         call    InitSearchDate
-
         jr      loc_CDF4
-
 
 .loc_CDE5
         call    sub_DCEC
-
         jp      c, loc_CF54
 
         call    InitSearchDate
-
         call    sub_DD06
-
         jp      c, loc_CF54
 
 
@@ -2605,23 +2266,18 @@ enddef
         ld      de, lbuf_Buffer2
         call    Cpy_BHL_BufDE
 
-
 .loc_CDFD
         ld      c, 0
-
 .loc_CDFF
         call    SearchForw
-
         jr      nc, loc_CE13
 
-        ld      a, 1
-        OZ      OS_Esc                          ; Examine special condition
+        ld      a, SC_ACK                       ; Acknowledge escap
+        OZ      OS_Esc
         jp      nz, loc_CF54
 
         call    AdvanceSearchPos
-
         jp      c, loc_CF54
-
         jr      loc_CDFD
 
 
@@ -2642,42 +2298,30 @@ enddef
 
         ld      de, dix_eCurrentDate
         call    Cmp3_ePtr
-
         jr      nz, loc_CE43
 
         call    FindLineOnScreen
-
         jr      c, loc_CE49
 
         call    PutCurrentLnPtrs
-
         ld      (ix+dix_ubCrsrYPos), a
         jr      loc_CE4C
 
-
 .loc_CE43
         call    Cpy6_SrchDate_CrntDate
-
         call    CpyDate_2_Current
-
-
 .loc_CE49
         call    sub_DAEE
-
-
 .loc_CE4C
         call    GetCurrentLnPtrs
-
         ld      de, 0
         call    Cpy_BHL_BufDE
 
         bit     DF5E_B_CONFIRMRPLC, (ix+dix_ubFlags5E)
         call    z, ShowFoundCount
-
         jr      z, loc_CEC9
 
         call    Redraw
-
         ld      hl, ReplaceYN_txt
         call    ShowError
 
@@ -2696,10 +2340,9 @@ enddef
 
         OZ      OS_In                           ; read  a byte from std. input
         call    ToggleCursor
-
         jr      c, loc_CE92
 
-        cp      0
+        or      a
         jr      z, loc_CE7B
 
         OZ      GN_Cls                          ; Classify a character
@@ -2716,7 +2359,6 @@ enddef
         cp      RC_Esc                          ; Escape condition (e.g. ESC pressed)
         jr      nz, loc_CEA2
 
-        ld      a, 1                            ; !! already 1
         OZ      OS_Esc                          ; Examine special condition
         jp      loc_CF54
 
@@ -3921,7 +3563,7 @@ enddef
         xor     a
         ld      b, a
         or      c
-        ld      a, 0                            ; !! ld a,b
+        ld      a, b
         jr      z, loc_D55D
 
         cpir
@@ -4462,9 +4104,7 @@ enddef
 
         push    hl
         push    bc
-        push    ix                              ; !! push/pop unnecessary
         OZ      GN_Xdl
-        pop     ix
         call    PutSearchDatePtrs
 
         pop     bc
@@ -5374,8 +5014,7 @@ enddef
 
 .TstNextNode
         call    TstBHL
-
-        jr      z, tstx_1                       ; !! ret z
+        ret     z
 
         push    hl
         push    de
@@ -5386,16 +5025,13 @@ enddef
         pop     bc
         pop     de
         pop     hl
-
-.tstx_1
         ret
 
 ;       ----
 
 .TstPrevNode
         call    TstCDE
-
-        jr      z, tstx2_1                      ; !! ret z
+        ret     z
 
         push    hl
         push    de
@@ -5407,8 +5043,6 @@ enddef
         pop     bc
         pop     de
         pop     hl
-
-.tstx2_1
         ret
 
 ;       ----
@@ -5497,27 +5131,17 @@ enddef
         call    InitSearchDate
 
         call    TstBHL
-
-        jr      z, locret_DCEB
-
+        ret     z
 
 .loc_DCDB
         OZ      GN_Xnx
         jr      c, loc_DCE5
 
         call    TstBHL
-
         jr      nz, loc_DCDB
-
-
 .loc_DCE5
         call    GetPrev
-
-        call    PutSearchLnPtrs
-
-
-.locret_DCEB
-        ret
+        jp      PutSearchLnPtrs
 
 ;       ----
 
@@ -5530,17 +5154,12 @@ enddef
         ld      hl, dix_BlkStartDate
         ld      de, dix_Date3
         call    Cpy3_HL_DE
-
         call    sub_D700
 
         or      a
-        jr      locret_DD05
-
-
+        ret
 .loc_DD04
         scf
-
-.locret_DD05
         ret
 
 ;       ----
@@ -5550,33 +5169,24 @@ enddef
         ld      de, dix_eTmp
         call    Cpy3_HL_DE
 
-
 .loc_DD0F
         ld      hl, $15
         call    Cmp3_HL_eTmp
-
-        jr      z, locret_DD24
+        ret     z
 
         call    GetSrchLnPtrs
 
         OZ      GN_Xnx
-        jr      c, locret_DD24
+        ret     c
 
         call    PutSearchLnPtrs
-
         jr      loc_DD0F
-
-
-.locret_DD24
-        ret
 
 ;       ----
 
 .GetPrev
         call    xnx2_1
-
         OZ      GN_Xnx
-
 .xnx2_1
         ex      de, hl
         ld      a, b
@@ -5595,9 +5205,7 @@ enddef
 
 .RetreatCurrentPtrs
         call    GetCurrentLnPtrs
-
         call    GetPrev
-
         jp      PutCurrentLnPtrs
 
 ;       ----
@@ -5620,7 +5228,6 @@ enddef
         dec     de
         dec     hl
         djnz    loc_DD4D
-
 
 .loc_DD55
         pop     bc
@@ -5664,7 +5271,6 @@ enddef
         res     DF5D_B_WRMAILDATE, (ix+dix_ubFlags5D)   ;       local flag
         call    RdWrDate
 
-
 .WrMailDate
         set     DF5D_B_WRMAILDATE, (ix+dix_ubFlags5D)
 
@@ -5685,14 +5291,12 @@ enddef
         ld      c, 6                            ; write 6 bytes
         ld      a, 3                            ; SR_WPD
         jr      rwm_2
-
-
 .rwm_1
         ld      c, 3                            ; read  3 bytes
         ld      a, 4                            ; SR_RPD
 
 .rwm_2
-        OZ      OS_Sr                           ; Save  & Restore
+        OZ      OS_Sr                           ; Save & Restore
         pop     af
         pop     bc
         pop     de
@@ -5708,7 +5312,7 @@ enddef
         ld      c, (ix+dix_CurrentDate)
         ld      b, (ix+dix_CurrentDate+1)
         ld      a, (ix+dix_CurrentDate+2)
-        OZ      GN_Die                          ; convert from  internal to zoned format
+        OZ      GN_Die                          ; convert from internal to zoned format
         pop     bc
         pop     de
         ret
@@ -5722,7 +5326,7 @@ enddef
         ld      de, dix_CurrentDate
         add     hl, de
         ex      de, hl
-        OZ      GN_Gmd                          ; get current machine date in internal  format
+        OZ      GN_Gmd                          ; get current machine date in internal format
         pop     de
         pop     hl
         ret
@@ -5738,14 +5342,8 @@ enddef
 
 .AllocBindMulti
         call    AllocMultiMem
-
-        jr      c, abm_1
-
-        call    MayBindS1
-
-
-.abm_1
-        ret
+        ret     c
+        jp      MayBindS1
 
 ;       ----
 
@@ -5944,11 +5542,8 @@ enddef
         pop     af
         or      a
         bit     DF5B_B_ALLOC83ERR, (ix+dix_ubFlags5B)
-        jr      z, chkm_11
-
+        ret     z
         scf
-
-.chkm_11
         ret
 
 ;       ----
@@ -6107,20 +5702,16 @@ enddef
         jr      z, loc_DFE8
 
         bit     DF5B_B_REVERSELINE, (ix+dix_ubFlags5B)
-        jr      z, locret_DFEC
+        ret     z
 
         push    de                              ; check if we need to turn reverse off
         ld      de, dix_BlkEndLn
         call    Cmp3_ePtr
 
         pop     de
-        jr      nz, locret_DFEC
-
-
+        ret     nz
 .loc_DFE8
         res     DF5B_B_REVERSELINE, (ix+dix_ubFlags5B)
-
-.locret_DFEC
         ret
 
 ;       ----
@@ -6181,11 +5772,8 @@ enddef
         ld      hl, MemoryLow_txt
         OZ      GN_Sop                          ; write string  to std. output
         jr      loc_E041
-
-
 .loc_E038
         ld      a,-1
-
 .loc_E039
         inc     a
         call    PrntLn
@@ -6199,9 +5787,7 @@ enddef
 .PrntLn
         push    af
         call    MoveTo_0Ya
-
         ex      de, hl
-
 .loc_E04D
         ld      a, (hl)
         inc     hl
@@ -6213,8 +5799,6 @@ enddef
 
         OZ      OS_Out                          ; write a byte  to std. output
         jr      loc_E04D
-
-
 .loc_E05B
         ex      de, hl
         pop     af
@@ -6224,10 +5808,7 @@ enddef
 
 .Redraw
         call    RedrawDiaryWd
-
-        call    PrintDate
-
-        ret
+        jp      PrintDate
 
 ;       ----
 
@@ -6236,7 +5817,6 @@ enddef
         push    de
         push    bc
         call    sub_E14A
-
         jr      search_1
 
 
@@ -6287,7 +5867,6 @@ enddef
         push    de
         push    bc
         call    sub_E14A
-
         jr      replace_1
 
 
@@ -6346,7 +5925,6 @@ enddef
         push    de
         push    bc
         call    sub_E14A
-
         jr      list_1
 
 
@@ -6383,7 +5961,6 @@ enddef
         push    de
         push    bc
         call    sub_E14A
-
         jr      load_1
 
 
@@ -6425,7 +6002,6 @@ enddef
         push    de
         push    bc
         call    sub_E14A
-
         jr      save_2
 
 
@@ -6433,7 +6009,6 @@ enddef
         push    hl
         push    de
         push    bc
-
 .save_2
         call    InitWin4
 
@@ -6461,7 +6036,6 @@ enddef
 
 .ExitList
         call    Show5EFlags
-
         call    ToggleCursor
 
         pop     bc
@@ -6473,9 +6047,7 @@ enddef
 
 .sub_E14A
         call    InitWd
-
         call    ShowInsertMode
-
         jp      PrintDate
 
 ;       ----
@@ -6546,8 +6118,6 @@ enddef
 
         ld      a, b
         call    sub_E269
-
-
 .ui_get
         OZ      OS_In                           ; read  a byte from std. input
         jr      c, ui_err
@@ -6566,8 +6136,6 @@ enddef
 
         and     $0DF                            ; upper
         jr      ui_act
-
-
 .ui_err
         cp      RC_Quit                         ; Request application to quit *
         jr      z, ui_errx
@@ -6587,7 +6155,6 @@ enddef
         ld      a, (de)
         ld      h, a
         jp      (hl)
-
 
 .ui_back
         pop     de
@@ -6613,7 +6180,6 @@ enddef
         ld      a, (ix+dix_ubFlags5E)           ; toggle
         and     c
         jr      nz, ui_clr
-
 
 .ui_set
         ld      a, (ix+dix_ubFlags5E)
@@ -6648,21 +6214,14 @@ enddef
 
         ld      a, '.'
         jr      ui_okx                          ; exit  with A='.'
-
-
 .ui_2
         dec     (ix+dix_ubTmp)
         jp      ui_draw
-
-
 .ui_okx
         or      a
         jr      ui_x
-
-
 .ui_errx
         scf
-
 .ui_x
         pop     bc
         pop     hl
@@ -6680,7 +6239,7 @@ enddef
 
 .RemoveError
         bit     DF5C_B_ERRORSHOWN, (ix+dix_ubFlags5C)
-        jr      z, locret_E257
+        ret     z
 
         OZ      OS_Pout
         defm    1,"2I3"
@@ -6689,7 +6248,6 @@ enddef
         defm    1,"2I2",0
 
         res     DF5C_B_ERRORSHOWN, (ix+dix_ubFlags5C)
-.locret_E257
         ret
 
 ;       ----
@@ -6768,20 +6326,15 @@ enddef
         jr      z, mpw_1
 
         call    Search3
-
         jr      mpw_2
-
 
 .mpw_1
         call    ListDiary
 
 .mpw_2
-        ld      hl, SearchListWd_txt
-        OZ      GN_Sop                          ; write string  to std. output
-
+        call    PrntSearchListWd
 .mpw_3
         ld      (ix+dix_ubTmp), 7
-
 .mpw_4
         pop     hl
         pop     af
@@ -6793,12 +6346,12 @@ enddef
         push    hl
 
 .loc_E2AB
-        ld      a, 0
+        xor     a                               ; SC_BIT
         OZ      OS_Esc                          ; Examine special condition
         jr      c, loc_E2D5
 
         ld      a, (hl)
-        cp      0
+        or      a
         jr      z, loc_E2D5
 
         bit     DF5E_B_MAKESEARCHLIST, (ix+dix_ubFlags5E)
@@ -6811,14 +6364,14 @@ enddef
         call    z, MayPageWait
 .loc_E2C6
         push    af
-        OZ      OS_Out                          ; write a byte  to std. output
+        OZ      OS_Out                          ; write a byte to std. output
         pop     af
 
 .loc_E2CA
         bit     DF5E_B_PRINTSEARCHLIST, (ix+dix_ubFlags5E)
         jr      z, loc_E2D2
 
-        OZ      OS_Prt                          ; Send  character directly to printer filter
+        OZ      OS_Prt                          ; Send character directly to printer filter
 .loc_E2D2
         inc     hl
         jr      loc_E2AB
@@ -6831,7 +6384,7 @@ enddef
 
 .PrtFormFeed
         ld      a, 12
-        OZ      OS_Prt                          ; Send  character directly to printer filter
+        OZ      OS_Prt                          ; Send character directly to printer filter
         ret
 
 ;       ----
@@ -6896,10 +6449,12 @@ enddef
 .CRLF_txt
         defm    $0D,$0A,0
 
-.SearchListWd_txt
+.PrntSearchListWd
+        oz      OS_Pout
         defm    1,"7#5",$20+1,$20+1,$20+78,$20+7,$81
         defm    1,"2C5"
         defm    1,"2+S",0
+        ret
 
 .Name_txt
         defm    "NAME",0
@@ -6907,7 +6462,7 @@ enddef
 .SearchUI_tbl
         defb    4
         defw    Search3
-        defb    4,1                             ; ignore case,  search block, list, print list
+        defb    4,1                             ; ignore case, search block, list, print list
         defb    5,2
         defb    6,$10
         defb    7,$20
@@ -6922,7 +6477,7 @@ enddef
 .RplcUI_tbl
         defb    3
         defw    Replace3
-        defb    5,1                             ; ignore case,  confirm, block
+        defb    5,1                             ; ignore case, confirm, block
         defb    6,$40
         defb    7,2
 

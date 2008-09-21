@@ -1,5 +1,3 @@
-        module FileEprNewFileEntry
-
 ; **************************************************************************************************
 ; File Area functionality.
 ;
@@ -24,6 +22,8 @@
 ;
 ; ***************************************************************************************************
 
+        module FileEprNewFileEntry
+
         xdef FileEprNewFileEntry
         xref FileEprRequest, FileEprFileEntryInfo
 
@@ -46,8 +46,8 @@
 ;    Fc = 0, File Eprom available
 ;         BHL = pointer to first byte of free space (B = absolute bank of slot C)
 ;
-;    Fc = 1, 
-;         A = RC_Onf                        
+;    Fc = 1,
+;         A = RC_Onf
 ;         File Area was not found in slot C
 ;
 ; Registers changed after return:

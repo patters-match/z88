@@ -1,5 +1,3 @@
-        module FileEprLastFile
-
 ; **************************************************************************************************
 ; File Area functionality.
 ;
@@ -23,6 +21,8 @@
 ; $Id$
 ;
 ; ***************************************************************************************************
+
+        module FileEprLastFile
 
         xdef FileEprLastFile
         xref FileEprFirstFile, FileEprNextFile, FileEprFileStatus

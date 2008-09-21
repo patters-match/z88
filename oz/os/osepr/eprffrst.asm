@@ -1,5 +1,3 @@
-        module FileEprFirstFile
-
 ; **************************************************************************************************
 ; File Area functionality.
 ;
@@ -23,6 +21,8 @@
 ; $Id$
 ;
 ; ***************************************************************************************************
+
+        module FileEprFirstFile
 
         xdef FileEprFirstFile
         xref FileEprRequest, FileEprNextFile, FileEprFileEntryInfo

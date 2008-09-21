@@ -314,21 +314,21 @@ xref    FlashStoreTopics, FlashStoreCommands, FlashStoreHelp
         defp    0,0                             ; son
         defb    DM_ROM, PrEdDORe-$PC            ; DOR type, sizeof
 
-        defb    '@',18,0,0                      ; info, info sizeof, 2xreserved
-        defb    'E',0                           ; application key letter, bad app RAM
-        defw    $26c,0,$20                      ; env. size, unsafe and safe workspace
-        defw    ORG_PRINTERED                   ; entry point
-        defb    0,0,0,OZBANK_PRINTERED & $3F    ; bind bank of Printered application to segment 3
-        defb    AT_Good|AT_Ones                 ; appl type
-        defb    0                               ; appl type 2
+        defb    '@',18,0,0                              ; info, info sizeof, 2xreserved
+        defb    'E',0                                   ; application key letter, bad app RAM
+        defw    $26c,PRTED_UNSAFE_WS,PRTED_SAFE_WS      ; env. size, unsafe and safe workspace
+        defw    ORG_PRINTERED                           ; entry point
+        defb    0,0,0,OZBANK_PRINTERED & $3F            ; bind bank of Printered application to segment 3
+        defb    AT_Good|AT_Ones                         ; appl type
+        defb    0                                       ; appl type 2
 
-        defb    'H',12                          ; help, sizeof
-        defp    PrinterEdTopics,OZBANK_MTH & $3F      ; topics
-        defp    PrinterEdCommands,OZBANK_MTH & $3F    ; commands
-        defp    PrinterEdHelp,OZBANK_MTH & $3F        ; introductory help page
-        defp    SysTokenBase,OZBANK_MTH & $3F         ; token base
+        defb    'H',12                                  ; help, sizeof
+        defp    PrinterEdTopics,OZBANK_MTH & $3F        ; topics
+        defp    PrinterEdCommands,OZBANK_MTH & $3F      ; commands
+        defp    PrinterEdHelp,OZBANK_MTH & $3F          ; introductory help page
+        defp    SysTokenBase,OZBANK_MTH & $3F           ; token base
 
-        defb    'N',PrEdDORe-$PC-1              ; name, length
+        defb    'N',PrEdDORe-$PC-1                      ; name, length
         defm    "PrinterEd",0
 .PrEdDORe
         defb    $ff

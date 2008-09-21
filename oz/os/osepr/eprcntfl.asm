@@ -1,5 +1,3 @@
-        module FileEprCntFiles
-
 ; **************************************************************************************************
 ; File Area functionality.
 ;
@@ -24,10 +22,12 @@
 ;
 ; ***************************************************************************************************
 
-    xdef FileEprCntFiles
-    xref FileEprRequest, FileEprFileEntryInfo
+        module FileEprCntFiles
 
-    include "error.def"
+        xdef FileEprCntFiles
+        xref FileEprRequest, FileEprFileEntryInfo
+
+        include "error.def"
 
 ; ***************************************************************************************************
 ;
@@ -46,7 +46,7 @@
 ;         DE = total of (marked as) deleted files
 ;         (HL + DE are total files in the file area)
 ;
-;    Fc = 1, 
+;    Fc = 1,
 ;         A = RC_Onf
 ;         File Eprom was not found at slot C
 ;
@@ -99,7 +99,7 @@
         cp      a                               ; Fc = 0, File Eprom parsed.
 .exit_count_files
         exx
-.exit_count_files2        
+.exit_count_files2
         pop     bc
         ret
 

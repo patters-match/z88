@@ -1,5 +1,3 @@
-        module FlashEprPollSectorSize
-
 ; **************************************************************************************************
 ; OZ Flash Memory Management.
 ;
@@ -22,6 +20,8 @@
 ;
 ; $Id$
 ; ***************************************************************************************************
+
+        module FlashEprPollSectorSize
 
         xdef FlashEprPollSectorSize
 

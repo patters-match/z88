@@ -59,7 +59,6 @@ xref    AtoN_upper                              ; [Kernel0]/memmisc.asm
 xref    CopyMemDE_BHL                           ; [Kernel0]/memmisc.asm
 
 xref    CallFuncDE                              ; [Kernel0]/scrdrv4.asm
-xref    ClearCarry                              ; [Kernel0]/scrdrv4.asm
 xref    ClearEOL                                ; [Kernel0]/scrdrv4.asm
 xref    ClearEOW                                ; [Kernel0]/scrdrv4.asm
 xref    ClearScr                                ; [Kernel0]/scrdrv4.asm
@@ -488,8 +487,6 @@ xref    Chr2VDU_tbl                             ; [Kernel1]/key2chrt.asm
 ;       ----
 
 .CursorOn
-        call    ClearCarry
-        ret     c
         ld      a, (ix+wdf_flagsHi)
         bit     WDFH_B_CURSOR, a
         ret     z                               ; no cursor? exit
@@ -510,8 +507,6 @@ xref    Chr2VDU_tbl                             ; [Kernel1]/key2chrt.asm
         ret
 
 .CursorOff
-        call    ClearCarry
-        ret     c
         ld      l, (ix+wdf_crsrx)
         ld      h, (ix+wdf_crsry)
         bit     WDFH_B_CURSORON, (ix+wdf_flagsHi)

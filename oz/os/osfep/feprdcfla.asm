@@ -1,5 +1,3 @@
-        module FlashEprReduceFileArea
-
 ; **************************************************************************************************
 ; OZ Flash Memory Management.
 ;
@@ -22,6 +20,8 @@
 ;
 ; $Id$
 ; ***************************************************************************************************
+
+        module FlashEprReduceFileArea
 
         xdef FlashEprReduceFileArea
 

@@ -1,5 +1,3 @@
-        module FileEprActiveSpace
-
 ; **************************************************************************************************
 ; File Area functionality.
 ;
@@ -23,6 +21,8 @@
 ; $Id$
 ;
 ; ***************************************************************************************************
+
+        module FileEprActiveSpace
 
         xdef FileEprActiveSpace
         xref FileEprTotalSpace
