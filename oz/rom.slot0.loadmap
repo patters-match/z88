@@ -33,10 +33,9 @@ os/ostables.bin 003f00
 ; Bank 1: kernel lower part (addressed from $8000 upwards)
 os/kernel1.bin 010000                           ; second part of kernel OS
 
-; Bank 2: Index, Filer, Floating Point Package
+; Bank 2: Index, Filer
 dc/dc.bin 020000                                ; $C000: Index popdown (and DC_ system calls)
-fp/fpp.bin 021a00                               ; $DA00: Floating Point Package
-apps/filer/filer.bin 022800                     ; $E800: Filer Popdown
+apps/filer/filer.bin 021900                     ; $D900: Filer Popdown
 
 ; Bank 3: GN system calls
 gn/gn.bin 030000                                ; $C000: GN_ system calls
@@ -68,8 +67,9 @@ apps/bbcbasic/basic.dat 090000                  ; $0000: BBC BASIC application b
 apps/eazylink/eazylink.bin 0a0000               ; $8000: EazyLink popdown
 os/lowram/lowram.bin 0a3d00                     ; LOWRAM code (RST routines, etc) to be installed during reset
 
-; Bank 11: FlashStore
+; Bank 11: FlashStore & Floating Point Package
 apps/flashstore/fsapp.bin 0b0000
+fp/fpp.bin 0b2c00                               ; $EC00: Floating Point Package
 
 ; ROM header at top of 512K address space
 mth/romhdr.bin 1f3fc0                           ; Front DOR and 'OZ'/'oz' header at top of ROM code

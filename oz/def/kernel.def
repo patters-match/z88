@@ -43,7 +43,7 @@ IF OZ_SLOT1
         defc OZBANK_LOWRAM      =$74            ; LOWRAM code to be installed during reset (located in EazyLink bank)
         defc OZBANK_GN          =$7B
         defc OZBANK_DC          =$7C
-        defc OZBANK_FPP         =$7C
+        defc OZBANK_FPP         =$75
         defc OZBANK_KNL1        =$7D            ; kernel bank 1 (lower)
         defc OZBANK_KNL0        =$7E            ; kernel bank 0 (upper)
         defc OZBANK_MTH         =$7F            ; OZ static structures (DOR's, MTH, Font bitmap)
@@ -58,7 +58,6 @@ ELSE
         defc OZBANK_KNL0        =$00            ; kernel bank 0
         defc OZBANK_KNL1        =$01            ; kernel bank 1
         defc OZBANK_DC          =$02
-        defc OZBANK_FPP         =$02
         defc OZBANK_GN          =$03
         defc OZBANK_MTH         =$08            ; OZ static structures (DOR's, MTH, Font bitmap)
         defc OZBANK_KEYMAP      =$08            ; localisation keymap tables
@@ -66,12 +65,13 @@ ELSE
         defc LORES1_BANK        =$08
         defc HIRES1_BANK        =$08
         defc OZBANK_LOWRAM      =$0A            ; LOWRAM code to be installed during reset (located in EazyLink bank)
+        defc OZBANK_FPP         =$0B            ; Floating Point Package (located in FlashStore popdown bank)
 ENDIF
 
 defc    OZCALLTBL               =$ff00
 defc    GNCALLTBL               =$8000          ; GN/DC tables at same address,
 defc    DCCALLTBL               =$8000          ; change CallGN/CallDC if changed
-defc    FPPCALLTBL              =$DA00
+defc    FPPCALLTBL              =$EC00          ; Floating Point Package
 defc    LOWRAM_CODE             =$FD00          ; LOWRAM code stored in EazyLink bank at offset $3d00
 
 defc    LORES0_BANK_UNEXP       =$21

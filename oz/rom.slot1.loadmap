@@ -36,8 +36,9 @@ romupdate oz.1
 apps/eazylink/eazylink.bin 740000               ; $8000: EazyLink popdown
 os/lowram/lowram.bin 743d00                     ; LOWRAM code (RST routines, etc) to be installed during reset
 
-; Bank $75: FlashStore
+; Bank $75: FlashStore & Floating Point Package
 apps/flashstore/fsapp.bin 750000
+fp/fpp.bin 752c00                               ; $EC00: Floating Point Package
 
 ; Bank $76: BBC Basic application
 apps/bbcbasic/basic.dat 760000                  ; $0000: BBC BASIC application bank
@@ -59,10 +60,9 @@ apps/calculator/calc.bin 7A1600                 ; $D600: Calculator popdown
 ; Bank $7B: GN system calls
 gn/gn.bin 7B0000                                ; $C000: GN_ system calls
 
-; Bank $7C: Index, Filer, Terminal, Floating Point Package
+; Bank $7C: Index, Filer
 dc/dc.bin 7C0000                                ; $C000: Index popdown (and DC_ system calls)
-fp/fpp.bin 7C1a00                               ; $DA00: Floating Point Package
-apps/filer/filer.bin 7C2800                     ; $E800: Filer Popdown
+apps/filer/filer.bin 7C1900                     ; $D900: Filer Popdown
 
 ; Bank $7D: kernel lower part (addressed from $8000 upwards)
 os/kernel1.bin 7D0000                           ; second part of kernel OS
