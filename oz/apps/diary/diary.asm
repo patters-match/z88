@@ -831,7 +831,7 @@ enddef
         pop     de
         xor     a
         cp      c
-        jr      z, jln_err
+        jp      z, NextOption
 
         ldir
         push    hl
