@@ -1,0 +1,82 @@
+; **************************************************************************************************
+; Filer Popdown runtime variables
+;
+; This file is part of the Z88 operating system, OZ.     0000000000000000      ZZZZZZZZZZZZZZZZZZZ
+;                                                       000000000000000000   ZZZZZZZZZZZZZZZZZZZ
+; OZ is free software; you can redistribute it and/    0000            0000              ZZZZZ
+; or modify it under the terms of the GNU General      0000            0000            ZZZZZ
+; Public License as published by the Free Software     0000            0000          ZZZZZ
+; Foundation; either version 2, or (at your option)    0000            0000        ZZZZZ
+; any later version. OZ is distributed in the hope     0000            0000      ZZZZZ
+; that it will be useful, but WITHOUT ANY WARRANTY;    0000            0000    ZZZZZ
+; without even the implied warranty of MERCHANTA-       000000000000000000   ZZZZZZZZZZZZZZZZZZZZ
+; BILITY or FITNESS FOR A PARTICULAR PURPOSE. See        0000000000000000  ZZZZZZZZZZZZZZZZZZZZ
+; the GNU General Public License for more details.
+; You should have received a copy of the GNU General Public License along with OZ; see the file
+; COPYING. If not, write to:
+;                                  Free Software Foundation, Inc.
+;                                  59 Temple Place-Suite 330,
+;                                  Boston, MA 02111-1307, USA.
+;
+; Source code was reverse engineered from OZ 4.0 (UK) ROM and made compilable by Jorma Oksanen.
+; Additional development improvements, comments, definitions and new implementations by
+; (C) Jorma Oksanen (jorma.oksanen@gmail.com), 2003
+; (C) Thierry Peycru (pek@users.sf.net), 2005
+; (C) Gunther Strube (gbs@users.sf.net), 2005
+;
+; Copyright of original (binary) implementation, V4.0:
+; (C) 1987,88 by Trinity Concepts Limited, Protechnic Computers Limited & Operating Systems Limited.
+;
+; $Id$
+; ***************************************************************************************************
+
+defc    NBUFSIZE        = 240
+
+defvars FILER_SAFE_WS_START
+     f_Confirm               ds.b    1
+     f_Flags1                ds.b    1
+     f_OutLnCnt              ds.b    1
+     f_ParseFlags            ds.b    1
+     f_nSrcSegments          ds.b    1
+     f_SourceHandle          ds.w    1
+     f_DestHandle            ds.w    1
+                                     ; above variables get cleared every time a new command is executed
+     f_ActiveWd              ds.b    1
+     f_SelectorPos           ds.b    1
+     f_SelectedCmd           ds.b    1
+     f_NumDirEntries         ds.b    1       ; visible entries
+     f_Flags2                ds.b    1
+     f_SavedCmdPos           ds.b    1
+     f_SourceType            ds.b    1
+     f_NumSelected           ds.b    1
+     f_CmdFlags              ds.b    1
+     f_TopDirEntry           ds.w    1
+     f_MemPool               ds.w    1
+     f_WildcardHandle        ds.w    1
+     f_SourceNameEnd         ds.w    1
+     f_DestNameEnd           ds.w    1
+     f_SelectedList          ds.w    1
+     f_unk1ded               ds.b    1
+     f_filecardslot          ds.b    1
+
+     vf_Statusbyte           ds.b    1    ; status flags
+     vf_SC                   ds.b    1    ; Horisontal Start Cursor      (1 byte)
+     vf_CI                   ds.b    1    ; Horisontal Cursor Increment  (1 byte)
+     vf_CX                   ds.b    1    ; Horisontal Cursor Movement   (1 byte)
+     vf_CY                   ds.b    1    ; Vertical Cursor Movement     (1 byte)
+     vf_BotAddr              ds.w    1
+     vf_TopAddr              ds.w    1
+     vf_BaseAddr             ds.w    1
+     vf_fptr                 ds.l    1    ; current file pointer
+     vf_fsize                ds.p    1    ; size of file
+
+     f_StrBuffer             ds.b    17
+     f_MatchString           ds.b    17
+     f_SourceName            ds.b    NBUFSIZE
+     vf_EditBuffer
+     f_DestName              ds.b    NBUFSIZE
+enddef
+
+; ViewFile Statusbyte bit mnemonics:
+DEFC ViewEdit = 0  ;  BIT 0: View/Edit memory flag.
+DEFC HexAscii = 1  ;  BIT 1: HEX/ASCII cursor flag.

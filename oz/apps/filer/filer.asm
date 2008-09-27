@@ -49,43 +49,12 @@
         include "eprom.def"
         include "sysvar.def"
         include "sysapps.def"
+        include "rtmvars.def"
 
         org ORG_FILER
 
-defc    NBUFSIZE        = 240
-
-defvars FILER_UNSAFE_WS_START
-     f_Confirm               ds.b    1
-     f_Flags1                ds.b    1
-     f_OutLnCnt              ds.b    1
-     f_ParseFlags            ds.b    1
-     f_nSrcSegments          ds.b    1
-     f_SourceHandle          ds.w    1
-     f_DestHandle            ds.w    1
-                                     ; above variables get cleared every time a new command is executed
-     f_ActiveWd              ds.b    1
-     f_SelectorPos           ds.b    1
-     f_SelectedCmd           ds.b    1
-     f_NumDirEntries         ds.b    1       ; visible entries
-     f_Flags2                ds.b    1
-     f_SavedCmdPos           ds.b    1
-     f_SourceType            ds.b    1
-     f_NumSelected           ds.b    1
-     f_CmdFlags              ds.b    1
-     f_TopDirEntry           ds.w    1
-     f_MemPool               ds.w    1
-     f_WildcardHandle        ds.w    1
-     f_SourceNameEnd         ds.w    1
-     f_DestNameEnd           ds.w    1
-     f_SelectedList          ds.w    1
-     f_unk1ded               ds.b    1
-     f_filecardslot          ds.b    1
-     f_StrBuffer             ds.b    17
-     f_MatchString           ds.b    17
-     f_SourceName            ds.b    NBUFSIZE
-     f_DestName              ds.b    NBUFSIZE
-enddef
-
+        xref ViewFile
+        xdef GetKey
 
 .Filer
         xor     a                               ; clear variables up to and including two bytes of StrBuffer
@@ -180,13 +149,12 @@ enddef
         sub     $20
         jr      z, ShEnter
         dec     a
-        cp      $0F
-        jp      z, ChDirUp
-        cp      $10
+        cp      $11
         jp      z, ChDirDown
-        cp      $0F
+        cp      $10
+        jp      z, ChDirUp
         jr      nc, MainLoop
-        jp      DoCmd
+        jp      DoCmd                           ; execute <> shortcut commands 0 - 15
 
 .ExitFiler
         call    FreeDOR
@@ -2145,7 +2113,7 @@ enddef
         ret
 
 .CmdsWdBlock
-        defb @10000000 | 1
+        defb @10010000 | 1
         defw $0000
         defw $0818
         defw cmds_banner
@@ -2160,7 +2128,7 @@ enddef
         defm    " to ",0
 
 
-defc    TotalCommands = 15
+defc    TotalCommands = 16
 .CmdTable
         defw    c_catf
         defw    c_catE
@@ -2177,6 +2145,7 @@ defc    TotalCommands = 15
         defw    c_nmatch
         defw    c_selfcd
         defw    c_crefcd
+        defw    c_view
 
 ;       flags in first byte
 ;       bit     mask                                    tcp cpy del cat sve ftc exe sdi mtc ren sde mkd EPR
@@ -2240,6 +2209,11 @@ defc    TotalCommands = 15
         defb    $90
         defw    Rename
         defm    "Rename ",0
+
+.c_view
+        defb    $C0
+        defw    View
+        defm    "View File",0
 
 .c_seldev
         defb    $0C
@@ -2411,14 +2385,8 @@ defc    TotalCommands = 15
         oz      OS_Out                          ; display the pre-selected destination file card.
         ld      a,8
         oz      OS_Out                          ; put blinking cursor over slot number of device
-.getkey
-        OZ      OS_In                           ; get another device slot number from user
-        jr      nc, check_key
-        cp      RC_ESC
-        scf
-        ret     z                               ; user aborted selection
-        cp      0
-        jr      z, getkey
+        call    GetKey
+        ret     c                               ; user aborted with ESC
 .check_key
         cp      IN_ENT
         ret     z                               ; user has selected a file card...
@@ -2482,6 +2450,7 @@ defc    TotalCommands = 15
 .selslottext
         defm    "Select slot for default File Card", 0
 
+
 ; Init slot selection menu window with dynamic prompt text in HL
 .PrntSelectSlotPrompt
         OZ      OS_Pout
@@ -2493,6 +2462,18 @@ defc    TotalCommands = 15
         defm    "Use keys 0-3 or ",1, "+J to toggle. ", 1, SD_ENT, " to select."
         defm    1,"3@",$20+5,$20+3
         defm    "Slot ",0
+        ret
+
+
+; *************************************************************************************
+.GetKey
+        OZ      OS_In                           ; get another device slot number from user
+        ret     nc
+        cp      RC_ESC
+        scf
+        ret     z                               ; user aborted selection
+        or      a
+        jr      z, getkey
         ret
 
 
@@ -2604,6 +2585,24 @@ defc    TotalCommands = 15
         defm    "*END*",0
         jp      PntLF_pagewait
 
+
+;----
+.View
+        call    CloseSource
+        ret     c
+        call    ValidateFileType
+        ret     c                               ; file not found or wrong type...
+
+        ld      a,OP_In
+        ld      b,0
+        ld      hl, f_SourceName
+        call    OpenFile
+        ret     c
+        ld      (f_SourceHandle), ix
+        call    ViewFile
+        jp      CloseSource
+
+
 ;----
 .Save
         ld      a,49
@@ -2611,19 +2610,9 @@ defc    TotalCommands = 15
 
         call    CloseSource
         ret     c
-        ld      b, 0
-        ld      hl, f_SourceName
-        ld      de, 3
-        ld      a, OP_DOR
-        OZ      GN_Opf                          ; get DOR information
-        ret     c
-        push    af
-        call    FreeDOR
-        pop     af
-        cp      $11
-        scf
-        ld      a, RC_Ftm                       ; File Type Mismatch
-        ret     nz
+        call    ValidateFileType
+        ret     c                               ; file not found or wrong type...
+
         ld      b,0
         ld      hl, f_SourceName
         ld      a,(f_filecardslot)
@@ -2632,6 +2621,8 @@ defc    TotalCommands = 15
         OZ      OS_Epr                          ; blow RAM file to Flash or UV Eprom in slot C
         ret
 ; End of function Save
+
+
 ;----
 .Fetch
         ld      a,51
@@ -2672,6 +2663,7 @@ defc    TotalCommands = 15
         OZ      OS_Epr                          ; read file from Eprom into RAM file
         ret
 ; End of function Fetch
+
 ;----
 .Rename
         call    PrntAskName
@@ -2747,6 +2739,7 @@ defc    TotalCommands = 15
 
 .ren_6
         jp      ToggleCrsr
+
 
 ; End of function Rename
 ;----
@@ -3530,13 +3523,33 @@ defc    TotalCommands = 15
 ;----
 
 ;       HL=name, A=mode
-
 .OpenFile
         ld      d, h                            ; re-use name as expanded name buffer
         ld      e, l
         ld      bc, NBUFSIZE
         OZ      GN_Opf
         ret
+
+
+; *******************************************************************************
+; return Fc=0, Fz=1, A=DN_Fil, if (f_SourceName) name is an existing file
+; return Fc=1, A=error code, if file not found or is of wrong type..
+.ValidateFileType
+        ld      b, 0
+        ld      hl, f_SourceName
+        ld      de, 3
+        ld      a, OP_DOR
+        OZ      GN_Opf                          ; get DOR information
+        ret     c
+        push    af
+        call    FreeDOR
+        pop     af
+        cp      Dn_Fil
+        ret     z
+        scf
+        ld      a, RC_Ftm                       ;
+        ret                                     ; return "File Type Mismatch", if it is not a file type.
+
 
 ;       GetDevDir can be made shorter by moving ld de,... first in GetDir and
 ;       reusing code there

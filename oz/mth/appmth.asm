@@ -2026,6 +2026,15 @@ xdef    FlashStoreTopics, FlashStoreCommands, FlashStoreHelp
 .Filer_cmd7_end
         defb    Filer_cmd7_end-Filer_cmd7+1
 
+.Filer_cmd25
+        defb    Filer_cmd25_end-Filer_cmd25+1	; Length of command
+        defb    $30	; command code
+        defm    "VF", $00
+        defm    "View ", $ba       ; "View File"
+        defb    $00	; Command attribute
+.Filer_cmd25_end
+        defb    Filer_cmd25_end-Filer_cmd25+1
+
 .Filer_cmd8
         defb    Filer_cmd8_end-Filer_cmd8+1	; Length of command
         defb    $20	; command code
@@ -2055,7 +2064,7 @@ xdef    FlashStoreTopics, FlashStoreCommands, FlashStoreHelp
 
 .Filer_cmd11
         defb    Filer_cmd11_end-Filer_cmd11+1	; Length of command
-        defb    $30	; command code
+        defb    $31	; command code
         defm    $fb, $00
         defm    $b9, " ", $b6                   ; "Up Directory"
         defb    $00	; Command attribute
@@ -2064,7 +2073,7 @@ xdef    FlashStoreTopics, FlashStoreCommands, FlashStoreHelp
 
 .Filer_cmd12
         defb    Filer_cmd12_end-Filer_cmd12+1	; Length of command
-        defb    $31	; command code
+        defb    $32	; command code
         defm    $fa, $00
         defm    $ac, " ", $b6                   ; "Down Directory"
         defb    $00	; Command attribute
