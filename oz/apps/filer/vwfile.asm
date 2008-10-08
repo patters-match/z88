@@ -1,6 +1,6 @@
 ; **************************************************************************************************
 ; Filer Popdown, View File functionality (Binary file Viewer Ported from Zprom & edited for Filer).
-; Original implementation by Gunther Strube, Copyright 1993-2008
+; Implemented by Gunther Strube, Copyright 1993-2008
 ;
 ; This file is part of the Z88 operating system, OZ.     0000000000000000      ZZZZZZZZZZZZZZZZZZZ
 ;                                                       000000000000000000   ZZZZZZZZZZZZZZZZZZZ
@@ -22,8 +22,7 @@
 ; $Id$
 ; ***************************************************************************************************
 
-
-        module  ViewEditFile
+        module  ViewFile
 
         xref    GetKey
         xdef    ViewFile
@@ -35,9 +34,8 @@
         include "rtmvars.def"
 
 
-
 ; *********************************************************************************
-; View File as binary dump
+; View File as binary dump. Main keyboard input & cursor movement logic loop
 ;
 .ViewFile
         push    iy
@@ -55,23 +53,19 @@
         ld      a,e
         ld      (vf_fsize+2),a                  ; get file size (only 24bit size needed...)
 
-        res     ViewEdit,(iy+0)                 ; indicate memory view only
-        jr      mem_dump
-.exit_ViewFile
+        call    MemDump
         pop     iy
         ld      a,SC_Ack
-        oz      OS_Esc
-        ret
+        oz      OS_Esc                          ; Acknowledge ESC key, so that Filer is not exited
+        ret                                     ; in main input loop.
 
-.EditFile
-        set     ViewEdit,(iy+0)
-.Mem_dump
+.MemDump
         call    ResetCurPos                     ; intialise cursor pos. in window
-        call    EditWindows                     ; Setup Dump windows and display initial dump
+        call    InitView                        ; Setup Dump windows and display initial dump
 .mem_view_loop
         call    DisplayCurPos                   ; then display the cursor (reset to 0,0)
         call    GetKey
-        jr      c, exit_ViewFile                ; user aborted with ESC key...
+        ret     c                               ; user aborted with ESC key...
         cp      IN_TAB                          ; TAB pressed?
         jp      z, HexAscii_Cursor              ; toggle between Hex & ASCII cursor
         cp      IN_LFT                          ; <Left Cursor>?
@@ -81,56 +75,17 @@
         cp      IN_DWN                          ; <Down Cursor> ?
         jr      z, next_16_bytes
         cp      IN_UP                           ; <Up Cursor>   ?
-        jp      z, prev_16_bytes
-        cp      IN_SDWN                         ; <SHIFT> <Down Cursor> ?
-        jp      z, next_128_bytes
-        cp      IN_SUP                          ; <SHIFT> <Up Cursor> ?
+        jr      z, prev_16_bytes
+        cp      $32                             ; <SHIFT> <Down Cursor> ?
+        jr      z, next_128_bytes
+        cp      $31                             ; <SHIFT> <Up Cursor> ?
         jp      z, prev_128_bytes
         cp      IN_DDWN                         ; <DIAMOND> <Down Cursor> ?
-        jp      z, top_bank_addr
+        jp      z, page_eoffile
         cp      IN_DUP                          ; <DIAMOND> <Up Cursor> ?
-        jp      z, bottom_bank_addr
+        jp      z, page_startfile
+        jr      mem_view_loop
 
-        cp      126                             ;
-        jp      p, mem_view_loop                ; char > 126, illegal
-        cp      32                              ;
-        jp      m, mem_view_loop                ; char < 32, illegal...
-
-        bit     ViewEdit,(iy+0)
-        jr      z, mem_view_loop                ; view mode - no memory editing...
-
-        bit     HexAscii,(iy+0)                 ; allowed input decided by current cursor
-        jr      z, put_ascii_byte               ; - put ASCII byte into memory
-        or      $DF                             ; get HEX byte...
-        call    Display_Char
-        call    Conv_to_nibble                  ; ASCII to value 0 - 15.
-        cp      16                              ; legal range 0 - 15
-        jr      nc, illegal_byte                ;
-        rlca
-        rlca
-        rlca
-        rlca                                    ; into bit 7 - 4.
-        ld      b,a
-        call    GetKey
-        ret     c
-        cp      126                             ;
-        jp      p, illegal_byte                 ; char > 126, illegal
-        cp      32                              ;
-        jp      m, illegal_byte                 ; char < 32, illegal...
-        or      $df
-        call    Display_Char
-        call    Conv_to_nibble                  ; ASCII to value 0 - 15.
-        cp      16                              ; legal range 0 - 15
-        jr      nc, illegal_byte
-        or      b                               ; merge the two nibbles
-        call    Alter_Memory                    ; HEX byte into memory...
-        jp      mv_cursor_right                 ; auto move to next memory cell...
-.put_ascii_byte
-        call    Alter_Memory                    ; put into memory and display i window
-        jp      mv_cursor_right                 ; auto move to next memory cell...
-.illegal_byte
-        call    DisplayCurLine                  ; reset cursor at current position
-        jp      mem_view_loop                   ; and re-display memory dump at cur. line
 .next_16_bytes
         ld      a,(vf_CY)                       ; get CY
         cp      7                               ; cursor at bottom line?
@@ -139,35 +94,29 @@
         inc     (hl)                            ; move cursor one line down
         jp      mem_view_loop                   ;
 .scroll_16_up
+        ld      bc,16
+        call    ValidateIncreaseFptr            ; [vf_fptr] + 16 ?
+        jp      c, mem_view_loop                ; cannot - beyond end of file...
+
+        call    IncreaseFptr                    ; [vf_fptr] += 16
+        call    LoadBuffer
         oz      OS_Pout
         defm    1, $FF, 0                       ; scroll up
         ld      bc,$0700
         call    Set_CurPos                      ; set print position at (0,7)
-        ld      de,(vf_BotAddr)                 ; get Bottom Pointer in DE
-        call    Dump_16_bytes
-        ex      de,hl
-        ld      (vf_botaddr),hl                 ; HL = new Bottom pointer
-        cp      a
-        ld      bc,128
-        sbc     hl,bc
-        ex      de,hl
-        call    AdjustAddress                   ; new TOP pointer
-        ld      (vf_topaddr),de
+        ld      de,vf_EditBuffer+112            ; offset from file pointer of buffer is 6 lines down...
+        call    Dump_16_bytes                   ; display bottom row only
         jp      mem_view_loop
 
 .next_128_bytes
+        ld      bc,128
+        call    ValidateIncreaseFptr            ; [vf_fptr] + 128 ?
+        jp      c, mem_view_loop                ; cannot - beyond end of file...
+
+        call    IncreaseFptr                    ; [vf_fptr] += 128
         ld      bc,$0700
         call    Set_CurPos                      ; set print position at (0,7)
-        ld      de,(vf_BotAddr)                 ; get Bottom Pointer in DE
         call    Dump_128_bytes
-        ex      de,hl                           ; HL = new Bottom pointer
-        ld      (vf_botaddr),hl
-        cp      a
-        ld      bc,128
-        sbc     hl,bc
-        ex      de,hl
-        call    AdjustAddress                   ; new TOP pointer
-        ld      (vf_TopAddr),de
         jp      mem_view_loop
 
 .prev_16_bytes
@@ -176,69 +125,63 @@
         jr      z, scroll_16_down               ; Yes - display a new line of bytes
         ld      hl, vf_CY
         dec     (hl)                            ; move cursor one line down
-        jp      mem_view_loop                   ;
+        jp      mem_view_loop
 
 .scroll_16_down
-        ld      hl,(vf_TopAddr)
-        cp      a                               ; Fc = 0
         ld      bc,16
-        sbc     hl,bc                           ; move 16 bytes back
-        ex      de,hl
-        call    AdjustAddress                   ; execute addr. wrap if necessary...
-        ex      de,hl
-        ld      (vf_topAddr),HL
-        ld      bc,128
-        add     hl,bc                           ; calculate new BOTTOM addr.
-        ex      de,hl
-        call    AdjustAddress
-        ld      (vf_BotAddr),de                 ; new BOTTOM dump address
+        call    ValidateDecreaseFptr            ; [vf_fptr] -= 16?
+        jp      c, mem_view_loop                ; cannot - beyond start of file...
         oz      OS_Pout
-        defm    1, $FE, 0                       ; scroll down
+        defm    1, $FE, 0                       ; scroll current dump window contents down
+        call    DecreaseFptr                    ; [vf_fptr] -= 16
+        call    LoadBuffer
         ld      bc,0
         call    Set_CurPos                      ; set print position at (0,0)
-        ld      de,(vf_TopAddr)
-        call    Dump_16_bytes
+        call    Dump_16_bytes                   ; display top row only
         jp      mem_view_loop
 
 .prev_128_bytes
-        ld      hl,(vf_TopAddr)                 ; TOP pointer in HL
-        cp      a                               ; Fc = 0
         ld      bc,128
-        sbc     hl,bc                           ; move 128 bytes back
-        ex      de,hl
-        call    AdjustAddress                   ; execute addr. wrap if necessary...
-        ld      (vf_TopAddr),de                 ; new TOP pointer
+        call    ValidateDecreaseFptr            ; [vf_fptr] -= 128?
+        jp      c, mem_view_loop                ; cannot - beyond start of file...
+        call    DecreaseFptr                    ; [vf_fptr] -= 128
         call    Dump_128_bytes
-        ld      (vf_BotAddr),de                 ; new BOTTOM pointer
         jp      mem_view_loop
 
-.bottom_bank_addr
-        ld      de,0
-        ld      (vf_TopAddr),DE
+.page_startfile
+        xor     a
+        ld      h,a
+        ld      l,a
+        ld      (vf_fptr),hl
+        ld      (vf_fptr+2),a
         call    dump_128_bytes
-        ld      (vf_BotAddr),de
         jp      mem_view_loop
 
-.top_bank_addr
-        ld      de,$3f80                        ; 128 bytes before top of bank...
-        ld      (vf_topaddr),de
+.page_eoffile
+        ld      hl,(vf_fsize)
+        ld      a,(vf_fsize+2)
+        ld      (vf_fptr),hl                    ; fptr = size of file
+        ld      (vf_fptr+2),a                   ; !! TODO: a file might be less than 128 bytes in size
+
+        ld      bc,128
+        call    DecreaseFptr                    ; [vf_fptr] -= 128
+.dump_eof
         call    Dump_128_bytes
-        ld      (vf_BotAddr),de
         jp      mem_view_loop
 
 .HexAscii_Cursor
         bit     HexAscii,(iy+0)
         jr      z, set_HexCursor                ; ASCII cursor active, set HEX cursor
         res     HexAscii,(iy+0)                 ; HEX cursor active, set ASCII cursor
-        ld      a,56
-        ld      (vf_SC),A                       ; SC = 56
+        ld      a,57
+        ld      (vf_SC),A                       ; SC = 57
         ld      a,1
         ld      (vf_CI),A                       ; CI = 1
         jp      mem_view_loop
 .set_HexCursor
         set     HexAscii,(iy+0)
-        ld      a,7
-        ld      (vf_SC),a                       ; SC = 7
+        ld      a,8
+        ld      (vf_SC),a                       ; SC = 8
         ld      a,3
         ld      (vf_CI),a                       ; CI = 3
         jp      mem_view_loop                   ;
@@ -263,47 +206,17 @@
         inc     (hl)                            ; move cursor 1 byte right
         jp      mem_view_loop
 .wrap_curs_left
-        xor     a                               ; A=0
-        ld      (vf_CX),A
+        xor     a
+        ld      (vf_CX),A                       ; CX=0
         jp      next_16_bytes
 
 
-;
-; A = byte to be put into the memory location the cursor is currently pointing at
-;
-.Alter_Memory
-        push    af
-        call    Get_curOffset                   ; cursor offset in A
-        call    Get_offsetPtr                   ; added with TOP pointer
-        ld      a,(vf_BaseAddr)                 ; get high byte of base addr. of memory
-        ld      h,a
-        ld      l,0
-        add     hl,de                           ; add (bank) offset
-        pop     af                              ; returns cursor pointer to memory...
-        ld      (hl),a                          ; put byte into memory
-        call    DisplayCurLine
-        ret
-
-;
-; display memory dump at current cursor line
-;
-.DisplayCurLine
-        call    Get_CurOffset                   ; get cursor offset
-        ld      hl,vf_CX
-        sub     (hl)                            ; to start of line, (CY*16-CX)
-        call    Get_OffsetPtr                   ; pointer in DE
-        ld      a,(vf_CY)                       ; get CY (current cursor line)
-        ld      b,a
-        ld      c,0                             ; start of line
-        call    Set_CurPos                      ; set cursor position
-        call    Dump_16_bytes                   ; dump memory from DE (start of line)=
-        ret
-
-;
-; calculate cursor offset from top corner of screen in A
-; (also referenced as offset from TOP pointer)
+; *********************************************************************************
+; return cursor offset from top corner of screen in BC, calculated by (CX,CY)
 ;
 .Get_CurOffset
+        push    af
+        push    hl
         ld      a,(vf_CY)                       ; get CY
         sla     a
         sla     a
@@ -311,31 +224,19 @@
         sla     a                               ; CY * 16
         ld      hl,vf_CX
         add     a,(hl)                          ; CY*16+CX = cursor offset from TOP
-        ret
-
-;
-; Calculate absolute pointer from TOP pointer with cursor offset returned into DE
-;
-.Get_OffsetPtr
         ld      b,0
         ld      c,a
-        ld      de,(vf_TopAddr)                 ; get TOP pointer
-        ex      de,hl
-        add     hl,bc                           ; add offset to base...
-        ex      de,hl
-        call    AdjustAddress                   ; adjust for address wrap...
+        pop     hl
+        pop     af
         ret
 
 
 ; *********************************************************************************
-;
-; Reset cursor position in window                       V0.24d
-;
-; - No registers affected
+; Reset cursor position in window to top left corner
 ;
 .ResetCurPos
-        ld      a,7
-        ld      (vf_SC),a                        ; cursor begins at tab 6
+        ld      a,8
+        ld      (vf_SC),a                        ; cursor begins at tab 8
         ld      a,3
         ld      (vf_CI),a                        ; CI = 3 with Hex cursor
         ld      a,0
@@ -346,10 +247,7 @@
 
 
 ; *********************************************************************************
-;
-; display cursor in window (with VDU 1,"3","@",32+CX,32+CY)
-;
-; - No registers affected
+; Display cursor in window (with VDU 1,"3","@",32+CX,32+CY)
 ;
 .DisplayCurPos
         push    af
@@ -378,25 +276,33 @@
 
 
 ; *********************************************************************************
+; Load 128 bytes (or less) from file, using current file pointer (vf_fptr),
+; into view buffer and reset DE to point at start of buffer.
 ;
-; Dump 128 bytes in Hex and ASCII format from current address in DE
+.LoadBuffer
+        ld      a,FA_PTR
+        ld      hl,vf_fptr
+        oz      OS_Fwm                          ; set file pointer to base of view buffer, defined by (vf_fptr)
+
+        ld      bc,128
+        ld      h,b
+        ld      l,b                             ; HL = 0
+        ld      de,vf_EditBuffer
+        push    de
+        oz      OS_Mv                           ; fetch 128 bytes (or less!) from file and dump into view buffer
+        pop     de                              ; EOF is handled automatically via cursor movement...
+        ret
+
+
+; *********************************************************************************
+; Dump 128 bytes in Hex and ASCII format from current buffer address in DE
 ; DE will point +128 bytes on return
 ;
 .Dump_128_bytes
-        ld      a,FA_PTR
-        ld      hl,vf_fptr
-        oz      OS_Fwm                          ; set file pointer to base of buffer
-
-        ld      bc,128
-        ld      hl,0
-        ld      de,vf_EditBuffer
-        push    de
-        oz      OS_Mv                           ; fetch 128 bytes from file to be viewed.
-        pop     de
-
+        call    LoadBuffer                      ; after return, DE points at start of buffer
         oz      OS_Pout
-        defb    12,0                            ; CLS
-        ld      b,8                             ; display 8 lines
+        defb    12,0                            ; clear view buffer window
+        ld      b,8                             ; display 8 x 16 byte lines of hex dump
 .dump_loop
         push    bc
         call    dump_16_bytes                   ; dump 1 line (16 bytes)
@@ -406,39 +312,65 @@
 
 
 ; *********************************************************************************
-;
 ; Dump 16 bytes in Hex and ASCII format from current address in DE
-; DE will point +16 bytes on return
+; DE will point +16 (or less if EOF) of view buffer bytes on return.
 ;
 ; AF, B, DE, L  different on return
 ;
 .Dump_16_bytes
-        ex      de,hl                           ; Dump address in HL
+        call    ValidateDumpByte
+        ret     c                               ; the DE dump offset is already beyond EOF..
+        push    de
+        ld      hl,(vf_fptr)                    ; add base file pointer (BC = converted offset of DE)
+        add     hl,bc
+        push    hl
+        ld      a,(vf_fptr+2)
+        jr      nc,disp_highbyte_int
+        inc     a                               ; adjust overflow of added DE offset..
+.disp_highbyte_int
+        ld      l,a
+        call    InthexDisp
+        pop     hl
         scf                                     ; display 16bit hex
-        CALL    IntHexDisp_H                    ; - the current dump address
-        ex      de,hl                           ; back in DE
-        ld      a,32
-        call    display_Char
-        call    display_Char
+        CALL    IntHexDisp                      ; - the current dump address
+        oz      OS_pout
+        defm    "h ", 0
+
         ld      b,16
+        pop     de
         push    de                              ; save a copy for ASCII dump
 .dump_hex_loop
         push    bc
-        call    get_dump_byte                   ; fetch byte at dump address
+        call    ValidateDumpByte
+        jr      nc, cont_dmph16
+        pop     bc
+        jr      dump_ascii                      ; also display Ascii section... before EOF is reached..
+.cont_dmph16
+        ld      a,(de)                          ; get byte at true dump address
+        inc     de                              ; dump address ready for next fetch
+
         cp      a                               ; display in 8bit HEX
         ld      l,a
         call    InthexDisp
         ld      a,32
-        call    display_Char
+        oz      Os_Out
         pop     bc
         djnz    dump_hex_loop
+
+.dump_ascii
         pop     de
         ld      b,16                            ; now dump same bytes in ASCII format
-        ld      a,32
-        call    display_char                    ; make an extra space
+        oz      OS_Pout
+        defm    1, "2X", 32+(7+16*3+1), 0       ; prepare VDU cursor for Ascii section...
 .dump_ascii_loop
         push    bc
-        call    get_dump_byte                   ; fetch byte at dump address
+        call    ValidateDumpByte
+        jr      nc, cont_dmpa16
+        pop     bc
+        ret
+.cont_dmpa16
+        ld      a,(de)                          ; get byte at true dump address
+        inc     de                              ; dump address ready for next fetch
         cp      32
         jp      m, disp_dot
         cp      127
@@ -446,48 +378,42 @@
 .disp_dot
         ld      a, '.'                          ; display '.' if A = [0;31] [128;255]
 .disp_ascii_byte
-        call    display_Char
+        oz      Os_Out
         pop     bc
         djnz    dump_ascii_loop
         oz      GN_nln
         ret
 
-
-
 ; *********************************************************************************
+; Validate that DE(in) (ptr to current line of buffer to display) is not beyond EOF
+; return offset from start of buffer in BC (0 - X).
 ;
-; Return in A the byte from current Dump address and increase dump address for next fetch.
-;
-; DE, AF  different on return
-;
-.Get_dump_byte
-        ld      a,(de)                          ; get byte at true dump address
-        inc     de                              ; dump address ready for next fetch
-        ret
-
-
-; *********************************************************************************
-; - This routine will automatically executed wrap around if dump is executed in
-; a bank and the dump address is about to go beyond the bank.
-;
-.AdjustAddress
-        ex      af,af'
-        ld      a,d
-        and     @00111111                       ; DE only in range 0000h - 3FFFh
-        ld      d,a
-        ex      af,af'
-        ret
-
-
-; *********************************************************************************
-;
-;
-.EditWindows
+.ValidateDumpByte
         push    de
         push    hl
-        call    dumpWindows
-        ld      de,(vf_TopAddr)                 ; rel. pointer to variable
-        call    dump_128_bytes                  ; begin dump from nn
+        ld      hl,vf_EditBuffer                ; before displaying dump, calculate the file
+        ex      de,hl                           ; offset to be displayed first in left side
+        cp      a
+        sbc     hl,de                           ; get display offset from top of buffer
+
+        ld      b,h
+        ld      c,l
+        inc     bc                              ; BC offset from base of 0 converted to actual bytes
+        call    ValidateIncreaseFptr
+        dec     bc
+        pop     hl
+        pop     de                              ; if Fc = 1, then DE offset is beyond EOF!
+        ret
+
+
+; *********************************************************************************
+; Setup view file windows and pre-load buffer with start of file.
+;
+.InitView
+        push    de
+        push    hl
+        call    DumpWindows
+        call    dump_128_bytes                  ; begin dump from start of file
         ld      (vf_BotAddr),DE
         call    displayCurPos                   ; then display the cursor
         pop     hl
@@ -496,14 +422,12 @@
 
 
 ; *************************************************************************************
-;
-; Set cursor at X,Y position in current window          V0.18
+; Set cursor at X,Y position in dump file window
 ;
 ; IN:
 ;         C,B  =  (X,Y)
 ;
 ; Register status after return:
-;
 ;       ..BCDEHL/IXIY  same
 ;       AF....../....  different
 ;
@@ -516,32 +440,10 @@
         pop     bc
         ld      a,c
         add     a,32
-        call    display_char
+        oz      Os_Out
         ld      a,b
         add     a,32
-        call    display_char
-        ret
-
-
-; ******************************************************************************
-.Display_Char
-        push    af
         oz      Os_Out
-        pop     af
-        ret
-
-
-; ******************************************************************************
-;
-; Display a string in current window at cursor position
-;
-; IN: HL points at string.
-;
-;
-.Display_String
-        push    hl
-        oz      GN_Sop                          ; write string
-        pop     hl
         ret
 
 
@@ -558,7 +460,7 @@
 
 ; ****************************************************************************
 ; INTEGER to HEX conversion
-; HL (in) = integer to be converted to an ASCII HEX string
+; HL(in) = integer to be converted to an ASCII HEX string
 ; Fc = 1 convert 16 bit integer, otherwise byte integer
 ;
 ; Prints the string to the current window
@@ -575,14 +477,14 @@
         call    IntHexConv
         jr      nc, only_byte_int                 ; NC = display only a byte
         ld      a,d
-        call    Display_Char
+        oz      OS_Out
         ld      a,e
-        call    Display_Char
+        oz      OS_Out
 .only_byte_int
         ld      a,b
-        call    Display_Char
+        oz      OS_Out
         ld      a,c
-        call    Display_Char                      ; string printed...
+        oz      OS_Out                            ; string sent...
         pop     af
         pop     bc
         pop     de
@@ -592,14 +494,14 @@
         call    IntHexDisp
         push    af
         ld      a, 'h'                            ; same as 'IntHexDisp_H', but with a
-        call    display_Char                      ; trailing 'H' hex identifier...
+        oz      OS_Out                            ; trailing 'H' hex identifier...
         pop     af
         ret
 
 
 ; ****************************************************************************
 ; INTEGER to HEX conversion
-; HL (in) = integer to be converted to an ASCII HEX string
+; HL(in) = integer to be converted to an ASCII HEX string
 ; Fc = 1 convert 16 bit integer, otherwise byte integer
 ;
 ; Returns ASCII representation in DEBC, e.g. '3FFF' -> D='3', E='F', B='F', C='F'
@@ -661,6 +563,91 @@
 
 
 ; ******************************************************************
+; Validate that Decrease file pointer at (vf_fptr) with BC bytes
+; doesn't go beyond start of file. Returns Fc = 1, if "overflow"
+;
+.ValidateIncreaseFptr
+        push    bc
+        push    de
+        push    hl
+        ld      hl,(vf_fptr)                    ; get current file pointer (base of buffer)
+        add     hl,bc
+        ld      a,(vf_fptr+2)
+        ld      c,a
+        jr      nc,add16bit_fptr
+        inc     c                               ; adjust overflow for 24bit adress
+.add16bit_fptr
+        ex      de,hl
+        ld      c,a                             ; CDE = vf_fptr + BC(in)
+        ld      hl,(vf_fsize)
+        sbc     hl,de
+        jr      c,exit_vinfptr
+        ld      a,(vf_fsize+2)                  ; (vf_fptr + BC(in)) > vf_fptr + BC(in)?
+        sub     c                               ; return Fc...
+.exit_vinfptr
+        pop     hl
+        pop     de
+        pop     bc
+        ret
+
+
+; ******************************************************************
+; Increase file pointer at (vf_fptr) with BC bytes
+;
+.IncreaseFptr
+        push    af
+        push    hl
+        ld      hl,(vf_fptr)                    ; get current file pointer (base of buffer)
+        add     hl,bc
+        ld      (vf_fptr),hl
+        jr      nc,exit_infptr
+        ld      hl,vf_fptr+2
+        inc     (hl)                            ; adjust overflow for 24bit adress
+.exit_infptr
+        pop     hl
+        pop     af
+        ret
+
+
+; ******************************************************************
+; Validate that Decrease file pointer at (vf_fptr) with BC bytes
+; doesn't go beyond start of file. Returns Fc = 1, if "overflow"
+;
+.ValidateDecreaseFptr
+        push    hl
+        ld      hl,(vf_fptr)                    ; get current file pointer (base of buffer)
+        cp      a
+        sbc     hl,bc
+        jr      nc,exit_vdcfptr
+        ld      a,(vf_fptr+2)
+        dec     a                               ; adjust overflow for 24bit adress
+        jp      p,exit_vdcfptr
+        scf
+.exit_vdcfptr
+        pop     hl
+        ret
+
+
+; ******************************************************************
+; Decrease file pointer at (vf_fptr) with BC bytes
+;
+.DecreaseFptr
+        push    af
+        push    hl
+        ld      hl,(vf_fptr)                    ; get current file pointer (base of buffer)
+        cp      a
+        sbc     hl,bc
+        ld      (vf_fptr),hl
+        jr      nc,exit_dcfptr
+        ld      hl,vf_fptr+2
+        dec     (hl)                            ; adjust overflow for 24bit adress
+.exit_dcfptr
+        pop     hl
+        pop     af
+        ret
+
+
+; ******************************************************************
 .DumpWindows
         oz      OS_Pout
         defm    1,55,35,'2',32+1,32,32+73,32+8,129   ; Dump window
@@ -671,12 +658,12 @@
         defm    "View File"
 
         defm    1, "3-TR", 1, "2JN", 10, 13          ; normal justification
-        defm    "Bottom Bank  ", 1, 43, 1, 243
-        defm    "Top Bank     ", 1, 43, 1, 242
+        defm    "Start File   ", 1, 43, 1, 243
+        defm    "End File     ", 1, 43, 1, 242
         defm    "Page Up    ", 1, 45, 1, 243
         defm    "Page Down  ", 1, 45, 1, 242
         defm    "Cursor  ", 1, 240, 1, 241, 1, 242, 1, 243
         defm    "Hex/Ascii    ", 1, 226
-        defm    "Quit Dump    ", 1, $E4
+        defm    "Quit View    ", 1, $E4
         defm    1, "2C2", 1, "2+C", 0                ; select & clear window '2' for dump output
         ret

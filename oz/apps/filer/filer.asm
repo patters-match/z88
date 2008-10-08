@@ -125,8 +125,7 @@
 .loc_EAF5
         cp      RC_Esc
         jr      nz, MainLoop
-        ld      a, SC_ACK                       ; SC_ACK=RC_Esc this line is not necessary
-        OZ      OS_Esc                          ; Examine special condition
+        OZ      OS_Esc                          ; Acknowledge ESC key pressed, then exit Filer
         jr      ExitFiler
 
 .loc_EAFF
@@ -156,14 +155,19 @@
         jr      nc, MainLoop
         jp      DoCmd                           ; execute <> shortcut commands 0 - 15
 
+
+; ********************************************************************************************
+; Free ressources before exiting the Filer popdown. This routine is called by Error handler
+; and various others that recieved RC_Quit from OZ
+;
 .ExitFiler
-        call    FreeDOR
+        call    CloseSource                     ; close open ressource (file or DOR), if any...
         call    GetNextSelected
         jr      c, loc_EB49
         ld      de, Mailbox                     ; "NAME"
         ld      b, 0
         ld      hl, f_SourceName
-        ld      a, 3
+        ld      a, SR_WPD
         OZ      OS_Sr                           ; Write mailbox
 
 .loc_EB49
@@ -194,7 +198,7 @@
         ret
 
 .FilerErrHandler
-        cp      RC_Quit                         ; Request application to quit *
+        cp      RC_Quit                         ; Request application to quit
         jr      z, ExitFiler
         cp      a
         ret
