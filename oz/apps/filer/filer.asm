@@ -58,7 +58,7 @@
 
 .Filer
         xor     a                               ; clear variables up to and including two bytes of StrBuffer
-        ld      hl, FILER_UNSAFE_WS_START
+        ld      hl, FILER_SAFE_WS_START
         ld      b, 34
 .f_1
         ld      (hl), a

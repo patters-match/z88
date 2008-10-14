@@ -63,10 +63,10 @@
         call    ResetCurPos                     ; intialise cursor pos. in window
         call    InitView                        ; Setup Dump windows and display initial dump
 .mem_view_loop
-        call    DisplayCurPos                   ; then display the cursor (reset to 0,0)
+        call    DisplayCurPos                   ; then display the cursor
         call    GetKey
         ret     c                               ; user aborted with ESC key...
-        cp      IN_TAB                          ; TAB pressed?
+        cp      $20                             ; TAB pressed?
         jp      z, HexAscii_Cursor              ; toggle between Hex & ASCII cursor
         cp      IN_LFT                          ; <Left Cursor>?
         jp      z, mv_cursor_left               ;
@@ -87,6 +87,9 @@
         jr      mem_view_loop
 
 .next_16_bytes
+        ld      bc,16
+        call    ValidateNewCursorOffset         ; cursor in buffer + 16 bytes > EOF?
+        jr      c, mem_view_loop
         ld      a,(vf_CY)                       ; get CY
         cp      7                               ; cursor at bottom line?
         jr      z, scroll_16_up                 ; Yes - display a new line of bytes
@@ -108,6 +111,7 @@
         call    Dump_16_bytes                   ; display bottom row only
         jp      mem_view_loop
 
+; reload view buffer with new file contents from current file pointer (top of buffer + 128 bytes)
 .next_128_bytes
         ld      bc,128
         call    ValidateIncreaseFptr            ; [vf_fptr] + 128 ?
@@ -124,7 +128,7 @@
         or      a                               ; cursor at top line?
         jr      z, scroll_16_down               ; Yes - display a new line of bytes
         ld      hl, vf_CY
-        dec     (hl)                            ; move cursor one line down
+        dec     (hl)                            ; move cursor one line down (-16 bytes)
         jp      mem_view_loop
 
 .scroll_16_down
@@ -159,11 +163,15 @@
 
 .page_eoffile
         ld      hl,(vf_fsize)
+        ld      a,l
+        and     $F0                             ; set the file pointer at modulus 16 bytes (for better view)
+        ld      l,a
+        ld      (vf_fptr),hl                    ; fptr = size of file (modulus 16)
         ld      a,(vf_fsize+2)
-        ld      (vf_fptr),hl                    ; fptr = size of file
-        ld      (vf_fptr+2),a                   ; !! TODO: a file might be less than 128 bytes in size
+        ld      (vf_fptr+2),a
 
-        ld      bc,128
+        ld      b,0
+        ld      c,128-16                        ; display last buffer of file in a good modulus 16 display...
         call    DecreaseFptr                    ; [vf_fptr] -= 128
 .dump_eof
         call    Dump_128_bytes
@@ -173,8 +181,8 @@
         bit     HexAscii,(iy+0)
         jr      z, set_HexCursor                ; ASCII cursor active, set HEX cursor
         res     HexAscii,(iy+0)                 ; HEX cursor active, set ASCII cursor
-        ld      a,57
-        ld      (vf_SC),A                       ; SC = 57
+        ld      a,56
+        ld      (vf_SC),A                       ; SC = 56
         ld      a,1
         ld      (vf_CI),A                       ; CI = 1
         jp      mem_view_loop
@@ -187,6 +195,9 @@
         jp      mem_view_loop                   ;
 
 .mv_cursor_left
+        ld      bc,-1
+        call    ValidateNewCursorOffset
+        jp      c,mem_view_loop
         ld      a,(vf_CX)                       ; get CX
         or      a                               ; cursor reached left boundary?
         jr      z, wrap_curs_right              ; Yes - wrap to right boundary
@@ -199,6 +210,9 @@
         jp      prev_16_bytes
 
 .mv_cursor_right
+        ld      bc,1
+        call    ValidateNewCursorOffset
+        jp      c,mem_view_loop
         ld      a,(vf_cx)                       ; get CX
         cp      15                              ; cursor reached right boundary?
         jr      z, wrap_curs_left               ; Yes - wrap to left boundary
@@ -211,12 +225,27 @@
         jp      next_16_bytes
 
 
+
 ; *********************************************************************************
-; return cursor offset from top corner of screen in BC, calculated by (CX,CY)
+; In:
+;       BC = validate move of cursor X bytes in buffer (-/+)
+; Returns:
+;       Fc = 1, if cursor + BC offset will go out of file boundary.
+
+.ValidateNewCursorOffset
+        call    GetCursorOffset
+        add     hl,bc
+        ld      bc,vf_EditBuffer
+        add     hl,bc
+        ex      de,hl
+        jp      ValidateDumpByte
+
+
+; *********************************************************************************
+; return cursor offset from top corner of screen in HL, calculated by (CX,CY)
 ;
-.Get_CurOffset
+.GetCursorOffset
         push    af
-        push    hl
         ld      a,(vf_CY)                       ; get CY
         sla     a
         sla     a
@@ -224,9 +253,8 @@
         sla     a                               ; CY * 16
         ld      hl,vf_CX
         add     a,(hl)                          ; CY*16+CX = cursor offset from TOP
-        ld      b,0
-        ld      c,a
-        pop     hl
+        ld      h,0
+        ld      l,a
         pop     af
         ret
 
@@ -563,8 +591,8 @@
 
 
 ; ******************************************************************
-; Validate that Decrease file pointer at (vf_fptr) with BC bytes
-; doesn't go beyond start of file. Returns Fc = 1, if "overflow"
+; Validate that Increase file pointer at (vf_fptr) with BC bytes
+; doesn't go beyond end of file. Returns Fc = 1, if "overflow"
 ;
 .ValidateIncreaseFptr
         push    bc
@@ -581,9 +609,8 @@
         ld      c,a                             ; CDE = vf_fptr + BC(in)
         ld      hl,(vf_fsize)
         sbc     hl,de
-        jr      c,exit_vinfptr
         ld      a,(vf_fsize+2)                  ; (vf_fptr + BC(in)) > vf_fptr + BC(in)?
-        sub     c                               ; return Fc...
+        sbc     c                               ; return Fc = 1, if overflow...
 .exit_vinfptr
         pop     hl
         pop     de
@@ -611,20 +638,19 @@
 
 ; ******************************************************************
 ; Validate that Decrease file pointer at (vf_fptr) with BC bytes
-; doesn't go beyond start of file. Returns Fc = 1, if "overflow"
+; doesn't go beyond start of file.
+; Returns Fc = 1, BC negative overflow value
 ;
 .ValidateDecreaseFptr
         push    hl
         ld      hl,(vf_fptr)                    ; get current file pointer (base of buffer)
         cp      a
         sbc     hl,bc
-        jr      nc,exit_vdcfptr
         ld      a,(vf_fptr+2)
-        dec     a                               ; adjust overflow for 24bit adress
-        jp      p,exit_vdcfptr
-        scf
-.exit_vdcfptr
-        pop     hl
+        sbc     a,b                             ; adjust overflow for 24bit adress (add carry with B always = 0)
+        ld      b,h
+        ld      c,l                             ; return BC = negative overflow value,
+        pop     hl                              ; and Fc = 1, if original BC offset goes beyond Start of file..
         ret
 
 
@@ -632,6 +658,11 @@
 ; Decrease file pointer at (vf_fptr) with BC bytes
 ;
 .DecreaseFptr
+        call    ValidateDecreaseFptr
+        jr      nc,valid_dfptr
+        pop     af                              ; remove RET..
+        jp      page_startfile                  ; BC decrease goes beyound start of file...
+.valid_dfptr
         push    af
         push    hl
         ld      hl,(vf_fptr)                    ; get current file pointer (base of buffer)
