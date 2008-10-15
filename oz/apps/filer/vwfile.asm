@@ -426,9 +426,7 @@
 
         ld      b,h
         ld      c,l
-        inc     bc                              ; BC offset from base of 0 converted to actual bytes
         call    ValidateIncreaseFptr
-        dec     bc
         pop     hl
         pop     de                              ; if Fc = 1, then DE offset is beyond EOF!
         ret
@@ -605,8 +603,7 @@
         jr      nc,add16bit_fptr
         inc     c                               ; adjust overflow for 24bit adress
 .add16bit_fptr
-        ex      de,hl
-        ld      c,a                             ; CDE = vf_fptr + BC(in)
+        ex      de,hl                           ; CDE = vf_fptr + BC(in)
         ld      hl,(vf_fsize)
         sbc     hl,de
         ld      a,(vf_fsize+2)                  ; (vf_fptr + BC(in)) > vf_fptr + BC(in)?
@@ -639,7 +636,7 @@
 ; ******************************************************************
 ; Validate that Decrease file pointer at (vf_fptr) with BC bytes
 ; doesn't go beyond start of file.
-; Returns Fc = 1, BC negative overflow value
+; Returns Fc = 1, if overflow
 ;
 .ValidateDecreaseFptr
         push    hl
@@ -648,8 +645,6 @@
         sbc     hl,bc
         ld      a,(vf_fptr+2)
         sbc     a,b                             ; adjust overflow for 24bit adress (add carry with B always = 0)
-        ld      b,h
-        ld      c,l                             ; return BC = negative overflow value,
         pop     hl                              ; and Fc = 1, if original BC offset goes beyond Start of file..
         ret
 
