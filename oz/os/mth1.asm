@@ -38,6 +38,7 @@
         include "saverst.def"
         include "syspar.def"
         include "sysvar.def"
+        include "oz.def"
         include "interrpt.def"
 
 xdef    DoHelp

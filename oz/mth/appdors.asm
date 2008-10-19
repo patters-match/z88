@@ -33,7 +33,7 @@
         Module AppDOR
 
         include "dor.def"
-        include "sysvar.def"
+        include "oz.def"
         include "sysapps.def"
 
         include "../dc/dc.def"

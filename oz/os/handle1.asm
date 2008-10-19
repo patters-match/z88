@@ -36,6 +36,7 @@
         include "error.def"
         include "memory.def"
         include "sysvar.def"
+        include "oz.def"
         include "handle.def"
 
 xdef    OSFnMain

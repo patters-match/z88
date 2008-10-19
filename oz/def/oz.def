@@ -29,8 +29,8 @@ lstoff
 
 ; *** INTERNAL OPERATING SYSTEM USAGE ONLY ***
 
-IF !__KERNEL_DEF__
-define __KERNEL_DEF__
+IF !__OZ_DEF__
+define __OZ_DEF__
 
 ; version:
 defc    OZVERSION               = $42

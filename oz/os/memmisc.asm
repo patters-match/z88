@@ -36,6 +36,7 @@
 
         include "stdio.def"
         include "sysvar.def"
+        include "oz.def"
 
 xdef    AtoN_upper
 xdef    ClearMemHL_A

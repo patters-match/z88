@@ -23,4 +23,4 @@
 # $Id$
 # ***************************************************************************************************
 
-../../../tools/mpm/mpm -bg -DOZ_SLOT$1 -I../../def @clcalalm.prj
+../../../tools/mpm/mpm -dbg -DOZ_SLOT$1 -I../../def @clcalalm.prj

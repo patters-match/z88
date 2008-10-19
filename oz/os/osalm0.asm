@@ -34,6 +34,8 @@
 
         include "alarm.def"
         include "sysvar.def"
+        include "oz.def"
+        include "z80.def"
         include "interrpt.def"
         include "handle.def"
 

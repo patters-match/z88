@@ -21,4 +21,4 @@
 :: $Id$
 :: ***************************************************************************************************
 
- ..\..\..\tools\mpm\mpm -b -DOZ_SLOT%1 -I..\..\def filer.asm vwfile.asm
+ ..\..\..\tools\mpm\mpm -db -DOZ_SLOT%1 -I..\..\def filer.asm vwfile.asm

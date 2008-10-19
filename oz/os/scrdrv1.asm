@@ -36,6 +36,7 @@
         include "stdio.def"
         include "director.def"
         include "sysvar.def"
+        include "oz.def"
 
 xdef    OSOutMain
 xdef    Chr2ScreenCode                          ; Char2OZwdChar

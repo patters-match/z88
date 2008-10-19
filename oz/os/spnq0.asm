@@ -44,7 +44,7 @@ xref    OSNqMain                                ; [Kernel1]/nqsp.asm
 xref    OSSpMain                                ; [Kernel1]/nqsp.asm
 
         include "serintfc.def"
-        include "kernel.def"
+        include "oz.def"
 
 
 ; set Panel and PrinterEd values

@@ -35,6 +35,7 @@
         include "error.def"
         include "handle.def"
         include "sysvar.def"
+        include "oz.def"
 
 xdef    OSGth
 xdef    OSFth

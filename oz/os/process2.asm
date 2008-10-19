@@ -38,6 +38,7 @@
         include "error.def"
         include "memory.def"
         include "sysvar.def"
+        include "oz.def"
 
 ;       mostly bad application memory routines
 

@@ -38,6 +38,7 @@
         include "saverst.def"
         include "handle.def"
         include "sysvar.def"
+        include "oz.def"
 
 xdef    OSSR_main
 xdef    OSSr_Sus

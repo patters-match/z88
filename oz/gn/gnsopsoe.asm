@@ -36,7 +36,7 @@
         include "blink.def"
         include "memory.def"
         include "stdio.def"
-        include "sysvar.def"
+        include "oz.def"
 
 
         xdef    GNSoe

@@ -24,7 +24,7 @@
 
         include "stdio.def"
         include "map.def"
-        include "kernel.def"
+        include "oz.def"
         include "memory.def"
 
         module GNWin

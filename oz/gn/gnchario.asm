@@ -33,7 +33,8 @@
         Module GNCharIO
 
         include "stdio.def"
-        include "sysvar.def"
+        include "oz.def"
+        include "z80.def"
 
 ;       ----
 

@@ -35,6 +35,7 @@
         include "director.def"
         include "memory.def"
         include "sysvar.def"
+        include "oz.def"
 
 xdef    OSOut, OSBout, OSPout, OsOutKernel
 
@@ -47,9 +48,9 @@ xref    OSOutMain                               ; scrdrv1.asm
 
 ; *************************************************************************************
 ; OS_Out entry: write character to standard output
-; IN: 
+; IN:
 ;     A = character to be written
-; OUT: 
+; OUT:
 ;     Fc = 0 always (error handler is never provoked)
 ;
 ; Registers changed after return to caller:
@@ -64,10 +65,10 @@ xref    OSOutMain                               ; scrdrv1.asm
 
 ; *************************************************************************************
 ; OS_Bout entry: write null-terminated string block at (B)HL to standard output
-; IN: 
+; IN:
 ;     BHL = extended pointer to string to be written (not crossing segments)
 ;           B = 0, then local address space pointer in caller bank binding
-; OUT: 
+; OUT:
 ;     Fc = 0 always (error handler is never provoked)
 ;     HL points at byte after null-terminator
 ;
@@ -82,13 +83,13 @@ xref    OSOutMain                               ; scrdrv1.asm
 
 
 ; *************************************************************************************
-; OS_Pout entry: write embedded null-terminated string at caller (PC) following 
+; OS_Pout entry: write embedded null-terminated string at caller (PC) following
 ; this system call, to standard output.
 ;
-; IN: 
+; IN:
 ;     None
 ;
-; OUT: 
+; OUT:
 ;     Fc = 0 always (error handler is never provoked)
 ;
 ; Registers changed after return to caller:

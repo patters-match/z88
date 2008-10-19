@@ -40,6 +40,7 @@
         include "memory.def"
         include "syspar.def"
         include "sysvar.def"
+        include "oz.def"
 
 
 xdef    AddAvailableFsBlock

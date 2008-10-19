@@ -35,6 +35,7 @@
         include "blink.def"
         include "error.def"
         include "sysvar.def"
+        include "oz.def"
 
 xdef    OsSci
 

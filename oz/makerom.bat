@@ -47,8 +47,12 @@ set oz_bin="oz.bin"
 :COMPILE_OZ
 ECHO Compiling OZ ROM for slot %ozslot%
 
-:: delete previous compiled files...
-call cleanup
+:: delete previous binary outut, error and warning files... but NOT obj files!
+del /Q oz-*.?? romupdate.cfg
+del /S /Q *.bin *.epr *.map *.err *.wrn 2>nul >nul
+
+:: only delete *.def files for OZ ROM (preserve \def!)
+del /Q os\*.def 2>nul >nul
 
 :: -------------------------------------------------------------------------------------------------
 :COMPILE_DIARY

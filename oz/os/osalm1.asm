@@ -37,8 +37,9 @@
         include "time.def"
         include "handle.def"
         include "sysvar.def"
+        include "oz.def"
+        include "z80.def"
         include "interrpt.def"
-        ;include "z80.def"
 
 
 xdef    OSAlmMain

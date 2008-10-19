@@ -35,7 +35,7 @@
 
         include "blink.def"
         include "error.def"
-        include "sysvar.def"
+        include "oz.def"
 
         include "../os/lowram/lowram.def"
 

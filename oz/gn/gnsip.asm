@@ -37,8 +37,8 @@
         include "memory.def"
         include "stdio.def"
         include "syspar.def"
-
-        include "sysvar.def"
+        include "oz.def"
+        include "z80.def"
 
 ;       ----
 

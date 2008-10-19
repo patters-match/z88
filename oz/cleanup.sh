@@ -24,7 +24,7 @@
 # $Id$
 # ***************************************************************************************************
 
-# get rid of previous generated ROM bank files
+# delete all compile output files, if available..
 rm -f oz-*.?? romupdate.cfg
 
 # delete all compile output files

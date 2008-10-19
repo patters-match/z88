@@ -34,9 +34,10 @@
 
         include "blink.def"
         include "error.def"
+        include "oz.def"
         include "sysvar.def"
+        include "z80.def"
         include "interrpt.def"
-        ;include "z80.def"
 
 xdef    OSHt
 xdef    ReadRTC

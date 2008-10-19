@@ -45,8 +45,19 @@ fi
 
 echo compiling OZ ROM for slot $ozslot
 
-# delete previous compiled files (incl. error and warning files)...
-. cleanup.sh
+# -------------------------------------------------------------------------------------------------
+# delete previous error and warning files...
+# delete all compile output files, if available..
+rm -f oz-*.?? romupdate.cfg
+
+# delete all compile output files
+find . -name "*.bin" | xargs rm -f
+find . -name "*.epr" | xargs rm -f
+find . -name "*.map" | xargs rm -f
+find . -name "*.err" | xargs rm -f
+
+# only delete *.def files for OZ rom (preserve /def!)
+find ./os -name "*.def" | xargs rm -f
 
 # -------------------------------------------------------------------------------------------------
 echo compiling Diary application

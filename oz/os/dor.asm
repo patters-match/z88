@@ -36,7 +36,7 @@
         include "dor.def"
         include "error.def"
         include "handle.def"
-        include "sysvar.def"
+        include "oz.def"
 
 xdef    DORHandleFree                           ; get rid of these two stubs
 xdef    DORHandleFreeDirect

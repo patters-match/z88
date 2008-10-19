@@ -31,8 +31,9 @@
 ; ***************************************************************************************************
 
         module  knlbind
+
         include "blink.def"
-        include "kernel.def"
+        include "oz.def"
         include "lowram.def"
 
 xdef    OSBix, OSBox

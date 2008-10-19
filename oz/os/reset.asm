@@ -37,6 +37,7 @@
         include "stdio.def"
         include "screen.def"
         include "sysvar.def"
+        include "oz.def"
         include "director.def"
         include "serintfc.def"
         include "syspar.def"

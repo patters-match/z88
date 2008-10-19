@@ -38,8 +38,9 @@
         include "stdio.def"
         include "syspar.def"
         include "time.def"
-
         include "sysvar.def"
+        include "oz.def"
+        include "z80.def"
 
 ;       ----
 
@@ -235,7 +236,7 @@ xref    WriteOsfDE
         ld      b, 4                            ; *16, total 86 400, sec/day
 .pmd_3
         exx                                     ; dehlHL<<1
-        sla     l                               ; !! 'add HL,HL;exx;adc hl,hl;rl e; rl d' 
+        sla     l                               ; !! 'add HL,HL;exx;adc hl,hl;rl e; rl d'
         rl      h
         exx
         rl      l

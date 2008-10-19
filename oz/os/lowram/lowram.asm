@@ -37,6 +37,7 @@
         include "blink.def"
         include "error.def"
         include "sysvar.def"
+        include "oz.def"
         include "flashepr.def"
         include "interrpt.def"
         include "buffer.def"

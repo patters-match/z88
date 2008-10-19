@@ -33,7 +33,8 @@
         Module GNMath
 
         include "error.def"
-        include "sysvar.def"
+        include "oz.def"
+        include "z80.def"
 
 ;       ----
 
@@ -62,8 +63,7 @@ xref    PutOsf_HL
 
 .GNM16
         call    Mulu16
-        call    PutOsf_HL
-        ret
+        jp      PutOsf_HL
 
 ;       ----
 
@@ -80,12 +80,10 @@ xref    PutOsf_HL
         jr      nc, gnd16_1
         set     Z80F_B_C, (iy+OSFrame_F)
         ld      (iy+OSFrame_A), RC_Fail
-        jr      gnd16_2                         ; !! 'ret'
+        ret
 .gnd16_1
         call    PutOsf_HL
-        call    PutOsf_DE
-.gnd16_2
-        ret
+        jp      PutOsf_DE
 
 ;       ----
 
@@ -100,8 +98,7 @@ xref    PutOsf_HL
 
 .GNM24
         call    Mulu24
-        call    PutOsf_BHL
-        ret
+        jp      PutOsf_BHL
 
 ;       ----
 

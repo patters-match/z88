@@ -32,8 +32,8 @@
 
         Module OSTables
 
-        include "../def/kernel.def"
-        
+        include "../def/oz.def"
+
         org     OZCALLTBL                       ; fixed start
 
 xdef    OZCallTable

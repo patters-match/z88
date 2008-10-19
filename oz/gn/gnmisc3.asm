@@ -36,7 +36,8 @@
         include "fileio.def"
         include "filter.def"
         include "memory.def"
-        include "sysvar.def"
+        include "oz.def"
+        include "z80.def"
         include "../os/kernel1.def"
 
 ;       ----

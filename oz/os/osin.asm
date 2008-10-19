@@ -39,6 +39,8 @@
         include "error.def"
         include "stdio.def"
         include "sysvar.def"
+        include "oz.def"
+        include "z80.def"
         include "interrpt.def"
         include "keyboard.def"
 

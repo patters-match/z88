@@ -38,7 +38,7 @@
         include "error.def"
         include "stdio.def"
         include "syspar.def"
-        include "sysvar.def"
+        include "oz.def"
 
 xdef    OSMap
 
@@ -64,7 +64,7 @@ xref    RestoreActiveWd                         ; [Kernel1]/mth1.asm
 .OSMapMain
         ld      b, c
         djnz    mp_def
-.mp_wr        
+.mp_wr
         push    hl                              ; write a line to the map
         ex      af, af'
         call    ScreenOpen                      ; get access to window data in segment 1, returns old bank binding in A
@@ -171,7 +171,7 @@ xref    RestoreActiveWd                         ; [Kernel1]/mth1.asm
         call    ScreenClose
         ex      af, af'
         jp      PutOSFrame_BC
-        
+
 .mp_gra
         dec     b
         jr      z, _mp_def                      ; mp_def

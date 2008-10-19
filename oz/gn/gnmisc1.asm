@@ -33,7 +33,7 @@
         Module GNMisc1
 
         include "blink.def"
-        include "sysvar.def"
+        include "oz.def"
         include "../os/lowram/lowram.def"
 
 ;       ----

@@ -39,6 +39,7 @@
         include "fileio.def"
         include "syspar.def"
         include "sysvar.def"
+        include "oz.def"
         include "printer.def"
         include "keyboard.def"
         include "screen.def"

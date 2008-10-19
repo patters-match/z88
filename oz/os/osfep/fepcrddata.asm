@@ -25,7 +25,7 @@
 
         xdef    FlashEprCardData
 
-        include "sysvar.def"
+        include "oz.def"
         include "flashepr.def"
 
 ; ***************************************************************************************************

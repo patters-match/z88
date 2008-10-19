@@ -41,6 +41,7 @@
         include "stdio.def"
         include "handle.def"
         include "sysvar.def"
+        include "oz.def"
         include "card.def"
 
         include "lowram.def"

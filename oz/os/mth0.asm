@@ -38,6 +38,7 @@
         include "stdio.def"
         include "handle.def"
         include "sysvar.def"
+        include "oz.def"
         include "interrpt.def"
         include "../mth/mth.def"
 

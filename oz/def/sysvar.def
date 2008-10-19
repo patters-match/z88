@@ -56,9 +56,6 @@ lstoff
 IF !__SYSVAR_DEF__
 define __SYSVAR_DEF__
 
-include "kernel.def"                            ; to be removed (and renamed oz.def)
-include "z80.def"                               ; to be removed and inlined in each file
-
 ; --------------------
 ; FIRST 8K RAM MAPPING
 ; --------------------

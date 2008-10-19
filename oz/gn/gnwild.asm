@@ -38,9 +38,10 @@
         include "error.def"
         include "fileio.def"
         include "memory.def"
+        include "sysvar.def"
+        include "oz.def"
 
         include "gndef.def"
-        include "sysvar.def"
 
 ;       ----
 

@@ -43,6 +43,8 @@
         include "syspar.def"
         include "printer.def"
         include "sysvar.def"
+        include "oz.def"
+        include "z80.def"
 
         include "lowram.def"
 
@@ -722,7 +724,7 @@ xref    OSOutMain                               ; [Kernel1]/scrdrv1.asm
         call    GetFileEOF
         ret     nc
 .frmeof_1
-        set    Z80F_B_Z, (iy+OSFrame_F)         ; Fz=1, EOF, indicate expanded machine
+        set     Z80F_B_Z, (iy+OSFrame_F)        ; Fz=1, EOF, indicate expanded machine
         or      a
         ret
 .frmeof_2

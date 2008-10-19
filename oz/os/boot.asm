@@ -35,7 +35,7 @@
         Module  Boot
 
         include "blink.def"
-        include "sysvar.def"
+        include "oz.def"
         include "memory.def"
 
         org     $c000

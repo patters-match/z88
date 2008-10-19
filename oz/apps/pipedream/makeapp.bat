@@ -21,4 +21,4 @@
 :: $Id$
 :: ***************************************************************************************************
 
-..\..\..\tools\mpm\mpm -bc -DOZ_SLOT%1 -I..\..\def pipedream.asm
+..\..\..\tools\mpm\mpm -dbc -DOZ_SLOT%1 -I..\..\def pipedream.asm

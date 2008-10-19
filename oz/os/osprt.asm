@@ -32,6 +32,7 @@
 
         module OSPrt
 
+        include "oz.def"
         include "sysvar.def"
         include "director.def"
         include "error.def"

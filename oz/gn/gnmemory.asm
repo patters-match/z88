@@ -33,7 +33,8 @@
         Module GNMemory
 
         include "memory.def"
-        include "sysvar.def"
+        include "oz.def"
+        include "z80.def"
 
 ;       ----
 

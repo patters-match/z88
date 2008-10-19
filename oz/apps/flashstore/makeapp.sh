@@ -18,4 +18,4 @@
 #
 # *************************************************************************************
 
-../../../tools/mpm/mpm -b -DOZ_SLOT$1 -I../../def -l../../../stdlib/standard.lib @flashstore
+../../../tools/mpm/mpm -db -DOZ_SLOT$1 -I../../def -l../../../stdlib/standard.lib @flashstore

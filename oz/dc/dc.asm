@@ -46,6 +46,8 @@
         include "time.def"
         include "printer.def"
         include "sysvar.def"
+        include "oz.def"
+        include "z80.def"
         include "sysapps.def"
         include "keyboard.def"
         include "handle.def"

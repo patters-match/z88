@@ -29,7 +29,7 @@
 
         include "card.def"
         include "mth.def"
-        include "sysvar.def"
+        include "oz.def"
 
 IF !OZ_SLOT1
 ; ---------------------------------------------------------------------------------------------------

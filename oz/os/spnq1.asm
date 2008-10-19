@@ -36,6 +36,7 @@
         include "error.def"
         include "syspar.def"
         include "sysvar.def"
+        include "oz.def"
         include "memory.def"
         include "interrpt.def"
         include "keyboard.def"

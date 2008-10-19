@@ -33,7 +33,8 @@
         Module  OZ2call
 
         include "error.def"
-        include "sysvar.def"
+        include "oz.def"
+
         include "lowram.def"
 
 xdef    CallDC

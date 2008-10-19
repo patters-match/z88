@@ -38,6 +38,7 @@
         include "handle.def"
         include "syspar.def"
         include "sysvar.def"
+        include "oz.def"
         include "serintfc.def"
         include "interrpt.def"
 

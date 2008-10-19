@@ -33,7 +33,7 @@
 
         Module stkframe
 
-        include "sysvar.def"
+        include "oz.def"
         include "lowram.def"
 
 xdef    OSFramePush
