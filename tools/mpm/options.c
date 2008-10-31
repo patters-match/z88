@@ -113,6 +113,12 @@ SetAsmFlag (char *flagid)
       return;
     }
 
+  if (strcmp (flagid, "version") == 0)
+    {
+      puts(copyrightmsg);
+      exit(VERSION_NUMBER);
+    }
+
   /* use ".xxx" as source file in stead of ".asm" */
   if (*flagid == 'e')
     {
