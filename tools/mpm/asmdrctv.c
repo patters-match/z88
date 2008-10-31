@@ -1321,7 +1321,7 @@ IncludeFile (void)
 {
   if (GetSym () == dquote)
     {                           /* fetch filename of include file */
-      Fetchfilename (srcasmfile, ident);
+      FetchLinefilename (srcasmfile, ident);
 
       CURRENTFILE->filepointer = ftell (srcasmfile);    /* remember file position of current source file */
       fclose (srcasmfile);
@@ -1439,7 +1439,7 @@ BINARY (void)
 
   if (GetSym () == dquote)
     {
-      Fetchfilename (srcasmfile, ident);
+      FetchLinefilename (srcasmfile, ident);
 
       if ((binfile = fopen (AdjustPlatformFilename(ident), "rb")) == NULL)
         {

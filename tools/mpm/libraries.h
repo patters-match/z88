@@ -9,7 +9,7 @@
     MMMM       MMMM     PPPP              MMMM       MMMM
    MMMMMM     MMMMMM   PPPPPP            MMMMMM     MMMMMM
 
-  Copyright (C) 1991-2006, Gunther Strube, gbs@users.sourceforge.net
+  Copyright (C) 1991-2008, Gunther Strube, gbs@users.sourceforge.net
 
   This file is part of Mpm.
   Mpm is free software; you can redistribute it and/or modify
@@ -30,9 +30,10 @@
 /* globally defined functions */
 int LinkLibModules (char *objfilename, long fptr_base, long startnames, long endnames);
 int SearchLibfile (libfile_t *curlib, char *modname);
-void CreateLib (void);
+void PopulateLibrary (void);
 FILE *OpenLibraryFile(char *filename, pathlist_t *pathlist, const char **libversion);
-void CreateLibfile (char *filename);
+void CreateLibfileName (char *filename);
+void CreateLibfile ();
 void GetLibfile (char *filename);
 void IndexLibraries(void);
 void ReleaseLibraries (void);

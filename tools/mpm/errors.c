@@ -9,7 +9,7 @@
     MMMM       MMMM     PPPP              MMMM       MMMM
    MMMMMM     MMMMMM   PPPPPP            MMMMMM     MMMMMM
 
-  Copyright (C) 1991-2006, Gunther Strube, gbs@users.sourceforge.net
+  Copyright (C) 1991-2008, Gunther Strube, gbs@users.sourceforge.net
 
   This file is part of Mpm.
   Mpm is free software; you can redistribute it and/or modify
@@ -83,8 +83,9 @@ static char *errmsg[] = {
  "Environment variable not defined",                             /* 31 */
  "Cannot include file recursively",                              /* 32 */
  "ORG address not yet defined for project",                      /* 33 */
- "warnings occurred during assembly",                            /* 34 */
- "Warning: bank offset reaches beyond 16K boundary"              /* 35 */
+ "Expression > 255 characters",                                  /* 34 */
+ "warnings occurred during assembly",                            /* 35 */
+ "Warning: bank offset reaches beyond 16K boundary"              /* 36 */
 
 };
 

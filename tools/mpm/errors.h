@@ -9,7 +9,7 @@
     MMMM       MMMM     PPPP              MMMM       MMMM
    MMMMMM     MMMMMM   PPPPPP            MMMMMM     MMMMMM
 
-  Copyright (C) 1991-2006, Gunther Strube, gbs@users.sourceforge.net
+  Copyright (C) 1991-2008, Gunther Strube, gbs@users.sourceforge.net
 
   This file is part of Mpm.
   Mpm is free software; you can redistribute it and/or modify
@@ -61,8 +61,9 @@
 #define Err_EnvVariable 31         /* "Environment variable not defined" */
 #define Err_IncludeFile 32         /* "Cannot include file recursively" */
 #define Err_OrgNotDefined 33       /* "ORG address not yet defined for project" */
-#define Warn_Status 34             /* "warnings occurred during assembly" */
-#define Warn_OffsetBoundary 35     /* "offset reaches beyond 16K boundary" */
+#define Err_ExprTooBig 34          /* "Expression > 255 characters" */
+#define Warn_Status 35             /* "warnings occurred during assembly" */
+#define Warn_OffsetBoundary 36     /* "offset reaches beyond 16K boundary" */
 
 void ReportWarning (char *filename, short lineno, int warnno);
 void ReportAsmMessage (char *filename, short lineno, char *message);

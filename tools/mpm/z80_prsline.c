@@ -17,7 +17,7 @@
                         ZZZZZZZZZZZZZZ      888888888888        000000000
 
 
-  Copyright (C) 1991-2006, Gunther Strube, gbs@users.sourceforge.net
+  Copyright (C) 1991-2008, Gunther Strube, gbs@users.sourceforge.net
 
   This file is part of Mpm.
   Mpm is free software; you can redistribute it and/or modify
@@ -50,6 +50,7 @@
 
 /* local functions */
 static int CheckBaseType(int chcount);
+static void CharToIdent(char c, int index);
 
 /* externally defined variables */
 extern unsigned long PC;
@@ -72,7 +73,7 @@ enum symbols sym, ssym[] =
  assign, bin_or, bin_nor, bin_not,less, greater, log_not, constexpr};
 
 char separators[] = " &\"\';,.({[]})+-*/%^=|:~<>!#";
-char ident[255];
+char ident[MAX_NAME_SIZE+1];
 
 static enum flag cstyle_comment = OFF;
 
@@ -138,6 +139,14 @@ ParseLine (enum flag interpret)
 }
 
 
+static void
+CharToIdent(char c, int index)
+{
+    if (index <= MAX_NAME_SIZE)
+        ident[index] = c;
+}
+
+
 enum symbols
 GetSym (void)
 {
@@ -191,13 +200,13 @@ GetSym (void)
            c = GetChar (srcasmfile);
            if (c == '*')
              sym = power;       /* '**' */
-           else if (c == '/') 
+           else if (c == '/')
              {
                /* c-style end-comment, continue parsing after this marker */
                cstyle_comment = OFF;
-               GetSym();               
-             } 
-           else 
+               GetSym();
+             }
+           else
              {
              /* push this character back into stream for next read */
              ungetc (c, srcasmfile);
@@ -206,13 +215,13 @@ GetSym (void)
 
          case divi:         /* c-style comment begin */
            c = GetChar (srcasmfile);
-           if (c == '*') 
+           if (c == '*')
              {
                cstyle_comment = ON;
                SkipLine (srcasmfile);    /* ignore comment block */
-               GetSym();               
-             } 
-           else 
+               GetSym();
+             }
+           else
              {
                /* push this character back into stream for next read */
                ungetc (c, srcasmfile);
@@ -267,9 +276,9 @@ GetSym (void)
 
        if (cstyle_comment == ON)
          {
-           SkipLine (srcasmfile); 
+           SkipLine (srcasmfile);
            return GetSym();
-         } 
+         }
        else
           return sym;
     }
@@ -277,11 +286,11 @@ GetSym (void)
   /* before going deeper into symbol parsing, check if we're in a c-style comment block... */
   if (cstyle_comment == ON)
     {
-      SkipLine (srcasmfile); 
+      SkipLine (srcasmfile);
       return GetSym();
     }
 
-  ident[chcount++] = (char) toupper (c);
+  CharToIdent((char) toupper (c), chcount++);
   switch (c)
     {
     case '$':
@@ -342,12 +351,13 @@ GetSym (void)
                         }
                       else
                         {
-                          ident[chcount++] = '_';   /* underscore in identifier */
+                          /* underscore in identifier */
+                          CharToIdent('_', chcount++);
                         }
                     }
                   else
                     {
-                      ident[chcount++] = (char) toupper (c);
+                      CharToIdent((char) toupper (c), chcount++);
                     }
                 }
               else
@@ -378,13 +388,13 @@ GetSym (void)
               c = GetChar (srcasmfile);
               if ((c != EOF) && !iscntrl (c) && (strchr (separators, c) == NULL))
                 {
-                  ident[chcount++] = (char) toupper (c);
+                  CharToIdent((char) toupper (c), chcount++);
                 }
               else
                 {
                   ungetc (c, srcasmfile);   /* puch character back into stream for next read */
 
-                  ident[chcount] = '\0';
+                  CharToIdent(0, chcount);
                   if (sym == hexconst)
                     {
                       if (SearchAsmFunction (ident) != NULL)
@@ -400,15 +410,15 @@ GetSym (void)
 
                           if (c == '(')
                             {
-                              ident[chcount++] = c;
+                              CharToIdent(c, chcount++);
 
                               /* read function body, collect all valid chars and skip all white spaces until ')' */
                               while ( ((c = GetChar (srcasmfile)) != EOF) && (c != ')'))
                                 {
                                   if (!iscntrl(c) && !isspace(c))
-                                    ident[chcount++] = (char) toupper (c);
+                                    CharToIdent((char) toupper (c), chcount++);
                                 }
-                              ident[chcount++] = (char) ')';
+                              CharToIdent(')', chcount++);
                             }
                           else
                             {
@@ -444,17 +454,17 @@ SkipLine (FILE *fptr)
           c = GetChar (fptr);
           if ((c == '\n') || (c == EOF))
             break;      /* get to beginning of next line... */
-          if ( c == '*' ) 
+          if ( c == '*' )
             {
               c = GetChar (fptr);
-              if ( c == '/' ) 
+              if ( c == '/' )
                 {
-                  if (cstyle_comment == ON) 
+                  if (cstyle_comment == ON)
                     {
                       cstyle_comment = OFF;
                       return;
                     }
-                } 
+                }
               else
                 ungetc (c, fptr);   /* puch character back into stream for next read */
             }

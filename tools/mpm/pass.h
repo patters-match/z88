@@ -9,7 +9,7 @@
     MMMM       MMMM     PPPP              MMMM       MMMM
    MMMMMM     MMMMMM   PPPPPP            MMMMMM     MMMMMM
 
-  Copyright (C) 1991-2006, Gunther Strube, gbs@users.sourceforge.net
+  Copyright (C) 1991-2008, Gunther Strube, gbs@users.sourceforge.net
 
   This file is part of Mpm.
   Mpm is free software; you can redistribute it and/or modify
@@ -26,6 +26,7 @@
 
  -------------------------------------------------------------------------------------------------*/
 
+#include <sys/stat.h>
 
 
 /* global functions */
@@ -35,14 +36,17 @@ char *AdjustPlatformFilename(char *filename);
 char *AddFileExtension(const char *oldfilename, const char *extension);
 int AssembleSourceFile (void);
 int GetChar(FILE *fptr);
+int StatFile(char *filename, pathlist_t *pathlist, struct stat *fstat);
 sourcefile_t *FindFile (sourcefile_t *srcfile, char *fname);
 sourcefile_t *Newfile (sourcefile_t *curfile, char *fname);
 sourcefile_t *Prevfile (void);
 symbol_t *GetAddress (labels_t **stackpointer);
 void AddAddress (symbol_t *label, labels_t **stackpointer);
 void AddPathNode (char *path, pathlist_t **plist);
-void FetchModuleFilename(FILE *projectfile, char *filename);
+void AddFileNameNode (char *filename, filelist_t **flist);
+void FetchModuleFilename(FILE *projectfile, char *filename, filelist_t **dependencies);
 void Fetchfilename (FILE *fptr, char *filename);
+void FetchLinefilename (FILE *fptr, char *filename);
 void GetLine (void);
 void NewJRaddr (void);
 void Pass2info (expression_t *expression, unsigned long constrange, long lfileptr);
@@ -52,5 +56,3 @@ void SourceFilePass1 (void);
 void SourceFilePass2 (void);
 void WriteListFileLine (void);
 void WriteMapFile (void);
-
-

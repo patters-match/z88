@@ -156,7 +156,8 @@ SetAsmFlag (char *flagid)
   /* create library file */
   if (*flagid == 'x')
     {
-      CreateLibfile ((flagid + 1));
+      createlibrary = ON;
+      CreateLibfileName ((flagid + 1));
       return;
     }
 

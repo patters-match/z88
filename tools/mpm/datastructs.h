@@ -8,7 +8,7 @@
     MMMM       MMMM     PPPP              MMMM       MMMM
    MMMMMM     MMMMMM   PPPPPP            MMMMMM     MMMMMM
 
-  Copyright (C) 1991-2006, Gunther Strube, gbs@users.sourceforge.net
+  Copyright (C) 1991-2008, Gunther Strube, gbs@users.sourceforge.net
 
   This file is part of Mpm.
   Mpm is free software; you can redistribute it and/or modify
@@ -79,12 +79,18 @@ struct usedfile     { struct usedfile    *nextusedfile;
                     } usedsrcfile_t;
 
 typedef
+struct filelist     { struct filelist   *nextfile;          /* pointer to next file in list */
+                      char              *filename;          /* name of file */
+                    } filelist_t;
+
+typedef
 struct sourcefile   { struct sourcefile  *prevsourcefile;   /* pointer to previously parsed source file */
                       struct sourcefile  *newsourcefile;    /* pointer to new source file to be parsed */
                       usedsrcfile_t      *usedsourcefile;   /* list of pointers to used files owned by this file */
                       long               filepointer;       /* file pointer of current source file */
                       short              line;              /* current line number of current source file */
                       char               *fname;            /* pointer to file name of current source file */
+                      filelist_t         *dependencies;     /* optional file dependencies used with -d option) */
                     } sourcefile_t;
 
 typedef

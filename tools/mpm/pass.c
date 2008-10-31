@@ -9,7 +9,7 @@
     MMMM       MMMM     PPPP              MMMM       MMMM
    MMMMMM     MMMMMM   PPPPPP            MMMMMM     MMMMMM
 
-  Copyright (C) 1991-2006, Gunther Strube, gbs@users.sourceforge.net
+  Copyright (C) 1991-2008, Gunther Strube, gbs@users.sourceforge.net
 
   This file is part of Mpm.
   Mpm is free software; you can redistribute it and/or modify
@@ -52,6 +52,7 @@ static void WriteSymbolTable (char *msg, avltree_t * root);
 static void LineCounter (void);
 static void PatchListFile (expression_t *pass2expr);
 static void StoreLibReference (symbol_t * node);
+static void ReleaseFileList(filelist_t *list);
 static void ReleasePathList(pathlist_t **plist);
 static void ReleaseOwnedFile (usedsrcfile_t *ownedfile);
 static sourcefile_t *AllocFile (void);
@@ -60,6 +61,7 @@ static usedsrcfile_t *AllocUsedFile (void);
 static labels_t *AllocAddressItem (void);
 static pcrelative_t *AllocJRPC (void);
 static pathlist_t *AllocPathNode(void);
+static filelist_t *AllocFileListNode (void);
 static int Flncmp(char *f1, char *f2);
 static void WriteSymbol (symbol_t *n);
 
@@ -87,7 +89,7 @@ extern const char wrnext[];
 
 /* globally defined variables */
 labels_t *addresses = NULL;
-char line[255];
+char line[MAX_LINE_BUFFER_SIZE+1];
 int sourcefile_open;
 pathlist_t *gIncludePath = NULL;
 pathlist_t *gLibraryPath = NULL;
@@ -102,7 +104,7 @@ GetLine (void)
   fptr = ftell (srcasmfile);            /* remember file position */
 
   c = '\0';
-  for (l=0; (l<254) && (c!='\n'); l++)
+  for (l=0; (l<MAX_LINE_BUFFER_SIZE) && (c!='\n'); l++)
     {
       c = GetChar(srcasmfile);
       if (c != EOF)
@@ -144,18 +146,86 @@ GetChar (FILE *fptr)
 }
 
 
-/* ----------------------------------------------------------------
-   Fetch a module filename from a project file, @projectfilename.
-   Empty lines and comment lines are skipped until a real filename
-   is found.
+/* ----------------------------------------------------------------------------------------
+   static void FetchDependencies (FILE *projectfile, filelist_t **dependencies)
 
-   return found filename in <filename> array (truncated to 255 chars)
-   ---------------------------------------------------------------- */
+   Fetch a module file dependencies, if they are specified on the same line
+   defined with a trailing ':' after the module file name:
+        <module filename>: <dependency filename1> <dependency filenameX>
+
+   return pointer to list of dependencies <dependencies> variable, or NULL if no list were
+   found
+   ---------------------------------------------------------------------------------------- */
+static void
+FetchDependencies (FILE *projectfile, filelist_t **dependencies)
+{
+  enum flag dependencySpecified = OFF;
+  char tempflnm[MAX_FILENAME_SIZE+1];
+  int c;
+
+  for (;;)
+    {
+      if (feof (projectfile))
+        {
+          break; /* no dependency filenames in current line... */
+        }
+      else
+        {
+          c = GetChar (projectfile);
+          switch(c)
+          {
+            case '\n':
+            case '\x1A': /* end of line, no dependencies... */
+              return;
+
+            case ';':    /* a comment, skip line and return (no dependencies) */
+              EOL = OFF;
+              SkipLine(projectfile);
+              return;
+
+            case ':':
+              /* now, we're ready to parse dependency filenames, until EOL */
+              dependencySpecified = ON;
+              break;
+
+            default:
+              if (!isspace (c) && dependencySpecified == ON)
+                { /* found a real char as first of a dependency filename... */
+                  ungetc (c, projectfile); /* let Fetchfilename() get the first char.. */
+
+                  Fetchfilename(projectfile, tempflnm);
+                  AddFileNameNode (tempflnm, dependencies);
+
+                  /* there might be another dependency file, loop again until EOL */
+                }
+          }
+        }
+    }
+}
+
+
+/* ----------------------------------------------------------------------------------------
+   void FetchModuleFilename(FILE *projectfile, char *filename, filelist_t **dependencies)
+
+   Fetch a module filename from a project file, @projectfilename, and optionally, the
+   dependency files which are listed on the same line defined with a trailing ':' after
+   the module file name:
+        <module filename>: <dependency filename1> <dependency filenameX>
+
+   Dependencies in a project file are only evaluated if the -d option is used on the
+   command line for Mpm.
+
+   Empty lines and comment lines are skipped until a real module filename is found. Then,
+   on the same line the dependencies are specified.
+
+   return found filename in <filename> variable (truncated to max MAX_FILENAME_SIZE chars),
+   and a pointer to a list of dependencies files if the were specified.
+   ---------------------------------------------------------------------------------------- */
 void
-FetchModuleFilename(FILE *projectfile, char *filename)
+FetchModuleFilename(FILE *projectfile, char *filename, filelist_t **dependencies)
 {
   int c;
-  filename[0] = '\0'; /* preset with null-terminate, in case no filename was found */
+  filename[0] = '\0'; /* preset with null-termination, in case no filename was found */
 
   for (;;)
     {
@@ -180,9 +250,13 @@ FetchModuleFilename(FILE *projectfile, char *filename)
             default:
               if (!isspace (c))
                 { /* found a real char as first of a filename... */
-                  ungetc (c, projectfile); /* let Fetchfilename() do the work... */
-                  Fetchfilename (projectfile, filename); /* read file name, then skip to EOL */
-                  return;
+                  ungetc (c, projectfile); /* let Fetchfilename() get first char.. */
+
+                  Fetchfilename(projectfile, filename);
+
+                  /* fetch dependencies, if specified with ':' after this file - otherwise skip line */
+                  FetchDependencies (projectfile, dependencies);
+                  return; /* the line has ended */
                 }
           }
         }
@@ -190,12 +264,43 @@ FetchModuleFilename(FILE *projectfile, char *filename)
 }
 
 
+/* ----------------------------------------------------------------
+   Fetch a filename from current file pointer <fptr>, onwards.
+   The filename is stored / null-terminated in the buffer <filename>,
+   truncated at #define MAX_FILENAME_SIZE chars.
+
+   Terminating character of the filename is a space, EOL or a double quote.
+
+   on return, the file pointer is updated to point at the beginning
+   of the next line (or EOF if last line was read).
+   ---------------------------------------------------------------- */
+void
+FetchLinefilename (FILE *fptr, char *filename)
+{
+    int c;
+
+    Fetchfilename(fptr, filename);
+
+    c = GetChar (fptr);
+    if (c != '\n')
+        SkipLine (fptr); /* skip rest of line and get ready for first char of next line */
+}
+
+
+/* ----------------------------------------------------------------
+   Fetch a filename from current file pointer <fptr>, onwards.
+   The filename is stored / null-terminated in the buffer <filename>,
+   truncated at MAX_FILENAME_SIZE chars.
+
+   on return, the file pointer <fptr> is at the terminating character
+   of the filename, ie. a space, EOL or a double quote.
+   ---------------------------------------------------------------- */
 void
 Fetchfilename (FILE *fptr, char *filename)
 {
   int l, c = 0;
 
-  for (l = 0;l<255; )
+  for (l = 0; l<=MAX_FILENAME_SIZE; )
     {
       if (!feof (fptr))
         {
@@ -203,10 +308,10 @@ Fetchfilename (FILE *fptr, char *filename)
           if ((c == '\n') || (c == EOF))
             break;
 
-          if (!isspace(c) && c != '"' && c != ';')
+          if (!isspace(c) && c != ':' && c != '"' && c != ';')
             {
-              /* read filename until a 'space', a comment or a double quote */
-              /* swallow '#', but use all other chars in filename */
+              /* read filename until a space, a comment or a double quote */
+              /* swallow '#' (old syntax no longer used), but use all other chars in filename */
               if (c != '#') filename[l++] = (char) c;
             }
           else
@@ -219,9 +324,9 @@ Fetchfilename (FILE *fptr, char *filename)
           break;                /* fatal - end of file reached! */
         }
     }
-  filename[l] = '\0';           /* null-terminate file name */
+  filename[l] = '\0';           /* null-terminate file name string */
 
-  if (c != '\n') SkipLine (fptr); /* skip rest of line and get ready for first char of next line */
+  ungetc (c, fptr);             /* evaluate last char by caller... */
 }
 
 
@@ -667,6 +772,9 @@ ReleaseFile (sourcefile_t *srcfile)
   if (srcfile->usedsourcefile != NULL)
     ReleaseOwnedFile (srcfile->usedsourcefile);
 
+  if (srcfile->dependencies != NULL)
+    ReleaseFileList(srcfile->dependencies);
+
   free (srcfile->fname);        /* Release allocated area for filename */
   free (srcfile);               /* Release file information record for this file */
 }
@@ -851,6 +959,7 @@ Setfile (sourcefile_t *curfile,    /* pointer to record of current source file *
   nfile->prevsourcefile = curfile;
   nfile->newsourcefile = NULL;
   nfile->usedsourcefile = NULL;
+  nfile->dependencies = NULL;
   nfile->filepointer = 0;
   nfile->line = 0;              /* Reset to 0 as line counter during parsing */
   nfile->fname = strcpy (nfile->fname, filename);
@@ -1088,6 +1197,36 @@ OpenObjectFile(char *filename, const char **objversion)
 
 
 /* ------------------------------------------------------------------------------------------
+    int StatFile(char *filename, pathlist_t *pathlist, struct stat *pfstat)
+
+    Return the operating system file status information at <pfstat> memory area.
+    The filename will be combined with each directory node in <pathlist> and a file
+    stat function will be executed.
+
+   Returns:
+    -1 if the file was not found in one of the specified <pathlist>.
+    0 or 1 and contents filled at <pfstat> location.
+   ------------------------------------------------------------------------------------------ */
+int
+StatFile(char *filename, pathlist_t *pathlist, struct stat *fstat)
+{
+  char tempflnm[MAX_FILENAME_SIZE+1];
+  FILE *filehandle;
+
+  strcpy(tempflnm, filename);
+  filehandle = OpenFile(tempflnm, pathlist, ON);
+  if (filehandle == NULL)
+    /* file was not found */
+    return -1;
+  else
+    {
+        fclose(filehandle);
+        return stat (tempflnm, fstat);
+    }
+}
+
+
+/* ------------------------------------------------------------------------------------------
    FILE *OpenFile(char *filename, pathlist_t *pathlist, enum flag expandfilename)
 
     The filename will be combined with each directory node in <pathlist> and a file
@@ -1103,7 +1242,7 @@ OpenObjectFile(char *filename, const char **objversion)
 FILE *
 OpenFile(char *filename, pathlist_t *pathlist, enum flag expandfilename)
 {
-  char tempflnm[255];
+  char tempflnm[MAX_FILENAME_SIZE+1];
   char tempdirsep[] = {DIRSEP, 0};
   FILE *filehandle;
 
@@ -1184,6 +1323,9 @@ AdjustPlatformFilename(char *filename)
 {
    char *flnmptr = filename;
 
+   if (filename == NULL)
+     return NULL;
+
    while(*flnmptr != '\0')
      {
         if (*flnmptr == '/' || *flnmptr == '\\')
@@ -1253,10 +1395,62 @@ AddPathNode (char *path, pathlist_t **plist)
 }
 
 
+/* ------------------------------------------------------------------------------------------
+   void AddFileNameNode (char *filename, filelist_t **flist)
+
+   Add filename (insert as first) to list of filenames <flist>.
+   With initial list, the caller must initialize *flist = NULL.
+
+   Returns:
+    Updates filename list, which is referenced by <flist> pointer (start of list).
+   ------------------------------------------------------------------------------------------ */
+void
+AddFileNameNode (char *filename, filelist_t **flist)
+{
+  filelist_t *newnode;
+  char *filenameCpy;
+
+  if (filename == NULL) return;         /* nothing to do - no filename has been specified */
+  if (strlen(filename) == 0) return;    /* nothing to do - filename is empty! */
+
+  filenameCpy = (char *) malloc (strlen(filename)+1);
+  if (filenameCpy == NULL) return;      /* nothing to do - no memory to add paths to list */
+  strcpy(filenameCpy, filename);
+
+  if ((newnode = AllocFileListNode()) != NULL)
+    {
+      newnode->filename = filenameCpy;
+      newnode->nextfile = *flist;         /* link new node before current node */
+      *flist = newnode;                   /* update start of list to new node */
+    }
+  else
+    {
+      ReportError (NULL, 0, Err_Memory);
+    }
+}
+
+
 void ReleasePathInfo(void)
 {
   ReleasePathList(&gIncludePath);
   ReleasePathList(&gLibraryPath);
+}
+
+
+static void
+ReleaseFileList(filelist_t *list)
+{
+  filelist_t *node;
+
+  while(list != NULL)
+    {
+      node = list;
+      free(node->filename);   /* release the actual filename string */
+
+      node = node->nextfile;  /* point at next file in list */
+      free(list);            /* release this file list node */
+      list = node;           /* get ready for releasing the next node */
+    }
 }
 
 
@@ -1288,6 +1482,12 @@ static pathlist_t *
 AllocPathNode (void)
 {
   return (pathlist_t *) malloc (sizeof (pathlist_t));
+}
+
+static filelist_t *
+AllocFileListNode (void)
+{
+  return (filelist_t *) malloc (sizeof (filelist_t));
 }
 
 

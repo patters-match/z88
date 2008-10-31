@@ -17,7 +17,7 @@
                         ZZZZZZZZZZZZZZ      888888888888        000000000
 
 
-  Copyright (C) 1991-2006, Gunther Strube, gbs@users.sourceforge.net
+  Copyright (C) 1991-2008, Gunther Strube, gbs@users.sourceforge.net
 
   This file is part of Mpm.
   Mpm is free software; you can redistribute it and/or modify
@@ -52,7 +52,7 @@
    address patch initialisation, performed a single time on the program binary.
    Subsequent calls to the start of the relocatable code just jumps straight to
    the first instruction of the real program.
- */ 
+ */
 static unsigned char reloc_routine[] =
 "\x08\xD9\xFD\xE5\xE1\x01\x49\x00\x09\x5E\x23\x56\xD5\x23\x4E\x23"
 "\x46\x23\xE5\x09\x44\x4D\xE3\x7E\x23\xB7\x20\x06\x5E\x23\x56\x23"
@@ -103,7 +103,7 @@ RegisterRelocEntry( unsigned short PC )
         *relocptr++ = (unsigned short) (PC - curroffset) % 256U;
         *relocptr++ = (unsigned short) (PC - curroffset) / 256U;
         sizeof_reloctable += 3;
-     } 
+     }
 
    totaladdr++;
    curroffset = PC;

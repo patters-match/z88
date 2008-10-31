@@ -9,7 +9,7 @@
     MMMM       MMMM     PPPP              MMMM       MMMM
    MMMMMM     MMMMMM   PPPPPP            MMMMMM     MMMMMM
 
-  Copyright (C) 1991-2006, Gunther Strube, gbs@users.sourceforge.net
+  Copyright (C) 1991-2008, Gunther Strube, gbs@users.sourceforge.net
 
   This file is part of Mpm.
   Mpm is free software; you can redistribute it and/or modify
@@ -93,7 +93,7 @@ ParseNumExpr (void)
       pfixhdr->stored = OFF;
       pfixhdr->codepos = codeptr - codearea;
 
-      if ((pfixhdr->infixexpr = (char *) malloc(256)) == NULL)
+      if ((pfixhdr->infixexpr = (char *) malloc(MAX_EXPR_SIZE+1)) == NULL)
         {
           ReportError (NULL, 0, Err_Memory);
           free (pfixhdr);
@@ -707,17 +707,33 @@ PopItem (pfixstack_t **stackpointer)
 static void
 AddStringToInfixExpr(expression_t *pfixexpr, char *ident)
 {
-  strcpy (pfixexpr->infixptr, ident);       /* add identifier to infix expr */
-  pfixexpr->infixptr += strlen (ident);     /* point at null terminator */
-  *pfixexpr->infixptr = 0;
+  int identLength = strlen(ident);
+
+  if (strlen(pfixexpr->infixexpr)+identLength <= MAX_EXPR_SIZE)
+    {
+      strcpy (pfixexpr->infixptr, ident);       /* add identifier to infix expr */
+      pfixexpr->infixptr += strlen (ident);     /* point at null terminator */
+      *pfixexpr->infixptr = 0;
+    }
+  else
+    {
+      ReportError (CURRENTFILE->fname, CURRENTFILE->line, Err_ExprTooBig);
+    }
 }
 
 
 static void
 AddCharToInfixExpr(expression_t *pfixexpr, char c)
 {
- *pfixexpr->infixptr++ = c;                /* add operator, single char to infix expression */
- *pfixexpr->infixptr = 0;                  /* null terminate */
+  if (strlen(pfixexpr->infixexpr)+1 <= MAX_EXPR_SIZE)
+    {
+     *pfixexpr->infixptr++ = c;                /* add operator, single char to infix expression */
+     *pfixexpr->infixptr = 0;                  /* null terminate */
+    }
+  else
+    {
+      ReportError (CURRENTFILE->fname, CURRENTFILE->line, Err_ExprTooBig);
+    }
 }
 
 

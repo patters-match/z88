@@ -9,7 +9,7 @@
     MMMM       MMMM     PPPP              MMMM       MMMM
    MMMMMM     MMMMMM   PPPPPP            MMMMMM     MMMMMM
 
-  Copyright (C) 1991-2006, Gunther Strube, gbs@users.sourceforge.net
+  Copyright (C) 1991-2008, Gunther Strube, gbs@users.sourceforge.net
 
   This file is part of Mpm.
   Mpm is free software; you can redistribute it and/or modify
@@ -32,7 +32,6 @@
 #include <time.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/stat.h>
 #include <ctype.h>
 
 #include "config.h"             /* compilation constant definitions */
@@ -50,12 +49,13 @@
 static void ReleaseFilenames (void);
 static void CloseFiles (void);
 static void DefineEndianLayout(void);
+static int CheckFileDependencies(struct stat *ofile);
 static int TestAsmFile (void);
 static int GetModuleSize (void);
 
 
 /* global variables */
-FILE *srcasmfile, *listfile, *errfile, *objfile, *mapfile, *modsrcfile, *libfile;
+FILE *srcasmfile, *listfile, *errfile, *objfile, *mapfile, *projectfile, *libfile;
 
 long TOTALLINES;
 int PAGELEN, PAGENO, LINENO;
@@ -65,9 +65,11 @@ const char asmext[] = ".asm", lstext[] = ".lst", symext[] = ".sym", defext[] = "
 const char mapext[] = ".map", wrnext[] = ".wrn", errext[] = ".err", libext[] = ".lib", segmbinext[] = ".bn0";
 const char crcext[] = ".crc";
 
-char srcext[5];                 /* contains default source file extension */
-char objext[5];                 /* contains default object file extension */
-char binfilename[255];          /* -o explicit filename buffer */
+char srcext[5];                                 /* contains default source file extension */
+char objext[5];                                 /* contains default object file extension */
+char binfilename[MAX_FILENAME_SIZE+1];          /* -o explicit filename buffer */
+
+enum flag compiled;             /* if project files were compiled, then ON */
 
 long listfileptr;
 unsigned char *codearea, *codeptr;
@@ -89,6 +91,7 @@ extern avltree_t *globalroot, *staticroot;
 extern symbol_t *gAsmpcPtr, *__gAsmpcPtr; /* pointer to Assembler PC symbol (defined in global symbol variables) */
 extern unsigned char *reloctable;
 extern char copyrightmsg[];
+extern pathlist_t *gIncludePath;
 
 
 static void
@@ -113,27 +116,95 @@ CloseFiles (void)
 }
 
 
+/* ------------------------------------------------------------------------------------------
+   static int CheckFileDependencies(struct stat *ofile)
+       Parameters:
+           <ofile> pointer to current stat structure that contains file date stamp.
+
+   Called by TestAsmFile(), to evaluate the specified dependencies of the current
+   source code file (CURRENTFILE), by comparing the datestamp of the object file with each
+   dependency file, and return the following status:
+
+        1) return 1, if the dependency source file date stamp > object code file date stamp
+           (a dependency is new newer than last compilation of source code)
+        2) return 0, if object file is newer.
+        3) return -1 if or if dependency file doesn't exist.
+   ------------------------------------------------------------------------------------------ */
+static int
+CheckFileDependencies(struct stat *ofile)
+{
+  filelist_t *dependfile;
+  struct stat dpstat;
+
+  dependfile = CURRENTFILE->dependencies; /* get first dependency file in list */
+  do
+    {
+      if (StatFile(dependfile->filename, gIncludePath, &dpstat) != -1)
+        {
+          /* dependency file status were fetched, is it older than object file?*/
+          if (dpstat.st_mtime > ofile->st_mtime)
+            /* dependency file is newer than object file, current source code file must be compiled.. */
+            return 1;
+        }
+
+      dependfile = dependfile->nextfile;
+    }
+  while(dependfile != NULL);
+
+  return 0; /* indicate that object file is newer than dependencies (no compilation needed) */
+}
+
+
+/* ------------------------------------------------------------------------------------------
+   static int TestAsmFile (void)
+
+   If -d option has been defined at the command line for Mpm, then evaluate whether
+   current source code file is newer than object file. The following rules apply:
+
+        1) return 1, if source code file date stamp > object code file date stamp
+           (or only source code file exists)
+        2) return 0, if object file is newer or if source file doesn't exist
+        3) return -1 if source nor object file exist.
+   ------------------------------------------------------------------------------------------ */
 static int
 TestAsmFile (void)
 {
   struct stat afile, ofile;
 
   if (datestamp)
-    {                           /* assemble only updated files */
+    {                           /* assemble only updated source files (and dependencies) */
       if (stat (srcfilename, &afile) == -1)
-        return GetModuleSize ();        /* source file not available, try object file... */
-      else if (stat (objfilename, &ofile) != -1)
-        if (afile.st_mtime <= ofile.st_mtime)
-          return GetModuleSize ();      /* source is older than object module, use object file... */
+        return GetModuleSize ();        /* if source file not available (strange!), then try object file... */
+      else
+        {
+          if (stat (objfilename, &ofile) != -1) /* if object file is not available, then compile source */
+            {
+              if (afile.st_mtime <= ofile.st_mtime)
+                /* object file and source file available, evaluate which is newer... */
+                {
+                  /* source is older than object module, */
+                  if (CURRENTFILE->dependencies != NULL)
+                    {
+                      /* check if source file dependencies is newer than object file */
+                      if (CheckFileDependencies(&ofile) == 1)
+                        return 1; /* source code needs to be compiled - in all other cases use object file */
+                    }
+                  return GetModuleSize ();
+                }
+            }
+        }
     }
-  if ((srcasmfile = fopen (AdjustPlatformFilename(srcfilename), "rb")) == NULL)
-    {                                           /* Open source file */
-      ReportIOError (srcfilename);              /* Object module is not found or */
-      return -1;                                /* source is has recently been updated */
+  else
+    {
+      if ((srcasmfile = fopen (srcfilename, "rb")) == NULL)
+        {                                           /* check Open source file, if no datestamp validation */
+          ReportIOError (srcfilename);              /* Object module is not found or */
+          return -1;                                /* source has recently been updated */
+        }
+      fclose(srcasmfile);
     }
-  fclose(srcasmfile);
 
-  return 1; /* assemble if no datestamp check */
+  return 1; /* assemble if no datestamp check or if object file not found */
 }
 
 
@@ -213,9 +284,10 @@ int
 main (int argc, char *argv[])
 {
   int asmflag;
-  char argument[254];
+  char argument[MAX_FILENAME_SIZE+1];  /* temp variable for command line arguments and filenames */
   int pathsepCount = 0;
   int b;
+  filelist_t *moduledependencies = NULL; /* pointer to list of module source file dependency files */
 
   DefineEndianLayout();
 
@@ -224,7 +296,7 @@ main (int argc, char *argv[])
   DefaultOptions();
 
   libfilename = NULL;
-  modsrcfile = NULL;
+  projectfile = NULL;
   CURRENTMODULE = NULL;
 
   globalroot = NULL;            /* global identifier tree initialized */
@@ -263,6 +335,8 @@ main (int argc, char *argv[])
   TOTALWARNINGS = 0;
   TOTALLINES = 0;
 
+  compiled = OFF; /* preset flag to nothing compiled (yet..) */
+
   if ((CURRENTMODULE = NewModule ()) == NULL)
     {                                      /* then create a dummy module */
       ReportError (NULL, 0, Err_Memory);   /* this is needed during command line parsing */
@@ -277,7 +351,7 @@ main (int argc, char *argv[])
       else
         {
           if ((*argv)[0] == '@')
-            if ((modsrcfile = fopen (AdjustPlatformFilename( (*argv + 1) ), "rb")) == NULL)
+            if ((projectfile = fopen (AdjustPlatformFilename( (*argv + 1) ), "rb")) == NULL)
               ReportIOError ((*argv + 1));
           break;
         }
@@ -285,7 +359,7 @@ main (int argc, char *argv[])
 
   ReleaseModules ();            /* Now remove dummy module again, not needed */
 
-  if (!argc && modsrcfile == NULL)
+  if (!argc && projectfile == NULL)
     {
       ReportError (NULL, 0, Err_SrcfileMissing);
       exit (1);
@@ -301,19 +375,20 @@ main (int argc, char *argv[])
     {                           /* Module loop */
       srcasmfile = listfile = objfile = errfile = NULL;
       srcfilename = lstfilename = objfilename = errfilename = NULL;
+      moduledependencies = NULL; /* prepare for new list (old list assigned to previous CURRENTFILE) */
 
       codeptr = codearea;       /* Pointer (PC) to store instruction opcode */
       ERRORS = 0;
       WARNINGS = 0;
       ASSEMBLE_ERROR = -1;      /* General error flag */
 
-      if (modsrcfile == NULL)
+      if (projectfile == NULL)
         {
           if (argc > 0)
             {
               if ((*argv)[0] != '-')
                 {
-                  strncpy(argument, *argv, 253);
+                  strncpy(argument, *argv, MAX_FILENAME_SIZE);
                   --argc;
                   ++argv;       /* get ready for next filename */
                 }
@@ -328,15 +403,17 @@ main (int argc, char *argv[])
         }
       else
         {
-          FetchModuleFilename(modsrcfile, argument);
+          /* get a module filename from project file, and optionally get the dependency files assigned to it... */
+          FetchModuleFilename(projectfile, argument, &moduledependencies);
           if (strlen (argument) == 0)
             {
-              fclose (modsrcfile);
+              /* in previous loop iteration, the last filename from project file were fetched... */
+              fclose (projectfile);
               break;
             }
         }
 
-      /* scan filename backwards and truncate extension, if found, but before a pathname separator */
+      /* scan fetched filename backwards and truncate extension, if found, but before a pathname separator */
       for (b=strlen(argument)-1; b>=0; b--) {
           if (argument[b] == '\\' || argument[b] == '/') pathsepCount++; /* Ups, we've scanned past the short filename */
 
@@ -346,7 +423,7 @@ main (int argc, char *argv[])
           }
       }
 
-      srcfilename = AddFileExtension((const char *) argument, srcext);
+      srcfilename = AdjustPlatformFilename(AddFileExtension((const char *) argument, srcext));
       if (srcfilename == NULL)
         {
           ReportError (NULL, 0, Err_Memory);   /* No more room */
@@ -396,6 +473,8 @@ main (int argc, char *argv[])
       if ((CURRENTFILE = Newfile (NULL, srcfilename)) == NULL)
         break;                  /* Create first file record, if possible */
 
+      CURRENTFILE->dependencies = moduledependencies; /* assign file dependencies, if defined in project file (or just NULL) */
+
       if ((asmflag = TestAsmFile ()) == 1)
         {
           PC = oldPC = 0;
@@ -416,7 +495,8 @@ main (int argc, char *argv[])
               return 0;
             }
 
-          AssembleSourceFile ();        /* begin assembly... */
+          if (AssembleSourceFile() == 1)
+             compiled = ON;             /* a compilation was processed */
 
           DeleteAll (&CURRENTMODULE->localroot, (void (*)(void *)) FreeSym);
           DeleteAll (&CURRENTMODULE->notdeclroot, (void (*)(void *)) FreeSym);
@@ -434,32 +514,44 @@ main (int argc, char *argv[])
   ReleaseFilenames ();
   CloseFiles ();
 
-  if (createlibrary && asmerror == OFF)
-    CreateLib ();
-
-  if (createlibrary)
+  if (compiled == OFF)
     {
-      fclose (libfile);
-      if (asmerror)
-        remove (libfilename);
-      free (libfilename);
-      libfilename = NULL;
+      puts("Nothing compiled - all files are up to date.");
     }
-
-  if ((asmerror == OFF) && verbose)
-    printf ("Total of %ld lines assembled.\n", TOTALLINES);
-
-  if ((asmerror == OFF) && mpmbin)
-    LinkModules ();
-
-  if (asmerror == OFF && createglobaldeffile == ON)
-    CreateDeffile ();
-
-  if ((TOTALERRORS == 0) && mpmbin)
+  else
     {
-      if (mapref == ON && mpmbin == ON) WriteMapFile ();
-      CreateBinFile ();
-      if (crc32file == ON) CreateCrc32File();
+      if (createlibrary)
+        {
+          if (asmerror == OFF)
+            {
+              CreateLibfile ();
+              PopulateLibrary ();
+              fclose (libfile);
+            }
+          else
+            {
+              remove (libfilename);
+            }
+
+          free (libfilename);
+          libfilename = NULL;
+        }
+
+      if ((asmerror == OFF) && verbose)
+        printf ("Total of %ld lines assembled.\n", TOTALLINES);
+
+      if ((asmerror == OFF) && mpmbin)
+        LinkModules ();
+
+      if (asmerror == OFF && createglobaldeffile == ON)
+        CreateDeffile ();
+
+      if ((TOTALERRORS == 0) && mpmbin)
+        {
+          if (mapref == ON && mpmbin == ON) WriteMapFile ();
+          CreateBinFile ();
+          if (crc32file == ON) CreateCrc32File();
+        }
     }
 
   ReleaseFilenames ();

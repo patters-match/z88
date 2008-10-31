@@ -9,7 +9,7 @@
     MMMM       MMMM     PPPP              MMMM       MMMM
    MMMMMM     MMMMMM   PPPPPP            MMMMMM     MMMMMM
 
-  Copyright (C) 1991-2006, Gunther Strube, gbs@users.sourceforge.net
+  Copyright (C) 1991-2008, Gunther Strube, gbs@users.sourceforge.net
 
   This file is part of Mpm.
   Mpm is free software; you can redistribute it and/or modify
@@ -78,14 +78,14 @@ static avltree_t *libraryindex = NULL;
 
 
 /* ------------------------------------------------------------------------------------------
-   void CreateLib (void)
+   void PopulateLibrary (void)
 
    Create a library file, containing concatanated object file modules.
    The current linked list of modules is scanned and for each module the object file is
    loaded and appended to the library file.
    ------------------------------------------------------------------------------------------ */
 void
-CreateLib (void)
+PopulateLibrary (void)
 {
   long Codesize;
   FILE *objectfile;
@@ -187,7 +187,7 @@ CreateLib (void)
 
 
 void
-CreateLibfile (char *filename)
+CreateLibfileName (char *filename)
 {
   size_t l;
 
@@ -213,7 +213,11 @@ CreateLibfile (char *filename)
             }
         }
     }
+}
 
+void
+CreateLibfile()
+{
   /* create library file... */
   if ((libfile = fopen (AdjustPlatformFilename(libfilename), "w+b")) == NULL)
     {
@@ -226,11 +230,9 @@ CreateLibfile (char *filename)
     }
   else
     {
-      createlibrary = ON;
       fwrite (MPMLIBRARYHEADER, sizeof (char), SIZEOF_MPMLIBHDR, libfile);   /* write Mpm library header */
     }
 }
-
 
 void
 GetLibfile (char *filename)

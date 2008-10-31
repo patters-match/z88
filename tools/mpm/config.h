@@ -9,7 +9,7 @@
     MMMM       MMMM     PPPP              MMMM       MMMM
    MMMMMM     MMMMMM   PPPPPP            MMMMMM     MMMMMM
 
-  Copyright (C) 1991-2006, Gunther Strube, gbs@users.sourceforge.net
+  Copyright (C) 1991-2008, Gunther Strube, gbs@users.sourceforge.net
 
   This file is part of Mpm.
   Mpm is free software; you can redistribute it and/or modify
@@ -32,7 +32,7 @@
 /* Z80 specific assembler definitions and constants                                          */
 #ifdef MPM_Z80
 
-#define MPM_COPYRIGHTMSG "[M]ultiple [P]rocessor [M]odule Assembler - Z80 Edition V1.2 dev.build 9"
+#define MPM_COPYRIGHTMSG "[M]ultiple [P]rocessor [M]odule Assembler - Z80 Edition V1.3 build 1"
 
 /* Z80asm object & library file watermark V1 series must both have always same length */
 #define Z80ASMOBJHDR  "Z80RMF01"
@@ -56,7 +56,6 @@
 #endif
 /* ----------------------------------------------------------------------------------------- */
 
-
 #if MSDOS
 #define OS_ID "MSDOS"
 #define DIRSEP 0x5C         /* "\" */
@@ -70,3 +69,9 @@
 #define ENVPATHSEP 0x3A     /* ":" */
 #define MAXCODESIZE 65536
 #endif
+
+#define MAX_LINE_BUFFER_SIZE 254
+#define MAX_FILENAME_SIZE 254
+#define MAX_NAME_SIZE 255
+#define MAX_NAME_SIZE 255
+#define MAX_EXPR_SIZE 254 /* length of expression in object file max 254 + null = 1 byte */
