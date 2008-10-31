@@ -18,8 +18,6 @@
 #
 # *************************************************************************************
 
-rm -f standard.lib
-
 # Compile library routines into .obj files and generate the standard.lib file
 # (to be used by other applications that needs to statically link routines from this library)
 #
