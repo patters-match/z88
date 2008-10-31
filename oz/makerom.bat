@@ -26,7 +26,7 @@
 
 :: ensure that we have an up-to-date standard library, before compiling OZ
 cd ..\stdlib
-call makelib.bat
+call makelib.bat 2>nul >nul
 cd ..\oz
 
 :: OZ ROM slot directive (first command line argument)
@@ -49,10 +49,7 @@ ECHO Compiling OZ ROM for slot %ozslot%
 
 :: delete previous binary outut, error and warning files... but NOT obj files!
 del /Q oz-*.?? romupdate.cfg
-del /S /Q *.bin *.epr *.map *.err *.wrn 2>nul >nul
-
-:: only delete *.def files for OZ ROM (preserve \def!)
-del /Q os\*.def 2>nul >nul
+del /S /Q *.err *.wrn 2>nul >nul
 
 :: -------------------------------------------------------------------------------------------------
 :COMPILE_DIARY
@@ -191,7 +188,7 @@ goto COMPILE_ERROR
 :COMPILE_EAZYLINK
 echo compiling EazyLink
 cd apps\eazylink
-call makeapp %ozslot%
+call makeapp %ozslot% 2>nul >nul
 cd ..\..
 dir apps\eazylink\*.err 2>nul >nul || goto COMPILE_FLASHSTORE
 type apps\eazylink\*.err
@@ -201,7 +198,7 @@ goto COMPILE_ERROR
 :COMPILE_FLASHSTORE
 echo compiling Flashstore
 cd apps\flashstore
-call makeapp %ozslot%
+call makeapp %ozslot% 2>nul >nul
 cd ..\..
 dir apps\flashstore\*.err 2>nul >nul || goto COMPILE_ROMHDR
 type apps\flashstore\*.err

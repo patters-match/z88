@@ -1,5 +1,5 @@
 :: **************************************************************************************************
-:: Kernel compilation script for Windows/DOS.
+:: OZ Kernel compilation script for Windows/DOS.
 ::
 :: This file is part of the Z88 operating system, OZ.     0000000000000000      ZZZZZZZZZZZZZZZZZZZ
 ::                                                       000000000000000000   ZZZZZZZZZZZZZZZZZZZ
@@ -21,45 +21,45 @@
 :: $Id$
 :: ***************************************************************************************************
 
-:: create ostables.def (address pre-compilation) containing OS system base lookup table address in bank 0
+:: create ostables.def (address pre-compilation) containing OS system base lookup table addresses
 cd os
-..\..\tools\mpm\mpm -g ostables.asm
-..\..\tools\mpm\mpm -g -I..\def boot.asm
+..\..\tools\mpm\mpm -dg -I..\def @ostables.prj
+..\..\tools\mpm\mpm -dg -I..\def @boot.prj
 dir *.err 2>nul >nul || goto PRECOMPILE_LOWRAM
 goto COMPILE_ERROR
 
 :: create lowram.def and keymap.def (address pre-compilation) for lower & upper kernel compilation
 :PRECOMPILE_LOWRAM
 cd lowram
-..\..\..\tools\mpm\mpm -g -DOZ_SLOT%1 -I..\..\def lowram.asm
+..\..\..\tools\mpm\mpm -dg -DOZ_SLOT%1 -I..\..\def @lowram.prj
 dir *.err 2>nul >nul || goto PRECOMPILE_KERNEL0
 goto COMPILE_ERROR
 
 :: pre-compile (lower) kernel to resolve labels for lowram.asm
 :PRECOMPILE_KERNEL0
 cd ..
-..\..\tools\mpm\mpm -g -DOZ_SLOT%1 -I..\def -Ilowram @kernel0.prj
+..\..\tools\mpm\mpm -dg -DOZ_SLOT%1 -I..\def -Ilowram @kernel0.prj
 dir *.err 2>nul >nul || goto COMPILE_LOWRAM
 goto COMPILE_ERROR
 
 :: create final lowram binary with correct addresses from lower kernel
 :COMPILE_LOWRAM
 cd lowram
-..\..\..\tools\mpm\mpm -b -DOZ_SLOT%1 -DCOMPILE_BINARY -I..\..\def lowram.asm
+..\..\..\tools\mpm\mpm -db -DOZ_SLOT%1 -DCOMPILE_BINARY -I..\..\def @lowram.prj
 dir *.err 2>nul >nul || goto COMPILE_KERNEL1
 goto COMPILE_ERROR
 
 :: compile final (upper) kernel binary with correct lowram code and correct lower kernel references
 :COMPILE_KERNEL1
 cd ..
-..\..\tools\mpm\mpm -bg -DCOMPILE_BINARY -DOZ_SLOT%1 -I..\def -Ilowram -l..\..\stdlib\standard.lib @kernel1.prj
+..\..\tools\mpm\mpm -dbg -DCOMPILE_BINARY -DOZ_SLOT%1 -I..\def -Ilowram -l..\..\stdlib\standard.lib @kernel1.prj
 dir *.err 2>nul >nul || goto COMPILE_KERNEL0
 goto COMPILE_ERROR
 
 :: compile final kernel binary with OS tables for bank 0 using correct upper kernel references
 :COMPILE_KERNEL0
-..\..\tools\mpm\mpm -b -DCOMPILE_BINARY -DOZ_SLOT%1 -I..\def -Ilowram @kernel0.prj
-..\..\tools\mpm\mpm -b -DCOMPILE_BINARY ostables.asm
+..\..\tools\mpm\mpm -db -DCOMPILE_BINARY -DOZ_SLOT%1 -I..\def -Ilowram @kernel0.prj
+..\..\tools\mpm\mpm -db -DCOMPILE_BINARY ostables.asm
 
 :COMPILE_ERROR
 cd ..

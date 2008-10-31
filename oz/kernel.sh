@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # **************************************************************************************************
-# Kernel compilation script for Unix.
+# OZ Kernel compilation script for Unix.
 #
 # This file is part of the Z88 operating system, OZ.     0000000000000000      ZZZZZZZZZZZZZZZZZZZ
 #                                                       000000000000000000   ZZZZZZZZZZZZZZZZZZZ
@@ -25,10 +25,10 @@
 
 COMPILE_ERROR=0
 
-# create ostables.def (address pre-compilation) containing OS system base lookup table address in bank 0
+# create ostables.def (address pre-compilation) containing OS system base lookup table addresses
 cd os
-../../tools/mpm/mpm -g ostables.asm
-../../tools/mpm/mpm -g -I../def boot.asm
+../../tools/mpm/mpm -dg -I../def @ostables.prj
+../../tools/mpm/mpm -dg -I../def boot.asm
 if test `find . -name '*.err' | wc -l` != 0; then
   COMPILE_ERROR=1
 fi
@@ -37,7 +37,7 @@ fi
 # (argument $1 contains the country localisation)
 cd lowram
 if test "$COMPILE_ERROR" -eq 0; then
-  ../../../tools/mpm/mpm -g -DOZ_SLOT$1 -I../../def lowram.asm
+  ../../../tools/mpm/mpm -dg -DOZ_SLOT$1 -I../../def lowram.asm
 fi
 if test `find . -name '*.err' | wc -l` != 0; then
   COMPILE_ERROR=1
@@ -46,7 +46,7 @@ cd ..
 
 # pre-compile (lower) kernel to resolve labels for lowram.asm
 if test "$COMPILE_ERROR" -eq 0; then
-  ../../tools/mpm/mpm -g -DOZ_SLOT$1 -I../def -Ilowram @kernel0.prj
+  ../../tools/mpm/mpm -dg -DOZ_SLOT$1 -I../def -Ilowram @kernel0.prj
 fi
 if test `find . -name '*.err' | wc -l` != 0; then
   COMPILE_ERROR=1

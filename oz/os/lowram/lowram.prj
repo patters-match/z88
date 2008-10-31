@@ -1,5 +1,5 @@
 ; **************************************************************************************************
-; Mpm Assembly Project for Kernel 1, starting at $8000
+; Mpm Assembly Project for LOWRAM, starting at address $0000 (lower 8K) for bank $20
 ;
 ; This file is part of the Z88 operating system, OZ      0000000000000000      ZZZZZZZZZZZZZZZZZZZ
 ;                                                       000000000000000000   ZZZZZZZZZZZZZZZZZZZ
@@ -21,54 +21,4 @@
 ; $Id$
 ;***************************************************************************************************
 
-kernel1.asm         : kernel0.def ../mth/keymaps.def
-ossci.asm           : blink.def error.def oz.def sysvar.def
-clitables.asm       : keyboard.def
-osepr/osepr.asm     : blink.def error.def fileio.def memory.def handle.def saverst.def time.def interrpt.def z80.def card.def flashepr.def oz.def
-osepr/eprreqst.asm  : error.def memory.def flashepr.def
-osepr/eprfetch.asm
-osepr/eprfinfo.asm
-osepr/eprfndfl.asm
-osepr/eprffrst.asm
-osepr/eprfprev.asm
-osepr/eprfnext.asm
-osepr/eprflast.asm
-osepr/eprfstat.asm
-osepr/eprfsize.asm
-osepr/eprfname.asm
-osepr/eprfimage.asm
-osepr/eprtotsp.asm
-osepr/epractsp.asm
-osepr/eprfresp.asm
-osepr/eprcntfl.asm
-osepr/eprfnew.asm
-osepr/eprfsave.asm
-osepr/eprfdel.asm
-osfep/osfep.asm
-osfep/fepsecera.asm
-osfep/fepcdera.asm
-osfep/fepcpyblk.asm
-osfep/fepcrddata.asm
-osfep/fepcrdid.asm
-osfep/fepfcopy.asm
-osfep/fepflfmt.asm
-osfep/fepplsize.asm
-osfep/feprdcfla.asm
-osfep/fepstdhd.asm
-osfep/fepwrblk.asm
-osfep/fepwrbyt.asm
-reset.asm
-handle1.asm
-osalm1.asm
-oscli.asm
-process1.asm
-card1.asm
-filesys1.asm
-osmap.asm
-mth1.asm
-spnq1.asm
-scrdrv1.asm
-ossr.asm
-key2chrt.asm
-ossi1.asm
-printer.asm
+lowram.asm  : stdio.def blink.def error.def flashepr.def interrpt.def buffer.def serintfc.def oz.def sysvar.def kernel0.def ostables.def
