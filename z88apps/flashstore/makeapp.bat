@@ -21,9 +21,9 @@ cd ..\..\stdlib
 call makelib.bat
 cd ..\z88apps\flashstore
 
-del *.obj *.bin *.map flashstore.63 flashstore.epr
-..\..\tools\mpm\mpm -b -I..\..\oz\def -l..\..\stdlib\standard.lib @flashstore
-..\..\tools\mpm\mpm -b romhdr
+del flashstore.63 flashstore.epr
+..\..\tools\mpm\mpm -db -I..\..\oz\def -l..\..\stdlib\standard.lib @flashstore
+..\..\tools\mpm\mpm -db romhdr
 
 :: Create a 16K Rom Card with FlashStore
 ..\..\tools\makeapp\makeapp.bat -f flashstore.loadmap

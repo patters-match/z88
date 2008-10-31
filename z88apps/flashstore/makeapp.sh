@@ -21,9 +21,9 @@
 # ensure that we have an up-to-date standard library
 cd ../../stdlib; ./makelib.sh; cd ../z88apps/flashstore
 
-rm -f *.obj *.bin *.map flashstore.epr
-../../tools/mpm/mpm -b -I../../oz/def -l../../stdlib/standard.lib @flashstore
-../../tools/mpm/mpm -b romhdr
+rm -f flashstore.63 flashstore.epr
+../../tools/mpm/mpm -db -I../../oz/def -l../../stdlib/standard.lib @flashstore
+../../tools/mpm/mpm -db romhdr
 
 # Create a 16K Rom Card with FlashStore
 ../../tools/makeapp/makeapp.sh -f flashstore.loadmap
