@@ -24,6 +24,13 @@
 # $Id$
 # ***************************************************************************************************
 
+MPM_VERSIONTEXT=`../tools/mpm/mpm -version`
+if test $? -lt 13; then
+  echo "Mpm version is less than V1.3, OZ compilation aborted."
+  echo "Mpm displayed: '$MPM_VERSIONTEXT'"
+  exit 1
+fi
+
 # ensure that we have an up-to-date standard library, before compiling OZ
 cd ../stdlib; ./makelib.sh; cd ../oz
 
