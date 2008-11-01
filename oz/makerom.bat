@@ -24,6 +24,16 @@
 
 @echo off
 
+:: return version of Mpm to command line environment.
+:: Only V1.3 or later of Mpm supports source file dependency
+..\tools\mpm\mpm -version 2>nul >nul
+if ERRORLEVEL 13 goto COMPILE_OZ
+echo Mpm version is less than V1.3, OZ compilation aborted.
+echo Mpm displays the following:
+..\tools\mpm\mpm
+goto END
+
+:COMPILE_OZ
 :: ensure that we have an up-to-date standard library, before compiling OZ
 cd ..\stdlib
 call makelib.bat 2>nul >nul

@@ -24,10 +24,14 @@
 # $Id$
 # ***************************************************************************************************
 
+# return version of Mpm to command line environment.
+# validate that MPM is V1.3 or later - only this version or later supports source file dependency
 MPM_VERSIONTEXT=`../tools/mpm/mpm -version`
+
 if test $? -lt 13; then
-  echo "Mpm version is less than V1.3, OZ compilation aborted."
-  echo "Mpm displayed: '$MPM_VERSIONTEXT'"
+  echo Mpm version is less than V1.3, OZ compilation aborted.
+  echo Mpm displays the following:
+  ../tools/mpm/mpm
   exit 1
 fi
 
