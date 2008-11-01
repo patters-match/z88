@@ -26,23 +26,23 @@ ossci.asm           : blink.def error.def oz.def sysvar.def
 clitables.asm       : keyboard.def
 osepr/osepr.asm     : blink.def error.def fileio.def memory.def handle.def saverst.def time.def interrpt.def z80.def card.def flashepr.def oz.def
 osepr/eprreqst.asm  : error.def memory.def flashepr.def
-osepr/eprfetch.asm
-osepr/eprfinfo.asm
-osepr/eprfndfl.asm
-osepr/eprffrst.asm
-osepr/eprfprev.asm
+osepr/eprfetch.asm  : fileio.def error.def memory.def
+osepr/eprfinfo.asm  : error.def
+osepr/eprfndfl.asm  : error.def
+osepr/eprffrst.asm  : error.def
+osepr/eprfprev.asm  : error.def
 osepr/eprfnext.asm
 osepr/eprflast.asm
-osepr/eprfstat.asm
+osepr/eprfstat.asm  : error.def
 osepr/eprfsize.asm
 osepr/eprfname.asm
 osepr/eprfimage.asm
-osepr/eprtotsp.asm
+osepr/eprtotsp.asm  : error.def
 osepr/epractsp.asm
-osepr/eprfresp.asm
-osepr/eprcntfl.asm
-osepr/eprfnew.asm
-osepr/eprfsave.asm
+osepr/eprfresp.asm  : error.def
+osepr/eprcntfl.asm  : error.def
+osepr/eprfnew.asm   : error.def
+osepr/eprfsave.asm  : error.def fileio.def memory.def
 osepr/eprfdel.asm
 osfep/osfep.asm
 osfep/fepsecera.asm
