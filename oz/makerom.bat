@@ -218,7 +218,7 @@ goto COMPILE_ERROR
 :COMPILE_ROMHDR
 echo compiling OZ ROM Header
 cd mth
-..\..\tools\mpm\mpm -b -DOZ_SLOT%ozslot% -I..\def romhdr.asm
+..\..\tools\mpm\mpm -db -DOZ_SLOT%ozslot% -I..\def @romhdr.prj 2>nul >nul
 cd ..
 dir mth\*.err 2>nul >nul || goto COMBINE_BANKS
 goto COMPILE_ERROR

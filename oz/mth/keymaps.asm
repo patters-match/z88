@@ -1,5 +1,5 @@
 ; **************************************************************************************************
-; Keymaps for UK, FR, DK, DE & SE/FI.
+; Keymaps for UK, FR, SP, DK, DE & SE/FI.
 ;
 ; This file is part of the Z88 operating system, OZ.     0000000000000000      ZZZZZZZZZZZZZZZZZZZ
 ;                                                       000000000000000000   ZZZZZZZZZZZZZZZZZZZ
@@ -523,7 +523,7 @@ ENDIF
 .DeadTable_DE
         defb    0
 
-        defs ($600-$PC) ($ff)                           ; make sure that next keymap is on page boundary.        
+        defs ($600-$PC) ($ff)                           ; make sure that next keymap is on page boundary.
 
 
 ; ------------------------------------------------------------------------------------------------------
@@ -596,7 +596,7 @@ ENDIF
         defb    $38,$7d                                 ; 8  }
         defb    $39,$5b                                 ; 9  [
         defb    $3d,$a4                                 ; =  €
-        
+
 .SqrTable_SP
         defb    (DeadTable_SP - SqrTable_SP - 1)/2
         defb    $1B,$B4                                 ; special []ESC
@@ -605,7 +605,7 @@ ENDIF
         defb    $2D,$9F                                 ; special []- command
         defb    $3D,$80                                 ; special []= command (equivalent to []+)
         defb    $5B,$1B                                 ; [  ESC
-        defb    $5C,$1C                                 ; \  
+        defb    $5C,$1C                                 ; \
         defb    $5D,$1D                                 ; ]
         defb    $5F,$9F                                 ; special []_ command (equivalent to []-)
         defb    $A3,$1E                                 ; £
@@ -619,18 +619,18 @@ ENDIF
 .deadkeysp1
         defb    $a7                             ; ' (hires)
         defb    5
-        defb    $61,$9c                         ; a 
+        defb    $61,$9c                         ; a
         defb    $65,$bc                         ; e é
-        defb    $69,$9d                         ; i 
-        defb    $6F,$9e                         ; o 
-        defb    $75,$cf                         ; u 
+        defb    $69,$9d                         ; i
+        defb    $6F,$9e                         ; o
+        defb    $75,$cf                         ; u
 .deadkeysp2
         defb    $9d                             ; ` (hires)
         defb    5
         defb    $61,$b9                         ; a à
         defb    $65,$bb                         ; e è
-        defb    $69,$cd                         ; i 
-        defb    $6F,$ce                         ; o 
+        defb    $69,$cd                         ; i
+        defb    $6F,$ce                         ; o
         defb    $75,$ca                         ; u ù
 .deadkeysp3
         defb    $de                             ; ^ (hires)

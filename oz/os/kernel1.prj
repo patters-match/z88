@@ -1,5 +1,5 @@
 ; **************************************************************************************************
-; Mpm Assembly Project for Kernel 1, starting at $8000
+; OZ Kernel 1, starting at $8000
 ;
 ; This file is part of the Z88 operating system, OZ      0000000000000000      ZZZZZZZZZZZZZZZZZZZ
 ;                                                       000000000000000000   ZZZZZZZZZZZZZZZZZZZ
@@ -43,32 +43,32 @@ osepr/eprfresp.asm  : error.def
 osepr/eprcntfl.asm  : error.def
 osepr/eprfnew.asm   : error.def
 osepr/eprfsave.asm  : error.def fileio.def memory.def
-osepr/eprfdel.asm
-osfep/osfep.asm
-osfep/fepsecera.asm
+osepr/eprfdel.asm   : error.def
+osfep/osfep.asm     : error.def oz.def lowram.def
+osfep/fepsecera.asm : error.def flashepr.def blink.def memory.def lowram.def
 osfep/fepcdera.asm
-osfep/fepcpyblk.asm
-osfep/fepcrddata.asm
-osfep/fepcrdid.asm
-osfep/fepfcopy.asm
-osfep/fepflfmt.asm
-osfep/fepplsize.asm
-osfep/feprdcfla.asm
-osfep/fepstdhd.asm
-osfep/fepwrblk.asm
-osfep/fepwrbyt.asm
-reset.asm
-handle1.asm
-osalm1.asm
-oscli.asm
-process1.asm
-card1.asm
-filesys1.asm
-osmap.asm
-mth1.asm
-spnq1.asm
-scrdrv1.asm
-ossr.asm
+osfep/fepcpyblk.asm : error.def flashepr.def memory.def lowram.def
+osfep/fepcrddata.asm: flashepr.def oz.def
+osfep/fepcrdid.asm  : flashepr.def oz.def
+osfep/fepfcopy.asm  : error.def memory.def
+osfep/fepflfmt.asm  : error.def memory.def flashepr.def
+osfep/fepplsize.asm : flashepr.def
+osfep/feprdcfla.asm : flashepr.def error.def
+osfep/fepstdhd.asm  : memory.def flashepr.def saverst.def
+osfep/fepwrblk.asm  : memory.def flashepr.def blink.def error.def lowram.def
+osfep/fepwrbyt.asm  : memory.def flashepr.def blink.def error.def lowram.def
+reset.asm           : blink.def memory.def stdio.def screen.def director.def serintfc.def syspar.def time.def oz.def sysvar.def lowram.def
+handle1.asm         : handle.def dor.def error.def memory.def oz.def sysvar.def
+osalm1.asm          : error.def stdio.def time.def handle.def z80.def interrpt.def oz.def sysvar.def
+oscli.asm           : error.def z80.def interrpt.def keyboard.def oz.def sysvar.def
+process1.asm        : error.def saverst.def sysvar.def handle.def
+card1.asm           : director.def memory.def sysvar.def
+filesys1.asm        : dor.def time.def handle.def sysvar.def
+osmap.asm           : screen.def blink.def error.def stdio.def syspar.def oz.def
+mth1.asm            : dor.def error.def stdio.def saverst.def syspar.def interrpt.def oz.def sysvar.def
+spnq1.asm           : director.def error.def syspar.def memory.def interrpt.def keyboard.def handle.def screen.def oz.def sysvar.def
+scrdrv1.asm         : screen.def stdio.def director.def oz.def sysvar.def
+ossr.asm            : error.def memory.def stdio.def saverst.def handle.def oz.def sysvar.def
 key2chrt.asm
-ossi1.asm
-printer.asm
+ossi1.asm           : blink.def buffer.def stdio.def handle.def syspar.def serintfc.def interrpt.def sysvar.def lowram.def
+printer.asm         : stdio.def printer.def fileio.def memory.def serintfc.def handle.def syspar.def sysvar.def

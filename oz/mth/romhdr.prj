@@ -1,5 +1,5 @@
 ; **************************************************************************************************
-; Compile project for System Token Table, Application/Popdown DOR & MTH definitions (top bank of ROM).
+; Compile project for OZ ROM Header
 ;
 ; This file is part of the Z88 operating system, OZ.     0000000000000000      ZZZZZZZZZZZZZZZZZZZ
 ;                                                       000000000000000000   ZZZZZZZZZZZZZZZZZZZ
@@ -25,7 +25,4 @@
 ; $Id$
 ; ***************************************************************************************************
 
-mth
-systoken
-appmth      : stdio.def mth-flashstore.def
-appdors     : dor.def oz.def sysapps.def ../dc/dc.def ../apps/impexport/impexp.inc ../apps/clock/clcalalm.def ../apps/eazylink/rtmvars.def mth-flashstore.def
+romhdr  : card.def oz.def mth.def

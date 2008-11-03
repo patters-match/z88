@@ -1,5 +1,5 @@
 ; **************************************************************************************************
-; Compile project for System Token Table, Application/Popdown DOR & MTH definitions (top bank of ROM).
+; Imp/Export compile project
 ;
 ; This file is part of the Z88 operating system, OZ.     0000000000000000      ZZZZZZZZZZZZZZZZZZZ
 ;                                                       000000000000000000   ZZZZZZZZZZZZZZZZZZZ
@@ -18,14 +18,7 @@
 ;                                  59 Temple Place-Suite 330,
 ;                                  Boston, MA 02111-1307, USA.
 ;
-; (C) Jorma Oksanen (jorma.oksanen@aini.fi), 2003
-; (C) Thierry Peycru (pek@users.sf.net), 2005,2006
-; (C) Gunther Strube (gbs@users.sf.net), 2005,2006
-;
 ; $Id$
 ; ***************************************************************************************************
 
-mth
-systoken
-appmth      : stdio.def mth-flashstore.def
-appdors     : dor.def oz.def sysapps.def ../dc/dc.def ../apps/impexport/impexp.inc ../apps/clock/clcalalm.def ../apps/eazylink/rtmvars.def mth-flashstore.def
+impexp.asm  : director.def dor.def error.def fileio.def integer.def memory.def stdio.def syspar.def serintfc.def sysapps.def impexp.inc
