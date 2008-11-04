@@ -144,7 +144,15 @@ CheckFileDependencies(struct stat *ofile)
           /* dependency file status were fetched, is it older than object file?*/
           if (dpstat.st_mtime > ofile->st_mtime)
             /* dependency file is newer than object file, current source code file must be compiled.. */
-            return 1;
+            {
+              if (verbose)
+                printf ("Dependency '%s' > '%s', compile '%s'.\n", dependfile->filename, objfilename, srcfilename);
+              return 1;
+            }
+        }
+      else
+        {
+          ReportError (dependfile->filename, 0, Err_FileIO);
         }
 
       dependfile = dependfile->nextfile;
@@ -516,7 +524,8 @@ main (int argc, char *argv[])
 
   if (compiled == OFF)
     {
-      puts("Nothing compiled - all files are up to date.");
+      if (verbose)
+        puts("Nothing compiled - all files are up to date.");
     }
   else
     {
