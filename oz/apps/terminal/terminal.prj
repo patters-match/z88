@@ -1,5 +1,5 @@
 ; **************************************************************************************************
-; Clock, Alarm & Calendar popdown compile project
+; Terminal compilation project.
 ;
 ; This file is part of the Z88 operating system, OZ.     0000000000000000      ZZZZZZZZZZZZZZZZZZZ
 ;                                                       000000000000000000   ZZZZZZZZZZZZZZZZZZZ
@@ -21,7 +21,4 @@
 ; $Id$
 ; ***************************************************************************************************
 
-clcalalm                : alarm.def error.def stdio.def time.def director.def syspar.def
-clock                   : alarm.def error.def stdio.def time.def
-../calendar/calendar    : alarm.def error.def stdio.def time.def integer.def memory.def saverst.def
-../alarm/alarm          : alarm.def error.def stdio.def time.def integer.def memory.def saverst.def sysvar.def
+terminal.asm : char.def director.def error.def fileio.def stdio.def syspar.def serintfc.def sysapps.def

@@ -16,10 +16,10 @@
 ;
 ; *************************************************************************************
 
-eazylink
-pclink
-mltlink
-srchfsys
-byteio
-fileio
-consts
+eazylink    : stdio.def error.def integer.def time.def fileio.def dor.def syspar.def serintfc.def director.def screen.def sysapps.def rtmvars.def
+pclink      : fileio.def dor.def stdio.def error.def rtmvars.def
+mltlink     : error.def fileio.def dor.def stdio.def rtmvars.def
+srchfsys    : dor.def fileio.def rtmvars.def
+byteio      : fileio.def screen.def error.def blink.def rtmvars.def
+fileio      : fileio.def rtmvars.def
+consts      : stdio.def rtmvars.def

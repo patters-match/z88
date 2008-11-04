@@ -1,0 +1,30 @@
+; *************************************************************************************
+; FlashStore
+; (C) Gunther Strube (gbs@users.sourceforge.net) & Thierry Peycru (pek@free.fr), 1997-2007
+;
+; FlashStore is free software; you can redistribute it and/or modify it under the terms of the
+; GNU General Public License as published by the Free Software Foundation;
+; either version 2, or (at your option) any later version.
+; FlashStore is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+; See the GNU General Public License for more details.
+; You should have received a copy of the GNU General Public License along with FlashStore;
+; see the file COPYING. If not, write to the
+; Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+;
+; $Id$
+;
+; *************************************************************************************
+fsapp           : error.def syspar.def director.def stdio.def saverst.def memory.def fileio.def flashepr.def dor.def sysapps.def fsapp.def ../../mth/mth-flashstore.def
+selectcard      : stdio.def integer.def syspar.def flashepr.def eprom.def fsapp.def
+defaultram      : stdio.def syspar.def fsapp.def
+filestat        : flashepr.def eprom.def stdio.def fileio.def integer.def screen.def memory.def fsapp.def
+browse          : stdio.def fileio.def eprom.def error.def fsapp.def
+catalog         : stdio.def fileio.def integer.def eprom.def error.def fsapp.def
+savefiles       : stdio.def fileio.def flashepr.def eprom.def dor.def error.def fsapp.def
+fetchfile       : stdio.def syspar.def integer.def fileio.def eprom.def error.def fsapp.def
+deletefile      : stdio.def error.def flashepr.def eprom.def fsapp.def
+restorefiles    : stdio.def integer.def fileio.def eprom.def error.def fsapp.def
+copyfiles       : stdio.def eprom.def error.def syspar.def flashepr.def fsapp.def
+format          : stdio.def memory.def error.def flashepr.def eprom.def fsapp.def
+errmsg

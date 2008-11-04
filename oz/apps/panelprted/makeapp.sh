@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # **************************************************************************************************
-# Panel & PrinterEd application compilation script for Unix.
+# Panel & PrinterEd compilation script for Unix.
 #
 # This file is part of the Z88 operating system, OZ.     0000000000000000      ZZZZZZZZZZZZZZZZZZZ
 #                                                       000000000000000000   ZZZZZZZZZZZZZZZZZZZ
@@ -23,4 +23,4 @@
 # $Id$
 # ***************************************************************************************************
 
-../../../tools/mpm/mpm -db -DOZ_SLOT$1 -I../../def panelped.asm
+../../../tools/mpm/mpm -db -DOZ_SLOT$1 -I../../def @panelped.prj

@@ -42,9 +42,6 @@
         org ORG_CALCULATOR
 
 
-defc    CALC_UNSAFE_WS          = 128
-defc    CALC_UNSAFE_START       = $1FFE - CALC_UNSAFE_WS
-
 defvars CALC_UNSAFE_START
         Float1                  ds.b    5
         Float2                  ds.b    5

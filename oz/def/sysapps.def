@@ -106,6 +106,9 @@ defc    PRTED_SAFE_WS           = $20
 defc    PRTED_UNSAFE_WS_START   = $1FFE-PRTED_UNSAFE_WS
 defc    PRTED_SAFE_WS_START     = PRTED_UNSAFE_WS_START - PRTED_SAFE_WS
 
+defc    CALC_UNSAFE_WS          = 128
+defc    CALC_UNSAFE_START       = $1FFE - CALC_UNSAFE_WS
+
 ; ----------------------------------------------------------------------------------------------
 
 
