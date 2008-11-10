@@ -21,4 +21,4 @@
 ; $Id$
 ;***************************************************************************************************
 
-lowram.asm  : stdio.def blink.def error.def flashepr.def interrpt.def buffer.def serintfc.def oz.def sysvar.def kernel0.def ostables.def
+lowram.asm  : stdio.def blink.def error.def flashepr.def interrpt.def buffer.def serintfc.def oz.def sysvar.def ../kernel0.def

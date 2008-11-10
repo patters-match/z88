@@ -24,6 +24,9 @@
 
 @echo off
 
+:: compile_status = 1 is used to signal compile error return status in compile scripts
+set compile_status=0
+
 :: return version of Mpm to command line environment.
 :: Only V1.3 or later of Mpm supports source file dependency
 ..\tools\mpm\mpm -version 2>nul >nul
@@ -36,7 +39,7 @@ goto END
 :COMPILE_OZ
 :: ensure that we have an up-to-date standard library, before compiling OZ
 cd ..\stdlib
-call makelib.bat 2>nul >nul
+call makelib.bat
 cd ..\oz
 
 :: OZ ROM slot directive (first command line argument)
@@ -65,40 +68,36 @@ del /S /Q *.err *.wrn 2>nul >nul
 :COMPILE_DIARY
 echo compiling Diary application
 cd apps\diary
-call makeapp %ozslot% 2>nul >nul
+call makeapp %ozslot%
 cd ..\..
-dir apps\diary\*.err 2>nul >nul || goto COMPILE_PIPEDREAM
-type apps\diary\*.err
+if ERRORLEVEL 0 goto COMPILE_PIPEDREAM
 goto COMPILE_ERROR
 
 :: -------------------------------------------------------------------------------------------------
 :COMPILE_PIPEDREAM
 echo compiling PipeDream application
 cd apps\pipedream
-call makeapp %ozslot% 2>nul >nul
+call makeapp %ozslot%
 cd ..\..
-dir apps\pipedream\*.err 2>nul >nul || goto COMPILE_IMPEXP
-type apps\pipedream\*.err
+if ERRORLEVEL 0 goto COMPILE_IMPEXP
 goto COMPILE_ERROR
 
 :: -------------------------------------------------------------------------------------------------
 :COMPILE_IMPEXP
 echo compiling Imp/Export popdown
 cd apps\impexport
-call makeapp %ozslot% 2>nul >nul
+call makeapp %ozslot%
 cd ..\..
-dir apps\impexport\*.err 2>nul >nul || goto COMPILE_CLCALALM
-type apps\impexport\*.err
+if ERRORLEVEL 0 goto COMPILE_CLCALALM
 goto COMPILE_ERROR
 
 :: -------------------------------------------------------------------------------------------------
 :COMPILE_CLCALALM
 echo compiling Clock, Alarm and Calendar popdowns
 cd apps\clock
-call makeapp %ozslot% 2>nul >nul
+call makeapp %ozslot%
 cd ..\..
-dir apps\clock\*.err apps\alarm\*.err apps\calendar\*.err 2>nul >nul || goto COMPILE_MTH
-type apps\clock\*.err apps\alarm\*.err apps\calendar\*.err
+if ERRORLEVEL 0 goto COMPILE_MTH
 goto COMPILE_ERROR
 
 :: -------------------------------------------------------------------------------------------------
@@ -108,21 +107,14 @@ echo compiling MTH structures
 cd mth
 call mth %ozslot% 2>nul >nul
 cd ..
-dir mth\*.err 2>nul >nul || goto COMPILE_KERNEL
-type mth\*.err
+if ERRORLEVEL 0 goto COMPILE_KERNEL
 goto COMPILE_ERROR
 
 :: -------------------------------------------------------------------------------------------------
 :COMPILE_KERNEL
 echo compiling OZ kernel
 call kernel %ozslot% 2>nul >nul
-dir os\*.err 2>nul >nul || goto CHECK_KERNEL1_ERRORS
-type os\*.err
-goto COMPILE_ERROR
-:CHECK_KERNEL1_ERRORS
-dir os\*.err 2>nul >nul || goto COMPILE_DCCALLS
-type os\*.err
-goto COMPILE_ERROR
+if "%compile_status%"=="1" goto COMPILE_ERROR
 
 :: -------------------------------------------------------------------------------------------------
 :COMPILE_DCCALLS
@@ -130,8 +122,7 @@ echo compiling Index popdown / DC System calls
 cd dc
 call dc %ozslot% 2>nul >nul
 cd ..
-dir dc\*.err apps\index\*.err 2>nul >nul || goto COMPILE_FPP
-type dc\*.err apps\index\*.err
+if ERRORLEVEL 0 goto COMPILE_FPP
 goto COMPILE_ERROR
 
 :: -------------------------------------------------------------------------------------------------
@@ -140,8 +131,7 @@ echo compiling Floating Point Package
 cd fp
 call fpp %ozslot% 2>nul >nul
 cd ..
-dir fp\*.err 2>nul >nul || goto COMPILE_TERMINAL
-type fp\*.err
+if ERRORLEVEL 0 goto COMPILE_TERMINAL
 goto COMPILE_ERROR
 
 :: -------------------------------------------------------------------------------------------------
@@ -150,8 +140,7 @@ echo compiling Terminal popdown
 cd apps\terminal
 call makeapp %ozslot% 2>nul >nul
 cd ..\..
-dir apps\terminal\*.err 2>nul >nul || goto COMPILE_FILER
-type apps\terminal\*.err
+if ERRORLEVEL 0 goto COMPILE_FILER
 goto COMPILE_ERROR
 
 :: -------------------------------------------------------------------------------------------------
@@ -160,8 +149,7 @@ echo compiling Filer popdown
 cd apps\filer
 call makeapp %ozslot% 2>nul >nul
 cd ..\..
-dir apps\filer\*.err 2>nul >nul || goto COMPILE_GNCALLS
-type apps\filer\*.err
+if ERRORLEVEL 0 goto COMPILE_GNCALLS
 goto COMPILE_ERROR
 
 :: -------------------------------------------------------------------------------------------------
@@ -170,8 +158,7 @@ echo compiling GN System calls
 cd gn
 call gn %ozslot% 2>nul >nul
 cd ..
-dir gn\*.err 2>nul >nul || goto COMPILE_CALCULATOR
-type gn\*.err
+if ERRORLEVEL 0 goto COMPILE_CALCULATOR
 goto COMPILE_ERROR
 
 :: -------------------------------------------------------------------------------------------------
@@ -180,8 +167,7 @@ echo compiling Calculator popdown
 cd apps\calculator
 call makeapp %ozslot% 2>nul >nul
 cd ..\..
-dir apps\calculator\*.err 2>nul >nul || goto COMPILE_PNLPRED
-type apps\calculator\*.err
+if ERRORLEVEL 0 goto COMPILE_PNLPRED
 goto COMPILE_ERROR
 
 :: -------------------------------------------------------------------------------------------------
@@ -190,8 +176,7 @@ echo compiling Panel and PrinterEd applications
 cd apps\panelprted
 call makeapp %ozslot% 2>nul >nul
 cd ..\..
-dir apps\panelprted\*.err 2>nul >nul || goto COMPILE_EAZYLINK
-type apps\panelprted\*.err
+if ERRORLEVEL 0 goto COMPILE_EAZYLINK
 goto COMPILE_ERROR
 
 :: -------------------------------------------------------------------------------------------------
@@ -200,8 +185,7 @@ echo compiling EazyLink
 cd apps\eazylink
 call makeapp %ozslot% 2>nul >nul
 cd ..\..
-dir apps\eazylink\*.err 2>nul >nul || goto COMPILE_FLASHSTORE
-type apps\eazylink\*.err
+if ERRORLEVEL 0 goto COMPILE_FLASHSTORE
 goto COMPILE_ERROR
 
 :: -------------------------------------------------------------------------------------------------
@@ -210,8 +194,7 @@ echo compiling Flashstore
 cd apps\flashstore
 call makeapp %ozslot% 2>nul >nul
 cd ..\..
-dir apps\flashstore\*.err 2>nul >nul || goto COMPILE_ROMHDR
-type apps\flashstore\*.err
+if ERRORLEVEL 0 goto COMPILE_ROMHDR
 goto COMPILE_ERROR
 
 :: -------------------------------------------------------------------------------------------------
@@ -220,7 +203,7 @@ echo compiling OZ ROM Header
 cd mth
 ..\..\tools\mpm\mpm -db -DOZ_SLOT%ozslot% -I..\def @romhdr.prj 2>nul >nul
 cd ..
-dir mth\*.err 2>nul >nul || goto COMBINE_BANKS
+if ERRORLEVEL 0 goto COMBINE_BANKS
 goto COMPILE_ERROR
 
 :: -------------------------------------------------------------------------------------------------
@@ -232,4 +215,9 @@ goto END
 
 :COMPILE_ERROR
 echo Compilation error occurred! Script aborted.
+dir /S *.err 2>nul >nul || goto END
+
+:: List error files, only if any were created during compilation
+dir /S *.err
+
 :END

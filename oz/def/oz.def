@@ -68,7 +68,7 @@ ELSE
         defc OZBANK_FPP         =$0B            ; Floating Point Package (located in FlashStore popdown bank)
 ENDIF
 
-defc    OZCALLTBL               =$ff00
+defc    OZCALLTBL               =$FF00          ; OS tables
 defc    GNCALLTBL               =$8000          ; GN/DC tables at same address,
 defc    DCCALLTBL               =$8000          ; change CallGN/CallDC if changed
 defc    FPPCALLTBL              =$EC00          ; Floating Point Package

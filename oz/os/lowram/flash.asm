@@ -18,14 +18,8 @@
 ;                                  59 Temple Place-Suite 330,
 ;                                  Boston, MA 02111-1307, USA.
 ;
-; Source code was reverse engineered from OZ 4.0 (UK) ROM and made compilable by Jorma Oksanen.
-; Additional development improvements, comments, definitions and new implementations by
-; (C) Jorma Oksanen (jorma.oksanen@gmail.com), 2003
 ; (C) Thierry Peycru (pek@users.sf.net), 2005
 ; (C) Gunther Strube (gbs@users.sf.net), 2005
-;
-; Copyright of original (binary) implementation, V4.0:
-; (C) 1987,88 by Trinity Concepts Limited, Protechnic Computers Limited & Operating Systems Limited.
 ;
 ; $Id$
 ;***************************************************************************************************

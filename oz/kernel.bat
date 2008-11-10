@@ -21,45 +21,48 @@
 :: $Id$
 :: ***************************************************************************************************
 
-:: create ostables.def (address pre-compilation) containing OS system base lookup table addresses
 cd os
-..\..\tools\mpm\mpm -dg -I..\def @ostables.prj
-..\..\tools\mpm\mpm -dg -I..\def @boot.prj
-dir *.err 2>nul >nul || goto PRECOMPILE_LOWRAM
-goto COMPILE_ERROR
 
-:: create lowram.def and keymap.def (address pre-compilation) for lower & upper kernel compilation
+:: create lowram.def and keymap.def (address pre-compilation) for lower and upper kernel compilation
 :PRECOMPILE_LOWRAM
 cd lowram
 ..\..\..\tools\mpm\mpm -dg -DOZ_SLOT%1 -I..\..\def @lowram.prj
-dir *.err 2>nul >nul || goto PRECOMPILE_KERNEL0
-goto COMPILE_ERROR
-
-:: pre-compile (lower) kernel to resolve labels for lowram.asm
-:PRECOMPILE_KERNEL0
+if ERRORLEVEL 1 goto LOWRAM_COMPILE_ERROR
 cd ..
+
+:: pre-compile but no linking of (lower) kernel to resolve labels for lowram.asm
+:PRECOMPILE_KERNEL0
 ..\..\tools\mpm\mpm -dg -DOZ_SLOT%1 -I..\def -Ilowram @kernel0.prj
-dir *.err 2>nul >nul || goto COMPILE_LOWRAM
-goto COMPILE_ERROR
+if ERRORLEVEL 1 goto COMPILE_ERROR
 
 :: create final lowram binary with correct addresses from lower kernel
 :COMPILE_LOWRAM
 cd lowram
 ..\..\..\tools\mpm\mpm -db -DOZ_SLOT%1 -DCOMPILE_BINARY -I..\..\def @lowram.prj
-dir *.err 2>nul >nul || goto COMPILE_KERNEL1
-goto COMPILE_ERROR
+if ERRORLEVEL 1 goto LOWRAM_COMPILE_ERROR
+cd ..
 
 :: compile final (upper) kernel binary with correct lowram code and correct lower kernel references
 :COMPILE_KERNEL1
-cd ..
 ..\..\tools\mpm\mpm -dbg -DCOMPILE_BINARY -DOZ_SLOT%1 -I..\def -Ilowram -l..\..\stdlib\standard.lib @kernel1.prj
-dir *.err 2>nul >nul || goto COMPILE_KERNEL0
-goto COMPILE_ERROR
+if ERRORLEVEL 1 goto COMPILE_ERROR
 
-:: compile final kernel binary with OS tables for bank 0 using correct upper kernel references
+:: compile final kernel 0 binary using correct kernel 1 references
 :COMPILE_KERNEL0
 ..\..\tools\mpm\mpm -db -DCOMPILE_BINARY -DOZ_SLOT%1 -I..\def -Ilowram @kernel0.prj
-..\..\tools\mpm\mpm -db -DCOMPILE_BINARY ostables.asm
+if ERRORLEVEL 1 goto COMPILE_ERROR
 
+:: compile final OSTABLE
+:COMPILE_FINALOSTABLES
+..\..\tools\mpm\mpm -db -DOZ_SLOT%1 -I..\def @ostables.prj
+if ERRORLEVEL 1 goto COMPILE_ERROR
+goto END
+
+:LOWRAM_COMPILE_ERROR
+cd ..
 :COMPILE_ERROR
+set compile_status=1
+
+:END
+:: All files of kernel were successfully compiled..
 cd ..

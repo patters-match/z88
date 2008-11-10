@@ -32,89 +32,11 @@
 
         Module OSTables
 
-        include "../def/oz.def"
-
-        org     OZCALLTBL                       ; fixed start
-
-xdef    OZCallTable
-
-IF COMPILE_BINARY
+        include "oz.def"
         include "kernel0.def"                   ; get lower kernel address references
         include "kernel1.def"                   ; get upper kernel address references
-ELSE
-        xref    OSDly                           ; [Kernel0]/osin.asm
-        xref    OSPur                           ; [Kernel0]/osin.asm
-        xref    OSXin                           ; [Kernel0]/osin.asm
-        xref    CallDC                          ; [Kernel0]/oz2call.asm
-        xref    CallGN                          ; [Kernel0]/oz2call.asm
-        xref    CallOS2byte                     ; [Kernel0]/oz2call.asm
-        xref    OSAlm                           ; [Kernel0]/osalm0.asm
-        xref    OSPrt                           ; [Kernel0]/osprt.asm
-        xref    OzCallInvalid                   ; [Kernel0]/oz2call.asm
-        xref    OSBix                           ; [Kernel0]/knlbind.asm
-        xref    OSBox                           ; [Kernel0]/knlbind.asm
-        xref    OSFramePop                      ; [Kernel0]/stkframe.asm
-        xref    OSAxp                           ; [Kernel0]/memory.asm
-        xref    OSFc                            ; [Kernel0]/memory.asm
-        xref    OSMal                           ; [Kernel0]/memory.asm
-        xref    OsMcl                           ; [Kernel0]/memory.asm
-        xref    OSMfr                           ; [Kernel0]/memory.asm
-        xref    OSMgb                           ; [Kernel0]/memory.asm
-        xref    OSMop                           ; [Kernel0]/memory.asm
-        xref    OSMpb                           ; [Kernel0]/memory.asm
-        xref    CopyMemBHL_DE                   ; [Kernel0]/memmisc.asm
-        xref    OSBde                           ; [Kernel0]/memmisc.asm
-        xref    OSFn                            ; [Kernel0]/memmisc.asm
-        xref    OSBlp                           ; [Kernel0]/scrdrv4.asm
-        xref    OSSr                            ; [Kernel0]/scrdrv4.asm
-        xref    OSDom                           ; [Kernel0]/process2.asm
-        xref    OSBye                           ; [Kernel0]/process3.asm
-        xref    OSEnt                           ; [Kernel0]/process3.asm
-        xref    OSExit                          ; [Kernel0]/process3.asm
-        xref    OSStk                           ; [Kernel0]/process3.asm
-        xref    OSUse                           ; [Kernel0]/process3.asm
-        xref    OSCl                            ; [Kernel0]/filesys2.asm
-        xref    OSFrm                           ; [Kernel0]/filesys2.asm
-        xref    OSFwm                           ; [Kernel0]/filesys2.asm
-        xref    OSGb                            ; [Kernel0]/filesys2.asm
-        xref    OSGbt                           ; [Kernel0]/filesys2.asm
-        xref    OSMv                            ; [Kernel0]/filesys2.asm
-        xref    OSOp                            ; [Kernel0]/filesys2.asm
-        xref    OSPb                            ; [Kernel0]/filesys2.asm
-        xref    OSPbt                           ; [Kernel0]/filesys2.asm
-        xref    OSCli                           ; [Kernel0]/oscli.asm
-        xref    OSDor                           ; [Kernel0]/dor.asm
-        xref    OSErc                           ; [Kernel0]/error.asm
-        xref    OSErh                           ; [Kernel0]/error.asm
-        xref    OSEsc                           ; [Kernel0]/esc.asm
-        xref    OSFth                           ; [Kernel0]/handle.asm
-        xref    OSGth                           ; [Kernel0]/handle.asm
-        xref    OSVth                           ; [Kernel0]/handle.asm
-        xref    OSHt                            ; [Kernel0]/time.asm
-        xref    OSIn                            ; [Kernel0]/osin.asm
-        xref    OSTin                           ; [Kernel0]/osin.asm
-        xref    OSNq                            ; [Kernel0]/spnq0.asm
-        xref    OSSp                            ; [Kernel0]/spnq0.asm
-        xref    OSOff                           ; [Kernel0]/nmi.asm
-        xref    OSWait                          ; [Kernel0]/nmi.asm
-        xref    OSOut                           ; [Kernel0]/osout.asm
-        xref    OSBout                          ; [Kernel0]/osout.asm
-        xref    OSPout                          ; [Kernel0]/osout.asm
-        xref    OSSi                            ; [Kernel0]/ossi.asm
-        xref    OSUst                           ; [Kernel0]/osust.asm
-        xref    OSWrt                           ; [Kernel0]/token.asm
-        xref    OSWtb                           ; [Kernel0]/token.asm
 
-        xref    OSEpr                           ; [Kernel1]/os/osepr/os.asm
-        xref    OSFep                           ; [Kernel1]/os/osfep/osfep.asm
-        xref    OSMap                           ; [Kernel1]/osmap.asm
-        xref    OSDel                           ; [Kernel1]/filesys1.asm
-        xref    OSRen                           ; [Kernel1]/filesys1.asm
-        xref    OSIsq                           ; [Kernel1]/scrdrv1.asm
-        xref    OSWsq                           ; [Kernel1]/scrdrv1.asm
-        xref    OSPoll                          ; [Kernel1]/process1.asm
-        xref    OSSci                           ; [Kernel1]/ossci.asm
-ENDIF
+        org     OZCALLTBL                       ; OS jump table entry
 
 .OZCallTable
         jp      OzCallInvalid

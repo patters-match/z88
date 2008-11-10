@@ -41,9 +41,14 @@
         org     $c000
 
 xdef    Halt
-xdef    Boot_reset
 xdef    Delay300Kclocks
 xdef    HW_INT, HW_NMI
+
+IF OZ_SLOT1
+xdef    Boot_reset
+ELSE
+xdef    Bootstrap2
+ENDIF
 
 xref    nmi_5                                   ; [Kernel0]/nmi.asm
 xref    HW_NMI2                                 ; [Kernel0]/nmi.asm

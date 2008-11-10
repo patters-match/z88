@@ -32,7 +32,7 @@ process3.asm    : director.def error.def blink.def dor.def fileio.def syspar.def
 cardmgr.asm     : blink.def sysvar.def
 dor.asm         : error.def dor.def handle.def oz.def
 osalm0.asm      : alarm.def handle.def z80.def interrpt.def oz.def sysvar.def lowram.def
-nmi.asm         : blink.def error.def interrpt.def keyboard.def oz.def sysvar.def boot.def lowram.def
+nmi.asm         : blink.def error.def interrpt.def keyboard.def oz.def sysvar.def lowram.def
 error.asm       : error.def sysvar.def lowram.def
 esc.asm         : error.def interrpt.def stdio.def sysvar.def lowram.def
 filesys2.asm    : buffer.def dor.def error.def fileio.def handle.def memory.def serintfc.def stdio.def syspar.def printer.def z80.def oz.def sysvar.def lowram.def

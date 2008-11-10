@@ -38,10 +38,7 @@
         include "oz.def"
         include "interrpt.def"
         include "keyboard.def"
-
         include "lowram.def"
-        include "boot.def"
-
 
 xdef    BothShifts
 xdef    OSOff
@@ -54,10 +51,18 @@ xdef    nmi_5
 xdef    HW_NMI2
 xdef    NMIEntry
 
+IF OZ_SLOT1
+xref    Boot_reset                              ; [Kernel0]/boot.asm
+ELSE
+xref    Bootstrap2                              ; [Kernel0]/boot.asm
+ENDIF
+
 xref    DrawOZwd                                ; [Kernel0]/ozwindow.asm
 xref    OSFramePush                             ; [Kernel0]/stkframe.asm
 xref    OSFramePopX                             ; [Kernel0]/stkframe.asm
 xref    MayDrawOZwd                             ; [Kernel0]/misc3.asm
+xref    Halt                                    ; [Kernel0]/boot.asm
+xref    HW_INT,HW_NMI                           ; [Kernel0]/boot.asm
 
 
 defc    NMI_HALT        =1

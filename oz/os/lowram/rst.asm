@@ -230,7 +230,7 @@
         ld      a, OZBANK_KNL0                  ; bind kernel0 bank into S3
         call    MS3BankA
 
-        ld      d, >OZCallTable                 ; function jumper in DE
+        ld      d, >OZCALLTBL                   ; function jumper in DE
         ex      de, hl
 .JpHL                                           ; called from pfilter0.asm (could use elsewhere as well)
         jp      (hl)                            ; $FFnn, nn=opByte

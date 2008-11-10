@@ -46,13 +46,10 @@
 
 IF COMPILE_BINARY
         include "../kernel0.def"                ; get kernel 0 kernel address references
-        include "../ostables.def"               ; get kernel 0 OS system base lookup table address
 ELSE
         xref    INTEntry                        ; pretend references to be external for pre-compile...
         xref    NMIEntry
         xref    CallErrorHandler
-        xref    OZBuffCallTable
-        xref    OZCallTable
 ENDIF
 
 
@@ -82,6 +79,5 @@ include "rst.asm"
 include "memfunc.asm"
 include "flash.asm"
 include "buffer.asm"
-include "intuart.asm"
 
 .LowRAMcode_end
