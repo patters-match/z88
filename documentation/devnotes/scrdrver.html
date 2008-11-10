@@ -109,20 +109,21 @@ linked with application code using the Z80 Module Assembler. </p>
 
 <p><a name="ctrlchar"><b>Direct Control Characters</b></a></p>
 
-<p><a name="ctrlchar">The following standard control characters
-have a special effect: </a></p>
+<a name="ctrlchar">The following standard control characters
+have a special effect: </a>
 
 <pre><a name="ctrlchar">
 <i>ASCII name</i>  <i>Value</i>    <i>Z88 effect</i>
-NUL   $00   Ignored (Possibly used by the system for control of screen restoring.)
-SOH   $01   Escape character for screen driver <!--ENQ     $05     Escape character for printer filter-->
-BEL   $07   Make a beep
-BS   $08   Move Cursor Left
-HT   $09   Move Cursor Right
-LF   $0A   Move Cursor Down
-VT   $0B   Move Cursor Up
-FF   $0C   Clear screen (current window)
-DEL   $7F   Draw black box, (currently, undefined codes do too)
+NUL         $00      Ignored (Possibly used by the system for control of screen restoring.)
+SOH         $01      Escape character for screen driver
+ENQ         $05      Escape character for printer filter
+BEL         $07      Make a beep
+BS          $08      Move Cursor Left
+HT          $09      Move Cursor Right
+LF          $0A      Move Cursor Down
+VT          $0B      Move Cursor Up
+FF          $0C      Clear screen (current window)
+DEL         $7F      Draw black box, (currently, undefined codes do too)
 </a></pre>
 
 <p><a name="escseq"><b>Escape Sequences</b></a></p>
