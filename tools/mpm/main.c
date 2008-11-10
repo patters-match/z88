@@ -55,7 +55,7 @@ static int GetModuleSize (void);
 
 
 /* global variables */
-FILE *srcasmfile, *listfile, *errfile, *objfile, *mapfile, *projectfile, *libfile;
+FILE *srcasmfile, *listfile, *errfile, *objfile, *mapfile, *projectfile, *libfile,  *testfile;
 
 long TOTALLINES;
 int PAGELEN, PAGENO, LINENO;
@@ -69,7 +69,7 @@ char srcext[5];                                 /* contains default source file 
 char objext[5];                                 /* contains default object file extension */
 char binfilename[MAX_FILENAME_SIZE+1];          /* -o explicit filename buffer */
 
-enum flag compiled;             /* if project files were compiled, then ON */
+enum flag compiled;                             /* if project files were compiled, then ON */
 
 long listfileptr;
 unsigned char *codearea, *codeptr;
@@ -293,8 +293,7 @@ main (int argc, char *argv[])
 {
   int asmflag;
   char argument[MAX_FILENAME_SIZE+1];  /* temp variable for command line arguments and filenames */
-  int pathsepCount = 0;
-  int b;
+  int b, pathsepCount = 0;
   filelist_t *moduledependencies = NULL; /* pointer to list of module source file dependency files */
 
   DefineEndianLayout();
@@ -522,16 +521,45 @@ main (int argc, char *argv[])
   ReleaseFilenames ();
   CloseFiles ();
 
-  if (compiled == OFF)
+  if (compiled == ON)
     {
-      if (verbose)
-        puts("Nothing compiled - all files are up to date.");
+      if (TOTALERRORS == 0 && verbose)
+        printf ("Total of %ld lines assembled.\n", TOTALLINES);
     }
   else
     {
+      if (TOTALERRORS == 0 && verbose == ON)
+        puts("Nothing compiled - all files are up to date.");
+
+      if (TOTALERRORS == 0)
+        {
+          /* all object files compiled, but is binary available? */
+          if (createlibrary == ON)
+            {
+              if ((testfile = fopen(libfilename, "r")) != NULL)
+                fclose(testfile);
+              else
+                /* if library file doesn't exist, then it needs to be generated! */
+                compiled = ON;
+          }
+
+          if (mpmbin == ON && datestamp == ON && ExistBinFile() == OFF)
+            {
+              /* a previous compilation of this project might not have generated */
+              /* the linked executable binary (without -b option) */
+              /* so, if the binary doesn't exist, create it now... */
+              if (verbose)
+                puts("Executable binary is missing, create it..");
+              compiled = ON;
+            }
+        }
+    }
+
+  if (compiled == ON)
+    {
       if (createlibrary)
         {
-          if (asmerror == OFF)
+          if (TOTALERRORS == 0)
             {
               CreateLibfile ();
               PopulateLibrary ();
@@ -546,20 +574,22 @@ main (int argc, char *argv[])
           libfilename = NULL;
         }
 
-      if ((asmerror == OFF) && verbose)
-        printf ("Total of %ld lines assembled.\n", TOTALLINES);
-
-      if ((asmerror == OFF) && mpmbin)
-        LinkModules ();
-
-      if (asmerror == OFF && createglobaldeffile == ON)
+      if (TOTALERRORS == 0 && createglobaldeffile == ON)
         CreateDeffile ();
 
-      if ((TOTALERRORS == 0) && mpmbin)
+      if (TOTALERRORS == 0 && mpmbin == ON)
         {
-          if (mapref == ON && mpmbin == ON) WriteMapFile ();
+          /* a module was re-compiled with a newer object file in the project */
+          /* or a missing executable binary needs to be generated */
+          LinkModules ();
+
+          if (mapref == ON)
+            WriteMapFile ();
+
           CreateBinFile ();
-          if (crc32file == ON) CreateCrc32File();
+
+          if (crc32file == ON)
+            CreateCrc32File();
         }
     }
 
@@ -588,7 +618,11 @@ main (int argc, char *argv[])
     ReportWarning (NULL, 0, Warn_Status);
 
   if (asmerror)
-      return 1;
+    {
+      exit (1);
+    }
   else
-      return 0;         /* assembler successfully ended */
+    {
+      exit (0);         /* assembler successfully ended */
+    }
 }

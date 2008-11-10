@@ -49,3 +49,4 @@ void WriteLong (long fptr, FILE * fileid);
 void WriteBinFile (char *filename, char *mode, unsigned char *codebase, size_t length);
 void WriteMapFile (void);
 void CreateDeffile (void);
+enum flag ExistBinFile(void);

@@ -89,7 +89,7 @@ module_t *CURRENTMODULE;
 /* local variables */
 static tracedmodules_t *linkhdr;
 static FILE *deffile;
-
+static enum flag modules_loaded = OFF;
 
 
 static void
@@ -298,7 +298,6 @@ void
 LinkModules (void)
 {
   symtable = uselistingfile = OFF;
-  linkhdr = NULL;
 
   if (verbose)
     puts ("Linking module(s)...\nPass1...");
@@ -324,12 +323,6 @@ LinkModules (void)
       free (errfilename);
       errfilename = NULL;
       return;
-    }
-
-  if (uselibraries)
-    {
-      /* Index libraries for quick lookup, before linking starts */
-      IndexLibraries();
     }
 
   LoadModules ();               /* load object modules, preparing linking process */
@@ -369,8 +362,19 @@ LoadModules (void)
   long constant;
   int link_error;
 
+  if (modules_loaded == ON)
+    /* modules were already loaded */
+    return;
+
+  linkhdr = NULL;
   CURRENTMODULE = modulehdr->first;     /* begin with first module */
   lastobjmodule = modulehdr->last;      /* remember this last module, further modules are libraries */
+
+  if (uselibraries)
+    {
+      /* Index libraries for quick lookup, before linking starts */
+      IndexLibraries();
+    }
 
   PC = 0;
   gAsmpcPtr = DefineDefSym (ASSEMBLERPC, PC, &globalroot);      /* Create standard '$PC' identifier */
@@ -431,6 +435,8 @@ LoadModules (void)
       CURRENTMODULE = CURRENTMODULE->nextmodule;        /* get next module, if any */
     }
   while (CURRENTMODULE != lastobjmodule->nextmodule && link_error == 0);   /* parse only object modules, not added library modules */
+
+  modules_loaded = ON;
 }
 
 
@@ -562,13 +568,10 @@ ModuleExpr (void)
 }
 
 
-void
-CreateBinFile (void)
+static
+char *CreateBinfilename(void)
 {
   char *tmpstr;
-  char binfilenumber = '0';
-  size_t codeblock, offset;
-
   if (expl_binflnm == ON)
     {
       /* use predefined filename from command line for generated binary */
@@ -583,8 +586,72 @@ CreateBinFile (void)
   if (tmpstr == NULL)
     {
       ReportError (NULL, 0, Err_Memory);   /* No more room */
-      return;
+      return NULL;
     }
+
+  return tmpstr;
+}
+
+
+enum flag
+ExistBinFile(void)
+{
+  char *tmpstr;
+  char binfilenumber = '0';
+  size_t codeblock, offset;
+  FILE *filehandle;
+  enum flag found = OFF;
+
+  tmpstr = CreateBinfilename();
+  if (tmpstr == NULL)
+    return OFF;
+
+  if (codesegment == ON)
+    {
+      if (CODESIZE > 16384)
+        {
+          /* executable binary larger than 16K, use different extension */
+          tmpstr = AddFileExtension( tmpstr, segmbinext);
+          offset = 0;
+          do
+            {
+              codeblock = (CODESIZE / 16384U) ? 16384U : CODESIZE % 16384U;
+              CODESIZE -= codeblock;
+              tmpstr[strlen (tmpstr) - 1] = binfilenumber++;     /* binary 16K block file number */
+              if ((filehandle = fopen(tmpstr, "r")) != NULL)
+                {
+                  fclose(filehandle);
+                  free (tmpstr);
+                  return ON;
+                }
+
+              offset += codeblock;
+            }
+          while (CODESIZE);
+        }
+    }
+
+  if ((filehandle = fopen(tmpstr, "r")) != NULL)
+    {
+      fclose(filehandle);
+      found = ON;
+    }
+
+  free (tmpstr);
+  return found;
+}
+
+
+void
+CreateBinFile (void)
+{
+  char *tmpstr;
+  char binfilenumber = '0';
+  size_t codeblock, offset;
+
+  tmpstr = CreateBinfilename();
+  if (tmpstr == NULL)
+    return;
 
   if (codesegment == ON)
     {
@@ -903,8 +970,7 @@ CreateDeffile (void)
 {
   char *globaldefname;
 
-  if (mpmbin == OFF)
-    LoadModules ();     /* For Global Definitions file, collect all XDEFs in project object files */
+  LoadModules ();     /* For Global Definitions file, collect all XDEFs in project object files */
 
   /* use first module filename to create global definition file */
   globaldefname = AddFileExtension((const char *) modulehdr->first->cfile->fname, defext);
