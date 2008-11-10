@@ -131,11 +131,11 @@ public class Slots extends JPanel {
 	private JButton browseFilesButton;
 
 	private JCheckBox fileAreaCheckBox;
-	
+
 	private JCheckBox saveAsBanksCheckBox;
-	
+
 	private JCheckBox insertCardCopyCheckBox;
-	
+
 	private Memory memory;
 	private Blink blink;
 
@@ -147,9 +147,9 @@ public class Slots extends JPanel {
 
 	/** Keep a copy of each last removed (flash) eprom card from slots (1-3) */
 	private Bank lastRemovedCard[][];
-	
+
 	private File currentEpromDir;
-	
+
 	private File currentFilesDir;
 
 	private JPanel saveAsBanksPanel;
@@ -157,9 +157,9 @@ public class Slots extends JPanel {
 	private JLabel saveAsBanksLabel;
 
 	private MouseAdapter externSlotPopupMenuListener[];
-	
+
 	private ImageIcon emptySlotIcon;
-	
+
 	public Slots() {
 		super();
 		blink = Z88.getInstance().getBlink();
@@ -170,11 +170,11 @@ public class Slots extends JPanel {
 
 		// references to last removed card (bank containers)
 		// in external slots (1-3).
-		lastRemovedCard = new Bank[4][]; 
-		
+		lastRemovedCard = new Bank[4][];
+
 		// references to active popup menu listeners in slots 1-3
 		externSlotPopupMenuListener = new MouseAdapter[4];
-		
+
 		setBackground(Color.BLACK);
 		emptySlotIcon = getEmptySlotIcon();
 
@@ -186,20 +186,20 @@ public class Slots extends JPanel {
 	}
 
 	/**
-	 * Create an Icon (black space) for empty slots 
+	 * Create an Icon (black space) for empty slots
 	 * @return
 	 */
 	private ImageIcon getEmptySlotIcon() {
-		int[] matrix = new int[135 * 16]; // default black 
+		int[] matrix = new int[135 * 16]; // default black
 		for (int p=0; p<matrix.length; p++) matrix[p] = 0xff000000;
-		
+
 		BufferedImage image = new BufferedImage(135, 16, BufferedImage.TYPE_4BYTE_ABGR);
 		image.setRGB(0, 0, 135, 16, matrix, 0, 135);
-		
+
 		// make the new screen frame visible in the GUI.
 		return new ImageIcon(image);
 	}
-	
+
 	/**
 	 * Update the button caption text, reflecting the contents of all slots (0 -
 	 * 3).
@@ -213,7 +213,7 @@ public class Slots extends JPanel {
 	/**
 	 * Update the button caption text, reflecting the contents of the specified
 	 * slot.
-	 * 
+	 *
 	 * @param slotNo
 	 *            (0 - 3)
 	 */
@@ -226,7 +226,7 @@ public class Slots extends JPanel {
 		case SlotInfo.StmFlashCard:
 			slotText = "STM FLASH";
 			break;
-			
+
 		case SlotInfo.AmdFlashCard:
 			slotText = "AMD FLASH";
 			break;
@@ -246,7 +246,7 @@ public class Slots extends JPanel {
 
 		if (slotNo > 0) {
 			if (slotType != SlotInfo.EmptySlot) {
-				slotText = (memory.getExternalCardSize(slotNo) * 16) + "K " + slotText;	
+				slotText = (memory.getExternalCardSize(slotNo) * 16) + "K " + slotText;
 			}
 		}
 
@@ -258,7 +258,7 @@ public class Slots extends JPanel {
 			else
 				getRom0Button().setText(
 						(" " + memory.getInternalRomSize() * 16) + "K ROM ");
-			
+
 			getRam0Button().setText(
 					(" " + memory.getInternalRamSize() * 16) + "K RAM");
 			break;
@@ -356,7 +356,7 @@ public class Slots extends JPanel {
 
 		return slot3Panel;
 	}
-	
+
 	private JButton getRom0Button() {
 		if (rom0Button == null) {
 			rom0Button = new JButton();
@@ -367,11 +367,11 @@ public class Slots extends JPanel {
 			rom0Button.setForeground(Color.BLACK);
 			rom0Button.setBackground(Color.LIGHT_GRAY);
 			rom0Button.setMargin(new Insets(2, 2, 2, 2));
-			
+
 			rom0Button.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					blink.signalFlapOpened();
-					
+
 					if (JOptionPane
 							.showConfirmDialog(Slots.this, installRomMsg, "Replace OZ operating system ROM", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
 						JFileChooser chooser = new JFileChooser(currentEpromDir);
@@ -383,7 +383,7 @@ public class Slots extends JPanel {
 						if (returnVal == JFileChooser.APPROVE_OPTION) {
 							// remember current directory for next time..
 							currentEpromDir = chooser.getCurrentDirectory();
-							
+
 							File romFile = new File(chooser.getSelectedFile().getAbsolutePath());
 							try {
 								memory.loadRomBinary(romFile);
@@ -407,7 +407,7 @@ public class Slots extends JPanel {
 						// User aborted...
 						blink.signalFlapClosed();
 					}
-					
+
 					refreshSlotInfo(0);
 					Z88.getInstance().getDisplay().grabFocus();
 				}
@@ -431,8 +431,8 @@ public class Slots extends JPanel {
 			ram0Button.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					blink.signalFlapOpened();
-					
-					if (JOptionPane							
+
+					if (JOptionPane
 							.showConfirmDialog(Slots.this, installRamMsg, "Replace internal RAM memory", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
 						getCardSizeComboBox().setModel(ram0Sizes);
 						JOptionPane.showMessageDialog(Slots.this,
@@ -445,14 +445,14 @@ public class Slots extends JPanel {
 										.getSelectedIndex());
 						memory.insertRamCard(Integer.parseInt(size.substring(0,
 								size.indexOf("K"))), 0);
-						
+
 						// ROM installed, do a hard reset (flap is automatically closed)
 						Z88.getInstance().pressHardReset();
 					} else {
 						// User aborted...
 						blink.signalFlapClosed();
 					}
-										
+
 					refreshSlotInfo(0);
 					Z88.getInstance().getDisplay().grabFocus();
 				}
@@ -462,7 +462,7 @@ public class Slots extends JPanel {
 		return ram0Button;
 	}
 
-	
+
 	private JButton getSlot1Button() {
 		if (slot1Button == null) {
 			slot1Button = new JButton();
@@ -473,13 +473,13 @@ public class Slots extends JPanel {
 			slot1Button.setMargin(new Insets(2, 2, 2, 2));
 			slot1Button.setForeground(Color.BLACK);
 			slot1Button.setBackground(Color.LIGHT_GRAY);
-			
+
 			// add a right-click popup for file area management
 			externSlotPopupMenuListener[1] = addPopup(slot1Button, new CardPopupMenu(1));
-			
+
 			slot1Button.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					
+
 					if (SlotInfo.getInstance().getCardType(1) == SlotInfo.EmptySlot) {
 						// slot is empty, a card may be inserted;
 						// load a card .Epr file or insert a new card (type)
@@ -488,7 +488,7 @@ public class Slots extends JPanel {
 						// remove a card, or for Eprom/Flash cards, and/or save a copy
 						// of the card to an .Epr file...
 						removeCard((JButton) e.getSource(), 1);
-					}						
+					}
 				}
 			});
 		}
@@ -509,7 +509,7 @@ public class Slots extends JPanel {
 
 			// add a right-click popup for file area management
 			externSlotPopupMenuListener[2] = addPopup(slot2Button, new CardPopupMenu(2));
-			
+
 			slot2Button.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					if (SlotInfo.getInstance().getCardType(2) == SlotInfo.EmptySlot) {
@@ -520,7 +520,7 @@ public class Slots extends JPanel {
 						// remove a card, or for Eprom/Flash cards, and/or save a copy
 						// of the card to an .Epr file...
 						removeCard((JButton) e.getSource(), 2);
-					}					
+					}
 				}
 			});
 		}
@@ -532,7 +532,7 @@ public class Slots extends JPanel {
 		if (slot3Button == null) {
 			slot3Button = new JButton();
 			slot3Button.setHorizontalAlignment(SwingConstants.LEFT);
-			slot3Button.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED, Color.LIGHT_GRAY, Color.DARK_GRAY));			
+			slot3Button.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED, Color.LIGHT_GRAY, Color.DARK_GRAY));
 			slot3Button.setMaximumSize(new Dimension(139, 20));
 			slot3Button.setFont(buttonFont);
 			slot3Button.setMargin(new Insets(2, 2, 2, 2));
@@ -544,7 +544,7 @@ public class Slots extends JPanel {
 
 			slot3Button.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					
+
 					if (SlotInfo.getInstance().getCardType(3) == SlotInfo.EmptySlot) {
 						// slot is empty, a card may be inserted;
 						// load a card .Epr file or insert a new card (type)
@@ -572,15 +572,15 @@ public class Slots extends JPanel {
 
 	/**
 	 * Insert card functionality, controlled via Gui dialogs.
-	 *  
+	 *
 	 * @param slotButton
 	 * @param slotNo
 	 */
 	private void insertCard(JButton slotButton, int slotNo) {
-		FileArea fa = null; 
+		FileArea fa = null;
 		File cardImageFiles[] = null;
 		int internalCardType = 0;
-		
+
 		// re-initialize standard checkbox text
 		getFileAreaCheckBox().setText("Create File Area:");
 
@@ -588,32 +588,32 @@ public class Slots extends JPanel {
 			// default select RAM card for slot 1 (easier for users)
 			getCardSizeComboBox().setModel(ramCardSizes);
 			getCardTypeComboBox().setSelectedIndex(0); // default RAM card
-			getCardSizeComboBox().setSelectedIndex(3); // default 1024K size	
-			
+			getCardSizeComboBox().setSelectedIndex(3); // default 1024K size
+
 			getFileAreaCheckBox().setEnabled(false); // remaining widgets disabled...
 			getAppAreaLabel().setEnabled(false);
 			getBrowseFilesButton().setEnabled(false);
-			getBrowseAppsButton().setEnabled(false);			
+			getBrowseAppsButton().setEnabled(false);
 		}
 		if (slotNo == 2) {
-			// default select an 1Mb Amd Flash Card 
+			// default select an 1Mb Amd Flash Card
 			getCardSizeComboBox().setModel(amdFlashSizes);
 			getCardTypeComboBox().setSelectedIndex(3); // default AMD Flash card
-			getCardSizeComboBox().setSelectedIndex(2); // default 1024K size			
+			getCardSizeComboBox().setSelectedIndex(2); // default 1024K size
 
 			insertCardDialogAccessibility(true);
 		}
 		if (slotNo == 3) {
-			// default select an Intel 1mb Flash Card 
+			// default select an Intel 1mb Flash Card
 			getCardSizeComboBox().setModel(intelFlashSizes);
 			getCardTypeComboBox().setSelectedIndex(2); // default Intel Flash card
-			getCardSizeComboBox().setSelectedIndex(1); // default 1024K size			
+			getCardSizeComboBox().setSelectedIndex(1); // default 1024K size
 
 			insertCardDialogAccessibility(true);
 		}
-		
+
 		getReInsertCardCopyCheckBox().setSelected(false);
-		
+
 		getFileAreaCheckBox().setSelected(false); // default no file area on card...
 		getAppAreaLabel().setText(defaultAppLoadText);
 		cardImageFileChooser = fileAreaChooser = null;
@@ -639,9 +639,9 @@ public class Slots extends JPanel {
 			} else {
 				if (cardImageFileChooser != null) {
 					// load an EPR image on the card: start with opening the file
-					cardImageFiles = cardImageFileChooser.getSelectedFiles();						
+					cardImageFiles = cardImageFileChooser.getSelectedFiles();
 				}
-	
+
 				switch (getCardTypeComboBox().getSelectedIndex()) {
 					case 0:
 						// insert selected RAM Card
@@ -649,25 +649,25 @@ public class Slots extends JPanel {
 						OZvm.displayRtmMessage(cardSizeK + "K RAM Card was inserted in slot " + slotNo);
 						break;
 					case 1:
-						// insert an (UV) EPROM Card 
+						// insert an (UV) EPROM Card
 						internalCardType = SlotInfo.EpromCard;
 						break;
 					case 2:
-						// insert an Intel Flash Card 
+						// insert an Intel Flash Card
 						internalCardType = SlotInfo.IntelFlashCard;
 						break;
 					case 3:
-						// insert an Amd Flash Card 
+						// insert an Amd Flash Card
 						internalCardType = SlotInfo.AmdFlashCard;
 						break;
 					case 4:
-						// insert an Stm Flash Card 
+						// insert an Stm Flash Card
 						internalCardType = SlotInfo.StmFlashCard;
 						break;
 				}
-	
+
 				if (cardImageFiles != null) {
-					// A selected Card was also marked to load an (app) image.. 						
+					// A selected Card was also marked to load an (app) image..
 					try {
 						memory.loadFileImagesOnCard(slotNo, cardSizeK, internalCardType, cardImageFiles);
 					} catch (IOException e1) {
@@ -680,9 +680,9 @@ public class Slots extends JPanel {
 				} else {
 					// Insert a selected Eprom type (which is not to be loaded with a file image...
 					if (internalCardType != 0)
-						memory.insertEprCard(slotNo, cardSizeK, internalCardType);					
+						memory.insertEprCard(slotNo, cardSizeK, internalCardType);
 				}
-								
+
 				// User has also chosen to create a file area on card...
 				if (getFileAreaCheckBox().isSelected() == true) {
 					// user has chosen to create/format a file area on the card
@@ -692,20 +692,20 @@ public class Slots extends JPanel {
 								"File Area available on card", JOptionPane.NO_OPTION) == JOptionPane.YES_OPTION) {
 							if (FileArea.create(slotNo, true) == false) {
 								JOptionPane.showMessageDialog(Slots.this, "File Area could not be re-formatted",
-										"Card Error in slot " + slotNo, JOptionPane.ERROR_MESSAGE);														
+										"Card Error in slot " + slotNo, JOptionPane.ERROR_MESSAGE);
 							}
 						}
 					} else {
 						if (FileArea.create(slotNo, true) == false) {
 							JOptionPane.showMessageDialog(Slots.this, "File Area could not be created",
-									"Card Error in slot " + slotNo, JOptionPane.ERROR_MESSAGE);														
-						}						
+									"Card Error in slot " + slotNo, JOptionPane.ERROR_MESSAGE);
+						}
 					}
-					
+
 					if (SlotInfo.getInstance().getFileHeaderBank(slotNo) != -1) {
 						try {
 							fa = new FileArea(slotNo);
-	
+
 							if (fileAreaChooser != null) {
 								File selectedFiles[] = fileAreaChooser.getSelectedFiles();
 								// import files into file area, if selected by user...
@@ -715,53 +715,53 @@ public class Slots extends JPanel {
 							}
 						} catch (FileAreaNotFoundException e1) {
 							JOptionPane.showMessageDialog(Slots.this, "File Area not available in slot" + slotNo,
-									"Insert Card Error in slot " + slotNo, JOptionPane.ERROR_MESSAGE);						
+									"Insert Card Error in slot " + slotNo, JOptionPane.ERROR_MESSAGE);
 						} catch (FileAreaExhaustedException e) {
 							JOptionPane.showMessageDialog(Slots.this, "File Area exhausted during import",
-									"Insert Card Error in slot " + slotNo, JOptionPane.ERROR_MESSAGE);						
+									"Insert Card Error in slot " + slotNo, JOptionPane.ERROR_MESSAGE);
 						} catch (IOException e) {
 							JOptionPane.showMessageDialog(Slots.this, "I/O error during File Area import",
-									"Insert Card Error in slot " + slotNo, JOptionPane.ERROR_MESSAGE);						
+									"Insert Card Error in slot " + slotNo, JOptionPane.ERROR_MESSAGE);
 						}
 					}
 				}
 			}
-			
-			// card has been successfully inserted into slot... 
+
+			// card has been successfully inserted into slot...
 			refreshSlotInfo(slotNo);
 		}
-		
-		blink.signalFlapClosed();		
+
+		blink.signalFlapClosed();
 		Z88.getInstance().getDisplay().grabFocus();
 	}
 
 	/**
 	 * Remove card functionality, controlled via Gui dialogs.
-	 * 
+	 *
 	 * @param slotButton
 	 * @param slotNo
 	 */
 	private void removeCard(JButton slotButton, int slotNo) {
 		blink.signalFlapOpened();
-		
+
 		if (SlotInfo.getInstance().getCardType(slotNo) == SlotInfo.RamCard) {
-			if (JOptionPane.showConfirmDialog(Slots.this, 
+			if (JOptionPane.showConfirmDialog(Slots.this,
 					"Remove RAM card?\nWarning: Z88 enters \"fail\" mode after removal.\nPerform a (suggested) hard reset in the 'Z88' menu.",
-					"Remove card from slot " + slotNo, JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {				
+					"Remove card from slot " + slotNo, JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
 				memory.removeCard(slotNo);
 				lastRemovedCard[slotNo] = null; // RAM card is not preserved when removed from slot...
-				
-				blink.signalFlapClosed();
-			}				
-		} else {		
-			if (JOptionPane.showConfirmDialog(Slots.this, 
-					"Remove "+ slotButton.getText() + " card?",
-					"Remove card from slot " + slotNo, 
-					JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {				
 
-				if (JOptionPane.showConfirmDialog(Slots.this, 
+				blink.signalFlapClosed();
+			}
+		} else {
+			if (JOptionPane.showConfirmDialog(Slots.this,
+					"Remove "+ slotButton.getText() + " card?",
+					"Remove card from slot " + slotNo,
+					JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+
+				if (JOptionPane.showConfirmDialog(Slots.this,
 						getSaveAsBanksPanel(),
-						"Remove card from slot " + slotNo, 
+						"Remove card from slot " + slotNo,
 						JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
 					if (getSaveAsBanksCheckBox().isSelected() == false) {
 						// save card as an EPR image file...
@@ -770,62 +770,62 @@ public class Slots extends JPanel {
 						chooser.setMultiSelectionEnabled(false);
 						chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 						chooser.setFileFilter(eprfileFilter);
-												
+
 						int returnVal = chooser.showSaveDialog(Slots.this.getParent());
 						if (returnVal == JFileChooser.APPROVE_OPTION) {
 							String eprFilename = chooser.getSelectedFile().getAbsolutePath();
 							if (eprFilename.toLowerCase().lastIndexOf(".epr") == -1) {
-								// append ".epr" extension if not specified by user... 
+								// append ".epr" extension if not specified by user...
 								eprFilename += ".epr";
 							}
-							
+
 							try {
 								memory.dumpSlot(slotNo, false, "", eprFilename);
 							} catch (FileNotFoundException e) {
 								JOptionPane.showMessageDialog(Slots.this, "Couldn't save the card to an EPR file",
-										"Remove Card from slot " + slotNo, JOptionPane.ERROR_MESSAGE);						
+										"Remove Card from slot " + slotNo, JOptionPane.ERROR_MESSAGE);
 							} catch (IOException e) {
 								JOptionPane.showMessageDialog(Slots.this, "Couldn't save the card to an EPR file",
-										"Remove Card from slot " + slotNo, JOptionPane.ERROR_MESSAGE);						
+										"Remove Card from slot " + slotNo, JOptionPane.ERROR_MESSAGE);
 							}
-						}												
+						}
 					} else {
 						// save card as 16K bank files...
 						JFileChooser chooser = new JFileChooser(currentEpromDir);
 						chooser.setDialogTitle("Save Z88 Card as 16 Bank files (.0 - .63)");
 						chooser.setMultiSelectionEnabled(false);
 						chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-												
+
 						int returnVal = chooser.showSaveDialog(Slots.this.getParent());
 						if (returnVal == JFileChooser.APPROVE_OPTION) {
 							String filenameDir = chooser.getSelectedFile().getParent();
-							
+
 							try {
 								memory.dumpSlot(slotNo, true, filenameDir, chooser.getSelectedFile().getName());
 							} catch (FileNotFoundException e) {
 								JOptionPane.showMessageDialog(Slots.this, "Couldn't save the card as 16k bank files",
-										"Remove Card from slot " + slotNo, JOptionPane.ERROR_MESSAGE);						
+										"Remove Card from slot " + slotNo, JOptionPane.ERROR_MESSAGE);
 							} catch (IOException e) {
 								JOptionPane.showMessageDialog(Slots.this, "Couldn't save the card as 16k bank files",
-										"Remove Card from slot " + slotNo, JOptionPane.ERROR_MESSAGE);						
+										"Remove Card from slot " + slotNo, JOptionPane.ERROR_MESSAGE);
 							}
-						}												
-						
+						}
+
 					}
 				}
-				
+
 				// keep a copy of removed File/App card...
-				lastRemovedCard[slotNo] = memory.removeCard(slotNo);				
-			}				
+				lastRemovedCard[slotNo] = memory.removeCard(slotNo);
+			}
 		}
-				
+
 		blink.signalFlapClosed();
 
 		if (memory.isSlotEmpty(slotNo) == true)
 			OZvm.displayRtmMessage(slotButton.getText() + " Card was removed from slot " + slotNo);
 		refreshSlotInfo(slotNo);
-		
-		Z88.getInstance().getDisplay().grabFocus();		
+
+		Z88.getInstance().getDisplay().grabFocus();
 	}
 
 	private JLabel getSaveAsBanksLabel() {
@@ -836,7 +836,7 @@ public class Slots extends JPanel {
 
 		return saveAsBanksLabel;
 	}
-	
+
 	private JPanel getSaveAsBanksPanel() {
 		if (saveAsBanksPanel == null) {
 			saveAsBanksPanel = new JPanel();
@@ -844,10 +844,10 @@ public class Slots extends JPanel {
 			saveAsBanksPanel.add(getSaveAsBanksLabel());
 			saveAsBanksPanel.add(getSaveAsBanksCheckBox());
 		}
-		
+
 		return saveAsBanksPanel;
 	}
-	
+
 	private JPanel getNewCardPanel() {
 		newCardPanel = new JPanel();
 		newCardPanel.setLayout(new GridBagLayout());
@@ -913,7 +913,7 @@ public class Slots extends JPanel {
 		gridBagConstraints_8.fill = GridBagConstraints.HORIZONTAL;
 		gridBagConstraints_8.gridy = 4;
 		gridBagConstraints_8.gridx = 0;
-		newCardPanel.add(getReInsertCardCopyCheckBox(), gridBagConstraints_8);						
+		newCardPanel.add(getReInsertCardCopyCheckBox(), gridBagConstraints_8);
 
 		return newCardPanel;
 	}
@@ -930,7 +930,7 @@ public class Slots extends JPanel {
 		if (cardTypeComboBox == null) {
 			cardTypeComboBox = new JComboBox();
 			cardTypeComboBox.setModel(newCardTypes);
-		
+
 			cardTypeComboBox.addActionListener(new ActionListener() {
 				// when the Card type is changed, also change available sizes
 				public void actionPerformed(ActionEvent e) {
@@ -970,7 +970,7 @@ public class Slots extends JPanel {
 				}
 			});
 		}
-		
+
 		return cardTypeComboBox;
 	}
 
@@ -999,7 +999,7 @@ public class Slots extends JPanel {
 		getAppAreaLabel().setEnabled(state);
 		getBrowseAppsButton().setEnabled(state);
 	}
-	
+
 	private JCheckBox getReInsertCardCopyCheckBox() {
 		if (insertCardCopyCheckBox == null) {
 			insertCardCopyCheckBox = new JCheckBox();
@@ -1007,25 +1007,25 @@ public class Slots extends JPanel {
 
 			insertCardCopyCheckBox.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					if (insertCardCopyCheckBox.isSelected() == true) 
+					if (insertCardCopyCheckBox.isSelected() == true)
 						// disable all other insert-dialog features -
 						// the user wants to re-insert a previously removed card
 						insertCardDialogAccessibility(false);
 					else
 						// re-enable insert-card-dialog features -
 						// the user discarded the choice of re-inserting an old card
-						insertCardDialogAccessibility(true);					
+						insertCardDialogAccessibility(true);
 				}
-			});			
+			});
 		}
-		
+
 		return insertCardCopyCheckBox;
 	}
-	
+
 	private JCheckBox getFileAreaCheckBox() {
 		if (fileAreaCheckBox == null) {
 			fileAreaCheckBox = new JCheckBox();
-			fileAreaCheckBox.setText("Create File Area:");			
+			fileAreaCheckBox.setText("Create File Area:");
 		}
 
 		return fileAreaCheckBox;
@@ -1034,12 +1034,12 @@ public class Slots extends JPanel {
 	private JCheckBox getSaveAsBanksCheckBox() {
 		if (saveAsBanksCheckBox == null) {
 			saveAsBanksCheckBox = new JCheckBox();
-			saveAsBanksCheckBox.setText("Save Card as 16K bank files (0-63)");			
+			saveAsBanksCheckBox.setText("Save Card as 16K bank files (0-63)");
 		}
 
 		return saveAsBanksCheckBox;
 	}
-	
+
 	private JButton getBrowseFilesButton() {
 		if (browseFilesButton == null) {
 			browseFilesButton = new JButton();
@@ -1061,18 +1061,18 @@ public class Slots extends JPanel {
 						getFileAreaCheckBox().setSelected(true);
 						// remember current directory for next time..
 						currentFilesDir = fileAreaChooser.getCurrentDirectory();
-						
+
 						File selectedFiles[] = fileAreaChooser.getSelectedFiles();
 						int totalSelectedSize = 0;
 						for (int f=0; f<selectedFiles.length; f++) {
-							if (selectedFiles[f].isFile() == true) {								
-								totalSelectedSize += 1 + selectedFiles[f].getName().length() + 
+							if (selectedFiles[f].isFile() == true) {
+								totalSelectedSize += 1 + selectedFiles[f].getName().length() +
 													 4 + selectedFiles[f].length();
-							}	
+							}
 						}
-						
-						getFileAreaCheckBox().setText("Create File Area: (" + 
-								fileAreaChooser.getSelectedFiles().length + " files = " + 
+
+						getFileAreaCheckBox().setText("Create File Area: (" +
+								fileAreaChooser.getSelectedFiles().length + " files = " +
 								totalSelectedSize/1024 + "K)");
 					} else {
 						getFileAreaCheckBox().setSelected(false);
@@ -1092,7 +1092,7 @@ public class Slots extends JPanel {
 		return appAreaLabel;
 	}
 
-	
+
 	private JButton getBrowseAppsButton() {
 		if (browseAppsButton == null) {
 			browseAppsButton = new JButton();
@@ -1117,18 +1117,18 @@ public class Slots extends JPanel {
 						if (cardImageFileChooser.getSelectedFiles().length == 1) {
 							String eprFilename = cardImageFileChooser.getSelectedFile().getAbsolutePath();
 							if (eprFilename.toLowerCase().lastIndexOf(".epr") == -1) {
-								// append ".epr" extension if not specified by user... 
+								// append ".epr" extension if not specified by user...
 								eprFilename += ".epr";
 							}
 							File eprFile = new File(eprFilename);
-	
+
 							getAppAreaLabel().setText(eprFile.getName());
 						} else {
 							getAppAreaLabel().setText("Multiple file images");
 						}
 					} else {
 						getAppAreaLabel().setText(defaultAppLoadText);
-					}					
+					}
 				}
 			});
 		}
@@ -1137,7 +1137,7 @@ public class Slots extends JPanel {
 	}
 
 	/**
-	 * .bin, .epr and .0 - .63 extension filter when browsing the filing system  
+	 * .bin, .epr and .0 - .63 extension filter when browsing the filing system
 	 * for Application or File Cards.
 	 */
 	private class EpromFileFilter extends FileFilter {
@@ -1155,8 +1155,8 @@ public class Slots extends JPanel {
 					return true;
 				} else {
 					try {
-						int bankNo = Integer.parseInt(extension); 
-						if (bankNo >= 0 & bankNo <= 63) 
+						int bankNo = Integer.parseInt(extension);
+						if (bankNo >= 0 & bankNo <= 63)
 							return true;
 						else
 							return false;
@@ -1164,7 +1164,7 @@ public class Slots extends JPanel {
 						// the extension couldn't be evaluated as a number...
 						// (it is not a .0 - .63 extension...)
 						return false;
-					}					
+					}
 				}
 			}
 
@@ -1186,15 +1186,15 @@ public class Slots extends JPanel {
 			if (i > 0 && i < s.length() - 1) {
 				ext = s.substring(i + 1).toLowerCase();
 			}
-			
+
 			return ext;
 		}
 	}
-	
+
 	/**
 	 * Extended Popup menu with context sensitive menu items
-	 * that enables the user to import/export files to the file area 
-	 * of the card. 
+	 * that enables the user to import/export files to the file area
+	 * of the card.
 	 */
 	private class CardPopupMenu extends JPopupMenu {
 		private static final String expFilesMsg = "Export files from File Area";
@@ -1202,7 +1202,7 @@ public class Slots extends JPanel {
 		private static final String formatFileAreaMsg = "Format File Area";
 		private static final String reclaimDelSpaceMsg = "Reclaim deleted space in File Area";
 		private static final String markFileDeletedMsg = "Mark file(s) as deleted in File Area";
-		
+
 		private FileArea cardFileArea;
 		private int cardSlotNo;
 		private JMenuItem importFilesMenuItem;
@@ -1210,11 +1210,11 @@ public class Slots extends JPanel {
 		private JMenuItem formatFileAreaMenuItem;
 		private JMenuItem reclaimDelSpaceMenuItem;
 		private JMenuItem markFileDeletedMenuItem;
-		
+
 		public CardPopupMenu(int slotNo) {
-			super();			
-			
-			// remember in which slot this card is located...			
+			super();
+
+			// remember in which slot this card is located...
 			cardSlotNo = slotNo;
 
 			add(getImportFilesMenuItem());
@@ -1226,27 +1226,27 @@ public class Slots extends JPanel {
 
 		private boolean isFileAreaAvailable() {
 			boolean FileAreaStatus = false;
-			
+
 			if (SlotInfo.getInstance().getFileHeaderBank(cardSlotNo) != -1) {
-				// The physical poll of the slot indicates a file area.. 
+				// The physical poll of the slot indicates a file area..
 				try {
 					if (cardFileArea == null) {
 						// File Area Management hasn't been instantiated yet...
 							cardFileArea = new FileArea(cardSlotNo);
 					} else {
 						// refresh file list in file area
-						cardFileArea.scanFileArea();					
+						cardFileArea.scanFileArea();
 					}
 				} catch (FileAreaNotFoundException e) {
 					// this will never get called
 				}
-				
+
 				FileAreaStatus = true;
-			} 
-			
+			}
+
 			return FileAreaStatus;
 		}
-		
+
 		private JMenuItem getExportFilesMenuItem() {
 			if (exportFilesMenuItem == null) {
 				exportFilesMenuItem = new JMenuItem();
@@ -1254,17 +1254,17 @@ public class Slots extends JPanel {
 				exportFilesMenuItem.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
 						try {
-							
+
 							// get a list of filenames and display it in a JList widget
 							// which the user can select from...
 							JList list = new JList(cardFileArea.getFileEntryNames());
-							list.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);			
+							list.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 							JScrollPane scrollListPane = new JScrollPane();
 							scrollListPane.setViewportView(list);
 
 							if (JOptionPane.showConfirmDialog(Slots.this, scrollListPane,
 								expFilesMsg + " in slot " + cardSlotNo, JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
-								
+
 								JFileChooser chooser = new JFileChooser(currentFilesDir);
 								chooser.setDialogTitle(expFilesMsg + " in slot " + cardSlotNo + " to filing system");
 								chooser.setMultiSelectionEnabled(false);
@@ -1275,7 +1275,7 @@ public class Slots extends JPanel {
 									int totalExportedFiles = 0;
 									currentFilesDir = chooser.getSelectedFile();
 									String exportDirectory = chooser.getSelectedFile().getAbsolutePath();
-									
+
 									if (list.getSelectedIndex() == -1) {
 										// no selection made, export all active files..
 										totalExportedFiles = list.getModel().getSize();
@@ -1283,12 +1283,12 @@ public class Slots extends JPanel {
 											String selectedFilename = (String) list.getModel().getElementAt(i);
 											FileEntry fe = cardFileArea.getFileEntry(selectedFilename);
 											cardFileArea.exportFileEntry(fe, exportDirectory);
-										 }										
+										 }
 									} else {
 										// export only selected files...
 										int selectedItems[] = list.getSelectedIndices();
 										totalExportedFiles = selectedItems.length;
-										
+
 										for (int f=0; f<selectedItems.length; f++) {
 											list.setSelectedIndex(selectedItems[f]);
 											String selectedFilename = (String) list.getSelectedValue();
@@ -1296,38 +1296,38 @@ public class Slots extends JPanel {
 											cardFileArea.exportFileEntry(fe, exportDirectory);
 										}
 									}
-									
-									JOptionPane.showMessageDialog(Slots.this, 
+
+									JOptionPane.showMessageDialog(Slots.this,
 											totalExportedFiles + " file(s) were exported to " + exportDirectory,
-											expFilesMsg + " in slot " + cardSlotNo, 
+											expFilesMsg + " in slot " + cardSlotNo,
 											JOptionPane.INFORMATION_MESSAGE);
-								}								
-							}							
+								}
+							}
 						} catch (FileAreaNotFoundException e1) {
 							// this exception will never get called...
 						} catch (IOException e2) {
 							JOptionPane.showMessageDialog(Slots.this, e2.getMessage(),
-									expFilesMsg + " in slot " + cardSlotNo + 
+									expFilesMsg + " in slot " + cardSlotNo +
 									" to filing system", JOptionPane.ERROR_MESSAGE);
 						}
-						
+
 					}
-				});					
+				});
 			}
-			
+
 			return exportFilesMenuItem;
 		}
-		
+
 		private JMenuItem getImportFilesMenuItem() {
 			if (importFilesMenuItem == null) {
 				importFilesMenuItem = new JMenuItem();
 				importFilesMenuItem.setText(impFilesMsg);
-				
+
 				importFilesMenuItem.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
 						File selectedFiles[] = null;
-						
-						try {							
+
+						try {
 							JFileChooser chooser = new JFileChooser(currentFilesDir);
 							chooser.setDialogTitle(impFilesMsg);
 							chooser.setMultiSelectionEnabled(true);
@@ -1336,34 +1336,34 @@ public class Slots extends JPanel {
 							if (chooser.showOpenDialog(Slots.this.getParent()) == JFileChooser.APPROVE_OPTION) {
 								// remember current directory for next time..
 								currentFilesDir = chooser.getCurrentDirectory();
-								
+
 								selectedFiles = chooser.getSelectedFiles();
 								// import selected files into file area...
 								for (int f=0; f<selectedFiles.length; f++) {
 									cardFileArea.importHostFile(selectedFiles[f]);
 								}
 							}
-							
-							JOptionPane.showMessageDialog(Slots.this, 
+
+							JOptionPane.showMessageDialog(Slots.this,
 									selectedFiles.length + " file(s) were imported",
-									impFilesMsg + " in slot " + cardSlotNo, 
+									impFilesMsg + " in slot " + cardSlotNo,
 									JOptionPane.INFORMATION_MESSAGE);
-							
+
 						} catch (FileAreaNotFoundException e1) {
 							// this exception will never get called...
 						} catch (FileAreaExhaustedException e2) {
 							JOptionPane.showMessageDialog(Slots.this, "File Area exhausted during import",
-							impFilesMsg + " in slot " + cardSlotNo, 
-							JOptionPane.ERROR_MESSAGE);							
+							impFilesMsg + " in slot " + cardSlotNo,
+							JOptionPane.ERROR_MESSAGE);
 						} catch (IOException e3) {
 							JOptionPane.showMessageDialog(Slots.this, e3.getMessage(),
-							impFilesMsg + " in slot " + cardSlotNo, 
+							impFilesMsg + " in slot " + cardSlotNo,
 							JOptionPane.ERROR_MESSAGE);
 						}
 					}
-				});									
+				});
 			}
-			
+
 			return importFilesMenuItem;
 		}
 
@@ -1372,25 +1372,30 @@ public class Slots extends JPanel {
 				formatFileAreaMenuItem = new JMenuItem();
 				formatFileAreaMenuItem.setText(formatFileAreaMsg);
 				formatFileAreaMenuItem.addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent e) {						
+					public void actionPerformed(ActionEvent e) {
+                		if (Z88.getInstance().getProcessorThread() != null) {
+                    		// cannot format while Z88 is running...
+                    		JOptionPane.showMessageDialog(null, "Cannot format file are while Z88 is running.");
+                    		return;
+                		}
 
 						if (JOptionPane.showConfirmDialog(Slots.this, "Format file area?\nWarning: All files will be lost.",
 								formatFileAreaMsg + " in slot " + cardSlotNo, JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
 							if (FileArea.create(cardSlotNo, true) == true)
-								JOptionPane.showMessageDialog(Slots.this, 
+								JOptionPane.showMessageDialog(Slots.this,
 										"File area was successfully formatted",
-										formatFileAreaMsg + " in slot " + cardSlotNo, 
+										formatFileAreaMsg + " in slot " + cardSlotNo,
 										JOptionPane.INFORMATION_MESSAGE);
 							else
-								JOptionPane.showMessageDialog(Slots.this, 
+								JOptionPane.showMessageDialog(Slots.this,
 										"An error occurred. File area was not formatted",
-										formatFileAreaMsg + " in slot " + cardSlotNo, 
+										formatFileAreaMsg + " in slot " + cardSlotNo,
 										JOptionPane.ERROR_MESSAGE);
 						}
 					}
 				});
 			}
-			
+
 			return formatFileAreaMenuItem;
 		}
 
@@ -1399,7 +1404,7 @@ public class Slots extends JPanel {
 				reclaimDelSpaceMenuItem = new JMenuItem();
 				reclaimDelSpaceMenuItem.setText(reclaimDelSpaceMsg);
 				reclaimDelSpaceMenuItem.addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent e) {					
+					public void actionPerformed(ActionEvent e) {
 
 						if (JOptionPane.showConfirmDialog(Slots.this, "Reclaim deleted file space?",
 								reclaimDelSpaceMsg + " in slot " + cardSlotNo, JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
@@ -1407,14 +1412,14 @@ public class Slots extends JPanel {
 								// then reclaim deleted file space..
 								cardFileArea.reclaimDeletedFileSpace();
 
-								JOptionPane.showMessageDialog(Slots.this, 
+								JOptionPane.showMessageDialog(Slots.this,
 										"Files marked as deleted were removed from File Area.",
-										reclaimDelSpaceMsg + " in slot " + cardSlotNo, 
+										reclaimDelSpaceMsg + " in slot " + cardSlotNo,
 										JOptionPane.INFORMATION_MESSAGE);
 							} catch (FileAreaNotFoundException e1) {
 								// this exception is never called..
 							}
-						}						
+						}
 					}
 				});
 			}
@@ -1427,13 +1432,13 @@ public class Slots extends JPanel {
 				markFileDeletedMenuItem = new JMenuItem();
 				markFileDeletedMenuItem.setText(markFileDeletedMsg);
 				markFileDeletedMenuItem.addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent e) {					
+					public void actionPerformed(ActionEvent e) {
 
 						try {
 							// get a list of filenames and display it in a JList widget
 							// which the user can select from...
 							JList list = new JList(cardFileArea.getFileEntryNames());
-							list.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);			
+							list.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 							JScrollPane scrollListPane = new JScrollPane();
 							scrollListPane.setViewportView(list);
 
@@ -1442,30 +1447,30 @@ public class Slots extends JPanel {
 
 								if (list.getSelectedIndex() == -1) {
 									// no selection made, export all active files..
-									JOptionPane.showMessageDialog(Slots.this, 
+									JOptionPane.showMessageDialog(Slots.this,
 											"No files were marked to be 'deleted'.",
-											markFileDeletedMsg + " in slot " + cardSlotNo, 
+											markFileDeletedMsg + " in slot " + cardSlotNo,
 											JOptionPane.INFORMATION_MESSAGE);
 								} else {
 									// only selected files will be marked as deleted...
 									int selectedItems[] = list.getSelectedIndices();
-									
+
 									for (int f=0; f<selectedItems.length; f++) {
 										list.setSelectedIndex(selectedItems[f]);
 										String selectedFilename = (String) list.getSelectedValue();
 										cardFileArea.markAsDeleted(selectedFilename);
 									}
 
-									JOptionPane.showMessageDialog(Slots.this, 
+									JOptionPane.showMessageDialog(Slots.this,
 											selectedItems.length + " files were marked as deleted.",
-											markFileDeletedMsg + " in slot " + cardSlotNo, 
-											JOptionPane.INFORMATION_MESSAGE);									
-								}								
+											markFileDeletedMsg + " in slot " + cardSlotNo,
+											JOptionPane.INFORMATION_MESSAGE);
+								}
 							}
-							
+
 						} catch (FileAreaNotFoundException e1) {
 							// this exception is never called..
-						}																	
+						}
 					}
 				});
 			}
@@ -1476,12 +1481,12 @@ public class Slots extends JPanel {
 
 		/**
 		 * If the card contains a file area,
-		 * a popup menu is displayed at the position x,y in 
+		 * a popup menu is displayed at the position x,y in
 		 * the coordinate space of the component invoker.
-		 * 
+		 *
 		 * @param invoker
 		 * @param x
-		 * @param y 
+		 * @param y
 		 */
 		public void show(Component invoker, int x, int y) {
 			if (isFileAreaAvailable() == true) {
@@ -1496,14 +1501,14 @@ public class Slots extends JPanel {
 					}
 
 					if (cardFileArea.getDeletedFileCount() > 0) {
-						getReclaimDelSpaceMenuItem().setEnabled(true);					
+						getReclaimDelSpaceMenuItem().setEnabled(true);
 					} else {
 						getReclaimDelSpaceMenuItem().setEnabled(false);
 					}
 				} catch (FileAreaNotFoundException e) {
 					// This exception is never reached...
 				}
-								
+
 				super.show(invoker, x, y);
 			} else {
 				if (FileArea.isCreateable(cardSlotNo) == true) {
@@ -1513,13 +1518,13 @@ public class Slots extends JPanel {
 					getMarkFileDeletedMenuItem().setEnabled(false);
 					getReclaimDelSpaceMenuItem().setEnabled(false);
 					getFormatFileAreaMenuItem().setEnabled(true);
-					
+
 					super.show(invoker, x, y);
-				}				
+				}
 			}
 		}
 	}
-		
+
 	private MouseAdapter addPopup(Component component, final JPopupMenu popup) {
 		MouseAdapter mouseAdapter = new MouseAdapter() {
 			public void mousePressed(MouseEvent e) {
@@ -1535,14 +1540,14 @@ public class Slots extends JPanel {
 			}
 		};
 
-		component.addMouseListener(mouseAdapter);	
+		component.addMouseListener(mouseAdapter);
 		return mouseAdapter; // return a reference, for future removal.
-	}	
-	
+	}
+
 	/**
 	 * Remove right-click pop-up menu from a component
-	 * 
-	 * @param component 
+	 *
+	 * @param component
 	 * @param mouseAdapter
 	 */
 	private void removePopup(Component component, MouseAdapter mouseAdapter) {
