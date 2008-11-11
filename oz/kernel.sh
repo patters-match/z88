@@ -27,18 +27,11 @@ COMPILE_ERROR=0
 
 # create ostables.def (address pre-compilation) containing OS system base lookup table addresses
 cd os
-../../tools/mpm/mpm -dg -I../def @ostables.prj
-../../tools/mpm/mpm -dg -I../def boot.asm
-if test `find . -name '*.err' | wc -l` != 0; then
-  COMPILE_ERROR=1
-fi
 
 # create lowram.def and keymap.def (address pre-compilation) for lower & upper kernel compilation
 # (argument $1 contains the country localisation)
 cd lowram
-if test "$COMPILE_ERROR" -eq 0; then
-  ../../../tools/mpm/mpm -dg -DOZ_SLOT$1 -I../../def lowram.asm
-fi
+../../../tools/mpm/mpm -dg -DOZ_SLOT$1 -I../../def @lowram.prj
 if test `find . -name '*.err' | wc -l` != 0; then
   COMPILE_ERROR=1
 fi
@@ -55,7 +48,7 @@ fi
 # create final lowram binary with correct addresses from lower kernel
 cd lowram
 if test "$COMPILE_ERROR" -eq 0; then
-  ../../../tools/mpm/mpm -b -DOZ_SLOT$1 -DCOMPILE_BINARY -I../../def lowram.asm
+  ../../../tools/mpm/mpm -db -DOZ_SLOT$1 -DCOMPILE_BINARY -I../../def @lowram.prj
 fi
 if test `find . -name '*.err' | wc -l` != 0; then
   COMPILE_ERROR=1
@@ -64,7 +57,7 @@ cd ..
 
 # compile final (upper) kernel binary with correct lowram code and correct lower kernel references
 if test "$COMPILE_ERROR" -eq 0; then
-  ../../tools/mpm/mpm -bg -DCOMPILE_BINARY -DOZ_SLOT$1 -l../../stdlib/standard.lib -I../def -Ilowram @kernel1.prj
+  ../../tools/mpm/mpm -dbg -DCOMPILE_BINARY -DOZ_SLOT$1 -l../../stdlib/standard.lib -I../def -Ilowram @kernel1.prj
 fi
 if test `find . -name '*.err' | wc -l` != 0; then
   COMPILE_ERROR=1
@@ -72,8 +65,8 @@ fi
 
 # compile final kernel binary with OS tables for bank 0 using correct upper kernel references
 if test "$COMPILE_ERROR" -eq 0; then
-  ../../tools/mpm/mpm -b -DCOMPILE_BINARY -DOZ_SLOT$1 -I../def -Ilowram @kernel0.prj
-  ../../tools/mpm/mpm -b -DCOMPILE_BINARY ostables.asm
+  ../../tools/mpm/mpm -db -DCOMPILE_BINARY -DOZ_SLOT$1 -I../def -Ilowram @kernel0.prj
+  ../../tools/mpm/mpm -db -DCOMPILE_BINARY -DOZ_SLOT$1 ostables.asm
 fi
 
 cd ..
