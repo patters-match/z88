@@ -32,7 +32,7 @@ cd ..
 
 :: pre-compile but no linking of (lower) kernel to resolve labels for lowram.asm
 :PRECOMPILE_KERNEL0
-..\..\tools\mpm\mpm -dg -DOZ_SLOT%1 -I..\def -Ilowram @kernel0.prj
+..\..\tools\mpm\mpm -g -DOZ_SLOT%1 -I..\def -Ilowram @kernel0.prj
 if ERRORLEVEL 1 goto COMPILE_ERROR
 
 :: create final lowram binary with correct addresses from lower kernel

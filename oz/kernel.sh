@@ -39,7 +39,7 @@ cd ..
 
 # pre-compile (lower) kernel to resolve labels for lowram.asm
 if test "$COMPILE_ERROR" -eq 0; then
-  ../../tools/mpm/mpm -dg -DOZ_SLOT$1 -I../def -Ilowram @kernel0.prj
+  ../../tools/mpm/mpm -g -DOZ_SLOT$1 -I../def -Ilowram @kernel0.prj
 fi
 if test `find . -name '*.err' | wc -l` != 0; then
   COMPILE_ERROR=1
