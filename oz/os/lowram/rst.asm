@@ -41,13 +41,9 @@
 
         defs    ($0008-$PC) ($ff)               ; address align for RST 08H
 
-.rst08                                          ; FREE (Reserved for Intuition integration)
-IF OZ_INTUITION
-        jp      BindIntuition
-ELSE
+.rst08                                          ; FREE
         scf
         ret
-ENDIF
         defs    ($0010-$PC) ($ff)               ; address align for RST 10H
 
 .rst10                                          ; EXTCALL
@@ -298,23 +294,3 @@ ENDIF
         ei
         ret
 
-
-IF OZ_INTUITION
-; ----------------------------------------------------------------------------------------------
-; Intuition integration with OZ
-;
-; Intuition debugger bank is bound into upper 8K segment of LOWRAM and executed.
-; Original application bank binding for upper 8K LOWRAM is preserved by Intuition, and restored
-; again when the debugger releases control back to OZ.
-;
-.BindIntuition
-        push    bc
-        ld      bc,OZBANK_INTUITION < 8 | MS_S0
-        rst     OZ_MPB                          ; install Intuition bank into segment 0
-        jp      $2000                           ; call Intuition, with BC = old bank binding
-.exitBindIntuition
-        rst     OZ_MPB                          ; Intuition released - restore application bank binding
-        pop     bc                              ; restore original BC application register
-        ret                                     ; back to application execution at RST 08H RET address
-; ----------------------------------------------------------------------------------------------
-ENDIF
