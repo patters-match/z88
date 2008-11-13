@@ -66,7 +66,16 @@ fi
 # compile final kernel binary with OS tables for bank 0 using correct upper kernel references
 if test "$COMPILE_ERROR" -eq 0; then
   ../../tools/mpm/mpm -db -DCOMPILE_BINARY -DOZ_SLOT$1 -I../def -Ilowram @kernel0.prj
+fi
+if test `find . -name '*.err' | wc -l` != 0; then
+  COMPILE_ERROR=1
+fi
+
+if test "$COMPILE_ERROR" -eq 0; then
   ../../tools/mpm/mpm -db -DCOMPILE_BINARY -DOZ_SLOT$1 ostables.asm
+fi
+if test `find . -name '*.err' | wc -l` != 0; then
+  COMPILE_ERROR=1
 fi
 
 cd ..
