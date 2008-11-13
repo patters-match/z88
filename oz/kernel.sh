@@ -72,7 +72,7 @@ if test `find . -name '*.err' | wc -l` != 0; then
 fi
 
 if test "$COMPILE_ERROR" -eq 0; then
-  ../../tools/mpm/mpm -db -DCOMPILE_BINARY -DOZ_SLOT$1 ostables.asm
+  ../../tools/mpm/mpm -db -DCOMPILE_BINARY -DOZ_SLOT$1 @ostables.prj
 fi
 if test `find . -name '*.err' | wc -l` != 0; then
   COMPILE_ERROR=1
