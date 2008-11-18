@@ -591,12 +591,20 @@ CalcExpression (enum symbols opr, pfixstack_t **stackptr)
         PushItem ((leftoperand == rightoperand), stackptr);
         break;
 
+      case less:
+        PushItem ((leftoperand < rightoperand), stackptr);
+        break;
+
       case lessequal:
         PushItem ((leftoperand <= rightoperand), stackptr);
         break;
 
+      case greater:
+        PushItem ((leftoperand > rightoperand), stackptr);
+        break;
+
       case greatequal:
-        PushItem ((leftoperand <= rightoperand), stackptr);
+        PushItem ((leftoperand >= rightoperand), stackptr);
         break;
 
       case notequal:
@@ -880,8 +888,8 @@ Factor (expression_t *pfixexpr)
         NewPfixSymbol (pfixexpr, 0, log_not, NULL, 0);  /* Unary logical NOT... */
       break;
 
-    case div256:
-      AddCharToInfixExpr(pfixexpr, separators[div256]);
+    case greater:
+      AddCharToInfixExpr(pfixexpr, '>');
       GetSym ();
 
       if (!Factor (pfixexpr))
@@ -890,8 +898,8 @@ Factor (expression_t *pfixexpr)
         NewPfixSymbol (pfixexpr, 0, div256, NULL, 0);  /* Unary Divide By 256 */
       break;
 
-    case mod256:
-      AddCharToInfixExpr(pfixexpr, separators[mod256]);
+    case less:
+      AddCharToInfixExpr(pfixexpr, '<');
       GetSym ();
 
       if (!Factor (pfixexpr))
@@ -1105,9 +1113,13 @@ Condition (expression_t *pfixexpr)
     }
 
   if (!Expression (pfixexpr))
-    return 0;
+    {
+      return 0;
+    }
   else
-    NewPfixSymbol (pfixexpr, 0, relsym, NULL, 0);       /* condition... */
+    {
+      NewPfixSymbol (pfixexpr, 0, relsym, NULL, 0);       /* condition... */
+    }
 
   return 1;
 }
