@@ -1,7 +1,7 @@
 body
 {
 	background-color: #ffffff;
-	font-size: 14px;
+	font-size: 12px;
 	font-family: Arial, Helvetica, sans-serif;
 }
 TABLE.frames
@@ -78,7 +78,7 @@ LI
 {
 	font-weight: bold;
 	font-family: Courier,monospace;
-	font-size: 14px;
+	font-size: 12px;
 }
 .type
 {
