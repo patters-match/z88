@@ -60,16 +60,23 @@ define __SYSVAR_DEF__
 ; FIRST 8K RAM MAPPING
 ; --------------------
 
-; $0000-$027F is low ram routines
+; low ram routines (soft reset, RST vectors, etc) from $0000 until SV_KERNEL_RAM
+
 defc    SV_KERNEL_RAM          = $0280          ;  384 bytes, 364 used
 defc    SV_PRESERVED_RAM       = $0400          ;   96 bytes,  22 used
 defc    SV_HARDWARE_RAM        = $0460          ;  160 bytes, all used
 defc    SV_BUFFER_RAM          = $0500          ;  768 bytes, all used
 defc    SV_HANDLE_RAM          = $0800          ; 1024 bytes, all used
 defc    SV_EXTERN_RAM          = $0C00          ; 1024 bytes, 406 used
-; $1000-$17FF is swap ram
+
+defc    SV_SWAP_RAM            = $1000
+defc    SV_SWAP_RAM_PAGES      = $08            ; Swap RAM has 8 * 256 = 2048 bytes, all used
+
 defc    SV_PROCESS_RAM         = $1800
+defc    SV_PROCESS_RAM_PAGES   = $08            ; System Stack has  8 * 256 = 2048 bytes
+
 defc    SV_PRINTER_TRANSLATIONS = 37            ; number of translation entries in printer filter
+
 
 ; --------------------
 ; KERNEL VARIABLE AREA
@@ -350,6 +357,15 @@ defvars SV_EXTERN_RAM
         pAlarmList              ds.p    1       ; badly named (eAlarmList)
         uwNextAlarmID           ds.w    1
 
+; Reserved space for Intuition Runtime Variables (100)
+        SV_INTUITION_RAM        ds.b    100     ; see z88apps/intuition/defs.h for details..
+enddef
+
+; --------------------
+; 2K SWAP RAM
+; --------------------
+defvars SV_SWAP_RAM
+        ds.b SV_SWAP_RAM_PAGES * 256
 enddef
 
 

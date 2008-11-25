@@ -209,10 +209,10 @@ xref    defDev                                  ; [K1]/spnq1.asm
         ld      bc, $10
         call    MarkSystemRAM                   ; b20, 0000-0fff - system variables
         ld      d, $20
-        ld      bc, $1008
+        ld      bc, SV_SWAP_RAM | SV_SWAP_RAM_PAGES
         call    MarkSwapRAM                     ; b20, 1000-17ff - swap RAM
         ld      d, $20
-        ld      bc, $1808
+        ld      bc, SV_PROCESS_RAM | SV_PROCESS_RAM_PAGES
         call    MarkSystemRAM                   ; b20, 1800-1fff - stack
         ld      d, $20
         ld      bc, $2020
