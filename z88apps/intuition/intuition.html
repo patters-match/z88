@@ -1,8 +1,7 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html>
-<head>
-  <title>intuition.html</title>
-</head>
+<html><head>
+  <title>intuition.html</title></head>
+
 <body>
 <br>
 <big><big><b>Intuition - the Application Debugger</b></big></big><br>
@@ -221,12 +220,7 @@ When Intuition encounters an operating system call, it temporarily
 redirects the real Z80 processor into the ROM (restoring the virtual
 registers into the real Z80 registers). Intuition then regains control
 of the processor when the system call returns (and copies the real Z80
-registers back to the virtual registers).<br>
-<br>
-This is necessary because OZ switches interrupt status all the time
-during it's own execution. During application code execution of
-instructions, Intuition freezes maskable interrupts to gain as much
-speed as possible. During OZ calls interrupts are restored.<br>
+registers back to the virtual registers). You can, however, choose to single step into a system call. <br>
 <br>
 <br>
 <i><u>PRECAUTIONS WITH INTUITION</u></i><br>
@@ -239,7 +233,8 @@ executing your code you would experience a system crash or freeze
 the next instruction of the debugger code to be executed after having
 performed your bind call is not existent anymore in the original
 address space of Intuition, but something else. The Z80 has begun to
-execute random code (in relative terms) and not the Intuition debugger!<br>
+execute random code (in relative terms) and not the Intuition debugger;
+in other words you have let the Z80 processor loose in random code!<br>
 <br>
 When Intuition is called the initial time (should just be performed
 once), it looks at the current Stack pointer, SP, and moves it
@@ -268,28 +263,25 @@ The reason for Intuition to use the stack as its workspace is simply
 because there is no other place it can do it without interfering with
 the monitored application resources. The other segments available
 cannot be touched since the application monitored might use them for
-own purposes during execution. The lower 8K (0000h - 17FFh) of the Z80
-address space is reserved for OZ and cannot be altered. During
+own purposes during execution. During
 application binding all segments might change and thus page out any
 possible Intuition workspace (theoretically placed in segment 1, 2 or
 3). The only part of local address space memory that is not paged out
 at any time during execution of the current application (and possibly
-Intuition) is the Stack space resided in the top part of the lower 8K
-of system RAM (1800h - 1FFFh).<br>
+Intuition) is the lower 8K of segment 0 which also contains the Stack space (0000h - 1FFFh).<br>
 <br>
 Further, a stack space is allocated for each activated application thus
 always preserving the correct status of suspended applications in the
 OZ environment.<br>
 <br>
 <hr style="width: 100%; height: 2px;"><br>
-<br>
 <big><big><b>The debugger application, #ZI</b></big></big><br>
 <br>
-The Intuition application, resident on the Z88 Assembler Workbench, is
+The Intuition application, is
 a pendant of the executable debugger files to be used for external
 applications on EPROM's. It contains all the functionality of the
 separate files including a few extra, e.g. to load code in the debugger
-application'S 40K contiguous memory allocation.<br>
+application'S 40K contiguous RAM space.<br>
 <br>
 The purpose of this Intuition application is simply to provide an easy
 way of testing machine code routines or small applications that don't
@@ -359,7 +351,7 @@ manipulation.<br>
 <br>
 <i><u>THE DEFAULT MEMORY IN INTUITION</u></i><br>
 <br>
-When Intuition is activated, it automatically receives either 8K or 40K
+When the Intuition application is activated, it automatically receives either 8K or 40K
 of contiguous RAM memory from OZ. It depends on the status of the Z88;
 whether it is a standard (only 32K internal RAM) or expanded (128K RAM
 or more in slot 1) machine.<br>
@@ -409,16 +401,15 @@ and probably crash the Z88.<br>
 <hr style="width: 100%; height: 2px;"><br>
 <big><big><b>The executable debugger files</b></big></big><br>
 <br>
-The debugger supplied in the Z88 Assembler Workbench is included both
-as an application and as executable files for EPROM applications. The
+The debugger exist both
+as an application and as executable files for EPROM/FLASH applications. The
 debugger is actually a virtual Z80 processor which on activation takes
 control over the activated application that wishes to be monitored. The
 meaning of 'activated application' is the conventional form of either
 pressing the application hotkey sequense, e.g. #P for PipeDream, or
 from the Index. The debugger is supplied as three program files - all
 are the identical debugger utility but addressed for different memory
-areas. You will find the executable files on the "Z88 Assembler
-Workbench" disc named as "debug00.bin", "debug01.bin" and "debug02.bin".<br>
+areas of the Z80 address space. You will find the executable files named as "debug00.bin", "debug01.bin" and "debug02.bin".<br>
 <br>
 The first debugger is addressed to the start of the upper 8K of segment
 0 which is a special segment in the Z88 hardware, beginning at 2000h
@@ -462,10 +453,10 @@ the system expects bit 0 of the bank number to be set when it is needed
 to bind in the upper 8K half block of the 16K code into segment 0.
 Intuition needs to swap it's lower and upper 8K block in and out of the
 8K space of segment 0. You can read more about the hardware arcitecture
-in the Z88 Developers' Notes V3.<br>
+in the Z88 Developers' Notes.<br>
 <br>
 Intuition code files for segment 1 and 2 may be placed in any bank
-number on your EPROM card.<br>
+number on your Application card.<br>
 <br>
 <br>
 <i><u>PRECAUTIONS WITH BAD APPLICATIONS</u></i><br>
@@ -493,15 +484,14 @@ uses 8K for non-expanded Z88 and 40K for expanded Z88. In other words -
 you must specify a page number otherwise Intuition might not binded and
 a call to random memory is not very nice!<br>
 <br>
-Please refer to the Developers' Notes V3 on "Bad Applications" for more
+Please refer to the Developers' Notes on "Bad Applications" for more
 information.<br>
-<br>
 <br>
 <br>
 <i><u>THE INITIALISATION PHASE</u></i><br>
 <br>
 We now assume that all necessary code and data structures has been
-blown unto the EPROM which then has been inserted into the Z88. After
+blown on the EPROM which then has been inserted into the Z88. After
 being inserted into one of the slots the external application has been
 added to the other applications by the system, now seen in the
 Applications List in the INDEX popdown.<br>
@@ -528,7 +518,6 @@ stack pointer location. The stack space from this position and
 downwards to the bottom of the application stack area (1800h) will be
 used by the operating system (OZ), the application and Intuition during
 monitoring of the application.<br>
-<br>
 <br>
 It is very important that Intuition is not called from within an
 application subroutine but from the main application entry (since
@@ -622,9 +611,9 @@ programmed to handle the operating system through the application's RST
 20h calls. Keeping track of the Z88 hardware is impossible by
 Intuition. Using OZ calls is safe during Intuition monitoring.<br>
 <br>
-One of the frequently used hardware manipulation is to switch banks
+One of the frequently used hardware manipulations is to switch banks
 using the hardware registers instead of using the OZ interface calls.
-As described in the Developers' Notes V3 it is necessary to update the
+As described in the Developers' Notes it is necessary to update the
 soft copy of the current binding before issuing the hardware I/O
 instruction. Since the procedure only requires two instructions it is
 the fastest way to switch banks. The standard OZ interface procedure
@@ -656,7 +645,6 @@ NB: This is especially important if you single step AND use CLI logging
 within Intuition (or any other CLI re-binding)!<br>
 <br>
 <br>
-<br>
 <i><u>APPLICATION BANK BINDING AND THE RESERVED INTUITION SEGMENT</u></i><br>
 <br>
 To be able to constantly monitor the application, it is necessary that
@@ -682,15 +670,15 @@ segments 1 and 2 free for memory management. Your application usually
 occpies segment 3 for it's program and segment 1 and 2 for data.<br>
 <br>
 You can in fact use the Intuition segment 0 version to trace operating
-system calls! Just remember dangers of the soft copies of hardware
-information and possible changes of interrupt status's.<br>
+system calls. Just remember dangers of the soft copies of hardware
+information and possible changes of the interrupt state.<br>
 <br>
 <br>
 <u><i>TRACING THE OPERATING SYSTEM WITH INTUITION</i></u><br>
 <br>
 Before any guidelines: tracing OZ is not something that should be done
 brute force. Interrupts are used throughout the system and could set
-Intuition in an undefined state during a trace.<br>
+Intuition and OZ in an undefined state during a trace.<br>
 <br>
 When you want to trace, parse the code before executing (using .D
 disassembly). Set breakpoints after hardware manipulation instructions,
@@ -714,15 +702,15 @@ groups.<br>
 <br>
 The location in memory and bank position of the vector tables vary
 according to the ROM version you have. Vector tables for RST 20H calls
-are usually placed in the upper part of bank 0 in the ROM.<br>
-<br>
-Enjoy your trip into OZ!<br>
+are usually placed in the upper part of bank 0 in the ROM.&nbsp;<br>
+<br>OZ has finally been made available in source code, so now you have
+the possibility to use it as reference (address MAP files will help you
+get the actual addresses of routines). Enjoy your trip into OZ!<br>
 <br>
 <hr style="width: 100%; height: 2px;"><br>
-<br>
 <big><big><b>Intuition commands</b></big></big><br>
 <br>
-This chapter is an user guide of the commands and other features
+This chapter is a user guide of the commands and other features
 available in Intuition. This section is not meant to be read
 contiguously - however you would benefit from it as an introduction to
 what is available in Intuition. We have chosen to describe each command
@@ -744,8 +732,8 @@ line.<br>
 <br>
 The GN_SIP call facilitates all the usual cursor movements using the
 &lt;DIAMOND&gt;, &lt;SHIFT&gt;, &lt;DEL&gt; and cursor keys. The Diary
-also uses GN_SIP as input. Please refer to the Z88 Manual (or
-Developers' Notes V3) for information on standard editing facilities.<br>
+also uses GN_SIP as input. Please refer to the Z88 USer Guide or
+Developers' Notes for information on standard editing facilities.<br>
 <br>
 The command line support two editing windows. This is very useful for
 cross-referencing. You can change between them by pressing &lt;TAB&gt;.
@@ -766,7 +754,6 @@ in the command line.<br>
 All typed commands remain present in the command line. This ensure easy
 repeating of commands like single stepping just by pressing
 &lt;ENTER&gt; to re-execute the command.<br>
-<br>
 <br>
 <br>
 <i><u>MANAGING CLI LOG-FILES FROM THE COMMAND LINE</u></i><br>
@@ -845,14 +832,11 @@ the 16 bit information.<br>
 <br>
 An example:<br>
 <br>
-<b style="font-family: monospace;">BC</b><span
- style="font-family: monospace;"> &lt;ENTER&gt;</span><br>
+<b style="font-family: monospace;">BC</b><span style="font-family: monospace;"> &lt;ENTER&gt;</span><br>
 <br>
 could result in<br>
 <br>
-<b style="font-family: monospace;">FFAAh</b><span
- style="font-family: monospace;"> </span><b
- style="font-family: monospace;">11111111b/10101010b</b><br>
+<b style="font-family: monospace;">FFAAh</b><span style="font-family: monospace;"> </span><b style="font-family: monospace;">11111111b/10101010b</b><br>
 <br>
 The syntax notation for the register manipulation command is as follows:<br>
 <br>
@@ -881,8 +865,7 @@ or <b>f</b>.<br>
 <br>
 A few examples:<br>
 <br>
-<b style="font-family: monospace;">A @10101111</b><span
- style="font-family: monospace;"> </span> would assign F0h to the main
+<b style="font-family: monospace;">A @10101111</b><span style="font-family: monospace;"> </span> would assign F0h to the main
 <b>A</b> register. <br>
 <b style="font-family: monospace;">BC hl</b> would assign the contents
 of alternate <b>hl</b> to main register <b>BC</b>.<br>
@@ -923,8 +906,7 @@ H (bit 4) identifies the Half Carry flag ON, otherwise 0<br>
 E (bit 2) identifies the Even/Overflow flag ON, otherwise O (Odd =
 reset)<br>
 P (bit 1) identifies the Plus/Minus flag ON, otherwise Minus (reset)<br>
-C (bit 0) identifies the Carry flag ON, otherwise 0</span><br
- style="font-family: monospace;">
+C (bit 0) identifies the Carry flag ON, otherwise 0</span><br style="font-family: monospace;">
 <br>
 <br>
 <i><u>SPECIFYING NUMBER CONSTANTS</u></i><br>
@@ -978,20 +960,16 @@ register manipulation commands or extended commands (dot preceeded).<br>
 <br>
 <span style="font-family: monospace; font-weight: bold;">$
 &lt;Hex&gt;&nbsp;&nbsp;&nbsp;&nbsp; Display 8bit hex value in decimal
-&amp; binary form</span><br
- style="font-family: monospace; font-weight: bold;">
+&amp; binary form</span><br style="font-family: monospace; font-weight: bold;">
 <span style="font-family: monospace; font-weight: bold;">@
-&lt;binary&gt;&nbsp; Display 8bit binary value in Hex and decimal form</span><br
- style="font-family: monospace; font-weight: bold;">
+&lt;binary&gt;&nbsp; Display 8bit binary value in Hex and decimal form</span><br style="font-family: monospace; font-weight: bold;">
 <span style="font-family: monospace; font-weight: bold;">~
-&lt;decimal&gt; Display 8/16bit decimal value in Hex form</span><br
- style="font-family: monospace; font-weight: bold;">
+&lt;decimal&gt; Display 8/16bit decimal value in Hex form</span><br style="font-family: monospace; font-weight: bold;">
 <span style="font-family: monospace; font-weight: bold;">'
 &lt;char&gt;&nbsp;&nbsp;&nbsp; Display Ascii character in Hex and
 binary form</span><br style="font-family: monospace; font-weight: bold;">
 <span style="font-family: monospace; font-weight: bold;">"
-&lt;Hex&gt;&nbsp;&nbsp;&nbsp;&nbsp; Display 8bit Hex value in Ascii form</span><br
- style="font-family: monospace; font-weight: bold;">
+&lt;Hex&gt;&nbsp;&nbsp;&nbsp;&nbsp; Display 8bit Hex value in Ascii form</span><br style="font-family: monospace; font-weight: bold;">
 <br>
 Please note that a space must be specified between the conversion
 identifier and the argument.<br>
@@ -1049,7 +1027,6 @@ expects parameters at the current Stack Pointer and it would have been
 moved by Intuition because it released it's runtime workspace!<br>
 <br>
 <br>
-<br>
 <i><u>DISPLAY REGISTER DUMP</u></i><br>
 <br>
 Whenever Intuition enters command mode, it displays a dump of the
@@ -1060,31 +1037,26 @@ by the <i>.R</i> command. A dump might look like this:<br>
 <br>
 <span style="font-family: monospace;">BC=0000h bc=0000h A=C1h
 &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
-&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; </span><br
- style="font-family: monospace;">
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; </span><br style="font-family: monospace;">
 <span style="font-family: monospace;">DE=0000h de=0000h a=5Ah
 &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
-&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; </span><br
- style="font-family: monospace;">
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; </span><br style="font-family: monospace;">
 <span style="font-family: monospace;">HL=C000h hl=0000h
 &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
-&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; </span><br
- style="font-family: monospace;">
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; </span><br style="font-family: monospace;">
 <span style="font-family: monospace;">IX=0000h SP=1E5Fh F=0Z000OPC
 &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
-&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; </span><br
- style="font-family: monospace;">
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; </span><br style="font-family: monospace;">
 <span style="font-family: monospace;">IY=0000h PC=2000h f=00000OP0
 &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
-&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; </span><br
- style="font-family: monospace;">
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; </span><br style="font-family: monospace;">
 <span style="font-family: monospace;">?&gt;.R&nbsp;&nbsp;&nbsp;
 &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
 &nbsp;&nbsp;&nbsp; </span><br style="font-family: monospace;">
 <br>
 Please note that the alternate register set are displayed as lower case
 letters. The I and R registers are not specified (Z88 application
-programming has no needs for thhem anyway). Interrupts are a vital part
+programming has no needs for them anyway). Interrupts are a vital part
 of the Z88 operating system and are at no real usage for application
 programmers. Even the Developer's Notes remain passive about the
 subject. In the end interrupts are a too vital part for OZ.
@@ -1122,11 +1094,11 @@ All Z80 instructions and the OZ operating system calls using the RST
 20h and RST 18h instructions as interface, are recognised and displayed
 with their corresponding mnemonic identifiers. All OZ mnemonics have
 been implemented using the information shown in the Z88 Developers'
-Notes V3. If you have specified an illegal OZ parameter in your code,
+Notes. If you have specified an illegal OZ parameter in your code,
 it will be displayed as a hex constant to identify that it is not known
 to Intuition.<br>
 <br>
-An example - a code fragment from the Z88 operating system ROM:<br>
+An example - a code fragment from an Z88 operating system ROM:<br>
 <br>
 ...&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
 &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; <br>
@@ -1134,13 +1106,11 @@ An example - a code fragment from the Z88 operating system ROM:<br>
 6F&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; LD&nbsp;&nbsp;
 L,A</span><br style="font-family: monospace;">
 <span style="font-family: monospace;">C038 E7
-75&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; RST&nbsp; 20h,[OS_ERH]</span><br
- style="font-family: monospace;">
+75&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; RST&nbsp; 20h,[OS_ERH]</span><br style="font-family: monospace;">
 <span style="font-family: monospace;">C03A 3A 11 0E&nbsp;&nbsp;&nbsp;
 LD&nbsp;&nbsp; A,(0E11h)</span><br style="font-family: monospace;">
 <span style="font-family: monospace;">C03D CB
-7F&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; BIT&nbsp; 7,A</span><br
- style="font-family: monospace;">
+7F&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; BIT&nbsp; 7,A</span><br style="font-family: monospace;">
 <span style="font-family: monospace;">C03F C2 C6 C0&nbsp;&nbsp;&nbsp;
 JP&nbsp;&nbsp; NZ,C0C6h</span><br style="font-family: monospace;">
 <span style="font-family: monospace;">C042 E7 06 FE&nbsp;&nbsp;&nbsp;
@@ -1148,8 +1118,7 @@ RST&nbsp; 20h,[OS_DOM]</span><br style="font-family: monospace;">
 <span style="font-family: monospace;">C045 DD 21 1E 0E LD&nbsp;&nbsp;
 (0E1Eh),IX</span><br style="font-family: monospace;">
 <span style="font-family: monospace;">C049
-AF&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; XOR&nbsp; A</span><br
- style="font-family: monospace;">
+AF&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; XOR&nbsp; A</span><br style="font-family: monospace;">
 <span style="font-family: monospace;">...&nbsp;&nbsp;&nbsp;
 &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
 &nbsp;&nbsp;&nbsp; </span><br style="font-family: monospace;">
@@ -1173,10 +1142,10 @@ address and mnemonics get into separate columns! This is nice when you
 want to strip the address column and hand-produce source assembler with
 lables (for some obscure reason - lost your source backup?).<br>
 <br>
-The disassembler (currently in Intuition V1.1) does not recognise the
+The disassembler does not recognise the
 "undocumented" instructions like SLL or the 8bit IX, IY instructions.
-There wasn't any room left in the code space for the debugger. However,
-the Z80asm assembler supports them - to be used in your applications.
+However,
+the cross assembler tool supports them - to be used in your applications.
 Maybe they'll be implemented in a future version of Intuition if we
 manage to compress more of the code.<br>
 <br>
@@ -1184,10 +1153,7 @@ Instructions not known to the Intuition disassembler are reported with
 the line 'Illegal instruction'. You usually get this message when
 trying to disassemble a memory area containing data structures or other
 random data. In addition to the instruction mnemonics we have included
-the display of the instruction opcodes. The Z80 instruction reference
-written in the "z80instr.doc" document on the Z88 Assembler Workbench
-disc has been generated by the disassembler combined with the CLI
-facility from the Intuition command line (copy output to file). The
+the display of the instruction opcodes. The
 display of opcodes is very useful when it is needed to search for
 instructions or OZ calls with the .MS command (using binary hexadecimal
 search).<br>
@@ -1237,12 +1203,11 @@ as if the program would have, simply to test an algorithm. We have
 implemented a memory view facility to issue a quick check of memory and
 at the same time preventing any accidental altering of memory from the
 keyboard. You are of course able to edit the RAM memory as well (using
-another command). Contents of an EPROM can not be altered unless an
+another command). Contents of an EPROM or FLASH card can not be altered unless an
 EPROM programmer (like Zprom) is used (to actually blow bytes into it).<br>
 <br>
 The syntax of the commands for manipulating memory is as follows:<br>
-<br>
-<pre>.ME [&lt;nn&gt;] [&lt;b&gt;]        Memory Edit<br>.MV [&lt;nn&gt;] [&lt;b&gt;]        Memory View<br><br></pre>
+<pre>.ME [&lt;nn&gt;] [&lt;b&gt;]        Memory Edit<br>.MV [&lt;nn&gt;] [&lt;b&gt;]        Memory View<br></pre>
 If you specify an address without a bank reference, the memory dump
 will begin from that address onwards in the current Z80 address space.
 If you specify an address with a bank reference, the memory dump will
@@ -1303,18 +1268,13 @@ dump window. This can be very useful if you need specific information
 while doing other tests as cross checking.<br>
 <br>
 <br>
-<br>
 <i><u>VIEW ADDRESS TABLES</u></i><br>
 <br>
 This command enables you to view memory contents as address pointers or
 words. This is particularly useful when you want to examine the stack
 contents, lookup tables or jump tables. The command syntax is as
 follows:<br>
-<br>
-<pre>.VA [&lt;nn&gt; [&lt;b&gt;]]        View Address Memory<br><br></pre>
-Please note: This command is not available in the Intuition executable
-file for segment 0 ("debug00.bin").<br>
-<br>
+<pre>.VA [&lt;nn&gt; [&lt;b&gt;]]        View Address Memory<br></pre>
 As seen from the syntax above it is almost identical the memory
 edit/view commands. If no arguments are defined, the default of
 &lt;nn&gt; is the stack pointer (SP). You may also specify a bank
@@ -1337,36 +1297,28 @@ The following is a memory dump of a stack space:<br>
 <br>
 <span style="font-family: monospace;">1E69h &lt;0000h&gt;
 &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
-&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; </span><br
- style="font-family: monospace;">
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; </span><br style="font-family: monospace;">
 <span style="font-family: monospace;">1E67h &lt;7A41h&gt;
 &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
-&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; </span><br
- style="font-family: monospace;">
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; </span><br style="font-family: monospace;">
 <span style="font-family: monospace;">1E65h &lt;C000h&gt;
 &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
-&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; </span><br
- style="font-family: monospace;">
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; </span><br style="font-family: monospace;">
 <span style="font-family: monospace;">1E63h &lt;0000h&gt;
 &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
-&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; </span><br
- style="font-family: monospace;">
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; </span><br style="font-family: monospace;">
 <span style="font-family: monospace;">1E61h &lt;0000h&gt;
 &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
-&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; </span><br
- style="font-family: monospace;">
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; </span><br style="font-family: monospace;">
 <span style="font-family: monospace;">1E5Fh &lt;1E61h&gt;
 [T.O.S.]&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
-&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; </span><br
- style="font-family: monospace;">
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; </span><br style="font-family: monospace;">
 <span style="font-family: monospace;">1E5Dh &lt;0000h&gt;
 &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
-&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; </span><br
- style="font-family: monospace;">
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; </span><br style="font-family: monospace;">
 <span style="font-family: monospace;">1E5Bh &lt;C000h&gt;
 [SP]&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
-&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; </span><br
- style="font-family: monospace;">
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; </span><br style="font-family: monospace;">
 <br>
 The leftmost column identifies the current address in memory. The right
 column contains the pointer (or register value) stored at the current
@@ -1380,7 +1332,6 @@ Stack or the Stack Pointer.<br>
 The &lt;Up&gt; and &lt;Down&gt; cursor keys moves one address word up
 or down. You may also move in steps of 8 words (one window page) in
 combination of the &lt;SHIFT&gt; key.<br>
-<br>
 <br>
 <br>
 <i><u>LOADING CODE INTO THE Z80 ADDRESS SPACE - .ML</u></i><br>
@@ -1405,15 +1356,13 @@ The specified filename is automatically put in the INDEX "Your Ref."
 column.<br>
 <br>
 <br>
-<br>
 <i><u>AVAILABLE CONTIGUOUS MEMORY RANGE - .MR</u></i><br>
 <br>
 This command is only available for the Intuition application, #ZI.<br>
 <br>
 The command needs no parameters, and only displays the current
 contigous application memory range. Possible values would be:<br>
-<br>
-<pre>            2000h-3FFFh             standard Z88<br>            2000h-BFFFh             expanded Z88<br><br><br><br></pre>
+<pre>            2000h-3FFFh             standard Z88<br>            2000h-BFFFh             expanded Z88<br><br><br></pre>
 <i><u>DISPLAY INTUITION RTM AREA - .I</u></i><br>
 <br>
 The command does not use parameters.<br>
@@ -1428,7 +1377,6 @@ application is created. Intuition must always be CALL'ed after an
 application is created by the system.<br>
 <br>
 You are also informed of the current release version of Intuition.<br>
-<br>
 <br>
 <br>
 <i><u>Runtime Flags, an introduction</u></i><br>
@@ -1457,10 +1405,8 @@ The easiest way to determine the current flag status. Lists all
 currently defined runtime status flags with an appropriate ON/OFF tag.<br>
 <br>
 <br>
-<br>
 <i><u>RUNTIME DISASSEMBLY - .Z</u></i><br>
-<br>
-<pre>.Z +        Enable auto-disassembly during instruction execution<br>.Z -        Disable auto-disassembly<br><br></pre>
+<pre>.Z +        Enable auto-disassembly during instruction execution<br>.Z -        Disable auto-disassembly<br></pre>
 One of the powerful facilities of Intuition. This feature enables you
 to perform runtime disassembly while Intuition is executing the
 application code. The current Intuition window is used for the
@@ -1515,8 +1461,7 @@ During debugging and development it is vital that the only source of
 problem is your application and not the operating system!<br>
 <br>
 <i><u>TOGGLE OPCODE DISASSEMBLY - .DO</u></i><br>
-<br>
-<pre>.DO +       Display instruction opcodes during disassembly<br>.DO -       Display Z80 mnemonics without opcodes<br><br></pre>
+<pre>.DO +       Display instruction opcodes during disassembly<br>.DO -       Display Z80 mnemonics without opcodes<br></pre>
 The default disasembly of instructions are displayed with opcodes. You
 can switch the opcode display off by issuing the .DO - command. During
 an intensive debugging session with CLI-logging enabled, your log-files
@@ -1527,10 +1472,8 @@ listings that needs to be converted to source code (did you loose your
 source code?!).<br>
 <br>
 <br>
-<br>
 <i><u>RUNTIME REGISTER DUMP - .X</u></i><br>
-<br>
-<pre>.X +        Dump registers in Intuition window for each executed instruction<br>.X -        Auto-disassemble without register dump<br><br></pre>
+<pre>.X +        Dump registers in Intuition window for each executed instruction<br>.X -        Auto-disassemble without register dump<br></pre>
 Enable/disable register dump during runtime autodisassembly. Please
 note that this command has only effect if .Z (auto-disassembly is
 enabled).<br>
@@ -1547,10 +1490,8 @@ deleted by OZ.<br>
 This feature should be used with small logging sessions.<br>
 <br>
 <br>
-<br>
 <i><u>Dump registers at breakpoint and continue - .BD</u></i><br>
-<br>
-<pre>.BD +       Dump registers at breakpoint, then continue<br>.BD -       Enter command line mode at break point (default)<br><br></pre>
+<pre>.BD +       Dump registers at breakpoint, then continue<br>.BD -       Enter command line mode at break point (default)<br></pre>
 The CLI-logging facility is one of the important features in Intuition.
 It enables the programmer to create a hardcopy of realtime execution
 information.<br>
@@ -1587,10 +1528,8 @@ you have the satisfying results, just press
 line.<br>
 <br>
 <br>
-<br>
 <i><u>BREAK AT OZ CALL ERROR - .BO</u></i><br>
-<br>
-<pre>.BO +       Break execution at OZ return with error condition (Fc = 1)<br>.BO -       Ignore OZ error condition and continue (default)<br><br></pre>
+<pre>.BO +       Break execution at OZ return with error condition (Fc = 1)<br>.BO -       Ignore OZ error condition and continue (default)<br></pre>
 Most debugging is about setting up the correct parameters to a user
 defined machine code service routines (perhaps a library routine) or
 calls to the operating system, and to determine the correct error
@@ -1609,14 +1548,12 @@ execution at the start of the error handler, unless your're calling it
 by hand (in your application code).<br>
 <br>
 <br>
-<br>
 <i><u>BREAK INSTRUCTION EXECUTION FROM THE KEYBOARD - .K</u></i><br>
 <br>
 Apart from the various breakpoints available in Intuition you may
 enable the keyboard interrupt facility that allows you to manually
 break the flow of executing instructions.<br>
-<br>
-<pre>.K +        Enable keyboard interrupt, break execution using &lt;SHIFT&gt;&lt;DIAMOND&gt;<br>.K -        Keybord interrupt disabled.<br><br></pre>
+<pre>.K +        Enable keyboard interrupt, break execution using &lt;SHIFT&gt;&lt;DIAMOND&gt;<br>.K -        Keybord interrupt disabled.<br></pre>
 The runtime flag is toggle/enabled/disabled with .K ['+'|'-']. During
 tracing you can break and re-enter the command line by pressing
 (left)&lt;SHIFT&gt;&lt;DIAMOND&gt;.<br>
@@ -1625,17 +1562,14 @@ This facility is a no. 1 way to ensure that your monitored code always
 can be interrupted, even if it has entered an infinite loop.<br>
 <br>
 <br>
-<br>
 <i><u>SINGLE STEP/TRACE MODE - .T</u></i><br>
 <br>
 This runtime flag toggles between single stepping the monitored code of
 your application or tracing until a breakpoint condition is found.<br>
-<br>
-<pre>.T +        Perform single stepping<br>.T -        Trace until breakpoint.<br><br></pre>
+<pre>.T +        Perform single stepping<br>.T -        Trace until breakpoint.<br></pre>
 If you're not sure that your code is going to reach a breakpoint
 condition, enable the Keyboard interrupt which allows you to escape
 back to the command line.<br>
-<br>
 <br>
 <br>
 <i><u>SUBROUTINE TRACING - .TS</u></i><br>
@@ -1643,8 +1577,7 @@ back to the command line.<br>
 During tracing it is sometimes nice to quickly trace a subroutine (CALL
 xxxx) and immediately return when the routine has completed. This flag
 enables you to perform this action.<br>
-<br>
-<pre>.TS +       Enable sub-routine tracing<br>.TS -       Disable sub-routine tracing<br><br></pre>
+<pre>.TS +       Enable sub-routine tracing<br>.TS -       Disable sub-routine tracing<br></pre>
 Subroutine tracing has been implemented with execution until the same
 RET-urn level has been reached. In other words when a RET instruction
 is found you are only returned to command line mode when a RET
@@ -1668,7 +1601,6 @@ level and continue subroutine tracing from the current PC location
 onwards.<br>
 <br>
 <br>
-<br>
 <i><u>DEFINE/TOGGLE AN ADDRESS BREAKPOINT - .B</u></i><br>
 <br>
 Single stepping through machine code is a necessary feature when you
@@ -1679,8 +1611,7 @@ breakpoints. Intuition allows a maximum of 8 individual breakpoints.<br>
 <br>
 You define the breakpoint by specifying the address after the .B
 command, eg.:<br>
-<br>
-<pre>            .B C0F0 &lt;ENTER&gt;<br><br></pre>
+<pre>            .B C0F0 &lt;ENTER&gt;<br></pre>
 To remove the breakpoint, re-type the address and it will be remove
 from the address breakpoint list.<br>
 <br>
@@ -1693,12 +1624,10 @@ Intuition has to examine if a breakpoint was defined for the current
 Program Counter).<br>
 <br>
 <br>
-<br>
 <i><u>LIST ADDRESS BREAKPOINTS - .BL</u></i><br>
 <br>
 List all the currently defined address breakpoints. If no breakpoints
 are defined, then "none." is displayed.<br>
-<br>
 <br>
 <br>
 <i><u>DEFINE INSTRUCTION OPCODE BREAKPOINT - .BI</u></i><br>
@@ -1712,18 +1641,18 @@ The main purpose of this command is to enable you to halt Intuition
 before any execution of operating system (OZ) calls. As a programmer
 you want to be able to verify that register parameters has been
 correctly setup before executing a call to the operating system. During
-the development of Z80asm on the Z88, InterLogic never would have been
-able to iron out bugs of the dynamic memory allocation routines if
+the development of the Z80asm application on the Z88, it would have
+been much harder to iron out bugs of the dynamic memory allocation
+routines if
 Intuition didn't have this facility (in fact it was invented because of
 that particular need!).<br>
 <br>
 Specifying an opcode sequense is defined as a series of adjacent hex
-codes. You may specify maximum 4 - the the maximum size of a Z80
+codes. You may specify maximum 4 - the maximum size of a Z80
 instruction:<br>
-<br>
 <pre>            .BI E754 &lt;ENTER&gt;<br></pre>
 would mean<br>
-<pre>            break at RST 20H, [OS_MAL]<br><br></pre>
+<pre>            break at RST 20H, [OS_MAL]<br></pre>
 As seen above only two hexcodes were specified. When defined, every
 time Intuition is about to execute the above operating system call, you
 will be directed to the Intuition command line with a register dump and
@@ -1733,12 +1662,10 @@ You can define only one opcode breakpoint. When you want to clear the
 opcode breakpoint, just type .BI without any hex opcodes.<br>
 <br>
 <br>
-<br>
 <i><u>LIST INSTRUCTION OPCODE BREAKPOINT - .BIL</u></i><br>
 <br>
 Lists the currently defined instruction opcode breakpoint, as defined
 with the .BI command.<br>
-<br>
 <br>
 <br>
 <i><u>VIEW CURRENT APPLICATION WINDOWS - .V</u></i><br>
@@ -1775,7 +1702,6 @@ without disturbing the application screen.<br>
 <br>
 The .V command has no effect if Intuition wasn't able to preserve the
 application screen.<br>
-<br>
 <br>
 <br>
 <i><u>SET INTUITION WINDOW ID - .W</u></i><br>
@@ -1821,5 +1747,4 @@ application - hence also Intuition is killed. The Intuition application
 (#ZI) is removed as other Z88 applications.
 All contents of the contiguous RAM will be lost.<br>
 <br>
-</body>
-</html>
+</body></html>

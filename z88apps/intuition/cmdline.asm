@@ -99,8 +99,7 @@
                   JR   NZ, restore_screen   ; Yes, restore screen                       ** V0.24a
                   BIT  Flg_RTM_DZ,A         ; else                                      ** V0.24a/V0.28
                   RET  NZ                   ; If Auto disassemble, don't restore window ** V0.24a
-.restore_screen   CALL RST_appl_window      ; restore application screen window         ** V0.22
-                  RET
+.restore_screen   JP   RST_appl_window      ; restore application screen window         ** V0.22
 
 
 ; *************************************************************************************************
@@ -116,9 +115,9 @@
                   LD   (IY + RtmError),0              ; reset runtime error                       ** V1.04
                   CP   $FF                            ; display executed OZ call mnemonic?
                   JR   Z, disp_oz_mnem
-                  CALL Write_err_msg
-                  RET
-.disp_oz_mnem     LD   C,ExecBuffer+1             ; point at RST instruction...
+                  JP   Write_err_msg
+.disp_oz_mnem
+                  LD   C,ExecBuffer+1             ; point at RST instruction...
                   CALL Calc_HL_ptr
                   LD   C,(HL)                     ; get RST instruction opcode
                   INC  HL
@@ -135,8 +134,7 @@
                   JR   Z, terminate_line
                   SCF
                   CALL Display_OZ_Mnemonic        ; RST 20H OZ call  (Fc = 1)
-.terminate_line   CALL Write_CRLF
-                  RET
+.terminate_line   JP   Write_CRLF
 
 
 ; *************************************************************************************************
@@ -351,11 +349,8 @@
                   DEFM '~',0
 
 .Commands
-     IF SEGMENT3 & !INT_SEGM0
+     IF SEGMENT3
                   DEFB 23
-     ENDIF
-     IF SEGMENT3 & INT_SEGM0
-                  DEFB 22
      ENDIF
      IF SEGMENT2
                   DEFB 23+4
@@ -437,10 +432,9 @@
 
                   DEFW Mem_View
                   DEFM "MV",0
-IF !INT_SEGM0
+
                   DEFW ViewStack
                   DEFM "VA",0
-ENDIF
 
 
 ; **********************************************************************************
@@ -450,6 +444,39 @@ ENDIF
 .Release_debugger CALL RST_appl_window      ; restore application screen window         ** V0.22
                   CALL RST_ApplErrhandler   ; restore application error handler         ** V0.31
 
+IF OZ_INTUITION
+                  INCLUDE "sysvar.def"
+                  INCLUDE "../../oz/os/lowram/lowram.def"         ; get address for Intuition exit in LOWRAM
+
+                  ld      hl,(SV_INTUITION_RAM + VP_AF)           ; install current AF register
+                  push    hl
+                  pop     af
+                  ex      af,af'
+                  ld      hl,(SV_INTUITION_RAM + VP_AFx)          ; install current AF' register
+                  push    hl
+                  pop     af
+                  ex      af,af'
+
+                  ld      ix,(SV_INTUITION_RAM + VP_IX)           ; install current IX register
+                  ld      iy,(SV_INTUITION_RAM + VP_IY)           ; install current IY register
+
+                  exx
+                  ld      bc,(SV_INTUITION_RAM + VP_BCx)          ; install current BC' register
+                  ld      de,(SV_INTUITION_RAM + VP_DEx)          ; install current DE' register
+                  ld      hl,(SV_INTUITION_RAM + VP_HLx)          ; install current HL' register
+                  exx
+
+                  ld      sp,(SV_INTUITION_RAM + VP_SP)           ; install SP
+                  ld      bc,(SV_INTUITION_RAM + VP_PC)           ; Z80 Program Counter of Application (code outside Intuition)
+                  push    bc                                      ; (will be POP'ed... after restore bank binding)
+                  ld      bc,(SV_INTUITION_RAM + VP_BC)           ; get current BC register
+                  push    bc                                      ; which will be restored in LOWRAM after restore bank binding
+                  ld      de,(SV_INTUITION_RAM + VP_DE)           ; get current DE register
+                  ld      hl,(SV_INTUITION_RAM + VP_HL)           ; get current HL register
+
+                  ld      bc,(SV_INTUITION_RAM + OZBankBinding)   ; get original segment 0 bank binding
+                  jp      exitIntuitionLowRam                     ; restore bank binding in LOWRAM, then let Z80 run application
+ELSE
                   LD   SP,IY                ; point at start of Runtime Area  ** V0.28
                   POP  BC                   ; BC restored                     ** V0.28
                   POP  DE                   ; DE restored                     ** V0.28
@@ -488,7 +515,7 @@ ENDIF
                   POP  IY                   ; IY restored                     ** V0.28
                   POP  HL                   ; HL restored                     ** V0.28
                   RET                       ; release Z80 to application      ** V0.34
-
+ENDIF
 
 
 ; ******************************************************************************************

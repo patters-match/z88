@@ -38,6 +38,7 @@
         include "error.def"
         include "sysvar.def"
         include "oz.def"
+        include "memory.def"
         include "flashepr.def"
         include "interrpt.def"
         include "buffer.def"
@@ -73,6 +74,11 @@ xdef    I28Fx_PollChipId, I28Fx_BlowByte, I28Fx_EraseSector
 xdef    AM29Fx_PollChipId, AM29Fx_BlowByte, AM29Fx_EraseSector
 xdef    BfSta, BfPb, BfGb
 
+IF OZ_INTUITION
+xdef    exitIntuitionLowRam
+ENDIF
+
+
 .LowRAMcode
 
 include "rst.asm"
@@ -81,3 +87,7 @@ include "flash.asm"
 include "buffer.asm"
 
 .LowRAMcode_end
+
+IF LowRAMcode_end > SV_KERNEL_RAM
+    ERROR "LOWRAM code is crossing start of system variables!"
+ENDIF

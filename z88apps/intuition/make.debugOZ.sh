@@ -1,8 +1,10 @@
 #!/bin/bash
 
 # *************************************************************************************
-# Intuition make script for UNIX/LINUX to build executable for upper 8K segment 0
-# (C) Gunther Strube (gbs@users.sourceforge.net) 1991-2005
+# Intuition make script (Unix/Linux) to build executable for OZ OZ 4.2 (or later)
+# integration, running in upper 8K segment 0. This script is called from OZ make script.
+#
+# (C) Gunther Strube (gbs@users.sourceforge.net) 1991-2008
 #
 # Intuition is free software; you can redistribute it and/or modify it under the terms of the
 # GNU General Public License as published by the Free Software Foundation;
@@ -24,8 +26,8 @@ cd ../../stdlib; ./makelib.sh; cd ../z88apps/intuition
 # compile Intuition code from scratch
 # Intuition uses segment 3 for bank switching (Intuition is located at $2000 - upper 8K of segment 0)
 rm -f *.err *.def *.lst *.obj *.bin *.map
-../../tools/mpm/mpm -b -g -DINT_SEGM0 -DSEGMENT3 -I../../oz/def -l../../stdlib/standard.lib @debug0b
-../../tools/mpm/mpm -b -DINT_SEGM0 -DSEGMENT3 -I../../oz/def -l../../stdlib/standard.lib @debug0a
+../../tools/mpm/mpm -bg -DOZ_SLOT%1 -DOZ_INTUITION -DINT_SEGM0 -DSEGMENT3 -I../../oz/def -l../../stdlib/standard.lib @debug0b
+../../tools/mpm/mpm -b -DOZ_SLOT%1 -DOZ_INTUITION -DINT_SEGM0 -DSEGMENT3 -I../../oz/def -l../../stdlib/standard.lib @debug0a
 
 # combine the two images as a single 16K executable, to be executed at $2000 in upper 8K segment 0
 # 'debug0a.bin' is the bootstrap and the core instruction debugger

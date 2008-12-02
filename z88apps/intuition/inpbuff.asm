@@ -1,25 +1,23 @@
 ; **************************************************************************************************
 ; This file is part of Intuition.
 ;
-; Intuition is free software; you can redistribute it and/or modify it under the terms of the 
+; Intuition is free software; you can redistribute it and/or modify it under the terms of the
 ; GNU General Public License as published by the Free Software Foundation; either version 2, or
 ; (at your option) any later version.
 ; Intuition is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
 ; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ; See the GNU General Public License for more details.
-; You should have received a copy of the GNU General Public License along with Intuition; 
+; You should have received a copy of the GNU General Public License along with Intuition;
 ; see the file COPYING. If not, write to the
 ; Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
-; 
-; $Id$  
+;
+; $Id$
 ;
 ;***************************************************************************************************
 
      MODULE Input_buffer
 
      XREF Calc_HL_Ptr
-
-     XREF Display_string, Write_CRLF
 
      ; Defined in 'Windows_asm':
      XREF SV_INT_window, REL_INT_window, ToggleWindow
@@ -45,15 +43,11 @@
 ;
 ; Stack usage:  2 bytes
 ;
-.InputCommand     LD   C, 48
-                  CALL Calc_HL_Ptr          ; HL = IY + 48 , input buffer...
+.InputCommand     LD   C, Cmdlbuffer
+                  CALL Calc_HL_Ptr          ; HL = IY + x, input buffer...
                   LD   D,H
                   LD   E,L                  ; get a copy of start of buffer...
-                  LD   A,16                 ; max. buffer size
-                  CALL Input_Buffer         ;                                           ** V0.19c
-                  RET
-
-
+                  LD   A,16                 ; max. buffer size (excl. 0 terminator)
 
 ; *****************************************************************************************
 ;
@@ -130,8 +124,7 @@
 ; Select Z88-Monitor window 1 or 2.  (toggle)           V0.18 / V0.22b
 ;
 .inp_togglewindow CALL ToggleWindow         ; display Intuition window...               ** V0.22/V0.28
-
-.disp_prompt      CALL DisplayPrompt
+                  CALL DisplayPrompt
                   JP   input_loop
 
 
@@ -139,9 +132,7 @@
 ;
 ; Display Intuition input prompt                                                        ** V0.19c
 ;
-.DisplayPrompt    PUSH HL
-                  LD   HL, Prompt
+.DisplayPrompt    LD   HL, Prompt
                   CALL_OZ(Gn_Sop)
-                  POP  HL
                   RET
 .Prompt           DEFM 1,"B?>",1,"B",0

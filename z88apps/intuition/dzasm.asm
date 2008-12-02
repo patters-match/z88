@@ -21,11 +21,6 @@
     INCLUDE "integer.def"
     INCLUDE "memory.def"
 
-
-if INT_SEGM0
-    XREF ExtRoutine_s00
-endif
-
     XREF GetKey
     XREF ToggleWindow
     XREF Rst_Mnemonic, LD_Mnemonic, Halt_Mnemonic, JP_Mnemonic
@@ -165,16 +160,13 @@ endif
                   CALL DZ_instruction       ; then the 8' with line feed...         ** V0.28
                   CALL GetKey               ; then wait for a key to be pressed
                   CP   27                   ; is it ESC?
-                  JR   Z, exit_disassemble  ; Yes, abort disassembly                ** V0.28
+                  JP   Z, Write_CRLF        ; Yes, abort disassembly                ** V0.28
                   CP   9                    ;                                       ** V0.28
                   JR   NZ, more_dz          ; a key was hit, continue disassembly   ** V0.28
                   CALL ToggleWindow         ; clear & activate opposite window      ** V0.28
                   JR   Disassemble          ; continue to disassemble...            ** V0.28
 .more_dz          CALL Write_CRLF           ;                                       ** V0.28
                   JR   Disassemble          ;                                       ** V0.28
-.exit_disassemble JP   Write_CRLF           ; line feed and back to command line    ** V0.28
-
-
 
 
 ; ******************************************************************************
@@ -1261,7 +1253,7 @@ endif
 
 ; ******************************************************************************
 ;
-; Display Mnemonic. This routine also executes the approriate tabulates to
+; Display Mnemonic. This routine also executes the appropriate tabulates to
 ; align for operands, etc...
 ;
 .Display_Mnemonic PUSH AF
@@ -1481,7 +1473,7 @@ endif
 ; Display an RST  18H/20H OZ mnemonic parameter as defined in Z88 Developers notes V2
 ;
 ; IN:     HL = OZ parameter opcode.
-;         Fc = 1, RST $18, FPP parameter
+;         Fc = 0, RST $18, FPP parameter
 ;
 .Display_OZ_Mnemonic
                   PUSH HL                   ; preserve OZ parameter                 ** V0.28
@@ -1510,10 +1502,25 @@ endif
 
                   POP  HL                   ;                                       ** V0.32
                   LD   H,0                  ;                                       ** V0.32
+                  PUSH AF                   ; preserve parameter for OS_POUT check
+                  LD   DE,check_OS_POUT
+                  PUSH DE                   ; RET to OS_POUT check before main DZ loop
                   PUSH HL                   ;                                       ** V0.32
                   LD   HL, OS_Mnemonic      ; 'OS_' 1 byte system parameter
                   LD   IX, OS_1byte_lookup
                   JR   get_OZ_mnemonic
+.check_OS_POUT                              ; which 1 byte OZ call mnemonic was displayed?
+                  POP  AF
+                  CP   $93
+                  RET  NZ
+.skip_vdu_string                            ; displayed OZ call was OS_POUT, find next instr..
+                  EXX
+                  LD   A,(HL)
+                  INC  HL
+                  EXX
+                  OR   A
+                  JR   NZ,skip_vdu_string   ; skip OS_POUT VDU string and be ready
+                  RET                       ; for next instruction..
 
 .get_OS_2byte_mnemonic
                   LD   A,H                  ; get 2. parameter                      ** V0.28
@@ -1578,9 +1585,17 @@ endif
                   LD   C,L                  ; parameter in L converted to index of
                   SLA  C                    ; (word) pointer to mnemonic
                   ADD  IX,BC                ; index to pointer of mnemonic calculated
-                  LD   L,(IX+0)
-                  LD   H,(IX+1)             ; get pointer to mnemonic
-                  CALL Display_String       ; display 2. part of OZ mnemonic
+                  LD   E,(IX+0)
+                  LD   D,(IX+1)             ; get pointer to mnemonic
+                  LD   L,(IX+2)
+                  LD   H,(IX+3)             ; get pointer to next mnemonic (to know the end of current)
+                  SBC  HL,DE
+                  LD   B,L                  ; number of characters in current mnemonic
+                  EX   DE,HL                ; HL points to start of mnemonic
+.disp_oz_mnemonic LD   A,(HL)
+                  INC  HL
+                  CALL Display_Char         ; display 2nd part of mnemonic
+                  DJNZ disp_oz_mnemonic
                   LD   A, ']'
                   JP   Display_Char
 

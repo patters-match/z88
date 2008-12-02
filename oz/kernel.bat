@@ -26,7 +26,7 @@ cd os
 :: create lowram.def and keymap.def (address pre-compilation) for lower and upper kernel compilation
 :PRECOMPILE_LOWRAM
 cd lowram
-..\..\..\tools\mpm\mpm -dg -DOZ_SLOT%1 -I..\..\def @lowram.prj
+..\..\..\tools\mpm\mpm -dg -DOZ_SLOT%1 -DOZ_INTUITION -I..\..\def @lowram.prj
 if ERRORLEVEL 1 goto LOWRAM_COMPILE_ERROR
 cd ..
 
@@ -38,7 +38,7 @@ if ERRORLEVEL 1 goto COMPILE_ERROR
 :: create final lowram binary with correct addresses from lower kernel
 :COMPILE_LOWRAM
 cd lowram
-..\..\..\tools\mpm\mpm -db -DOZ_SLOT%1 -DCOMPILE_BINARY -I..\..\def @lowram.prj
+..\..\..\tools\mpm\mpm -db -DOZ_SLOT%1 -DOZ_INTUITION -DCOMPILE_BINARY -I..\..\def @lowram.prj
 if ERRORLEVEL 1 goto LOWRAM_COMPILE_ERROR
 cd ..
 

@@ -41,9 +41,17 @@
 
         defs    ($0008-$PC) ($ff)               ; address align for RST 08H
 
-.rst08                                          ; FREE
+.rst08                                          ; FREE (Reserved for Intuition integration)
+IF OZ_INTUITION
+        jp      BindIntuition
+.exitIntuitionLowRam
+        rst     OZ_MPB                          ; Intuition released - restore application bank binding
+        pop     bc                              ; restore original BC application register
+        ret                                     ; back to application execution at RST 08H RET address or other adresses
+ELSE
         scf
         ret
+ENDIF
         defs    ($0010-$PC) ($ff)               ; address align for RST 10H
 
 .rst10                                          ; EXTCALL
@@ -67,7 +75,6 @@
         defs    ($0030-$PC) ($ff)               ; address align for RST 30H
 
 .rst30                                          ; OZ_MPB
-.OZ_MPB
         jp      MemDefBank                      ; OZ V4.1: Fast Bank switching (OS_MPB functionality with RST 30H)
         defs    ($0038-$PC) ($ff)               ; address align for RST 38H, Blink INT entry point
 
@@ -98,7 +105,7 @@
         jp      OZDImain                        ; 0051
 .OZ_INT_EI
         jp      OZEImain                        ; 0054
-.OZ_MGB
+._OZ_MGB
         jp      MemGetBank                      ; 0057 (V4.1) Fast Bank binding status (OS_MGB functionality)
 ;FREE
         defs    3 ($ff)                         ; 005A
@@ -294,3 +301,19 @@
         ei
         ret
 
+
+IF OZ_INTUITION
+; ----------------------------------------------------------------------------------------------
+; Intuition integration with OZ
+;
+; Intuition debugger bank is bound into upper 8K segment of LOWRAM and executed.
+; Original bank binding for upper 8K LOWRAM is preserved by Intuition and restored
+; again when the debugger releases control back to OZ.
+;
+.BindIntuition
+        push    bc
+        ld      bc,OZBANK_INTUITION << 8 | MS_S0
+        rst     OZ_MPB                          ; install Intuition bank into segment 0
+        jp      $2000                           ; call Intuition, with BC = old bank binding
+; ----------------------------------------------------------------------------------------------
+ENDIF

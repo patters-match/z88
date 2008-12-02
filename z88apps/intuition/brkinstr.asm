@@ -1,17 +1,17 @@
 ; **************************************************************************************************
 ; This file is part of Intuition.
 ;
-; Intuition is free software; you can redistribute it and/or modify it under the terms of the 
+; Intuition is free software; you can redistribute it and/or modify it under the terms of the
 ; GNU General Public License as published by the Free Software Foundation; either version 2, or
 ; (at your option) any later version.
 ; Intuition is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
 ; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ; See the GNU General Public License for more details.
-; You should have received a copy of the GNU General Public License along with Intuition; 
+; You should have received a copy of the GNU General Public License along with Intuition;
 ; see the file COPYING. If not, write to the
 ; Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
-; 
-; $Id$  
+;
+; $Id$
 ;
 ;***************************************************************************************************
 
@@ -34,10 +34,8 @@
 ; Define instruction break
 ;
 .DefInstrBreak      PUSH HL
-                    LD   BC, InstrBreakPatt+1
-                    PUSH IY
-                    POP  HL
-                    ADD  HL,BC
+                    LD   C, InstrBreakPatt+1
+                    CALL Calc_HL_Ptr
                     EX   DE,HL                         ; DE points at start of string
                     POP  HL                            ; restore ptr. to command line
                     CALL SkipSpaces
@@ -70,10 +68,9 @@
 ;
 ; Lst Instruction bitpattern
 ;
-.InstrBreakList     PUSH IY
-                    POP  HL
-                    LD   BC, InstrBreakPatt
-                    ADD  HL,BC
+.InstrBreakList
+                    LD   C, InstrBreakPatt
+                    CALL Calc_HL_Ptr
                     XOR  A
                     CP   (HL)
                     JR   Z, not_defined

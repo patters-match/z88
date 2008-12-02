@@ -71,5 +71,8 @@ os/lowram/lowram.bin 0a3d00                     ; LOWRAM code (RST routines, etc
 apps/flashstore/fsapp.bin 0b0000
 fp/fpp.bin 0b2c00                               ; $EC00: Floating Point Package
 
+; Bank 12 (0Ch): Reserved for Intuition
+../z88apps/intuition/debugS00.bin 0c0000        ; $2000: Intuition debugger integrated in RST 08H
+
 ; ROM header at top of 512K address space
 mth/romhdr.bin 1f3fc0                           ; Front DOR and 'OZ'/'oz' header at top of ROM code

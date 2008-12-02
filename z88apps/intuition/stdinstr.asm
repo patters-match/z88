@@ -731,7 +731,7 @@
                   PUSH DE                   ; save virtual SP on stack        ** V0.23
                   PUSH HL                   ; save virtual PC on stack        ** V0.24
                   EXX                       ;                                 ** V0.28
-                  LD   BC,24                ;                                 ** V0.24/V0.28
+                  LD   BC,24                ; !! Mnemonic here..              ** V0.24/V0.28
                   PUSH IY                   ;                                 ** V0.24/v0.28
                   POP  HL                   ;                                 ** V0.24/V0.28
                   ADD  HL,BC                ;                                 ** V0.24/V0.28

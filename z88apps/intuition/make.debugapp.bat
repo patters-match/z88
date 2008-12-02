@@ -23,7 +23,7 @@ cd ..\z88apps\intuition
 
 :: compile Intuition application from scratch
 :: Intuition application uses segment 2 for bank switching (Intuition application is located in segment 3)
-del *.def *.obj *.bin *.map *.epr
+del *.err *.def *.lst *.obj *.bin *.map *.epr
 ..\..\tools\mpm\mpm -b -g -DSEGMENT2 -I..\..\oz\def -l..\..\stdlib\standard.lib mthdbg tokens mthtext
 ..\..\tools\mpm\mpm -b -DSEGMENT2 -I..\..\oz\def -l..\..\stdlib\standard.lib @debugapl
 ..\..\tools\mpm\mpm -b -DSEGMENT2 romhdr

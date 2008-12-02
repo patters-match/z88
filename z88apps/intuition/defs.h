@@ -88,6 +88,8 @@ DEFVARS 0
      ApplErhClvl    DS.B 1         ; Application Error Handler Call Level
      ApplErhAddr    DS.W 1         ; Application Error Handler Address
      RamTopPage     DS.B 1         ; Top Page of allocated application RAM (Z80debug only)
+     OzReleaseVer   DS.B 1         ; Cache OZ Version number from OS_Frm, IX=-1, A=FA_PTR
+     OZBankBinding  DS.W 1         ; Original bank binding of segment X before Intuition was activated
      Int_Worksp                    ; Number of bytes in Intuition Workspace (RTM)
 }
 

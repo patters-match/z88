@@ -25,13 +25,12 @@
 
 COMPILE_ERROR=0
 
-# create ostables.def (address pre-compilation) containing OS system base lookup table addresses
 cd os
 
 # create lowram.def and keymap.def (address pre-compilation) for lower & upper kernel compilation
 # (argument $1 contains the country localisation)
 cd lowram
-../../../tools/mpm/mpm -dg -DOZ_SLOT$1 -I../../def @lowram.prj
+../../../tools/mpm/mpm -dg -DOZ_SLOT$1 -DOZ_INTUITION -I../../def @lowram.prj
 if test `find . -name '*.err' | wc -l` != 0; then
   COMPILE_ERROR=1
 fi
@@ -48,7 +47,7 @@ fi
 # create final lowram binary with correct addresses from lower kernel
 cd lowram
 if test "$COMPILE_ERROR" -eq 0; then
-  ../../../tools/mpm/mpm -db -DOZ_SLOT$1 -DCOMPILE_BINARY -I../../def @lowram.prj
+  ../../../tools/mpm/mpm -db -DOZ_SLOT$1 -DOZ_INTUITION -DCOMPILE_BINARY -I../../def @lowram.prj
 fi
 if test `find . -name '*.err' | wc -l` != 0; then
   COMPILE_ERROR=1

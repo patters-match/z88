@@ -35,7 +35,6 @@
                   DEC  HL
                   SCF
                   CALL IntHexDisp_H         ; display end of variable area
-                  CALL Write_CRLF           ; New Line.
-                  RET
+                  JP   Write_CRLF           ; New Line.
 
 .range_Msg        DEFM "Memory Range: ",0

@@ -24,4 +24,10 @@
 
 @echo off
 
+if exist oz.bin goto MAKE_ROM_SLOT0
+:: previous rom compilation was for slot 1, clean all compiled files...
+call cleanup
+del /Q oz.epr
+
+:MAKE_ROM_SLOT0
 call makerom 0

@@ -1,17 +1,17 @@
 ; **************************************************************************************************
 ; This file is part of Intuition.
 ;
-; Intuition is free software; you can redistribute it and/or modify it under the terms of the 
+; Intuition is free software; you can redistribute it and/or modify it under the terms of the
 ; GNU General Public License as published by the Free Software Foundation; either version 2, or
 ; (at your option) any later version.
 ; Intuition is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
 ; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ; See the GNU General Public License for more details.
-; You should have received a copy of the GNU General Public License along with Intuition; 
+; You should have received a copy of the GNU General Public License along with Intuition;
 ; see the file COPYING. If not, write to the
 ; Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
-; 
-; $Id$  
+;
+; $Id$
 ;
 ;***************************************************************************************************
 
@@ -441,27 +441,22 @@
 .get_8hexvalue    CALL ConvHexByte          ; try to fetch 8bit hex const.    ** V0.27a
                   JR   C, fetch_8bitreg     ; no hex constant                 ** V0.27a
                   POP  IX                   ; remove pointer                  ** V0.27a
-                  LD   E,A                  ; return 8bit hex constant in E
-                  LD   D,0
-                  RET
+                  JR   ret_int_DE
 
 .fetch_8bitreg    POP  HL                   ; restore pointer to parameter    ** V0.27a
                   CALL GetChar              ; get char at buffer              ** V0.27a
                   CALL GetRegister8         ; no constants, find a register..
                   JP   C, Syntax_Error      ; no hex & no register found...   ** V0.27a
-                  LD   D,0
-                  RET                       ; integer in E of register
+                  JR   ret_int_D            ; integer in E of register
 
 .binary_constant  CALL ConvBinByte          ;                                 ** V0.17
-                  LD   D,0                  ;                                 ** V0.33
-                  LD   E,A                  ;                                 ** V0.17
-                  RET                       ;                                 ** V0.17
+                  JR   ret_int_DE
 
 .ascii_constant   CALL SkipSpaces
                   JP   C, Syntax_Error
                   CALL GetChar
-                  LD   D,0
-                  LD   E,A
+.ret_int_DE       LD   E,A                  ; return 8bit constant in E
+.ret_int_D        LD   D,0
                   RET
 
 
@@ -522,8 +517,7 @@
 ;
 ;
 .ConvBinByte      LD   B,8                  ; byte integer to fetch...
-                  LD   D,0
-                  LD   E,@10000000          ; bit mask - starting with Bit 7...
+                  LD   DE,@10000000         ; bit mask - starting with Bit 7...
 .conv_bin_loop    CALL GetChar
                   CP   '0'
                   JR   Z, get_next_binval
@@ -537,6 +531,7 @@
                   LD   A,D
                   CP   A                    ; Fc = 0, Success!
                   RET
+
 
 ; ****************************************************************************
 ; INTEGER to HEX conversion
@@ -603,16 +598,12 @@
 
 ; ******************************************************************
 ; A(in) = 4 bit integer value, A(out) = ASCII HEX byte
-.CalcHexNibble    PUSH HL
-                  LD   HL, HexSymbols
-                  LD   B,0
-                  LD   C,A
-                  ADD  HL,BC
-                  LD   A,(HL)
-                  POP  HL
+.CalcHexNibble    CP   $0A
+                  JR   NC, HexNibble_16
+                  ADD  A,$30
                   RET
-
-.HexSymbols       DEFM "0123456789ABCDEF"
+.HexNibble_16     ADD  A,$37
+                  RET
 
 
 ; **************************************************************************************
@@ -628,13 +619,11 @@
                   LD   C, @10000000         ; bit 7 set...
 .display_loop     LD   A,B
                   AND  C
-                  JR   Z, disp_zerobit
+                  LD   A,'0'
+                  JR   Z, disp_bit
                   LD   A, '1'
-                  CALL Display_Char
-                  JR   next_bit
-.disp_zerobit     LD   A,'0'
-                  CALL Display_Char
-.next_bit         SRL  C                    ; C >> 1  -> Fc
+.disp_bit         CALL Display_Char
+                  SRL  C                    ; C >> 1  -> Fc
                   JR   NC, display_loop
                   POP  BC                   ; bit 7 transferred to Fc
                   LD   A,'b'

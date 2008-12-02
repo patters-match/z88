@@ -238,6 +238,18 @@ if test `find . -name '*.err' | wc -l` != 0; then
 fi
 
 # -------------------------------------------------------------------------------------------------
+echo compiling Intuition
+cd ../z88apps/intuition
+. make.debugOZ.sh $ozslot
+cd ../../oz
+
+if test `find . -name '*.err' | wc -l` != 0; then
+  cat ../z88apps/intuition/*.err
+  echo Script aborted.
+  exit 1
+fi
+
+# -------------------------------------------------------------------------------------------------
 # ROM was compiled successfully, combine the compiled 16K banks into a complete 512K binary
 echo Compiled Z88 ROM, now being combined into $os_bin file.
 ../tools/makeapp/makeapp.sh -f rom.slot$ozslot.loadmap

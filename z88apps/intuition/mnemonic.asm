@@ -1,17 +1,17 @@
 ; **************************************************************************************************
 ; This file is part of Intuition.
 ;
-; Intuition is free software; you can redistribute it and/or modify it under the terms of the 
+; Intuition is free software; you can redistribute it and/or modify it under the terms of the
 ; GNU General Public License as published by the Free Software Foundation; either version 2, or
 ; (at your option) any later version.
 ; Intuition is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
 ; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ; See the GNU General Public License for more details.
-; You should have received a copy of the GNU General Public License along with Intuition; 
+; You should have received a copy of the GNU General Public License along with Intuition;
 ; see the file COPYING. If not, write to the
 ; Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
-; 
-; $Id$  
+;
+; $Id$
 ;
 ;***************************************************************************************************
 
@@ -42,16 +42,16 @@
                   DEFW FP_IDV_Mnemonic
                   DEFW FP_EOR_Mnemonic
                   DEFW FP_MOD_Mnemonic
-                  DEFW OR_Mnemonic
+                  DEFW FP_OR_Mnemonic
                   DEFW FP_LEQ_Mnemonic
                   DEFW FP_NEQ_Mnemonic
                   DEFW FP_GEQ_Mnemonic
                   DEFW FP_LT_Mnemonic
                   DEFW FP_EQ_Mnemonic
                   DEFW FP_MUL_Mnemonic
-                  DEFW ADD_Mnemonic
+                  DEFW FP_ADD_Mnemonic
                   DEFW FP_GT_Mnemonic
-                  DEFW SUB_Mnemonic
+                  DEFW FP_SUB_Mnemonic
                   DEFW FP_PWR_Mnemonic
                   DEFW FP_DIV_Mnemonic
                   DEFW FP_ABS_Mnemonic
@@ -82,26 +82,28 @@
                   DEFW FP_CMP_Mnemonic
                   DEFW FP_NEG_Mnemonic
                   DEFW FP_BAS_Mnemonic
+                  DEFW FP_END_Mnemonic
 
 
 .DC_lookup        DEFB 2,$06,$24
 
-.DC_Mnemonics     DEFW INI_Mnemonic
+.DC_Mnemonics     DEFW DC_INI_Mnemonic
                   DEFW DC_BYE_Mnemonic
                   DEFW DC_ENT_Mnemonic
                   DEFW DC_NAM_Mnemonic
-                  DEFW IN_Mnemonic
-                  DEFW OUT_Mnemonic
+                  DEFW DC_IN_Mnemonic
+                  DEFW DC_OUT_Mnemonic
                   DEFW DC_PRT_Mnemonic
                   DEFW DC_ICL_Mnemonic
                   DEFW DC_NQ_Mnemonic
-                  DEFW SP_Mnemonic
+                  DEFW DC_SP_Mnemonic
                   DEFW DC_ALT_Mnemonic
                   DEFW DC_RBD_Mnemonic
                   DEFW DC_XIN_Mnemonic
                   DEFW DC_GEN_Mnemonic
                   DEFW DC_POL_Mnemonic
                   DEFW DC_SCN_Mnemonic
+                  DEFW DC_END_Mnemonic
 
 
 .GN_lookup        DEFB 2,$06,$78
@@ -138,7 +140,7 @@
                   DEFW GN_WBE_Mnemonic
                   DEFW GN_CME_Mnemonic
                   DEFW GN_XNX_Mnemonic
-                  DEFW DC_XIN_Mnemonic
+                  DEFW GN_XIN_Mnemonic
                   DEFW GN_XDL_Mnemonic
                   DEFW GN_ERR_Mnemonic
                   DEFW GN_ESP_Mnemonic
@@ -164,17 +166,18 @@
                   DEFW GN_D16_Mnemonic
                   DEFW GN_M24_Mnemonic
                   DEFW GN_D24_Mnemonic
+                  DEFW GN_END_Mnemonic
 
 
-.OS_1byte_lookup  DEFB 3,$21,$8D
+.OS_1byte_lookup  DEFB 3,$21,$93
 
 .OS_1byte_Mnemonics
-                  DEFW DC_BYE_Mnemonic
-                  DEFW DC_PRT_Mnemonic
-                  DEFW OUT_Mnemonic
-                  DEFW IN_Mnemonic
+                  DEFW OS_BYE_Mnemonic
+                  DEFW OS_PRT_Mnemonic
+                  DEFW OS_OUT_Mnemonic
+                  DEFW OS_IN_Mnemonic
                   DEFW OS_TIN_Mnemonic
-                  DEFW DC_XIN_Mnemonic
+                  DEFW OS_XIN_Mnemonic
                   DEFW OS_PUR_Mnemonic
                   DEFW OS_UGB_Mnemonic
                   DEFW OS_GB_Mnemonic
@@ -192,8 +195,8 @@
                   DEFW OS_MPB_Mnemonic
                   DEFW OS_BIX_Mnemonic
                   DEFW OS_BOX_Mnemonic
-                  DEFW DC_NQ_Mnemonic
-                  DEFW SP_Mnemonic
+                  DEFW OS_NQ_Mnemonic
+                  DEFW OS_SP_Mnemonic
                   DEFW OS_SR_Mnemonic
                   DEFW OS_ESC_Mnemonic
                   DEFW OS_ERC_Mnemonic
@@ -206,37 +209,43 @@
                   DEFW OS_DOR_Mnemonic
                   DEFW OS_FC_Mnemonic
                   DEFW OS_SI_Mnemonic
+                  DEFW OS_BOUT_Mnemonic
+                  DEFW OS_POUT_Mnemonic
+                  DEFW OS_1byte_END
 
 
-.OS_2byte_lookup  DEFB 2,$CC,$FE
+.OS_2byte_lookup  DEFB 2,$C8,$FE
 
 .OS_2byte_Mnemonics
-                  DEFW OS_WRT_Mnemonic
-                  DEFW OS_WTB_Mnemonic
-                  DEFW OS_ISQ_Mnemonic
-                  DEFW OS_AXP_Mnemonic
-                  DEFW OS_SCI_Mnemonic
-                  DEFW OS_DLY_Mnemonic
-                  DEFW OS_BLP_Mnemonic
-                  DEFW OS_BDE_Mnemonic
-                  DEFW OS_BHL_Mnemonic
-                  DEFW OS_FTH_Mnemonic
-                  DEFW OS_VTH_Mnemonic
-                  DEFW OS_GTH_Mnemonic
-                  DEFW GN_REN_Mnemonic
-                  DEFW GN_DEL_Mnemonic
-                  DEFW GN_CL_Mnemonic
-                  DEFW OS_OP_Mnemonic
-                  DEFW OS_OFF_Mnemonic
-                  DEFW OS_USE_Mnemonic
-                  DEFW OS_EPR_Mnemonic
-                  DEFW OS_HT_Mnemonic
-                  DEFW OS_MAP_Mnemonic
-                  DEFW OS_EXIT_Mnemonic
-                  DEFW OS_STK_Mnemonic
-                  DEFW DC_ENT_Mnemonic
-                  DEFW OS_POLL_Mnemonic
-                  DEFW OS_DOM_Mnemonic
+                  DEFW OS_FEP_Mnemonic              ; C8
+                  DEFW OS_WTB_Mnemonic              ; CA
+                  DEFW OS_WRT_Mnemonic              ; CC
+                  DEFW OS_WSQ_Mnemonic              ; CE
+                  DEFW OS_ISQ_Mnemonic              ; D0
+                  DEFW OS_AXP_Mnemonic              ; D2
+                  DEFW OS_SCI_Mnemonic              ; D4
+                  DEFW OS_DLY_Mnemonic              ; D6
+                  DEFW OS_BLP_Mnemonic              ; D8
+                  DEFW OS_BDE_Mnemonic              ; DA
+                  DEFW OS_BHL_Mnemonic              ; DC
+                  DEFW OS_FTH_Mnemonic              ; DE
+                  DEFW OS_VTH_Mnemonic              ; E0
+                  DEFW OS_GTH_Mnemonic              ; E2
+                  DEFW OS_REN_Mnemonic              ; E4
+                  DEFW OS_DEL_Mnemonic              ; E6
+                  DEFW OS_CL_Mnemonic               ; E8
+                  DEFW OS_OP_Mnemonic               ; EA
+                  DEFW OS_OFF_Mnemonic              ; EC
+                  DEFW OS_USE_Mnemonic              ; EE
+                  DEFW OS_EPR_Mnemonic              ; F0
+                  DEFW OS_HT_Mnemonic               ; F2
+                  DEFW OS_MAP_Mnemonic              ; F4
+                  DEFW OS_EXIT_Mnemonic             ; F6
+                  DEFW OS_STK_Mnemonic              ; F8
+                  DEFW OS_ENT_Mnemonic              ; FA
+                  DEFW OS_POLL_Mnemonic             ; FC
+                  DEFW OS_DOM_Mnemonic              ; FE
+                  DEFW OS_2byte_END
 
 
 .cc_table         DEFW condition_0          ; lookup table for conditionals
@@ -375,7 +384,7 @@
 .BC_Mnemonic      DEFM "BC",0
 .DE_Mnemonic      DEFM "DE",0
 .HL_Mnemonic      DEFM "HL",0
-.reg8_Mnemonic    DEFM "BCDEHLFA",0
+.reg8_Mnemonic    DEFM "BCDEHLFA"
 .IX_Mnemonic      DEFM "IX",0
 .IY_Mnemonic      DEFM "IY",0
 .SP_Mnemonic      DEFM "SP",0
@@ -395,168 +404,197 @@
 .DC_Mnemonic      DEFM "DC",0
 .FP_Mnemonic      DEFM "FP",0
 
-.FP_AND_Mnemonic  DEFM "AND",0
-.FP_IDV_Mnemonic  DEFM "IDV",0
-.FP_EOR_Mnemonic  DEFM "EOR",0
-.FP_MOD_Mnemonic  DEFM "MOD",0
-.FP_LEQ_Mnemonic  DEFM "LEQ",0
-.FP_NEQ_Mnemonic  DEFM "NEQ",0
-.FP_GEQ_Mnemonic  DEFM "GEQ",0
-.FP_LT_Mnemonic   DEFM "LT",0
-.FP_EQ_Mnemonic   DEFM "EQ",0
-.FP_MUL_Mnemonic  DEFM "MUL",0
-.FP_GT_Mnemonic   DEFM "GT",0
-.FP_PWR_Mnemonic  DEFM "PWR",0
-.FP_DIV_Mnemonic  DEFM "DIV",0
-.FP_ABS_Mnemonic  DEFM "ABS",0
-.FP_ACS_Mnemonic  DEFM "ACS",0
-.FP_ASN_Mnemonic  DEFM "ASN",0
-.FP_ATN_Mnemonic  DEFM "ATN",0
-.FP_COS_Mnemonic  DEFM "COS",0
-.FP_DEG_Mnemonic  DEFM "DEG",0
-.FP_EXP_Mnemonic  DEFM "EXP",0
-.FP_INT_Mnemonic  DEFM "INT",0
-.FP_LN_Mnemonic   DEFM "LN",0
-.FP_LOG_Mnemonic  DEFM "LOG",0
-.FP_NOT_Mnemonic  DEFM "NOT",0
-.FP_RAD_Mnemonic  DEFM "RAD",0
-.FP_SGN_Mnemonic  DEFM "SGN",0
-.FP_SIN_Mnemonic  DEFM "SIN",0
-.FP_SQR_Mnemonic  DEFM "SQR",0
-.FP_TAN_Mnemonic  DEFM "TAN",0
-.FP_ZER_Mnemonic  DEFM "ZER",0
-.FP_ONE_Mnemonic  DEFM "ONE",0
-.FP_TRU_Mnemonic  DEFM "TRU",0
-.FP_PI_Mnemonic   DEFM "PI",0
-.FP_VAL_Mnemonic  DEFM "VAL",0
-.FP_STR_Mnemonic  DEFM "STR",0
-.FP_FIX_Mnemonic  DEFM "FIX",0
-.FP_FLT_Mnemonic  DEFM "FLT",0
-.FP_TST_Mnemonic  DEFM "TST",0
-.FP_CMP_Mnemonic  DEFM "CMP",0
-.FP_NEG_Mnemonic  DEFM "NEG",0
-.FP_BAS_Mnemonic  DEFM "BAS",0
+.FP_AND_Mnemonic  DEFM "AND"
+.FP_IDV_Mnemonic  DEFM "IDV"
+.FP_EOR_Mnemonic  DEFM "EOR"
+.FP_MOD_Mnemonic  DEFM "MOD"
+.FP_OR_Mnemonic   DEFM "OR"
+.FP_LEQ_Mnemonic  DEFM "LEQ"
+.FP_NEQ_Mnemonic  DEFM "NEQ"
+.FP_GEQ_Mnemonic  DEFM "GEQ"
+.FP_LT_Mnemonic   DEFM "LT"
+.FP_EQ_Mnemonic   DEFM "EQ"
+.FP_MUL_Mnemonic  DEFM "MUL"
+.FP_ADD_Mnemonic  DEFM "ADD"
+.FP_GT_Mnemonic   DEFM "GT"
+.FP_SUB_Mnemonic  DEFM "SUB"
+.FP_PWR_Mnemonic  DEFM "PWR"
+.FP_DIV_Mnemonic  DEFM "DIV"
+.FP_ABS_Mnemonic  DEFM "ABS"
+.FP_ACS_Mnemonic  DEFM "ACS"
+.FP_ASN_Mnemonic  DEFM "ASN"
+.FP_ATN_Mnemonic  DEFM "ATN"
+.FP_COS_Mnemonic  DEFM "COS"
+.FP_DEG_Mnemonic  DEFM "DEG"
+.FP_EXP_Mnemonic  DEFM "EXP"
+.FP_INT_Mnemonic  DEFM "INT"
+.FP_LN_Mnemonic   DEFM "LN"
+.FP_LOG_Mnemonic  DEFM "LOG"
+.FP_NOT_Mnemonic  DEFM "NOT"
+.FP_RAD_Mnemonic  DEFM "RAD"
+.FP_SGN_Mnemonic  DEFM "SGN"
+.FP_SIN_Mnemonic  DEFM "SIN"
+.FP_SQR_Mnemonic  DEFM "SQR"
+.FP_TAN_Mnemonic  DEFM "TAN"
+.FP_ZER_Mnemonic  DEFM "ZER"
+.FP_ONE_Mnemonic  DEFM "ONE"
+.FP_TRU_Mnemonic  DEFM "TRU"
+.FP_PI_Mnemonic   DEFM "PI"
+.FP_VAL_Mnemonic  DEFM "VAL"
+.FP_STR_Mnemonic  DEFM "STR"
+.FP_FIX_Mnemonic  DEFM "FIX"
+.FP_FLT_Mnemonic  DEFM "FLT"
+.FP_TST_Mnemonic  DEFM "TST"
+.FP_CMP_Mnemonic  DEFM "CMP"
+.FP_NEG_Mnemonic  DEFM "NEG"
+.FP_BAS_Mnemonic  DEFM "BAS"
+.FP_END_Mnemonic
 
-.DC_ALT_Mnemonic  DEFM "ALT",0
-.DC_BYE_Mnemonic  DEFM "BYE",0
-.DC_ENT_Mnemonic  DEFM "ENT",0
-.DC_GEN_Mnemonic  DEFM "GEN",0
-.DC_ICL_Mnemonic  DEFM "ICL",0
-.DC_NAM_Mnemonic  DEFM "NAM",0
-.DC_NQ_Mnemonic   DEFM "NQ",0
-.DC_POL_Mnemonic  DEFM "POL",0
-.DC_PRT_Mnemonic  DEFM "PRT",0
-.DC_RBD_Mnemonic  DEFM "RBD",0
-.DC_SCN_Mnemonic  DEFM "SCN",0
-.DC_XIN_Mnemonic  DEFM "XIN",0
+.DC_INI_Mnemonic  DEFM "INI"
+.DC_BYE_Mnemonic  DEFM "BYE"
+.DC_ENT_Mnemonic  DEFM "ENT"
+.DC_NAM_Mnemonic  DEFM "NAM"
+.DC_IN_Mnemonic   DEFM "IN"
+.DC_OUT_Mnemonic  DEFM "OUT"
+.DC_PRT_Mnemonic  DEFM "PRT"
+.DC_ICL_Mnemonic  DEFM "ICL"
+.DC_NQ_Mnemonic   DEFM "NQ"
+.DC_SP_Mnemonic   DEFM "NQ"
+.DC_ALT_Mnemonic  DEFM "ALT"
+.DC_RBD_Mnemonic  DEFM "RBD"
+.DC_XIN_Mnemonic  DEFM "XIN"
+.DC_GEN_Mnemonic  DEFM "GEN"
+.DC_POL_Mnemonic  DEFM "POL"
+.DC_SCN_Mnemonic  DEFM "SCN"
+.DC_END_Mnemonic
 
-.GN_AAB_Mnemonic  DEFM "AAB",0
-.GN_ALP_Mnemonic  DEFM "ALP",0
-.GN_CL_Mnemonic   DEFM "CL",0
-.GN_CLS_Mnemonic  DEFM "CLS",0
-.GN_CME_Mnemonic  DEFM "CME",0
-.GN_D16_Mnemonic  DEFM "D16",0
-.GN_D24_Mnemonic  DEFM "D24",0
-.GN_DEI_Mnemonic  DEFM "DEI",0
-.GN_DEL_Mnemonic  DEFM "DEL",0
-.GN_DIE_Mnemonic  DEFM "DIE",0
-.GN_ERR_Mnemonic  DEFM "ERR",0
-.GN_ESA_Mnemonic  DEFM "ESA",0
-.GN_ESP_Mnemonic  DEFM "ESP",0
-.GN_FAB_Mnemonic  DEFM "FAB",0
-.GN_FCM_Mnemonic  DEFM "FCM",0
-.GN_FEX_Mnemonic  DEFM "FEX",0
-.GN_FLC_Mnemonic  DEFM "FLC",0
-.GN_FLF_Mnemonic  DEFM "FLF",0
-.GN_FLO_Mnemonic  DEFM "FLO",0
-.GN_FLR_Mnemonic  DEFM "FLR",0
-.GN_FLW_Mnemonic  DEFM "FLW",0
-.GN_FPB_Mnemonic  DEFM "FPB",0
-.GN_GDN_Mnemonic  DEFM "GDN",0
-.GN_GDT_Mnemonic  DEFM "GDT",0
-.GN_GMD_Mnemonic  DEFM "GMD",0
-.GN_GMT_Mnemonic  DEFM "GMT",0
-.GN_GTM_Mnemonic  DEFM "GTM",0
-.GN_LAB_Mnemonic  DEFM "LAB",0
-.GN_M16_Mnemonic  DEFM "M16",0
-.GN_M24_Mnemonic  DEFM "M24",0
-.GN_MSC_Mnemonic  DEFM "MSC",0
-.GN_NLN_Mnemonic  DEFM "NLN",0
-.GN_OPF_Mnemonic  DEFM "OPF",0
-.GN_OPW_Mnemonic  DEFM "OPW",0
-.GN_PDN_Mnemonic  DEFM "PDN",0
-.GN_PDT_Mnemonic  DEFM "PDT",0
-.GN_PFS_Mnemonic  DEFM "PFS",0
-.GN_PMD_Mnemonic  DEFM "PMD",0
-.GN_PMT_Mnemonic  DEFM "PMT",0
-.GN_PRS_Mnemonic  DEFM "PRS",0
-.GN_PTM_Mnemonic  DEFM "PTM",0
-.GN_RBE_Mnemonic  DEFM "RBE",0
-.GN_REN_Mnemonic  DEFM "REN",0
-.GN_SDO_Mnemonic  DEFM "SDO",0
-.GN_SIP_Mnemonic  DEFM "SIP",0
-.GN_SKC_Mnemonic  DEFM "SKC",0
-.GN_SKD_Mnemonic  DEFM "SKD",0
-.GN_SKT_Mnemonic  DEFM "SKT",0
-.GN_SOE_Mnemonic  DEFM "SOE",0
-.GN_SOP_Mnemonic  DEFM "SOP",0
-.GN_UAB_Mnemonic  DEFM "UAB",0
-.GN_WBE_Mnemonic  DEFM "WBE",0
-.GN_WCL_Mnemonic  DEFM "WCL",0
-.GN_WFN_Mnemonic  DEFM "WFN",0
-.GN_WSM_Mnemonic  DEFM "WSM",0
-.GN_XDL_Mnemonic  DEFM "XDL",0
-.GN_XNX_Mnemonic  DEFM "XNX",0
+.GN_GDT_Mnemonic  DEFM "GDT"
+.GN_PDT_Mnemonic  DEFM "PDT"
+.GN_GTM_Mnemonic  DEFM "GTM"
+.GN_PTM_Mnemonic  DEFM "PTM"
+.GN_SDO_Mnemonic  DEFM "SDO"
+.GN_GDN_Mnemonic  DEFM "GDN"
+.GN_PDN_Mnemonic  DEFM "PDN"
+.GN_DIE_Mnemonic  DEFM "DIE"
+.GN_DEI_Mnemonic  DEFM "DEI"
+.GN_GMD_Mnemonic  DEFM "GMD"
+.GN_GMT_Mnemonic  DEFM "GMT"
+.GN_PMD_Mnemonic  DEFM "PMD"
+.GN_PMT_Mnemonic  DEFM "PMT"
+.GN_MSC_Mnemonic  DEFM "MSC"
+.GN_FLO_Mnemonic  DEFM "FLO"
+.GN_FLC_Mnemonic  DEFM "FLC"
+.GN_FLW_Mnemonic  DEFM "FLW"
+.GN_FLR_Mnemonic  DEFM "FLR"
+.GN_FLF_Mnemonic  DEFM "FLF"
+.GN_FPB_Mnemonic  DEFM "FPB"
+.GN_NLN_Mnemonic  DEFM "NLN"
+.GN_CLS_Mnemonic  DEFM "CLS"
+.GN_SKC_Mnemonic  DEFM "SKC"
+.GN_SKD_Mnemonic  DEFM "SKD"
+.GN_SKT_Mnemonic  DEFM "SKT"
+.GN_SIP_Mnemonic  DEFM "SIP"
+.GN_SOP_Mnemonic  DEFM "SOP"
+.GN_SOE_Mnemonic  DEFM "SOE"
+.GN_RBE_Mnemonic  DEFM "RBE"
+.GN_WBE_Mnemonic  DEFM "WBE"
+.GN_CME_Mnemonic  DEFM "CME"
+.GN_XNX_Mnemonic  DEFM "XNX"
+.GN_XIN_Mnemonic  DEFM "XIN"
+.GN_XDL_Mnemonic  DEFM "XDL"
+.GN_ERR_Mnemonic  DEFM "ERR"
+.GN_ESP_Mnemonic  DEFM "ESP"
+.GN_FCM_Mnemonic  DEFM "FCM"
+.GN_FEX_Mnemonic  DEFM "FEX"
+.GN_OPW_Mnemonic  DEFM "OPW"
+.GN_WCL_Mnemonic  DEFM "WCL"
+.GN_WFN_Mnemonic  DEFM "WFN"
+.GN_PRS_Mnemonic  DEFM "PRS"
+.GN_PFS_Mnemonic  DEFM "PFS"
+.GN_WSM_Mnemonic  DEFM "WSM"
+.GN_ESA_Mnemonic  DEFM "ESA"
+.GN_OPF_Mnemonic  DEFM "OPF"
+.GN_CL_Mnemonic   DEFM "CL"
+.GN_DEL_Mnemonic  DEFM "DEL"
+.GN_REN_Mnemonic  DEFM "REN"
+.GN_AAB_Mnemonic  DEFM "AAB"
+.GN_FAB_Mnemonic  DEFM "FAB"
+.GN_LAB_Mnemonic  DEFM "LAB"
+.GN_UAB_Mnemonic  DEFM "UAB"
+.GN_ALP_Mnemonic  DEFM "ALP"
+.GN_M16_Mnemonic  DEFM "M16"
+.GN_D16_Mnemonic  DEFM "D16"
+.GN_M24_Mnemonic  DEFM "M24"
+.GN_D24_Mnemonic  DEFM "D24"
+.GN_END_Mnemonic
 
-.OS_ALM_Mnemonic  DEFM "ALM",0
-.OS_BIX_Mnemonic  DEFM "BIX",0
-.OS_BOX_Mnemonic  DEFM "BOX",0
-.OS_CLI_Mnemonic  DEFM "CLI",0
-.OS_DOR_Mnemonic  DEFM "DOR",0
-.OS_ERC_Mnemonic  DEFM "ERC",0
-.OS_ERH_Mnemonic  DEFM "ERH",0
-.OS_ESC_Mnemonic  DEFM "ESC",0
-.OS_FC_Mnemonic   DEFM "FC",0
-.OS_FN_Mnemonic   DEFM "FN",0
-.OS_FRM_Mnemonic  DEFM "FRM",0
-.OS_FWM_Mnemonic  DEFM "FWM",0
-.OS_GB_Mnemonic   DEFM "GB",0
-.OS_GBT_Mnemonic  DEFM "GBT",0
-.OS_MAL_Mnemonic  DEFM "MAL",0
-.OS_MCL_Mnemonic  DEFM "MCL",0
-.OS_MFR_Mnemonic  DEFM "MFR",0
-.OS_MGB_Mnemonic  DEFM "MGB",0
-.OS_MOP_Mnemonic  DEFM "MOP",0
-.OS_MPB_Mnemonic  DEFM "MPB",0
-.OS_MV_Mnemonic   DEFM "MV",0
-.OS_PB_Mnemonic   DEFM "PB",0
-.OS_PBT_Mnemonic  DEFM "PBT",0
-.OS_PUR_Mnemonic  DEFM "PUR",0
-.OS_SI_Mnemonic   DEFM "SI",0
-.OS_SR_Mnemonic   DEFM "SR",0
-.OS_TIN_Mnemonic  DEFM "TIN",0
-.OS_UGB_Mnemonic  DEFM 0
-.OS_UST_Mnemonic  DEFM "UST",0
-.OS_WAIT_Mnemonic DEFM "WAIT",0
-.OS_AXP_Mnemonic  DEFM "AXP",0
-.OS_BDE_Mnemonic  DEFM "BDE",0
-.OS_BHL_Mnemonic  DEFM "BHL",0
-.OS_BLP_Mnemonic  DEFM "BLP",0
-.OS_DLY_Mnemonic  DEFM "DLY",0
-.OS_DOM_Mnemonic  DEFM "DOM",0
-.OS_EPR_Mnemonic  DEFM "EPR",0
-.OS_EXIT_Mnemonic DEFM "EXIT",0
-.OS_FTH_Mnemonic  DEFM "FTH",0
-.OS_GTH_Mnemonic  DEFM "GTH",0
-.OS_HT_Mnemonic   DEFM "HT",0
-.OS_ISQ_Mnemonic  DEFM "ISQ",0
-.OS_MAP_Mnemonic  DEFM "MAP",0
-.OS_OFF_Mnemonic  DEFM "OFF",0
-.OS_OP_Mnemonic   DEFM "OP",0
-.OS_POLL_Mnemonic DEFM "POLL",0
-.OS_SCI_Mnemonic  DEFM "SCI",0
-.OS_STK_Mnemonic  DEFM "STK",0
-.OS_USE_Mnemonic  DEFM "USE",0
-.OS_VTH_Mnemonic  DEFM "VTH",0
-.OS_WRT_Mnemonic  DEFM "WRT",0
-.OS_WTB_Mnemonic  DEFM "WTB",0
+.OS_BYE_Mnemonic  DEFM "BYE"
+.OS_PRT_Mnemonic  DEFM "PRT"
+.OS_OUT_Mnemonic  DEFM "OUT"
+.OS_IN_Mnemonic   DEFM "IN"
+.OS_TIN_Mnemonic  DEFM "TIN"
+.OS_XIN_Mnemonic  DEFM "XIN"
+.OS_PUR_Mnemonic  DEFM "PUR"
+.OS_UGB_Mnemonic  DEFM "UGB"
+.OS_GB_Mnemonic   DEFM "GB"
+.OS_PB_Mnemonic   DEFM "PB"
+.OS_GBT_Mnemonic  DEFM "GBT"
+.OS_PBT_Mnemonic  DEFM "PBT"
+.OS_MV_Mnemonic   DEFM "MV"
+.OS_FRM_Mnemonic  DEFM "FRM"
+.OS_FWM_Mnemonic  DEFM "FWM"
+.OS_MOP_Mnemonic  DEFM "MOP"
+.OS_MCL_Mnemonic  DEFM "MCL"
+.OS_MAL_Mnemonic  DEFM "MAL"
+.OS_MFR_Mnemonic  DEFM "MFR"
+.OS_MGB_Mnemonic  DEFM "MGB"
+.OS_MPB_Mnemonic  DEFM "MPB"
+.OS_BIX_Mnemonic  DEFM "BIX"
+.OS_BOX_Mnemonic  DEFM "BOX"
+.OS_NQ_Mnemonic   DEFM "NQ"
+.OS_SP_Mnemonic   DEFM "SP"
+.OS_SR_Mnemonic   DEFM "SR"
+.OS_ESC_Mnemonic  DEFM "ESC"
+.OS_ERC_Mnemonic  DEFM "ERC"
+.OS_ERH_Mnemonic  DEFM "ERH"
+.OS_UST_Mnemonic  DEFM "UST"
+.OS_FN_Mnemonic   DEFM "FN"
+.OS_WAIT_Mnemonic DEFM "WAIT"
+.OS_ALM_Mnemonic  DEFM "ALM"
+.OS_CLI_Mnemonic  DEFM "CLI"
+.OS_DOR_Mnemonic  DEFM "DOR"
+.OS_FC_Mnemonic   DEFM "FC"
+.OS_SI_Mnemonic   DEFM "SI"
+.OS_BOUT_Mnemonic DEFM "BOUT"
+.OS_POUT_Mnemonic DEFM "POUT"
+.OS_1byte_END
+
+.OS_FEP_Mnemonic  DEFM "FEP"
+.OS_WTB_Mnemonic  DEFM "WTB"
+.OS_WRT_Mnemonic  DEFM "WRT"
+.OS_WSQ_Mnemonic  DEFM "WSQ"
+.OS_ISQ_Mnemonic  DEFM "ISQ"
+.OS_AXP_Mnemonic  DEFM "AXP"
+.OS_SCI_Mnemonic  DEFM "SCI"
+.OS_DLY_Mnemonic  DEFM "DLY"
+.OS_BLP_Mnemonic  DEFM "BLP"
+.OS_BDE_Mnemonic  DEFM "BDE"
+.OS_BHL_Mnemonic  DEFM "BHL"
+.OS_FTH_Mnemonic  DEFM "FTH"
+.OS_VTH_Mnemonic  DEFM "VTH"
+.OS_GTH_Mnemonic  DEFM "GTH"
+.OS_REN_Mnemonic  DEFM "REN"
+.OS_DEL_Mnemonic  DEFM "DEL"
+.OS_CL_Mnemonic   DEFM "CL"
+.OS_OP_Mnemonic   DEFM "OP"
+.OS_OFF_Mnemonic  DEFM "OFF"
+.OS_USE_Mnemonic  DEFM "USE"
+.OS_EPR_Mnemonic  DEFM "EPR"
+.OS_HT_Mnemonic   DEFM "HT"
+.OS_MAP_Mnemonic  DEFM "MAP"
+.OS_EXIT_Mnemonic DEFM "EXIT"
+.OS_STK_Mnemonic  DEFM "STK"
+.OS_ENT_Mnemonic  DEFM "ENT"
+.OS_POLL_Mnemonic DEFM "POLL"
+.OS_DOM_Mnemonic  DEFM "DOM"
+.OS_2byte_END

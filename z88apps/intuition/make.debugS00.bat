@@ -23,7 +23,7 @@ cd ..\z88apps\intuition
 
 :: compile Intuition code from scratch
 :: Intuition uses segment 3 for bank switching (Intuition is located at $2000 - upper 8K of segment 0)
-del *.def *.obj *.bin *.map
+del *.err *.def *.lst *.obj *.bin *.map
 ..\..\tools\mpm\mpm -b -g -DINT_SEGM0 -DSEGMENT3 -I..\..\oz\def -l..\..\stdlib\standard.lib @debug0b
 ..\..\tools\mpm\mpm -b -DINT_SEGM0 -DSEGMENT3 -I..\..\oz\def -l..\..\stdlib\standard.lib @debug0a
 

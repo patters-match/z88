@@ -38,12 +38,13 @@ defc    OZVERSION               = $42
 ; rom layout:
 
 IF OZ_SLOT1
-        defc ROMSIZE            =12             ; OZ is located at top 13 banks in slot 1 on a 1Mb AMD 29F080B Flash Card
+        defc ROMSIZE            =14             ; OZ is located at top 12 banks in slot 1 on a 1Mb AMD 29F080B Flash Card
 
+        defc OZBANK_INTUITION   =$72            ; Intuition debugger bank en EVEN number because of LOWRAM binding hardware
         defc OZBANK_LOWRAM      =$74            ; LOWRAM code to be installed during reset (located in EazyLink bank)
+        defc OZBANK_FPP         =$75
         defc OZBANK_GN          =$7B
         defc OZBANK_DC          =$7C
-        defc OZBANK_FPP         =$75
         defc OZBANK_KNL1        =$7D            ; kernel bank 1 (lower)
         defc OZBANK_KNL0        =$7E            ; kernel bank 0 (upper)
         defc OZBANK_MTH         =$7F            ; OZ static structures (DOR's, MTH, Font bitmap)
@@ -53,7 +54,7 @@ IF OZ_SLOT1
         defc HIRES1_BANK        =$7F
 ELSE
         defc ROMSIZE            =32             ; now OZ fits in a 512K AMD 29F040B Flash in slot 0
-        defc FILEAREASIZE       =5*4            ; FlashStore file area from top of ROM (and downwards) is 5 x 64K sectors (20 x 16K)
+        defc FILEAREASIZE       =4*4            ; FlashStore file area from top of ROM (and downwards) is 5 x 64K sectors (20 x 16K)
 
         defc OZBANK_KNL0        =$00            ; kernel bank 0
         defc OZBANK_KNL1        =$01            ; kernel bank 1
@@ -66,6 +67,7 @@ ELSE
         defc HIRES1_BANK        =$08
         defc OZBANK_LOWRAM      =$0A            ; LOWRAM code to be installed during reset (located in EazyLink bank)
         defc OZBANK_FPP         =$0B            ; Floating Point Package (located in FlashStore popdown bank)
+        defc OZBANK_INTUITION   =$0C            ; Intuition debugger bank en EVEN number because of LOWRAM binding hardware
 ENDIF
 
 defc    OZCALLTBL               =$FF00          ; OS tables

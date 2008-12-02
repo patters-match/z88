@@ -104,8 +104,7 @@
                   CALL Display_string       ;                                           ** V0.28
                   LD   BC,$0700             ; set cursor position at bottom of screen   ** V0.28
                   CALL Set_CurPos           ;                                           ** V0.28
-                  CALL Write_CRLF           ;                                           ** V0.28
-                  RET                       ;                                           ** V0.28
+                  JP   Write_CRLF           ;                                           ** V0.28
 
 .next_stack_item  DEC  HL                   ; Please note:
                   DEC  HL                   ; the stack grows downwards!
@@ -222,12 +221,8 @@
                   CP   (IY + VP_SP)         ;                              ** V1.03
                   EXX                       ;                              ** V1.03
                   JR   NZ, ptr_not_SP
-                  LD   A,'['
-                  CALL Display_Char
-                  LD   HL, SP_Mnemonic      ; display 'SP'
+                  LD   HL, SP_Msg           ; display '[SP]'
                   CALL Display_String
-                  LD   A,']'
-                  CALL Display_Char
 
 .ptr_not_SP       PUSH IY                   ;                              ** V1.03
                   EXX                       ;                              ** V1.03
@@ -243,12 +238,8 @@
                   CP   C
                   EXX                       ;                              ** V1.03
                   JR   NZ, line_finished
-                  LD   A,'['
-                  CALL Display_Char
                   LD   HL, Top_Msg          ; display
                   CALL Display_String       ; 'Top Of Stack' message
-                  LD   A,']'
-                  CALL Display_Char
 .line_finished    CALL Write_CRLF
                   POP  AF
                   POP  BC
@@ -256,6 +247,7 @@
                   POP  HL
                   RET
 
-.Top_Msg          DEFM "T.O.S.",0
+.Top_Msg          DEFM "[TOS]",0
+.SP_Msg           DEFM "[SP]",0
 .scroll_down      DEFM 1,$FE,0
 .scroll_up        DEFM 1,$FF,0

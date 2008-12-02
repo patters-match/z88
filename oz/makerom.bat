@@ -203,6 +203,14 @@ echo compiling OZ ROM Header
 cd mth
 ..\..\tools\mpm\mpm -db -DOZ_SLOT%ozslot% -I..\def @romhdr.prj 2>nul >nul
 cd ..
+if ERRORLEVEL 0 goto COMPILE_INTUITION
+goto COMPILE_ERROR
+
+:COMPILE_INTUITION
+echo compiling Intuition for OZ
+cd ..\z88apps\intuition
+call make.debugOZ.bat %ozslot%
+cd ..\..\oz
 if ERRORLEVEL 0 goto COMBINE_BANKS
 goto COMPILE_ERROR
 

@@ -1,17 +1,17 @@
 ; **************************************************************************************************
 ; This file is part of Intuition.
 ;
-; Intuition is free software; you can redistribute it and/or modify it under the terms of the 
+; Intuition is free software; you can redistribute it and/or modify it under the terms of the
 ; GNU General Public License as published by the Free Software Foundation; either version 2, or
 ; (at your option) any later version.
 ; Intuition is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
 ; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ; See the GNU General Public License for more details.
-; You should have received a copy of the GNU General Public License along with Intuition; 
+; You should have received a copy of the GNU General Public License along with Intuition;
 ; see the file COPYING. If not, write to the
 ; Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
-; 
-; $Id$  
+;
+; $Id$
 ;
 ;***************************************************************************************************
 
@@ -20,7 +20,7 @@
     INCLUDE "defs.h"
 
     XREF FindBreakPoint
-    XREF GetChar
+    XREF GetChar, Calc_HL_Ptr
     XREF Write_CRLF, Display_char
     XREF Write_Err_Msg
     XREF Get_Constant
@@ -44,10 +44,10 @@
                   JR   Z, def_breakpoint
                   CALL FindBreakPoint       ; breakpoint returned in DE
                   JR   Z, found_breakp
-.def_breakpoint   LD   BC, BreakPoints
-                  PUSH IY
-                  POP  HL
-                  ADD  HL,BC
+.def_breakpoint
+                  LD   C, BreakPoints
+                  CALL Calc_HL_Ptr
+
                   LD   A,(HL)               ; get number of defined breakpoints
                   CP   8
                   JR   Z, all_bp_defined    ; all defined - no more room
@@ -64,10 +64,8 @@
                   LD   (IY + Breakpoints),A ; save new counter
                   JR   exit_toggle_bp
 .found_breakp     PUSH HL                   ; remember pointer to low byte
-                  LD   BC, BreakPoints      ; of found breakpoint
-                  PUSH IY
-                  POP  HL
-                  ADD  HL,BC
+                  LD   C, BreakPoints
+                  CALL Calc_HL_Ptr
                   LD   A,(HL)               ; get breakpoint counter
                   DEC  A                    ; one less breakpoint
                   LD   (HL),A               ; save new counter
@@ -100,10 +98,9 @@
 ;       ......../IXIY  same
 ;       AFBCDEHL/....  different
 ;
-.Breakpoint_List  LD   BC,31                 ; offset to base of breakpoints
-                  PUSH IY
-                  POP  HL
-                  ADD  HL,BC
+.Breakpoint_List  LD   C, BreakPoints
+                  CALL Calc_HL_Ptr          ; HL = base of breakpoints
+
                   BIT  Flg_RTM_Breakp,(IY + FlagStat2)            ; any breakpoints defined?                  ** V0.18
                   JR   Z, No_breakpoints    ; Error message "No Breakpoints entered."
                   LD   B,(HL)               ; print-breakpoint-counter                  ** V0.18

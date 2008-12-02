@@ -32,6 +32,9 @@ romupdate oz.1
 ; The remaining empty space towards the bottom may be exploited by FlashStore
 ; as an "Eprom" filing system (on first 64K boundary below OZ ROM).
 
+; Bank $72: Reserved for Intuition
+../z88apps/intuition/debugS00.bin 720000        ; $2000: Intuition debugger integrated in RST 08H
+
 ; Bank $74: EazyLink & LOWRAM
 apps/eazylink/eazylink.bin 740000               ; $8000: EazyLink popdown
 os/lowram/lowram.bin 743d00                     ; LOWRAM code (RST routines, etc) to be installed during reset

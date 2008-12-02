@@ -1,17 +1,17 @@
 ; **************************************************************************************************
 ; This file is part of Intuition.
 ;
-; Intuition is free software; you can redistribute it and/or modify it under the terms of the 
+; Intuition is free software; you can redistribute it and/or modify it under the terms of the
 ; GNU General Public License as published by the Free Software Foundation; either version 2, or
 ; (at your option) any later version.
 ; Intuition is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
 ; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ; See the GNU General Public License for more details.
-; You should have received a copy of the GNU General Public License along with Intuition; 
+; You should have received a copy of the GNU General Public License along with Intuition;
 ; see the file COPYING. If not, write to the
 ; Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
-; 
-; $Id$  
+;
+; $Id$
 ;
 ;***************************************************************************************************
 
@@ -837,17 +837,23 @@
         remains in lower 8K. .ViewStack command is not available, due to space limitations.
 
  xx.07.2004, V1.1.1
-     1) Intuition V1.1 didn't work with monitoring EazyLink! The reason was because Intuition 
-	   disabled IM 2 interrupts during execution of code - and because OZ relies on various 
-	   timings for maintainance of externals resources like serial port communication, using 
+     1) Intuition V1.1 didn't work with monitoring EazyLink! The reason was because Intuition
+	   disabled IM 2 interrupts during execution of code - and because OZ relies on various
+	   timings for maintainance of externals resources like serial port communication, using
 	   the IM 2 interrupt service routine.
-	   
-	2) This version doesn't touch the IM 2 interrupts and just executes code like other well 
-	   behaved applications in the Z88. However, this affects the emulated instructions which 
+
+	2) This version doesn't touch the IM 2 interrupts and just executes code like other well
+	   behaved applications in the Z88. However, this affects the emulated instructions which
 	   were optimized with the IXL and IXH registers; all these have been changed - BC' now
 	   serves as the quick cache of virtual HL register. This has created a major rewrite
 	   of the emulated Z80 instructions related to H, L and HL registers.
-	   
-	3) Some nasty absolute LD SP,rr were used to move the stack pointer around before and 
+
+	3) Some nasty absolute LD SP,rr were used to move the stack pointer around before and
 	   after OZ calls. This has now been changed since IM 2 interrupts are enabled and use the
 	   stack heavily while Intuition executes code!
+
+ Nov 2008, V1.2
+    1) Recognize new OZ V4.2 API system calls in the disassembler (OS_FEP, OS_BOUT, OS_POUT).
+    2) Display OZ version number in Intuition version command.
+    3) OZ Integration through RST 08H and dynamic segment 0 (upper 8K) bank binding.
+    4) Reduce mnemonic string size in disassembler and get .VA command back in SEGMENT0 version.

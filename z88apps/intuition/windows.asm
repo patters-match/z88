@@ -252,11 +252,10 @@
                   CALL Display_String
                   LD   A,(IY + ApplWinID)     ; get current application window ID
                   CALL Display_Char
-                  CALL Write_CRLF
-                  RET
+                  JP   Write_CRLF
 
-.Int_ID_msg       DEFM "Intuition window ID: ",0
-.appl_ID_msg      DEFM "Appl. window ID: ",0
+.Int_ID_msg       DEFM "Intuition Window: ",0
+.appl_ID_msg      DEFM "Appl. Window: ",0
 
 
 
@@ -280,11 +279,12 @@
                   INC  HL
                   PUSH HL
                   POP  IX                   ; remember start of VDU string
-                  LD   HL,0
+                  LD   B,0
+                  LD   H,B
+                  LD   L,B
                   ADD  HL,SP
                   LD   D,H
                   LD   E,L                  ; DE = current SP
-                  LD   B,0
                   SBC  HL,BC                ; make room for VDU string on stack
                   LD   SP,HL                ; set SP below VDU string
                   PUSH DE                   ; remember current SP

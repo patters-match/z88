@@ -17,7 +17,7 @@
 
     MODULE Toggle_commands
 
-    XREF SkipSpaces, GetChar
+    XREF SkipSpaces, GetChar, Calc_HL_Ptr
     XREF Get_constant
     XREF Write_Msg, Display_string
 
@@ -148,10 +148,8 @@
 .Switch_bitnumber PUSH AF
                   PUSH BC
                   PUSH HL                               ; save pointer in input buffer
-                  PUSH IY
-                  POP  HL
-                  LD   B,0
-                  ADD  HL,BC
+
+                  CALL Calc_HL_Ptr
                   LD   B,H
                   LD   C,L
                   POP  HL                               ; HL = pointer in input buffer
@@ -222,7 +220,7 @@
 .trace_msg        DEFM "Single stepping",0
 .trace_ret_msg    DEFM "Run subroutine",0
 .brkpointdump_msg DEFM "Dump at break",0
-.brk_ozerr_msg    DEFM "Break at OZ error",0
+.brk_ozerr_msg    DEFM "Stop at OZ error",0
 .flag_separator   DEFM ": ",0
 .On_msg           DEFM "ON",0
 .Off_msg          DEFM "OFF",0
@@ -237,10 +235,8 @@
 ;       ......../IXIY  same
 ;       AFBCDEHL/....  different
 ;
-.Disp_ToggleStat  LD   BC,77
-                  PUSH IY
-                  POP  HL
-                  ADD  HL,BC
+.Disp_ToggleStat  LD   C,77
+                  CALL Calc_HL_Ptr
                   EX   DE,HL                ; DE = status byte 2
                   LD   B, @00000001
                   LD   HL, dz_msg
