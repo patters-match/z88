@@ -17,7 +17,7 @@
 
      MODULE Debugger_version
 
-     XREF Write_Msg, Display_char, IntHexDisp_H, Display_string, Write_CRLF
+     XREF Write_Msg, Display_char, IntHexDisp, IntHexDisp_H, Display_string, Write_CRLF
      XDEF Debugger_version
 
      INCLUDE "defs.h"
@@ -25,11 +25,16 @@
 
 ; **********************************************************************************
 .Debugger_version LD   HL, Version          ; display Intuition release version
+                  CALL Write_Msg
+                  LD   HL, OZ_Version
+                  CALL Display_String
+                  LD   L,(IY + OzReleaseVer)
+                  CP   A
+                  CALL IntHexDisp           ; display version byte from OZ
+                  CALL Write_CRLF
 IF OZ_INTUITION
-                  JP   Write_Msg
                   RET
 ELSE
-                  CALL Write_Msg
                   LD   HL, Base_Msg
                   CALL Display_String
                   PUSH IY
@@ -48,4 +53,5 @@ ELSE
 
 .Base_Msg         DEFM "Buffer:",0
 ENDIF
+.OZ_version       DEFM "OZ: V",0
 .Version          DEFM "V1.2.dev",0         ; see 'history.txt' for development history

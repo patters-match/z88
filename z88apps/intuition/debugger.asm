@@ -20,9 +20,9 @@
 
 INCLUDE "defs.h"
 INCLUDE "stdio.def"
+INCLUDE "fileio.def"
 IF SEGMENT2
      INCLUDE "mthdbg.def"
-     INCLUDE "fileio.def"
      INCLUDE "director.def"
 ENDIF
 
@@ -605,4 +605,10 @@ ENDIF
 
                   ; Status byte 3:
                   LD   (IY + FlagStat3), 2**Flg_WinMode | 2**Flg_DZopcode ;                   ** V0.26e
+
+                  LD   A, FA_PTR
+                  LD   DE,0
+                  LD   IX,-1
+                  OZ   OS_Frm
+                  LD   (IY + OzReleaseVer),C      ; Get a copy of OZ release version
                   RET
