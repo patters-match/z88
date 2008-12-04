@@ -362,7 +362,7 @@ Module FileAreaStatistics
                     rst  OZ_MPB                   ; restore old bank binding in segment 1.
 
                     ld   hl, spacebar
-                    CALL_OZ GN_Sop                ; display the free space graphic bar in file statistics window
+                    oz   GN_Sop                   ; display the free space graphic bar in file statistics window
                     RET
 ; *************************************************************************************
 
@@ -568,4 +568,3 @@ Module FileAreaStatistics
                     DEFW $004A
                     DEFW $0812
                     DEFW 0                  ; dynamic banner pointer in DE
-                    

@@ -1018,7 +1018,7 @@ xref    Keymap_SP
         ld      h, (hl)                         ; keymap page
         ld      b, OZBANK_KEYMAP                ; bind keymap bank
         ld      l, b                            ; for storing below
-        ld      c, 1                            ; in s1
+        ld      c, MS_S1                        ; in segment 1
         rst     OZ_MPB
         push    bc                              ; preserve previous binding
         res     6, h                            ; assume page mask is in s2
@@ -1038,8 +1038,8 @@ xref    Keymap_SP
         ld      (de), a                         ; and store pointer
         inc     de
         djnz    ikp_1
-        pop     bc                              ; previous s2 binding
-        rst     OZ_MPB
+        pop     bc
+        rst     OZ_MPB                          ; restore previous s1 binding
         ret
 
 .KeymapTable

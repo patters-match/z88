@@ -544,7 +544,7 @@ xref    ZeroMem
         ld      iy, (eIdxProcList)
         ld      b, a
         ld      c, MS_S1
-        rst     OZ_MPB                          ; bind first proc to S1
+        rst     OZ_MPB                          ; bind first process to S1
         push    bc
         call    GetLinkBHL                      ; get second process
         ld      d, b

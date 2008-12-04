@@ -654,7 +654,7 @@ defc    DM_RAM                  =$81
 ;       init all RAM, called from Reset
 
 .InitRAM
-        ld      c, 2
+        ld      c, MS_S2
         call    OZ_MGB
         push    bc                              ; remember current S2 binding
         ld      a, $21                          ; start with first RAM bank (skip system bank)
@@ -1864,8 +1864,8 @@ defc    DM_RAM                  =$81
 ; Important:
 ;       For OZ V4.1 and higher this call is redundant and available for application
 ;       backward compatibility with older ROM versions.
-;       RST 30H with same B, C arguments are used internally by newer OZ versions for faster
-;       bank switching.
+;       The RST 30H instruction with same B, C arguments are used internally by newer OZ
+;       versions for faster bank switching (and smaller code size).
 ;
 ; IN:
 ;      C = memory segment specifier (MS_S0, MS_S1, MS_S2 & MS_S3)
@@ -1908,7 +1908,7 @@ defc    DM_RAM                  =$81
 
 
 ;       ----
-; select fast code (fast bank switching)
+; select fast code (fast bank switching), for API compatibility (slower than RST 30H)
 
 .OSFc
         push    ix

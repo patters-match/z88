@@ -1481,7 +1481,6 @@ xref    ldIX_DE
         ld      b, c                            ; bind next into S2
         ld      c, MS_S2
         rst     OZ_MPB
-        push    bc
         set     7, d                            ; S2 fix and copy link from next to current
         res     6, d
         ld      a, (de)
@@ -1492,7 +1491,6 @@ xref    ldIX_DE
         inc     de
         ld      a, (de)
         ld      (iy+2), a
-        pop     bc
         rst     OZ_MPB                          ; restore S2
 
         call    GetLinkCDE                      ; get link to next

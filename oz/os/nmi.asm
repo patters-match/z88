@@ -432,7 +432,7 @@ defc    NMI_B_HALT      =0
         out     (BL_TMK), a
 
         ld      a, OZBANK_KNL0
-        out     (BL_SR0), a                     ; KERNEL0 in 2000 - 3FFF (upper 8K of S0)!
+        out     (BL_SR0), a                     ; !! KERNEL0 in 2000 - 3FFF (upper 8K of S0)
         out     (BL_SR1), a
         out     (BL_SR2), a
         out     (BL_SR3), a

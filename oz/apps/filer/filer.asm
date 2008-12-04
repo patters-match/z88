@@ -1733,10 +1733,10 @@
         jr      z, loc_F47D
         push    bc
         call    GetLinkCDE
-        ld      b, c
-        ld      c, MS_S1
         push    de
         pop     iy
+        ld      b, c
+        ld      c, MS_S1
         rst     OZ_MPB                          ; Bind bank B in slot C
         pop     bc
         jr      loc_F469

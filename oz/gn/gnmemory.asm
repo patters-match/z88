@@ -103,12 +103,10 @@ xref    GnClsMain
 .lbdea_3
         ld      c, MS_S1                        ; bind needed bank in S1
         rst     OZ_MPB
-        ld      a, d                            ; S1 fix
-        and     $3F
-        or      $40
-        ld      d, a
         pop     af
         push    af
+        res     7,d                             ; S1 fix
+        set     6,d
         ld      (de), a                         ; store byte
         rst     OZ_MPB                          ; restore S1
 .lbdea_4
@@ -162,15 +160,11 @@ xref    GnClsMain
 .labhl_3
         ld      c, MS_S1                        ; bind memory in S1
         rst     OZ_MPB
-        push    bc                              ; remember binding
         push    hl
-        ld      a, h                            ; S1 fix
-        and     $3F
-        or      $40
-        ld      h, a
+        res     7,h                             ; S1 fix
+        set     6,h
         ld      a, (hl)                         ; read byte
         pop     hl
-        pop     bc                              ; restore S1
         push    af
         rst     OZ_MPB
         pop     af
