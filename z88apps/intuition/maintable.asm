@@ -227,7 +227,7 @@
                   DEFB Opcode_204 % 256     ; CALL Z, nn
                   DEFB Opcode_205 % 256     ; CALL nn
                   DEFB Opcode_206 % 256     ; ADC  A, n
-                  DEFB Opcode_0   % 256     ; RST  $08                        ** V0.16
+                  DEFB Opcode_207 % 256     ; RST  $08                        ** V1.2
                   DEFB Opcode_208 % 256     ; RET  NC
                   DEFB Opcode_209 % 256     ; POP  DE
                   DEFB Opcode_210 % 256     ; JP   NC, nn
@@ -235,7 +235,7 @@
                   DEFB Opcode_212 % 256     ; CALL NC, nn
                   DEFB Opcode_213 % 256     ; PUSH DE
                   DEFB Opcode_214 % 256     ; SUB  n
-                  DEFB Opcode_0   % 256     ; RST  $10                        ** V0.16
+                  DEFB Opcode_215  % 256    ; RST  $10                        ** V1.2
                   DEFB Opcode_216 % 256     ; RET  C
                   DEFB Opcode_217 % 256     ; EXX
                   DEFB Opcode_218 % 256     ; JP   C, nn
@@ -259,7 +259,7 @@
                   DEFB Opcode_236 % 256     ; CALL PE, nn
                   DEFB 0                    ; ED extended instructions
                   DEFB Opcode_238 % 256     ; XOR  n
-                  DEFB Opcode_0   % 256     ; RST  $28                        ** V0.16
+                  DEFB Opcode_239 % 256     ; RST  $28                        ** V1.2
                   DEFB Opcode_240 % 256     ; RET  P
                   DEFB Opcode_241 % 256     ; POP  AF
                   DEFB Opcode_242 % 256     ; JP   P, nn
@@ -267,7 +267,7 @@
                   DEFB Opcode_244 % 256     ; CALL P, nn
                   DEFB Opcode_245 % 256     ; PUSH AF
                   DEFB Opcode_246 % 256     ; OR   n
-                  DEFB Opcode_0   % 256     ; RST  $30                        ** V0.16
+                  DEFB Opcode_247 % 256     ; RST  $30                        ** V1.2
                   DEFB Opcode_248 % 256     ; RET  M
                   DEFB Opcode_249 % 256     ; LD   SP,HL
                   DEFB Opcode_250 % 256     ; JP   M, nn
@@ -489,7 +489,7 @@
                   DEFB Opcode_204 / 256     ; CALL Z, nn
                   DEFB Opcode_205 / 256     ; CALL nn
                   DEFB Opcode_206 / 256     ; ADC  A, n
-                  DEFB Opcode_0   / 256     ; RST  $08                        ** V0.16
+                  DEFB Opcode_207 / 256     ; RST  $08                        ** V1.2
                   DEFB Opcode_208 / 256     ; RET  NC
                   DEFB Opcode_209 / 256     ; POP  DE
                   DEFB Opcode_210 / 256     ; JP   NC, nn
@@ -497,7 +497,7 @@
                   DEFB Opcode_212 / 256     ; CALL NC, nn
                   DEFB Opcode_213 / 256     ; PUSH DE
                   DEFB Opcode_214 / 256     ; SUB  n
-                  DEFB Opcode_0   / 256     ; RST  $10                        ** V0.16
+                  DEFB Opcode_215 / 256     ; RST  $10                        ** V1.2
                   DEFB Opcode_216 / 256     ; RET  C
                   DEFB Opcode_217 / 256     ; EXX
                   DEFB Opcode_218 / 256     ; JP   C, nn
@@ -521,7 +521,7 @@
                   DEFB Opcode_236 / 256     ; CALL PE, nn
                   DEFB 0                    ; ED extended instructions
                   DEFB Opcode_238 / 256     ; XOR  n
-                  DEFB Opcode_0   / 256     ; RST  $28                        ** V0.16
+                  DEFB Opcode_239 / 256     ; RST  $28                        ** V1.2
                   DEFB Opcode_240 / 256     ; RET  P
                   DEFB Opcode_241 / 256     ; POP  AF
                   DEFB Opcode_242 / 256     ; JP   P, nn
@@ -529,7 +529,7 @@
                   DEFB Opcode_244 / 256     ; CALL P, nn
                   DEFB Opcode_245 / 256     ; PUSH AF
                   DEFB Opcode_246 / 256     ; OR   n
-                  DEFB Opcode_0   / 256     ; RST  $30                        ** V0.16
+                  DEFB Opcode_247 / 256     ; RST  $30                        ** V1.2
                   DEFB Opcode_248 / 256     ; RET  M
                   DEFB Opcode_249 / 256     ; LD   SP,HL
                   DEFB Opcode_250 / 256     ; JP   M, nn

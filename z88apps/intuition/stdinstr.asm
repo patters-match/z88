@@ -22,7 +22,7 @@
 
     ; Global routines defined in this module:
     XDEF Opcode_0, Opcode_8, Opcode_16, Opcode_24, Opcode_32, Opcode_40, Opcode_48, Opcode_56
-    XDEF Opcode_118
+    XDEF Opcode_118, Opcode_207, Opcode_215, Opcode_239, Opcode_247
     XDEF Opcode_192, Opcode_193, Opcode_194, Opcode_195, Opcode_196, Opcode_197, Opcode_200, Opcode_201
     XDEF Opcode_202, Opcode_204, Opcode_205, Opcode_208, Opcode_209, Opcode_210, Opcode_211, Opcode_212
     XDEF Opcode_213, Opcode_216, Opcode_217, Opcode_218, Opcode_219, Opcode_220, Opcode_223, Opcode_224
@@ -691,7 +691,7 @@
 ;
 .Opcode_211       EXX                       ;                                 ** V0.28
                   PUSH BC                   ; preserve virtual, HL register.. ** V1.1.1
-                  LD   C,(HL)               ; get port number
+                  LD   C,(HL)               ; get port number N
                   INC  HL
                   EX   AF,AF'               ;                                 ** V0.23
                   LD   B,A                  ; get A register                  ** V0.23
@@ -721,11 +721,41 @@
 
 ; ******************************************************************************************
 ;
+; RST  $08        instruction               1 byte
+;
+; Intuition take-over of Z80 processor. During tracing, treat it as a hard coded break point.
+;
+.Opcode_207       EXX
+                  DEC  HL                   ; point to RST 08H instruction
+                  EXX
+                  JP   command_mode         ; activate Intuition command mode
+
+
+; ******************************************************************************************
+;
+; RST  $10        instruction               1 byte
+;
+; OZ 4.2 (and later) Extended CALL (24 bit) functionality
+; (older OZ releases maps this with just Fc = 1 and return to caller)
+;
+.Opcode_215       POP  HL                   ; get address back to main decode loop
+                  LD   DE, $0010            ; PC to be defined with 0010H (restart vector)
+                  JP   RST_XXH
+
+
+; ******************************************************************************************
+;
 ; RST  $18        instruction               1 byte
 ;
 ; Z88 operating system call to process floating point numbers, with 1 byte parameter
 ;
-.Opcode_223       EXX                       ;                                 ** V0.28
+.Opcode_223
+IF OZ_INTUITION
+                  POP  HL                   ; get address back to main decode loop
+                  LD   DE, $0018            ; PC to be defined with 0018H (restart vector)
+                  JP   RST_XXH
+ELSE
+                  EXX                       ;                                 ** V0.28
                   LD   A,(HL)               ; get FPP parameter
                   INC  HL                   ; ready for next instruction
                   PUSH DE                   ; save virtual SP on stack        ** V0.23
@@ -757,6 +787,7 @@
                   EX   (SP),HL              ; put HL on the stack             ** V0.28
                   EX   AF,AF'               ; AF installed                    ** V0.28
                   JP  (HL)                  ; execute RST 18h call in buffer
+ENDIF
 
 
 ; ***************************************************************************
@@ -765,7 +796,13 @@
 ;
 ; Z88 operating system call with parameters (DEFB or DEFW)
 ;
-.Opcode_231       LD   BC,ExecBuffer        ;                                 ** V0.28
+.Opcode_231
+IF OZ_INTUITION
+                  POP  HL                   ; get address back to main decode loop
+                  LD   DE, $0020            ; PC to be defined with 0020H (restart vector)
+                  JP   RST_XXH
+ELSE
+                  LD   BC,ExecBuffer        ;                                 ** V0.28
                   PUSH IY                   ;                                 ** V0.28
                   POP  HL                   ;                                 ** V0.28
                   ADD  HL,BC                ; HL points at exec buffer        ** V0.28
@@ -806,6 +843,31 @@
                   EX   (SP),HL              ; put HL on the stack             ** V0.28
                   EX   AF,AF'               ; AF installed                    ** V0.28
                   JP  (HL)                  ; execute RST 20h call in buffer
+ENDIF
+
+
+; ******************************************************************************************
+;
+; RST  $28        instruction               1 byte
+;
+; Not used by OZ. Mapped with Fc = 1 and return to caller.
+; Execute instruction for future implementation in OZ.
+;
+.Opcode_239       POP  HL                   ; get address back to main decode loop
+                  LD   DE, $0028            ; PC to be defined with 0028H (restart vector)
+                  JP   RST_XXH
+
+
+; ******************************************************************************************
+;
+; RST  $30        instruction               1 byte
+;
+; OZ 4.2 (and later) Fast binding (OZ_MPB) interface
+; (older OZ releases maps this with just Fc = 1 and return to caller)
+;
+.Opcode_247       POP  HL                   ; get address back to main decode loop
+                  LD   DE, $0030            ; PC to be defined with 0030H (restart vector)
+                  JP   RST_XXH
 
 
 .CopyRegisters    PUSH HL
@@ -893,6 +955,7 @@
                   POP  IX                   ; IX restored                     ** V1.1.1
                   POP  HL                   ; HL restored                     ** V1.1.1
                   RET
+ENDIF
 
 
 ; ************************************************************************************
@@ -1000,6 +1063,27 @@
 .Opcode_118       HALT
                   RET
 
+
+; **********************************************************************************
+;
+; RST XXH - execute RST instruction (perform functionality of RST XX)
+;
+; IN: DE = Address of RST vector
+;     HL = RET to main decode loop
+;
+;       ..BCDE../IXIY  same
+;       AF....HL/....  different
+;
+.RST_XXH          EXX
+                  PUSH HL                   ; RST 18H RET address (PC points to first parameter)
+                  DEC  DE
+                  DEC  DE                   ; v.p. SP updated
+                  EXX
+                  PUSH DE
+                  EXX
+                  POP  HL                   ; PC = Restart vector
+                  EXX
+                  JP   (HL)                 ; back to main decode loop
 
 
 ; **********************************************************************************
