@@ -263,7 +263,7 @@
                   DEFB Opcode_240 % 256     ; RET  P
                   DEFB Opcode_241 % 256     ; POP  AF
                   DEFB Opcode_242 % 256     ; JP   P, nn
-                  DEFB Opcode_0   % 256     ; DI                              ** V0.16
+                  DEFB Opcode_243 % 256     ; DI                              ** V1.2
                   DEFB Opcode_244 % 256     ; CALL P, nn
                   DEFB Opcode_245 % 256     ; PUSH AF
                   DEFB Opcode_246 % 256     ; OR   n
@@ -271,7 +271,7 @@
                   DEFB Opcode_248 % 256     ; RET  M
                   DEFB Opcode_249 % 256     ; LD   SP,HL
                   DEFB Opcode_250 % 256     ; JP   M, nn
-                  DEFB Opcode_0   % 256     ; EI                              ** V0.16
+                  DEFB Opcode_251 % 256     ; EI                              ** V1.2
                   DEFB Opcode_252 % 256     ; CALL M, nn
                   DEFB 0                    ; IY instructions...
                   DEFB Opcode_254 % 256     ; CP   n
@@ -525,7 +525,7 @@
                   DEFB Opcode_240 / 256     ; RET  P
                   DEFB Opcode_241 / 256     ; POP  AF
                   DEFB Opcode_242 / 256     ; JP   P, nn
-                  DEFB Opcode_0   / 256     ; DI                              ** V0.16
+                  DEFB Opcode_243 / 256     ; DI                              ** V1.2
                   DEFB Opcode_244 / 256     ; CALL P, nn
                   DEFB Opcode_245 / 256     ; PUSH AF
                   DEFB Opcode_246 / 256     ; OR   n
@@ -533,7 +533,7 @@
                   DEFB Opcode_248 / 256     ; RET  M
                   DEFB Opcode_249 / 256     ; LD   SP,HL
                   DEFB Opcode_250 / 256     ; JP   M, nn
-                  DEFB Opcode_0   / 256     ; EI                              ** V0.16
+                  DEFB Opcode_251 / 256     ; EI                              ** V1.2
                   DEFB Opcode_252 / 256     ; CALL M, nn
                   DEFB 0                    ; IY instructions...
                   DEFB Opcode_254 / 256     ; CP   n

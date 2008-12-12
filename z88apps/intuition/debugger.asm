@@ -64,7 +64,7 @@ ENDIF
     XREF Opcode_213, Opcode_216, Opcode_217, Opcode_218, Opcode_219, Opcode_220, Opcode_223, Opcode_224, Opcode_247
     XREF Opcode_225, Opcode_226, Opcode_227, Opcode_228, Opcode_229, Opcode_231, Opcode_232, Opcode_233, Opcode_239
     XREF Opcode_234, Opcode_235, Opcode_236, Opcode_240, Opcode_241, Opcode_242, Opcode_244, Opcode_245
-    XREF Opcode_248, Opcode_250, Opcode_252
+    XREF Opcode_248, Opcode_250, Opcode_251, Opcode_252, Opcode_243
 
     XREF Opcode_233_index, Opcode_229_index, Opcode_225_index, Opcode_227_index
 
@@ -150,7 +150,7 @@ ENDIF
 
     ; Routines accessible from other modules, defined in this module:
     XDEF Command_mode, Breakpoint_found
-    XDEF Unknown_instr
+    XDEF Unknown_instr, Bindout_error
 
 IF SEGMENT2
 
@@ -397,10 +397,19 @@ include "edtable.asm"
 ; This subroutine is called an opcode if found that defines undocumented
 ; Z80 instructions
 ;
-.Unknown_instr    SET  Flg_RTM_error,(IY + FlagStat2)    ; indicate runtime error          ** V1.01
-                  LD   (IY + RTMerror), ERR_unknown_instr
+.Unknown_instr    LD   (IY + RTMerror), ERR_unknown_instr
+.set_rtm_error    SET  Flg_RTM_error,(IY + FlagStat2)    ; indicate runtime error          ** V1.01
                   RET                                    ; back to monitor_loop            ** V1.01
 
+
+; ****************************************************************************
+;
+; This subroutine is called when Intuition is about to be bound out of it's own bank
+; by executing code.
+;
+.Bindout_error    LD   (IY + RTMerror), ERR_bindout
+                  SET  Flg_RTM_bindout,(IY + FlagStat2)
+                  JR   set_rtm_error
 
 
 ; ******************************************************************************

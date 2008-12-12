@@ -90,6 +90,12 @@
                   CALL Disp_RTM_error       ; display error or OZ mnemonic              ** V0.32
                   CALL DZ_Z80pc             ; Disassemble instruction at (PC)
                   CALL Write_CRLF           ;                                           ** V0.28
+IF OZ_INTUITION
+                  BIT  Flg_RTM_bindout,(IY + FlagStat2)
+                  JR   Z,command_loop
+                  LD   (IY + Cmdlbuffer+2),'G'
+                  LD   (IY + Cmdlbuffer+3),0    ; preset with .G command for bind-alert
+ENDIF
 .command_loop     CALL InputCommand         ; wait until a key is pressed...
                   CALL ExecuteCommand
                   BIT  Flg_CmdLine,(IY + FlagStat3)    ; command line aborted?
@@ -270,7 +276,11 @@
 .get_command      LD   A,(HL)
                   CALL UpperCase
                   OR   A
-                  JP   Z, Exec_instruct     ; execute next instruction...
+                  JR   NZ, lookup_cmd       ; .XX command
+                  BIT  Flg_RTM_bindout,(IY + FlagStat2)     ; '.' command, but allowed to execute?
+                  JR   Z, Exec_instruct     ; execute next instruction - only when not in bind-out alert..
+                  RET                       ; ignore '.' and get back to command line..
+.lookup_cmd
                   LD   DE, Commands
                   CALL FindCommand
                   JR   C, Unknown_request
@@ -278,6 +288,23 @@
 
 .unknown_request  LD   A,$0E                ; 'Cannot satisfy request'
                   JP   Write_Err_Msg
+
+
+; ******************************************************************************************
+;
+; terminate command line and execute the instruction at (PC)
+; - before command line is left, then check if 'Trace Subroutine' is activated.
+;   If it is, then copy the current SP into the RETurn SP (IY+82,83)
+;
+.Exec_instruct    RES  Flg_CmdLine,(IY + FlagStat3)    ; de-activate command line interpreter
+                  BIT  Flg_TraceSubr,(IY + FlagStat3)  ; 'Trace Subroutine' activated?
+                  RET  Z                               ; - no
+                  LD   L,(IY + VP_SP)                  ; get a copy of SP...
+                  LD   H,(IY + VP_SP+1)
+                  LD   (IY + SPlevel)  ,L
+                  LD   (IY + SPlevel+1),H              ; current SP saved as RETurn SP.
+                  RET                                  ; run virtual processor code ...
+
 
 
 ; ********************************************************************************
@@ -448,6 +475,12 @@ IF OZ_INTUITION
                   INCLUDE "sysvar.def"
                   INCLUDE "../../oz/os/lowram/lowram.def"         ; get address for Intuition exit in LOWRAM
 
+                  bit     Flg_RTM_bindout,(IY + FlagStat2)
+                  jr      z,cont_restore_regs
+                  ld      a,(SV_INTUITION_RAM + BindOut_copy)     ; restore bank binding of bind-out alert
+                  ld      (SV_INTUITION_RAM + OZBankBinding+1),a  ; (old binding of Intuition no longer important)
+
+.cont_restore_regs
                   ld      hl,(SV_INTUITION_RAM + VP_AF)           ; install current AF register
                   push    hl
                   pop     af
@@ -516,22 +549,6 @@ ELSE
                   POP  HL                   ; HL restored                     ** V0.28
                   RET                       ; release Z80 to application      ** V0.34
 ENDIF
-
-
-; ******************************************************************************************
-;
-; terminate command line and execute the instruction at (PC)
-; - before command line is left, then check if 'Trace Subroutine' is activated.
-;   If it is, then copy the current SP into the RETurn SP (IY+82,83)
-;
-.Exec_instruct    RES  Flg_CmdLine,(IY + FlagStat3)    ; de-activate command line interpreter
-                  BIT  Flg_TraceSubr,(IY + FlagStat3)  ; 'Trace Subroutine' activated?
-                  RET  Z                               ; - no
-                  LD   L,(IY + VP_SP)                  ; get a copy of SP...
-                  LD   H,(IY + VP_SP+1)
-                  LD   (IY + SPlevel)  ,L
-                  LD   (IY + SPlevel+1),H              ; current SP saved as RETurn SP.
-                  RET                                  ; run virtual processor code ...
 
 
 ; ****************************************************************************************

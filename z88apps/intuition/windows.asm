@@ -254,8 +254,8 @@
                   CALL Display_Char
                   JP   Write_CRLF
 
-.Int_ID_msg       DEFM "Intuition Window: ",0
-.appl_ID_msg      DEFM "Appl. Window: ",0
+.Int_ID_msg       DEFM "Debug.Win:",0
+.appl_ID_msg      DEFM "Appl.Win:",0
 
 
 

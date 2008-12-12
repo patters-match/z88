@@ -18,23 +18,27 @@
     MODULE Std_Instructions
 
     ; Routines defined in 'debugger.asm':
-    XREF command_mode, Breakpoint_found
+    XREF command_mode, Breakpoint_found, Bindout_error
 
     ; Global routines defined in this module:
     XDEF Opcode_0, Opcode_8, Opcode_16, Opcode_24, Opcode_32, Opcode_40, Opcode_48, Opcode_56
-    XDEF Opcode_118, Opcode_207, Opcode_215, Opcode_239, Opcode_247
+    XDEF Opcode_118, Opcode_207, Opcode_215, Opcode_239, Opcode_247, Opcode_251
     XDEF Opcode_192, Opcode_193, Opcode_194, Opcode_195, Opcode_196, Opcode_197, Opcode_200, Opcode_201
     XDEF Opcode_202, Opcode_204, Opcode_205, Opcode_208, Opcode_209, Opcode_210, Opcode_211, Opcode_212
     XDEF Opcode_213, Opcode_216, Opcode_217, Opcode_218, Opcode_219, Opcode_220, Opcode_223, Opcode_224
     XDEF Opcode_225, Opcode_226, Opcode_227, Opcode_228, Opcode_229, Opcode_231, Opcode_232, Opcode_233
     XDEF Opcode_234, Opcode_235, Opcode_236, Opcode_240, Opcode_241, Opcode_242, Opcode_244, Opcode_245
-    XDEF Opcode_248, Opcode_250, Opcode_252
+    XDEF Opcode_248, Opcode_250, Opcode_252, Opcode_243
     XDEF Select_IXIY, Select_IXIY_disp
     XDEF RestoreMainReg
 
     XDEF Opcode_233_index, Opcode_229_index, Opcode_225_index, Opcode_227_index
     XDEF Calc_Reladdress
 
+IF OZ_INTUITION
+    INCLUDE "oz.def"
+ENDIF
+    INCLUDE "blink.def"       ; assembly directives & various constants
     INCLUDE "defs.h"          ; assembly directives & various constants
 
 
@@ -689,7 +693,28 @@
 ;
 ; OUT  (n),A                                2 bytes
 ;
-.Opcode_211       EXX                       ;                                 ** V0.28
+.Opcode_211
+IF OZ_INTUITION
+                  EXX
+                  LD   A, BL_SR0
+                  CP   (HL)                 ; execution about to bind out Intuition in segment 0?
+                  EXX
+                  JR   NZ, out_port         ; nope, another port activity (not segment 0 bank binding)...
+                  EX   AF,AF'
+                  LD   B,A                  ; get A register
+                  EX   AF,AF'
+                  LD   A,OZBANK_INTUITION
+                  CP   B
+                  RET  Z                    ; executing code re-binds Intuition into same bank, ignore..
+                  EXX
+                  DEC  HL                   ; Danger! Intuition bank is about to be bound out...
+                  EXX                       ; point at Out instruction
+                  LD   A,(BLSC_SR0)         ; cache the soft copy of the bank that the running code
+                  LD   (IY + BindOut_copy),A; wants to bind (to be restored when .G command is used)
+                  JP   Bindout_error        ; alert warning and stop execution
+ENDIF
+.out_port
+                  EXX                       ;                                 ** V0.28
                   PUSH BC                   ; preserve virtual, HL register.. ** V1.1.1
                   LD   C,(HL)               ; get port number N
                   INC  HL
@@ -700,6 +725,7 @@
                   POP  BC                   ;                                 ** V1.1.1
                   EXX                       ;                                 ** V0.28
                   RET                       ; - no flags affected...
+
 
 
 ; ************************************************************************************
@@ -718,6 +744,27 @@
                   EXX                       ;                                 ** V0.28
                   RET                       ; with   IN   A,(n) ...
 
+
+; ************************************************************************************
+;
+; DI                                        1 byte
+;
+.Opcode_243
+                  EX   AF,AF'               ; get virtual AF
+                  DI
+                  EX   AF,AF'
+                  RET
+
+
+; ************************************************************************************
+;
+; EI                                        1 byte
+;
+.Opcode_251
+                  EX   AF,AF'               ; get virtual AF
+                  EI
+                  EX   AF,AF'
+                  RET
 
 ; ******************************************************************************************
 ;
@@ -740,7 +787,7 @@
 ;
 .Opcode_215       POP  HL                   ; get address back to main decode loop
                   LD   DE, $0010            ; PC to be defined with 0010H (restart vector)
-                  JP   RST_XXH
+                  JR   RST_XXH
 
 
 ; ******************************************************************************************
@@ -790,6 +837,52 @@ ELSE
 ENDIF
 
 
+; ******************************************************************************************
+;
+; RST  $28        instruction               1 byte
+;
+; Not used by OZ. Mapped with Fc = 1 and return to caller.
+; Execute instruction for future implementation in OZ.
+;
+.Opcode_239       POP  HL                   ; get address back to main decode loop
+                  LD   DE, $0028            ; PC to be defined with 0028H (restart vector)
+                  JR   RST_XXH
+
+
+; ******************************************************************************************
+;
+; RST  $30        instruction               1 byte
+;
+; OZ 4.2 (and later) Fast binding (OZ_MPB) interface
+; (older OZ releases maps this with just Fc = 1 and return to caller)
+;
+.Opcode_247       POP  HL                   ; get address back to main decode loop
+                  LD   DE, $0030            ; PC to be defined with 0030H (restart vector)
+                                            ; JR   RST_XXH
+
+
+; **********************************************************************************
+;
+; RST XXH - execute RST instruction (perform functionality of RST XX)
+;
+; IN: DE = Address of RST vector
+;     HL = RET to main decode loop
+;
+;       ..BCDE../IXIY  same
+;       AF....HL/....  different
+;
+.RST_XXH          EXX
+                  PUSH HL                   ; RST 18H RET address (PC points to first parameter)
+                  DEC  DE
+                  DEC  DE                   ; v.p. SP updated
+                  EXX
+                  PUSH DE
+                  EXX
+                  POP  HL                   ; PC = Restart vector
+                  EXX
+                  JP   (HL)                 ; back to main decode loop
+
+
 ; ***************************************************************************
 ;
 ; RST  20h        instruction               1 byte
@@ -800,7 +893,7 @@ ENDIF
 IF OZ_INTUITION
                   POP  HL                   ; get address back to main decode loop
                   LD   DE, $0020            ; PC to be defined with 0020H (restart vector)
-                  JP   RST_XXH
+                  JR   RST_XXH
 ELSE
                   LD   BC,ExecBuffer        ;                                 ** V0.28
                   PUSH IY                   ;                                 ** V0.28
@@ -844,30 +937,6 @@ ELSE
                   EX   AF,AF'               ; AF installed                    ** V0.28
                   JP  (HL)                  ; execute RST 20h call in buffer
 ENDIF
-
-
-; ******************************************************************************************
-;
-; RST  $28        instruction               1 byte
-;
-; Not used by OZ. Mapped with Fc = 1 and return to caller.
-; Execute instruction for future implementation in OZ.
-;
-.Opcode_239       POP  HL                   ; get address back to main decode loop
-                  LD   DE, $0028            ; PC to be defined with 0028H (restart vector)
-                  JP   RST_XXH
-
-
-; ******************************************************************************************
-;
-; RST  $30        instruction               1 byte
-;
-; OZ 4.2 (and later) Fast binding (OZ_MPB) interface
-; (older OZ releases maps this with just Fc = 1 and return to caller)
-;
-.Opcode_247       POP  HL                   ; get address back to main decode loop
-                  LD   DE, $0030            ; PC to be defined with 0030H (restart vector)
-                  JP   RST_XXH
 
 
 .CopyRegisters    PUSH HL
@@ -1062,28 +1131,6 @@ ENDIF
 ;
 .Opcode_118       HALT
                   RET
-
-
-; **********************************************************************************
-;
-; RST XXH - execute RST instruction (perform functionality of RST XX)
-;
-; IN: DE = Address of RST vector
-;     HL = RET to main decode loop
-;
-;       ..BCDE../IXIY  same
-;       AF....HL/....  different
-;
-.RST_XXH          EXX
-                  PUSH HL                   ; RST 18H RET address (PC points to first parameter)
-                  DEC  DE
-                  DEC  DE                   ; v.p. SP updated
-                  EXX
-                  PUSH DE
-                  EXX
-                  POP  HL                   ; PC = Restart vector
-                  EXX
-                  JP   (HL)                 ; back to main decode loop
 
 
 ; **********************************************************************************

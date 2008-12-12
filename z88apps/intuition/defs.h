@@ -89,6 +89,7 @@ DEFVARS 0
      ApplErhAddr    DS.W 1         ; Application Error Handler Address
      RamTopPage     DS.B 1         ; Top Page of allocated application RAM (Z80debug only)
      OzReleaseVer   DS.B 1         ; Cache OZ Version number from OS_Frm, IX=-1, A=FA_PTR
+     BindOut_copy   DS.B 1         ; OZ INTUITION: Copy of ($04D0) when alert ocurred.
      OZBankBinding  DS.W 1         ; Original bank binding of segment X before Intuition was activated
      Int_Worksp                    ; Number of bytes in Intuition Workspace (RTM)
 }
@@ -110,7 +111,7 @@ DEFVARS 0
     DEFC Flg_RTM_Trace  = 1           ; BIT 1:    Single stepping mode.
     DEFC Flg_RTM_BpInst = 2           ; BIT 2:    Instruction break Mode
     DEFC Flg_RTM_Kesc   = 3           ; BIT 3:    Keyboard Interrupt Mode (ESC to stop execution).
-                                      ; BIT 4:
+    DEFC Flg_RTM_bindout= 4           ; BIT 4:    Indicate Bind-out alert.
     DEFC Flg_RTM_error  = 5           ; BIT 5:    Virtual Processor Runtime error (also used as single stepping) ** V1.04
     DEFC Flg_RTM_RET    = 6           ; BIT 6:    RET instruction encountered
     DEFC Flg_RTM_Breakp = 7           ; BIT 7:    Breakpoints defined/not defined.
@@ -129,5 +130,6 @@ DEFVARS 0
     DEFC ERR_not_found = $82
     DEFC ERR_none = $83
     DEFC ERR_KILL_request = $84
+    DEFC ERR_bindout = $85
 
 lston
