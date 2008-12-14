@@ -52,9 +52,7 @@
                   RET  C
                   JR   NZ, View_addresses
                   CALL Save_alternate
-    if SEGMENT3
                   LD   C, MS_S3
-    endif
                   CALL_OZ(Os_Mpb)
                   CALL Restore_alternate
                   PUSH BC                   ; preserve prev. binding state

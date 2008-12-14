@@ -149,11 +149,8 @@ INCLUDE "fileio.def"
     XDEF Unknown_instr, Bindout_error
 
 
-IF !OZ_INTUITION
-    INCLUDE "entry.asm"                 ; use normal entry, Intuition was CALL'ed.
-ELSE
     INCLUDE "ozentry.asm"               ; Intuition initialisation from OZ is through RST 08H, where bank
-ENDIF                                   ; was dynamically bound into segment and has data in OZ system variables
+                                        ; was dynamically bound into segment and has data in OZ system variables
 
                   CALL Init_Intuition
                   CALL Restore_SPAFHLPC     ; virtual AF in AF' & SP,PC in DE',HL'      ** V0.28
@@ -339,12 +336,8 @@ include "edtable.asm"
 ; ******************************************************************************
 ;
 .command_mode     CALL Save_SPAFHLPC
-IF INT_SEGM0
                   LD   IX, Command_line
                   CALL ExtRoutine_s01
-ELSE
-                  CALL Command_line
-ENDIF
                   CALL Restore_SPAFHLPC     ;                                           ** V0.28
                   JP   decode_instr         ; and then continue to execute              ** V0.28
 
@@ -354,29 +347,6 @@ ENDIF
 ; Display Register Dump and instruction to be executed at (PC) = (HL')
 ;
 .Disasm
-IF !INT_SEGM0
-                  CALL Save_SPAFHLPC
-
-                  BIT  Flg_IntWinActv,(IY + FlagStat1) ; Is an Intuition window active? ** V0.24a
-                  JR   NZ, continue1_DZ                ; Yes - disassemble...           ** V0.24a
-                  CALL SV_appl_window                  ; No - copy application window   ** V0.24a
-                  CALL Disp_Monitor_win                ; and activate Intuition window  ** V0.24a
-.continue1_DZ     BIT  Flg_DZRegdmp,(IY + FlagStat1)   ; Auto Register Dump active?     ** V0.27b
-                  JR   Z,continue2_DZ                  ;                                ** V0.27b
-                  CALL Write_CRLF           ; separate prev. dump with a CRLF           ** V0.27b
-                  CALL DisplayRegisters     ; First display Register Dump               ** V0.27b
-.continue2_DZ
-                  CALL DZ_Z80pc             ; Disassemble instruction at (PC)
-                  CALL Write_CRLF
-                  LD   L,(IY + VP_PC)
-                  LD   H,(IY + VP_PC+1)
-                  LD   A,(HL)               ; get 1. opcode                             ** V0.24a
-                  CP   RST_20H              ; Intuition about to execute RST 20h?       ** V0.24a
-                  CALL Z, RST_appl_window   ; Yes, restore application screen           ** V0.24a
-
-                  CALL Restore_SPAFHLPC                ; restore v.p. registers and true SP
-                  JP   decode_instr                    ; continue to execute Z80 instructions
-ELSE
                   CALL Save_SPAFHLPC
 
                   BIT  Flg_IntWinActv,(IY + FlagStat1) ; Is an Intuition window active? ** V0.24a
@@ -403,7 +373,6 @@ ELSE
 
                   CALL Restore_SPAFHLPC                ; restore v.p. registers and true SP
                   JP   decode_instr                    ; continue to execute Z80 instructions
-ENDIF
 
 
 ; ***************************************************************************************************
@@ -436,28 +405,6 @@ ENDIF
 ;
 .Breakpoint_found BIT  Flg_BreakDump,(IY + FlagStat3) ; Dump only registers?            ** V0.29
                   JP   Z, command_mode      ; No - activate command line...             ** V0.29
-IF !INT_SEGM0
-                  CALL Save_SPAFHLPC
-                  BIT  Flg_IntWinActv,(IY + FlagStat1)  ;                               ** V0.29
-                  JR   NZ, cmd_dispreg      ; Intuition window already active           ** V0.29
-                  CALL SV_appl_window       ; save application screen window            ** V0.29
-                  CALL Disp_Monitor_win     ; display Intuition window...               ** V0.29
-.cmd_dispreg
-                  CALL DisplayRegisters     ; then dump contents of Z80 registers       ** V0.29
-                  CALL_OZ(Gn_Nln)
-                  CALL Disp_RTM_error       ; display OZ call on Fc = 1 error           ** V0.32
-                  CALL DZ_Z80pc
-                  CALL_OZ(Gn_Nln)
-                  LD   A,(IY + FlagStat2)   ; get runtime flags                         ** V0.29
-                  BIT  Flg_RTM_Trace,A      ; Single Step Mode?                         ** V0.29
-                  JR   NZ, restore_screen   ; Yes, restore screen                       ** V0.29
-                  BIT  Flg_RTM_DZ,A         ; else                                      ** V0.29
-                  JR   NZ, no_scr_restore   ; If Auto disassemble, don't restore window ** V0.29
-.restore_screen   CALL RST_appl_window      ; restore application screen window         ** V0.29
-
-.no_scr_restore   CALL Restore_SPAFHLPC
-                  JP   decode_instr         ; decode and execute breakpoint instruction ** V1.04
-ELSE
                   CALL Save_SPAFHLPC
                   BIT  Flg_IntWinActv,(IY + FlagStat1)  ;                               ** V0.29
                   JR   NZ, cmd_dispreg      ; Intuition window already active           ** V0.29
@@ -484,7 +431,6 @@ ELSE
 
 .no_scr_restore   CALL Restore_SPAFHLPC
                   JP   decode_instr         ; decode and execute breakpoint instruction ** V1.04
-ENDIF
 
 
 ; ******************************************************************************

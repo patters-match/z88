@@ -78,11 +78,9 @@
                     LD   A,H
                     AND  @11000000            ; get segment specifier of DZ address
                     LD   D,A                  ; into D (users logical address for segment)
-    if SEGMENT3
                     LD   E,$C0                ; bit mask to keep DZ PC in segment 3...
                     SET  7,H
                     SET  6,H                  ; address patched for segment 3
-    endif
                     EXX
                     CP   A                    ; Fc = 0, signal success
                     RET                       ; Fz = 1, bank B to be bound in appropriate segment
@@ -123,9 +121,7 @@
                   RET  C                    ; Ups - syntax error...
                   JR   NZ, Disassemble      ; disassemble in logical address space
                   CALL Save_alternate
-    if SEGMENT3
                   LD   C, MS_S3
-    endif
                   CALL_OZ(Os_Mpb)
                   CALL Restore_alternate
                   PUSH BC                   ; remember previous bank number

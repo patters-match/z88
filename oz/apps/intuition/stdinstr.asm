@@ -35,9 +35,7 @@
     XDEF Opcode_233_index, Opcode_229_index, Opcode_225_index, Opcode_227_index
     XDEF Calc_Reladdress
 
-IF OZ_INTUITION
     INCLUDE "oz.def"
-ENDIF
     INCLUDE "blink.def"       ; assembly directives & various constants
     INCLUDE "defs.h"          ; assembly directives & various constants
 
@@ -694,7 +692,6 @@ ENDIF
 ; OUT  (n),A                                2 bytes
 ;
 .Opcode_211
-IF OZ_INTUITION
                   EXX
                   LD   A, BL_SR0
                   CP   (HL)                 ; execution about to bind out Intuition in segment 0?
@@ -712,7 +709,6 @@ IF OZ_INTUITION
                   LD   A,(BLSC_SR0)         ; cache the soft copy of the bank that the running code
                   LD   (IY + BindOut_copy),A; wants to bind (to be restored when .G command is used)
                   JP   Bindout_error        ; alert warning and stop execution
-ENDIF
 .out_port
                   EXX                       ;                                 ** V0.28
                   PUSH BC                   ; preserve virtual, HL register.. ** V1.1.1
@@ -796,45 +792,9 @@ ENDIF
 ;
 ; Z88 operating system call to process floating point numbers, with 1 byte parameter
 ;
-.Opcode_223
-IF OZ_INTUITION
-                  POP  HL                   ; get address back to main decode loop
+.Opcode_223       POP  HL                   ; get address back to main decode loop
                   LD   DE, $0018            ; PC to be defined with 0018H (restart vector)
                   JP   RST_XXH
-ELSE
-                  EXX                       ;                                 ** V0.28
-                  LD   A,(HL)               ; get FPP parameter
-                  INC  HL                   ; ready for next instruction
-                  PUSH DE                   ; save virtual SP on stack        ** V0.23
-                  PUSH HL                   ; save virtual PC on stack        ** V0.24
-                  EXX                       ;                                 ** V0.28
-                  LD   BC,24                ; !! Mnemonic here..              ** V0.24/V0.28
-                  PUSH IY                   ;                                 ** V0.24/v0.28
-                  POP  HL                   ;                                 ** V0.24/V0.28
-                  ADD  HL,BC                ;                                 ** V0.24/V0.28
-                  LD   D,H                  ;                                 ** V0.24
-                  LD   E,L                  ;                                 ** V0.24
-                  LD   (HL), $E1            ; POP  HL instruction             ** V0.24
-                  INC  HL                   ;                                 ** V0.24
-                  LD   (HL), $DF            ; RST  $18 instruction...         ** V0.24
-                  INC  HL                   ;                                 ** V0.24
-                  LD   (HL), A              ; parameter installed...          ** V0.24
-                  INC  HL                   ;                                 ** V0.24
-                  LD   (HL), $C9            ; RET instruction...              ** V0.24
-                  LD   BC, CopyRegisters    ; get values of AF,BC,DE,HL,IX,   ** V0.28
-                  PUSH BC                   ; AF',BC',DE' & HL' on return     ** V0.28
-                  PUSH DE                   ; ptr to buffer on stack
-                  CALL RestoreMainReg       ; restore BC,DE,HL & IX           ** V0.28
-                  EXX                       ;                                 ** V0.28
-                  LD   E,(IY + VP_Ex)       ; DE' restored                    ** V0.28
-                  LD   D,(IY + VP_Dx)       ;                                 ** V0.28
-                  LD   L,(IY + VP_Lx)       ; HL' restored                    ** V0.28
-                  LD   H,(IY + VP_Hx)       ; (BC' is not need as parameter)  ** V0.28
-                  EXX                       ;                                 ** V0.28
-                  EX   (SP),HL              ; put HL on the stack             ** V0.28
-                  EX   AF,AF'               ; AF installed                    ** V0.28
-                  JP  (HL)                  ; execute RST 18h call in buffer
-ENDIF
 
 
 ; ******************************************************************************************
@@ -889,120 +849,10 @@ ENDIF
 ;
 ; Z88 operating system call with parameters (DEFB or DEFW)
 ;
-.Opcode_231
-IF OZ_INTUITION
-                  POP  HL                   ; get address back to main decode loop
+.Opcode_231       POP  HL                   ; get address back to main decode loop
                   LD   DE, $0020            ; PC to be defined with 0020H (restart vector)
                   JR   RST_XXH
-ELSE
-                  LD   BC,ExecBuffer        ;                                 ** V0.28
-                  PUSH IY                   ;                                 ** V0.28
-                  POP  HL                   ;                                 ** V0.28
-                  ADD  HL,BC                ; HL points at exec buffer        ** V0.28
-                  LD   B,H
-                  LD   C,L                  ; save a copy of ex. buffer ptr.
-                  LD   (HL), $E1            ; POP  HL instruction (to install HL from Intuition)
-                  INC  HL
-                  LD   (HL), $E7            ; RST  $20 instruction...
-                  INC  HL
-                  EXX                       ; alternate...                    ** V0.28
-                  LD   A,(HL)               ; get first parameter
-                  INC  HL                   ; PC ready for par./instr.
-                  EXX                       ; main...
-                  LD   (HL),A               ; install first parameter         ** V0.28
-                  INC  HL
-                  CP   $06                  ; 2 byte parameter?
-                  JR   Z, fetch_second_par  ; 'OS_' 2 byte system call
-                  CP   $09
-                  JR   Z, fetch_second_par  ; 'GN_' system call
-                  CP   $0C
-                  JR   Z, fetch_second_par  ; 'DC_' 2 byte system call
-                  JR   Put_RET_instr        ; 'OS_' 1 byte system call
-.fetch_second_par EXX                       ; alternate...                    ** V0.28
-                  LD   A,(HL)               ; get 2. byte parameter           ** V0.28
-                  INC  HL                   ; PC ready for next instruction   ** V0.28
-                  EXX                       ; main...                         ** V0.28
-                  LD   (HL),A               ; install 2. parameter            ** V0.28
-                  INC  HL                   ;                                 ** V0.28
-.Put_RET_instr    LD   (HL), $C9            ; RET instruction...              ** V0.28
-                  EXX
-                  PUSH DE                   ; save virtual SP on stack        ** V0.28
-                  PUSH HL                   ; save PC on stack                ** V0.28
-                  EXX
-                  LD   DE, CopyRegisters    ; get values of AF,BC,DE,HL,IX,   ** V0.28
-                  PUSH DE                   ; AF',BC',DE' & HL' on return     ** V0.28
-                  PUSH BC                   ; ptr to CALL buffer on stack     ** V0.28
-                  CALL RestoreMainReg       ; restore BC,DE,HL & IX           ** V0.28
-                  EX   (SP),HL              ; put HL on the stack             ** V0.28
-                  EX   AF,AF'               ; AF installed                    ** V0.28
-                  JP  (HL)                  ; execute RST 20h call in buffer
-ENDIF
 
-
-.CopyRegisters    PUSH HL
-                  PUSH IY
-                  POP  HL                   ; HL = base address
-                  LD   (HL),C
-                  INC  HL
-                  LD   (HL),B               ; BC copied
-                  INC  HL
-                  LD   (HL),E
-                  INC  HL
-                  LD   (HL),D               ; DE copied
-                  INC  HL
-                  POP  BC                   ; HL (in BC)
-                  INC  HL
-                  INC  HL
-                  INC  HL
-                  INC  HL                   ; skip AF
-                  PUSH HL
-                  EXX                       ; alternate
-                  EX   (SP),HL              ; HL' on stack, HL ptr. in RTM area
-                  LD   (HL),C
-                  INC  HL
-                  LD   (HL),B               ; BC' copied
-                  INC  HL
-                  LD   (HL),E
-                  INC  HL
-                  LD   (HL),D               ; DE' copied
-                  INC  HL
-                  POP  DE
-                  LD   (HL),E
-                  INC  HL
-                  LD   (HL),D               ; HL' copied
-                  INC  HL
-                  EX   AF,AF'               ; AF installed in AF'             ** V0.28
-                  PUSH AF                   ; get AF'
-                  POP  DE
-                  LD   (HL),E
-                  INC  HL
-                  LD   (HL),D               ; AF' copied
-                  INC  HL
-                  PUSH IX
-                  POP  DE
-                  LD   (HL),E
-                  INC  HL
-                  LD   (HL),D               ; IX copied
-                  POP  HL                   ; virtual PC installed            ** V0.28
-                  POP  DE                   ; virtual SP installed            ** V0.28
-                  EXX                       ; use main set                    ** V0.28
-                  PUSH BC
-                  EXX                       ;                                 ** V1.1.1
-                  POP  BC                   ; virtual HL installed            ** V1.1.1
-                  EXX                       ;                                 ** V1.1.1
-                  BIT  Flg_RTM_Trace,(IY + FlagStat2) ; single step mode?     ** V0.32
-                  RET  NZ                   ; yes...                          ** V0.32
-                  BIT  Flg_BreakOZ,(IY + FlagStat3)   ; Break at OZ error?    ** V0.32
-                  RET  Z                    ; no, continue virtual processor  ** V0.32
-
-                  EX   AF,AF'               ;                                 ** V0.32
-                  PUSH AF                   ;                                 ** V0.32
-                  EX   AF,AF'               ;                                 ** V0.32
-                  POP  AF                   ;                                 ** V0.32
-                  RET  NC                   ; continue virtual processor      ** V0.32
-                  SET  Flg_RTM_error,(IY + FlagStat2) ;indicate runtime error ** V0.32
-                  LD   (IY + RtmError),$FF  ; indicate display of OZ call     ** V0.32
-                  JP   command_mode         ; OZ error, dump or command line  ** V0.32
 
 
 
@@ -1024,7 +874,6 @@ ENDIF
                   POP  IX                   ; IX restored                     ** V1.1.1
                   POP  HL                   ; HL restored                     ** V1.1.1
                   RET
-ENDIF
 
 
 ; ************************************************************************************

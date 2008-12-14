@@ -24,10 +24,9 @@
     XREF Bindout_error
 
     INCLUDE "blink.def"
-IF OZ_INTUITION
     INCLUDE "oz.def"
-ENDIF
     INCLUDE "defs.h"
+
 
 ; ****************************************************************************
 ;
@@ -290,7 +289,6 @@ ENDIF
 .Out_direction    LD   B,(IY + VP_B)
                   LD   C,(IY + VP_C)        ; port (C)
 
-IF OZ_INTUITION
                   LD   A, BL_SR0
                   CP   C                    ; execution about to bind out Intuition in segment 0?
                   JR   NZ,output_byte
@@ -304,7 +302,6 @@ IF OZ_INTUITION
                   LD   A,(BLSC_SR0)         ; cache the soft copy of the bank that the running code
                   LD   (IY + BindOut_copy),A; wants to bind (to be restored when .G command is used)
                   JP   Bindout_error        ; alert warning and stop execution
-ENDIF
 .output_byte
                   OUT  (C),D                ; no flags affected.
                   RET

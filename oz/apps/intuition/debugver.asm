@@ -31,27 +31,7 @@
                   LD   L,(IY + OzReleaseVer)
                   CP   A
                   CALL IntHexDisp           ; display version byte from OZ
-                  CALL Write_CRLF
-IF OZ_INTUITION
-                  RET
-ELSE
-                  LD   HL, Base_Msg
-                  CALL Display_String
-                  PUSH IY
-                  PUSH IY
-                  POP  HL                   ; Get base of variable area in HL
-                  SCF
-                  CALL IntHexDisp_H         ; display address
-                  POP  HL                   ; fetch the copy
-                  LD   BC,Int_Worksp-1      ; size of monitor area (0 incl.)
-                  ADD  HL,BC
-                  LD   A, '-'
-                  CALL Display_Char
-                  SCF
-                  CALL IntHexDisp_H         ; display end of variable area
-                  JP   Write_CRLF           ; New Line.
+                  JP   Write_CRLF
 
-.Base_Msg         DEFM "Buffer:",0
-ENDIF
 .OZ_version       DEFM "OZ: V",0
 .Version          DEFM "V1.2.dev",0         ; see 'history.txt' for development history

@@ -69,6 +69,8 @@
      INCLUDE "error.def"
      INCLUDE "stdio.def"
      INCLUDE "interrpt.def"
+     INCLUDE "sysvar.def"
+     INCLUDE "../../os/lowram/lowram.def"         ; get address for Intuition exit in LOWRAM
 
 
 ; ***********************************************************************************
@@ -90,12 +92,10 @@
                   CALL Disp_RTM_error       ; display error or OZ mnemonic              ** V0.32
                   CALL DZ_Z80pc             ; Disassemble instruction at (PC)
                   CALL Write_CRLF           ;                                           ** V0.28
-IF OZ_INTUITION
                   BIT  Flg_RTM_bindout,(IY + FlagStat2)
                   JR   Z,command_loop
                   LD   (IY + Cmdlbuffer+2),'G'
                   LD   (IY + Cmdlbuffer+3),0    ; preset with .G command for bind-alert
-ENDIF
 .command_loop     CALL InputCommand         ; wait until a key is pressed...
                   CALL ExecuteCommand
                   BIT  Flg_CmdLine,(IY + FlagStat3)    ; command line aborted?
@@ -376,9 +376,8 @@ ENDIF
                   DEFM '~',0
 
 .Commands
-     IF SEGMENT3
                   DEFB 23
-     ENDIF
+
                   DEFW Set_Intuition_ID
                   DEFM "W",0
 
@@ -456,10 +455,6 @@ ENDIF
 .Release_debugger CALL RST_appl_window      ; restore application screen window         ** V0.22
                   CALL RST_ApplErrhandler   ; restore application error handler         ** V0.31
 
-IF OZ_INTUITION
-                  INCLUDE "sysvar.def"
-                  INCLUDE "../../oz/os/lowram/lowram.def"         ; get address for Intuition exit in LOWRAM
-
                   bit     Flg_RTM_bindout,(IY + FlagStat2)
                   jr      z,cont_restore_regs
                   ld      a,(SV_INTUITION_RAM + BindOut_copy)     ; restore bank binding of bind-out alert
@@ -494,46 +489,6 @@ IF OZ_INTUITION
 
                   ld      bc,(SV_INTUITION_RAM + OZBankBinding)   ; get original segment 0 bank binding
                   jp      exitIntuitionLowRam                     ; restore bank binding in LOWRAM, then let Z80 run application
-ELSE
-                  LD   SP,IY                ; point at start of Runtime Area  ** V0.28
-                  POP  BC                   ; BC restored                     ** V0.28
-                  POP  DE                   ; DE restored                     ** V0.28
-                  POP  IX                   ; HL in IX temporarily...         ** V1.1.1
-                  POP  AF                   ; AF restored                     ** V0.28
-                  EXX                       ;                                 ** V0.28
-                  POP  BC                   ; BC' restored                    ** V0.28
-                  POP  DE                   ; DE' restored                    ** V0.28
-                  POP  HL                   ; HL' restored                    ** V0.28
-                  EXX                       ;                                 ** V0.28
-                  EX   AF,AF'               ;                                 ** V0.28
-                  POP  AF                   ; AF' restored                    ** V0.28
-                  EX   AF,AF'               ;                                 ** V0.28
-                  EX   (SP),IX              ; IX restored, orig HL on stack   ** V1.1.1
-                  LD   L,(IY + VP_IYl)
-                  LD   H,(IY + VP_IYh)
-                  LD   (IY + ExecBuffer),L
-                  LD   (IY + ExecBuffer+1),H  ; preserve orig IY above SP,PC
-                  POP  HL
-                  LD   (IY + ExecBuffer+2),L
-                  LD   (IY + ExecBuffer+3),H  ; preserve orig HL
-
-                  INC  SP                   ;                                 ** V0.28
-                  INC  SP                   ; skip IY                         ** V0.28
-                  POP  HL                   ; get SP                          ** V0.28
-                  LD   SP,HL                ; install SP (assume it below)    ** V0.28
-                  LD   L,(IY + VP_PC)         ;                                 ** V0.28
-                  LD   H,(IY + VP_PC+1)       ;                                 ** V0.28
-                  PUSH HL                   ; PC on (new) stack               ** V0.28
-                  LD   L,(IY + ExecBuffer+2)
-                  LD   H,(IY + ExecBuffer+3)
-                  PUSH HL                   ; HL on stack                     ** V0.28
-                  LD   L,(IY + ExecBuffer)    ;                                 ** V1.1.1
-                  LD   H,(IY + ExecBuffer+1)  ;                                 ** V1.1.1
-                  PUSH HL                   ;                                 ** V0.28
-                  POP  IY                   ; IY restored                     ** V0.28
-                  POP  HL                   ; HL restored                     ** V0.28
-                  RET                       ; release Z80 to application      ** V0.34
-ENDIF
 
 
 ; ****************************************************************************************
