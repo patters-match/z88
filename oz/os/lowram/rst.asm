@@ -315,5 +315,13 @@ IF OZ_INTUITION
         ld      bc,OZBANK_INTUITION << 8 | MS_S0
         rst     OZ_MPB                          ; install Intuition bank into segment 0
         jp      $2000                           ; call Intuition, with BC = old bank binding
+
+; The user has pressed [] + INDEX keys during OS_In/Tin - Intuition is activated and points
+; to instruction in application after OS_In/Tin call.
+.KbAwakeIntuition
+        push    hl
+        ld      hl,(SV_INTUITION_RAM + PushFrameRet)   ; the RET address on stack is the application
+        ex      (sp),hl                                ; instruction after OS_In/Tin in application
+        jr      BindIntuition
 ; ----------------------------------------------------------------------------------------------
 ENDIF

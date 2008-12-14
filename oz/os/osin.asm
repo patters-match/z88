@@ -43,7 +43,6 @@
         include "z80.def"
         include "interrpt.def"
         include "keyboard.def"
-
         include "lowram.def"
 
 xdef    OSIn
@@ -242,6 +241,15 @@ xref    Key2Chr_tbl                             ; [Kernel1]/key2chrt.asm
         jr      z, ostin_6
         call    CancelOZcmd
         ld      a, (cExtendedChar)
+IF OZ_INTUITION
+        cp      IN_AIDX                         ; []+INDEX keys pressed?
+        jr      nz, ostin_1                     ; No, return to caller as normal
+        ld      l,(iy + OSFrame_OZPC)                       ; Yes, activate Intuition on return from OS_IN/Tin.
+        ld      h,(iy + OSFrame_OZPC+1)                     ; Replace the Application Return address in OS pushframe
+        ld      (SV_INTUITION_RAM + PushFrameRet),hl        ; with Intuition activation address in LOWRAM
+        ld      (iy + OSFrame_OZPC),KbAwakeIntuition % 256  ; Yes, activate Intuition on return from OS_IN/Tin.
+        ld      (iy + OSFrame_OZPC+1),KbAwakeIntuition / 256; Replace the Application Return address in OS pushframe
+ENDIF
 .ostin_1
         or      a
 .ostin_2

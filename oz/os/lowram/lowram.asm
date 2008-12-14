@@ -75,7 +75,7 @@ xdef    AM29Fx_PollChipId, AM29Fx_BlowByte, AM29Fx_EraseSector
 xdef    BfSta, BfPb, BfGb
 
 IF OZ_INTUITION
-xdef    exitIntuitionLowRam
+xdef    exitIntuitionLowRam, KbAwakeIntuition
 ENDIF
 
 

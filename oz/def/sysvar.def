@@ -375,6 +375,7 @@ defvars 0
      InstrBreakPatt DS.B 5         ; Instruction break bit pattern (max. 4 bytes)
      ApplErhClvl    DS.B 1         ; Application Error Handler Call Level
      ApplErhAddr    DS.W 1         ; Application Error Handler Address
+     PushFrameRet   DS.W 1         ; Application RET address in OS Push Frame (obtained when []+INDEX is pressed)
      RamTopPage     DS.B 1         ; Top Page of allocated application RAM (Z80debug only)
      OzReleaseVer   DS.B 1         ; Cache OZ Version number from OS_Frm, IX=-1, A=FA_PTR
      BindOut_copy   DS.B 1         ; Copy of ($04D0) when alert ocurred.
