@@ -240,7 +240,7 @@ fi
 # -------------------------------------------------------------------------------------------------
 echo compiling Intuition
 cd apps/intuition
-. make.debugOZ.sh $ozslot
+. make.debug.sh $ozslot
 cd ../..
 
 if test `find . -name '*.err' | wc -l` != 0; then
