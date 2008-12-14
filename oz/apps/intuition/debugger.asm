@@ -18,11 +18,12 @@
     MODULE Debugger
 
 
-INCLUDE "defs.h"
+INCLUDE "oz.def"
 INCLUDE "stdio.def"
 INCLUDE "fileio.def"
 
-    XREF ExtRoutine_s01
+INCLUDE "defs.h"
+
     XREF DisplayRegisters
     XREF DZ_Z80pc
 
@@ -336,8 +337,7 @@ include "edtable.asm"
 ; ******************************************************************************
 ;
 .command_mode     CALL Save_SPAFHLPC
-                  LD   IX, Command_line
-                  CALL ExtRoutine_s01
+                  EXTCALL Command_line, OZBANK_INTUITION | 1
                   CALL Restore_SPAFHLPC     ;                                           ** V0.28
                   JP   decode_instr         ; and then continue to execute              ** V0.28
 
@@ -349,30 +349,27 @@ include "edtable.asm"
 .Disasm
                   CALL Save_SPAFHLPC
 
-                  BIT  Flg_IntWinActv,(IY + FlagStat1) ; Is an Intuition window active? ** V0.24a
-                  JR   NZ, continue1_DZ                ; Yes - disassemble...           ** V0.24a
-                  LD   IX, SV_appl_window
-                  CALL ExtRoutine_s01                  ; No - copy application window   ** V0.24a
-                  LD   IX, Disp_Monitor_win
-                  CALL ExtRoutine_s01                  ; and activate Intuition window  ** V0.24a
-.continue1_DZ     BIT  Flg_DZRegdmp,(IY + FlagStat1)   ; Auto Register Dump active?     ** V0.27b
-                  JR   Z,continue2_DZ                  ;                                ** V0.27b
-                  CALL_OZ(Gn_Nln)                      ; separate prev. dump with a CRLF           ** V0.27b
-                  LD   IX, DisplayRegisters            ; First display Register Dump    ** V0.27b
-                  CALL ExtRoutine_s01
+                  BIT  Flg_IntWinActv,(IY + FlagStat1)           ; Is an Intuition window active? ** V0.24a
+                  JR   NZ, continue1_DZ                          ; Yes - disassemble...           ** V0.24a
+                  EXTCALL SV_appl_window, OZBANK_INTUITION | 1   ; No - copy application window
+                  EXTCALL Disp_Monitor_win, OZBANK_INTUITION | 1 ; and activate Intuition window
+
+.continue1_DZ     BIT  Flg_DZRegdmp,(IY + FlagStat1)             ; Auto Register Dump active?     ** V0.27b
+                  JR   Z,continue2_DZ
+                  CALL_OZ(Gn_Nln)                                ; separate prev. dump with a CRLF           ** V0.27b
+                  EXTCALL DisplayRegisters, OZBANK_INTUITION | 1 ; First display Register Dump
 .continue2_DZ
-                  LD   IX, DZ_Z80pc                    ; Disassemble instruction at (PC)
-                  CALL ExtRoutine_s01
+                  EXTCALL DZ_Z80pc, OZBANK_INTUITION | 1         ; Disassemble instruction at (PC)
                   CALL_OZ(Gn_Nln)
                   LD   L,(IY + VP_PC)
                   LD   H,(IY + VP_PC+1)
-                  LD   A,(HL)               ; get 1. opcode                             ** V0.24a
-                  CP   RST_20H              ; Intuition about to execute RST 20h?       ** V0.24a
-                  LD   IX, RST_appl_window
-                  CALL Z, ExtRoutine_s01    ; Yes, restore application screen           ** V0.24a
-
-                  CALL Restore_SPAFHLPC                ; restore v.p. registers and true SP
-                  JP   decode_instr                    ; continue to execute Z80 instructions
+                  LD   A,(HL)                                    ; get 1. opcode                             ** V0.24a
+                  CP   RST_20H                                   ; Intuition about to execute RST 20h?       ** V0.24a
+                  JR   NZ, rest_SPAFHLPC
+                  EXTCALL RST_appl_window, OZBANK_INTUITION | 1  ; Yes, restore application screen
+.rest_SPAFHLPC
+                  CALL Restore_SPAFHLPC                          ; restore v.p. registers and true SP
+                  JP   decode_instr                              ; continue to execute Z80 instructions
 
 
 ; ***************************************************************************************************
@@ -408,26 +405,20 @@ include "edtable.asm"
                   CALL Save_SPAFHLPC
                   BIT  Flg_IntWinActv,(IY + FlagStat1)  ;                               ** V0.29
                   JR   NZ, cmd_dispreg      ; Intuition window already active           ** V0.29
-                  LD   IX, SV_appl_window
-                  CALL ExtRoutine_s01       ; save application screen window            ** V0.29
-                  LD   IX, Disp_Monitor_win
-                  CALL ExtRoutine_s01       ; display Intuition window...               ** V0.29
+                  EXTCALL SV_appl_window, OZBANK_INTUITION | 1   ; save application screen window
+                  EXTCALL Disp_Monitor_win, OZBANK_INTUITION | 1 ; display Intuition window...
 .cmd_dispreg
-                  LD   IX, DisplayRegisters ; then dump contents of Z80 registers       ** V0.29
-                  CALL ExtRoutine_s01
+                  EXTCALL DisplayRegisters, OZBANK_INTUITION | 1 ; then dump contents of Z80 registers
                   CALL_OZ(Gn_Nln)
-                  LD   IX, Disp_RTM_error
-                  CALL ExtRoutine_s01       ; display OZ call on Fc = 1 error           ** V0.32
-                  LD   IX,DZ_Z80pc          ; Disassemble instruction at (PC)
-                  CALL ExtRoutine_s01
+                  EXTCALL Disp_RTM_error, OZBANK_INTUITION | 1   ; display OZ call on Fc = 1 error
+                  EXTCALL DZ_Z80pc, OZBANK_INTUITION | 1         ; Disassemble instruction at (PC)
                   CALL_OZ(Gn_Nln)           ;                                           ** V0.29
                   LD   A,(IY + FlagStat2)   ; get runtime flags                         ** V0.29
                   BIT  Flg_RTM_Trace,A      ; Single Step Mode?                         ** V0.29
                   JR   NZ, restore_screen   ; Yes, restore screen                       ** V0.29
                   BIT  Flg_RTM_DZ,A         ; else                                      ** V0.29
                   JR   NZ, no_scr_restore   ; If Auto disassemble, don't restore window ** V0.29
-.restore_screen   LD   IX, RST_appl_window
-                  CALL ExtRoutine_s01       ; restore application screen window         ** V0.29
+.restore_screen   EXTCALL RST_appl_window, OZBANK_INTUITION | 1  ; restore application screen window
 
 .no_scr_restore   CALL Restore_SPAFHLPC
                   JP   decode_instr         ; decode and execute breakpoint instruction ** V1.04
