@@ -83,11 +83,6 @@
                     SET  7,H
                     SET  6,H                  ; address patched for segment 3
     endif
-    if SEGMENT2
-                    LD   E,$80                ; bit mask to keep DZ PC in segment 2...
-                    SET  7,H
-                    RES  6,H                  ; address patched for segment 2
-    endif
                     EXX
                     CP   A                    ; Fc = 0, signal success
                     RET                       ; Fz = 1, bank B to be bound in appropriate segment
@@ -130,9 +125,6 @@
                   CALL Save_alternate
     if SEGMENT3
                   LD   C, MS_S3
-    endif
-    if SEGMENT2
-                  LD   C, MS_S2
     endif
                   CALL_OZ(Os_Mpb)
                   CALL Restore_alternate

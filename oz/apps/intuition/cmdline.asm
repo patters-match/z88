@@ -379,21 +379,6 @@ ENDIF
      IF SEGMENT3
                   DEFB 23
      ENDIF
-     IF SEGMENT2
-                  DEFB 23+4
-
-                  DEFW Memory_Load
-                  DEFM "ML",0
-
-                  DEFW Memory_Range
-                  DEFM "MR",0
-
-                  DEFW Kill_application
-                  DEFM "KILL",0
-
-                  DEFW Name_application
-                  DEFM "NMA",0
-     ENDIF
                   DEFW Set_Intuition_ID
                   DEFM "W",0
 

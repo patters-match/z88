@@ -21,10 +21,6 @@
 INCLUDE "defs.h"
 INCLUDE "stdio.def"
 INCLUDE "fileio.def"
-IF SEGMENT2
-     INCLUDE "mthdbg.def"
-     INCLUDE "director.def"
-ENDIF
 
     XREF ExtRoutine_s01
     XREF DisplayRegisters
@@ -152,85 +148,13 @@ ENDIF
     XDEF Command_mode, Breakpoint_found
     XDEF Unknown_instr, Bindout_error
 
-IF SEGMENT2
 
-     ORG Z80dbg_DOR
-
-                    DEFB 0, 0, 0                        ; link to parent
-                    DEFB 0, 0, 0                        ; link to brother (no app)
-                    DEFB 0, 0, 0
-                    DEFB $83                            ; DOR type - application ROM
-                    DEFB DOREnd2-DORStart2              ; total length of DOR
-.DORStart2          DEFB '@'                            ; Key to info section
-                    DEFB InfoEnd2-InfoStart2            ; length of info section
-.InfoStart2         DEFW 0                              ; reserved...
-                    DEFB 'I'                            ; application key letter
-                    DEFB 0                              ; Default contigous RAM size
-                    DEFW 0                              ;
-                    DEFW 0                              ; Unsafe workspace
-                    DEFW Z80dbg_workspace               ; Safe workspace
-                    DEFW Z80dbg_entry                   ; Entry point of code in seg. 3
-                    DEFB 0                              ; bank binding to segment 0
-                    DEFB 0                              ; bank binding to segment 1
-                    DEFB 0                              ; bank binding to segment 2
-                    DEFB Z80dbg_bank                    ; bank binding to segment 3   (Z80debug)
-                    DEFB @00010010                      ; Bad application, one instantiation
-                    DEFB @00000011                      ; inverted caps lock on activation
-.InfoEnd2           DEFB 'H'                            ; Key to help section
-                    DEFB 12                             ; total length of help
-                    DEFW Z80dbg_topics
-                    DEFB Z80dbg_MTH_bank                ; point to topics (info)
-                    DEFW Z80dbg_commands
-                    DEFB Z80dbg_MTH_bank                ; pointer to commands (info)
-                    DEFW Z80dbg_help
-                    DEFB Z80dbg_MTH_bank                ; point to help
-                    DEFW tokens_base
-                    DEFB tokens_bank                    ; point to token base
-                    DEFB 'N'                            ; Key to name section
-                    DEFB NameEnd2-NameStart2            ; length of name
-.NameStart2         DEFM "Intuition", 0
-.NameEnd2           DEFB $FF
-.DOREnd2
-
-
-; ****************************************************************************************************
-;
-; Intuition Application Entry Point ( after pressing []ZI )
-;
-.Z80dbg_entry     JP  Z80dbg_init           ; run Intuition application
-                  SCF
-                  RET                       ; continious RAM remains allocated...
-
-.Z80dbg_init      PUSH IX                   ; preserve pointer to information block
-                  LD   IX, -1               ; return system values...
-                  LD   A, FA_EOF
-                  LD   DE,0
-                  CALL_OZ(Os_Frm)
-                  LD   B,$40                ; preset top page to $40 for unexpanded Z88
-                  JR   NZ, test_toppage
-                  LD   B,$C0                ; expanded machine, top page is $C0 for expanded Z88
-.test_toppage     POP  IX
-                  LD   A,(IX+$02)           ; IX points at information block
-                  CP   B                    ; get end page of continious RAM
-                  JR   Z, init_Z80debug     ; end page OK, RAM allocated...
-.exit_Z80debug    LD   A,$07                ; No Room for Zprom, return to Index
-                  CALL_OZ(Os_Bye)           ; Z80debug suicide
-
-.init_Z80debug    LD   HL, -Int_Worksp
-                  ADD  HL,SP                ; Base of RTM area
-                  LD   SP,HL
-                  PUSH HL
-                  POP  IY                   ; HL & IY points at base of RTM area
-                  PUSH HL                   ; T.O.S. contains start address of Intuition area
+IF !OZ_INTUITION
+    INCLUDE "entry.asm"                 ; use normal entry, Intuition was CALL'ed.
 ELSE
+    INCLUDE "ozentry.asm"               ; Intuition initialisation from OZ is through RST 08H, where bank
+ENDIF                                   ; was dynamically bound into segment and has data in OZ system variables
 
-    IF !OZ_INTUITION
-        INCLUDE "entry.asm"                 ; use normal entry, Intuition was CALL'ed.
-    ELSE
-        INCLUDE "ozentry.asm"               ; Intuition initialisation from OZ is through RST 08H, where bank
-    ENDIF                                   ; was dynamically bound into segment and has data in OZ system variables
-
-ENDIF
                   CALL Init_Intuition
                   CALL Restore_SPAFHLPC     ; virtual AF in AF' & SP,PC in DE',HL'      ** V0.28
 
@@ -566,38 +490,6 @@ ENDIF
 ; ******************************************************************************
 ;
 .Init_Intuition
-IF SEGMENT2
-                  PUSH IY
-                  POP  HL
-                  LD   B, VP_PC+2 - VP_BC
-.clear_loop       LD   (HL),0
-                  INC  HL
-                  DJNZ clear_loop                 ; reset Intuition virtual processor registers
-
-                  XOR  A
-                  LD   H,(IX+2)
-                  LD   L,A                        ; HL points at RAM top
-                  LD   DE, $2000
-                  SBC  HL,DE
-                  LD   B,H
-                  LD   C,L                        ; BC = number of bytes to clear
-                  PUSH DE
-                  POP  HL
-                  LD   (HL),A
-                  INC  DE
-                  LDIR                            ; reset continous memory in Intuition application
-
-                  LD   B,(IX+2)                   ; get end page of allocated application RAM ** V0.32
-                  LD   (IY + RamTopPage),B        ;                                           ** V0.32
-                  PUSH IY                         ;                                           ** V1.04
-                  POP  HL                         ; Get current application stack pointer     ** V1.04
-                  DEC  HL                         ;                                           ** V1.04
-                  DEC  HL                         ;                                           ** V1.04
-                  LD   (IY + VP_SP),L             ;                                           ** V0.29
-                  LD   (IY + VP_SP+1),H           ; Top of Stack                              ** V0.29
-                  LD   (IY + VP_PC),0
-                  LD   (IY + VP_PC+1),$20         ; PC = $2000
-ENDIF
                   XOR  A
                   LD   (IY + BreakPoints),A       ; initialise to no breakpoints...
                   LD   (IY + Cmdlbuffer),A        ; Initialize to no buffer contents           ** V0.31

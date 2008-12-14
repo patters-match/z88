@@ -28,7 +28,6 @@
      XREF Toggle_CLI
      XREF Disp_monitor_win, RST_INT_window, REL_appl_window
 
-     XDEF Kill_application
      XDEF Use_IntErrhandler, RST_ApplErrhandler, Int_Errhandler
 
 
@@ -100,7 +99,6 @@
 
 .no_room            CALL_OZ(Gn_Err)                     ; Display system error window
 
-.KILL_application
 .Intuition_suicide  CALL RST_INT_window                 ; restore Intuition window...
                     LD   A,12
                     CALL_OZ(Os_out)                     ; clear Intuition window

@@ -55,9 +55,6 @@
     if SEGMENT3
                   LD   C, MS_S3
     endif
-    if SEGMENT2
-                  LD   C, MS_S2
-    endif
                   CALL_OZ(Os_Mpb)
                   CALL Restore_alternate
                   PUSH BC                   ; preserve prev. binding state
