@@ -35,9 +35,6 @@
     XDEF Opcode_233_index, Opcode_229_index, Opcode_225_index, Opcode_227_index
     XDEF Calc_Reladdress
 
-IF OZ_INTUITION
-    INCLUDE "oz.def"
-ENDIF
     INCLUDE "blink.def"       ; assembly directives & various constants
     INCLUDE "defs.h"          ; assembly directives & various constants
 
@@ -694,26 +691,6 @@ ENDIF
 ; OUT  (n),A                                2 bytes
 ;
 .Opcode_211
-IF OZ_INTUITION
-                  EXX
-                  LD   A, BL_SR0
-                  CP   (HL)                 ; execution about to bind out Intuition in segment 0?
-                  EXX
-                  JR   NZ, out_port         ; nope, another port activity (not segment 0 bank binding)...
-                  EX   AF,AF'
-                  LD   B,A                  ; get A register
-                  EX   AF,AF'
-                  LD   A,OZBANK_INTUITION
-                  CP   B
-                  RET  Z                    ; executing code re-binds Intuition into same bank, ignore..
-                  EXX
-                  DEC  HL                   ; Danger! Intuition bank is about to be bound out...
-                  EXX                       ; point at Out instruction
-                  LD   A,(BLSC_SR0)         ; cache the soft copy of the bank that the running code
-                  LD   (IY + BindOut_copy),A; wants to bind (to be restored when .G command is used)
-                  JP   Bindout_error        ; alert warning and stop execution
-ENDIF
-.out_port
                   EXX                       ;                                 ** V0.28
                   PUSH BC                   ; preserve virtual, HL register.. ** V1.1.1
                   LD   C,(HL)               ; get port number N
@@ -797,11 +774,6 @@ ENDIF
 ; Z88 operating system call to process floating point numbers, with 1 byte parameter
 ;
 .Opcode_223
-IF OZ_INTUITION
-                  POP  HL                   ; get address back to main decode loop
-                  LD   DE, $0018            ; PC to be defined with 0018H (restart vector)
-                  JP   RST_XXH
-ELSE
                   EXX                       ;                                 ** V0.28
                   LD   A,(HL)               ; get FPP parameter
                   INC  HL                   ; ready for next instruction
@@ -834,7 +806,6 @@ ELSE
                   EX   (SP),HL              ; put HL on the stack             ** V0.28
                   EX   AF,AF'               ; AF installed                    ** V0.28
                   JP  (HL)                  ; execute RST 18h call in buffer
-ENDIF
 
 
 ; ******************************************************************************************
@@ -890,11 +861,6 @@ ENDIF
 ; Z88 operating system call with parameters (DEFB or DEFW)
 ;
 .Opcode_231
-IF OZ_INTUITION
-                  POP  HL                   ; get address back to main decode loop
-                  LD   DE, $0020            ; PC to be defined with 0020H (restart vector)
-                  JR   RST_XXH
-ELSE
                   LD   BC,ExecBuffer        ;                                 ** V0.28
                   PUSH IY                   ;                                 ** V0.28
                   POP  HL                   ;                                 ** V0.28
@@ -936,7 +902,6 @@ ELSE
                   EX   (SP),HL              ; put HL on the stack             ** V0.28
                   EX   AF,AF'               ; AF installed                    ** V0.28
                   JP  (HL)                  ; execute RST 20h call in buffer
-ENDIF
 
 
 .CopyRegisters    PUSH HL
@@ -1003,7 +968,6 @@ ENDIF
                   SET  Flg_RTM_error,(IY + FlagStat2) ;indicate runtime error ** V0.32
                   LD   (IY + RtmError),$FF  ; indicate display of OZ call     ** V0.32
                   JP   command_mode         ; OZ error, dump or command line  ** V0.32
-
 
 
 

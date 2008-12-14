@@ -69,9 +69,6 @@
                     DEFW Error_msg_82
                     DEFW Error_msg_83
                     DEFW Error_msg_84
-IF OZ_INTUITION
-                    DEFW Error_msg_85
-ENDIF
 
 ; Intuition specific errors
 .Error_Msg_80       DEFM "unknown Z80 opc.",0
@@ -79,6 +76,3 @@ ENDIF
 .Error_Msg_82       DEFM "not found",0
 .Error_Msg_83       DEFM "none",0
 .Error_Msg_84       DEFM "KILL request",0
-IF OZ_INTUITION
-.Error_Msg_85       DEFM "Bindout alert!",0
-ENDIF

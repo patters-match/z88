@@ -32,9 +32,6 @@
                   CP   A
                   CALL IntHexDisp           ; display version byte from OZ
                   CALL Write_CRLF
-IF OZ_INTUITION
-                  RET
-ELSE
                   LD   HL, Base_Msg
                   CALL Display_String
                   PUSH IY
@@ -52,6 +49,5 @@ ELSE
                   JP   Write_CRLF           ; New Line.
 
 .Base_Msg         DEFM "Buffer:",0
-ENDIF
 .OZ_version       DEFM "OZ: V",0
 .Version          DEFM "V1.2.dev",0         ; see 'history.txt' for development history

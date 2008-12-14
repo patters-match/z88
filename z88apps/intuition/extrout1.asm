@@ -29,13 +29,9 @@
 ;
 .ExtRoutine_s01   PUSH IX
                   EXX
-IF OZ_INTUITION
-                  LD   B, OZBANK_INTUITION | 1      ; bind in upper 8K of Intuition bank (DON'T RELY on soft copy!)
-ELSE
                   LD   HL,$04D0
                   LD   B,(HL)
                   SET  0,B
-ENDIF
                   LD   C,0
                   POP  HL
                   EXX

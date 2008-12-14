@@ -224,11 +224,7 @@ IF SEGMENT2
                   PUSH HL                   ; T.O.S. contains start address of Intuition area
 ELSE
 
-    IF !OZ_INTUITION
         INCLUDE "entry.asm"                 ; use normal entry, Intuition was CALL'ed.
-    ELSE
-        INCLUDE "ozentry.asm"               ; Intuition initialisation from OZ is through RST 08H, where bank
-    ENDIF                                   ; was dynamically bound into segment and has data in OZ system variables
 
 ENDIF
                   CALL Init_Intuition

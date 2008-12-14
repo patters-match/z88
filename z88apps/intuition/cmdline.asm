@@ -90,12 +90,6 @@
                   CALL Disp_RTM_error       ; display error or OZ mnemonic              ** V0.32
                   CALL DZ_Z80pc             ; Disassemble instruction at (PC)
                   CALL Write_CRLF           ;                                           ** V0.28
-IF OZ_INTUITION
-                  BIT  Flg_RTM_bindout,(IY + FlagStat2)
-                  JR   Z,command_loop
-                  LD   (IY + Cmdlbuffer+2),'G'
-                  LD   (IY + Cmdlbuffer+3),0    ; preset with .G command for bind-alert
-ENDIF
 .command_loop     CALL InputCommand         ; wait until a key is pressed...
                   CALL ExecuteCommand
                   BIT  Flg_CmdLine,(IY + FlagStat3)    ; command line aborted?
@@ -471,45 +465,6 @@ ENDIF
 .Release_debugger CALL RST_appl_window      ; restore application screen window         ** V0.22
                   CALL RST_ApplErrhandler   ; restore application error handler         ** V0.31
 
-IF OZ_INTUITION
-                  INCLUDE "sysvar.def"
-                  INCLUDE "../../oz/os/lowram/lowram.def"         ; get address for Intuition exit in LOWRAM
-
-                  bit     Flg_RTM_bindout,(IY + FlagStat2)
-                  jr      z,cont_restore_regs
-                  ld      a,(SV_INTUITION_RAM + BindOut_copy)     ; restore bank binding of bind-out alert
-                  ld      (SV_INTUITION_RAM + OZBankBinding+1),a  ; (old binding of Intuition no longer important)
-
-.cont_restore_regs
-                  ld      hl,(SV_INTUITION_RAM + VP_AF)           ; install current AF register
-                  push    hl
-                  pop     af
-                  ex      af,af'
-                  ld      hl,(SV_INTUITION_RAM + VP_AFx)          ; install current AF' register
-                  push    hl
-                  pop     af
-                  ex      af,af'
-
-                  ld      ix,(SV_INTUITION_RAM + VP_IX)           ; install current IX register
-                  ld      iy,(SV_INTUITION_RAM + VP_IY)           ; install current IY register
-
-                  exx
-                  ld      bc,(SV_INTUITION_RAM + VP_BCx)          ; install current BC' register
-                  ld      de,(SV_INTUITION_RAM + VP_DEx)          ; install current DE' register
-                  ld      hl,(SV_INTUITION_RAM + VP_HLx)          ; install current HL' register
-                  exx
-
-                  ld      sp,(SV_INTUITION_RAM + VP_SP)           ; install SP
-                  ld      bc,(SV_INTUITION_RAM + VP_PC)           ; Z80 Program Counter of Application (code outside Intuition)
-                  push    bc                                      ; (will be POP'ed... after restore bank binding)
-                  ld      bc,(SV_INTUITION_RAM + VP_BC)           ; get current BC register
-                  push    bc                                      ; which will be restored in LOWRAM after restore bank binding
-                  ld      de,(SV_INTUITION_RAM + VP_DE)           ; get current DE register
-                  ld      hl,(SV_INTUITION_RAM + VP_HL)           ; get current HL register
-
-                  ld      bc,(SV_INTUITION_RAM + OZBankBinding)   ; get original segment 0 bank binding
-                  jp      exitIntuitionLowRam                     ; restore bank binding in LOWRAM, then let Z80 run application
-ELSE
                   LD   SP,IY                ; point at start of Runtime Area  ** V0.28
                   POP  BC                   ; BC restored                     ** V0.28
                   POP  DE                   ; DE restored                     ** V0.28
@@ -548,7 +503,6 @@ ELSE
                   POP  IY                   ; IY restored                     ** V0.28
                   POP  HL                   ; HL restored                     ** V0.28
                   RET                       ; release Z80 to application      ** V0.34
-ENDIF
 
 
 ; ****************************************************************************************
