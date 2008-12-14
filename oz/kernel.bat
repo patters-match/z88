@@ -32,7 +32,7 @@ cd ..
 
 :: pre-compile but no linking of (lower) kernel to resolve labels for lowram.asm
 :PRECOMPILE_KERNEL0
-..\..\tools\mpm\mpm -g -DOZ_SLOT%1 -I..\def -Ilowram @kernel0.prj
+..\..\tools\mpm\mpm -g -DOZ_SLOT%1 -DOZ_INTUITION -I..\def -Ilowram @kernel0.prj
 if ERRORLEVEL 1 goto COMPILE_ERROR
 
 :: create final lowram binary with correct addresses from lower kernel
@@ -49,7 +49,7 @@ if ERRORLEVEL 1 goto COMPILE_ERROR
 
 :: compile final kernel 0 binary using correct kernel 1 references
 :COMPILE_KERNEL0
-..\..\tools\mpm\mpm -db -DCOMPILE_BINARY -DOZ_SLOT%1 -I..\def -Ilowram @kernel0.prj
+..\..\tools\mpm\mpm -db -DCOMPILE_BINARY -DOZ_INTUITION -DOZ_SLOT%1 -I..\def -Ilowram @kernel0.prj
 if ERRORLEVEL 1 goto COMPILE_ERROR
 
 :: compile final OSTABLE

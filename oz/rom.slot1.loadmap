@@ -33,7 +33,7 @@ romupdate oz.1
 ; as an "Eprom" filing system (on first 64K boundary below OZ ROM).
 
 ; Bank $72: Reserved for Intuition
-../z88apps/intuition/debugS00.bin 720000        ; $2000: Intuition debugger integrated in RST 08H
+apps/intuition/debugS00.bin 720000              ; $2000: Intuition debugger integrated in RST 08H
 
 ; Bank $74: EazyLink & LOWRAM
 apps/eazylink/eazylink.bin 740000               ; $8000: EazyLink popdown

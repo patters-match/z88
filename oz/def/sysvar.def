@@ -320,8 +320,69 @@ enddef
 ; EXTERNAL SYSTEM AREA
 ; --------------------
 
-defvars SV_EXTERN_RAM
+; Intuition Runtime Variables offset, in SV_INTUITION_RAM area (see below in SV_EXTERN_RAM)
+defvars 0
+     VP_BC                         ; Virtual Processor BC register
+          VP_C      DS.B 1
+          VP_B      DS.B 1
+     VP_DE                         ; Virtual Processor DE register
+          VP_E      DS.B 1
+          VP_D      DS.B 1
+     VP_HL                         ; Virtual Processor HL register
+          VP_L      DS.B 1
+          VP_H      DS.B 1
+     VP_AF          DS.W 1         ; Virtual Processor AF register
+     VP_BCx                        ; Virtual Processor alternate BC register
+          VP_Cx     DS.B 1
+          VP_Bx     DS.B 1
+     VP_DEx                        ; Virtual Processor alternate DE register
+          VP_Ex     DS.B 1
+          VP_Dx     DS.B 1
+     VP_HLx                        ; Virtual Processor alternate HL register
+          VP_Lx     DS.B 1
+          VP_Hx     DS.B 1
+     VP_AFx         DS.W 1         ; Virtual Processor alternate AF register
+     VP_IX                         ; Virtual Processor IX register
+          VP_IXl    DS.B 1
+          VP_IXh    DS.B 1
+     VP_IY                         ; Virtual Processor IY register
+          VP_IYl    DS.B 1
+          VP_IYh    DS.B 1
+     VP_SP          DS.W 1         ; Virtual Processor SP register
+     VP_PC          DS.W 1         ; Virtual Processor PC register
 
+     ExecBuffer     DS.B 6         ; 6 byte OZ execute buffer
+                    DS.B 1         ; not used...
+     BreakPoints    DS.B 1         ; Current number of defined breakpoints
+                    DS.W 8         ; space for breakpoints
+     Cmdlbuffer     DS.B 17        ; Command line buffer (17 bytes)
+     ApplWinID      DS.B 1         ; Current Application Window ID
+     ApplScrID      DS.W 1         ; Handle of saved application screen
+     IntScrID       DS.W 1         ; Handle of saved Intuition screen
+     IntWinID       DS.B 1         ; Current Intuition Window ID
+     SC             DS.B 1         ; Horisontal Start Cursor Position
+     CI             DS.B 1         ; Horisontal Cursor Increment
+     CX             DS.B 1         ; Horisontal Cursor Movement
+     CY             DS.B 1         ; Vertical Cursor Movement
+     LogfileNr      DS.B 1         ; CLI log file number
+
+     FlagStat1      DS.B 1         ; Flag Status byte 1
+     FlagStat2      DS.B 1         ; Flag Status byte 2
+     FlagStat3      DS.B 1         ; Flag Status byte 3
+
+     RtmError       DS.B 1         ; Runtime Error number
+     SPlevel        DS.W 1         ; Initial stack pointer level (subroutine tracing)
+     InstrBreakPatt DS.B 5         ; Instruction break bit pattern (max. 4 bytes)
+     ApplErhClvl    DS.B 1         ; Application Error Handler Call Level
+     ApplErhAddr    DS.W 1         ; Application Error Handler Address
+     RamTopPage     DS.B 1         ; Top Page of allocated application RAM (Z80debug only)
+     OzReleaseVer   DS.B 1         ; Cache OZ Version number from OS_Frm, IX=-1, A=FA_PTR
+     BindOut_copy   DS.B 1         ; Copy of ($04D0) when alert ocurred.
+     OZBankBinding  DS.W 1         ; Original bank binding of segment 0 before Intuition was activated
+     Int_Worksp                    ; Number of bytes in Intuition Workspace (RTM)
+enddef
+
+defvars SV_EXTERN_RAM
 ; Index (184):
         ubIdxPubFlags           ds.b    1
         ubIdxFlags2             ds.b    1
@@ -357,9 +418,10 @@ defvars SV_EXTERN_RAM
         pAlarmList              ds.p    1       ; badly named (eAlarmList)
         uwNextAlarmID           ds.w    1
 
-; Reserved space for Intuition Runtime Variables (100)
-        SV_INTUITION_RAM        ds.b    100     ; see z88apps/intuition/defs.h for details..
+; Reserved space for Intuition Runtime Variables
+        SV_INTUITION_RAM        ds.b    Int_Worksp
 enddef
+
 
 ; --------------------
 ; 2K SWAP RAM

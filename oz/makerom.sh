@@ -239,12 +239,12 @@ fi
 
 # -------------------------------------------------------------------------------------------------
 echo compiling Intuition
-cd ../z88apps/intuition
+cd apps/intuition
 . make.debugOZ.sh $ozslot
-cd ../../oz
+cd ../..
 
 if test `find . -name '*.err' | wc -l` != 0; then
-  cat ../z88apps/intuition/*.err
+  cat apps/intuition/*.err
   echo Script aborted.
   exit 1
 fi

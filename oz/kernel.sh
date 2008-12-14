@@ -38,7 +38,7 @@ cd ..
 
 # pre-compile (lower) kernel to resolve labels for lowram.asm
 if test "$COMPILE_ERROR" -eq 0; then
-  ../../tools/mpm/mpm -g -DOZ_SLOT$1 -I../def -Ilowram @kernel0.prj
+  ../../tools/mpm/mpm -g -DOZ_SLOT$1 -DOZ_INTUITION -I../def -Ilowram @kernel0.prj
   if test $? -gt 0; then
     COMPILE_ERROR=1
   fi
@@ -64,7 +64,7 @@ fi
 
 # compile final kernel binary with OS tables for bank 0 using correct upper kernel references
 if test "$COMPILE_ERROR" -eq 0; then
-  ../../tools/mpm/mpm -db -DCOMPILE_BINARY -DOZ_SLOT$1 -I../def -Ilowram @kernel0.prj
+  ../../tools/mpm/mpm -db -DCOMPILE_BINARY -DOZ_INTUITION -DOZ_SLOT$1 -I../def -Ilowram @kernel0.prj
   if test $? -gt 0; then
     COMPILE_ERROR=1
   fi

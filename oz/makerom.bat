@@ -208,9 +208,9 @@ goto COMPILE_ERROR
 
 :COMPILE_INTUITION
 echo compiling Intuition for OZ
-cd ..\z88apps\intuition
+cd apps\intuition
 call make.debugOZ.bat %ozslot%
-cd ..\..\oz
+cd ..\..
 if ERRORLEVEL 0 goto COMBINE_BANKS
 goto COMPILE_ERROR
 
