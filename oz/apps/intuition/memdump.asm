@@ -56,14 +56,12 @@
                   CALL Get_addrparameters
                   RET  C
                   JP   NZ, Mem_dump
-                  CALL Save_alternate
                   LD   C, MS_S3
-                  CALL_OZ(Os_Mpb)
-                  CALL Restore_alternate
+                  RST  OZ_MPB
                   PUSH BC                    ; preserve prev. binding state
                   CALL Mem_dump
-                  POP  BC                    ; restore prev. binding state
-                  CALL_OZ(Os_Mpb)
+                  POP  BC
+                  RST  OZ_MPB                ; restore prev. binding state
                   RET
 
 

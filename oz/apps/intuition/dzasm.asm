@@ -120,14 +120,12 @@
                   CALL Get_addrparameters   ; setup address parameters in registers
                   RET  C                    ; Ups - syntax error...
                   JR   NZ, Disassemble      ; disassemble in logical address space
-                  CALL Save_alternate
                   LD   C, MS_S3
-                  CALL_OZ(Os_Mpb)
-                  CALL Restore_alternate
+                  RST  OZ_MPB
                   PUSH BC                   ; remember previous bank number
                   CALL Disassemble          ; start disassembling
-                  POP  BC                   ; prev. binding restored
-                  CALL_OZ(Os_Mpb)
+                  POP  BC
+                  RST  OZ_MPB               ; prev. binding restored
                   RET
 
 
