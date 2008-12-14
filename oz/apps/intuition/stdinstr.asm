@@ -30,7 +30,6 @@
     XDEF Opcode_234, Opcode_235, Opcode_236, Opcode_240, Opcode_241, Opcode_242, Opcode_244, Opcode_245
     XDEF Opcode_248, Opcode_250, Opcode_252, Opcode_243
     XDEF Select_IXIY, Select_IXIY_disp
-    XDEF RestoreMainReg
 
     XDEF Opcode_233_index, Opcode_229_index, Opcode_225_index, Opcode_227_index
     XDEF Calc_Reladdress
@@ -852,28 +851,6 @@
 .Opcode_231       POP  HL                   ; get address back to main decode loop
                   LD   DE, $0020            ; PC to be defined with 0020H (restart vector)
                   JR   RST_XXH
-
-
-
-
-
-; *******************************************************************************************************
-;
-; Restore original values of Main Z80 registers (BC, DE, HL & IX)
-;
-.RestoreMainReg   EXX                       ;                                 ** V1.1.1
-                  PUSH BC                   ; (get copy of virtual HL)        ** V1.1.1
-                  EXX                       ;                                 ** V1.1.1
-                  LD   C,(IY + VP_C)        ;                                 ** V1.1.1
-                  LD   B,(IY + VP_B)        ; BC restored                     ** V1.1.1
-                  LD   E,(IY + VP_E)        ;                                 ** V1.1.1
-                  LD   D,(IY + VP_D)        ; DE restored                     ** V1.1.1
-                  LD   L,(IY + VP_IX)       ;                                 ** V1.1.1
-                  LD   H,(IY + VP_IX+1)     ;                                 ** V1.1.1
-                  PUSH HL                   ;                                 ** V1.1.1
-                  POP  IX                   ; IX restored                     ** V1.1.1
-                  POP  HL                   ; HL restored                     ** V1.1.1
-                  RET
 
 
 ; ************************************************************************************

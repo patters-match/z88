@@ -17,8 +17,6 @@
 
     MODULE ED_instructions
 
-    XREF RestoreMainReg
-
     ; Routines defined in 'stdinstr.asm'
     XREF Opcode_201
     XREF Bindout_error
@@ -761,6 +759,25 @@
                   JP   SaveBlockRegs
 
 
+; *******************************************************************************************************
+;
+; Restore original values of Main Z80 registers (BC, DE, HL & IX)
+;
+.RestoreMainReg   EXX                       ;                                 ** V1.1.1
+                  PUSH BC                   ; (get copy of virtual HL)        ** V1.1.1
+                  EXX                       ;                                 ** V1.1.1
+                  LD   C,(IY + VP_C)        ;                                 ** V1.1.1
+                  LD   B,(IY + VP_B)        ; BC restored                     ** V1.1.1
+                  LD   E,(IY + VP_E)        ;                                 ** V1.1.1
+                  LD   D,(IY + VP_D)        ; DE restored                     ** V1.1.1
+                  LD   L,(IY + VP_IX)       ;                                 ** V1.1.1
+                  LD   H,(IY + VP_IX+1)     ;                                 ** V1.1.1
+                  PUSH HL                   ;                                 ** V1.1.1
+                  POP  IX                   ; IX restored                     ** V1.1.1
+                  POP  HL                   ; HL restored                     ** V1.1.1
+                  RET
+
+
 ; ****************************************************************************
 ;
 ; OTDR
@@ -768,7 +785,6 @@
 .EDcode_187       CALL FetchBlockRegs
                   OTDR
                   JP   SaveBlockRegs
-
 
 .FetchBlockRegs
                   CALL RestoreMainReg
