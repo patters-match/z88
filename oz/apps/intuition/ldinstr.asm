@@ -138,9 +138,9 @@
 ;
 .Opcode_34        EXX                       ;                                 ** V0.28
                   PUSH BC                   ; preserve virtual HL             ** V1.1.1
-                  LD   C,(HL)               ; get low byte of address         ** V0.27e
+                  LD   C,(HL)               ; get low byte of NN              ** V0.27e
                   INC  HL                   ; PC = PC + 1                     ** V0.27e
-                  LD   B,(HL)               ; get high byte of address        ** V0.27e
+                  LD   B,(HL)               ; get high byte of NN             ** V0.27e
                   INC  HL                   ; prepare for next instruction    ** V0.27e
                   EX   (SP),HL              ; get virtual HL (preserve PC)    ** V1.1.1
                   LD   A,L                  ;                                 ** V1.1.1
@@ -394,7 +394,7 @@
 ;
 .Opcode_124       EX   AF,AF'               ; install A                       ** V0.23
                   EXX                       ;                                 ** V1.1.1
-                  LD   A,B                  ;                                 ** V1.1.1
+                  LD   A,B                  ; get H                           ** V1.1.1
                   EXX                       ;                                 ** V1.1.1
                   EX   AF,AF'               ;                                 ** V0.23
                   RET
@@ -406,7 +406,7 @@
 ;
 .Opcode_125       EX   AF,AF'               ; install A                       ** V0.23
                   EXX                       ;                                 ** V1.1.1
-                  LD   A,C                  ;                                 ** V1.1.1
+                  LD   A,C                  ; get L                           ** V1.1.1
                   EXX                       ;                                 ** V1.1.1
                   EX   AF,AF'               ;                                 ** V0.23
                   RET
