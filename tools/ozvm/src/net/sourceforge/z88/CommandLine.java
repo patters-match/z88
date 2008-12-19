@@ -43,10 +43,10 @@ import net.sourceforge.z88.filecard.FileEntry;
 public class CommandLine implements KeyListener {
 
 	private static final String illegalArgumentMessage = "Illegal Argument";
-	
+
 	private	DebugGui debugGui;
-    private boolean logZ80instructions;	
-	private	Blink blink;	
+    private boolean logZ80instructions;
+	private	Blink blink;
 	private	Z80Processor z80;
 
 	/** The Z88 disassembly engine */
@@ -54,27 +54,27 @@ public class CommandLine implements KeyListener {
 
 	/** The Breakpoint manager */
 	private	Breakpoints breakPointManager;
-	
+
 	/** Access the Z88 memory model */
 	private	Memory memory;
-	
+
 	private	JTextField commandInput;
 	private	JTextArea commandOutput;
 	private	CommandHistory cmdList;
 
 	/**
-	 * Constructor 
+	 * Constructor
 	 */
 	public CommandLine() {
-		
+
 		debugGui = new DebugGui();
 		blink = Z88.getInstance().getBlink();
 		z80 = Z88.getInstance().getProcessor();
 		memory = Z88.getInstance().getMemory();
-		
+
 		dz = Dz.getInstance();
 		breakPointManager = z80.getBreakpoints();
-		
+
 		commandOutput =	debugGui.getCmdlineOutputArea();
 		initDebugMode();
 	}
@@ -82,7 +82,7 @@ public class CommandLine implements KeyListener {
 	public DebugGui getDebugGui() {
 		return debugGui;
 	}
-	
+
 	private	void initDebugMode() {
 		commandInput = debugGui.getCmdLineInputArea();
 		commandInput.addActionListener(new java.awt.event.ActionListener() {
@@ -106,7 +106,7 @@ public class CommandLine implements KeyListener {
 			commandOutput.setCaretPosition(commandOutput.getDocument().getLength());
 		}
 	}
-		
+
 	private	void cmdHelp() {
 		displayCmdOutput("\nUse	F12 to toggle keyboard focus between debug command line	and Z88	window.");
 		displayCmdOutput("All arguments	are in Hex: Local address = 64K	address	space,\nExtended address = 24bit address, eg. 073800 (bank 07h,	offset 3800h)");
@@ -150,7 +150,7 @@ public class CommandLine implements KeyListener {
 		displayCmdOutput("TACK, ACK Blink interrupt acknowledge registers affects appropriate");
 		displayCmdOutput("interrupt 'status' registers, ex. ACK 20 (00100000b) will acknowledge (reset)");
 		displayCmdOutput("the FLAP interrupt in STA (acknowledge registers are not displayed, they serve");
-		displayCmdOutput("only to reset interrupt status registers)."); 
+		displayCmdOutput("only to reset interrupt status registers).");
 		displayCmdOutput("Blink registers may be edited while Z88 is running. Available registers:");
 		displayCmdOutput("COM, INT, STA, TACK, TMK, TSTA, ACK, PB0-3, SBR, SR0-3, TIM0-4");
 		displayCmdOutput("");
@@ -159,7 +159,7 @@ public class CommandLine implements KeyListener {
 		displayCmdOutput("Flags	are toggled using FZ, FC, FN, FS, FV and FH commands or");
 		displayCmdOutput("set/reset using 1 or 0 argument, eg. fz 1 to enable Zero flag.");
 	}
-	
+
 	public void parseCommandLine(String cmdLineText) {
 		String[] cmdLineTokens = cmdLineText.split(" ");
 		int arg;
@@ -171,7 +171,7 @@ public class CommandLine implements KeyListener {
 		if (cmdLineTokens[0].compareToIgnoreCase("savevm") == 0) {
 			SaveRestoreVM srVm = new SaveRestoreVM();
 			String vmFileName = OZvm.defaultVmFile;
-			
+
 			if (cmdLineTokens.length > 1) {
 				vmFileName = cmdLineTokens[1];
 				if (vmFileName.toLowerCase().lastIndexOf(".z88") == -1)
@@ -184,7 +184,7 @@ public class CommandLine implements KeyListener {
 					displayCmdOutput("Snapshot successfully saved to " + vmFileName);
 				} else {
 					displayCmdOutput("Snapshot can only be saved when Z88 is not running.");
-				}							
+				}
 			} catch (IOException e) {
 				displayCmdOutput("Saving snapshot failed.");
 			}
@@ -214,14 +214,14 @@ public class CommandLine implements KeyListener {
 			    	// as fall back plan.
 					displayCmdOutput("Installation of snapshot failed. Z88 preset to default system.");
 			    	memory.setDefaultSystem();
-			    	z80.reset();				
+			    	z80.reset();
 			    	blink.resetBlinkRegisters();
 				}
 			} else {
 				displayCmdOutput("Snapshot can only be installed when Z88 is not running.");
 			}
 		}
-		
+
 		if (cmdLineTokens[0].compareToIgnoreCase("cls")	== 0) {
 			commandOutput.setText("");
 		}
@@ -235,7 +235,7 @@ public class CommandLine implements KeyListener {
 					while (appList.hasNext()) {
 						ApplicationDor appDor = (ApplicationDor) appList.next();
 						displayCmdOutput(appDor.getAppName() + ": DOR = " + Dz.extAddrToHex(appDor.getThisApp(), true) + ", Entry = " + Dz.extAddrToHex(appDor.getEntryPoint(), true));
-					}					
+					}
 				}
 			}
 		}
@@ -264,10 +264,10 @@ public class CommandLine implements KeyListener {
 				}
 			}
 		}
-		
+
 		if (cmdLineTokens[0].compareToIgnoreCase("run")	== 0) {
 			if (Z88.getInstance().runZ80Engine(-1, true) == false)
-				displayCmdOutput("Z88 is already running.");				
+				displayCmdOutput("Z88 is already running.");
 		}
 
 		if (cmdLineTokens[0].compareToIgnoreCase("stop") == 0) {
@@ -297,7 +297,7 @@ public class CommandLine implements KeyListener {
 				displayCmdOutput("Maskable interrupts enabled.");
 			}
 		}
-		
+
 		if (cmdLineTokens[0].compareToIgnoreCase("log") == 0) {
 			Z80Processor z80 = Z88.getInstance().getProcessor();
 			if (z80.izZ80Logged() == true) {
@@ -308,10 +308,10 @@ public class CommandLine implements KeyListener {
 			} else {
 				logZ80instructions = true;
 				z80.setZ80Logging(logZ80instructions);
-				displayCmdOutput("Z80 Instruction logging enabled.");				
+				displayCmdOutput("Z80 Instruction logging enabled.");
 			}
-		}		
-		
+		}
+
 		if (cmdLineTokens[0].compareTo(".") == 0) {
 			if (Z88.getInstance().getProcessorThread() != null) {
 				displayCmdOutput("Z88 is already running.");
@@ -342,12 +342,12 @@ public class CommandLine implements KeyListener {
 			}
 		}
 
-		if (cmdLineTokens[0].compareToIgnoreCase("fcd1") == 0 | 
+		if (cmdLineTokens[0].compareToIgnoreCase("fcd1") == 0 |
 				cmdLineTokens[0].compareToIgnoreCase("fcd2") == 0 |
 				cmdLineTokens[0].compareToIgnoreCase("fcd3") == 0) {
 			fcdCommandline(cmdLineTokens);
 		}
-		
+
 		if (cmdLineTokens[0].compareToIgnoreCase("dz") == 0) {
 			dzCommandline(cmdLineTokens);
 			displayCmdOutput("");
@@ -386,7 +386,7 @@ public class CommandLine implements KeyListener {
 				breakPointManager.removeBreakPoints();
 				displayCmdOutput("All breakpoints cleared.");
 		}
-		
+
 		if (cmdLineTokens[0].compareToIgnoreCase("bpd")	== 0) {
 			try {
 				bpdCommandline(cmdLineTokens);
@@ -410,7 +410,7 @@ public class CommandLine implements KeyListener {
 				int bank = (extAddress >>> 16) & 0xFF;
 				int offset = extAddress & 0x3FFF;
 				Bank b = memory.getBank(bank);
-				
+
 				memory.loadBankBinary(b, offset, new File(cmdLineTokens[1]));
 				displayCmdOutput("File image '"	+ cmdLineTokens[1] + "'	loaded at " + cmdLineTokens[2] + ".");
 			} catch	(IOException e)	{
@@ -429,34 +429,34 @@ public class CommandLine implements KeyListener {
 				if (cmdLineTokens.length == 2) {
 					// "dumpslot X"
 					// dump the specified slot as a complete file
-					// using a default "slotX.epr" filename				
+					// using a default "slotX.epr" filename
 				} else if (cmdLineTokens.length == 3) {
 					// "dumpslot X -b" or "dumpslot X filename"
 					if (cmdLineTokens[2].compareToIgnoreCase("-b") == 0) {
 						dumpFilename = "slot" + cmdLineTokens[1] + "bank";
 						exportAsBanks = true;
 					} else {
-						dumpFilename = cmdLineTokens[2]; 
+						dumpFilename = cmdLineTokens[2];
 					}
 				} else if (cmdLineTokens.length == 4) {
 					// "dumpslot X -b base-filename"
 					// base filename (with optional path) for filename.bankNo
-					if (cmdLineTokens[2].compareToIgnoreCase("-b") == 0)  
-						exportAsBanks = true;						
-					
-					File fl = new File(cmdLineTokens[3]); 
+					if (cmdLineTokens[2].compareToIgnoreCase("-b") == 0)
+						exportAsBanks = true;
+
+					File fl = new File(cmdLineTokens[3]);
 					if (fl.isDirectory() == true) {
 						dumpDir = fl.getAbsolutePath();
 						dumpFilename = "slot" + cmdLineTokens[1] + "bank";
 					} else {
-						if (fl.getParent() != null) 
+						if (fl.getParent() != null)
 							dumpDir = new File(fl.getParent()).getAbsolutePath();
-							
-						dumpFilename = fl.getName(); 
+
+						dumpFilename = fl.getName();
 					}
 				}
 
-				if (memory.isSlotEmpty(slotNumber) == false) {				
+				if (memory.isSlotEmpty(slotNumber) == false) {
 					try {
 						memory.dumpSlot(slotNumber, exportAsBanks, dumpDir, dumpFilename);
 						displayCmdOutput("Slot was dumped successfully to " + dumpDir);
@@ -464,16 +464,16 @@ public class CommandLine implements KeyListener {
 						displayCmdOutput("Couldn't create file(s)!");
 					} catch (IOException e1) {
 						displayCmdOutput("I/O error while dumping slot!");
-					}			
+					}
 				} else {
 					displayCmdOutput("Slot is empty!");
-				}				
+				}
 			}
 		}
-		
+
 		if (cmdLineTokens[0].compareToIgnoreCase("com") == 0) {
 			if (cmdLineTokens.length == 2) {
-				arg = StringEval.toInteger(cmdLineTokens[1]); 
+				arg = StringEval.toInteger(cmdLineTokens[1]);
 				if ( arg == -1 | arg > 255) {
 					displayCmdOutput(illegalArgumentMessage);
 					return;
@@ -483,10 +483,10 @@ public class CommandLine implements KeyListener {
 			}
 			displayCmdOutput(Z88Info.blinkComInfo());
 		}
-		
+
 		if (cmdLineTokens[0].compareToIgnoreCase("int") == 0) {
 			if (cmdLineTokens.length == 2) {
-				arg = StringEval.toInteger(cmdLineTokens[1]); 
+				arg = StringEval.toInteger(cmdLineTokens[1]);
 				if ( arg == -1 | arg > 255) {
 					displayCmdOutput(illegalArgumentMessage);
 					return;
@@ -499,7 +499,7 @@ public class CommandLine implements KeyListener {
 
 		if (cmdLineTokens[0].compareToIgnoreCase("sta") == 0) {
 			if (cmdLineTokens.length == 2) {
-				arg = StringEval.toInteger(cmdLineTokens[1]); 
+				arg = StringEval.toInteger(cmdLineTokens[1]);
 				if ( arg == -1 | arg > 255) {
 					displayCmdOutput(illegalArgumentMessage);
 					return;
@@ -512,20 +512,20 @@ public class CommandLine implements KeyListener {
 
 		if (cmdLineTokens[0].compareToIgnoreCase("kbd") == 0) {
 			if (cmdLineTokens.length == 2) {
-				arg = StringEval.toInteger(cmdLineTokens[1]); 
+				arg = StringEval.toInteger(cmdLineTokens[1]);
 				if ( arg == -1 | arg > 65535) {
 					displayCmdOutput(illegalArgumentMessage);
 					return;
 				}
 				else
 					Z88.getInstance().getKeyboard().setKeyRow( arg >>> 8, arg & 0xFF);
-			}			
+			}
 			displayCmdOutput(Z88.getInstance().getKeyboard().getKbdMatrix());
 		}
-		
+
 		if (cmdLineTokens[0].compareToIgnoreCase("ack") == 0) {
 			if (cmdLineTokens.length == 2) {
-				arg = StringEval.toInteger(cmdLineTokens[1]); 
+				arg = StringEval.toInteger(cmdLineTokens[1]);
 				if ( arg == -1 | arg > 255) {
 					displayCmdOutput(illegalArgumentMessage);
 					return;
@@ -535,14 +535,14 @@ public class CommandLine implements KeyListener {
 			}
 			displayCmdOutput(Z88Info.blinkStaInfo());  // ACK affects STA
 		}
-		
+
 		if (cmdLineTokens[0].compareToIgnoreCase("epr") == 0) {
 			// Not yet implemented
 		}
 
 		if (cmdLineTokens[0].compareToIgnoreCase("tsta") == 0) {
 			if (cmdLineTokens.length == 2) {
-				arg = StringEval.toInteger(cmdLineTokens[1]); 
+				arg = StringEval.toInteger(cmdLineTokens[1]);
 				if ( arg == -1 | arg > 255) {
 					displayCmdOutput(illegalArgumentMessage);
 					return;
@@ -552,10 +552,10 @@ public class CommandLine implements KeyListener {
 			}
 			displayCmdOutput(Z88Info.blinkTstaInfo());
 		}
-		
+
 		if (cmdLineTokens[0].compareToIgnoreCase("tack") == 0) {
 			if (cmdLineTokens.length == 2) {
-				arg = StringEval.toInteger(cmdLineTokens[1]); 
+				arg = StringEval.toInteger(cmdLineTokens[1]);
 				if ( arg == -1 | arg > 255) {
 					displayCmdOutput(illegalArgumentMessage);
 					return;
@@ -568,7 +568,7 @@ public class CommandLine implements KeyListener {
 
 		if (cmdLineTokens[0].compareToIgnoreCase("tmk") == 0) {
 			if (cmdLineTokens.length == 2) {
-				arg = StringEval.toInteger(cmdLineTokens[1]); 
+				arg = StringEval.toInteger(cmdLineTokens[1]);
 				if ( arg == -1 | arg > 255) {
 					displayCmdOutput(illegalArgumentMessage);
 					return;
@@ -578,11 +578,11 @@ public class CommandLine implements KeyListener {
 			}
 			displayCmdOutput(Z88Info.blinkTmkInfo());
 		}
-		
-		
+
+
 		if (cmdLineTokens[0].compareToIgnoreCase("pb0") == 0) {
 			if (cmdLineTokens.length == 2) {
-				arg = StringEval.toInteger(cmdLineTokens[1]); 
+				arg = StringEval.toInteger(cmdLineTokens[1]);
 				if (arg == -1 | arg > 65535) {
 					displayCmdOutput(illegalArgumentMessage);
 					return;
@@ -594,7 +594,7 @@ public class CommandLine implements KeyListener {
 		}
 		if (cmdLineTokens[0].compareToIgnoreCase("pb1") == 0) {
 			if (cmdLineTokens.length == 2) {
-				arg = StringEval.toInteger(cmdLineTokens[1]); 
+				arg = StringEval.toInteger(cmdLineTokens[1]);
 				if (arg == -1 | arg > 65535) {
 					displayCmdOutput(illegalArgumentMessage);
 					return;
@@ -606,7 +606,7 @@ public class CommandLine implements KeyListener {
 		}
 		if (cmdLineTokens[0].compareToIgnoreCase("pb2") == 0) {
 			if (cmdLineTokens.length == 2) {
-				arg = StringEval.toInteger(cmdLineTokens[1]); 
+				arg = StringEval.toInteger(cmdLineTokens[1]);
 				if (arg == -1 | arg > 65535) {
 					displayCmdOutput(illegalArgumentMessage);
 					return;
@@ -618,7 +618,7 @@ public class CommandLine implements KeyListener {
 		}
 		if (cmdLineTokens[0].compareToIgnoreCase("pb3") == 0) {
 			if (cmdLineTokens.length == 2) {
-				arg = StringEval.toInteger(cmdLineTokens[1]); 
+				arg = StringEval.toInteger(cmdLineTokens[1]);
 				if (arg == -1 | arg > 65535) {
 					displayCmdOutput(illegalArgumentMessage);
 					return;
@@ -630,7 +630,7 @@ public class CommandLine implements KeyListener {
 		}
 		if (cmdLineTokens[0].compareToIgnoreCase("sbr") == 0) {
 			if (cmdLineTokens.length == 2) {
-				arg = StringEval.toInteger(cmdLineTokens[1]); 
+				arg = StringEval.toInteger(cmdLineTokens[1]);
 				if (arg == -1 | arg > 65535) {
 					displayCmdOutput(illegalArgumentMessage);
 					return;
@@ -643,7 +643,7 @@ public class CommandLine implements KeyListener {
 
 		if (cmdLineTokens[0].compareToIgnoreCase("sr0") == 0) {
 			if (cmdLineTokens.length == 2) {
-				arg = StringEval.toInteger(cmdLineTokens[1]); 
+				arg = StringEval.toInteger(cmdLineTokens[1]);
 				if ( arg == -1 | arg > 255) {
 					displayCmdOutput(illegalArgumentMessage);
 					return;
@@ -653,10 +653,10 @@ public class CommandLine implements KeyListener {
 			}
 			displayCmdOutput(Z88Info.blinkSegmentsInfo());
 		}
-		
+
 		if (cmdLineTokens[0].compareToIgnoreCase("sr1") == 0) {
 			if (cmdLineTokens.length == 2) {
-				arg = StringEval.toInteger(cmdLineTokens[1]); 
+				arg = StringEval.toInteger(cmdLineTokens[1]);
 				if ( arg == -1 | arg > 255) {
 					displayCmdOutput(illegalArgumentMessage);
 					return;
@@ -668,7 +668,7 @@ public class CommandLine implements KeyListener {
 		}
 		if (cmdLineTokens[0].compareToIgnoreCase("sr2") == 0) {
 			if (cmdLineTokens.length == 2) {
-				arg = StringEval.toInteger(cmdLineTokens[1]); 
+				arg = StringEval.toInteger(cmdLineTokens[1]);
 				if ( arg == -1 | arg > 255) {
 					displayCmdOutput(illegalArgumentMessage);
 					return;
@@ -680,7 +680,7 @@ public class CommandLine implements KeyListener {
 		}
 		if (cmdLineTokens[0].compareToIgnoreCase("sr3") == 0) {
 			if (cmdLineTokens.length == 2) {
-				arg = StringEval.toInteger(cmdLineTokens[1]); 
+				arg = StringEval.toInteger(cmdLineTokens[1]);
 				if ( arg == -1 | arg > 255) {
 					displayCmdOutput(illegalArgumentMessage);
 					return;
@@ -693,7 +693,7 @@ public class CommandLine implements KeyListener {
 
 		if (cmdLineTokens[0].compareToIgnoreCase("tim0") == 0) {
 			if (cmdLineTokens.length == 2) {
-				arg = StringEval.toInteger(cmdLineTokens[1]); 
+				arg = StringEval.toInteger(cmdLineTokens[1]);
 				if (arg == -1 | arg > 255) {
 					displayCmdOutput(illegalArgumentMessage);
 					return;
@@ -705,7 +705,7 @@ public class CommandLine implements KeyListener {
 		}
 		if (cmdLineTokens[0].compareToIgnoreCase("tim1") == 0) {
 			if (cmdLineTokens.length == 2) {
-				arg = StringEval.toInteger(cmdLineTokens[1]); 
+				arg = StringEval.toInteger(cmdLineTokens[1]);
 				if (arg == -1 | arg > 255) {
 					displayCmdOutput(illegalArgumentMessage);
 					return;
@@ -717,7 +717,7 @@ public class CommandLine implements KeyListener {
 		}
 		if (cmdLineTokens[0].compareToIgnoreCase("tim2") == 0) {
 			if (cmdLineTokens.length == 2) {
-				arg = StringEval.toInteger(cmdLineTokens[1]); 
+				arg = StringEval.toInteger(cmdLineTokens[1]);
 				if (arg == -1 | arg > 255) {
 					displayCmdOutput(illegalArgumentMessage);
 					return;
@@ -729,7 +729,7 @@ public class CommandLine implements KeyListener {
 		}
 		if (cmdLineTokens[0].compareToIgnoreCase("tim3") == 0) {
 			if (cmdLineTokens.length == 2) {
-				arg = StringEval.toInteger(cmdLineTokens[1]); 
+				arg = StringEval.toInteger(cmdLineTokens[1]);
 				if (arg == -1 | arg > 255) {
 					displayCmdOutput(illegalArgumentMessage);
 					return;
@@ -741,7 +741,7 @@ public class CommandLine implements KeyListener {
 		}
 		if (cmdLineTokens[0].compareToIgnoreCase("tim4") == 0) {
 			if (cmdLineTokens.length == 2) {
-				arg = StringEval.toInteger(cmdLineTokens[1]); 
+				arg = StringEval.toInteger(cmdLineTokens[1]);
 				if (arg == -1 | arg > 255) {
 					displayCmdOutput(illegalArgumentMessage);
 					return;
@@ -751,21 +751,21 @@ public class CommandLine implements KeyListener {
 			}
 			displayCmdOutput(Z88Info.blinkTimersInfo());
 		}
-		
+
 		if (cmdLineTokens[0].compareToIgnoreCase("f") == 0) {
 			if (cmdLineTokens.length == 2) {
 				if (Z88.getInstance().getProcessorThread() != null) {
 					displayCmdOutput("Cannot change	F flag while Z88 is running!");
 					return;
 				}
-				arg = StringEval.toInteger(cmdLineTokens[1]); 
+				arg = StringEval.toInteger(cmdLineTokens[1]);
 				if (arg == -1 | arg > 255) {
 					displayCmdOutput(illegalArgumentMessage);
 					return;
 				} else {
 					z80.F(arg);
 				}
-			}			
+			}
 			displayCmdOutput("F=" +	Z88Info.z80Flags() + " (" + Dz.byteToBin(z80.F(),true) + ")");
 		}
 
@@ -877,7 +877,7 @@ public class CommandLine implements KeyListener {
 					displayCmdOutput("Cannot change	A register while Z88 is	running!");
 					return;
 				}
-				arg = StringEval.toInteger(cmdLineTokens[1]); 
+				arg = StringEval.toInteger(cmdLineTokens[1]);
 				if (arg == -1 | arg > 255) {
 					displayCmdOutput(illegalArgumentMessage);
 					return;
@@ -894,7 +894,7 @@ public class CommandLine implements KeyListener {
 					displayCmdOutput("Cannot change	alternate A register while Z88 is running!");
 					return;
 				}
-				arg = StringEval.toInteger(cmdLineTokens[1]); 
+				arg = StringEval.toInteger(cmdLineTokens[1]);
 				if (arg == -1 | arg > 255) {
 					displayCmdOutput(illegalArgumentMessage);
 					return;
@@ -915,7 +915,7 @@ public class CommandLine implements KeyListener {
 					displayCmdOutput("Cannot change	B register while Z88 is	running!");
 					return;
 				}
-				arg = StringEval.toInteger(cmdLineTokens[1]); 
+				arg = StringEval.toInteger(cmdLineTokens[1]);
 				if (arg == -1 | arg > 255) {
 					displayCmdOutput(illegalArgumentMessage);
 					return;
@@ -932,12 +932,12 @@ public class CommandLine implements KeyListener {
 					displayCmdOutput("Cannot change	C register while Z88 is	running!");
 					return;
 				}
-				arg = StringEval.toInteger(cmdLineTokens[1]); 
+				arg = StringEval.toInteger(cmdLineTokens[1]);
 				if (arg == -1 | arg > 255) {
 					displayCmdOutput(illegalArgumentMessage);
 					return;
 				} else {
-					z80.C(arg);					
+					z80.C(arg);
 				}
 			}
 			displayCmdOutput("C=" +	Dz.byteToHex(z80.C(),true) + " (" + Dz.byteToBin(z80.C(),true) + ")");
@@ -949,7 +949,7 @@ public class CommandLine implements KeyListener {
 					displayCmdOutput("Cannot change	alternate B register while Z88 is running!");
 					return;
 				}
-				arg = StringEval.toInteger(cmdLineTokens[1]); 
+				arg = StringEval.toInteger(cmdLineTokens[1]);
 				if (arg == -1 | arg > 255) {
 					displayCmdOutput(illegalArgumentMessage);
 					return;
@@ -970,7 +970,7 @@ public class CommandLine implements KeyListener {
 					displayCmdOutput("Cannot change	alternate C register while Z88 is running!");
 					return;
 				}
-				arg = StringEval.toInteger(cmdLineTokens[1]); 
+				arg = StringEval.toInteger(cmdLineTokens[1]);
 				if (arg == -1 | arg > 255) {
 					displayCmdOutput(illegalArgumentMessage);
 					return;
@@ -991,7 +991,7 @@ public class CommandLine implements KeyListener {
 					displayCmdOutput("Cannot change	BC register while Z88 is running!");
 					return;
 				}
-				arg = StringEval.toInteger(cmdLineTokens[1]); 
+				arg = StringEval.toInteger(cmdLineTokens[1]);
 				if (arg == -1 | arg > 65535) {
 					displayCmdOutput(illegalArgumentMessage);
 					return;
@@ -1008,15 +1008,15 @@ public class CommandLine implements KeyListener {
 					displayCmdOutput("Cannot change	alternate BC register while Z88	is running!");
 					return;
 				}
-				arg = StringEval.toInteger(cmdLineTokens[1]); 
+				arg = StringEval.toInteger(cmdLineTokens[1]);
 				if (arg == -1 | arg > 65535) {
 					displayCmdOutput(illegalArgumentMessage);
 					return;
-				} else {				
+				} else {
 					z80.exx();
 					z80.BC(arg);
 					z80.exx();
-				}				
+				}
 			}
 			z80.exx();
 			displayCmdOutput("BC'="	+ Dz.addrToHex(z80.BC(),true) + " (" + z80.BC() + "d)");
@@ -1029,7 +1029,7 @@ public class CommandLine implements KeyListener {
 					displayCmdOutput("Cannot change	D register while Z88 is	running!");
 					return;
 				}
-				arg = StringEval.toInteger(cmdLineTokens[1]); 
+				arg = StringEval.toInteger(cmdLineTokens[1]);
 				if (arg == -1 | arg > 255) {
 					displayCmdOutput(illegalArgumentMessage);
 					return;
@@ -1046,7 +1046,7 @@ public class CommandLine implements KeyListener {
 					displayCmdOutput("Cannot change	E register while Z88 is	running!");
 					return;
 				}
-				arg = StringEval.toInteger(cmdLineTokens[1]); 
+				arg = StringEval.toInteger(cmdLineTokens[1]);
 				if (arg == -1 | arg > 255) {
 					displayCmdOutput(illegalArgumentMessage);
 					return;
@@ -1063,7 +1063,7 @@ public class CommandLine implements KeyListener {
 					displayCmdOutput("Cannot change	alternate D register while Z88 is running!");
 					return;
 				}
-				arg = StringEval.toInteger(cmdLineTokens[1]); 
+				arg = StringEval.toInteger(cmdLineTokens[1]);
 				if (arg == -1 | arg > 255) {
 					displayCmdOutput(illegalArgumentMessage);
 					return;
@@ -1084,7 +1084,7 @@ public class CommandLine implements KeyListener {
 					displayCmdOutput("Cannot change	alternate E register while Z88 is running!");
 					return;
 				}
-				arg = StringEval.toInteger(cmdLineTokens[1]); 
+				arg = StringEval.toInteger(cmdLineTokens[1]);
 				if (arg == -1 | arg > 255) {
 					displayCmdOutput(illegalArgumentMessage);
 					return;
@@ -1105,13 +1105,13 @@ public class CommandLine implements KeyListener {
 					displayCmdOutput("Cannot change	DE register while Z88 is running!");
 					return;
 				}
-				arg = StringEval.toInteger(cmdLineTokens[1]); 
+				arg = StringEval.toInteger(cmdLineTokens[1]);
 				if (arg == -1 | arg > 65535) {
 					displayCmdOutput(illegalArgumentMessage);
 					return;
-				} else {				
+				} else {
 					z80.DE(arg);
-				}				
+				}
 			}
 			displayCmdOutput("DE=" + Dz.addrToHex(z80.DE(),true) + " (" + z80.DE() + "d)");
 		}
@@ -1122,15 +1122,15 @@ public class CommandLine implements KeyListener {
 					displayCmdOutput("Cannot change	alternate DE register while Z88	is running!");
 					return;
 				}
-				arg = StringEval.toInteger(cmdLineTokens[1]); 
+				arg = StringEval.toInteger(cmdLineTokens[1]);
 				if (arg == -1 | arg > 65535) {
 					displayCmdOutput(illegalArgumentMessage);
 					return;
-				} else {				
+				} else {
 					z80.exx();
 					z80.DE(arg);
 					z80.exx();
-				}				
+				}
 			}
 			z80.exx();
 			displayCmdOutput("DE'="	+ Dz.addrToHex(z80.DE(),true) + " (" + z80.DE() + "d)");
@@ -1143,7 +1143,7 @@ public class CommandLine implements KeyListener {
 					displayCmdOutput("Cannot change	H register while Z88 is	running!");
 					return;
 				}
-				arg = StringEval.toInteger(cmdLineTokens[1]); 
+				arg = StringEval.toInteger(cmdLineTokens[1]);
 				if (arg == -1 | arg > 255) {
 					displayCmdOutput(illegalArgumentMessage);
 					return;
@@ -1160,7 +1160,7 @@ public class CommandLine implements KeyListener {
 					displayCmdOutput("Cannot change	L register while Z88 is	running!");
 					return;
 				}
-				arg = StringEval.toInteger(cmdLineTokens[1]); 
+				arg = StringEval.toInteger(cmdLineTokens[1]);
 				if (arg == -1 | arg > 255) {
 					displayCmdOutput(illegalArgumentMessage);
 					return;
@@ -1177,7 +1177,7 @@ public class CommandLine implements KeyListener {
 					displayCmdOutput("Cannot change	alternate H register while Z88 is running!");
 					return;
 				}
-				arg = StringEval.toInteger(cmdLineTokens[1]); 
+				arg = StringEval.toInteger(cmdLineTokens[1]);
 				if (arg == -1 | arg > 255) {
 					displayCmdOutput(illegalArgumentMessage);
 					return;
@@ -1198,7 +1198,7 @@ public class CommandLine implements KeyListener {
 					displayCmdOutput("Cannot change	alternate L register while Z88 is running!");
 					return;
 				}
-				arg = StringEval.toInteger(cmdLineTokens[1]); 
+				arg = StringEval.toInteger(cmdLineTokens[1]);
 				if (arg == -1 | arg > 255) {
 					displayCmdOutput(illegalArgumentMessage);
 					return;
@@ -1219,13 +1219,13 @@ public class CommandLine implements KeyListener {
 					displayCmdOutput("Cannot change	HL register while Z88 is running!");
 					return;
 				}
-				arg = StringEval.toInteger(cmdLineTokens[1]); 
+				arg = StringEval.toInteger(cmdLineTokens[1]);
 				if (arg == -1 | arg > 65535) {
 					displayCmdOutput(illegalArgumentMessage);
 					return;
-				} else {				
+				} else {
 					z80.HL(arg);
-				}				
+				}
 			}
 			displayCmdOutput("HL=" + Dz.addrToHex(z80.HL(),true) + " (" + z80.HL() + "d)");
 		}
@@ -1236,15 +1236,15 @@ public class CommandLine implements KeyListener {
 					displayCmdOutput("Cannot change	alternate HL register while Z88	is running!");
 					return;
 				}
-				arg = StringEval.toInteger(cmdLineTokens[1]); 
+				arg = StringEval.toInteger(cmdLineTokens[1]);
 				if (arg == -1 | arg > 65535) {
 					displayCmdOutput(illegalArgumentMessage);
 					return;
-				} else {				
+				} else {
 					z80.exx();
 					z80.HL(arg);
 					z80.exx();
-				}				
+				}
 			}
 			z80.exx();
 			displayCmdOutput("HL'="	+ Dz.addrToHex(z80.HL(),true) + " (" + z80.HL() + "d)");
@@ -1257,13 +1257,13 @@ public class CommandLine implements KeyListener {
 					displayCmdOutput("Cannot change	IX register while Z88 is running!");
 					return;
 				}
-				arg = StringEval.toInteger(cmdLineTokens[1]); 
+				arg = StringEval.toInteger(cmdLineTokens[1]);
 				if (arg == -1 | arg > 65535) {
 					displayCmdOutput(illegalArgumentMessage);
 					return;
-				} else {				
+				} else {
 					z80.IX(arg);
-				}				
+				}
 			}
 			displayCmdOutput("IX=" + Dz.addrToHex(z80.IX(),true) + " (" + z80.IX() + "d)");
 		}
@@ -1274,13 +1274,13 @@ public class CommandLine implements KeyListener {
 					displayCmdOutput("Cannot change	IY register while Z88 is running!");
 					return;
 				}
-				arg = StringEval.toInteger(cmdLineTokens[1]); 
+				arg = StringEval.toInteger(cmdLineTokens[1]);
 				if (arg == -1 | arg > 65535) {
 					displayCmdOutput(illegalArgumentMessage);
 					return;
-				} else {				
+				} else {
 					z80.IY(arg);
-				}				
+				}
 			}
 			displayCmdOutput("IY=" + Dz.addrToHex(z80.IY(),true) + " (" + z80.IY() + "d)");
 		}
@@ -1291,13 +1291,13 @@ public class CommandLine implements KeyListener {
 					displayCmdOutput("Cannot change	SP register while Z88 is running!");
 					return;
 				}
-				arg = StringEval.toInteger(cmdLineTokens[1]); 
+				arg = StringEval.toInteger(cmdLineTokens[1]);
 				if (arg == -1 | arg > 65535) {
 					displayCmdOutput(illegalArgumentMessage);
 					return;
-				} else {				
+				} else {
 					z80.SP(arg);
-				}				
+				}
 			}
 			displayCmdOutput("SP=" + Dz.addrToHex(z80.SP(),true) + " (" + z80.SP() + "d)");
 		}
@@ -1308,13 +1308,13 @@ public class CommandLine implements KeyListener {
 					displayCmdOutput("Cannot change	PC register while Z88 is running!");
 					return;
 				}
-				arg = StringEval.toInteger(cmdLineTokens[1]); 
+				arg = StringEval.toInteger(cmdLineTokens[1]);
 				if (arg == -1 | arg > 65535) {
 					displayCmdOutput(illegalArgumentMessage);
 					return;
-				} else {				
+				} else {
 					z80.PC(arg);
-				}				
+				}
 			}
 			displayCmdOutput("PC=" + Dz.addrToHex(z80.PC(),true) + " (" + z80.PC() + "d)");
 		}
@@ -1329,9 +1329,9 @@ public class CommandLine implements KeyListener {
 		getDebugGui().getCmdLineInputArea().setText(Dz.getNextStepCommand());
 		getDebugGui().getCmdLineInputArea().setCaretPosition(getDebugGui().getCmdLineInputArea().getDocument().getLength());
 		getDebugGui().getCmdLineInputArea().selectAll();
-		getDebugGui().getCmdLineInputArea().grabFocus();	// Z88 is stopped, get focus to	debug command line.		
+		getDebugGui().getCmdLineInputArea().grabFocus();	// Z88 is stopped, get focus to	debug command line.
 	}
-	
+
 	private	void fcdCommandline(String[] cmdLineTokens) {
 		try {
 			if (cmdLineTokens.length == 1) {
@@ -1345,52 +1345,52 @@ public class CommandLine implements KeyListener {
 					displayCmdOutput("File area:");
 					while (fileEntries.hasNext()) {
 						FileEntry fe = (FileEntry) fileEntries.next();
-						displayCmdOutput(fe.getFileName() + 
-										((fe.isDeleted() == true) ? " [d]": "") + 
+						displayCmdOutput(fe.getFileName() +
+										((fe.isDeleted() == true) ? " [d]": "") +
 										", size=" + fe.getFileLength() + " bytes" +
 										", entry=" + Dz.extAddrToHex(fe.getFileEntryPtr(),true));
-					}					
+					}
 				}
 			} else if (cmdLineTokens.length == 2 & cmdLineTokens[1].compareToIgnoreCase("format") == 0) {
 				// create or (re)format file area
-				if (FileArea.create( cmdLineTokens[0].getBytes()[3]-48, true) == true) 
+				if (FileArea.create( cmdLineTokens[0].getBytes()[3]-48, true) == true)
 					displayCmdOutput("File area were created/formatted.");
 				else
 					displayCmdOutput("File area could not be created/formatted.");
-			
+
 			} else if (cmdLineTokens.length == 2 & cmdLineTokens[1].compareToIgnoreCase("cardhdr") == 0) {
 				// just create a file area header
-				if (FileArea.create( cmdLineTokens[0].getBytes()[3]-48, false) == true) 
+				if (FileArea.create( cmdLineTokens[0].getBytes()[3]-48, false) == true)
 					displayCmdOutput("File area header were created.");
 				else
 					displayCmdOutput("File area header could not be created.");
-			
+
 			} else if (cmdLineTokens.length == 2 & cmdLineTokens[1].compareToIgnoreCase("reclaim") == 0) {
 				// reclaim deleted file space
  				FileArea fa = new FileArea(cmdLineTokens[0].getBytes()[3]-48);
-				fa.reclaimDeletedFileSpace(); 
+				fa.reclaimDeletedFileSpace();
 				displayCmdOutput("Deleted files have been removed from file area.");
 
 			} else if (cmdLineTokens.length == 3 & cmdLineTokens[1].compareToIgnoreCase("del") == 0) {
 				// mark file as deleted
 				FileArea fa = new FileArea(cmdLineTokens[0].getBytes()[3]-48);
-				if (fa.markAsDeleted(cmdLineTokens[2]) == true) 
+				if (fa.markAsDeleted(cmdLineTokens[2]) == true)
 					displayCmdOutput("File was marked as deleted.");
 				else
 					displayCmdOutput("File not found.");
-				
+
 			} else if (cmdLineTokens.length == 3 & cmdLineTokens[1].compareToIgnoreCase("ipf") == 0) {
 				// import file from host file system into file area...
 				FileArea fa = new FileArea(cmdLineTokens[0].getBytes()[3]-48);
 				fa.importHostFile(new File(cmdLineTokens[2]));
 				displayCmdOutput("File " + cmdLineTokens[2] + " was successfully imported.");
-				
+
 			} else if (cmdLineTokens.length == 3 & cmdLineTokens[1].compareToIgnoreCase("ipd") == 0) {
 				// import all files from host file system directory into file area...
 				FileArea fa = new FileArea(cmdLineTokens[0].getBytes()[3]-48);
 				fa.importHostFiles(new File(cmdLineTokens[2]));
 				displayCmdOutput("Directory '"+cmdLineTokens[2] + "' was successfully imported.");
-				
+
 			} else if (cmdLineTokens.length == 3 & cmdLineTokens[1].compareToIgnoreCase("xpc") == 0) {
 				// export all files from file area to directory on host file system..
 				FileArea fa = new FileArea(cmdLineTokens[0].getBytes()[3]-48);
@@ -1407,17 +1407,17 @@ public class CommandLine implements KeyListener {
 							hostFileName = hostFileName.substring(hostFileName.lastIndexOf("/")+1);
 							// and build a complete file name for the host file system
 							hostFileName = cmdLineTokens[2] + File.separator + hostFileName;
-	
+
 							// create a new file in specified host directory
-							RandomAccessFile expFile = new RandomAccessFile(hostFileName, "rw");						
+							RandomAccessFile expFile = new RandomAccessFile(hostFileName, "rw");
 							expFile.write(fe.getFileImage()); // export file image to host file system
 							expFile.close();
-							
+
 							displayCmdOutput("Exported " + fe.getFileName() + " to " + hostFileName);
 						}
-					}					
-				} 
-				
+					}
+				}
+
 			} else if (cmdLineTokens.length == 4 & cmdLineTokens[1].compareToIgnoreCase("xpf") == 0) {
 				// export file from file area to directory on host file system
 				FileArea fa = new FileArea(cmdLineTokens[0].getBytes()[3]-48);
@@ -1432,10 +1432,10 @@ public class CommandLine implements KeyListener {
 					hostFileName = cmdLineTokens[3] + File.separator + hostFileName;
 
 					// create a new file in specified host directory
-					RandomAccessFile expFile = new RandomAccessFile(hostFileName, "rw");						
+					RandomAccessFile expFile = new RandomAccessFile(hostFileName, "rw");
 					expFile.write(fe.getFileImage()); // export file image to host file system
 					expFile.close();
-					
+
 					displayCmdOutput("Exported " + fe.getFileName() + " to " + hostFileName);
 				}
 			} else {
@@ -1447,9 +1447,9 @@ public class CommandLine implements KeyListener {
 			displayCmdOutput("No more room in file area. One or several files could not be imported.");
 		} catch (IOException e) {
 			displayCmdOutput("I/O error occurred during import/export of files.");
-		} 
+		}
 	}
-	
+
 	private	void bpCommandline(String[] cmdLineTokens) throws IOException {
 		int bpAddress;
 
@@ -1558,7 +1558,7 @@ public class CommandLine implements KeyListener {
 			// extended addressing
 			for (int dzLines = 0;  dzLines < 16; dzLines++)	{
 				int origAddr = dzAddr;
-				dzAddr = dz.getInstrAscii(dzLine, dzAddr, dzBank, false, true);
+				dzAddr = dz.getInstrAscii(dzLine, dzAddr, dzAddr & 0x3fff, dzBank, false, true);
 				displayCmdOutput(Dz.extAddrToHex((dzBank << 16)	| origAddr,false) + " "	+ dzLine);
 			}
 
@@ -1688,7 +1688,7 @@ public class CommandLine implements KeyListener {
 		debugGui.getCmdLineInputArea().selectAll();
 	}
 
-	
+
 	public void keyPressed(KeyEvent	e) {
 		switch (e.getKeyCode())	{
 			case KeyEvent.VK_F12:
@@ -1723,5 +1723,5 @@ public class CommandLine implements KeyListener {
 	}
 
 	public void keyTyped(KeyEvent arg0) {
-	}	
+	}
 }

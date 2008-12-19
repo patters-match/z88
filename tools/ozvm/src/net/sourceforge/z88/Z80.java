@@ -42,38 +42,29 @@ public abstract class Z80 {
 
 	private final class LogZ80 {
 		private static final int BUFSIZE = 100000;
-		
+
 		private int pcAddressCache[];
 		private int registerCache[][];
 		private int index;
 		private int logFileCounter;
-		
+
 		public LogZ80() {
 			pcAddressCache = new int[BUFSIZE];
-			registerCache = new int[BUFSIZE][7];			
+			registerCache = new int[BUFSIZE][8];
 		}
-		
+
 		private boolean isCacheAvailable() {
 			return index != 0;
 		}
-		
-		private int getCacheIndex() {
-			return index;
-		}
 
-		private void resetCacheIndex() {
-			index = 0;
-		}
-		
 		private void logInstruction() {
 			if (index == BUFSIZE) {
-				// dump cache to log file in a thread...
-				flushCache(index);
-				resetCacheIndex();
-			} 
+				// dump cache to log file, and reset index to 0
+				flushCache();
+			}
 
-			pcAddressCache[index] = (getPcAddress() & 0xFF0000) | PC();
-			
+			pcAddressCache[index] = getPcAddress();
+
 			registerCache[index][0] = AF();
 			registerCache[index][1] = BC();
 			registerCache[index][2] = DE();
@@ -81,30 +72,36 @@ public abstract class Z80 {
 			registerCache[index][4] = IX();
 			registerCache[index][5] = IY();
 			registerCache[index][6] = SP();
+			registerCache[index][7] = PC();
 
 			index++;
 		}
-		
+
 		/**
 		 * Dump executed instruction cache to log file in a background thread..
 		 */
-		private void flushCache(final int index) {
+		private void flushCache() {
 					Dz dz = Dz.getInstance();
-					
+
 					try {
 						BufferedWriter out = new BufferedWriter(new FileWriter("z80_" + logFileCounter++ + ".log"));
 						StringBuffer dzLine = new StringBuffer(64);
 						StringBuffer dzBuf = new StringBuffer(128);
 						for (int i=0; i<index; i++) {
 							int dzBank = (pcAddressCache[i] >>> 16) & 0xFF;
-							int dzAddr = pcAddressCache[i] & 0xFFFF;	// bank	offset (with simulated segment addressing)
+							int dzOffset = pcAddressCache[i] & 0xFFFF;	// bank	offset
 
-							dz.getInstrAscii(dzLine, dzAddr, dzBank, false, true);
-							dzBuf.append(Dz.extAddrToHex(pcAddressCache[i], false));
+							dz.getInstrAscii(dzLine, registerCache[i][7], dzOffset, dzBank, false, true);
+							dzBuf.append(
+							                Dz.extAddrToHex( pcAddressCache[i] & 0xff0000 |
+							                                (pcAddressCache[i] & 0xffff) |
+							                                registerCache[i][7]
+							                                , false)
+							            );
 							dzBuf.append(" ");
 							dzBuf.append(dzLine);
 							for(int space=31 - dzLine.length(); space>0; space--) dzBuf.append(" ");
-							dzBuf.append(									
+							dzBuf.append(
 									Z88Info.quickZ80Dump(
 											registerCache[i][0], // AF
 											registerCache[i][1], // BC
@@ -116,32 +113,33 @@ public abstract class Z80 {
 											);
 							dzBuf.append(System.getProperty("line.separator"));
 							out.write(dzBuf.toString());
-							
+
 							dzBuf.delete(0,127);
 				        }
 				    	out.close();
 
 				    } catch (IOException e) {
 				    }
+
+                    // Cache flushed...
+    		        index = 0;
 		}
 	}
-	
+
 	public void flushZ80LogCache() {
 		if (lgZ80.isCacheAvailable() == true) {
-			int cacheIndex = lgZ80.getCacheIndex();
-			lgZ80.flushCache(cacheIndex);
-			lgZ80.resetCacheIndex();
+			lgZ80.flushCache();
 		}
 	}
 
 	public void setZ80Logging(boolean logState) {
-		logZ80instructions = logState;		
+		logZ80instructions = logState;
 	}
 
 	public boolean izZ80Logged() {
-		return logZ80instructions;		
+		return logZ80instructions;
 	}
-	
+
 	public Z80() {
 		tstatesCounter = 0;
 
@@ -174,7 +172,7 @@ public abstract class Z80 {
 
 	private LogZ80 lgZ80;
 	private boolean logZ80instructions;
-	
+
 	private boolean externIntSignal = false;
 
 	private boolean z80Stopped = false;
@@ -546,10 +544,10 @@ public abstract class Z80 {
 	/** External implemenation of Write Word to the Z80 virtual memory model */
 	public abstract void writeWord(final int addr, final int w);
 
-	/** External implemenation getting current physical PC address 
+	/** External implemenation getting current physical PC address
 	 * @return extended PC address */
 	public abstract int getPcAddress();
-	
+
 	/**
 	 * External implemenation of action to be taken when a breakpoint is
 	 * encountered
@@ -691,7 +689,7 @@ public abstract class Z80 {
 	/** Z80 fetch/execute loop, engine full throttle ahead.. */
 	public void decode(boolean debugMode) {
 		z80Stopped = false;
-		
+
 		do {
 			instrPC = _PC; // define origin PC of current instruction
 
@@ -700,17 +698,13 @@ public abstract class Z80 {
 				return;
 			}
 
-			if (logZ80instructions == true) {
-				lgZ80.logInstruction();
-			}
-				
 			if ((debugMode == false) & IFF1() == true && interruptTriggered() == true) {
 				// a maskable interrupt want's to be executed...
-				if (execInterrupt() == true) {
-					if (logZ80instructions == true) {
-						lgZ80.logInstruction();
-					}					
-				}
+				execInterrupt();
+			}
+
+			if (logZ80instructions == true) {
+				lgZ80.logInstruction();
 			}
 
 			REFRESH(1);

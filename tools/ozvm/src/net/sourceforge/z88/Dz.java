@@ -4097,14 +4097,15 @@ public class Dz {
 	 * method in a loop and perform continous disassembly.
 	 *
 	 * @param mnemonic StringBuffer, the container for the Ascii disassembly
+	 * @param pc the actual PC address of the Z80 processor
 	 * @param offset the 16bit offset within bank
 	 * @param bank the bank number (0-255)
 	 * @param dispAddr boolean, display Hex address as part of disassembly
 	 * @param dispOpcode boolean, display instruction byte opcode as part of disassembly
 	 * @return int offset of following instruction in bank
 	 */
-	public final int getInstrAscii(StringBuffer mnemonic, int offset, int bank, boolean dispAddr, boolean dispOpcode) {
-		dzInstrAscii(mnemonic, offset, getInstrOpcode(offset, bank), dispAddr, dispOpcode);
+	public final int getInstrAscii(StringBuffer mnemonic, int pc, int offset, int bank, boolean dispAddr, boolean dispOpcode) {
+		dzInstrAscii(mnemonic, pc, getInstrOpcode(offset, bank), dispAddr, dispOpcode);
 
 		return getNextInstrAddress(offset, bank);
 	}

@@ -773,7 +773,7 @@ public final class Blink {
 			}
 		}
 
-		return bankno << 16 | (pc & 0x3FFF);
+		return (bankno << 16) | (pc & 0x3FFF);
 	}
 
 	/**
