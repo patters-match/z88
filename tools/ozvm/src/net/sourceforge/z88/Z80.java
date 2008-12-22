@@ -177,6 +177,8 @@ public abstract class Z80 {
 
 	private boolean z80Stopped = false;
 
+	private static final int tstatesPerInterrupt = (int) ((3.2768 * 1e6) / 50); /* the no of T-states for virtual static interrupt */
+
 	private static final int IM0 = 0;
 
 	private static final int IM1 = 1;
@@ -413,6 +415,11 @@ public abstract class Z80 {
 
 	private final void REFRESH(int t) {
 		_R += t;
+
+		if (tstatesCounter > tstatesPerInterrupt) {
+			tstatesCounter = 0;
+			Thread.yield(); /* give the Java threading system some breath */
+		}
 	}
 
 	/** Interrupt modes/register */
