@@ -174,17 +174,9 @@ INCLUDE "defs.h"
 ;         DE':      The Virtual Stack Pointer (SP).                                       ** V0.23
 ;         HL':      The Virtual Program Counter (PC).                                     ** V0.16
 
-.decode_instr     EXX                       ; Now decode the instruction to be fetched at (PC)
+.decode_instr     EXX                       ; Main instruction decode to be fetched at (PC)
                   LD   A,(HL)               ; get 1. opcode at (PC)
                   INC  HL                   ; point at next byte to be fetched
-                  CP   $DD                  ; is it an IX instruction?
-                  JR   Z, Index_instr       ; Yes...
-                  CP   $FD                  ; is it an IY instruction?
-                  JR   Z, Index_instr       ; Yes...
-                  CP   $CB                  ; is it a bit manipulation instruction?
-                  JR   Z, CB_instr          ; Yes...
-                  CP   $ED                  ; use lookup table for ED instruction
-                  JR   Z, ED_instr          ; when Intuition resides in segment 1 or 2
                   EXX                       ; Use main register set...                    ** V0.19
                   LD   H,MainInstrTable/256 ; Main v.p. instruction subroutine table      ** V0.19/V0.27e/V0.28
                   LD   L,A                  ;                                             ** V0.27e
@@ -196,9 +188,31 @@ INCLUDE "defs.h"
                   PUSH BC                   ; subroutine - continue in monitor loop...
                   JP   (HL)                 ; call instruction                            ** V0.28
 
-.CB_instr         LD   A,(HL)               ; bit manipulation, get 2. opcode
+
+; ------------------------------------------------------------------------------------------------
+; 1. byte of instruction with $ED opcode arrive here, the $ED instruction set..
+;
+.ED_instr         EXX
+                  LD   A,(HL)               ; extended instructions, get 2. opcode        ** V1.01
+                  INC  HL                   ; PC ready for next byte fetch...             ** V1.01
+                  EXX                       ; Use main register set...                    ** V1.01
+                  LD   H, EDinstrTable/256  ; Extended instruction subroutine table       ** V1.01
+                  LD   L,A                  ; get low byte of subroutine address          ** V1.01
+                  LD   E,(HL)               ; get low byte of subroutine address          ** V1.01
+                  INC  H                    ; point at high byte subroutine address       ** V1.01
+                  LD   D,(HL)               ; fetch high byte subroutine address          ** V1.01
+                  EX   DE,HL                ;                                             ** V1.01
+                  JP   (HL)                 ; call instruction                            ** V1.01
+
+
+; ------------------------------------------------------------------------------------------------
+; 1. byte of instruction with $CB opcode arrive here, the bit manipulation instruction decoding
+;
+.CB_instr         EXX                       ;                                             ** V1.2
+                  LD   A,(HL)               ; bit manipulation, get 2. opcode
                   INC  HL                   ; PC ready for next byte fetch...
                   EXX                       ; Use main register set...                    ** V0.19
+                  POP  BC                   ; remove RET to monitor loop                  ** V1.2
                   LD   BC,RET_cbinstr       ;                                             ** V0.29
                   PUSH BC                   ;                                             ** V0.29
                   LD   H,BitInstrTable/256  ; Bit instruction subroutine table            ** V0.19/V0.27e
@@ -212,36 +226,28 @@ INCLUDE "defs.h"
 .RET_cbinstr      EX   AF,AF'               ;                                             ** V0.29
                   JR   monitor_loop         ; back to main debugger loop                  ** V0.29
 
-.ED_instr         LD   A,(HL)               ; extended instructions, get 2. opcode        ** V1.01
-                  INC  HL                   ; PC ready for next byte fetch...             ** V1.01
-                  EXX                       ; Use main register set...                    ** V1.01
-                  LD   H, EDinstrTable/256  ; Extended instruction subroutine table       ** V1.01
-                  LD   L,A                  ; get low byte of subroutine address          ** V1.01
-                  LD   E,(HL)               ; get low byte of subroutine address          ** V1.01
-                  INC  H                    ; point at high byte subroutine address       ** V1.01
-                  LD   D,(HL)               ; fetch high byte subroutine address          ** V1.01
-                  EX   DE,HL                ;                                             ** V1.01
-                  LD   BC, monitor_loop     ; address of return from virtual instruction
-                  PUSH BC                   ; subroutine - continue in monitor loop...
-                  JP   (HL)                 ; call instruction                            ** V1.01
 
-; IX & IY variations...
-.Index_instr      PUSH AF                   ; remember 1. opcode (221 or 253)
-                  LD   A,(HL)               ; get 2. opcode
+; ------------------------------------------------------------------------------------------------
+; 1. byte of instruction with $DD and $FD opcodes arrive here, the IX & IY instruction decoding
+;
+.Index_instr
+                  LD   B,A                  ; remember 1. opcode (221 or 253)             ** V1.2
+                  EXX                       ;                                             ** V1.2
+                  LD   A,(HL)               ; get 2. opcode of index instruction
                   INC  HL                   ; PC++
                   CP   $CB                  ; IX / IY bit instruction?
                   JR   NZ, main_index_instr ; no, but standard IX / IY instruction
-                  PUSH AF                   ;                                             ** V1.1.1
+
                   LD   A,(HL)               ; Index Bit instructions, displacement        ** V1.1.1
                   LD   (IY+ExecBuffer),A    ; store the displacement for later use (HACK!)** V1.1.1
-                  POP  AF                   ;                                             ** V1.1.1
                   INC  HL                   ; PC++
                   LD   A,(HL)               ; 2. opcode for $CB instruction (at 4. byte)  ** V0.17
                   INC  HL                   ; Index $CB instr. uses 4 byte opcode.        ** V0.17
                   EXX                       ; Use main register set...                    ** V0.19
                   LD   H, IndexBitInstrTable/256  ; Index Bit instruction subr. table     ** V1.04
                   LD   L,A                  ; get low byte of subroutine address          ** V0.27e
-                  POP  AF                   ; restore 1. opcode                           ** V0.23
+                  LD   A,B                  ; restore 1. opcode                           ** V1.2
+                  POP  BC                   ; remove RET to monitor loop                  ** V1.2
                   LD   BC,RET_cbinstr       ;                                             ** V0.29
                   PUSH BC                   ;                                             ** V0.29
                   LD   E,(HL)               ; get low byte of subroutine address          ** V0.24b
@@ -254,13 +260,11 @@ INCLUDE "defs.h"
 .main_index_instr EXX                       ; Use main register set...                    ** V0.19
                   LD   H, IndexInstrTable/256  ; Main Index instruction subr. table       ** V1.04
                   LD   L,A                  ; get low byte of subroutine address          ** V0.27e
-                  POP  AF                   ; restore 1. opcode                           ** V0.23
+                  LD   A,B                  ; restore 1. opcode                           ** V0.23
                   LD   E,(HL)               ; get low byte of subroutine address          ** V0.24b
                   INC  H                    ; point at high byte subroutine address       ** V0.24b
                   LD   D,(HL)               ; fetch high byte subroutine address          ** V0.24b
                   EX   DE,HL                ;                                             ** V0.28
-                  LD   BC, monitor_loop     ; address of return from virtual instruction
-                  PUSH BC                   ; subroutine - continue in monitor loop...
                   JP   (HL)                 ; call instruction                            ** V0.28
 
 
@@ -292,11 +296,15 @@ INCLUDE "defs.h"
 ; *Main* instruction & main Index instruction jump address tables
 include "maintable.asm"
 
+; *ED xx* instruction jump address tables
+include "edtable.asm"
+
+; *Main index* instruction jump address tables
+include "indextable.asm"
+
 ; *Bit* instruction & bit Index instruction jump address tables
 include "bittable.asm"
 
-; *ED xx* instruction jump address tables
-include "edtable.asm"
 
 
 ; *******************************************************************************
