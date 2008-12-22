@@ -177,7 +177,8 @@ public abstract class Z80 {
 
 	private boolean z80Stopped = false;
 
-	private static final int tstatesPerInterrupt = (int) ((3.2768 * 1e6) / 50); /* the no of T-states for virtual static interrupt */
+	/* no of T-states for virtual static interrupt each 1/10 second to issue a Thread.yield() to the Java system */
+	private static final int tstatesPerInterrupt = (int) ((3.2768 * 1e6) / 10);
 
 	private static final int IM0 = 0;
 
