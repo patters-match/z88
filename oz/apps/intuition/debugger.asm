@@ -158,7 +158,7 @@ INCLUDE "defs.h"
 
 ; ----------------------------------------   VIRTUAL PROCESSOR   ----------------------------------
 ; Monitor loop is entered with main set active...
-.monitor_loop     LD   A,(IY + Flagstat2)         ; get RTM flags...                           ** V0.17
+.monitor_loop     LD   A,(SV_INTUITION_RAM + Flagstat2) ; get RTM flags...                     ** V1.2
                   BIT  Flg_RTM_Kesc, A            ;                                            ** V0.17/V0.28
                   CALL NZ, Keyboard_interrupt     ; <LSH><DIAMOND> pressed?                    ** V0.17/V0.28
 
