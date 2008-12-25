@@ -91,8 +91,6 @@
         pop     hl
         ret
 
-;.jpHL   jp      (HL)
-
 
 ; Main keyboard routine
 .KbMain
