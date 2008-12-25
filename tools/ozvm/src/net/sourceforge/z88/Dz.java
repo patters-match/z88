@@ -4319,7 +4319,7 @@ public class Dz {
 					else
 						mnemonic.replace(replaceMacro, replaceMacro+3, Integer.toString(relidx));
 
-					mnemonic.replace(replaceOperand-1, replaceOperand+3, byteToHex(opcode[instrOpcodeOffset++], true));
+					mnemonic.replace(replaceOperand, replaceOperand+3, byteToHex(opcode[instrOpcodeOffset++], true));
 					break;
 
 				case -4 :
