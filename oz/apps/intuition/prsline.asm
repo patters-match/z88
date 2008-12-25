@@ -73,7 +73,7 @@
 
 ; ***********************************************************************************
 ;
-; Convert Character to upper Case
+; Convert lower case 'a' - 'z' characters to upper case, if available.
 ; Character to be converted, in A, and returned in A
 ;
 ; Register status after return:
@@ -81,7 +81,9 @@
 ;       ..BCDEHL/IXIY  same
 ;       AF....../....  different
 ;
-.UpperCase        CALL_OZ(GN_CLS)
-                  RET  NC                   ; not an alpha character
-                  RES  5,A                  ; make sure it's upper case...
+.UpperCase        CP   'a'-1
+                  RET  C                 ; character is < 'a'
+                  CP   '{'
+                  RET  NC                ; character is > 'z'
+                  RES  5,A               ; make sure it's upper case...
                   RET
