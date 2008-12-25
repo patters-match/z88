@@ -64,7 +64,7 @@
                     LD   C,16
                     CALL Get_Constant         ; get DZ address (16bit hex value)
                     RET  C
-                    PUSH DE
+                    PUSH DE                   ; 16bit argument address
                     EXX
                     POP  HL                   ; PC ready...
                     EXX
