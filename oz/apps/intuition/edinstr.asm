@@ -442,15 +442,15 @@
 ; LD   SP,(nn)
 ;
 .EDcode_123       CALL Get_address_indd     ; get (nn)
-                  POP  BC                   ; get return address              ** V0.16
+                  POP  HL                   ; get return addr to main decode loop...
+                  PUSH DE
+                  EXX
+                  POP  DE                   ; install virtual SP
                   EX   DE,HL
                   LD   SP,HL                ; set new SP
-                  PUSH HL
+                  EX   DE,HL
                   EXX
-                  POP  DE                   ; LD  SP,(nn)
-                  EXX
-                  PUSH BC
-                  RET                       ; fetch next Z80 instruction
+                  JP   (HL)                 ; fetch next Z80 instruction
 
 
 ; ****************************************************************************
@@ -759,25 +759,6 @@
                   JP   SaveBlockRegs
 
 
-; *******************************************************************************************************
-;
-; Restore original values of Main Z80 registers (BC, DE, HL & IX)
-;
-.RestoreMainReg   EXX                       ;                                 ** V1.1.1
-                  PUSH BC                   ; (get copy of virtual HL)        ** V1.1.1
-                  EXX                       ;                                 ** V1.1.1
-                  LD   C,(IY + VP_C)        ;                                 ** V1.1.1
-                  LD   B,(IY + VP_B)        ; BC restored                     ** V1.1.1
-                  LD   E,(IY + VP_E)        ;                                 ** V1.1.1
-                  LD   D,(IY + VP_D)        ; DE restored                     ** V1.1.1
-                  LD   L,(IY + VP_IX)       ;                                 ** V1.1.1
-                  LD   H,(IY + VP_IX+1)     ;                                 ** V1.1.1
-                  PUSH HL                   ;                                 ** V1.1.1
-                  POP  IX                   ; IX restored                     ** V1.1.1
-                  POP  HL                   ; HL restored                     ** V1.1.1
-                  RET
-
-
 ; ****************************************************************************
 ;
 ; OTDR
@@ -800,4 +781,19 @@
                   LD   (IY + VP_B),B        ;      BC
                   LD   (IY + VP_E),E
                   LD   (IY + VP_D),D        ;      DE
+                  RET
+
+
+; *******************************************************************************************************
+;
+; Restore original values of Main Z80 registers (BC, DE, HL & IX)
+;
+.RestoreMainReg   EXX                       ;                                 ** V1.1.1
+                  PUSH BC                   ; (get copy of virtual HL)        ** V1.1.1
+                  EXX                       ;                                 ** V1.1.1
+                  LD   C,(IY + VP_C)        ;                                 ** V1.1.1
+                  LD   B,(IY + VP_B)        ; BC restored                     ** V1.1.1
+                  LD   E,(IY + VP_E)        ;                                 ** V1.1.1
+                  LD   D,(IY + VP_D)        ; DE restored                     ** V1.1.1
+                  POP  HL                   ; HL restored                     ** V1.1.1
                   RET
