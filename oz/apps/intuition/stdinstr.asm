@@ -692,12 +692,12 @@
 ;
 .Opcode_211
                   EXX
-                  LD   A, BL_SR0
-                  CP   (HL)                 ; execution about to bind out Intuition in segment 0?
+                  LD   A, BL_SR0            ; compare with N (the port address) of
+                  CP   (HL)                 ; OUT ($D0),A (intuition to be bound out)?
                   EXX
                   JR   NZ, out_port         ; nope, another port activity (not segment 0 bank binding)...
                   EX   AF,AF'
-                  LD   B,A                  ; get A register
+                  LD   B,A                  ; get the bank no to be bound into segment 0
                   EX   AF,AF'
                   LD   A,OZBANK_INTUITION
                   CP   B
