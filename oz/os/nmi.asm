@@ -431,9 +431,8 @@ defc    NMI_B_HALT      =0
         ld      a, l
         out     (BL_TMK), a
 
-        ld      a, OZBANK_KNL0
-        out     (BL_SR0), a                     ; !! KERNEL0 in 2000 - 3FFF (upper 8K of S0)
-        out     (BL_SR1), a
+        ld      a, OZBANK_KNL0                  ; bind kernel 0 in segments 1 - 3,
+        out     (BL_SR1), a                     ; but keep soft copies to be able to restore after NMI / Snooze
         out     (BL_SR2), a
         out     (BL_SR3), a
 
@@ -449,7 +448,7 @@ defc    NMI_B_HALT      =0
 .nmi_5
         di
         ld      a, BM_COMRAMS|BM_COMLCDON
-        out     (BL_COM), a                     ; LCD on, RAM at $0000
+        out     (BL_COM), a                     ; LCD on, RAM bank $20 in lower 8K bound at $0000
         call    setAwakeInts                    ; restore INT 38H and NMI 66H vectors in LOWRAM to LOWRAM_INT and LOWRAM_NMI
 
         ld      (uwTimecounter), de             ; store BDE into time counter
@@ -475,14 +474,14 @@ defc    NMI_B_HALT      =0
         dec     c
         call    nz, NMI_Off                     ; C<>0, switch off
 
-        ld      bc, BLSC_PAGE << 8 | BL_SR3     ; bind S1-S3 after softcopies
+        ld      bc, BLSC_PAGE << 8 | BL_SR3     ; restore S3-S1 from softcopies
 .nmi_7
         ld      a, (bc)
         out     (c), a
         dec     c
         ld      a, c
-        cp      BL_SR0
-        jr      nc, nmi_7                       ; loop until done
+        cp      BL_SR1
+        jr      nc, nmi_7                       ; loop until S3-S1 have been restored.
 
         ld      a, (BLSC_COM)                   ; restore COM
         out     (BL_COM), a
