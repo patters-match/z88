@@ -450,7 +450,7 @@ include "bittable.asm"
                   LD   (IY + FlagStat2), 2**Flg_RTM_Trace    ; Single Step mode
 
                   ; Status byte 3:
-                  LD   (IY + FlagStat3), 2**Flg_WinMode | 2**Flg_DZopcode ;                   ** V0.26e
+                  LD   (IY + FlagStat3), 2**Flg_WinMode | 2**Flg_DZopcode | 2**Flg_DbgRunning;
 
                   LD   A, FA_PTR
                   LD   DE,0

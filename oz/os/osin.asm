@@ -242,8 +242,14 @@ xref    Key2Chr_tbl                             ; [Kernel1]/key2chrt.asm
         call    CancelOZcmd
         ld      a, (cExtendedChar)
 IF OZ_INTUITION
+    include "../apps/intuition/defs.h"
+
         cp      IN_AIDX                         ; []+INDEX keys pressed?
         jr      nz, ostin_1                     ; No, return to caller as normal
+        ld      hl, SV_INTUITION_RAM + flagstat3
+        bit     Flg_DbgRunning,(hl)             ; is Intuition running?
+        jr      nz, ostin_1                     ; Yes, SQUARE INDEX cannot activate Intuition inside Intuition!
+
         ld      l,(iy + OSFrame_OZPC)                       ; Yes, activate Intuition on return from OS_IN/Tin.
         ld      h,(iy + OSFrame_OZPC+1)                     ; Replace the Application Return address in OS pushframe
         ld      (SV_INTUITION_RAM + PushFrameRet),hl        ; with Intuition activation address in LOWRAM

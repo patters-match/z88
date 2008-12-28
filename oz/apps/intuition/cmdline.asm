@@ -455,6 +455,8 @@
 .Release_debugger CALL RST_appl_window      ; restore application screen window         ** V0.22
                   CALL RST_ApplErrhandler   ; restore application error handler         ** V0.31
 
+                  res     Flg_DbgRunning,(IY + FlagStat3)         ; indicate that Intuition is not running
+
                   bit     Flg_RTM_bindout,(IY + FlagStat2)
                   jr      z,cont_restore_regs
                   ld      a,(SV_INTUITION_RAM + BindOut_copy)     ; restore bank binding of bind-out alert

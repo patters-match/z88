@@ -49,6 +49,8 @@ lstoff
     DEFC Flg_WinMode    = 4           ; BIT 4:    Application window protection mode
     DEFC Flg_BreakDump  = 5           ; BIT 5:    Dump Registers at break point
     DEFC Flg_BreakOZ    = 6           ; BIT 6:    Break at OZ error (Fc = 1)
+    DEFC Flg_DbgRunning = 7           ; BIT 7:    Set to 1 when Intuition is active
+
 
     DEFC ERR_unknown_instr = $80
     DEFC ERR_RET_unbalanced = $81
