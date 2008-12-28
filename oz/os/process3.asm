@@ -403,8 +403,11 @@ xref    OSSr_Fus                                ; [Kernel1]/ossr.asm
         call    BindSx
 .BindSx
         ld      a, (hl)
+        or      a
+        jr      z, exit_BindSx                  ; 0 indicates no bank binding, skip it...
         ld      (bc), a
         out     (c), a
+.exit_BindSx
         cpd
         ret
 
