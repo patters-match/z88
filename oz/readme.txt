@@ -89,7 +89,7 @@ The easiest way for run the compiled ROM is to execute the run-oz.bat/sh script 
 emulator with the latest OZ installed in slot 1 and boot the "virtual" Z88.
 
 Important:
-The rom script only works with Mpm Assembler V1.2 build 8 or later.
+The rom script only works with Mpm Assembler V1.3 or later.
 (You will have a fully working version, if you are using the latest sources from the SVN checkout)
 
 
@@ -123,6 +123,5 @@ All register input/output parameters in functions or other semantic entity uses
 the style from the Developer's Notes.
 
 All variable names and language is plain english.
-
 
 Z88 Forever!
