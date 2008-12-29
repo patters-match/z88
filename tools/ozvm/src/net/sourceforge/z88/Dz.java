@@ -4541,10 +4541,9 @@ public class Dz {
 				if (i == 203) {
 					argsMnem = ddcbArgsMnem;
 					i = opcode[instrOpcodeOffset+1];
-					instrOpcodeOffset++;
 				} else {
 					argsMnem = ddArgsMnem;
-					i = opcode[instrOpcodeOffset];
+					i = opcode[instrOpcodeOffset-1];
 				}
 				break;
 
@@ -4553,10 +4552,9 @@ public class Dz {
 				if (i == 203) {
 					argsMnem = fdcbArgsMnem;
 					i = opcode[instrOpcodeOffset+1];
-					instrOpcodeOffset++;
 				} else {
 					argsMnem = fdArgsMnem;
-					i = opcode[instrOpcodeOffset];
+					i = opcode[instrOpcodeOffset-1];
 				}
 				break;
 
