@@ -380,6 +380,7 @@ defvars 0
      OzReleaseVer   DS.B 1         ; Cache OZ Version number from OS_Frm, IX=-1, A=FA_PTR
      BindOut_copy   DS.B 1         ; Copy of ($04D0) when alert ocurred.
      OZBankBinding  DS.W 1         ; Original bank binding of segment 0 before Intuition was activated
+     AppStackPtrCPY DS.W 1         ; Copy of original (pAppStackPtr) because it changes while Intuition command line is active
      Int_Worksp                    ; Number of bytes in Intuition Workspace (RTM)
 enddef
 

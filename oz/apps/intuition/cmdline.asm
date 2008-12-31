@@ -461,6 +461,8 @@
                   jr      z,cont_restore_regs
                   ld      a,(SV_INTUITION_RAM + BindOut_copy)     ; restore bank binding of bind-out alert
                   ld      (SV_INTUITION_RAM + OZBankBinding+1),a  ; (old binding of Intuition no longer important)
+                  ld      hl,(SV_INTUITION_RAM + AppStackPtrCPY)  ; restore the system variable (pAppStackPtr)
+                  ld      (pAppStackPtr),hl                       ; with last known application stack pointer
 
 .cont_restore_regs
                   ld      hl,(SV_INTUITION_RAM + VP_AF)           ; install current AF register

@@ -339,6 +339,8 @@ include "bittable.asm"
 ;
 .Bindout_error    LD   (IY + RTMerror), ERR_bindout
                   SET  Flg_RTM_bindout,(IY + FlagStat2)
+                  ld      hl,(pAppStackPtr)                       ; get a copy of OZ's own copy of application stack pointer
+                  ld      (SV_INTUITION_RAM + AppStackPtrCPY),hl  ; which will be restored after Intuition is released.
                   JR   set_rtm_error
 
 
