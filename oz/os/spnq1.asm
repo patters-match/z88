@@ -1032,7 +1032,8 @@ xref    Keymap_SP
         ld      l, $40                          ; ShiftTable start=length of shift table
         ld      b, KMT_DEADKEY-1                ; 4-1=3 loops, (diamondtable, squaretable and deadtable)
 .ikp_1  ld      a, (hl)                         ; table size
-        sll     a                               ; *2+1
+        sla     a                               ; *2+1
+        inc     a
         add     a, l                            ; skip table
         ld      l, a
         ld      (de), a                         ; and store pointer
