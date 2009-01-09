@@ -161,8 +161,7 @@
 ;
 .DZ_Z80pc         EXX
                   LD   DE,0                 ; bit masks zeroed = local address...
-                  LD   L,(IY + VP_PC        ;                                           ** V0.28
-                  LD   H,(IY + VP_PC+1)     ; get PC                                    ** V0.28
+                  LD   HL, (SV_INTUITION_RAM + VP_PC)
                   EXX                       ; (refer to Get_DZ_PC )
 
 
@@ -1034,7 +1033,6 @@
                   LD   HL, reg16_lookup
                   CALL Fetch_string_ptr
                   JP   Display_String           ; display dd register
-
 
 .Disp_nn_indd     PUSH AF
                   LD   A, '('

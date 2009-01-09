@@ -17,8 +17,6 @@
 
      MODULE Input_buffer
 
-     XREF Calc_HL_Ptr
-
      ; Defined in 'Windows_asm':
      XREF SV_INT_window, REL_INT_window, ToggleWindow
 
@@ -43,8 +41,7 @@
 ;
 ; Stack usage:  2 bytes
 ;
-.InputCommand     LD   C, Cmdlbuffer
-                  CALL Calc_HL_Ptr          ; HL = IY + x, input buffer...
+.InputCommand     LD   HL, SV_INTUITION_RAM + Cmdlbuffer
                   LD   D,H
                   LD   E,L                  ; get a copy of start of buffer...
                   LD   A,16                 ; max. buffer size (excl. 0 terminator)
@@ -73,8 +70,9 @@
                   LD   (DE),A               ; max length of buffer
                   INC  DE
 
-.input_loop       LD   HL, cursorpos
-                  CALL_OZ (Gn_Sop)          ; place cursor at beginning of line
+.input_loop       OZ   OS_Pout              ; place cursor at beginning of line
+                  DEFM 1,"2X",32,0
+
                   CALL DisplayPrompt        ; display Intuition prompt
                   DEC  DE
                   LD   A,(DE)
@@ -91,11 +89,10 @@
                   CP   IN_ENT               ; <ENTER>?
                   JR   Z, enter_key
                   CP   IN_TAB               ; <TAB>?
-                  JP   Z, inp_togglewindow
+                  JR   Z, inp_togglewindow
                   CP   IN_ESC               ; <ESC>?
                   JR   Z, escape_key
                   JR   input_loop           ; then command line...
-.cursorpos        DEFM 1,"2X",32,0
 
 .CLI_facility     PUSH DE                   ; preserve pointer to input line
                   PUSH BC                   ; preserve cursor position
@@ -118,21 +115,19 @@
                   JR    input_loop
 
 
-
 ; *****************************************************************************************
 ;
 ; Select Z88-Monitor window 1 or 2.  (toggle)           V0.18 / V0.22b
 ;
 .inp_togglewindow CALL ToggleWindow         ; display Intuition window...               ** V0.22/V0.28
                   CALL DisplayPrompt
-                  JP   input_loop
+                  JR   input_loop
 
 
 ; ***********************************************************************************
 ;
 ; Display Intuition input prompt                                                        ** V0.19c
 ;
-.DisplayPrompt    LD   HL, Prompt
-                  CALL_OZ(Gn_Sop)
+.DisplayPrompt    OZ   OS_Pout
+                  DEFM 1,"B?>",1,"B",0
                   RET
-.Prompt           DEFM 1,"B?>",1,"B",0

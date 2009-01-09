@@ -18,7 +18,6 @@
     MODULE WindowManagement
 
     XREF Switch_bitnumber
-    XREF Calc_HL_Ptr
     XREF Save_alternate, Restore_Alternate
     XREF Display_string, Display_char, Write_CRLF
     XREF SkipSpaces, Getchar

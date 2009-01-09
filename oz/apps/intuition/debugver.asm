@@ -31,7 +31,14 @@
                   LD   L,(IY + OzReleaseVer)
                   CP   A
                   CALL IntHexDisp           ; display version byte from OZ
+                  CALL Write_CRLF
+                  LD   HL, Oldbnk_msg
+                  CALL Display_String
+                  LD   L,(IY + OZBankBinding+1)
+                  CP   A
+                  CALL IntHexDisp_H         ; display old S0 bank binding (before Intuition)
                   JP   Write_CRLF
 
 .OZ_version       DEFM "OZ: V",0
 .Version          DEFM "V1.2.dev",0         ; see 'history.txt' for development history
+.Oldbnk_msg       DEFM "Old S0 binding: ",0

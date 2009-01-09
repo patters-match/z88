@@ -123,8 +123,7 @@
                   JR   Z, disp_oz_mnem
                   JP   Write_err_msg
 .disp_oz_mnem
-                  LD   C,ExecBuffer+1             ; point at RST instruction...
-                  CALL Calc_HL_ptr
+                  LD   HL, SV_INTUITION_RAM + ExecBuffer+1             ; point at RST instruction...
                   LD   C,(HL)                     ; get RST instruction opcode
                   INC  HL
                   LD   E,(HL)
