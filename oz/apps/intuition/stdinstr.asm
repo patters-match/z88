@@ -269,8 +269,8 @@
 ; JP   (HL)       instruction               1 byte
 ;
 .Opcode_233       EXX                       ;                                 ** V0.28
-                  PUSH BC                   ;                                 ** V1.1.1
-                  POP  HL                   ; new PC                          ** V1.04
+                  LD   H,B
+                  LD   L,C                  ; new PC
                   EXX                       ;                                 ** V0.28
                   RET
 
@@ -320,17 +320,14 @@
 .opcode_205x      EX   AF,AF'               ; swap back to work register      ** V0.29
 .Opcode_205       POP  HL                   ; return addr to main decode...   ** V1.04
                   EXX                       ;                                 ** V0.28
-                  PUSH BC                   ;                                 ** V1.1.1
-                  POP  IX                   ; preserve virtual HL register    ** V1.1.1
-                  LD   C,(HL)               ; get low byte of address
+                  LD   (SV_INTUITION_RAM + VP_SP),DE    ; store SP
+                  LD   E,(HL)               ; get low byte of address
                   INC  HL
-                  LD   B,(HL)
+                  LD   D,(HL)
                   INC  HL                   ; PC ready for next instruction
                   PUSH HL                   ; return address on stack
-                  LD   H,B                  ;                                 ** V0.23
-                  LD   L,C                  ; new PC                          ** V0.23
-                  PUSH IX                   ;                                 ** V1.1.1
-                  POP  BC                   ; virtual HL restored             ** V1.1.1
+                  EX   DE,HL                ; DE -> HL = new PC               ** V1.2
+                  LD   DE,(SV_INTUITION_RAM + VP_SP)
                   DEC  DE                   ;                                 ** V0.23
                   DEC  DE                   ; v.p. SP updated                 ** V0.23
                   EXX                       ;                                 ** V0.28
@@ -543,28 +540,28 @@
 ;
 ; POP BC
 ;
-.Opcode_193       POP  HL                   ; return address...               ** V1.04
-                  POP  BC                   ; value to BC
-                  LD   (IY + VP_C),C
-                  LD   (IY + VP_B),B
+.Opcode_193       POP  DE                   ; Intuition return address...     ** V1.04
+                  POP  HL                   ; value to BC
+                  LD   (SV_INTUITION_RAM + VP_BC),HL
                   EXX                       ;                                 ** V0.28
                   INC  DE                   ;                                 ** V0.23
                   INC  DE                   ; v.p. SP updated                 ** V0.23
                   EXX                       ;                                 ** V0.28
+                  EX   DE,HL
                   JP   (HL)                 ; return...                       ** V1.04
 
 ; ************************************************************************************************
 ;
 ; POP DE
 ;
-.Opcode_209       POP  HL                   ; return address...               ** V1.04
-                  POP  DE                   ; value to DE
-                  LD   (IY + VP_E),E
-                  LD   (IY + VP_D),D
+.Opcode_209       POP  DE                   ; return address...               ** V1.04
+                  POP  HL                   ; value to DE
+                  LD   (SV_INTUITION_RAM + VP_DE),HL
                   EXX                       ;                                 ** V0.28
                   INC  DE                   ;                                 ** V0.23
                   INC  DE                   ; v.p. SP updated                 ** V0.23
                   EXX                       ;                                 ** V0.28
+                  EX   DE,HL
                   JP   (HL)                 ; return...                       ** V1.04
 
 ; ************************************************************************************************
@@ -584,19 +581,18 @@
 ; POP  IX
 ; POP  IY
 ;
-.Opcode_225_index POP  HL                   ;                                 ** V1.04
+.Opcode_225_index POP  HL                   ;                                 ** V1.2
                   EXX                       ;                                 ** V0.28
                   INC  DE                   ;                                 ** V0.23
                   INC  DE                   ; v.p. SP updated                 ** V0.23
                   EXX                       ;                                 ** V0.28
-                  POP  BC                   ; POP  HL
+                  POP  BC
                   CP   $DD
                   JR   Z, pop_into_ix
-                  LD   (IY + VP_IY),C
-                  LD   (IY + VP_IY+1),B
+                  LD   (SV_INTUITION_RAM + VP_IY),BC
                   JP   (HL)                 ;                                 ** V1.04
-.pop_into_ix      LD   (IY + VP_IX),C
-                  LD   (IY + VP_IX+1),B
+.pop_into_ix
+                  LD   (SV_INTUITION_RAM + VP_IX),BC
                   JP   (HL)                 ;                                 ** V1.04
 
 
@@ -620,8 +616,7 @@
 ; PUSH BC                                   1 byte
 ;
 .Opcode_197       POP  HL                   ;                                 ** V1.04
-                  LD   C,(IY + VP_C)
-                  LD   B,(IY + VP_B)
+                  LD   BC,(SV_INTUITION_RAM + VP_BC)                          ** V1.2
                   PUSH BC                   ; BC on stack...                  ** V0.24b
                   EXX                       ;                                 ** V0.28
                   DEC  DE                   ;                                 ** V0.23
@@ -634,8 +629,7 @@
 ; PUSH DE
 ;
 .Opcode_213       POP  HL                   ;                                 ** V1.04
-                  LD   C,(IY + VP_E)
-                  LD   B,(IY + VP_D)
+                  LD   BC,(SV_INTUITION_RAM + VP_DE)                          ** V1.2
                   PUSH BC                   ; ...                             ** V0.24b
                   EXX                       ;                                 ** V0.28
                   DEC  DE                   ;                                 ** V0.23
@@ -892,12 +886,10 @@
 ; EX   AF, AF'    instruction               1 byte
 ;
 .Opcode_8         EX   AF,AF'
-                  LD   C,(IY + VP_AFx)
-                  LD   B,(IY + VP_AFx+1)
+                  LD   BC,(SV_INTUITION_RAM + VP_AFx)                         ** V1.2
                   PUSH AF
                   POP  DE
-                  LD   (IY + VP_AFx),E
-                  LD   (IY + VP_AFx+1),D    ; save new AF'
+                  LD   (SV_INTUITION_RAM + VP_AFx),DE                         ** V1.2
                   PUSH BC
                   POP  AF
                   EX   AF,AF'               ; new AF installed
@@ -908,12 +900,11 @@
 ;
 ; EX   DE,HL                                1 byte
 ;
-.Opcode_235       LD   E,(IY + VP_E)        ;                                 ** V1.1.1
-                  LD   D,(IY + VP_D)        ;                                 ** V1.1.1
+.Opcode_235
+                  LD   DE,(SV_INTUITION_RAM + VP_DE)                          ** V1.2
                   PUSH DE                   ;                                 ** V1.1.1
                   EXX                       ;                                 ** V1.1.1
-                  LD   (IY + VP_E),C        ;                                 ** V1.1.1
-                  LD   (IY + VP_D),B        ; new DE stored (current HL)      ** V1.1.1
+                  LD   (SV_INTUITION_RAM + VP_DE),BC                          ** V1.2
                   POP  BC                   ; new HL stored (current DE)      ** V1.1.1
                   EXX                       ;                                 ** V1.1.1
                   RET
@@ -924,17 +915,11 @@
 ; EXX
 ;
 .Opcode_217
-                  EXX                       ;                                 ** V1.1.1
-                  LD   (IY + VP_L),C        ;                                 ** V1.1.1
-                  LD   (IY + VP_H),B        ; store "fast" HL into reg-area   ** V1.1.1
-                  EXX                       ;                                 ** V1.1.1
-                  PUSH IY                   ; get base of registers           ** V0.27a
-                  PUSH IY                   ;                                 ** V0.27a
-                  POP  HL                   ;                                 ** V0.27a
-                  LD   BC,8                 ;                                 ** V0.27a
-                  ADD  HL,BC                ;                                 ** V0.27a
-                  EX   DE,HL                ; DE is base of alternate set     ** V0.27a
-                  POP  HL                   ; HL is base of main set          ** V0.27a
+                  EXX
+                  LD   (SV_INTUITION_RAM + VP_HL),BC    ; "fast" virtual HL stored
+                  EXX
+                  LD   HL,SV_INTUITION_RAM + VP_BC      ; HL is base of main set
+                  LD   DE,SV_INTUITION_RAM + VP_BCx     ; DE is base of alternate set
                   LD   B,6                  ; no. of 8bit registers to swap   ** V0.27a
 .swap_reg_loop    LD   C,(HL)               ; get main register               ** V0.27a
                   LD   A,(DE)               ; get alternate register          ** V0.27a
@@ -945,8 +930,7 @@
                   INC  DE                   ; point at next register...       ** V0.27a
                   DJNZ swap_reg_loop        ; swap next 8bit register         ** V0.27a
                   EXX                       ;                                 ** V1.1.1
-                  LD   C,(IY + VP_L)        ;                                 ** V1.1.1
-                  LD   B,(IY + VP_H)        ;                                 ** V1.1.1
+                  LD   BC,(SV_INTUITION_RAM + VP_HL)
                   EXX                       ;  new virtual HL installed       ** V1.1.1
                   RET
 
@@ -979,36 +963,28 @@
 
 ; ******************************************************************************
 ;
-; Select HL, IX or IY
-; opcode in A
+; Select IX or IY, based on opcode in A
 ;
 .Select_IXIY      CP   $FD
                   JR   Z, select_IY
-                  LD   L,(IY + VP_IXl)        ; get contents of IX
-                  LD   H,(IY + VP_IXh)
+                  LD   HL,(SV_INTUITION_RAM + VP_IX)        ; get contents of IX
                   RET
-.select_IY        LD   L,(IY + VP_IYl)        ; get contents of IY
-                  LD   H,(IY + VP_IYh)
+.select_IY        LD   HL,(SV_INTUITION_RAM + VP_IY)        ; get contents of IY
                   RET
 
 
 ; *******************************************************************************
 ;
-; as above, but with displacement offset included (only IX and IY)
+; as above, but with displacement offset included
 ;
 .Select_IXIY_disp
                   CP   $FD
                   JR   Z, select_IY_disp
-.select_IX_disp   LD   L,(IY + VP_IXl)        ; get contents of IX
-                  LD   H,(IY + VP_IXh)
-                  EXX                         ; select alternate registers...   ** V0.23
-                  LD   A,(HL)                 ; get displacement                ** V0.27e
-                  INC  HL                     ;                                 ** V0.27e
-                  EXX                         ;                                 ** V0.23
-                  JP   Calc_RelAddress
-.select_IY_disp   LD   L,(IY + VP_IYl)        ; get contents of IY
-                  LD   H,(IY + VP_IYh)
-                  EXX                         ;                                 ** V0.23
+.select_IX_disp   LD   HL,(SV_INTUITION_RAM + VP_IX)        ; get contents of IX
+                  JR   get_idx_displ
+.select_IY_disp
+                  LD   HL,(SV_INTUITION_RAM + VP_IY)        ; get contents of IY
+.get_idx_displ    EXX                         ;                                 ** V0.23
                   LD   A,(HL)                 ; get displacement                ** V0.27e
                   INC  HL                     ;                                 ** V0.27e
                   EXX                         ;                                 ** V0.23
