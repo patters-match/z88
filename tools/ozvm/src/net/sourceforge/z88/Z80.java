@@ -655,7 +655,6 @@ public abstract class Z80 {
 			// non maskable interrupt occurred... (overrides DI)
 			pushw(_PC);
 			IFF1(false);
-			IFF2(false);
 			PC(0x66);
 			tstatesCounter += 13;
 			setNmi(false);
@@ -6282,7 +6281,7 @@ public abstract class Z80 {
 		set3((ans & F_3) != 0);
 		set5((ans & F_5) != 0);
 		setZ(ans == 0);
-		setPV(IFF2());
+		setPV(parity[ans]);
 		setH(false);
 		setN(false);
 
@@ -6303,7 +6302,7 @@ public abstract class Z80 {
 		set3((ans & F_3) != 0);
 		set5((ans & F_5) != 0);
 		setZ(ans == 0);
-		setPV(IFF2());
+		setPV(parity[ans]);
 		setH(false);
 		setN(false);
 
