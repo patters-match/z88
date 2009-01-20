@@ -672,6 +672,8 @@ public final class Blink {
 	 * snooze state and fires KEY interrupts, if enabled.
 	 */
 	public void signalKeyPressed() {
+	    Z80Processor z80 = Z88.getInstance().getProcessor();
+
 		// processor snooze always awakes on a key press (even if INT.GINT = 0)
 		snooze = false;
 
@@ -680,9 +682,16 @@ public final class Blink {
 
 			if ((INT & BM_INTGINT) == BM_INTGINT) {
 				// But only if the interrupt is allowed to escape the Blink...
-				coma = false;
-				STA |= BM_STAKEY;
-				Z88.getInstance().getProcessor().setInterruptSignal(false);
+				if (coma == true) {
+				    // I register hold the address lines to be read
+				    if ( Z88.getInstance().getKeyboard().scanKeyRow(z80.I()) == z80.I()) {
+    				    coma = false;
+    				    Z88.getInstance().getProcessor().setInterruptSignal(false);
+    			    }
+				} else {
+	    			STA |= BM_STAKEY;
+    				Z88.getInstance().getProcessor().setInterruptSignal(false);
+			    }
 			}
 		}
 	}

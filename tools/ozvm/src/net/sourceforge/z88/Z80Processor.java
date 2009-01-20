@@ -68,16 +68,17 @@ public class Z80Processor extends Z80 implements Runnable {
 
 	/**
 	 * A HALT instruction was executed by the Z80 processor; Go into coma
-	 * and wait for an interrupt. HALT is ignored if Blink is in single stepping
-	 * mode.
+	 * and wait for an interrupt (normally when both SHIFT keys pressed)
+	 * HALT is ignored if Blink is in single stepping mode.
 	 */
 	public void haltZ80() {
 		if (singleSteppingMode() == false) {
-			// HALT is only relevant while running the Z80 real time...
+			// HALT is simulated when running the OZvm
 
 			blink.coma = true;
-			//System.out.println(System.currentTimeMillis() + ": Coma state.");
-
+			// During Coma, the I register hold the address lines to be read, and to generate an
+			// interrupt when both SHIFT keys are pressed (matching the address line A8-A15)
+			// Coma handling is done in Z80Processor.signalKeyPressed()
 			do {
 				try {
 					Thread.sleep(1);
@@ -85,9 +86,6 @@ public class Z80Processor extends Z80 implements Runnable {
 				}
 			} // Only get out of coma if an interrupt occurred or if Z80 engine was stopped..
 			while(blink.coma == true & stopZ88 == false);
-
-			//System.out.println(System.currentTimeMillis() + ": Awakened from coma.");
-			// (back to main Z80 decode loop)
 		}
 	}
 
