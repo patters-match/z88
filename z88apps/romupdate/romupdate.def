@@ -72,7 +72,7 @@ DEFVARS vararea
      end_vararea
 ENDDEF
 
-IF BBCBASIC & buffer-end_vararea < 0
+IF BBCBASIC & (buffer-end_vararea < 0)
     error "Runtime variables are crossing segment 2!"
 ENDIF
 
