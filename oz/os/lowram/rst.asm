@@ -137,7 +137,7 @@ ENDIF
         jr      z, rst00
 
         ld      a, i                            ; store int status
-        push    af
+        push    af                              ; A=coma state, F=IFF2
 
         di                                      ; nested NMIs won't enable interrupts
         ld      a, (BLSC_SR3)                   ; remember S3

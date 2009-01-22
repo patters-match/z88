@@ -115,9 +115,9 @@ ENDIF
         ld      a, OZBANK_KNL0
         out     (BL_SR3), a                     ; MS3b00
         ld      a, i
-        jr      z, rint_0                       ; I=0? from reset
-        scf
-        jp      nmi_5
+        jr      z, rint_0                       ; I=0? INT occured during reset
+        scf                                     ; else it occured during coma
+        jp      nmi_5                           ; try to awake
 .Reset1
         ld      de, 1<<8 | $3f                  ; check slot 1, max size 63 banks
         jp      VerifySlotType                  ; ret at ROMstack
