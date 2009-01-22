@@ -173,6 +173,7 @@ public class ThreadManager {
 		}
 
 		public void run() {
+            Thread.currentThread().setName("com.imagero.util.ThreadManager");
 			while (!stopped) {
 				current[num] = nextTask();
 				if (current[num] != null) {

@@ -155,6 +155,7 @@ public class Z88display extends JLabel implements MouseListener {
         /** execute the action */
         public void run() 
         {
+            Thread.currentThread().setName("DisplayFrameDecoder");
             try {
 				if (fileAction == actionEncodeFrame) {
 					gifEnc.encodeFrame(outStream, gifFrame);
@@ -802,6 +803,7 @@ public class Z88display extends JLabel implements MouseListener {
 		boolean priorityDefined;
 		
 		public void run() {
+            Thread.currentThread().setName("ScreenFrameDisplay");
 			if (priorityDefined == false) {
 				Thread.currentThread().setPriority(Thread.MIN_PRIORITY);
 				priorityDefined = true;

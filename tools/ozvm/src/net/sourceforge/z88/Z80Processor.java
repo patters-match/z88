@@ -409,6 +409,7 @@ public class Z80Processor extends Z80 implements Runnable {
 	 */
 	public void run() {
 		Breakpoints breakPointManager = getBreakpoints();
+        Thread.currentThread().setName("Z80Processor");
 
 		if (breakPointManager.isStoppable(blink.decodeLocalAddress(PC())) == true) {
 			// we need to use single stepping mode to

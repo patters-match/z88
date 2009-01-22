@@ -1139,6 +1139,7 @@ public final class Blink {
 			 * @see java.lang.Runnable#run()
 			 */
 			public void run() {
+                Thread.currentThread().setName("RTC");
 				boolean signalTimeInterrupt = false;
 
 				if (++tick > 1) {
