@@ -33,6 +33,9 @@ define __TIME_DEF__
      DEFC Gn_Gmt = $1A09      ; get (read) machine time in internal format
      DEFC Gn_Pmt = $1E09      ; put (set) machine date
      DEFC Gn_Msc = $2009      ; Miscellaneous time operations
+          DEFC MT_CVT = $00   ; convert source time to elapsed time
+          DEFC MT_UBT = $01   ; update base time over a soft reset (internal OZ usage)
+          
      DEFC Gn_Gtm = $0A09      ; convert ASCII string to internal time format
      DEFC Gn_Ptm = $0C09      ; convert internal time to ASCII string
      DEFC Gn_Sdo = $0E09      ; convert real time to time to elapse

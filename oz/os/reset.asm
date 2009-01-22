@@ -327,23 +327,23 @@ ENDIF
         ld      a, (ubResetType)
         or      a
         jr      z, SetInitialTime               ; hard reset, init system clock
-        ld      hl, ubTIM1_A                    ; use timer @ A2 or A7
-        ld      a, (ubTimeBufferSelect)         ; depending of bit 0 od A0
+        ld      hl, ubTIM1_A                    ; use primary HW clock
+        ld      a, (ubTimeBufferSelect)         ; if bit 7 reset
         rrca
-        jr      nc, tr_1
-        ld      l, <ubTIM1_B                    ; $A7
+        jr      nc, tr_1                    
+        ld      l, <ubTIM1_B                    ; else use secundary HW clock
 .tr_1
-        ld      c, (hl)                         ; ld bhlc, (hl)
+        ld      c, (hl)                         ; seconds
         inc     hl
-        ld      e, (hl)
+        ld      e, (hl)                         ; minutes
         inc     hl
-        ld      d, (hl)
+        ld      d, (hl)                         ; minutes * 256
         inc     hl
-        ld      b, (hl)
+        ld      b, (hl)                         ; minutes * 65536
         ex      de, hl
 
-        ld      a, 1                            ; update base time
-        OZ      GN_Msc
+        ld      a, MT_UBT                       ; update base time
+        OZ      GN_Msc                          ; maintain time over a soft reset
 .tr_2
         jp      IntSecond
 

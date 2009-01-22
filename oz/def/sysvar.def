@@ -243,16 +243,12 @@ defvars SV_PRESERVED_RAM
 ; Preserved clocks (22):
         sysvar_area_presv
         ubTimeBufferSelect      ds.b    1       ; select time buffer A or B (was $2100A0)
-        ubTIM0_A                ds.b    1       ; buffer A : TIM0-4
-        ubTIM1_A                ds.b    1
-        ubTIM2_A                ds.b    1
-        ubTIM3_A                ds.b    1
-        ubTIM4_A                ds.b    1
-        ubTIM0_B                ds.b    1       ; buffer B : TIM0-4
-        ubTIM1_B                ds.b    1
-        ubTIM2_B                ds.b    1
-        ubTIM3_B                ds.b    1
-        ubTIM4_B                ds.b    1
+        ubTIM0_A                ds.b    1       ; buffer A :    centiseconds
+        ubTIM1_A                ds.b    1       ;               seconds
+        ubTIM2_A                ds.b    3       ;               minutes
+        ubTIM0_B                ds.b    1       ; buffer B :    centiseconds
+        ubTIM1_B                ds.b    1       ;               seconds
+        ubTIM2_B                ds.b    3       ;               minutes
         uwSysDateLow            ds.w    1       ; 11 bytes buffer for system time
         uwSysDateMid            ds.w    1
         uwSysDateHigh           ds.w    1
