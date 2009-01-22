@@ -294,9 +294,9 @@ defc    NMI_B_HALT      =0
 
 .ResetTimeout
         push    af
-        ld      a, (ubTimeout)
+        ld      a, (ubTimeout)                  ; get the current Timeout (in minutes) parameter stored by Panel
         or      a
-        jr      z, rt_1
+        jr      z, rt_1                         ; zero means no time out, store this value too
         inc     a
 .rt_1
         ld      (ubTimeoutCnt), a
