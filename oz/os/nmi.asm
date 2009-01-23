@@ -538,7 +538,7 @@ defc    NMI_B_HALT      =0
         ld      a, BM_COMRAMS
         out     (BL_COM), a                     ; reset command register (but keep bank $20 in lower 8K)
 
-        ld      a, COMA_FLAG                    ; $3F
+        ld      a, COMA_RDSK                    ; $3F
         ld      i, a                            ; Enter Coma state and wait for both SHIFT keys (A8-A15)
         jp      Halt
 

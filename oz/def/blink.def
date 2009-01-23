@@ -54,7 +54,7 @@ define __BLINK_DEF__
 
 DEFC BLSC_PAGE =    $04            ; softcopy page is at $0400
 
-DEFC COMA_FLAG =    $3F            ; I register for the blink to enter coma state
+DEFC COMA_RDSK =    $3F            ; I register for the blink to [R]rea[D] the [S]HIFT [K]eys on address bus A8-A15
 
 ; -----------------------------------------------------------------------------
 ; Screen Registers
