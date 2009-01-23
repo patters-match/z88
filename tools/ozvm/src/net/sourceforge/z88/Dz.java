@@ -4129,7 +4129,7 @@ public class Dz {
 	public final int getInstrAscii(StringBuffer mnemonic, int pc, boolean dispAddr, boolean dispOpcode) {
 		pc += dzInstrAscii(mnemonic, pc, getInstrOpcode(pc), dispAddr, dispOpcode);
 
-		return getNextInstrAddress(pc);
+		return pc;
 	}
 
 	/**
@@ -4445,7 +4445,7 @@ public class Dz {
 			while (mem.getByte(offset++, bank) != 0)
 				pc++;
 		} else {
-			pc += calcInstrOpcodeSize(getInstrOpcode(pc));
+			pc += calcInstrOpcodeSize(getInstrOpcode(offset, bank));
 		}
 
 		return pc;
