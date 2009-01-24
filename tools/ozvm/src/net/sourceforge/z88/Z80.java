@@ -40,137 +40,8 @@ import java.io.IOException;
  */
 public abstract class Z80 {
 
-	private final class LogZ80 {
-		private static final int BUFSIZE = 100000;
-
-		private int pcAddressCache[];
-		private int registerCache[][];
-		private int index;
-		private int logFileCounter;
-
-		public LogZ80() {
-			pcAddressCache = new int[BUFSIZE];
-			registerCache = new int[BUFSIZE][8];
-		}
-
-		private boolean isCacheAvailable() {
-			return index != 0;
-		}
-
-		private void logInstruction() {
-			if (index == BUFSIZE) {
-				// dump cache to log file, and reset index to 0
-				flushCache();
-			}
-
-			pcAddressCache[index] = getPcAddress();
-
-			registerCache[index][0] = AF();
-			registerCache[index][1] = BC();
-			registerCache[index][2] = DE();
-			registerCache[index][3] = HL();
-			registerCache[index][4] = IX();
-			registerCache[index][5] = IY();
-			registerCache[index][6] = SP();
-			registerCache[index][7] = PC();
-
-			index++;
-		}
-
-		/**
-		 * Dump executed instruction cache to log file in a background thread..
-		 */
-		private void flushCache() {
-					Dz dz = Dz.getInstance();
-
-					try {
-						BufferedWriter out = new BufferedWriter(new FileWriter("z80_" + logFileCounter++ + ".log"));
-						StringBuffer dzLine = new StringBuffer(64);
-						StringBuffer dzBuf = new StringBuffer(128);
-						for (int i=0; i<index; i++) {
-							int dzBank = (pcAddressCache[i] >>> 16) & 0xFF;
-							int dzOffset = pcAddressCache[i] & 0xFFFF;	// bank	offset
-
-							dz.getInstrAscii(dzLine, registerCache[i][7], dzOffset, dzBank, false, true);
-							dzBuf.append(
-							                Dz.extAddrToHex( pcAddressCache[i] & 0xff0000 |
-							                                (pcAddressCache[i] & 0xffff) |
-							                                registerCache[i][7]
-							                                , false)
-							            );
-							dzBuf.append(" ");
-							dzBuf.append(dzLine);
-							for(int space=31 - dzLine.length(); space>0; space--) dzBuf.append(" ");
-							dzBuf.append(
-									Z88Info.quickZ80Dump(
-											registerCache[i][0], // AF
-											registerCache[i][1], // BC
-											registerCache[i][2], // DE
-											registerCache[i][3], // HL
-											registerCache[i][4], // SP
-											registerCache[i][5], // IX
-											registerCache[i][6]) // IY
-											);
-							dzBuf.append(System.getProperty("line.separator"));
-							out.write(dzBuf.toString());
-
-							dzBuf.delete(0,127);
-				        }
-				    	out.close();
-
-				    } catch (IOException e) {
-				    }
-
-                    // Cache flushed...
-    		        index = 0;
-		}
-	}
-
-	public void flushZ80LogCache() {
-		if (lgZ80.isCacheAvailable() == true) {
-			lgZ80.flushCache();
-		}
-	}
-
-	public void setZ80Logging(boolean logState) {
-		logZ80instructions = logState;
-	}
-
-	public boolean izZ80Logged() {
-		return logZ80instructions;
-	}
-
-	public Z80() {
-		tstatesCounter = 0;
-
-		parity = new boolean[256];
-		for (int i = 0; i < 256; i++) {
-			boolean p = true;
-			for (int j = 0; j < 8; j++) {
-				if ((i & (1 << j)) != 0) {
-					p = !p;
-				}
-			}
-			parity[i] = p;
-		}
-
-		lgZ80 = new LogZ80();
-		reset();
-	}
-
-	private int tstatesCounter = 0;
-
-	/**
-	 * Get and reset Z80 T-States counter
-	 */
-	public int getTstatesCounter() {
-		int c = tstatesCounter;
-		tstatesCounter = 0;
-
-		return c;
-	}
-
-	private LogZ80 lgZ80;
+    private int tstatesCounter = 0;
+	private LogZ80Instruction lgZ80;
 	private boolean logZ80instructions;
 
 	private boolean externIntSignal = false;
@@ -230,6 +101,90 @@ public abstract class Z80 {
 	private boolean _IFF1 = true, _IFF2 = true;
 
 	private int _IM = 2;
+    
+	/** External implementation of HALT instruction */
+	public abstract void haltZ80();
+
+	/**
+	 * External implementation stop Z80 execution (back to command line or other
+	 * state
+	 */
+	public abstract boolean isZ80Stopped();
+
+	/** External implemenation of Read Byte from the Z80 virtual memory model */
+	public abstract int readByte(int addr);
+
+	/** External implemenation of Write byte to the Z80 virtual memory model */
+	public abstract void writeByte(int addr, int b);
+
+	/** External implemenation of Read Word from the Z80 virtual memory model */
+	public abstract int readWord(final int addr);
+
+	/** External implemenation of Write Word to the Z80 virtual memory model */
+	public abstract void writeWord(final int addr, final int w);
+
+	/** External implemenation getting current physical PC address
+	 * @return extended PC address */
+	public abstract int getPcAddress();
+
+	/**
+	 * External implemenation of action to be taken when a breakpoint is
+	 * encountered
+	 */
+	public abstract boolean breakPointAction();
+
+	/**
+	 * External implemenation of action to be taken when a display breakpoint is
+	 * encountered
+	 */
+	public abstract void breakPointInfo();
+
+	/** IO ports */
+	public abstract void outByte(int addrA8, int addrA15, int bits);
+
+	public abstract int inByte(int addrA8, int addrA15);
+
+	public Z80() {
+		tstatesCounter = 0;
+
+		parity = new boolean[256];
+		for (int i = 0; i < 256; i++) {
+			boolean p = true;
+			for (int j = 0; j < 8; j++) {
+				if ((i & (1 << j)) != 0) {
+					p = !p;
+				}
+			}
+			parity[i] = p;
+		}
+
+		lgZ80 = new LogZ80Instruction();
+		reset();
+	}
+
+	public void flushZ80LogCache() {
+		if (lgZ80.isCacheAvailable() == true) {
+			lgZ80.flushCache();
+		}
+	}
+
+	public void setZ80Logging(boolean logState) {
+		logZ80instructions = logState;
+	}
+
+	public boolean izZ80Logged() {
+		return logZ80instructions;
+	}
+
+	/**
+	 * Get and reset Z80 T-States counter
+	 */
+	public int getTstatesCounter() {
+		int c = tstatesCounter;
+		tstatesCounter = 0;
+
+		return c;
+	}
 
 	/** 16 bit register access */
 	public final int AF() {
@@ -531,48 +486,6 @@ public abstract class Z80 {
 		return fPV;
 	}
 
-	/** External implementation of HALT instruction */
-	public abstract void haltZ80();
-
-	/**
-	 * External implementation stop Z80 execution (back to command line or other
-	 * state
-	 */
-	public abstract boolean isZ80Stopped();
-
-	/** External implemenation of Read Byte from the Z80 virtual memory model */
-	public abstract int readByte(int addr);
-
-	/** External implemenation of Write byte to the Z80 virtual memory model */
-	public abstract void writeByte(int addr, int b);
-
-	/** External implemenation of Read Word from the Z80 virtual memory model */
-	public abstract int readWord(final int addr);
-
-	/** External implemenation of Write Word to the Z80 virtual memory model */
-	public abstract void writeWord(final int addr, final int w);
-
-	/** External implemenation getting current physical PC address
-	 * @return extended PC address */
-	public abstract int getPcAddress();
-
-	/**
-	 * External implemenation of action to be taken when a breakpoint is
-	 * encountered
-	 */
-	public abstract boolean breakPointAction();
-
-	/**
-	 * External implemenation of action to be taken when a display breakpoint is
-	 * encountered
-	 */
-	public abstract void breakPointInfo();
-
-	/** IO ports */
-	public abstract void outByte(int addrA8, int addrA15, int bits);
-
-	public abstract int inByte(int addrA8, int addrA15);
-
 	/** Index register access */
 	private final int ID_d() {
 		return ((ID() + (byte) readByte(_PC++)) & 0xffff);
@@ -711,7 +624,7 @@ public abstract class Z80 {
 			}
 
 			if (logZ80instructions == true) {
-				lgZ80.logInstruction();
+				lgZ80.logInstruction(getPcAddress(), AF(), BC(), DE(), HL(), IX(), IY(), SP(), PC());
 			}
 
 			REFRESH(1);
