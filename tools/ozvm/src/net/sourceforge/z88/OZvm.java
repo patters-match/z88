@@ -52,7 +52,7 @@ public class OZvm {
 	public static final String defaultVmFile = System.getProperty("user.dir")+ File.separator + "boot.z88";
 
 	/** current release version string */
-	public static final String VERSION = "0.5.dev.9";
+	public static final String VERSION = "0.5.dev.10";
 
 	/** (default) boot the virtual machine, once it has been loaded */
 	private boolean autoRun;
