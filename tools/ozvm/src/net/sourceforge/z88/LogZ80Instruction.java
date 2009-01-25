@@ -13,7 +13,7 @@
  * Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  *
  * @author <A HREF="mailto:gbs@users.sourceforge.net">Gunther Strube</A>
- * $Id: Z80.java 3390 2009-01-10 18:12:32Z gbs $
+ * $Id$
  *
  */
 
@@ -24,8 +24,18 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 /**
+ * This class is used by the virtual Z80 processor, Z80.java, to dump executed
+ * Z80 instructions in log files, in a readable format with ext. address,
+ * instruction mnemonic and register dump of AF, BC, DE, HL, IX, IY, SP & PC
+ * registers.
  *
- * @author gbs
+ * The logging features uses a internal cache mechanism of 100.000 instructions.
+ * When the cache is full, the instruction log is flushed to the current
+ * "z80_" X log file. After each cache flush, the log counter increases.
+ *
+ * Logging Z80 instructions is an intensive I/O process and will severely slow down
+ * execution emulation.
+ *
  */
 public class LogZ80Instruction {
 		private static final int BUFSIZE = 100000;
