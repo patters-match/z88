@@ -1,23 +1,27 @@
 <launch4jConfig>
-  <headerType>0</headerType>
+  <dontWrapJar>false</dontWrapJar>
+  <headerType>gui</headerType>
   <jar>..\z88.jar</jar>
   <outfile>..\z88.exe</outfile>
   <errTitle></errTitle>
-  <jarArgs></jarArgs>
+  <cmdLine></cmdLine>
   <chdir></chdir>
+  <priority>normal</priority>
+  <downloadUrl>http://java.com/download</downloadUrl>
+  <supportUrl></supportUrl>
   <customProcName>false</customProcName>
   <stayAlive>false</stayAlive>
+  <manifest></manifest>
   <icon>.\z88.ico</icon>
   <jre>
     <path></path>
     <minVersion>1.4.0</minVersion>
     <maxVersion></maxVersion>
-    <initialHeapSize>0</initialHeapSize>
-    <maxHeapSize>0</maxHeapSize>
-    <args></args>
+    <jdkPreference>preferJre</jdkPreference>
   </jre>
   <splash>
     <file>.\z88-splash.bmp</file>
+    <waitForWindow>false</waitForWindow>
     <timeout>3</timeout>
     <timeoutErr>false</timeoutErr>
   </splash>
@@ -25,7 +29,7 @@
     <fileVersion>0.5.0.0</fileVersion>
     <txtFileVersion>V0.5</txtFileVersion>
     <fileDescription>OZvm - The Z88 emulator &amp; debugger</fileDescription>
-    <copyright>Gunther Strube (gbs@users.sf.net), 2004-2005</copyright>
+    <copyright>Gunther Strube (gbs@users.sf.net), 2004-2009</copyright>
     <productVersion>0.5.0.0</productVersion>
     <txtProductVersion>V0.5</txtProductVersion>
     <productName>OZvm</productName>
