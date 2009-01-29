@@ -148,7 +148,6 @@ public class Z88 {
 		OZvm.displayRtmMessage("Z88 virtual machine was started.");
 
 		z80Thread =	new Thread(z80);
-		z80Thread.setPriority(Thread.MIN_PRIORITY+1); // execute the Z80 engine in just above minimum thread priority...
 		z80Thread.start();
 
 		return true;
