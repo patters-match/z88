@@ -338,7 +338,7 @@ public final class Memory {
 								dumpBanksToFile(bankNo, bankNo, dirName, fileName + "." + (bankNo & 0x3F));
 						}
 					}
-                                        
+
                                         if (SlotInfo.getInstance().isOzRom(slotNumber) == true)
                                             createOzRomUpdCfgFile(slotNumber, dirName, fileName);
 				}
@@ -353,13 +353,13 @@ public final class Memory {
 	 * @param exportDir base directory to cfg file
 	 * @param bankFileName core filename for OZ Rom bank file(s)
          * @return true, if "romupdate.cfg" file were created
-	 */        
+	 */
 	public boolean createOzRomUpdCfgFile(int slotNo, String exportDir, String bankFileName) {
 		int totalBanks = 0;
                 int topBankNo, bottomBankNo;
                 int appCardBanks = getExternalCardSize(slotNo);
 		int base_slot_bank = 64-appCardBanks;
-		
+
                 if (SlotInfo.getInstance().isOzRom(slotNo) == true) {
                     topBankNo = (((slotNo & 3) << 6) | 0x3F);
                     bottomBankNo = topBankNo - (appCardBanks-1);
@@ -371,7 +371,7 @@ public final class Memory {
                     try {
                             File f = new File(exportDir + File.separator + "romupdate.cfg");
                             f.delete();
-                            
+
                             RandomAccessFile cardFile = new RandomAccessFile(exportDir + File.separator + "romupdate.cfg", "rw");
                             cardFile.writeBytes("CFG.V3\n");
                             cardFile.writeBytes("; OZ ROM, and total amount of banks to update.\n");
@@ -380,7 +380,7 @@ public final class Memory {
                             cardFile.writeBytes("; Bank file, CRC, destination bank to update (in slot " + slotNo + ").\n");
 
                             for (int bankNo=bottomBankNo; bankNo <= topBankNo; bankNo++) {
-                                    if (getBank(bankNo).isEmpty() == false)	{				
+                                    if (getBank(bankNo).isEmpty() == false)	{
                                             cardFile.writeBytes("\"" + bankFileName + "." + (bankNo & 0x3f) + "\",");
                                             cardFile.writeBytes("$" + Long.toHexString(getBank(bankNo).getCRC32()) + ",");
                                             cardFile.writeBytes("$" + Dz.byteToHex( (slotNo << 6) | (base_slot_bank + (bankNo & 0x3f)), false) + "\n");
@@ -395,7 +395,7 @@ public final class Memory {
                             // TODO Auto-generated catch block
                             e.printStackTrace();
                     }
-                    
+
                     return true;
                 } else {
                     // not an OZ rom...
@@ -485,22 +485,22 @@ public final class Memory {
 
 	/**
 	 * Create empty Card container of appropriate type.
-	 * 
+	 *
 	 * @param size of Card in K
-	 * @param eprType SlotInfo.* types 
+	 * @param eprType SlotInfo.* types
 	 * @return Bank array, or null, if illegal size or type is specified.
-	 */	
+	 */
 	private Bank[] createCard(int size, int eprType) {
 		size -= (size % (Bank.SIZE/1024));
 		int totalEprBanks = size / (Bank.SIZE/1024); // number of 16K banks in Eprom Card
 
 		Bank banks[] = new Bank[totalEprBanks]; // the card container
-		for (int curBank = 0; curBank < totalEprBanks; curBank++) {		
+		for (int curBank = 0; curBank < totalEprBanks; curBank++) {
 			switch(eprType) {
 				case SlotInfo.RamCard:
 					banks[curBank] = new RamBank();
 					break;
-					
+
 				case SlotInfo.EpromCard:
 					// Traditional UV Eproms (all size configurations allowed)
 					if (totalEprBanks <= 2)
@@ -508,7 +508,7 @@ public final class Memory {
 					else
 						banks[curBank] = new EpromBank(EpromBank.VPP128KB);
 					break;
-				
+
 				case SlotInfo.IntelFlashCard:
 					// Intel Flash Eprom Cards exists in 512K and 1MB configurations
 					switch(totalEprBanks) {
@@ -518,7 +518,7 @@ public final class Memory {
 							return null; // Only 512K or 1MB Intel Flash Cards are allowed.
 					}
 					break;
-					
+
 				case SlotInfo.AmdFlashCard:
 					// Amd Flash Eprom Cards exists in 128K, 512K and 1MB configurations
 					switch(totalEprBanks) {
@@ -529,7 +529,7 @@ public final class Memory {
 							return null; // Only 128K, 512K or 1MB Amd Flash Cards are allowed.
 					}
 					break;
-					
+
 				case SlotInfo.StmFlashCard:
 					// Stm Flash Eprom Cards exists in 128K, 512K and 1MB configurations
 					switch(totalEprBanks) {
@@ -540,17 +540,17 @@ public final class Memory {
 							return null; // Only 128K, 512K or 1MB Stm Flash Cards are allowed.
 					}
 					break;
-				
+
 				default:
 					banks[curBank] = new RomBank();
 					break;
 			}
 		}
-		
+
 		return banks;
 	}
-	
-	
+
+
 	/**
 	 * Insert empty Eprom Card into Z88 memory system, slots 0 - 3.
 	 * Eprom Card is loaded from bottom bank of slot and upwards.
@@ -565,22 +565,22 @@ public final class Memory {
 	 *
 	 * @param slot number which Card will be inserted into
 	 * @param sizeK of Eprom in Kb
-	 * @param eprType SlotInfo.EpromCard, SlotInfo.IntelFlashCard, SlotInfo.AmdFlashCard, SlotInfo.StmFlashCard 
+	 * @param eprType SlotInfo.EpromCard, SlotInfo.IntelFlashCard, SlotInfo.AmdFlashCard, SlotInfo.StmFlashCard
 	 * @return true, if card was inserted, false, if illegal size and type
 	 */
 	public boolean insertEprCard(int slot, int sizeK, int eprType) {
 		slot %= 4; // allow only slots 0 - 3 range.
 		Bank banks[] = createCard(sizeK, eprType);
-		
+
 		if (banks != null) {
 			insertCard(banks, slot); // insert the physical card into Z88 memory
 			return true;
-		} else { 
+		} else {
 			return false;
 		}
 	}
 
-	
+
 	/**
 	 * Insert hybrid 512K RAM / 512K AMD card in slots 1 - 3.
 
@@ -595,15 +595,15 @@ public final class Memory {
 		slot %= 4; // allow only slots 0 - 3 range.
 		Bank ramBanks[] = createCard(512, SlotInfo.RamCard);
 		Bank amdBanks[] = createCard(512, SlotInfo.AmdFlashCard);
-		
+
 		Bank cardBanks[] = new Bank[64];
 		System.arraycopy(ramBanks, 0, cardBanks, 0, ramBanks.length);
 		System.arraycopy(amdBanks, 0, cardBanks, ramBanks.length, amdBanks.length);
-		
+
 		if (ramBanks != null & amdBanks != null) {
 			insertCard(cardBanks, slot); // insert the physical card into Z88 memory
 			return true;
-		} else { 
+		} else {
 			return false;
 		}
 	}
@@ -647,7 +647,7 @@ public final class Memory {
 	 */
 	public void insertRamCard(int sizeK, int slot) {
 		sizeK -= (sizeK % (Bank.SIZE/1024));
-		
+
 		Bank ramBanks[] = createCard(sizeK, SlotInfo.RamCard); // the RAM card container
 		if (ramBanks != null)
 			insertCard(ramBanks, slot & 3); // insert the physical card into Z88 memory
@@ -669,17 +669,17 @@ public final class Memory {
 		RandomAccessFile fileImage = new RandomAccessFile(file, "r");
 		int fileImageSize = (int) fileImage.length();
 		fileImage.close();
-		
+
 		if (fileImageSize > (1024 * sizeK)) {
 			throw new IOException("Binary image larger than specified Card size!");
 		}
 		if (fileImageSize % Bank.SIZE > 0) {
 			throw new IOException("Binary image must be in 16K sizes!");
 		}
-		
+
 		Bank banks[] = createCard(sizeK, eprType);
 		if (banks != null) {
-			loadBinaryImageIntoContainer(banks, fileImageSize, new FileInputStream(file));		
+			loadBinaryImageIntoContainer(banks, fileImageSize, new FileInputStream(file));
 
 			// complete Card image now loaded into container
 			// insert container into Z88 memory, slot x, at bottom of slot, onwards.
@@ -691,8 +691,8 @@ public final class Memory {
 
 	/**
 	 * Load a list of card images or bank images on specific Card Hardware.
-	 * A (file) image more than 16K size will be loaded to the top of the card and downwards, 
-	 * eg. a 32K image will be loaded into the top two banks of the Eprom card ($3E and $3F). 
+	 * A (file) image more than 16K size will be loaded to the top of the card and downwards,
+	 * eg. a 32K image will be loaded into the top two banks of the Eprom card ($3E and $3F).
 	 * Bank images will be loaded into the bank number as specified by the filename extension.
 	 *
 	 * @param slot to insert card with loaded binary image
@@ -710,7 +710,7 @@ public final class Memory {
 		}
 
 		for (int f=0; f<selectedFiles.length; f++) {
-			if (selectedFiles[f].isFile() == true) {								
+			if (selectedFiles[f].isFile() == true) {
 				RandomAccessFile fimg = new RandomAccessFile(selectedFiles[f], "r");
 				int fileLength = (int) fimg.length();
 				fimg.close();
@@ -725,18 +725,18 @@ public final class Memory {
 						// define the bank file number as default 63
 						bankNo = 63;
 					}
-	
+
 					if (bankNo < 0 | bankNo > 63) {
 						throw new IOException("Illegal bank file number (must be 0-63)!");
 					}
-	
+
 					// load only a bank file identified with bank number,
 					// that is within the card size range
 					cardBankNo = (banks.length-1) - (63-bankNo);
 					if (cardBankNo >= 0 ) {
 						loadBankBinary(banks[cardBankNo], 0, selectedFiles[f]);
 					}
-				} 
+				}
 			}
 		}
 
@@ -744,7 +744,7 @@ public final class Memory {
 		// insert container into Z88 memory, slot x, at bottom of slot, onwards.
 		insertCard(banks, slot & 3);
 	}
-	
+
 	/**
 	 * Load 16K bank files into specific Card Hardware.
 	 * The 16K images will be loaded relative to the top of the card. The remaining banks of the
@@ -792,7 +792,7 @@ public final class Memory {
 				// that is within the card size range
 				int cardBankNo = (banks.length-1) - (63-bankNo);
 				if (cardBankNo >= 0 ) {
-					loadBankBinary(banks[cardBankNo], 0, 
+					loadBankBinary(banks[cardBankNo], 0,
 							new File(bankFiles.getAbsoluteFile() + File.separator + bankFileNames[n]));
 				}
 			}
@@ -827,7 +827,7 @@ public final class Memory {
 	 * bank must be part of an existing memory resource, ie. it is not possible
 	 * to load a file binary into a bank that is part of an empty slot.
 	 *
-	 * @param b 
+	 * @param b
 	 * @param offset
 	 * @param file
 	 * @throws IOException
@@ -892,22 +892,22 @@ public final class Memory {
 
 		Bank cardBanks[] = createCard(size/1024, type); // allocate container
 		if (cardBanks != null) {
-			loadBinaryImageIntoContainer(cardBanks, size, iStream); 
+			loadBinaryImageIntoContainer(cardBanks, size, iStream);
 
 			// insert container into Z88 memory model
 			insertCard(cardBanks, slot);
 		} else {
 			throw new IOException("Illegal card type or size!");
-		}		
+		}
 	}
 
 	/**
-	 * Load file (binary) image into card container. The image will be loaded to the top 
-	 * of the container and downwards, eg. a 32K image will be loaded  into the top two banks 
-	 * of the Eprom card ($3E and $3F. The remaining banks of the card will be left untouched 
+	 * Load file (binary) image into card container. The image will be loaded to the top
+	 * of the container and downwards, eg. a 32K image will be loaded  into the top two banks
+	 * of the Eprom card ($3E and $3F. The remaining banks of the card will be left untouched
 	 * (initialized as being empty). If the container has the same size as the file image, the
-	 * complete container is automatically filled in natural order. 
-	 * 
+	 * complete container is automatically filled in natural order.
+	 *
 	 * @param cardBanks the container
 	 * @param imageSize size of file image in bytes
 	 * @param iStream an input stream to the binary file
@@ -921,7 +921,7 @@ public final class Memory {
 			bis.read(bankBuffer, 0, Bank.SIZE);	// load 16K from file, sequentially
 			cardBanks[curBank].loadBytes(bankBuffer, 0); // and load fully into bank
 		}
-		bis.close();		
+		bis.close();
 	}
 
 	/**
@@ -938,7 +938,7 @@ public final class Memory {
 
 		loadRomBinary(fileLength , new FileInputStream(file));
 	}
-	
+
 
 	/**
 	 * Load ROM image from Jar/Zip ressource into Z88 memory system, slot 0
@@ -964,10 +964,10 @@ public final class Memory {
 		}
 
 		Bank romBanks[];
-		if (size / Bank.SIZE == 32) 
+		if (size / Bank.SIZE == 32)
 			romBanks = createCard(size/1024, SlotInfo.AmdFlashCard); // Use 512K Amd Flash for ROM
 		else
-			romBanks = createCard(size/1024, SlotInfo.RomCard); // Use 128K std. ROM		
+			romBanks = createCard(size/1024, SlotInfo.RomCard); // Use 128K std. ROM
 
 		loadBinaryImageIntoContainer(romBanks, size, iStream);
 
@@ -983,7 +983,7 @@ public final class Memory {
        	}
 
         if (foundWatermark == false)
-        	throw new IllegalArgumentException("This is not a Z88 ROM");		
+        	throw new IllegalArgumentException("This is not a Z88 ROM");
 
 		// validated ROM image now loaded into container
 		// insert container into Z88 memory, slot 0, banks $00 onwards.
@@ -1073,19 +1073,7 @@ public final class Memory {
 	 * from the Blink (the Z80 is instructed to execute a RST 66H instruction).
 	 */
 	private void slotConnectorSenseLine() {
-		Thread thread = new Thread() {
-			public void run() {
-				Z88.getInstance().getProcessor().setInterruptSignal(true);
-				try { Thread.sleep(100);
-				} catch (InterruptedException e1) {}
-
-				// after a 0.1 sec, get out of coma...
-				// (the card manager goes automatically into coma
-				// when a card has been inserted or removed)
-				Z88.getInstance().getBlink().coma = false;
-			}
-		};
-
-		thread.start();
+		Z88.getInstance().getBlink().awakeFromComa();
+		Z88.getInstance().getProcessor().setInterruptSignal(true);
 	}
 }

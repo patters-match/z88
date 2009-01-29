@@ -30,10 +30,10 @@ import java.util.TimerTask;
 public final class Blink {
 
 	/** Blink Snooze state */
-	public boolean snooze;
+	private boolean snooze;
 
 	/** Blink Coma state */
-	public boolean coma;
+	private boolean coma;
 
 	/**
 	 * Access to the Z88 Memory Model
@@ -44,7 +44,7 @@ public final class Blink {
 	 * The main Timer daemon that runs the Rtc clock and sends 10ms interrupts
 	 * to the Z80 virtual processor.
 	 */
-	private Timer timerDaemon;
+	private Timer rtcTimer;
 
 	/**
 	 * The Real Time Clock (RTC) inside the BLINK.
@@ -239,8 +239,8 @@ public final class Blink {
 	public Blink() {
 		super();
 
-		snooze = false;
 		coma = false;
+		snooze = false;
 
 		memory = Z88.getInstance().getMemory();	// access to Z88 memory model (4Mb)
 		RAMS = memory.getBank(0); // point at ROM bank 0 (null at the moment)
@@ -248,16 +248,10 @@ public final class Blink {
 		// the segment register SR0 - SR3
 		sR = new int[4];
 
-		timerDaemon = new Timer(true);
+		rtcTimer = new Timer(true);
 		rtc = new Rtc(); 				// the Real Time Clock counter, not yet started...
 
 		resetBlinkRegisters();
-	}
-
-
-
-	public Timer getTimerDaemon() {
-		return timerDaemon;
 	}
 
 
@@ -669,15 +663,15 @@ public final class Blink {
 	/**
 	 * Signal to the Blink that a key was pressed.
 	 * The internal state machine inside the Blink resolves the
-	 * snooze state and fires KEY interrupts, if enabled.
+	 * snooze state or coma state and fires KEY interrupts, if enabled.
 	 */
-	public void signalKeyPressed() {
-	    Z80Processor z80 = Z88.getInstance().getProcessor();
+	public synchronized void signalKeyPressed() {
+        Z80Processor z80 = Z88.getInstance().getProcessor();
 
 		// processor snooze always awakes on a key press (even if INT.GINT = 0)
-		snooze = false;
+		awakeFromSnooze();
 
-		if ( (INT & Blink.BM_INTKEY) == Blink.BM_INTKEY & ((STA & BM_STAKEY) == 0)) {
+		if ( (INT & BM_INTKEY) == BM_INTKEY & ((STA & BM_STAKEY) == 0)) {
 			// If keyboard interrupts are enabled, then signal that a key was pressed.
 
 			if ((INT & BM_INTGINT) == BM_INTGINT) {
@@ -685,12 +679,10 @@ public final class Blink {
 				if (coma == true) {
 				    // I register hold the address lines to be read
 				    if ( Z88.getInstance().getKeyboard().scanKeyRow(z80.I()) == z80.I()) {
-    				    coma = false;
-    				    Z88.getInstance().getProcessor().setInterruptSignal(false);
+    				    awakeFromComa();
     			    }
 				} else {
 	    			STA |= BM_STAKEY;
-    				Z88.getInstance().getProcessor().setInterruptSignal(false);
 			    }
 			}
 		}
@@ -704,21 +696,14 @@ public final class Blink {
 	 * @param row, eg @10111111, or 0 for all rows.
 	 * @return int keycolumn status of row or merge of columns for specified rows.
 	 */
-	public int getBlinkKbd(int row) {
-		if ( (INT & Blink.BM_INTKWAIT) != 0 ) {
-			snooze = true;
+	public synchronized int getBlinkKbd(int row) {
+		if ( (INT & Blink.BM_INTKWAIT) != 0 )
+		    try {
+			    enableSnooze();
+			} catch (InterruptedException ie) {
+			};
 
-			while( snooze == true & Z88.getInstance().getProcessor().isZ80running() == true) {
-				try {
-					// The processor is set into snooze mode when INT.KWAIT is enabled
-					// and the hardware keyboard matrix is scanned.
-					// Any interrupt (e.g. RTC, FLAP) or a key press awakes the processor
-					// (or if the Z80 engine is stopped by F5 or debug 'stop' command)
-					Thread.sleep(0,1);
-				} catch (InterruptedException e) {
-				}
-			}
-		}
+	    Z88.getInstance().getProcessor().setInterruptSignal(false);
 
 		return Z88.getInstance().getKeyboard().scanKeyRow(row);
 	}
@@ -1054,6 +1039,43 @@ public final class Blink {
 		rtc.stop();
 	}
 
+    public boolean isComaEnabled() {
+        return coma;
+    }
+
+    public synchronized void enableComa() throws InterruptedException {
+        coma = true;
+        while (coma == true)
+            wait();
+    }
+
+    public synchronized void awakeFromComa() {
+        coma = false;
+        notifyAll();
+    }
+
+    public boolean isSnoozeEnabled() {
+        return snooze;
+    }
+
+	/**
+	 * The processor is set into snooze mode when INT.KWAIT is enabled
+	 * and the hardware keyboard matrix is scanned.
+	 * Any interrupt (e.g. RTC, FLAP) or a key press awakes the processor
+	 * (or if the Z80 engine is stopped by F5 or debug 'stop' command)
+	 */
+    public synchronized void enableSnooze() throws InterruptedException {
+        snooze = true;
+		while( snooze == true & Z88.getInstance().getProcessor().isZ80running() == true) {
+			wait();
+		}
+    }
+
+    public synchronized void awakeFromSnooze() {
+        snooze = false;
+        notifyAll();
+    }
+
 	/**
 	 * RTC, BLINK Real Time Clock, updated each 5ms.
 	 */
@@ -1139,7 +1161,6 @@ public final class Blink {
 			 * @see java.lang.Runnable#run()
 			 */
 			public void run() {
-                Thread.currentThread().setName("RTC");
 				boolean signalTimeInterrupt = false;
 
 				if (++tick > 1) {
@@ -1202,10 +1223,9 @@ public final class Blink {
 					// RTC interrupts while the flap is open, even if INT.TIME
 					// is enabled)
 					if ((STA & BM_STAFLAPOPEN) == 0) {
-						snooze = false;
-						coma = false;
 						STA |= BM_STATIME;
-						Z88.getInstance().getProcessor().setInterruptSignal(false);
+					    awakeFromSnooze();
+					    awakeFromComa();
 					}
 				}
 			}
@@ -1228,7 +1248,7 @@ public final class Blink {
 			if (rtcRunning == false) {
 				rtcRunning = true;
 				countRtc = new Counter();
-				timerDaemon.scheduleAtFixedRate(countRtc, 0, 5);
+				rtcTimer.scheduleAtFixedRate(countRtc, 0, 5);
 			}
 		}
 
@@ -1279,8 +1299,8 @@ public final class Blink {
 	public void signalFlapOpened() {
 		if (((INT & BM_INTFLAP) == BM_INTFLAP) & ((INT & BM_INTGINT) == BM_INTGINT)) {
 			STA = (STA | BM_STAFLAPOPEN | BM_STAFLAP) & ~BM_STATIME;
-			snooze = coma = false;
-			Z88.getInstance().getProcessor().setInterruptSignal(false);
+			awakeFromComa();
+			awakeFromSnooze();
 		}
 	}
 
