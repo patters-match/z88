@@ -1074,6 +1074,6 @@ public final class Memory {
 	 */
 	private void slotConnectorSenseLine() {
 		Z88.getInstance().getBlink().awakeFromComa();
-		Z88.getInstance().getProcessor().setInterruptSignal(true);
+		Z88.getInstance().getProcessor().setNmiSignal();
 	}
 }

@@ -83,8 +83,8 @@ public class Z80Processor extends Z80 implements Runnable {
 			} catch (InterruptedException e1) {
 			}
 
-		    // Awakened from Coma, signal interrupt to Z80..
-		    setInterruptSignal(false);
+		    // Awakened from Coma, signal maskable interrupt to Z80..
+		    setIntSignal();
 		}
 	}
 
@@ -316,11 +316,11 @@ public class Z80Processor extends Z80 implements Runnable {
 				blink.setBlinkSbr((addrA15 << 8) | outByte);
 				break;
 
-			case 0xE2 : // RXC, Receiver Control (not yet implemented)
-			case 0xE3 : // TXD, Transmit Data (not yet implemented)
-			case 0xE4 : // TXC, Transmit Control (not yet implemented)
+			case 0xE2 : // RXC, UART Receiver Control (not yet implemented)
+			case 0xE3 : // TXD, UART Transmit Data (not yet implemented)
+			case 0xE4 : // TXC, UART Transmit Control (not yet implemented)
 				break;
-			case 0xE5 : // UMK, UART int. mask (not yet implemented)
+			case 0xE5 : // UMK, UART Int. mask (not yet implemented)
 			case 0xE6 : // UAK, UART acknowledge int. mask (not yet implemented)
 				break;
 
@@ -359,7 +359,6 @@ public class Z80Processor extends Z80 implements Runnable {
 				break;
 
             case 0xD0:
-            	Thread.yield();
 				res = blink.getBlinkTim0();	// TIM0, 5ms period, counts to 199
 				break;
 

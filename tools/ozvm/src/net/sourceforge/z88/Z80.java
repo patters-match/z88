@@ -101,7 +101,7 @@ public abstract class Z80 {
 	private boolean _IFF1 = true, _IFF2 = true;
 
 	private int _IM = 2;
-    
+
 	/** External implementation of HALT instruction */
 	public abstract void haltZ80();
 
@@ -549,9 +549,15 @@ public abstract class Z80 {
 		return externIntSignal;
 	}
 
-	/** Interrupt handler */
-	public final void setInterruptSignal(boolean nmiState) {
-		nmi = nmiState;
+	/** Maskable Interrupt Signal */
+	public final void setIntSignal() {
+		nmi = false;
+		externIntSignal = true;
+	}
+
+	/** Non-Maskable Interrupt Signal */
+	public final void setNmiSignal() {
+		nmi = true;
 		externIntSignal = true;
 	}
 

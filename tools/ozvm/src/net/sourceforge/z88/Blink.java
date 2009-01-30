@@ -661,9 +661,14 @@ public final class Blink {
 
 
 	/**
-	 * Signal to the Blink that a key was pressed.
-	 * The internal state machine inside the Blink resolves the
-	 * snooze state or coma state and fires KEY interrupts, if enabled.
+	 * Signal to the Z80 processor that a key was pressed. The
+	 * internal state machine inside the Blink resolves the
+	 * snooze state or coma state and fires KEY interrupts,
+	 * if enabled.
+	 *
+	 * This method is called from the Z88Keyboard thread, and will
+	 * awake Z80Processor thread (if the Z88 was snoozing
+	 * or in coma).
 	 */
 	public synchronized void signalKeyPressed() {
         Z80Processor z80 = Z88.getInstance().getProcessor();
@@ -684,6 +689,9 @@ public final class Blink {
 				} else {
 	    			STA |= BM_STAKEY;
 			    }
+
+			    // Signal INT interrupt when KEY interrupts are enabled
+			    Z88.getInstance().getProcessor().setIntSignal();
 			}
 		}
 	}
@@ -693,17 +701,22 @@ public final class Blink {
 	 * Fetch a keypress from the specified row(s) matrix, or 0 for all rows.<br>
 	 * Interface call for IN r,(B2h).<br>
 	 *
+	 * This method is executed through the Z80Processor thread.
+	 * If Blink KWAIT is enabled, the Z80 processor will snooze and wait for a
+	 * key press interrupt from the Blink.
+	 *
 	 * @param row, eg @10111111, or 0 for all rows.
 	 * @return int keycolumn status of row or merge of columns for specified rows.
 	 */
 	public synchronized int getBlinkKbd(int row) {
-		if ( (INT & Blink.BM_INTKWAIT) != 0 )
+		if ( (INT & Blink.BM_INTKWAIT) != 0 ) {
 		    try {
 			    enableSnooze();
 			} catch (InterruptedException ie) {
-			};
+			}
 
-	    Z88.getInstance().getProcessor().setInterruptSignal(false);
+	        Z88.getInstance().getProcessor().setIntSignal();
+	    }
 
 		return Z88.getInstance().getKeyboard().scanKeyRow(row);
 	}
@@ -1043,12 +1056,27 @@ public final class Blink {
         return coma;
     }
 
+    /**
+	 * The Z80Processor (and Z88) is set into coma mode when a HALT
+	 * instruction is executed and the screen is turned off. Only both
+	 * SHIFT keys pressed (defined by I register address line) can awake
+	 * the Z80Processor from Coma with an INT signal.
+	 *
+	 * This method is executed by the Z80Processor thread and is suspended
+	 * while waiting for an interrupt from the Blink.
+     */
     public synchronized void enableComa() throws InterruptedException {
         coma = true;
         while (coma == true)
             wait();
     }
 
+    /**
+     * This method is called by Blink's own Rtc thread, HW or both SHIFT
+     * keys are pressed - to signal an interrupt or out-of-coma state.
+     * It will awake the Z80Processor thread (who is waiting for Blink
+     * to signal out-of-coma).
+     */
     public synchronized void awakeFromComa() {
         coma = false;
         notifyAll();
@@ -1059,10 +1087,13 @@ public final class Blink {
     }
 
 	/**
-	 * The processor is set into snooze mode when INT.KWAIT is enabled
+	 * The Z80Processor is set into snooze mode when INT.KWAIT is enabled
 	 * and the hardware keyboard matrix is scanned.
 	 * Any interrupt (e.g. RTC, FLAP) or a key press awakes the processor
 	 * (or if the Z80 engine is stopped by F5 or debug 'stop' command)
+	 *
+	 * This method is executed by the Z80Processor thread and is suspended
+	 * while waiting for an interrupt from the Blink (keyboard, HW or Rtc)
 	 */
     public synchronized void enableSnooze() throws InterruptedException {
         snooze = true;
@@ -1224,8 +1255,12 @@ public final class Blink {
 					// is enabled)
 					if ((STA & BM_STAFLAPOPEN) == 0) {
 						STA |= BM_STATIME;
+
 					    awakeFromSnooze();
 					    awakeFromComa();
+
+        			    // Signal INT interrupt to Z80...
+        			    Z88.getInstance().getProcessor().setIntSignal();
 					}
 				}
 			}
