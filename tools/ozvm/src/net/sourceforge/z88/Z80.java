@@ -371,11 +371,6 @@ public abstract class Z80 {
 
 	private final void REFRESH(int t) {
 		_R += t;
-
-		if (tstatesCounter > tstatesPerInterrupt) {
-			tstatesCounter = 0;
-			Thread.yield(); /* give the Java threading system some breath */
-		}
 	}
 
 	/** Interrupt modes/register */
