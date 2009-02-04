@@ -22,8 +22,6 @@
      LIB FileEprFileEntryInfo
      LIB FileEprTransferBlockSize
      LIB MemDefBank             ; Bind bank, defined in B, into segment C. Return old bank binding in B
-     LIB ApplSegmentMask        ; Get segment mask (MM_Sx) of this executing code)
-     LIB SafeSegmentMask        ; Get a 'safe' segment mask outside the current executing code
 
      XDEF EprFetchToRAM
 
@@ -36,9 +34,9 @@
 ; Standard Z88 File Eprom Format.
 ;
 ; Copy file (image) from file area to memory (RAM) buffer. This routine runs no boundary checking;
-; the application is responsible for copying files into the RAM buffer at CDE without crossing
-; the bank boundary of CDE, ie. the file must be able to be copied as one unit within the boundaries
-; of bank C, offset DE.
+; the application is responsible for copying files into the RAM buffer at DE without crossing
+; the bank boundary of DE (Z80 address space), ie. the file must be able to be copied as one unit
+; within the boundaries of the segment memory in Z80 address space that DE points to.
 ;
 ; IN:
 ;         BHL = pointer to file entry to be copied
@@ -75,14 +73,14 @@
                     exx
 
                     pop  hl
-                    pop  de
-                    pop  bc
+                    pop  de                       ; DE = destination block pointer (start of RAM buffer)
+                    pop  bc                       ; BHL = pointer to entry in File Area
                     res  7,h
                     res  6,h                      ; discard segment mask, if any...
                     push bc
                     push de
                     push hl
-                    call FileEprFileImage         ; BHL now points at first byte of file image (not file entry)
+                    call FileEprFileImage         ; adjust BHL pointer to first byte of file image (beyond file entry header)
                     call CopyFileEntry            ; Now, copy source file entry to RAM buffer at (DE)
 .exit_EprFetchToRAM
                     pop  hl

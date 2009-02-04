@@ -39,7 +39,7 @@
      xdef Update_OzRom
      xref suicide, FlashWriteSupport, ErrMsgOzRom
      xref BlowBufferToBank, MsgUpdOzRom
-     xref EprFetchToRAM, LoadEprFile
+     xref LoadEprFile
      xref hrdreset_msg, MsgOZUpdated
      xref SopNln
 
@@ -244,7 +244,7 @@
                     ld   l,(iy+0)
                     ld   h,(iy+1)
                     ld   b,(iy+2)                       ; BHL = pointer to File Area entry
-                    call LoadEprFile
+                    call LoadEprFile                    ; to be copied into (buffer)
                     ret
 
 

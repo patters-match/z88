@@ -133,7 +133,8 @@
 .initCrc
                     exx
                     ld   de,$FFFF            ; initialise CRC register D'E'B'C'
-                    ld   bc,$FFFF
+                    ld   b,d
+                    ld   c,e
                     exx
                     ret
 .CrcIterateBuffer

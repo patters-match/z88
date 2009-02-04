@@ -42,6 +42,9 @@
 ; Load parameters from 'romupdate.cfg' file.
 ;
 .ReadConfigFile
+                    ld   a,3
+                    ld   (slotozfiles),a                ; begin looking for "romupdate.cfg" in slot 3
+
                     call LoadConfigFile
                     ld   (ozbank_loader),ix             ; the address of the bank loader routine
 
@@ -192,10 +195,12 @@
 .try_load_epr_file
                     ld   a,'/'
                     ld   (eprbankfilename),a            ; filename starts with "/" for File Area filenames..
-                    ld   c,1
-                    ld   de,eprbankfilename             ; try to get OZ bank file in slot 1 file area...
+                    ld   a,(slotozfiles)                ; load bank files from EPR file area where
+                    ld   c,a                            ; "romupdate.cfg" file was found
+                    ld   de,eprbankfilename             ; try to get OZ bank file in slot X file area...
                     call FileEprFindFile                ; search for filename on File Eprom...
                     jp   c,ErrMsgBankFile               ; file not found ...
+
                     ld   (iy+0),l
                     ld   (iy+1),h
                     ld   (iy+2),b                       ; register BHL source pointer of file entry
@@ -544,8 +549,8 @@
 
 ; *************************************************************************************
 ; Load 'romupdate.cfg' file into 16K buffer.
-; Try to open the file at current RAM directory, or try to find it in slot 1
-; file area (if available).
+; Try to open the file at current RAM directory, or try to find it in any
+; file area, begin checking slot 3, including slot 0.
 ;
 ; Returns to caller with the following registers set, if config file was successfully
 ; loaded into buffer:
@@ -567,12 +572,20 @@
                     ld   ix,CopyRamFile2Buffer          ; define the RAM bank loader when updating OZ to Flash..
                     ret
 .no_cfg_file
-                    ld   c,1
+                    ld   hl,slotozfiles
+.find_epr_cfg_file                                      ; check all slots, from 3 downwards to 0.
+                    ld   c,(hl)
                     ld   de,eprcfgfilename              ; try to get "/romupdate.cfg" in slot 1 file area...
                     call FileEprFindFile                ; search for <buf1> filename on File Eprom...
-                    jp   c, ErrMsgNoCfgfile             ; File Eprom or File Entry was not available
-                    jp   nz, ErrMsgNoCfgfile            ; File Entry was not found...
-                    call LoadEprCfgFile
+                    jr   z, found_epr_cfgfile
+                    ld   hl,slotozfiles
+                    ld   a,-1
+                    dec  (hl)
+                    cp   (hl)
+                    jr   nz, find_epr_cfg_file          ; not found in this slot, try next...
+                    jp   ErrMsgNoCfgfile                ; "romupdate.cfg" File Entry not found in any slots
+.found_epr_cfgfile
+                    call LoadEprCfgFile                 ; BHL points to found file entry of "romupdate.cfg"
                     ld   ix,CopyEprFile2Buffer          ; define the EPR file area bank loader when updating OZ to Flash..
                     ret
 ; *************************************************************************************
@@ -586,9 +599,9 @@
 .CheckConfigLocation
                     push de
                     push hl
-                    ld   de,CopyRamFile2Buffer
-                    ld   hl,(ozbank_loader)
-                    cp   a
+                    ld   de,CopyRamFile2Buffer          ; determine this by evaluating which
+                    ld   hl,(ozbank_loader)             ; bank loader is to be used - for Epr
+                    cp   a                              ; file area or not.
                     sbc  hl,de
                     pop  hl
                     pop  de
@@ -599,7 +612,7 @@
 
 ; *************************************************************************************
 ;
-; Load complete config file into buffer (it will never exceed 16K!)
+; Load complete config file from RAM filing system into buffer (it will never exceed 16K!)
 ;
 ;  IN:
 ;         IX = file handle
@@ -641,10 +654,10 @@
 
 ; *************************************************************************************
 ;
-; Load complete "romupdate.cfg" config file in File Area into buffer.
+; Load complete "romupdate.cfg" config file from EPR/FLASH File Area into buffer.
 ;
 ;  IN:
-;         BHL = pointer to File entry of "romupdate.cfg" file.
+;         BHL = pointer to File entry of "romupdate.cfg" file in found File Area
 ;
 ; OUT:    HL = pointer to start of buffer information.
 ;         DE = pointer to end of buffer information
@@ -666,7 +679,7 @@
 
 ; *************************************************************************************
 ;
-; Load complete file from File Area into buffer.
+; Load complete file (entry) from File Area into RAM buffer at (buffer).
 ;
 ;  IN:
 ;         BHL = pointer to File entry
@@ -681,8 +694,7 @@
 ;
 .LoadEprFile
                     ld   de,buffer                      ; DE = pointer to RAM buffer
-                    call EprFetchToRAM
-                    ret
+                    jp   EprFetchToRAM
 ; *************************************************************************************
 
 

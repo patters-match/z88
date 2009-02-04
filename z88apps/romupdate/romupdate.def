@@ -69,6 +69,7 @@ DEFVARS vararea
      ozbanks            ds.l 32                 ; reserve space for max. 32 OZ ROM banks (512K). Each entry has the following format:
                                                 ; [three byte source file data] [destination bank in slot X for data]
      ozbank_loader      ds.w 1                  ; address of routine, responsible for loading "OZ" bank file into buffer
+     slotozfiles        ds.b 1                  ; slot number of found OZ bank files, when loading from EPR.x file device
      end_vararea
 ENDDEF
 
