@@ -53,8 +53,8 @@ public class MakeApp {
 	private String outputFilename;
 	private String loadmapFilename;
     private String revFromSvnWs;
-        
-        
+
+
     public MakeApp() {
         revFromSvnWs = new Svn(new File(System.getProperty("user.dir"))).getLatestRevision();
     }
@@ -216,7 +216,7 @@ public class MakeApp {
 	private void createRomUpdCfgFile_OzSlot(int slotNo) {
 		int totalBanks = 0;
 		int base_slot_bank = 0;
-		
+
 		if (slotNo == 1)
 			base_slot_bank = 64-appCardBanks;
 
@@ -237,7 +237,7 @@ public class MakeApp {
 				if (banks[b].isEmpty() == false) {
 					cardFile.writeBytes("\"" + banks[b].getBankFileName() + "\",");
 					cardFile.writeBytes("$" + Long.toHexString(banks[b].getCRC32()) + ",");
-					cardFile.writeBytes("$" + byteToHex( (slotNo << 6) | (base_slot_bank + b), false) + "\n");
+					cardFile.writeBytes("$" + byteToHex( (base_slot_bank + b), false) + "\n");
 				}
 			}
 			cardFile.close();
@@ -567,17 +567,17 @@ public class MakeApp {
 		if (bFilename.indexOf(".") > 0) {
 			bFilename = bFilename.substring(0, bFilename.indexOf("."));
 		}
-                
+
                 if (romUpdateConfigFileType == 3 | romUpdateConfigFileType == 2) {
-                    // OZ binaries are being generated.. 
+                    // OZ binaries are being generated..
                     // use filenames with SVN revision number and 's0' or 's1' to identify slot relationship.
                     if (revFromSvnWs.compareTo("0") != 0) {
                         bFilename += "-b" + revFromSvnWs;
                     }
-                    
+
                     bFilename += (romUpdateConfigFileType == 3) ? "s1": "s0";
                 }
-                
+
 		banks = new RomBank[appCardBanks]; // the card container
 		for (int b=appCardBanks-1; b>=0; b--) {
 			banks[b] = new RomBank(topBank--); 		// container filled with memory...
