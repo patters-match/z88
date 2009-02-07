@@ -21,7 +21,9 @@
      LIB FlashEprBlockErase
      LIB FlashEprStdFileHeader
      LIB FileEprFreeSpace, FileEprRequest
-     LIB OZSlotPoll
+     LIB OZSlotPoll, SetBlinkScreen
+
+     XREF SetBlinkScreenOn
 
      include "flashepr.def"
      include "error.def"
@@ -32,11 +34,6 @@
 ;
 ; Reduce an existing "oz" File Area below application Rom Area, or on sole
 ; Flash Card by one or several 64K sectors.
-;
-; -------------------------------------------------------------------------
-; This routine will signal failure ("file area not found") if an
-; application wants to reduce a file area that is part of the OZ ROM
-; -------------------------------------------------------------------------
 ;
 ; Important:
 ; Third generation AMD Flash Memory chips may be erased/programmed in all
@@ -87,10 +84,8 @@
                     PUSH HL
 
                     CALL OZSlotPoll               ; is OZ running in slot C?
-                    JR   Z, no_oz
-                    LD   A,RC_ONF
-                    JR   reduce_fa_error          ; Yes, file area cannot be shrinked in OZ ROM...
-.no_oz
+                    CALL NZ,SetBlinkScreen
+
                     LD   E,B                      ; (preserve sector number)
                     CALL FlashEprCardId           ; Flash Card available in slot C?
                     JR   C, reduce_fa_error       ; apparently not...
@@ -146,6 +141,8 @@
                     SCF
                     POP  BC
 .exit_ReduceFileArea
+                    CALL SetBlinkScreenOn         ; always turn on screen after format operation
+
                     POP  HL
                     POP  BC
                     POP  DE
