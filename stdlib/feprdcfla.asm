@@ -35,6 +35,11 @@
 ; Reduce an existing "oz" File Area below application Rom Area, or on sole
 ; Flash Card by one or several 64K sectors.
 ;
+; -------------------------------------------------------------------------
+; This routine will signal failure ("file area not found") if an
+; application wants to reduce a file area that is part of the OZ ROM in slot 0
+; -------------------------------------------------------------------------
+
 ; Important:
 ; Third generation AMD Flash Memory chips may be erased/programmed in all
 ; available slots (1-3). Only INTEL I28Fxxxx series Flash chips require
@@ -75,7 +80,7 @@
 ;    AFBC..HL/.... different
 ;
 ; ----------------------------------------------------------------------
-; Design & programming by Gunther Strube, Feb 2006, July-Aug 2006
+; Design & programming by Gunther Strube, Feb 2006, July-Aug 2006, Feb 2009
 ; ----------------------------------------------------------------------
 ;
 .FlashEprReduceFileArea
@@ -83,6 +88,13 @@
                     PUSH BC
                     PUSH HL
 
+                    INC  C
+                    DEC  C
+                    JR   NZ, check_oz_slotX
+                    SCF
+                    LD   A,RC_ONF
+                    JR   exit_ReduceFileArea      ; file area cannot be shrinked in slot 0...
+.check_oz_slotX
                     CALL OZSlotPoll               ; is OZ running in slot C?
                     CALL NZ,SetBlinkScreen
 
