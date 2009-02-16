@@ -36,8 +36,10 @@
         include "saverst.def"
         include "sysvar.def"
         include "handle.def"
+        include "z80.def"
+        include "oz.def"
 
-xdef    OSPoll
+xdef    OSPoll, OSPloz
 xdef    ClearUnsafeArea
 xdef    ClearMemDE_HL
 xdef    ChkStkLimits
@@ -61,6 +63,12 @@ xref    CopyMemBHL_DE                           ; [Kernel0]/memmisc.asm
 .OSPoll
         push    ix
         pop     bc
+        call    getAppHandle
+        ret     c
+        push    bc
+        pop     ix
+        ret
+.getAppHandle
         ld      a, c
 IF OZ_SLOT1
         or      b
@@ -74,12 +82,32 @@ ENDIF
         ld      c, a
         ld      b, 0
         ld      a, RC_Eof
-        ret     c
-        push    bc
-        pop     ix
         ret
 
 ;       ----
+
+;       Poll for OZ usage in slot
+;IN:    a=slot number (0-3)
+;OUT:   Fz=0, if OZ is running in slot, otherwise Fz = 1
+;       No registers changed except Fz
+;
+.OSPloz
+        ld      c,a
+        push    bc
+        call    getAppHandle
+        pop     hl                              ; L = slot number
+        ret     c
+        ld      a,c                             ; the low byte of the handle reveals the slot mask...
+        and     @11000000                       ; keep only slot mask
+        rlca
+        rlca                                    ; slot mask -> slot number
+        cp      l
+        jr      nz, no_oz
+        ret                                     ; OZ found, return Fz = 0 (preset on OZ entry)
+.no_oz
+        set     Z80F_B_Z, (iy+OSFrame_F)        ; Fz=1, OZ not found
+        ret
+
 
 ;       clear unsafe stack area
 

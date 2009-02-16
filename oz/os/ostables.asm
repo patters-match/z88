@@ -95,9 +95,10 @@
 
 ; ***** FREE SPACE *****                        ; some code was here and removed for clarity
 
-        defs    $29 ($FF)                       ; $3FC8 - $3FB1
+        defs    $27 ($FF)
 
-; 2-byte calls, OSFrame set up already          ; start at $003FC8
+; 2-byte calls, OSFrame set up already          ; start at $003FC6
+        defw    OSPloz
         defw    OSFep
         defw    OSWtb
         defw    OSWrt
@@ -124,5 +125,5 @@
         defw    OSExit
         defw    OSStk
         defw    OSEnt
-        defw    OSPoll
-        defw    OSDom
+        defw    OSPoll                          ; $FC06
+        defw    OSDom                           ; $FE06

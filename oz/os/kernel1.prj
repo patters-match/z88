@@ -53,7 +53,7 @@ osfep/fepcrdid.asm  : flashepr.def oz.def
 osfep/fepfcopy.asm  : error.def memory.def
 osfep/fepflfmt.asm  : error.def memory.def flashepr.def
 osfep/fepplsize.asm : flashepr.def
-osfep/feprdcfla.asm : flashepr.def error.def
+osfep/feprdcfla.asm : director.def flashepr.def error.def
 osfep/fepstdhd.asm  : memory.def flashepr.def saverst.def
 osfep/fepwrblk.asm  : memory.def flashepr.def blink.def error.def lowram.def
 osfep/fepwrbyt.asm  : memory.def flashepr.def blink.def error.def lowram.def
@@ -61,7 +61,7 @@ reset.asm           : blink.def memory.def stdio.def screen.def director.def ser
 handle1.asm         : handle.def dor.def error.def memory.def oz.def sysvar.def
 osalm1.asm          : error.def stdio.def time.def handle.def z80.def interrpt.def oz.def sysvar.def
 oscli.asm           : error.def z80.def interrpt.def keyboard.def oz.def sysvar.def
-process1.asm        : error.def saverst.def sysvar.def handle.def
+process1.asm        : error.def saverst.def sysvar.def handle.def z80.def oz.def
 card1.asm           : director.def memory.def sysvar.def
 filesys1.asm        : dor.def time.def handle.def sysvar.def
 osmap.asm           : screen.def blink.def error.def stdio.def syspar.def oz.def

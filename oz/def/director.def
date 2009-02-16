@@ -91,6 +91,7 @@ define __DIRECTOR_DEF__
 
      DEFC Os_Dom = $FE06           ; Open director memory (internal)
      DEFC Os_Poll= $FC06           ; Poll for an application (internal)
+     DEFC OS_Ploz= $C606           ; Poll for running OZ card usage                 (OZ 4.2 and newer)
      DEFC Os_Stk = $F806           ; Stack file current process (internal)
      DEFC Os_Wait= $7E             ; Wait for event (internal)
      ; arguments:
