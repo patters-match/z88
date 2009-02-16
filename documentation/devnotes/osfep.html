@@ -1,15 +1,13 @@
 <!DOCTYPE html PUBLIC "-//w3c//dtd html 4.0 transitional//en">
-<html>
-<head>
+<html><head>
 
   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
-  <title>OS_Fep, Flash Card Interface</title>
-<link href="stylesheet.css" type="text/css" rel="stylesheet" />
 
-</head>
+<title>OS_Fep, Flash Card Interface</title><link href="stylesheet.css" type="text/css" rel="stylesheet"></head>
+
 <body>
 
-<table style="font-size: 12px" border="0" cellpadding="0" cellspacing="0" width="100%">
+<table style="font-size: 12px;" border="0" cellpadding="0" cellspacing="0" width="100%">
 
   <tbody>
 
@@ -43,7 +41,7 @@ Interface</font></b>
 
 <pre>IN:</pre>
 
-<pre>&nbsp;&nbsp;&nbsp;&nbsp; A = reason code:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a href="#FEP_CDID">FEP_CDID = $00</a> - Identify Flash Memory Chip in slot<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a href="#FEP_CDDT">FEP_CDDT = $03</a> - Get Flash Card Data<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a href="#FEP_SCER">FEP_SCER = $06</a> - Erase sector in Flash Memory<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a href="#FEP_CDER">FEP_CDER = $09</a> - Erase entire Flash Memory<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a href="#FEP_FFMT">FEP_FFMT = $0C</a> - Flash Memory File Area Formatting<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a href="#FEP_WRBT">FEP_WRBT = $0F</a> - Write byte to the Flash Memory<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a href="#FEP_WRBL">FEP_WRBL = $12</a> - Write a block of bytes to Flash Memory<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a href="#FEP_CPFL">FEP_CPFL = $15</a> - Copy file entry between two File Areas<br><br>&nbsp;&nbsp;&nbsp;&nbsp; BC, DE, HL, IX arguments.</pre>
+<pre>&nbsp;&nbsp;&nbsp;&nbsp; A = reason code:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a href="#FEP_CDID">FEP_CDID = $00</a> - Identify Flash Memory Chip in slot<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a href="#FEP_CDDT">FEP_CDDT = $03</a> - Get Flash Card Data<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a href="#FEP_SCER">FEP_SCER = $06</a> - Erase sector in Flash Memory<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a href="#FEP_CDER">FEP_CDER = $09</a> - Erase entire Flash Memory<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a href="#FEP_FFMT">FEP_FFMT = $0C</a> - Flash Memory File Area Formatting<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a href="#FEP_WRBT">FEP_WRBT = $0F</a> - Write byte to the Flash Memory<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a href="#FEP_WRBL">FEP_WRBL = $12</a> - Write a block of bytes to Flash Memory<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a href="#FEP_CPFL">FEP_CPFL = $15</a> - Copy file entry between two File Areas<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a href="osfep.html#FEP_RDFA">FEP_RDFA = $18</a> - Reduce an existing "oz" File Area<br><br>&nbsp;&nbsp;&nbsp;&nbsp; BC, DE, HL, IX arguments.</pre>
 
 <pre>OUT:<br>&nbsp;&nbsp;&nbsp;&nbsp; Fc = 1, A = error code.<br>&nbsp;&nbsp;&nbsp;&nbsp; Fc = 0, reason code action successfully ended.<br><br><span style="font-weight: bold;"></span></pre>
 
@@ -875,8 +873,24 @@ Registers changed on return:<br>
 
 &nbsp;&nbsp; ..BCDEHL/IXIY ........ same<br>
 
-&nbsp;&nbsp; AF....../.... afbcdehl different<br>
+&nbsp;&nbsp; AF....../.... afbcdehl different<br></span><br>
 
-</span>
-</body>
-</html>
+<hr style="width: 100%; height: 2px;">
+<span style="font-family: monospace; font-weight: bold;"><br>
+
+<a name="FEP_CPFL"></a></span><span style="font-weight: bold;">FEP_RDFA
+($18) - Reduce an existing "oz" File Area <br><br></span>Reduce
+an existing "oz" File Area below application/OZ Rom Area, or on sole
+Flash Card by one or several 64K sectors. Reduction is done on Flash
+sector size, ie. 64K.<br>
+
+<br><span style="font-weight: bold;">This routine will signal failure
+("file area not found") if an application wants to reduce a file area
+that is part of the OZ ROM in slot 0. A file area in slot is located
+above the OZ area and as a different layout structure which cannot be
+shrinked.</span><br><br style="font-family: monospace;"><span style="font-family: monospace;">&nbsp;IN:</span><br style="font-family: monospace;"><span style="font-family: monospace;">&nbsp;&nbsp;&nbsp; B = total sectors to reduce file area</span><br style="font-family: monospace;"><span style="font-family: monospace;">&nbsp;&nbsp;&nbsp; C = slot number (0, 1, 2 or 3) of Flash Memory Card</span><br style="font-family: monospace;"><span style="font-family: monospace;"></span><br style="font-family: monospace;"><span style="font-family: monospace;">&nbsp;OUT:</span><br style="font-family: monospace;"><span style="font-family: monospace;">&nbsp;&nbsp;&nbsp; Success:</span><br style="font-family: monospace;"><span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Fc = 0,</span><br style="font-family: monospace;"><span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; BHL = absolute pointer to new "oz" header in card</span><br style="font-family: monospace;"><span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; C = Number of 16K banks of File Eprom Area</span><br style="font-family: monospace;"><span style="font-family: monospace;"></span><br style="font-family: monospace;"><span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Current files in file area are intact.</span><br style="font-family: monospace;"><span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; New header blown (for reduced file area) and old header sector erased.</span><br style="font-family: monospace;"><span style="font-family: monospace;"></span><br style="font-family: monospace;"><span style="font-family: monospace;">&nbsp;&nbsp;&nbsp; Failure:</span><br style="font-family: monospace;"><span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Fc = 1</span><br style="font-family: monospace;"><span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+A = RC_ONF (File Eprom Card / Area not available; possibly no card in
+slot)</span><br style="font-family: monospace;"><span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+A = RC_ROOM (File area cannot be reduced - files are located inside
+reducing sector)</span><br style="font-family: monospace;"><span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; A = RC_NFE (not a recognized Flash Memory Chip)</span><br style="font-family: monospace;"><span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; A = RC_BER (error occurred when erasing block/sector)</span><br style="font-family: monospace;"><span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; A = RC_BWR (couldn't write header to Flash Memory)</span><br style="font-family: monospace;"><span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; A = RC_VPL (Vpp Low Error)</span><br style="font-family: monospace;"><span style="font-family: monospace;"></span><br style="font-family: monospace;"><span style="font-family: monospace;">&nbsp;Registers changed after return:</span><br style="font-family: monospace;"><span style="font-family: monospace;">&nbsp;&nbsp;&nbsp; ....DE../IXIY same</span><br style="font-family: monospace;"><span style="font-family: monospace;">&nbsp;&nbsp;&nbsp; AFBC..HL/.... different<br></span>
+</body></html>
