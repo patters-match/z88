@@ -25,7 +25,7 @@
 
         xdef FileEprSaveRamFile
 
-        lib OZSlotPoll, SetBlinkScreen
+        lib SetBlinkScreen
 
         xref FlashEprCardId, FlashEprWriteBlock
         xref FileEprFreeSpace, FileEprDeleteFile, FileEprNewFileEntry, GetUvProgMode
@@ -34,6 +34,7 @@
         include "error.def"
         include "fileio.def"
         include "memory.def"
+        include "director.def"
 
         defc SizeOfWorkSpace = 256         ; size of Workspace on stack, IY points at base...
 
@@ -120,7 +121,8 @@
 ;
 ; -------------------------------------------------------------------------
 ; Design & Programming
-;       Gunther Strube, Dec 1997-Apr 1998, Sep 2004, Aug 2006, Nov 2006, Mar 2007
+;       Gunther Strube,
+;       Dec 1997-Apr 1998, Sep 2004, Aug 2006, Nov 2006, Mar 2007, Feb 2009
 ; -------------------------------------------------------------------------
 ;
 .FileEprSaveRamFile
@@ -228,8 +230,8 @@
         sbc     hl,de
         jr      c, no_room                      ; file size (incl. File Entry Header) > free space...
 
-        ld      c,(iy + CardSlot)
-        call    OZSlotPoll                      ; is OZ running in slot C?
+        ld      a,(iy + CardSlot)
+        oz      OS_Ploz                         ; is OZ running in slot A?
         call    nz,SetBlinkScreen               ; yes, saving file to file area in OZ ROM (slot 0 or 1) requires LCD turned off
 
         pop     hl                              ; ptr. to File Entry

@@ -26,7 +26,7 @@
         xdef FlashEprCopyFileEntry
 
         lib FileEprTransferBlockSize
-        lib OZSlotPoll, SetBlinkScreen
+        lib SetBlinkScreen
 
         xref FlashEprCardId
         xref FileEprDeleteFile
@@ -37,6 +37,7 @@
         xref SetBlinkScreenOn
 
         include "error.def"
+        include "director.def"
         include "memory.def"
 
 
@@ -169,7 +170,8 @@
         ld      (iy + FepType),a                ; yes, remember flash type for later
         jr      c, exit_FlashEprCopyFileEntry   ; no flash card - no copying...
 
-        call    OZSlotPoll                      ; is OZ running in slot C?
+        ld      a,c
+        oz      OS_Ploz                         ; poll slot (in A) for running OZ
         call    nz,SetBlinkScreen               ; yes, copying file to file area in OZ ROM (slot 0 or 1) requires LCD turned off
         call    CopyFileEntry                   ; Now, copy source file entry to file area in slot C...
         call    SetBlinkScreenOn                ; always turn on screen after copy file operation

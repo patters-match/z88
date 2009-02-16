@@ -25,7 +25,7 @@
 
         xdef FileEprDeleteFile
 
-        lib  OZSlotPoll, SetBlinkScreen
+        lib  SetBlinkScreen
 
         xref FlashEprCardId, FlashEprWriteByte
         xref FileEprFileStatus
@@ -34,6 +34,7 @@
         xref IncBHL
         xref GetUvProgMode, BlowByte
 
+        include "director.def"
         include "error.def"
 
 
@@ -81,7 +82,8 @@
 ;    .F....../.... different
 ;
 ; ----------------------------------------------------------------------------------------------
-; Design & Programming, Gunther Strube, Dec 1997-Apr 1998, Sept 2004, Nov 2006, Mar 2007
+; Design & Programming:
+;   Gunther Strube, Dec 1997-Apr 1998, Sept 2004, Nov 2006, Mar 2007, Feb 2009
 ; ----------------------------------------------------------------------------------------------
 ;
 .FileEprDeleteFile
@@ -103,11 +105,12 @@
         pop     bc
         jr      c, uveprom                      ; no Flash, but an UV Eprom...
 
-        call    OZSlotPoll                      ; is OZ running in slot of BHL?
+        ld      e,a                             ; blow byte to specified chip type (argument for FlashEprWriteByte)
+        ld      a,c
+        oz      OS_Ploz                         ; is OZ running in slot C of BHL?
         call    NZ,SetBlinkScreen               ; yes, blowing byte in OZ ROM (slot 0 or 1) requires LCD turned off
 .blow_zero_byte
         ld      c,0                             ; indicate file deleted (0)
-        ld      e,a                             ; blow byte to specified chip type
         call    FlashEprWriteByte               ; mark file as deleted with 0 byte
         jr      c, err_delfile
 .blown_successfully

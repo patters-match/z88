@@ -25,7 +25,7 @@
 
         xdef FlashEprFileFormat
 
-        lib OZSlotPoll, SetBlinkScreen
+        lib SetBlinkScreen
 
         xref FlashEprCardId
         xref FlashEprSectorErase
@@ -38,6 +38,7 @@
 
         include "memory.def"
         include "error.def"
+        include "director.def"
         include "flashepr.def"
 
 ;***************************************************************************************************
@@ -137,11 +138,13 @@
         call    FlashEprCardId
         jr      c, format_error
 
-        call    OZSlotPoll                      ; is OZ running in slot C?
-        call    nz,SetBlinkScreen               ; yes, (re)formatting file area in OZ ROM (slot 0 or 1) requires LCD turned off
-
         ld      d,a                             ; preserve FE_28F / FE_29F programming algorithm
         ld      e,b                             ; preserve no. of 16K banks on FC
+
+        ld      a,c
+        oz      OS_Ploz                         ; poll slot (in A) for running OZ
+        call    nz,SetBlinkScreen               ; yes, (re)formatting file area in OZ ROM (slot 0 or 1) requires LCD turned off
+
         push    de
         push    hl
         call    FileEprRequest                  ; get pointer to File Eprom Header (or potential) in slot C
