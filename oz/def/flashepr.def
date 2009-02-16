@@ -47,6 +47,7 @@ DEFC  OS_Fep  = $C806
         DEFC FEP_WRBT = $0F ; Write byte to the Flash Memory
         DEFC FEP_WRBL = $12 ; Write a block of bytes to Flash Memory
         DEFC FEP_CPFL = $15 ; Copy file entry between two File Areas
+        DEFC FEP_RDFA = $18 ; Reduce an existing File Area below Application/OZ Area
 
 
 ; ==========================================================================================

@@ -25,14 +25,16 @@
 
         xdef FlashEprReduceFileArea
 
-        lib OZSlotPoll
-
         xref FlashEprCardId
         xref FlashEprSectorErase
         xref FlashEprStdFileHeader
         xref FileEprRequest, FileEprFreeSpace
+        xref SetBlinkScreenOn
+
+        lib SetBlinkScreen
 
         include "flashepr.def"
+        include "director.def"
         include "error.def"
 
 
@@ -40,12 +42,12 @@
 ;
 ; Flash Eprom File Area Shrinking.
 ;
-; Reduce an existing "oz" File Area below application Rom Area, or on sole
+; Reduce an existing "oz" File Area below application/OZ Rom Area, or on sole
 ; Flash Card by one or several 64K sectors.
 ;
 ; -------------------------------------------------------------------------
 ; This routine will signal failure ("file area not found") if an
-; application wants to reduce a file area that is part of the OZ ROM
+; application wants to reduce a file area that is part of the OZ ROM in slot 0
 ; -------------------------------------------------------------------------
 ;
 ; Important:
@@ -63,7 +65,7 @@
 ;
 ; IN:
 ;    B = total sectors to reduce file area
-;    C = slot number (1, 2 or 3) of Flash Memory Card
+;    C = slot number (0, 1, 2 or 3) of Flash Memory Card
 ;
 ; OUT:
 ;    Success:
@@ -87,20 +89,25 @@
 ;    ....DE../IXIY same
 ;    AFBC..HL/.... different
 ;
-; ----------------------------------------------------------------------
-; Design & programming by Gunther Strube, Feb 2006, July-Aug 2006
-; ----------------------------------------------------------------------
+; --------------------------------------------------------------------------
+; Design & programming by Gunther Strube, Feb 2006, July-Aug 2006, Feb 2009
+; --------------------------------------------------------------------------
 ;
 .FlashEprReduceFileArea
         push    de
         push    bc
         push    hl
 
-        call    OZSlotPoll                      ; is OZ running in slot C?
-        jr      z, no_oz
+        ld      a,c
+        or      a                               ; argument defined as slot 0?
+        jr      nz, slotX
+.slot0
         ld      a,RC_ONF
-        jr      reduce_fa_error                 ; Yes, file area cannot be shrinked in OZ ROM...
-.no_oz
+        jr      reduce_fa_error                 ; file area cannot be shrinked in slot 0...
+.slotX
+        oz      OS_Ploz                         ; poll slot (in A) for running OZ
+        call    nz,SetBlinkScreen               ; OZ is running in slot 1..
+
         ld      e,b                             ; (preserve sector number)
         call    FlashEprCardId                  ; Flash Card available in slot C?
         jr      c, reduce_fa_error              ; apparently not...
@@ -144,6 +151,7 @@
         call    FlashEprStdFileHeader           ; Create "oz" File Eprom Header in absolute bank B
         jr      c, exit_ReduceFileArea
 
+        call    SetBlinkScreenOn                ; always turn on screen after reduce operation
         ld      hl,$3fc0                        ; return BHL = absolute pointer to new "oz" header in slot C
         cp      a                               ; Fc = 0, C = Number of 16K banks of File Area
         pop     de                              ; ignore old HL
@@ -156,6 +164,7 @@
         scf
         pop     bc
 .exit_ReduceFileArea
+        call    SetBlinkScreenOn                ; always turn on screen after reduce operation
         pop     hl
         pop     bc
         pop     de
