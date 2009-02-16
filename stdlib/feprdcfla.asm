@@ -141,6 +141,7 @@
                     CALL FlashEprStdFileHeader    ; Create "oz" File Eprom Header in absolute bank B
                     JR   C, exit_ReduceFileArea
 
+                    CALL SetBlinkScreenOn         ; always turn on screen after format operation
                     LD   HL,$3FC0                 ; return BHL = absolute pointer to new "oz" header in slot C
                     CP   A                        ; Fc = 0, C = Number of 16K banks of File Area
                     POP  DE                       ; ignore old HL
@@ -153,7 +154,7 @@
                     SCF
                     POP  BC
 .exit_ReduceFileArea
-                    CALL SetBlinkScreenOn         ; always turn on screen after format operation
+                    CALL SetBlinkScreenOn
 
                     POP  HL
                     POP  BC
