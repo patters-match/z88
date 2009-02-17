@@ -35,6 +35,7 @@
      xdef CheckCrc
      xdef CheckFlashWriteSupport, FlashWriteSupport
      xdef GetTotalFreeRam
+     xdef yesno, yes_msg, no_msg
 
      xref bbcbas_progversion, progversion_banner
      xref ReadConfigFile
@@ -303,4 +304,66 @@ endif
                     pop  de
                     pop  bc
                     ret
+; *************************************************************************************
+
+
+; *************************************************************************************
+; Prompt for "Yes" or "No" at current VDU cursor position.
+; Y/y or N/n changes prompt text, ENTER or ESC finalizes prompt.
+;
+; Return Fz = 1, if Yes was selected, Fz = 0 if No or ESC selected (A = IN_ESC).
+;
+.yesno
+                    LD   BC, yesno_loop
+                    PUSH BC
+                    JP   (HL)                ; call display message
+.yesno_loop         LD   H,D
+                    LD   L,E
+                    CALL_OZ gn_sop
+                    CALL_OZ(OS_Pur)          ; make sure no keys in sys. inp. buffer...
+                    CALL rdch
+                    JR   C,yesno_loop        ; ignore pre-emption...
+                    CP   IN_ESC
+                    JR   Z, abort_yesno
+                    CP   13
+                    JR   NZ,yn1
+                    LD   HL,yes_msg
+                    SBC  HL,DE               ; Yes, Fc = 0, Fz = 1
+                    RET  Z
+                    OR   A                   ; No, Fc = 0, Fz = 0
+                    RET
+.abort_yesno
+                    OR   A                   ; ESC pressed
+                    RET                      ; return Fc = 0, Fz = 0
+.yn1
+                    OR   32
+                    CP   'y'
+                    JR   NZ,yn2
+                    LD   DE,yes_msg
+                    JR   yesno_loop
+.yn2                                         ; all other keypressed means 'No'...
+                    LD   DE,no_msg
+                    JR   yesno_loop
+
+.yes_msg            DEFM 13,1,"2+C Yes",8,8,8,0
+.no_msg             DEFM 13,1,"2+C No ",8,8,8,0
+; *************************************************************************************
+
+
+; *************************************************************************************
+;
+.rdch
+                    OZ   OS_In
+                    JR   NC,rd2
+                    CP   RC_ESC
+                    JR   Z, ret_esc
+                    SCF
+                    RET
+.ret_esc
+                    LD   A, IN_ESC
+                    RET
+.rd2
+                    CP   0
+                    RET  NZ
+                    JR   rdch
 ; *************************************************************************************
