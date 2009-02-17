@@ -24,24 +24,29 @@
      include "memory.def"
      include "screen.def"
      include "blink.def"
+     include "card.def"
+     include "error.def"
 
      ; RomUpdate runtime variables
      include "romupdate.def"
 
      lib DisableBlinkInt                                ; No interrupts get out of Blink
      lib EnableBlinkInt                                 ; Allow interrupts to get out of Blink again
+     lib FlashEprCardId                                 ; Poll for Flash card in slot C
      lib FlashEprCardErase                              ; erase complete Flash chip to FFs
      lib FlashEprBlockErase                             ; erase specified block on Flash chip
+     lib FlashEprReduceFileArea                         ; shrink current file area in slot C witb B sectors
      lib MemDefBank                                     ; Bind bank, defined in B, into segment C. Return old bank binding in B
      lib MemGetBank                                     ; Return bank binding in B of segment C
      lib ApplEprType                                    ; poll slot for application card type
-
+     lib FileEprRequest                                 ; poll slot for file area
      xdef Update_OzRom
      xref suicide, FlashWriteSupport, ErrMsgOzRom
      xref BlowBufferToBank, MsgUpdOzRom
      xref LoadEprFile
      xref hrdreset_msg, MsgOZUpdated
      xref SopNln
+     xref yesno, yes_msg, no_msg
 
      xdef CopyRamFile2Buffer, CopyEprFile2Buffer
 
@@ -93,7 +98,6 @@
 ; ----------------------------------------------------------------------------------------------------------------------
 ; just before we wipe out the OZ rom, move the font bitmaps to RAM
 ; copy the LORES1 font bitmaps to RAM to use the new location
-                    ld   sp,ozstack                     ; move system stack just below segment 2 (moved from $1FFE area)
                     ld   a,SC_LR1
                     ld   b,0
                     oz   Os_Sci                         ; get BHL address of LORES1 font bitmaps
@@ -144,6 +148,8 @@
                     pop  bc
                     oz   Os_Sci                         ; re-assign HIRES1 base address to point in RAM
 
+                    ld   sp,ozstack                     ; move system stack just below segment 2 (moved from $1FFE area)
+
                     call EraseOzFlashCard               ; Prepare FlashCard for OZ
                     call InstallOZ
 
@@ -155,7 +161,7 @@
                     out  (BL_SR2), a                    ; b21 into Segment 2 (which has no executing code by RomUpdate popdown nor BBC BASIC)
                     ld   hl,0
                     ld   ($8000),hl                     ; remove RAM filing system tag $A55A in start of bank $21 that forces OZ to HARD RESET
-                    jp   (hl)                           ; execute the hard reset..
+                    jp   (hl)                           ; execute the hard reset (through soft reset in LOWRAM at 0000H vector)..
 
 
 ; ----------------------------------------------------------------------------------------------------------------------
@@ -164,38 +170,83 @@
 ;   - If an OZ ROM is recognized in external slot X, then only the OZ area (top of card) is erased.
 ;     This allows any file area below the OZ ROM area to be preserved during update.
 ;
-;   TODO: Move File area downwards if possible, when new OZ binary update is bigger than OZ on card in slot X
+; File area conflict will be automatically resolved when a new OZ area overlaps the existing 64K sector
+; of the top of the file area; shrink it to give space for OZ installation in top of card.
 ;
 .EraseOzFlashCard
                     ld   a,(oz_slot)
                     ld   c,a
                     push bc
                     or   a
-                    jr   z, erase_chip
-                    call ApplEprType
-                    cp   $81
-                    jr   nz,erase_chip                   ; erase complete card for everything except for OZ ROM
+                    jr   z, erase_chip                  ; always erase entire chip for slot 0 (file area cannot be shrinked)
 
-                    srl  b
-                    srl  b
-                    ld   d,b                             ; D = number of blocks to erase
+                    call FileEprRequest                 ; check if File Area is available in slot C
+                    jr   z, check_filearea_pos          ; was found, check where it begins (in top or further down)..
+                    jr   c, check_empty_ozcard          ; either flash card is empty or there is no room for file area below apps area
+                    jr   prepare_for_oz                 ; card has applications or OZ installed, but no file area - erase and install new OZ
+.check_filearea_pos
+                    ld   hl,total_ozbanks
+                    ld   a,$3f                          ; a = relative top bank number of card
+                    res  7,b                            ; file area exists, check if it can be shrinked to make room for OZ
+                    res  6,b                            ; remove slot mask of bank number of file area header.
+                    sub  b                              ; A = no of banks above file area
+                    cp   (hl)                           ; does OZ area fit within that size, or is it necessary to shrink file area?
+                    jr   nc,prepare_oz_erase0           ; new OZ area fits in area above file area!
+.prepare_shrink_fla
+                    ld   b,a
+                    ld   a,(hl)                         ; file area needs to be shrinked X sectors...
+                    sub  b                              ; new_oz_area - current_app_area = shrink size...
+                    srl  a
+                    srl  a                              ; shrink bank size difference / 4 = total no. of 64K sectors
+                    jr   nz,shrink_filearea             ; if less than 4 banks, then minimum one sector...
+                    inc  a                              ; +1
+.shrink_filearea
+                    pop  bc
+                    push bc
+                    ld   b,a
+                    call FlashEprReduceFileArea         ; shrink file area in slot C with B sectors.
+.prepare_oz_erase0
+                    pop  bc
+                    jr   c, shrinkfailed                ; figure out why it failed, and display appropriate message
+                    push bc
+                    call FlashEprCardId                 ; shrinking of file area done successfully,
+                    ld   c,b                            ; get C = total physical banks of flash card
+                    jr   prepare_oz_erase               ; finally, erase application area for new OZ
+.check_empty_ozcard
+                    cp   RC_ONF                         ; Object Not Found...
+                    jr   z, erase_chip                  ; slot contains an 'empty' card, ie. no found applications nor file area
+
+.prepare_for_oz     pop  bc                             ; card could have applications on it (File area would be possible to create)
+                    push bc
+                    call ApplEprType                    ; check for applications..
+                    jr   c, erase_chip                  ; no Applications nor OZ found in slot, just erase the whole card...
+                    cp   CX_OS                          ; OZ operating system?
+                    jr   nz,erase_chip                  ; no, erase completely (Application Card)
+.prepare_oz_erase
+                    ld   a,(total_ozbanks)              ; erase no. of sectors of OZ to be installed
+                    srl  a                              ; (banks / 4 = total no. of 64K sectors)
+                    srl  a
+                    ld   d,a                            ; D = number of blocks to erase
                     srl  c
-                    srl  c
-                    dec  c                               ; converted total size of card to top block number to erase
+                    srl  c                              ; C returned from ApplEprType is physical card size..
+                    dec  c                              ; converted total size of card to top block number to erase
                     ld   a,c
-                    pop  bc                              ; erase blocks in slot C
-                    ld   b,a                             ; begin with top block on card
+                    pop  bc                             ; erase sectors in slot C
+                    ld   b,a                            ; begin with top sector on card
 .erase_ozarea
                     call FlashEprBlockErase
-                    dec  b                               ; next block number is below the block just erased...
+                    dec  b                              ; next sector number is below the sector just erased...
                     dec  d
-                    jr   nz, erase_ozarea                ; erase top area of card for OZ
+                    jr   nz, erase_ozarea               ; erase top area of card for OZ
                     ret
 .erase_chip
-                    pop  bc                              ; erase entire card in slot C
-                    call FlashEprCardErase
+                    pop  bc                             ; erase entire card (with unknown contents) in slot C
+                    jp   FlashEprCardErase
+.Shrinkfailed
                     ret
-
+;                    cp   RC_ROOM
+;                    jp   z, ErrMsgFileAreaNotShrinkable
+;                    jp   ErrMsgFailedFileAreaShrinking
 
 ; ----------------------------------------------------------------------------------------------------------------------
 ; Install OZ banks on Card, identified by ozbanks[] array.
@@ -232,6 +283,7 @@
 
 ; *************************************************************************************
 ; Copy the bank file contents located in EPROM/FLASH File area to RomUpdate 16K buffer.
+; This routine is CALL'ed by InstallOZ when the OZ images reside in a file area.
 ;
 ; IN:
 ;       IY points a three byte data block that points to file entry in file area
@@ -244,12 +296,12 @@
                     ld   l,(iy+0)
                     ld   h,(iy+1)
                     ld   b,(iy+2)                       ; BHL = pointer to File Area entry
-                    call LoadEprFile                    ; to be copied into (buffer)
-                    ret
+                    jp   LoadEprFile                    ; to be copied into (buffer)
 
 
 ; *************************************************************************************
 ; Copy the RAM bank file contents to RomUpdate 16K buffer.
+; This routine is CALL'ed by InstallOZ when the OZ images reside in a RAM filing system.
 ;
 ; IY points to a two byte data block that contains pointers to start of the file:
 ; -----------------------------------------------------------------------------------
@@ -309,16 +361,12 @@ endif
 ;
 .CopySector2Buffer
                     push af
-                    push bc
-                    push de
 
                     ld   b,0                            ; only C number of bytes to copy
                     ld   de,(bufferend)                 ; start of destination
                     ldir                                ; (HL) -> (DE)
                     ld   (bufferend),de                 ; pointer ready for next sector copy...
 
-                    pop  de
-                    pop  bc
                     pop  af
                     ret
 ; *************************************************************************************
