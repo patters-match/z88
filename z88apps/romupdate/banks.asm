@@ -427,8 +427,7 @@
 .CheckBankFreeSpace
                     push bc
                     ld   de,presvdbanks+3               ; point at end of array
-                    ld   b,3
-                    ld   c,0                            ; accumulated amount of needed bank pages
+                    ld   bc,$0300                       ; accumulated amount of needed bank pages
 .calc_bankspace
                     ld   a,(de)
                     or   a
@@ -595,7 +594,6 @@
                     push bc
                     ld   bc,bankfilecrc
                     call CheckCrc
-.exit_checkcrc
                     pop  bc
                     ret
 ; *************************************************************************************

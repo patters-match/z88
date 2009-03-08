@@ -30,7 +30,7 @@
      ; RomUpdate runtime variables
      include "romupdate.def"
 
-     xdef SopNln
+     xdef SopNln, YesNo
      xdef bbcbas_progversion, progversion_banner
      xdef MsgUpdateCompleted, MsgAddCompleted, MsgAddBankFile, MsgUpdOzRom
      xdef ReportStdError, DispErrMsg, MsgOZUpdated
@@ -40,8 +40,9 @@
      xdef ErrMsgNoFlashSupport, ErrMsgNewBankNotEmpty, ErrMsgReduceFileArea, ErrMsgOzRom
      xdef MsgCrcCheckBankFile, MsgUpdateBankFile
      xdef hrdreset_msg, removecrd_msg
+     xdef yes_msg, no_msg
 
-     xref suicide, GetSlotNo, GetSectorNo
+     xref suicide, GetSlotNo, GetSectorNo, GetOZSlotNo
 
 
 
@@ -215,9 +216,8 @@
                     oz   GN_Sop
                     ld   hl,inslot_msg                  ; "in slot "
                     oz   GN_Sop
-                    ld   a,(oz_slot)
                     ld   b,0
-                    ld   c,a
+                    call GetOZSlotNo                    ; slot no in C
                     call DispNumber
                     oz   GN_nln
                     call ResKey                         ; "Press any key to exit RomUpdate" ...
@@ -233,9 +233,8 @@
                     oz   GN_Sop
                     ld   hl,inslot_msg                  ; "in slot "
                     oz   GN_Sop
-                    ld   a,(oz_slot)
                     ld   b,0
-                    ld   c,a
+                    call GetOZSlotNo                    ; slot no in C
                     call DispNumber
 
                     ld   hl,updoz2_msg

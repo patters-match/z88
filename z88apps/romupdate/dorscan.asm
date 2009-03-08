@@ -217,8 +217,8 @@
                     ld   a,RC_ONF
                     ret
 .found_dorname
-                    call GetRecId            ; get length of name incl null in A
-                    ret                      ; C = offset to first char of application name
+                    jr   GetRecId            ; get length of name incl null in A
+                                             ; C = offset to first char of application name
 ; *************************************************************************************
 
 
@@ -368,73 +368,6 @@
                     pop  af                  ; original alternate AF restored
                     ex   af,af'
                     pop  bc
-                    ret
-; *************************************************************************************
-
-
-; *************************************************************************************
-;
-; Return pointer to First (Top) Application DOR of slot C in BHL
-;
-; In:
-;    C = slot number (0, 1, 2 or 3)
-;
-; Out:
-;    Success:
-;         Fc = 0,
-;              BHL = pointer to first (top) application DOR in slot C
-;
-;    Failure:
-;         Fc = 1,
-;              A = RC_ONF, no Application DOR found in slot C
-;
-; Registers changed after return:
-;    ...CDE../IXIY same
-;    AFB...HL/.... different
-;
-.ApplRomFirstDor
-                    call ApplRomFrontDor
-                    ret  c                   ; no application card...
-                    ld   a, 3+3
-                    call ApplRomReadDorPtr   ; return Link to son (3. pointer of Front DOR) in slot C
-                    ret
-; *************************************************************************************
-
-
-; *************************************************************************************
-;
-; Return pointer to Next Application DOR in BHL (second pointer from start of DOR).
-;
-; -------------------------------------------------------------------------------
-; Start of DOR:
-; 3 bytes     0 0 0         Link to parent
-; 3 bytes     x x x         Link to brother (0 0 0 if only application or last app in chain)
-; 3 bytes     0 0 0         Link to son
-; ...
-; -------------------------------------------------------------------------------
-;
-; In:
-;    BHL = base pointer to current DOR (if B=0 then HL is local pointer)
-;
-; Out:
-;    Success:
-;         Fc = 0,
-;              BHL = pointer to next (brother) application DOR
-;              if B(in) = 0, then next App DOR ptr is slot relative.
-;
-;    Failure:
-;         Fc = 1,
-;              A = RC_ONF, no Application DOR found at BHL
-;
-; Registers changed after return:
-;    ...CDE../IXIY same
-;    AFB...HL/.... different
-;
-.ApplRomNextDor
-                    call ApplRomValidateDor  ; make sure that a DOR is available at BHL pointer...
-                    ret  c
-                    ld   a, 3
-                    call ApplRomReadDorPtr   ; return Link to brother (2. pointer of Front DOR) in slot C
                     ret
 ; *************************************************************************************
 
@@ -935,6 +868,70 @@
                     pop  de
                     pop  bc
                     ret
+; *************************************************************************************
+
+
+; *************************************************************************************
+;
+; Return pointer to First (Top) Application DOR of slot C in BHL
+;
+; In:
+;    C = slot number (0, 1, 2 or 3)
+;
+; Out:
+;    Success:
+;         Fc = 0,
+;              BHL = pointer to first (top) application DOR in slot C
+;
+;    Failure:
+;         Fc = 1,
+;              A = RC_ONF, no Application DOR found in slot C
+;
+; Registers changed after return:
+;    ...CDE../IXIY same
+;    AFB...HL/.... different
+;
+.ApplRomFirstDor
+                    call ApplRomFrontDor
+                    ret  c                   ; no application card...
+                    ld   a, 3+3
+                    jr   ApplRomReadDorPtr   ; return Link to son (3. pointer of Front DOR) in slot C
+; *************************************************************************************
+
+
+; *************************************************************************************
+;
+; Return pointer to Next Application DOR in BHL (second pointer from start of DOR).
+;
+; -------------------------------------------------------------------------------
+; Start of DOR:
+; 3 bytes     0 0 0         Link to parent
+; 3 bytes     x x x         Link to brother (0 0 0 if only application or last app in chain)
+; 3 bytes     0 0 0         Link to son
+; ...
+; -------------------------------------------------------------------------------
+;
+; In:
+;    BHL = base pointer to current DOR (if B=0 then HL is local pointer)
+;
+; Out:
+;    Success:
+;         Fc = 0,
+;              BHL = pointer to next (brother) application DOR
+;              if B(in) = 0, then next App DOR ptr is slot relative.
+;
+;    Failure:
+;         Fc = 1,
+;              A = RC_ONF, no Application DOR found at BHL
+;
+; Registers changed after return:
+;    ...CDE../IXIY same
+;    AFB...HL/.... different
+;
+.ApplRomNextDor
+                    call ApplRomValidateDor  ; make sure that a DOR is available at BHL pointer...
+                    ret  c
+                    ld   a, 3                ; return Link to brother (2. pointer of Front DOR) in slot C
 ; *************************************************************************************
 
 

@@ -398,8 +398,7 @@
                     call ApplTokenbasePtr
                     pop  af
                     ld   c,a
-                    call ApplSetTokenbasePtr            ; update MTH Help pointer with new bank
-                    ret
+                    jp   ApplSetTokenbasePtr            ; update MTH Help pointer with new bank
 ; *************************************************************************************
 
 

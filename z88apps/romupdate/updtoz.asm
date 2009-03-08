@@ -40,12 +40,14 @@
      lib MemGetBank                                     ; Return bank binding in B of segment C
      lib ApplEprType                                    ; poll slot for application card type
      lib FileEprRequest                                 ; poll slot for file area
+
      xdef Update_OzRom
      xref suicide, FlashWriteSupport, ErrMsgOzRom
      xref BlowBufferToBank, MsgUpdOzRom
      xref LoadEprFile
      xref hrdreset_msg, MsgOZUpdated
      xref SopNln
+     xref GetOZSlotNo
      xref yesno, yes_msg, no_msg
 
      xdef CopyRamFile2Buffer, CopyEprFile2Buffer
@@ -53,14 +55,14 @@
 
 
 ; *************************************************************************************
-; Update OZ ROM to slot X
-; The system will be hard reset for slot 0 and 1,
-; for slots 2 and 3, the card will just be updated without affecting the system
+; Update OZ ROM to slot X.
+; The system will be hard reset for slot 0 and 1 (OZ can only run in slot 0 or 1)
+; - for slots 2 and 3, the card will just be updated without affecting the
+; operating system.
 ;
 .Update_OzRom
-                    ld   a,(oz_slot)
-                    ld   c,a                            ; make sure that we have an AMD/STM 512K flash chip in slot X
-                    call FlashWriteSupport
+                    call GetOZSlotNo                    ; slot no in C
+                    call FlashWriteSupport              ; make sure that we have an AMD/STM 512K flash chip in slot X
                     jr   nc, flash_found
                     jp   ErrMsgOzRom                    ; "OZ ROM cannot be updated. Flash device was not found in slot X"
 
@@ -174,10 +176,10 @@
 ; of the top of the file area; shrink it to give space for OZ installation in top of card.
 ;
 .EraseOzFlashCard
-                    ld   a,(oz_slot)
-                    ld   c,a
+                    call GetOZSlotNo                    ; slot no in C
                     push bc
-                    or   a
+                    inc  c
+                    dec  c
                     jr   z, erase_chip                  ; always erase entire chip for slot 0 (file area cannot be shrinked)
 
                     call FileEprRequest                 ; check if File Area is available in slot C
