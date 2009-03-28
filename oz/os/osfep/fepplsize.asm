@@ -36,7 +36,7 @@
 ;
 ; IN:
 ;       HL = Flash Memory ID
-;            H = Manufacturer Code (FE_INTEL_MFCD, FE_AMD_MFCD, FE_STM_MFCD)
+;            H = Manufacturer Code (FE_INTEL_MFCD, FE_AMD_MFCD)
 ;            L = Device Code (refer to flashepr.def)
 ;
 ; OUT:
@@ -50,16 +50,9 @@
 .FlashEprPollSectorSize
         push    de
         ld      de,FE_AM29F010B                 ; AM29F010B Flash Memory?
-        call    cmp_fid
-        jr      z,exit_PollSectorSize
-        ld      de,FE_ST29F010B                 ; ST29F010B (STMicroelectronics) Flash Memory?
-        call    cmp_fid
-.exit_PollSectorSize
-        pop     de
-        ret
-.cmp_fid
         cp      a                               ; Fc = 0...
         push    hl
         sbc     hl,de
         pop     hl
+        pop     de
         ret
