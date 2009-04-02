@@ -75,7 +75,7 @@ public class Slots extends JPanel {
 	private static final String installRamMsg = "Install new RAM into slot 0?\nWARNING: Installing RAM will automatically perform a hard reset!";
 
 	private static final DefaultComboBoxModel newCardTypes = new DefaultComboBoxModel(
-			new String[] { "RAM", "EPROM", "INTEL FLASH", "AMD FLASH", "STM FLASH"});
+			new String[] { "RAM", "EPROM", "INTEL FLASH", "AMD FLASH"});
 
 	private static final DefaultComboBoxModel ram0Sizes = new DefaultComboBoxModel(
 			new String[] { "32K", "128K", "256K", "512K" });
@@ -223,10 +223,6 @@ public class Slots extends JPanel {
 
 		int slotType = SlotInfo.getInstance().getCardType(slotNo);
 		switch (slotType) {
-		case SlotInfo.StmFlashCard:
-			slotText = "STM FLASH";
-			break;
-
 		case SlotInfo.AmdFlashCard:
 			slotText = "AMD FLASH";
 			break;
@@ -660,10 +656,6 @@ public class Slots extends JPanel {
 						// insert an Amd Flash Card
 						internalCardType = SlotInfo.AmdFlashCard;
 						break;
-					case 4:
-						// insert an Stm Flash Card
-						internalCardType = SlotInfo.StmFlashCard;
-						break;
 				}
 
 				if (cardImageFiles != null) {
@@ -950,7 +942,7 @@ public class Slots extends JPanel {
 							break;
 						case 3:
 						case 4:
-							// define available Amd/Stm Flash Card sizes
+							// define available Amd Flash Card sizes
 							getCardSizeComboBox().setModel(amdFlashSizes);
 							break;
 					}

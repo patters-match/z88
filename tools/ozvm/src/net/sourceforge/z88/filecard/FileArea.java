@@ -890,7 +890,7 @@ public class FileArea {
 				else
 					memory.setByte(0x3FFD, bankNo, 0x7C); // all other UV cards get $7C
 			if ((bank instanceof GenericAmdFlashBank == true))
-				memory.setByte(0x3FFD, bankNo, 0x6F);	// Define an AMD or STM sub type
+				memory.setByte(0x3FFD, bankNo, 0x6F);	// Define an AMD sub type
 			if ((bank instanceof IntelFlashBank == true))
 				memory.setByte(0x3FFD, bankNo, 0x77);	// Define an INTEL sub type
 

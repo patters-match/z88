@@ -159,7 +159,7 @@ public abstract class GenericAmdFlashBank extends Bank {
 	 * cycle sequences the Flash Memory chip can be programmed with data and
 	 * get erased again in ALL available Z88 slots.
 	 */
-	public final void writeByte(final int addr, final int b) {
+	public void writeByte(final int addr, final int b) {
 		processCommandCycle(addr, b);
 	}
 

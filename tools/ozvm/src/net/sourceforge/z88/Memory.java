@@ -530,17 +530,6 @@ public final class Memory {
 					}
 					break;
 
-				case SlotInfo.StmFlashCard:
-					// Stm Flash Eprom Cards exists in 128K, 512K and 1MB configurations
-					switch(totalEprBanks) {
-						case 8: banks[curBank] = new StmFlashBank(StmFlashBank.ST29F010B); break;
-						case 32: banks[curBank] = new StmFlashBank(StmFlashBank.ST29F040B); break;
-						case 64: banks[curBank] = new StmFlashBank(StmFlashBank.ST29F080D); break;
-						default:
-							return null; // Only 128K, 512K or 1MB Stm Flash Cards are allowed.
-					}
-					break;
-
 				default:
 					banks[curBank] = new RomBank();
 					break;
@@ -565,7 +554,7 @@ public final class Memory {
 	 *
 	 * @param slot number which Card will be inserted into
 	 * @param sizeK of Eprom in Kb
-	 * @param eprType SlotInfo.EpromCard, SlotInfo.IntelFlashCard, SlotInfo.AmdFlashCard, SlotInfo.StmFlashCard
+	 * @param eprType SlotInfo.EpromCard, SlotInfo.IntelFlashCard, SlotInfo.AmdFlashCard
 	 * @return true, if card was inserted, false, if illegal size and type
 	 */
 	public boolean insertEprCard(int slot, int sizeK, int eprType) {
@@ -620,7 +609,7 @@ public final class Memory {
 	 *
 	 * @param slot number which Card will be inserted into (1-3)
 	 * @param sizeK of Card in Kb
-	 * @param eprType SlotInfo.EpromCard, SlotInfo.IntelFlashCard, SlotInfo.AmdFlashCard, SlotInfo.StmFlashCard
+	 * @param eprType SlotInfo.EpromCard, SlotInfo.IntelFlashCard, SlotInfo.AmdFlashCard
 	 * @return true, if card was inserted, false, if illegal size and type
 	 */
 	public boolean insertFileCard(int slot, int sizeK, int eprType) {
@@ -661,7 +650,7 @@ public final class Memory {
 	 *
 	 * @param slot to insert card with loaded binary image
 	 * @param sizeK of Card in Kb
-	 * @param eprType SlotInfo.EpromCard, SlotInfo.IntelFlashCard, SlotInfo.AmdFlashCard, SlotInfo.StmFlashCard
+	 * @param eprType SlotInfo.EpromCard, SlotInfo.IntelFlashCard, SlotInfo.AmdFlashCard
 	 * @param fileImage the File image to be loaded (in 16K boundary size)
 	 * @throws IOException
 	 */
@@ -697,7 +686,7 @@ public final class Memory {
 	 *
 	 * @param slot to insert card with loaded binary image
 	 * @param sizeK of Card in Kb
-	 * @param eprType SlotInfo.EpromCard, SlotInfo.IntelFlashCard, SlotInfo.AmdFlashCard, SlotInfo.StmFlashCard
+	 * @param eprType SlotInfo.EpromCard, SlotInfo.IntelFlashCard, SlotInfo.AmdFlashCard
 	 * @param selectedFiles a collection of selected filenames
 	 * @throws IOException
 	 */
@@ -755,7 +744,7 @@ public final class Memory {
 	 *
 	 * @param slot insert card in slot 1-3
 	 * @param sizeK of Card in Kb
-	 * @param eprType SlotInfo.EpromCard, SlotInfo.IntelFlashCard, SlotInfo.AmdFlashCard, SlotInfo.StmFlashCard
+	 * @param eprType SlotInfo.EpromCard, SlotInfo.IntelFlashCard, SlotInfo.AmdFlashCard
 	 * @param fileNameBase the base filename of the 16K bank files
 	 * @throws IOException
 	 */

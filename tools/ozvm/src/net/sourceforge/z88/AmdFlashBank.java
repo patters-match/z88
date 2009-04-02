@@ -69,12 +69,12 @@ public class AmdFlashBank extends GenericAmdFlashBank {
 
 	/**
 	 * @return the Flash Memory Device Code
-	 * (AM29F010B, AM29F040B or AM29F080B) which this bank is part of.
+	 * (AM29F010B, AM29F040B, AM29F032B or AM29F080B) which this bank is part of.
 	 */
 	public final int getDeviceCode() {
 		return deviceCode;
 	}
-	
+
 	/**
 	 * @return the Flash Memory Manufacturer Code
 	 * 

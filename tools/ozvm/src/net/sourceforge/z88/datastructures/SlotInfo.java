@@ -27,7 +27,6 @@ import net.sourceforge.z88.IntelFlashBank;
 import net.sourceforge.z88.Memory;
 import net.sourceforge.z88.RamBank;
 import net.sourceforge.z88.RomBank;
-import net.sourceforge.z88.StmFlashBank;
 import net.sourceforge.z88.VoidBank;
 import net.sourceforge.z88.Z88;
 
@@ -44,7 +43,6 @@ public class SlotInfo {
 	public static final int EpromCard = 3;
 	public static final int IntelFlashCard = 4;
 	public static final int AmdFlashCard = 5;
-	public static final int StmFlashCard = 6;
 	
 	private static final class singletonContainer {
 		static final SlotInfo singleton = new SlotInfo();  
@@ -183,8 +181,6 @@ public class SlotInfo {
 			return IntelFlashCard;		
 		else if (memory.getBank(bankNo) instanceof AmdFlashBank == true) 
 			return AmdFlashCard;		
-		else if (memory.getBank(bankNo) instanceof StmFlashBank == true) 
-			return StmFlashCard;		
 		else
 			return 0; 
 	}	
