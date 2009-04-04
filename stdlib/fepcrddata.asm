@@ -73,7 +73,7 @@
                     RET
 
 .DeviceCodeTable
-                    DEFB 9
+                    DEFB 6
 
                     DEFW FE_I28F004S5             ; Intel flash
                     DEFB 32, FE_28F               ; 8 x 64K sectors / 32 x 16K banks (512Kb)
@@ -91,31 +91,16 @@
                     DEFB 8, FE_29F                ; 8 x 16K sectors / 8 x 16K banks (128Kb)
                     DEFW mnem_am010b
 
-                    DEFW FE_ST29F010B             ; STMicroelectronics flash (Amd compatible)
-                    DEFB 8, FE_29F                ; 8 x 16K sectors / 8 x 16K banks (128Kb)
-                    DEFW mnem_st010b
-
                     DEFW FE_AM29F040B             ; Amd flash
                     DEFB 32, FE_29F               ; 8 x 64K sectors / 32 x 16K banks (512Kb)
                     DEFW mnem_am040b
 
-                    DEFW FE_ST29F040B             ; STMicroelectronics flash (Amd compatible)
-                    DEFB 32, FE_29F               ; 8 x 64K sectors / 32 x 16K banks (512Kb)
-                    DEFW mnem_st040b
-
                     DEFW FE_AM29F080B             ; Amd flash
                     DEFB 64, FE_29F               ; 16 x 64K sectors / 64 x 16K banks (1024Kb)
                     DEFW mnem_am080b
-
-                    DEFW FE_ST29F080D             ; STMicroelectronics flash (Amd compatible)
-                    DEFB 64, FE_29F               ; 16 x 64K sectors / 64 x 16K banks (1024Kb)
-                    DEFW mnem_st080d
 
 .mnem_i004          DEFM "I28F004S5 (512K)", 0
 .mnem_i8S5          DEFM "I28F008S5 (1Mb)", 0
 .mnem_am010b        DEFM "AM29F010B (128K)", 0
 .mnem_am040b        DEFM "AM29F040B (512K)", 0
 .mnem_am080b        DEFM "AM29F080B (1Mb)", 0
-.mnem_st010b        DEFM "ST29F010B (128K)", 0
-.mnem_st040b        DEFM "ST29F040B (512K)", 0
-.mnem_st080d        DEFM "ST29F080D (1Mb)", 0

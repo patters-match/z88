@@ -356,7 +356,7 @@ DEFC FE_WRI = $40           ; byte write command
 
 
 ; ***************************************************************
-; Program block of data on an AMD/STM Flash Memory
+; Program block of data on an AMD Flash Memory
 ; (this routine is optionally copied on the stack and executed there)
 ;
 ; IN:
