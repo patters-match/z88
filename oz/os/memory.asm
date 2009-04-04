@@ -1252,26 +1252,30 @@ defc    DM_RAM                  =$81
 
 ;       ----
 
-;IN:    D=bank
+; ************************************************************************************
+; Mark RAM reserved for bad apps
+; IN:   D=bank
 ;       B=first page to mark
 ;       C=number of pages to mark
-
-;       mark RAM reserved for bad apps
-
+;
 .MarkSwapRAM
         ld      hl, MAT_SWAP<<8
         jr      msr_1
 
-;       mark RAM reserved for system
 
+; ************************************************************************************
+; Mark RAM reserved for system
+; IN:   D=bank
+;       B=first page to mark
+;       C=number of pages to mark
+;
 .MarkSystemRAM
         ld      hl, MAT_SYSTEM
-
 .msr_1
         push    bc
-        ld      c, 2                            ; preserve S2, it will be destroyed
-        call    OZ_MGB                          ; get binding
-        push    bc                              ; ex bc,af
+        ld      c, MS_S2                        ; preserve S2, it will be destroyed
+        call    OZ_MGB
+        push    bc                              ; get current segment 2 binding in AF
         pop     af
         pop     bc                              ; restore bc on entry
         push    af                              ; save S2 binding

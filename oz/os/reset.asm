@@ -70,14 +70,14 @@ xref    defDev                                  ; [K1]/spnq1.asm
         ex      af, af'                         ; interrupt status
         bit     BB_STAFLAPOPEN, a
         ld      a, $21
-        jr      nz, b20_hard_reset              ; flap? hard reset
+        jr      nz, b20_hard_reset              ; flap open during reset? Reset bank $21 and $20 during hard reset
 
-        out     (BL_SR1), a                     ; b21 into S1
+        out     (BL_SR1), a                     ; flap not open,
         ld      hl, (MM_S1 << 8)
-        ld      bc, $A55A                       ; RAM tag
+        ld      bc, $A55A                       ; check RAM tag in bank $21
         or      a
         sbc     hl, bc
-        jr      nz, b20_hard_reset              ; not tagged? hard reset
+        jr      nz, b20_hard_reset              ; not tagged? hard reset if memory is not partitioned
 
         ex      af, af'                         ; soft reset - a' = $FF, fc'=1
         cpl
@@ -100,7 +100,7 @@ xref    defDev                                  ; [K1]/spnq1.asm
         jr      continue_reset
 
 .b20_hard_reset
-        ld      bc, $3FFF                       ; fill bank with 00
+        ld      bc, $3FFF                       ; fill banks $21 and $20 with 00
         ld      de, MM_S1 << 8 | $01
         ld      hl, MM_S1 << 8
         out     (BL_SR1), a                     ; bind A into S1
@@ -330,7 +330,7 @@ ENDIF
         ld      hl, ubTIM1_A                    ; use primary HW clock
         ld      a, (ubTimeBufferSelect)         ; if bit 7 reset
         rrca
-        jr      nc, tr_1                    
+        jr      nc, tr_1
         ld      l, <ubTIM1_B                    ; else use secundary HW clock
 .tr_1
         ld      c, (hl)                         ; seconds
