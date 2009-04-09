@@ -50,10 +50,27 @@ public class RakewellHybridCard {
      */
     private GenericAmdFlashBank[][] flash;
 
+    /**
+     * The slot number where this card is inserted (1 - 3).
+     */
+    private int slotNo;
 	/**
 	 * Access to the Z88 Memory Model
 	 */
 	private Memory memory;
+    
+    /**
+     * To bind in another 512K block in lower 512K address space of slot
+     * it is necessary to write to the FFFFFFh address 3 times, followed
+     * by a 4th write.
+     */
+    private int latchRegisterActivateCounter;
+
+    /**
+     * The current binding of a 512K block in the lower 512K
+     * address space of the 1Mb slot.
+     */
+    private int latchRegister;
 
     /**
      * This class represents the top 16Kb Flash Memory Bank on an AMD 29F032B chip,
@@ -105,9 +122,41 @@ public class RakewellHybridCard {
          * get erased again in ALL available Z88 slots.
          */
         public void writeByte(final int addr, final int b) {
+            if ( ((addr & 0x3FFF) == 0x3fff) & ((getBankNumber() & 0x3f) == 0x3f)) {
+                // top address of card, update latch register counter,
+                // or, if 4th consequetive write, then bind 512k memory block
+
+                if (latchRegisterActivateCounter == 3) {
+                    // 4th write reached - Latch register activated;
+                    // execute 512K block binding of
+                    // block B into lower 512K address space of card slot
+                    // then, pass on the byte to the flash chip as well.
+                    latchRegisterActivateCounter = 0;
+
+                    latchRegister = b;
+                    bind512kBlock();
+                } else
+                    latchRegisterActivateCounter++;
+            }
+            
             super.writeByte(addr, b);
         }
 
+        /**
+         * Read byte from Flash Memory bank. <addr> is a 16bit word that points into
+         * the 16K address space of the bank.
+         */
+        public int readByte(final int addr) {
+            /**
+             *  A read of any address on the databus resets the Register counter.
+             *  Here, in this virtual implementation, just look at the memory
+             *  of the flash chip (should be sufficient).
+             */
+            latchRegisterActivateCounter = 0;
+
+            return super.readByte(addr);
+        }
+        
         /**
          * @return the Flash Memory Device Code, AM29F032B
          * which this bank is part of.
@@ -125,7 +174,6 @@ public class RakewellHybridCard {
         }
     }
 
-
     /**
      * Constructor. Initialize card dimensions; 2Mb Ram & 4Mb Flash
      */
@@ -134,19 +182,80 @@ public class RakewellHybridCard {
         memory = Z88.getInstance().getMemory();	
 
         ram = new RamBank[4][512];
-        flash = new AmdFlashBank[8][512];
+        flash = new AmdLatchBank[8][512];
 
-        for (int i=0; i < 8; i++) {
-            for (int j=0; j<512; j++) {
-                flash[i][j] = new AmdFlashBank(AmdLatchBank.AM29F032B);
+        // initialize latch register counter
+        latchRegisterActivateCounter = 0;
+
+        // default 512K binding is first 512K block of 2Mb RAM
+        // The default binding on the real card is unknown by Rakewell..
+        // (it has to be explictly set by OZ on reset)
+        latchRegister = 0;
+    }
+
+    /**
+     * Bind a 512K block of memory into the lower 512K slot address space,
+     * defined by the slot of the inserted card and the latch register.
+     */
+    private void bind512kBlock() {
+        int blockNo;
+        int slotBank = slotNo << 6; // convert slot number to bottom bank of slot
+
+        // block numbers are divided in two; bit 7 enabled defines
+        // blocks for flash (upper 64Mb), lower part for Ram
+
+        if ((latchRegister & 0x80) == 0x80) {
+            // bind a flash block into lower 512K slot address space
+            // the flash chip is mirrored across the 64M (128 * 512K)
+
+            // use the actual block number defined by the modulus
+            // of the flash chip size
+            blockNo = latchRegister % flash.length;
+            for (int curBank = 0; curBank < flash[blockNo].length; curBank++) {
+                // "insert" 16Kb flash bank of 512K block into Z88 memory
+                memory.setBank(ram[blockNo][curBank], slotBank++);
+            }
+        } else {
+            // bind a RAM block into lower 512K slot address space
+            blockNo = latchRegister % ram.length;
+            for (int curBank = 0; curBank < ram[blockNo].length; curBank++) {
+                // "insert" 16Kb RAM bank of 512K block into Z88 memory
+                memory.setBank(ram[blockNo][curBank], slotBank++);
             }
         }
+    }
 
-        /**
-         * The top bank of the card contains the emulation
-         * of the Latch register, which is receives input through
-         * top address FFFFFh.
-         */
-        flash[7][511] = new AmdLatchBank();
+    public int getLatchRegister() {
+        return latchRegister;
+    }
+
+    /**
+     * Insert this card into an external slot 1-3, with default 512K block 0 of
+     * 2Mb RAM in lower half of 1Mb slot address space, and top 512K block of
+     * 4Mb Flash into upper half of 1Mb slot address space.
+     */
+    public void insertCard(int slot) {
+        int slotBank;
+
+        // remember slot number for latch register memory management
+        slotNo = slot; 
+
+        slotBank = slotNo << 6; // convert slot number to bottom bank of slot
+
+        // using this method will preset the latch register to block 0 
+        latchRegister = 0;
+
+        // insert the default 512K RAM block into lower 512K slot address space
+		for (int curBank = 0; curBank < ram[0].length; curBank++) {
+			// "insert" 16Kb bank into Z88 memory
+			memory.setBank(ram[latchRegister][curBank], slotBank++);
+		}
+
+        // insert the top 512K block of 4Mb Flash into upper 512K slot address space
+        // this block is never be bound out by the card hardware..
+		for (int curBank = 0; curBank < flash[7].length; curBank++) {
+			// "insert" 16Kb bank into Z88 memory
+			memory.setBank(flash[7][curBank], slotBank++);
+		}
     }
 }

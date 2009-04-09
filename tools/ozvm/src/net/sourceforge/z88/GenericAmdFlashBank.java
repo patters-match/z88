@@ -141,7 +141,7 @@ public abstract class GenericAmdFlashBank extends Bank {
 	 * Read byte from Flash Memory bank. <addr> is a 16bit word that points into
 	 * the 16K address space of the bank.
 	 */
-	public final int readByte(final int addr) {
+	public int readByte(final int addr) {
 		if (readArrayMode == true)
 			// The chip is in Read Array Mode, get byte data at address..
 			return getByte(addr);
