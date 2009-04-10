@@ -181,8 +181,19 @@ public class RakewellHybridCard {
         // access to Z88 memory model (4Mb)
         memory = Z88.getInstance().getMemory();	
 
-        ram = new RamBank[4][512];
-        flash = new AmdLatchBank[8][512];
+        ram = new RamBank[4][32]; // 32 x 16K = 512K x 4 = 2Mb RAM
+        for (int block = 0; block < ram.length; block++) {
+            for(int bnk = 0; bnk < ram[block].length; bnk++) {
+                ram[block][bnk] = new RamBank();
+            }
+        }
+
+        flash = new AmdLatchBank[8][32]; // 32 x 16K = 512K x 8 = 4Mb Flash
+        for (int block = 0; block < 8; block++) {
+            for(int bnk = 0; bnk < flash[block].length; bnk++) {
+                flash[block][bnk] = new AmdLatchBank();
+            }
+        }
 
         // initialize latch register counter
         latchRegisterActivateCounter = 0;
