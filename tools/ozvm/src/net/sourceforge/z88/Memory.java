@@ -559,14 +559,26 @@ public final class Memory {
 	 */
 	public boolean insertEprCard(int slot, int sizeK, int eprType) {
 		slot %= 4; // allow only slots 0 - 3 range.
-		Bank banks[] = createCard(sizeK, eprType);
 
-		if (banks != null) {
-			insertCard(banks, slot); // insert the physical card into Z88 memory
-			return true;
-		} else {
-			return false;
-		}
+        if (eprType == SlotInfo.RakewellHybridCard) {
+            if (slot != 0) {
+                RakewellHybridCard rhc = new RakewellHybridCard();
+                rhc.insertCard(slot);
+                return true;
+            } else
+                // Rakewell hybrid can only be inserted in slots 1-3
+                return false;
+        } else {
+
+            Bank banks[] = createCard(sizeK, eprType);
+
+            if (banks != null) {
+                insertCard(banks, slot); // insert the physical card into Z88 memory
+                return true;
+            } else {
+                return false;
+            }
+        }
 	}
 
 
@@ -692,12 +704,22 @@ public final class Memory {
 	 */
 	public void loadFileImagesOnCard(int slot, int sizeK, int eprType, File selectedFiles[]) throws IOException {
 		int bankNo, cardBankNo;
-		sizeK -= (sizeK % (Bank.SIZE/1024));
-		Bank banks[] = createCard(sizeK, eprType);
-		if (banks == null) {
-			throw new IOException("Illegal card type or size!");
-		}
+        Bank banks[];
 
+		sizeK -= (sizeK % (Bank.SIZE/1024));
+
+        if (eprType == SlotInfo.RakewellHybridCard) {
+            // The Rakewell card handles insertion into (memory) slot
+            RakewellHybridCard rhc = new RakewellHybridCard();
+            rhc.insertCard(slot);
+            banks = rhc.getAppArea(); // get the area where image is to be loaded...
+        } else {
+            // for other card types it is necessary to "create" the card by type...
+            banks = createCard(sizeK, eprType);
+            if (banks == null) {
+                throw new IOException("Illegal card type or size!");
+            }
+        }
 		for (int f=0; f<selectedFiles.length; f++) {
 			if (selectedFiles[f].isFile() == true) {
 				RandomAccessFile fimg = new RandomAccessFile(selectedFiles[f], "r");
@@ -729,9 +751,12 @@ public final class Memory {
 			}
 		}
 
-		// complete Card image now loaded into container
-		// insert container into Z88 memory, slot x, at bottom of slot, onwards.
-		insertCard(banks, slot & 3);
+        if (eprType != SlotInfo.RakewellHybridCard) {
+            // (for non-Rakewell 2M/4M cards)
+            // complete Card image now loaded into container
+            // insert container into Z88 memory, slot x, at bottom of slot, onwards.
+            insertCard(banks, slot & 3);
+        }
 	}
 
 	/**

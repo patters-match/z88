@@ -41,7 +41,7 @@ package net.sourceforge.z88;
 public class RakewellHybridCard {
 
     /**
-     * The 4 x 512K Ram memory.
+     * The 4 x 512K (2Mb) Ram memory.
      */
     private RamBank[][] ram;
 
@@ -91,23 +91,14 @@ public class RakewellHybridCard {
      * Library (which implements all Flash chip manipulation, issuing commands
      * on a bank, typically specified indirectly using the BHL Z80 registers).
      */
-    private class AmdLatchBank extends GenericAmdFlashBank {
-
-        /** Device Code for 4Mb memory, 64 x 64K erasable sectors, 256 x 16K banks */
-        private static final int AM29F032B = 0x41;
-        /**
-         * The actual Flash Memory Device Code of this bank instance
-         */
-        private int deviceCode;
+    private class AmdLatchBank extends AmdFlashBank {
 
         /**
          * Constructor.
          * Initialize the Flash Memory bank that contains the Latch Register.
          */
         public AmdLatchBank() {
-            super();
-
-            deviceCode = AM29F032B;
+            super(AmdFlashBank.AM29F032B);
         }
 
         /**
@@ -155,23 +146,7 @@ public class RakewellHybridCard {
             latchRegisterActivateCounter = 0;
 
             return super.readByte(addr);
-        }
-        
-        /**
-         * @return the Flash Memory Device Code, AM29F032B
-         * which this bank is part of.
-         */
-        public final int getDeviceCode() {
-            return deviceCode;
-        }
-
-        /**
-         * @return the Flash Memory Manufacturer Code
-         *
-         */
-        public final int getManufacturerCode() {
-            return AmdFlashBank.MANUFACTURERCODE;
-        }
+        }        
     }
 
     /**
@@ -238,6 +213,14 @@ public class RakewellHybridCard {
 
     public int getLatchRegister() {
         return latchRegister;
+    }
+
+    /**
+     * Return reference to top 512K area of flash which is always bound
+     * into the 1Mb slot address space.
+     */
+    public Bank[] getAppArea() {
+        return flash[7];
     }
 
     /**

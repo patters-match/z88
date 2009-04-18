@@ -47,6 +47,9 @@ public class AmdFlashBank extends GenericAmdFlashBank {
 	/** Device Code for 1Mb memory, 16 x 64K erasable sectors, 64 x 16K banks */
 	public static final int AM29F080B = 0xD5;
 
+    /** Device Code for 4Mb memory, 64 x 64K erasable sectors, 256 x 16K banks */
+    public static final int AM29F032B = 0x41;
+
 	/** Manufacturer Code for AM29F0xxx Flash Memory chips */
 	public static final int MANUFACTURERCODE = 0x01;
 
