@@ -19,10 +19,12 @@
 
      ORG $C000
 
-     lib FlashEprBlockErase, FlashEprWriteBlock
-     lib FlashEprCardId, FlashEprWriteByte, MemReadByte
+     lib FlashEprWriteBlock
+     lib FlashEprWriteByte, MemReadByte
      lib CreateWindow, GreyApplWindow
      lib IntHex
+
+     xref FlashCardId, FlashCardData, FlashBlockErase
 
      xdef FlashTest_DOR
 
@@ -52,6 +54,7 @@ DEFVARS $1800
      ExtAddr             ds.p 1
      testtime            ds.b 4
      flashtype           ds.b 1
+     totbanks            ds.b 1
      Buffer              ds.b 32
 }
 
@@ -97,11 +100,11 @@ IF !DEBUG
 
 .FlashTest_Help     DEFM $7F
                     DEFM "Flash Card Testing Tool for",$7F
-                    DEFM "Intel I28F00xS5, Amd AM29F0x0B & STM 29F0x0B/D devices", $7F
+                    DEFM "Intel I28F00xS5, Amd AM29F0xxB devices", $7F
                     DEFM $7F
 endif
 .progversion_msg
-                    DEFM "Release V1.3, (C) G. Strube, April 2006", 0
+                    DEFM "Release V1.4-dev, (C) G. Strube, May 2009", 0
 
 ; ******************************************************************************
 ;
@@ -349,7 +352,7 @@ endif
 ;
 .TestAddressLines
                     LD   C,3
-                    CALL FlashEprCardId
+                    CALL FlashCardId
                     RET  C                   ; no Flash Card in slot 3...
 
                     DEC  B
@@ -412,9 +415,8 @@ endif
                     OR   C
                     JR   NZ, null_buffer     ; (buffer) = 0
 
-                    LD   C,3
-                    CALL FlashEprCardId
-                    LD   C,B                 ; Total of banks on card
+                    LD   A,(totbanks)
+                    LD   C,A                 ; Total of banks on card
                     LD   B,$C0               ; start programming of bank $C0
 
                     XOR  A
@@ -572,7 +574,9 @@ endif
                     PUSH DE
                     PUSH HL
 
-                    CALL FlashEprInfo        ; B = returned number of sectors on card
+                    CALL FlashEprInfo
+                    SRL  B
+                    SRL  B                   ; B = returned number of sectors on card
 .format_loop
 
                     PUSH BC
@@ -592,7 +596,7 @@ endif
 
                     LD   C,3                 ; slot 3
                     DEC  B                   ; actual block to erase
-                    CALL FlashEprBlockErase  ; slot 3...
+                    CALL FlashBlockErase     ; slot 3...
                     JR   NC, format_ok
 .format_err
                     PUSH AF
@@ -669,42 +673,18 @@ endif
 ;    Fc = 1, Flash Eprom not found in slot 3, or Device code not found
 ;
 .FlashEprInfo       LD   C,3
-                    CALL FlashEprCardId
+                    CALL FlashCardId
                     RET  C
-                    LD   (flashtype),A            ; remember Flash Card type...
-
-                    LD   A,L                      ; get Device Code
-                    LD   C,H                      ; get Manufacturer Code
+                    PUSH BC
                     PUSH DE
-                    LD   HL, FlashEprTypes
-                    LD   B,(HL)                   ; no. of Flash Eprom Types in table
-                    INC  HL
-.find_loop          CP   (HL)                     ; device code found?
-                    JR   NZ, get_next
-                         INC  HL                  ; points at manufacturer code
-                         LD   E,A
-                         LD   A,(HL)
-                         CP   C
-                         LD   A,E
-                         DEC  HL
-                         JR   NZ,get_next
-                         INC  HL
-                         INC  HL
-                         LD   B,(HL)              ; B = total of block on Flash Eprom
-                         INC  HL
-                         INC  HL                  ; points at mnemonic string description.
-                         LD   E,(HL)
-                         INC  HL
-                         LD   D,(HL)
-                         EX   DE,HL               ; HL = pointer to mnemonic string
-                         POP  DE
-                         RET                      ; Fc = 0, Flash Eprom data returned...
-.get_next
-                    LD   DE, 6                    ; each table entry is 6 bytes (3 x 2 16bit words)
-                    ADD  HL,DE
-                    DJNZ find_loop                ; point at next entry...
-                    SCF
-                    POP  DE                       ; Flash Eprom Device Code not recognised
+                    LD   (flashtype),A            ; remember Flash Card type...
+                    LD   A,B
+                    LD   (totbanks),A
+
+                    CALL FlashCardData
+                    EX   DE,HL
+                    POP  DE
+                    POP  BC
                     RET
 
 
@@ -738,7 +718,7 @@ endif
 ; Check presence of Flash Eprom in slot 3
 ;
 .CheckFlashCard     LD   C,3
-                    CALL FlashEprCardId
+                    CALL FlashCardId
                     RET  NC
 
                     LD   A,3                      ; FE not available
@@ -1025,27 +1005,6 @@ endif
                     DEFM 1, "F", "Press any key to continue", 1, "F"
                     DEFM 1, "2JN", 0
 
-.FlashEprTypes
-                    DEFB 9
-                    DEFW FE_I28F004S5, 8, mnem_i004
-                    DEFW FE_I28F008SA, 16, mnem_i008
-                    DEFW FE_I28F008S5, 16, mnem_i8s5
-                    DEFW FE_AM29F010B, 8, mnem_am010b
-                    DEFW FE_AM29F040B, 8, mnem_am040b
-                    DEFW FE_AM29F080B, 16, mnem_am080b
-                    DEFW FE_ST29F010B, 8, mnem_st010b
-                    DEFW FE_ST29F040B, 8, mnem_st040b
-                    DEFW FE_ST29F080D, 16, mnem_st080d
-
-.mnem_i004          DEFM "INTEL 28F004S5 (512Kb, 8 x 64Kb sectors)", 0
-.mnem_i008          DEFM "INTEL 28F008SA (1024Kb, 16 x 64Kb sectors)", 0
-.mnem_i8S5          DEFM "INTEL 28F008S5 (1024Kb, 16 x 64Kb sectors)", 0
-.mnem_am010b        DEFM "AMD AM29F010B (128Kb, 8 x 16K sectors)", 0
-.mnem_am040b        DEFM "AMD AM29F040B (512Kb, 8 x 64K sectors)", 0
-.mnem_am080b        DEFM "AMD AM29F080B (1024Kb, 16 x 64K sectors)", 0
-.mnem_st010b        DEFM "STM ST29F010B (128Kb, 8 x 16K sectors)", 0
-.mnem_st040b        DEFM "STM ST29F040B (512Kb, 8 x 64K sectors)", 0
-.mnem_st080d        DEFM "STM ST29F080D (1024Kb, 16 x 64K sectors)", 0
 
 .Errmsg_lookup      DEFW Error_msg_00
                     DEFW Error_msg_01
@@ -1059,5 +1018,5 @@ endif
 
 .Release_msg
                     DEFM "Flash Card Testing Tool for", 13, 10
-                    DEFM "Intel I28F00xS5, Amd AM29F0x0B and STM 29F0x0B/D devices", 13, 10, 0
+                    DEFM "Intel I28F00xS5 and Amd AM29F0xxB devices", 13, 10, 0
 
