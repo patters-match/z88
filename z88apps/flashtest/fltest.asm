@@ -21,10 +21,11 @@
 
      lib FlashEprWriteBlock
      lib FlashEprWriteByte, MemReadByte
+     lib MemDefBank
      lib CreateWindow, GreyApplWindow
      lib IntHex
 
-     xref FlashCardId, FlashCardData, FlashBlockErase
+     xref FlashCardId, FlashCardData, FlashBlockErase, RamTest
 
      xdef FlashTest_DOR
 
@@ -39,6 +40,7 @@
      include "time.def"
      include "syspar.def"
 
+     defc FE_AM29F032B = $0141                  ; Rakewell 2M/4M uses this chip as flash memory
 
 
 ; small workspace at bottom of Stack frame...
@@ -197,6 +199,7 @@ endif
                     CALL_OZ(Gn_sop)                    ; display chip information
                     CALL FlashEprInfo
                     JR   C, FlashEpr_not_found
+                    EX   DE,HL
                     CALL_OZ(Gn_sop)                    ; display chip information
                     CALL_OZ(Gn_Nln)
                     CALL_OZ(Gn_Nln)
@@ -575,8 +578,16 @@ endif
                     PUSH HL
 
                     CALL FlashEprInfo
+                    LD   DE, FE_AM29F032B
+                    CP   A
+                    SBC  HL,DE
+                    JR   Z, AM29F032B_sectors
+
                     SRL  B
                     SRL  B                   ; B = returned number of sectors on card
+                    JR   format_loop
+.AM29F032B_sectors
+                    LD   B,64                ; The AM29F032B contains 64 sectors
 .format_loop
 
                     PUSH BC
@@ -588,7 +599,7 @@ endif
                     DEC  C                   ; actual sector...
                     CALL IntAscii
                     LD   HL, buffer
-                    CALL_OZ Gn_Sop           ; Display block number...
+                    CALL_OZ Gn_Sop           ; Display sector number...
                     LD   HL, Dotsmsg
                     CALL_OZ Gn_sop
                     POP  HL
@@ -669,21 +680,21 @@ endif
 ; OUT:
 ;    Fc = 0, Flash Eprom Recognized in slot 3
 ;         B = total of banks on Flash Eprom
-;         HL = pointer to Mnemonic description of Flash Eprom
+;         DE = pointer to Mnemonic description of Flash Eprom
+;         HL = Flash Memory ID
+;              H = Manufacturer Code (FE_INTEL_MFCD, FE_AMD_MFCD)
+;              L = Device Code
 ;    Fc = 1, Flash Eprom not found in slot 3, or Device code not found
 ;
 .FlashEprInfo       LD   C,3
                     CALL FlashCardId
                     RET  C
                     PUSH BC
-                    PUSH DE
                     LD   (flashtype),A            ; remember Flash Card type...
                     LD   A,B
                     LD   (totbanks),A
 
                     CALL FlashCardData
-                    EX   DE,HL
-                    POP  DE
                     POP  BC
                     RET
 
@@ -724,6 +735,88 @@ endif
                     LD   A,3                      ; FE not available
                     CALL Write_Err_msg
                     SCF
+                    RET
+
+
+; ************************************************************************************************
+; Rakewell 2M/4M card functionality.
+; Perform test of available RAM.
+;
+.Test2m4mRam        PUSH AF
+                    PUSH BC
+                    PUSH HL
+
+                    LD   B,-1                     ; B = calculate total of 512K blocks of RAM
+                    LD   DE,$A55A                 ; Watermark for RAM card
+.validate_next_block
+                    INC  B
+                    CALL Bind512kBlock            ; bind block B
+
+                    PUSH BC
+                    LD   BC,$C002
+                    CALL MemDefBank               ; Bind in first bank of 512K RAM
+                    PUSH BC                       ; to check if it contains a RAM watermark
+                    LD   HL,($8000)
+                    CP   A
+                    SBC  HL,DE
+                    JR   Z, found_ram
+                    LD   ($8000),DE               ; Fz = 0: no $A55A watermark, put it in...
+.found_ram          POP  BC
+                    CALL MemDefBank               ; restore bank binding
+                    POP  BC
+                    JR   NZ,validate_next_block   ; this block didn't have the watermark
+
+; found RAM watermark - first mirror block appeared, then B = total of 512K blocks of RAM found
+; now, each 512K block will be RAM tested..
+                    LD   C,0                      ; begin with block 0
+.test_512K_block
+                    PUSH BC
+                    LD   B,C
+                    CALL Bind512kBlock            ; bind block B in slot 3
+                    LD   B,32                     ; test 32 x 16K banks (512K) in slot 3...
+                    CALL RamTest
+                    POP  BC
+                    LD   A,H
+                    OR   L                        ; HL != 0, then RAM test failed...
+                    JR   NZ, ram_failed
+                    DJNZ test_512K_block
+                    JR   exit_Test2m4mRam
+.ram_failed
+                    SCF
+.exit_Test2m4mRam
+                    POP  HL
+                    POP  BC
+                    POP  AF
+                    RET
+
+
+; ************************************************************************************************
+; Rakewell 2M/4M card functionality.
+; Bind block B into lower 512K card memory of slot 3.
+;
+.Bind512kBlock      PUSH AF
+                    PUSH BC
+                    PUSH HL
+
+                    LD   A,B
+                    LD   BC,$FF02
+                    CALL MemDefBank               ; Bind in top bank of slot 3 to access latch register
+                    PUSH BC                       ; preserve old segment 2 binding
+
+                    LD   HL,$BFFF                 ; top address of card (here, in segment 2)
+                    DI                            ; ensure that card slot polling interrupt doesn't
+                    LD   (HL),A                   ; occur while writing to the latch register (and counter)
+                    LD   (HL),A
+                    LD   (HL),A
+                    LD   (HL),A                   ; 4th write will bind block A to lower 512K address space
+                    EI
+
+                    POP  BC
+                    CALL MemDefBank               ; restore segment 2 bank binding
+
+                    POP  HL
+                    POP  BC
+                    POP  AF
                     RET
 
 

@@ -1,9 +1,15 @@
-module ramcardtest
+module RamCardTest
 
-xdef ramtest
+xdef RamTest
 
-
-.ramtest
+; IN:
+;   B = banks to test in slot 3 (from $C0 + B-1)
+; OUT:
+;   H = pass = $00, fail = pass number
+;   L = pass = $00, fail = bank number
+;   hl' = last address in bank
+;
+.RamTest
                     di
                     ld      a,($04d3)      ; get the bank currently in segment 3
                     ex      af,af'         ;
@@ -17,7 +23,7 @@ xdef ramtest
                     exx                    ; banks to
                     ld      b,a            ; test (b%)...
                     ld      a,e            ; restore pass number
-                    ld      d,$40          ; first bank in slot 1
+                    ld      d,$c0          ; first bank in slot 3
 .nxtbank
                     out     (c),d          ; get the bank into segment 3
                     ld      hl,$c000       ; going to use segment 3
