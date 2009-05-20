@@ -47,7 +47,7 @@
         OZ      OS_Pout
         defb    1,$37,$23,$31,$21,$20,$70,$28,$81
         defb    1,$32,$43,$31
-        defb    1,$33,$2B,$53,$43
+        defb    1,$33,$2B,$53,$43,0
 
         ld      hl, aVt52                       ; "VT52"
         OZ      DC_Nam                          ; Name current application
