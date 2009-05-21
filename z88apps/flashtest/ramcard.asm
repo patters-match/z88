@@ -11,7 +11,7 @@ xdef RamTest
 ;
 .RamTest
                     di
-                    ld      a,($04d3)      ; get the bank currently in segment 2
+                    ld      a,($04d2)      ; get the bank currently in segment 2
                     ex      af,af'         ;
                     exx                    ; want to return 0 or address in hl'
                     xor     a              ; pass 0
@@ -88,8 +88,8 @@ xdef RamTest
                     ld      a,d
                     exx
                     ld      l,a            ; pass = $00, fail = bank number
-                    ex      af,af'         ; get the original bank for segment 3
-                    ld      c,$d3          ; segment register 3 again...
-                    out     (c),a          ; restore the original bank to segment 3
+                    ex      af,af'         ; get the original bank for segment 2
+                    ld      c,$d2          ; segment register 2 again...
+                    out     (c),a          ; restore the original bank to segment 2
                     ei
                     ret
