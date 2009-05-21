@@ -11,11 +11,11 @@ xdef RamTest
 ;
 .RamTest
                     di
-                    ld      a,($04d3)      ; get the bank currently in segment 3
+                    ld      a,($04d3)      ; get the bank currently in segment 2
                     ex      af,af'         ;
                     exx                    ; want to return 0 or address in hl'
                     xor     a              ; pass 0
-                    ld      c,$d3          ; segment register 3
+                    ld      c,$d2          ; segment register 2
 .nxtpass
                     ld      e,a            ; save the pass number in e
                     exx                    ; get the
@@ -26,7 +26,7 @@ xdef RamTest
                     ld      d,$c0          ; first bank in slot 3
 .nxtbank
                     out     (c),d          ; get the bank into segment 3
-                    ld      hl,$c000       ; going to use segment 3
+                    ld      hl,$8000       ; going to use segment 2
 .nxtbyte
                     ld      a,e            ; restore the pass number
                     cp      $00            ; on pass 0?
@@ -67,8 +67,9 @@ xdef RamTest
                     xor     a              ; clear a
                     cp      l              ; done all
                     jr      nz,nxtbyte     ; of the bank
+                    ld      a,$c0
                     cp      h              ; when
-                    jr      nz,nxtbyte     ; hl=0
+                    jr      nz,nxtbyte     ; hl=$c000 (first address of segment 3)...
                     ld      a,e            ; restore the pass number
                     inc     d              ; next bank to test
                     djnz    nxtbank        ; back to do the test?

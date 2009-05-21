@@ -199,13 +199,23 @@ endif
                     CALL_OZ(Gn_sop)                    ; display chip information
                     CALL FlashEprInfo
                     JR   C, FlashEpr_not_found
+                    PUSH HL
                     EX   DE,HL
                     CALL_OZ(Gn_sop)                    ; display chip information
                     CALL_OZ(Gn_Nln)
                     CALL_OZ(Gn_Nln)
+                    POP  HL
+
+                    LD   DE, FE_AM29F032B
+                    CP   A
+                    SBC  HL,DE
+                    JR   NZ, format_card
+                    CALL Test2m4mRam                   ; Perform a RAM test for Rakewell 2M/4M card.
+                    RET  C
 
 ; Flash Eprom Card available in slot 3,
 ; now format all 16 blocks on the card...
+.format_card
                     CALL FormatCard
                     RET  C
 
@@ -746,21 +756,22 @@ endif
                     PUSH BC
                     PUSH HL
 
+                    LD   DE,$5446                 ; Use "FT" as Watermark for evaluating RAM size
+
                     LD   B,-1                     ; B = calculate total of 512K blocks of RAM
-                    LD   DE,$A55A                 ; Watermark for RAM card
 .validate_next_block
                     INC  B
                     CALL Bind512kBlock            ; bind block B
 
                     PUSH BC
                     LD   BC,$C002
-                    CALL MemDefBank               ; Bind in first bank of 512K RAM
+                    CALL MemDefBank               ; Bind in first bank (in slot 3) of 512K RAM
                     PUSH BC                       ; to check if it contains a RAM watermark
                     LD   HL,($8000)
                     CP   A
                     SBC  HL,DE
                     JR   Z, found_ram
-                    LD   ($8000),DE               ; Fz = 0: no $A55A watermark, put it in...
+                    LD   ($8000),DE               ; Fz = 0: no "FT" watermark, put it in...
 .found_ram          POP  BC
                     CALL MemDefBank               ; restore bank binding
                     POP  BC
@@ -779,10 +790,11 @@ endif
                     LD   A,H
                     OR   L                        ; HL != 0, then RAM test failed...
                     JR   NZ, ram_failed
+                    INC  C                        ; next block
                     DJNZ test_512K_block
                     JR   exit_Test2m4mRam
 .ram_failed
-                    SCF
+                    SCF                           ; display failed address in hl'
 .exit_Test2m4mRam
                     POP  HL
                     POP  BC
