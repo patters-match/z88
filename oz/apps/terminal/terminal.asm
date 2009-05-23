@@ -52,6 +52,9 @@
         ld      hl, aVt52                       ; "VT52"
         OZ      DC_Nam                          ; Name current application
 
+        ld      bc, NQ_Chn                      ; get :COM handle
+        OZ      OS_Nq                           ; enquire (fetch) parameter
+
         ld      iy, $1FF4
 
 ; loop to handle keyboard input
@@ -115,11 +118,8 @@
         jr      loop
 
 .putkey
-        push    hl
-        ld  l, SI_Pbt
-        ld  bc, 0
-        oz  OS_Si
-        pop hl
+        ld      bc, 0
+        OZ      OS_Pbt                          ; write byte A to handle IX, BC=timeout
         ret     nc
 
         cp      RC_Time                         ; Timeout
@@ -133,9 +133,10 @@
 ; serial input
 
 .serial
-        ld      l, SI_Enq
-        oz      OS_Si
-        ld      a, d                            ; Rx buffer used slots
+        ld      a, 4                            ; get buffer status
+        OZ      OS_Frm
+
+        ld      a, h
         or      a
         jr      z, ser_2                        ; no bytes in receive queue
 
@@ -158,11 +159,8 @@
         jp      loop
 
 .getkey
-        push    hl
-        ld      l, SI_Gbt
         ld      bc, 0
-        oz      OS_Si
-        pop     hl
+        OZ      OS_Gbt                          ; get byte with timeout
         ret     c
 
         call    loc_0_E88F
