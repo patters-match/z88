@@ -66,12 +66,18 @@ DEFVARS vararea
      flash_algorithm    ds.b 1                  ; algorithm to be used to blow banks
      total_ozbanks      ds.b 1                  ; no. of OZ ROM banks to update to slot
      parsed_ozbanks     ds.b 1                  ; no of oz bank entries parsed from config file
+     actionflags        ds.b 1                  ; bit flags to identify various actions determined by user
      ozbanks            ds.l 32                 ; reserve space for max. 32 OZ ROM banks (512K). Each entry has the following format:
                                                 ; [three byte source file data] [destination bank in slot X for data]
      ozbank_loader      ds.w 1                  ; address of routine, responsible for loading "OZ" bank file into buffer
      slotozfiles        ds.b 1                  ; slot number of found OZ bank files, when loading from EPR.x file device
      end_vararea
 ENDDEF
+
+; bit flags for (actionflags) byte
+DEFC act_erase_apps         = 0                 ; when actionflags.0 = 1, erase application area, replaced with new OZ
+DEFC act_erase_oz           = 1                 ; when actionflags.1 = 1, erase oz area, replaced with new OZ
+DEFC act_shrink_filearea    = 2                 ; when actionflags.2 = 1, shrink file area, giving space to new OZ
 
 IF BBCBASIC & (buffer-end_vararea < 0)
     error "Runtime variables are crossing segment 2!"
