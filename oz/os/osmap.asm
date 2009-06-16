@@ -46,7 +46,8 @@ xref    Chk128KB                                ; [Kernel0]/memory.asm
 xref    GetWindowFrame                          ; [Kernel0]/scrdrv2.asm
 xref    PeekHLinc                               ; [Kernel0]/memmisc.asm
 xref    PokeBHL                                 ; [Kernel0]/memmisc.asm
-xref    PutOSFrame_BC                           ; [Kernel0]/memmisc.asm
+xref    PutOSFrame_BC                           ; [Kernel0]/stkframe.asm
+xref    PutOSFrame_DE, PutOSFrame_HL            ; [Kernel0]/stkframe.asm
 xref    ScreenClose                             ; [Kernel0]/scrdrv4.asm
 xref    ScreenOpen                              ; [Kernel0]/scrdrv4.asm
 
@@ -66,17 +67,7 @@ xref    RestoreActiveWd                         ; [Kernel1]/mth1.asm
         djnz    mp_def
 .mp_wr
         push    hl                              ; write a line to the map
-        ex      af, af'
-        call    ScreenOpen                      ; get access to window data in segment 1, returns old bank binding in A
-        ex      af, af'
-        call    GetWindowFrame                  ; setup IX to point at base of Window frame (in segment 1)
-        ld      b, 0                            ; BC=(rmargin+1)&$fffe
-        ld      c, (ix+wdf_rmargin)
-        inc     bc
-        res     0, c                            ; BC = width of map in pixels (always even numbered)
-        ex      af, af'
-        call    ScreenClose                     ; restore previous bank binding of segment 1
-        ex      af, af'
+        call    GetMapWidth
         jr      c, osmap_3                      ; GetWindowFrame failed? exit
         ld      a, e                            ; mask row number to 6 bits (only allow values 0-63)
         and     $3F
@@ -173,11 +164,47 @@ xref    RestoreActiveWd                         ; [Kernel1]/mth1.asm
         jp      PutOSFrame_BC
 
 .mp_gra
-        dec     b
-        jr      z, _mp_def                      ; mp_def
-        djnz    osmap_err
+        djnz    mp_del
+        jr      _mp_def                         ; mp_def
+
+.mp_del
+        djnz    mp_mem
         or      a                               ; mp_del (do nothing!)
         ret
+
+.mp_mem
+        djnz    osmap_err                       ; any argument bigger than MP_MEM is unknown functionality.
+
+        ld      c,(iy+OSFrame_B)                ; get MS_Sx argument
+        push    bc
+        call    _mp_def
+        ld      d,b
+        ld      e,c
+        call    PutOSFrame_DE                   ; the pixel- and character width are returned in DE
+
+        ld      b,0
+        ld      hl,0                            ; dummy address
+        ld      a,sc_hr0
+        oz      os_sci                          ; get base address of map area (hires0)
+        push    bc
+        push    hl
+        oz      OS_Sci                          ; (and re-write original address)
+        pop     hl
+        pop     bc
+
+        pop     de
+        ld      a,e                             ; get MS_Sx argument (from B argument to OS_Map)
+        ld      c,a
+        call    PutOSFrame_BC                   ; return B = bank of map memory, C = Ms_Sx segment specifier
+        rrca
+        rrca
+        res     7,h
+        res     6,h
+        or      h
+        ld      h,a                             ; Base of map area adjusted to MS_Sx address segment for BHL
+        cp      a
+        jp      PutOSFrame_HL                   ; return address of base map memory for MS_Sx
+
 .osmap_err
         ld      a, RC_Unk                       ; Unknown request (parameter in register) *
         scf
@@ -228,7 +255,9 @@ xref    RestoreActiveWd                         ; [Kernel1]/mth1.asm
 .sub_9EF6
         ld      l, (iy+OSFrame_L)
         ld      a, (iy+OSFrame_C)
-        cp      3
+        cp      MP_GRA
+        ret     z
+        cp      MP_MEM
         ret     z
         ld      bc, PA_Msz                      ; map size in pixels
         call    sub_9F17
@@ -243,7 +272,9 @@ xref    RestoreActiveWd                         ; [Kernel1]/mth1.asm
 .sub_9F0C
         ld      l, 'Y'
         ld      a, (iy+OSFrame_C)
-        cp      3
+        cp      MP_GRA
+        ret     z
+        cp      MP_MEM
         ret     z
         ld      bc, PA_Map                      ; PipeDream map 'Y' or 'N'
 
@@ -256,4 +287,19 @@ xref    RestoreActiveWd                         ; [Kernel1]/mth1.asm
         ld      a, 2
         OZ      OS_Nq
         pop     hl
+        ret
+
+; Return map pixel width
+.GetMapWidth
+        ex      af, af'
+        call    ScreenOpen                      ; get access to window data in segment 1, returns old bank binding in A
+        ex      af, af'
+        call    GetWindowFrame                  ; setup IX to point at base of Window frame (in segment 1)
+        ld      b, 0                            ; BC=(rmargin+1)&$fffe
+        ld      c, (ix+wdf_rmargin)
+        inc     bc
+        res     0, c                            ; BC = width of map in pixels (always even numbered)
+        ex      af, af'
+        call    ScreenClose                     ; restore previous bank binding of segment 1
+        ex      af, af'
         ret
