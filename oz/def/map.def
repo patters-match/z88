@@ -38,7 +38,7 @@ define __MAPS_DEF__
      DEFC MP_DEF  = $02       ; define a map using Panel width
      DEFC MP_GRA  = $03       ; define a map of specific width
      DEFC MP_DEL  = $04       ; delete a map
-     DEFC MP_MEM  = $05       ; define a map of specific width and bind it to application segment
+     DEFC MP_MEM  = $05       ; define a map of specific width and associate it to application segment
 
 ENDIF
 
