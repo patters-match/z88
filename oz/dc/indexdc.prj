@@ -23,3 +23,4 @@
 
 dc.asm : blink.def char.def director.def dor.def error.def fileio.def integer.def memory.def serintfc.def stdio.def syspar.def time.def printer.def z80.def keyboard.def handle.def sysapps.def oz.def sysvar.def ../os/lowram/lowram.def dc.def
 ../apps/index/index.asm : director.def dor.def error.def fileio.def eprom.def integer.def memory.def stdio.def syspar.def time.def sysapps.def sysvar.def ../os/lowram/lowram.def dc.def
+../apps/index/freeram.asm : stdio.def dor.def director.def memory.def error.def integer.def syspar.def fpp.def map.def screen.def sysapps.def

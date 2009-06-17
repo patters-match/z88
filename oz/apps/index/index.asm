@@ -47,6 +47,7 @@
 
         include "../os/lowram/lowram.def"
         include "dc.def"
+        include "../apps/index/freeram.def"
 
 xdef    Index
 xdef    addHL_2xA
@@ -57,6 +58,7 @@ xref    PutProcHndl_IX
 xref    ReadDateTime
 xref    GetLinkBHL
 xref    ZeroMem
+xref    FreeRam
 
 
 ; **************************************************************************************************
@@ -1307,6 +1309,7 @@ xref    ZeroMem
         defm    0
 
         call    DisplayCards
+        call    FreeRam
         jp      MainLoop
 
 .CardWdBlock

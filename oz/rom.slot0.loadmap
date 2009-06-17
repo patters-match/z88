@@ -35,7 +35,7 @@ os/kernel1.bin 010000                           ; second part of kernel OS
 
 ; Bank 2: Index, Filer
 dc/dc.bin 020000                                ; $C000: Index popdown (and DC_ system calls)
-apps/filer/filer.bin 021900                     ; $D900: Filer Popdown
+apps/filer/filer.bin 021A00                     ; $DA00: Filer Popdown
 
 ; Bank 3: GN system calls
 gn/gn.bin 030000                                ; $C000: GN_ system calls

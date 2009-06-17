@@ -65,7 +65,7 @@ gn/gn.bin 7B0000                                ; $C000: GN_ system calls
 
 ; Bank $7C: Index, Filer
 dc/dc.bin 7C0000                                ; $C000: Index popdown (and DC_ system calls)
-apps/filer/filer.bin 7C1900                     ; $D900: Filer Popdown
+apps/filer/filer.bin 7C1A00                     ; $DA00: Filer Popdown
 
 ; Bank $7D: kernel lower part (addressed from $8000 upwards)
 os/kernel1.bin 7D0000                           ; second part of kernel OS

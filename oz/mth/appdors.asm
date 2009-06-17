@@ -72,7 +72,7 @@ xref    FlashStoreTopics, FlashStoreCommands, FlashStoreHelp
 
         defb    '@',18,0,0                      ; info, info sizeof, 2xreserved
         defb    'I',0                           ; application key letter, bad app RAM
-        defw    0,INDEX_UNSAFE_WS,0             ; env. size, unsafe and safe workspace
+        defw    0,INDEX_UNSAFE_WS,INDEX_SAFE_WS ; env. size, unsafe and safe workspace
         defw    ORG_INDEX                       ; entry point
         defb    0,0,0,OZBANK_INDEX & $3F        ; bind bank of Index popdown to segment 3
         defb    AT_Good|AT_Popd|AT_Ones         ; appl type

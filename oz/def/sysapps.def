@@ -81,7 +81,7 @@ defc    ORG_CALCULATOR     = $D600              ; Address entry of Calculator po
 ; ORG_CLOCK: Clock entry point (in segment 3) is based on compilation (please refer to auto-generated "/oz/apps/clock/clcalalm.def")
 ; ORG_ALARM: Alarm entry point (in segment 3) is based on compilation (please refer to auto-generated "/oz/apps/clock/clcalalm.def")
 
-defc    ORG_FILER          = $D900              ; Address entry of Filer popdown (segment 3)
+defc    ORG_FILER          = $DA00              ; Address entry of Filer popdown (segment 3)
 defc    ORG_PRINTERED      = $C000              ; Address entry of PrinterEd application (segment 3)
 defc    ORG_PANEL          = ORG_PRINTERED+10   ; Address entry of Panel popdown (segment 3)
 defc    ORG_TERMINAL       = $D400              ; Address entry of Terminal application (segment 3)
@@ -95,6 +95,8 @@ defc    ORG_FLASHSTORE     = $C000              ; Address entry of FlashStore po
 ; System Application/Popdown workspace definitions
 defc    INDEX_UNSAFE_WS         = $28
 defc    INDEX_UNSAFE_WS_START   = $1FFE-INDEX_UNSAFE_WS
+defc    INDEX_SAFE_WS           = 32
+defc    INDEX_SAFE_WS_START     = INDEX_UNSAFE_WS_START - INDEX_SAFE_WS
 
 defc    FILER_UNSAFE_WS         = 0
 defc    FILER_UNSAFE_WS_START   = $1FFE-FILER_UNSAFE_WS
