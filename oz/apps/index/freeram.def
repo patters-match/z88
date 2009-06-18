@@ -1,0 +1,35 @@
+; **************************************************************************************************
+; Index popdown, free ram variable definitions
+;
+; This file is part of the Z88 operating system, OZ.     0000000000000000      ZZZZZZZZZZZZZZZZZZZ
+;                                                       000000000000000000   ZZZZZZZZZZZZZZZZZZZ
+; OZ is free software; you can redistribute it and/    0000            0000              ZZZZZ
+; or modify it under the terms of the GNU General      0000            0000            ZZZZZ
+; Public License as published by the Free Software     0000            0000          ZZZZZ
+; Foundation; either version 2, or (at your option)    0000            0000        ZZZZZ
+; any later version. OZ is distributed in the hope     0000            0000      ZZZZZ
+; that it will be useful, but WITHOUT ANY WARRANTY;    0000            0000    ZZZZZ
+; without even the implied warranty of MERCHANTA-       000000000000000000   ZZZZZZZZZZZZZZZZZZZZ
+; BILITY or FITNESS FOR A PARTICULAR PURPOSE. See        0000000000000000  ZZZZZZZZZZZZZZZZZZZZ
+; the GNU General Public License for more details.
+; You should have received a copy of the GNU General Public License along with OZ; see the file
+; COPYING. If not, write to:
+;                                  Free Software Foundation, Inc.
+;                                  59 Temple Place-Suite 330,
+;                                  Boston, MA 02111-1307, USA.
+;
+; Development by
+; (C) Gunther Strube (gbs@users.sf.net), 1998
+;
+; $Id: index.asm 3352 2008-12-04 14:01:19Z gbs $
+; ***************************************************************************************************
+
+DEFVARS INDEX_SAFE_WS_START
+     graphics_bank  ds.b 1         ; bank number of map area
+     graphics_base  ds.w 1         ; pointer to base of HIRES0 (within bank)
+     slotno         ds.b 1         ; the selected slot to scan for free space
+     cardsize       ds.b 1         ; size of card in 16K banks
+     freespace      ds.l 1         ; free space in bytes (32bit integer)
+     ascbuf         ds.b 14        ; buffer for ascii integers, etc.
+     inpbuf         ds.b 1         ; 1 byte buffer for input of device number
+ENDDEF
