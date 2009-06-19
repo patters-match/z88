@@ -198,7 +198,6 @@ xref    ClsMapWin2, ClsMapWin4, UpdateFreeSpaceRamCard
         call    MayInitIndex
         jr      c, main_1
 
-
         ld      hl, main_3
         dec     a                               ; validate input
         cp      9
@@ -223,7 +222,6 @@ xref    ClsMapWin2, ClsMapWin4, UpdateFreeSpaceRamCard
         defw cmd_escape
         defw cmd_kill
         defw cmd_card
-        defw cmd_ramcrd_sel
         defw 0                                  ; cmd_purge
 
 .main_4
