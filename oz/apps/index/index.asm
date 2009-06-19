@@ -59,6 +59,7 @@ xref    ReadDateTime
 xref    GetLinkBHL
 xref    ZeroMem
 xref    FreeRam
+xref    ClsMapWin2, ClsMapWin4, UpdateFreeSpaceRamCard
 
 
 ; **************************************************************************************************
@@ -179,6 +180,15 @@ xref    FreeRam
         jr      MainLoop                        ; !! into call z,... and do jr after ct RC_Draw)
 
 .main_2
+        cp      '0'
+        jp      z,cmd_ramcrd_sel
+        cp      '1'
+        jp      z,cmd_ramcrd_sel
+        cp      '2'
+        jp      z,cmd_ramcrd_sel
+        cp      '3'
+        jp      z,cmd_ramcrd_sel
+
         or      a                               ; if it isn't extended we ignore it
         jr      nz, MainLoop
 
@@ -187,6 +197,7 @@ xref    FreeRam
         OZ      OS_In                           ; read a byte from std. input
         call    MayInitIndex
         jr      c, main_1
+
 
         ld      hl, main_3
         dec     a                               ; validate input
@@ -212,6 +223,7 @@ xref    FreeRam
         defw cmd_escape
         defw cmd_kill
         defw cmd_card
+        defw cmd_ramcrd_sel
         defw 0                                  ; cmd_purge
 
 .main_4
@@ -528,16 +540,27 @@ xref    FreeRam
 
 ;       ----
 
-;       return to interrupted application or exit card display
+;       return to interrupted application or process card display keyboard input
+
+.cmd_ramcrd_sel
+        ld      b,a
+        ld      a, (ubIdxActiveWindow)
+        cp      2                               ; active card display window?
+        jp      nz,MainLoop
+        ld      a,b                             ; card display window - allow '0', '1', '2' or '3' keys...
+        call    UpdateFreeSpaceRamCard
+        jp      MainLoop
 
 .cmd_escape
         ld      a, (ubIdxActiveWindow)
         cp      2                               ; card display
         jr      nz, esc_1
 
-        xor     a
+        xor     a                               ; User has ESCaped the <>CARD display window...
         ld      (ubIdxActiveWindow),    a
         ld      (ubIdxSelectorPos), a
+        call    ClsMapWin2
+        call    ClsMapWin4
         jp      loc_C0C6
 
 .esc_1

@@ -26,7 +26,7 @@
      Module FreeRam
 
 ; Popdown version; V1.0 implemented 11/06/1998
-; Migrated as Index command, July 2008
+; Migrated as Index command, June 2009
 
 include "stdio.def"
 include "dor.def"
@@ -42,6 +42,8 @@ include "sysapps.def"
 include "../apps/index/freeram.def"
 
 xdef FreeRam
+xdef ClsMapWin2, ClsMapWin4
+xdef UpdateFreeSpaceRamCard
 
 
 ; ******************************************************************************
@@ -59,10 +61,9 @@ xdef FreeRam
                     defm 1,"2C2", 0
 
                     ld   a,'4'
-                    ld   b, MS_S2
-                    ld   c,MP_MEM
-                    ld   hl,63                    ; map width of 64 pixels
-                    oz   OS_Map                   ; create map window...
+                    ld   bc, MS_S2 << 8 | MP_MEM
+                    ld   hl,63                    ; define a map of 64 pixels, associated with segment 2
+                    oz   OS_Map                   ; and create it...
                     ld   a,b
                     ld   (graphics_bank ),a
                     ld   (graphics_base),hl       ; preserve pointer to base area of graphics
@@ -77,64 +78,47 @@ xdef FreeRam
                     ld   c,a
                     add  hl,bc
                     dec  hl
-                    ld   a,(hl)                   ; get (slot) number
-                                                  ; of default RAM device
+                    ld   a,(hl)                   ; get (slot) number of default RAM device
+
+; also called from Index main input loop, A = '0', '1', '2' or '3'.
+.UpdateFreeSpaceRamCard
                     ld   (inpbuf),a
-.inp_dev_loop
                     sub  48                       ; slot number
                     ld   (slotno),a               ; as internal integer
 
                     call GetFreeSpace             ; get RAM device info
                     call c, DispNoRam             ; - if available
                     call nc,DispFreeRamInfo
-.keyb_loop
+
                     OZ   OS_Pout                  ; display ":RAM." at top of window
                     defm 1, "2H3", 1, "2JN", 1, "3@", 32+1, 32+1, 1, "2+C:RAM.", 0
 
                     ld   a,(inpbuf)
-                    call_oz(OS_Out)               ; then current select device number
+                    oz   OS_Out                   ; then current select device number
                     ld   a,8
-                    call_oz(OS_Out)               ; BACKSPACE (cursor on top of number)
+                    oz   OS_Out                   ; BACKSPACE (cursor on top of number)
                     ret                           ; back to main index loop...
-
-.ext_key            call_oz(OS_In)                ; input a device number
-                    jr   c, keyb_loop             ; Index Error handler takes care of important RC_ errors...
-                    cp   0
-                    jr   z, ext_key               ; extended key pressed, fetch it...
-                    cp   48
-                    jr   c,ext_key                ; only "0" to "3" allowed
-                    cp   52
-                    jr   nc,ext_key
-                    ld   (inpbuf),a
-                    jr   inp_dev_loop             ; user selected ram device number...
-                    jr   keyb_loop                ; ignore other errors...
 
 
 ; ***************************************************************************************
 ;
-.DispFreeRamInfo    push af
+.DispFreeRamInfo
                     call DispCardSizeColumn
 
 ; use a text window to clear it...
-                    ld   hl,64                    ; map width is 64 pixels
-                    call cleargraphics            ; reset graphics map (no card present)
+                    call ClsMapWin4               ; reset graphics map (no card present)
 
                     call DispFreeRamMap           ; display graphical view of card
                     call DispCardSize
-                    call DispFreeSpaceInfo
-                    pop  af
-                    ret
+                    jr   DispFreeSpaceInfo
 
 
 ; ***************************************************************************************
 ;
 .DispNoRam          push af
-                    ld   hl, selwin2
-                    call_oz(Gn_Sop)               ; select (and clear) window #2
+                    call ClsMapWin2
 
-; use a text window to clear it...
-                    ld   hl,64                    ; map width is 64 pixels
-                    call cleargraphics            ; reset graphics map (no card present)
+                    call ClsMapWin4               ; reset graphics map (no card present)
 
                     oz   OS_Pout                  ; select (and clear) window #3, then write "(None)"
                     defm 1, "2C3", 1, "3@", 32+8, 32+1, "(None)", 0
@@ -179,7 +163,7 @@ xdef FreeRam
                     ld   a,(cardsize)
                     ld   l,a
                     ld   de,16384
-                    call_oz(GN_M24)               ; TotalBytes = <cardsize> * 16384
+                    oz   GN_M24                   ; TotalBytes = <cardsize> * 16384
 
                     push hl
                     ld   d,0
@@ -314,10 +298,9 @@ xdef FreeRam
 ; ***************************************************************************************
 ;
 .DispCardSizeColumn
-                    ld   hl, selwin2
-                    call_oz(Gn_Sop)               ; select (and clear) window #2
-                    ld   hl, rightjustify         ; window "2", right justify,
-                    call_oz(Gn_Sop)               ; no cursor no scrolling
+                    call ClsMapWin2               ; select (and clear) window #2
+                    oz   OS_Pout
+                    defm 1, "2JR", 1,  "2+T", 0   ; window "2", right justify, ; no cursor no scrolling
 
                     ld   a,(cardsize)
                     ld   d,a                      ; B = card size (in 16K banks)
@@ -347,8 +330,8 @@ xdef FreeRam
                          ld   c,l
                          ld   hl,2
                          call DispIntAscii        ;    print str$(X*16) + "K"
-                         ld   hl, kb
-                         call_oz(Gn_Sop)
+                         oz   OS_Pout
+.kb                      defm "K ", 13, 10, 0
                     jr   disp_k_loop              ; end while
 
 
@@ -374,11 +357,11 @@ xdef FreeRam
                     xor  a
                     ld   de,ascbuf
                     push de
-                    call_oz(Gn_Pdn)
+                    oz   Gn_Pdn
                     xor  a
                     ld   (de),a
                     pop  hl
-                    call_oz(Gn_Sop)               ; display integer
+                    oz   Gn_Sop                 ; display integer
                     pop  de
                     pop  af
                     ret
@@ -387,21 +370,16 @@ xdef FreeRam
 ; ******************************************************************
 ;
 ; Clear graphics area, i.e. reset all bits in graphics (map)
-; window of width L x 64 pixels.
+; window of width x height (64 x 64) pixels.
 ;
-; IN:
-;    HL = width of map area (modulus 8).
-;
-; OUT:
-;    None.
-;
-.cleargraphics
+.ClsMapWin4
                     ld   a,(graphics_bank)
                     ld   b,a
                     ld   c, MS_S2
                     rst  OZ_MPB
                     push bc
 
+                    ld   hl,64
                     add  hl,hl
                     add  hl,hl
                     add  hl,hl
@@ -421,13 +399,15 @@ xdef FreeRam
 
 ; ***************************************************************************************
 ;
-; Various string constants
+.ClsMapWin2         oz   OS_Pout
+                    defm 1, "2C2", 0         ; select (and clear) window #2
+                    ret
+
+
+; ***************************************************************************************
 ;
-.rightjustify       defm 1, "2JR", 1,  "2+T", 0
-.kb                 defm "K ", 13, 10, 0
-
-.selwin2            defm 1, "2C2", 0
-
+; "FREE RAM" Window definition
+;
 .FreeRamWindowDef
         DEFB    @10100000 | 3
         DEFW    $003B
