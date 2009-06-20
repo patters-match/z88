@@ -235,13 +235,11 @@ xdef UpdateFreeSpaceRamCard
 
                     exx
 
-                    ld   a,(graphics_bank)
-                    ld   b,a
+                    call GetMapAddress            ; Map area base address in BHL
                     ld   c, MS_S2
                     rst  OZ_MPB                   ; bind in map area in segment 2
                     push bc
 
-                    ld   hl,(graphics_base)       ; ptr. to current 8x8 matrix
                     ld   bc,0                     ; row counter in 8x8 matrix (0 - 7)
                     ld   d,@10000000              ; column bit in 8x8 matrix (begin with leftmost)
                     exx
@@ -369,16 +367,33 @@ xdef UpdateFreeSpaceRamCard
 
 ; ******************************************************************
 ;
+; Return base of Map area in BHL, adjusted for segment 2 address space
+.GetMapAddress
+                    ld      b,0
+                    ld      a,sc_hr0
+                    oz      os_sci                          ; get base address of map area (hires0) in BHL
+                    ld      a,MM_S2
+                    res     7,h
+                    res     6,h
+                    or      h
+                    ld      h,a                             ; Base of map area adjusted to segment 2 for BHL
+                    ld      (graphics_base),hl              ; preserve base of graphics area
+                    ld      a,b
+                    ld      (graphics_bank),a
+                    ret
+
+
+; ******************************************************************
+;
 ; Clear graphics area, i.e. reset all bits in graphics (map)
 ; window of width x height (64 x 64) pixels.
 ;
 .ClsMapWin4
-                    ld   a,(graphics_bank)
-                    ld   b,a
+                    call GetMapAddress
                     ld   c, MS_S2
                     rst  OZ_MPB
                     push bc
-
+                    push hl
                     ld   hl,64
                     add  hl,hl
                     add  hl,hl
@@ -386,8 +401,7 @@ xdef UpdateFreeSpaceRamCard
                     dec  hl                  ; <width> * 64 / 8 - 1 bytes to clear..
                     ld   b,h
                     ld   c,l                 ; total of bytes to reset...
-
-                    ld   hl,(graphics_base)  ; base of graphics area
+                    pop  hl                  ; base of graphics area
                     ld   (hl),0
                     ld   d,h
                     ld   e,1                 ; de = base_graphics+1
