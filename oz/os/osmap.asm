@@ -183,14 +183,8 @@ xref    RestoreActiveWd                         ; [Kernel1]/mth1.asm
         call    PutOSFrame_DE                   ; the pixel- and character width are returned in DE
 
         ld      b,0
-        ld      hl,0                            ; dummy address
         ld      a,sc_hr0
-        oz      os_sci                          ; get base address of map area (hires0)
-        push    bc
-        push    hl
-        oz      OS_Sci                          ; (and re-write original address)
-        pop     hl
-        pop     bc
+        oz      os_sci                          ; get base address of map area (hires0) in BHL
 
         pop     de
         ld      a,e                             ; get MS_Sx argument (from B argument to OS_Map)
