@@ -62,7 +62,7 @@ xdef UpdateFreeSpaceRamCard
 
                     ld   a,'4'
                     ld   bc, MS_S2 << 8 | MP_MEM
-                    ld   hl,63                    ; define a map of 64 pixels, associated with segment 2
+                    ld   hl,64                    ; define a map of 64 pixels, associated with segment 2
                     oz   OS_Map                   ; and create it...
                     ld   a,b
                     ld   (graphics_bank ),a
@@ -248,15 +248,14 @@ xdef UpdateFreeSpaceRamCard
                     ld   b,a                      ; actual number of banks
                     ld   hl,$4100                 ; data start at $0100
                     ld   c,b                      ; parse table of B(anks) * 64 pages
-
 .card_scan_loop
                     ld   b,64                     ; total of pages in a bank...
-.bank_scan_loop
+.bank_scan_loop                                   ; (for each bank is 8x8 pixels = character block)
                     ld   a,(hl)
                     inc  hl
                     or   (hl)                     ; must be 00 if free
                     inc  hl
-                    call nz,plot_usedpage         ; page used, plot a pixel in map...
+                    call nz,plot_usedpage         ; page used, plot a pixel (scaled for current 128K row in map...
                     call update_pixelptr          ; prepare for next pixel position
                     djnz bank_scan_loop
                     dec  c
@@ -284,9 +283,9 @@ xdef UpdateFreeSpaceRamCard
                     exx
                     ret
 .new_column
-                    rrc  d                        ; in next column
-                    call c,next_matrix
-                    ld   c,0                      ; begin at first row
+                    rrc  d                        ; in next pixel column (bit 7 -> bit 0)
+                    call c,next_matrix            ; when bit arrives in Fc, all 64 bits (8x8 pixels) done
+                    ld   c,0                      ; begin at first row (next 8x8 pixel block)
                     ret
 .next_matrix
                     add  hl,bc                    ; in next matrix
@@ -377,6 +376,7 @@ xdef UpdateFreeSpaceRamCard
                     res     6,h
                     or      h
                     ld      h,a                             ; Base of map area adjusted to segment 2 for BHL
+                    set     4,l                             ; first visible row is 16 bytes after base...
                     ld      (graphics_base),hl              ; preserve base of graphics area
                     ld      a,b
                     ld      (graphics_bank),a
@@ -393,15 +393,8 @@ xdef UpdateFreeSpaceRamCard
                     ld   c, MS_S2
                     rst  OZ_MPB
                     push bc
-                    push hl
-                    ld   hl,64
-                    add  hl,hl
-                    add  hl,hl
-                    add  hl,hl
-                    dec  hl                  ; <width> * 64 / 8 - 1 bytes to clear..
-                    ld   b,h
-                    ld   c,l                 ; total of bytes to reset...
-                    pop  hl                  ; base of graphics area
+                    ld   bc, 10*8*8
+                    res  4,l
                     ld   (hl),0
                     ld   d,h
                     ld   e,1                 ; de = base_graphics+1
