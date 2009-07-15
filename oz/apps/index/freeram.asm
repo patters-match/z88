@@ -26,7 +26,7 @@
      Module FreeRam
 
 ; Popdown version; V1.0 implemented 11/06/1998
-; Migrated as Index command, June 2009
+; Migrated as Index command, June-July 2009
 
 include "stdio.def"
 include "dor.def"
@@ -241,8 +241,8 @@ xdef UpdateFreeSpaceRamCard
                     push bc
 
                     ld   bc,0                     ; row counter in 8x8 matrix (0 - 7)
-                    ld   d,@10000000              ; column bit in 8x8 matrix (begin with leftmost)
-                    exx
+                    ld   de,$8008                 ; D = column bit in 8x8 matrix (begin with leftmost)
+                    exx                           ; E = 8, eight 8x8 pixel matrixes per row
 
                     ld   a,(cardsize)             ; size of card in 16K banks...
                     ld   b,a                      ; actual number of banks
@@ -289,6 +289,11 @@ xdef UpdateFreeSpaceRamCard
                     ret
 .next_matrix
                     add  hl,bc                    ; in next matrix
+                    dec  e
+                    ret  nz                       ; 8x8 matrix row still not complete
+                    ld   e,8
+                    add  hl,bc                    ; skip the 16 bytes off-screen bytes
+                    add  hl,bc                    ; where the next visible 8x8 matrix row begins
                     ret
 
 
