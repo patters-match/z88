@@ -56,7 +56,7 @@ xref    PokeHLinc                               ; [K0]/memmisc.asm
 xref    PutOSFrame_BC                           ; [K0]/memmisc.asm
 xref    PutOSFrame_DE                           ; [K0]/memmisc.asm
 xref    PutOSFrame_HL                           ; [K0]/memmisc.asm
-xref    S2VerifySlotType                        ; [K0]/memmisc.asm
+xref    S2VerifySlotType                        ; [K0]/knlbind.asm
 
 xref    FreeMemData                             ; [K0]/filesys3.asm
 xref    InitFsMemHandle                         ; [K0]/filesys3.asm
@@ -77,6 +77,7 @@ xref    OSNqProcess                             ; [K1]/process1.asm
 
 xref    OSSiSft1                                ; [K1]/ossi1.asm
 xref    OSPrtInit                               ; [K1]/printer.asm
+xref    FileEprRequest                          ; [K1]/eprreqst.asm
 
 xref    Keymap_UK
 xref    Keymap_FR
@@ -409,7 +410,20 @@ xref    Keymap_SP
         or      a
         ret
 .slt_3
+        push    de
         call    S2VerifySlotType
+        ld      a,BU_ROM
+        cp      d
+        pop     bc
+        jr      z, slt_2                        ; Application ROM header found
+        ld      a,BU_EPR
+        cp      d
+        jr      z, slt_2                        ; File Eprom header found (top of card)
+        ld      c,b
+        call    FileEprRequest                  ; check if there is a file area in an application card
+        ld      d,BU_NOT
+        jr      nz,slt_2                        ; no file area found in application card
+        ld      d,BU_EPR
         jr      slt_2
 
 

@@ -40,8 +40,8 @@ xdef    OSSp
 xref    OSFramePop                              ; [Kernel0]/stkframe.asm
 xref    OSFramePush                             ; [Kernel0]/stkframe.asm
 
-xref    OSNqMain                                ; [Kernel1]/nqsp.asm
-xref    OSSpMain                                ; [Kernel1]/nqsp.asm
+xref    OSNqMain                                ; [Kernel1]/spnq1.asm
+xref    OSSpMain                                ; [Kernel1]/spnq1.asm
 
         include "serintfc.def"
         include "oz.def"
