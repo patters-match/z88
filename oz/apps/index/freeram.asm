@@ -248,15 +248,42 @@ xdef UpdateFreeSpaceRamCard
                     ld   b,a                      ; actual number of banks
                     ld   hl,$4100                 ; data start at $0100
                     ld   c,b                      ; parse table of B(anks) * 64 pages
+
+                    sub  8                        ; calculate the pixel scaling, if RAM card < 128K
+                    ld   a,1                      ; default 1 pixel per used page
+                    jr   nc, init_dispfreeram
+                    ld   a,b                      ; A = card size
+                    push bc
+                    ld   b,8
+.factor_loop                                      ; 8/card size = pixel factor
+                    rrc  b
+                    dec  a
+                    cp   1
+                    jr   nz,factor_loop
+                    ld   a,b                      ; A = pixel factor
+                    pop  bc
+.init_dispfreeram
+                    ld   (pixelfactor),a
 .card_scan_loop
                     ld   b,64                     ; total of pages in a bank...
 .bank_scan_loop                                   ; (for each bank is 8x8 pixels = character block)
                     ld   a,(hl)
                     inc  hl
                     or   (hl)                     ; must be 00 if free
+                    ex   af,af'
                     inc  hl
+
+                    ld   a,(pixelfactor)
+                    ld   d,a
+.pixelfactor_loop
+                    push de
+                    ex   af,af'
                     call nz,plot_usedpage         ; page used, plot a pixel (scaled for current 128K row in map...
+                    ex   af,af'
                     call update_pixelptr          ; prepare for next pixel position
+                    pop  de
+                    dec  d
+                    jr   nz,pixelfactor_loop
                     djnz bank_scan_loop
                     dec  c
                     jr   nz, card_scan_loop
@@ -266,6 +293,7 @@ xdef UpdateFreeSpaceRamCard
                     rst  OZ_MPB                   ; restore segment 1 binding..
                     ret
 .plot_usedpage
+                    push af
                     exx
                     push hl
                     add  hl,bc                    ; ptr to current row in matrix
@@ -274,6 +302,7 @@ xdef UpdateFreeSpaceRamCard
                     ld   (hl),a                   ; "plot" point identifying used page
                     pop  hl
                     exx
+                    pop  af
                     ret
 .update_pixelptr
                     exx
