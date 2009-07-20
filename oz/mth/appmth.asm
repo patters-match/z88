@@ -93,7 +93,9 @@ xdef    FlashStoreTopics, FlashStoreCommands, FlashStoreHelp
         defb    $08	; command code
         defm    "CARD", $00
         defm    "C", $8c, $b2, "Dis", $d9, $fb
-        defb    $00	; Command attribute
+        defb    (IndexCardHelp - IndexHelp)/256                 ; high byte of rel. pointer
+        defb    (IndexCardHelp - IndexHelp)%256                 ; low byte of rel. pointer
+        defb    @00010000                                       ; command has help page
 .Index_cmd3_end
         defb    Index_cmd3_end-Index_cmd3+1
 
@@ -2518,6 +2520,14 @@ xdef    FlashStoreTopics, FlashStoreCommands, FlashStoreHelp
         defm    "which is in use. A continuous tone asks for a ROM", $7F
         defm    "card to be reinserted into its original ", $FA, ".", $7F
         defm    "A ", 1,"TFAIL", 1, "T message requires ", $92, "machine to be reset.", 0
+
+.IndexCardHelp
+        defb $7F
+        defm "Shows available ressources of inserted cards and free space", $7F
+        defm "available on any selected RAM device. Further, it displays", $7F
+        defm "a graphical map of the used and free memory of the RAM card.", $7F
+        defm "An enabled pixel (dark) identifies used space (used by files", $7F
+        defm "or system). Void pixels are free space.", 0
 
 ; *******************************************************************************************************************
 .PipeDreamHelp
