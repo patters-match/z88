@@ -628,7 +628,7 @@ SourceFilePass2 (void)
   fwrite (CURRENTMODULE->mname, sizeof (char), (size_t) constant, objfile);     /* write module name to relocatable file */
 
   if ((constant = codeptr - codearea) == 0)
-    fptr_modcode = -1;          /* no code generated!  */
+    fptr_modcode = 0xffffffff;          /* no code generated!  */
   else
     {
       fptr_modcode = ftell (objfile);
@@ -651,11 +651,11 @@ SourceFilePass2 (void)
   fptr_exprdecl = SIZEOF_MPMOBJHDR + 4+4+4+4+4+4;       /* distance to expression section... */
 
   if (fptr_namedecl == fptr_exprdecl)
-    fptr_exprdecl = -1;         /* no expressions */
+    fptr_exprdecl = 0xffffffff;         /* no expressions */
   if (fptr_libnmdecl == fptr_namedecl)
-    fptr_namedecl = -1;         /* no name declarations */
+    fptr_namedecl = 0xffffffff;         /* no name declarations */
   if (fptr_modname == fptr_libnmdecl)
-    fptr_libnmdecl = -1;        /* no library reference declarations */
+    fptr_libnmdecl = 0xffffffff;        /* no library reference declarations */
 
   WriteLong (fptr_modname, objfile);    /* write fptr. to module name */
   WriteLong (fptr_exprdecl, objfile);   /* write fptr. to name declarations */

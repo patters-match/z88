@@ -219,7 +219,7 @@ TestAsmFile (void)
 static int
 GetModuleSize (void)
 {
-  char modulename[256];
+  char modulename[258];
   const char *objwatermark;
   long fptr_modcode, fptr_modname;
   size_t size;
@@ -232,6 +232,7 @@ GetModuleSize (void)
     {
       fseek (objfile, strlen(objwatermark) + 4, SEEK_SET);  /* point at module name file pointer (just after ORG address) */
       fptr_modname = ReadLong (objfile);                    /* get file pointer to module name */
+      
       fseek (objfile, fptr_modname, SEEK_SET);              /* set file pointer to module name */
 
       size = fgetc (objfile);
@@ -274,10 +275,10 @@ GetModuleSize (void)
 static void
 DefineEndianLayout(void)
 {
-   unsigned long   v = 0x80000000;
+   unsigned short  v = 0x8000;
    unsigned char   *vp;
-
-   vp = (unsigned char *) &v;      /* point at first byte of signed long word */
+   
+   vp = (unsigned char *) &v;  /* point at first byte of signed long word */
    if (*vp == 0x80)
      BIGENDIAN = ON;
    else

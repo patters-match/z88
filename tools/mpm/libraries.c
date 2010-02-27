@@ -145,7 +145,7 @@ PopulateLibrary (void)
                 printf ("<%s> module at %04lX.\n", CURRENTFILE->fname, ftell (libfile));
 
               if (CURRENTMODULE->nextmodule == NULL)
-                WriteLong (-1, libfile);        /* this is the last module */
+                WriteLong (0xffffffff, libfile);        /* this is the last module */
               else
                 {
                   fptr = ftell (libfile) + 4 + 4;
@@ -586,7 +586,7 @@ LoadLibraryIndex(libfile_t *curlib)
               nextlibmodule = ReadLong (srcasmfile);             /* get file pointer to next module in library */
               modulesize = ReadLong (srcasmfile);                /* get size of current module */
             }
-          while (modulesize == 0 && nextlibmodule != -1);
+          while (modulesize == 0 && nextlibmodule != 0xffffffff);
 
           if (modulesize != 0)
             {
@@ -624,7 +624,7 @@ LoadLibraryIndex(libfile_t *curlib)
 
             currentlibmodule = nextlibmodule;
         }
-      while (nextlibmodule != -1);  /* parse all available active modules in library file */
+      while (nextlibmodule != 0xffffffff);  /* parse all available active modules in library file */
 
       fclose (srcasmfile);  /* library file parsed successfully */
     }

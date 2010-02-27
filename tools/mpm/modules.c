@@ -456,7 +456,7 @@ LinkModule (char *filename, long fptr_base, const char *objwatermark)
   fptr_libnmdecl = ReadLong (srcasmfile);       /* get file pointer to library name declarations */
   fptr_modcode = ReadLong (srcasmfile);         /* get file pointer to module code */
 
-  if (fptr_modcode != -1)
+  if (fptr_modcode != 0xffffffff)
     {
       fseek (srcasmfile, fptr_base + fptr_modcode, SEEK_SET);   /* set file pointer to module code */
       size = ReadLong (srcasmfile);                             /* get 32bit integer code size */
@@ -474,11 +474,11 @@ LinkModule (char *filename, long fptr_base, const char *objwatermark)
         CODESIZE += size;       /* a new module has been added */
     }
 
-  if (fptr_namedecl != -1)
+  if (fptr_namedecl != 0xffffffff)
     {
       fseek (srcasmfile, fptr_base + fptr_namedecl, SEEK_SET);  /* set file pointer to point at name declarations */
 
-      if (fptr_libnmdecl != -1)
+      if (fptr_libnmdecl != 0xffffffff)
         ReadNames (fptr_namedecl, fptr_libnmdecl);      /* Read symbols until library declarations */
       else
         ReadNames (fptr_namedecl, fptr_modname);        /* Read symbols until module name */
@@ -487,7 +487,7 @@ LinkModule (char *filename, long fptr_base, const char *objwatermark)
   fclose (srcasmfile);
   srcasmfile = NULL;
 
-  if (fptr_libnmdecl != -1)
+  if (fptr_libnmdecl != 0xffffffff)
     {
       if (uselibraries)
         {                       /* link library modules, if any LIB references are present */
@@ -549,12 +549,12 @@ ModuleExpr (void)
           return;
         }
 
-      if (fptr_exprdecl != -1)
+      if (fptr_exprdecl != 0xffffffff)
         {
           fseek (srcasmfile, fptr_base + fptr_exprdecl, SEEK_SET);
-          if (fptr_namedecl != -1)
+          if (fptr_namedecl != 0xffffffff)
             ReadExpr (fptr_exprdecl, fptr_namedecl);    /* Evaluate until beginning of name declarations */
-          else if (fptr_libnmdecl != -1)
+          else if (fptr_libnmdecl != 0xffffffff)
             ReadExpr (fptr_exprdecl, fptr_libnmdecl);   /* Evaluate until beginning of library reference declarations */
           else
             ReadExpr (fptr_exprdecl, fptr_modname);     /* Evaluate until beginning of module name */
@@ -831,7 +831,7 @@ ReadLong (FILE * fileid)
   else
     {
       /* low byte, high byte order...    */
-      fread (&fptr, sizeof (long), 1, fileid);
+      fread (&fptr, 4, 1, fileid);
     }
 
   return fptr;
@@ -855,7 +855,7 @@ WriteLong (long fptr, FILE * fileid)
    else
      {
        /* low byte, high byte order... */
-       fwrite (&fptr, sizeof (fptr), 1, fileid);
+       fwrite (&fptr, 4, 1, fileid);
      }
 }
 
