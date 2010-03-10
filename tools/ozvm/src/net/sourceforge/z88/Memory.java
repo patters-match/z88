@@ -530,6 +530,17 @@ public final class Memory {
 					}
 					break;
 
+				case SlotInfo.StmFlashCard:
+					// Stm Flash Eprom Cards exists in 128K, 512K and 1MB configurations
+					switch(totalEprBanks) {
+						case 8: banks[curBank] = new StmFlashBank(StmFlashBank.ST29F010B); break;
+						case 32: banks[curBank] = new StmFlashBank(StmFlashBank.ST29F040B); break;
+						case 64: banks[curBank] = new StmFlashBank(StmFlashBank.ST29F080D); break;
+						default:
+							return null; // Only 128K, 512K or 1MB Stm Flash Cards are allowed.
+					}
+					break;
+
 				default:
 					banks[curBank] = new RomBank();
 					break;
@@ -554,31 +565,19 @@ public final class Memory {
 	 *
 	 * @param slot number which Card will be inserted into
 	 * @param sizeK of Eprom in Kb
-	 * @param eprType SlotInfo.EpromCard, SlotInfo.IntelFlashCard, SlotInfo.AmdFlashCard
+	 * @param eprType SlotInfo.EpromCard, SlotInfo.IntelFlashCard, SlotInfo.AmdFlashCard, SlotInfo.StmFlashCard
 	 * @return true, if card was inserted, false, if illegal size and type
 	 */
 	public boolean insertEprCard(int slot, int sizeK, int eprType) {
 		slot %= 4; // allow only slots 0 - 3 range.
+		Bank banks[] = createCard(sizeK, eprType);
 
-        if (eprType == SlotInfo.RakewellHybridCard) {
-            if (slot != 0) {
-                RakewellHybridCard rhc = new RakewellHybridCard();
-                rhc.insertCard(slot);
-                return true;
-            } else
-                // Rakewell hybrid can only be inserted in slots 1-3
-                return false;
-        } else {
-
-            Bank banks[] = createCard(sizeK, eprType);
-
-            if (banks != null) {
-                insertCard(banks, slot); // insert the physical card into Z88 memory
-                return true;
-            } else {
-                return false;
-            }
-        }
+		if (banks != null) {
+			insertCard(banks, slot); // insert the physical card into Z88 memory
+			return true;
+		} else {
+			return false;
+		}
 	}
 
 
@@ -621,7 +620,7 @@ public final class Memory {
 	 *
 	 * @param slot number which Card will be inserted into (1-3)
 	 * @param sizeK of Card in Kb
-	 * @param eprType SlotInfo.EpromCard, SlotInfo.IntelFlashCard, SlotInfo.AmdFlashCard
+	 * @param eprType SlotInfo.EpromCard, SlotInfo.IntelFlashCard, SlotInfo.AmdFlashCard, SlotInfo.StmFlashCard
 	 * @return true, if card was inserted, false, if illegal size and type
 	 */
 	public boolean insertFileCard(int slot, int sizeK, int eprType) {
@@ -662,7 +661,7 @@ public final class Memory {
 	 *
 	 * @param slot to insert card with loaded binary image
 	 * @param sizeK of Card in Kb
-	 * @param eprType SlotInfo.EpromCard, SlotInfo.IntelFlashCard, SlotInfo.AmdFlashCard
+	 * @param eprType SlotInfo.EpromCard, SlotInfo.IntelFlashCard, SlotInfo.AmdFlashCard, SlotInfo.StmFlashCard
 	 * @param fileImage the File image to be loaded (in 16K boundary size)
 	 * @throws IOException
 	 */
@@ -698,28 +697,18 @@ public final class Memory {
 	 *
 	 * @param slot to insert card with loaded binary image
 	 * @param sizeK of Card in Kb
-	 * @param eprType SlotInfo.EpromCard, SlotInfo.IntelFlashCard, SlotInfo.AmdFlashCard
+	 * @param eprType SlotInfo.EpromCard, SlotInfo.IntelFlashCard, SlotInfo.AmdFlashCard, SlotInfo.StmFlashCard
 	 * @param selectedFiles a collection of selected filenames
 	 * @throws IOException
 	 */
 	public void loadFileImagesOnCard(int slot, int sizeK, int eprType, File selectedFiles[]) throws IOException {
 		int bankNo, cardBankNo;
-        Bank banks[];
-
 		sizeK -= (sizeK % (Bank.SIZE/1024));
+		Bank banks[] = createCard(sizeK, eprType);
+		if (banks == null) {
+			throw new IOException("Illegal card type or size!");
+		}
 
-        if (eprType == SlotInfo.RakewellHybridCard) {
-            // The Rakewell card handles insertion into (memory) slot
-            RakewellHybridCard rhc = new RakewellHybridCard();
-            rhc.insertCard(slot);
-            banks = rhc.getAppArea(); // get the area where image is to be loaded...
-        } else {
-            // for other card types it is necessary to "create" the card by type...
-            banks = createCard(sizeK, eprType);
-            if (banks == null) {
-                throw new IOException("Illegal card type or size!");
-            }
-        }
 		for (int f=0; f<selectedFiles.length; f++) {
 			if (selectedFiles[f].isFile() == true) {
 				RandomAccessFile fimg = new RandomAccessFile(selectedFiles[f], "r");
@@ -751,12 +740,9 @@ public final class Memory {
 			}
 		}
 
-        if (eprType != SlotInfo.RakewellHybridCard) {
-            // (for non-Rakewell 2M/4M cards)
-            // complete Card image now loaded into container
-            // insert container into Z88 memory, slot x, at bottom of slot, onwards.
-            insertCard(banks, slot & 3);
-        }
+		// complete Card image now loaded into container
+		// insert container into Z88 memory, slot x, at bottom of slot, onwards.
+		insertCard(banks, slot & 3);
 	}
 
 	/**
@@ -769,7 +755,7 @@ public final class Memory {
 	 *
 	 * @param slot insert card in slot 1-3
 	 * @param sizeK of Card in Kb
-	 * @param eprType SlotInfo.EpromCard, SlotInfo.IntelFlashCard, SlotInfo.AmdFlashCard
+	 * @param eprType SlotInfo.EpromCard, SlotInfo.IntelFlashCard, SlotInfo.AmdFlashCard, SlotInfo.StmFlashCard
 	 * @param fileNameBase the base filename of the 16K bank files
 	 * @throws IOException
 	 */

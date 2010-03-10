@@ -92,7 +92,7 @@ public abstract class Bank extends WindowAdapter {
 	 * @param addr is a 16bit word that points into the 16K address space of the bank.
 	 */
 	public int getByte(final int addr) {
-		return bankMem[addr & 0x3FFF];
+		return bankMem[addr & (Bank.SIZE-1)];
 	}
 
 	/**

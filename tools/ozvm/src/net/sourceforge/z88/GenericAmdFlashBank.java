@@ -141,7 +141,7 @@ public abstract class GenericAmdFlashBank extends Bank {
 	 * Read byte from Flash Memory bank. <addr> is a 16bit word that points into
 	 * the 16K address space of the bank.
 	 */
-	public int readByte(final int addr) {
+	public final int readByte(final int addr) {
 		if (readArrayMode == true)
 			// The chip is in Read Array Mode, get byte data at address..
 			return getByte(addr);
@@ -159,7 +159,7 @@ public abstract class GenericAmdFlashBank extends Bank {
 	 * cycle sequences the Flash Memory chip can be programmed with data and
 	 * get erased again in ALL available Z88 slots.
 	 */
-	public void writeByte(final int addr, final int b) {
+	public final void writeByte(final int addr, final int b) {
 		processCommandCycle(addr, b);
 	}
 

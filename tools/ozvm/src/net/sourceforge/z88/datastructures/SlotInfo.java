@@ -25,9 +25,9 @@ import net.sourceforge.z88.Bank;
 import net.sourceforge.z88.EpromBank;
 import net.sourceforge.z88.IntelFlashBank;
 import net.sourceforge.z88.Memory;
-import net.sourceforge.z88.RakewellHybridCard;
 import net.sourceforge.z88.RamBank;
 import net.sourceforge.z88.RomBank;
+import net.sourceforge.z88.StmFlashBank;
 import net.sourceforge.z88.VoidBank;
 import net.sourceforge.z88.Z88;
 
@@ -44,7 +44,7 @@ public class SlotInfo {
 	public static final int EpromCard = 3;
 	public static final int IntelFlashCard = 4;
 	public static final int AmdFlashCard = 5;
-    public static final int RakewellHybridCard = 6;
+	public static final int StmFlashCard = 6;
 	
 	private static final class singletonContainer {
 		static final SlotInfo singleton = new SlotInfo();  
@@ -169,7 +169,7 @@ public class SlotInfo {
 	 */
 	public int getCardType(final int slotNo) {
 		// top bank of slot
-		int bankNo = ((slotNo & 3) << 6) | 0x3f;
+		int bankNo = ((slotNo & 3) << 6);
 
 		if (memory.getBank(bankNo) instanceof VoidBank == true)
 			return EmptySlot;
@@ -181,14 +181,10 @@ public class SlotInfo {
 			return EpromCard;		
 		else if (memory.getBank(bankNo) instanceof IntelFlashBank == true) 
 			return IntelFlashCard;		
-		else if (memory.getBank(bankNo) instanceof AmdFlashBank == true) {
-            AmdFlashBank b = (AmdFlashBank) memory.getBank(bankNo);
-            if (b.getDeviceCode() == AmdFlashBank.AM29F032B)
-                // The 4Mb Flash only exists in a Rakewell Hybrid Card
-                return RakewellHybridCard;
-            else
-                return AmdFlashCard;
-        }
+		else if (memory.getBank(bankNo) instanceof AmdFlashBank == true) 
+			return AmdFlashCard;		
+		else if (memory.getBank(bankNo) instanceof StmFlashBank == true) 
+			return StmFlashCard;		
 		else
 			return 0; 
 	}	

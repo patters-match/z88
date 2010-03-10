@@ -75,7 +75,7 @@ public class Slots extends JPanel {
 	private static final String installRamMsg = "Install new RAM into slot 0?\nWARNING: Installing RAM will automatically perform a hard reset!";
 
 	private static final DefaultComboBoxModel newCardTypes = new DefaultComboBoxModel(
-			new String[] { "RAM", "EPROM", "INTEL FLASH", "AMD FLASH", "RAKEWELL HYBRID"});
+			new String[] { "RAM", "EPROM", "INTEL FLASH", "AMD FLASH", "STM FLASH"});
 
 	private static final DefaultComboBoxModel ram0Sizes = new DefaultComboBoxModel(
 			new String[] { "32K", "128K", "256K", "512K" });
@@ -91,9 +91,6 @@ public class Slots extends JPanel {
 
 	private static final DefaultComboBoxModel intelFlashSizes = new DefaultComboBoxModel(
 			new String[] { "512K", "1024K" });
-
-	private static final DefaultComboBoxModel rakewellHybridSizes = new DefaultComboBoxModel(
-			new String[] { "6144K" });
 
 	private static final Font buttonFont = new Font("Sans Serif", Font.BOLD, 11);
 
@@ -226,6 +223,10 @@ public class Slots extends JPanel {
 
 		int slotType = SlotInfo.getInstance().getCardType(slotNo);
 		switch (slotType) {
+		case SlotInfo.StmFlashCard:
+			slotText = "STM FLASH";
+			break;
+
 		case SlotInfo.AmdFlashCard:
 			slotText = "AMD FLASH";
 			break;
@@ -241,17 +242,11 @@ public class Slots extends JPanel {
 		case SlotInfo.RomCard:
 			slotText = "ROM";
 			break;
-		case SlotInfo.RakewellHybridCard:
-			slotText = "RAKEWELL 2M/4M";
-			break;
 		}
 
 		if (slotNo > 0) {
 			if (slotType != SlotInfo.EmptySlot) {
-                if (slotType != SlotInfo.RakewellHybridCard)
-                    slotText = (memory.getExternalCardSize(slotNo) * 16) + "K " + slotText;
-                else
-                    slotText = "RAKEWELL 2M/4M";
+				slotText = (memory.getExternalCardSize(slotNo) * 16) + "K " + slotText;
 			}
 		}
 
@@ -666,8 +661,8 @@ public class Slots extends JPanel {
 						internalCardType = SlotInfo.AmdFlashCard;
 						break;
 					case 4:
-						// insert a Rakewell Hybrid Card
-						internalCardType = SlotInfo.RakewellHybridCard;
+						// insert an Stm Flash Card
+						internalCardType = SlotInfo.StmFlashCard;
 						break;
 				}
 
@@ -954,12 +949,9 @@ public class Slots extends JPanel {
 							getCardSizeComboBox().setModel(intelFlashSizes);
 							break;
 						case 3:
-							// define available Amd Flash Card sizes
-							getCardSizeComboBox().setModel(amdFlashSizes);
-							break;
 						case 4:
-							// define available Amd Flash Card sizes
-							getCardSizeComboBox().setModel(rakewellHybridSizes);
+							// define available Amd/Stm Flash Card sizes
+							getCardSizeComboBox().setModel(amdFlashSizes);
 							break;
 					}
 
