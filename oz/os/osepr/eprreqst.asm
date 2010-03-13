@@ -231,6 +231,7 @@
         pop     hl                              ; (this overrules the card size supplied to this routine)
         pop     bc
         jr      c, epr_filearea                 ; there's no Flash Card, so check top bank below app area
+        ld      e,a                             ; E = the physical size of the flash
         sub     b                               ; <Total banks> - <ROM banks> = lowest bank of ROM area
         cp      3                               ;
         call    z, appcard_no_room              ; Application card uses banks
@@ -257,12 +258,17 @@
         ret
 .checkfhdr
         dec     a                               ; A = Top Bank of File Area
+        bit     5,e                             ; is physical size of Flash / Epr $20 banks? (usually is $40)
+        ld      e,a                             ; relative top bank is size of file area + 1 (returned in C later)
+        jr      z,check_bigcard_fa
+        set     5,a                             ; for 512K Flash or Epr redefine bank location in upper 512K address map
+.check_bigcard_fa
         ld      b,a                             ; B = relative bank number of "oz" header (or potential), C = slot number
         call    CheckFileEprHeader
         ret     nc                              ; header found, at absolute bank B, C = File Area in banks
         ex      af,af'
         ld      a,c
-        ld      c,b
+        ld      c,e
         inc     c                               ; C = potential size of file area in banks
         rrca
         rrca
