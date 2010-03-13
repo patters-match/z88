@@ -75,7 +75,7 @@ public class Slots extends JPanel {
 	private static final String installRamMsg = "Install new RAM into slot 0?\nWARNING: Installing RAM will automatically perform a hard reset!";
 
 	private static final DefaultComboBoxModel newCardTypes = new DefaultComboBoxModel(
-			new String[] { "RAM", "EPROM", "INTEL FLASH", "AMD FLASH", "STM FLASH"});
+			new String[] { "RAM", "EPROM", "INTEL FLASH", "AMD FLASH", "STM FLASH", "AMD/RAM 512/512K"});
 
 	private static final DefaultComboBoxModel ram0Sizes = new DefaultComboBoxModel(
 			new String[] { "32K", "128K", "256K", "512K" });
@@ -91,6 +91,9 @@ public class Slots extends JPanel {
 
 	private static final DefaultComboBoxModel intelFlashSizes = new DefaultComboBoxModel(
 			new String[] { "512K", "1024K" });
+
+	private static final DefaultComboBoxModel amdHybridSizes = new DefaultComboBoxModel(
+			new String[] { "1024K" });
 
 	private static final Font buttonFont = new Font("Sans Serif", Font.BOLD, 11);
 
@@ -226,9 +229,11 @@ public class Slots extends JPanel {
 		case SlotInfo.StmFlashCard:
 			slotText = "STM FLASH";
 			break;
-
 		case SlotInfo.AmdFlashCard:
 			slotText = "AMD FLASH";
+			break;
+		case SlotInfo.AmdHybridRamCard:
+			slotText = "AMD/RAM";
 			break;
 		case SlotInfo.EpromCard:
 			slotText = "EPROM";
@@ -246,7 +251,10 @@ public class Slots extends JPanel {
 
 		if (slotNo > 0) {
 			if (slotType != SlotInfo.EmptySlot) {
-				slotText = (memory.getExternalCardSize(slotNo) * 16) + "K " + slotText;
+				if (slotType != SlotInfo.AmdHybridRamCard)
+					slotText = (memory.getExternalCardSize(slotNo) * 16) + "K " + slotText;
+                                else
+					slotText = "512/512K AMD/RAM";
 			}
 		}
 
@@ -664,6 +672,10 @@ public class Slots extends JPanel {
 						// insert an Stm Flash Card
 						internalCardType = SlotInfo.StmFlashCard;
 						break;
+					case 5:
+						// insert a hybrid Amd 512K Flash / 512K Ram Card
+						internalCardType = SlotInfo.AmdHybridRamCard;
+						break;
 				}
 
 				if (cardImageFiles != null) {
@@ -952,6 +964,10 @@ public class Slots extends JPanel {
 						case 4:
 							// define available Amd/Stm Flash Card sizes
 							getCardSizeComboBox().setModel(amdFlashSizes);
+							break;
+						case 5:
+							// define available Amd/Ram Hybrid Card size
+							getCardSizeComboBox().setModel(amdHybridSizes);
 							break;
 					}
 

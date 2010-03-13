@@ -45,6 +45,7 @@ public class SlotInfo {
 	public static final int IntelFlashCard = 4;
 	public static final int AmdFlashCard = 5;
 	public static final int StmFlashCard = 6;
+        public static final int AmdHybridRamCard = 7;
 	
 	private static final class singletonContainer {
 		static final SlotInfo singleton = new SlotInfo();  
@@ -169,21 +170,24 @@ public class SlotInfo {
 	 */
 	public int getCardType(final int slotNo) {
 		// top bank of slot
-		int bankNo = ((slotNo & 3) << 6);
+		int bottomBankNo = ((slotNo & 3) << 6);
+		int topBankNo = ((slotNo & 3) << 6) | 0x3f;
 
-		if (memory.getBank(bankNo) instanceof VoidBank == true)
+		if (memory.getBank(topBankNo) instanceof VoidBank == true)
 			return EmptySlot;
-		else if (memory.getBank(bankNo) instanceof RomBank == true) 
+		else if (memory.getBank(topBankNo) instanceof RomBank == true)
 			return RomCard;
-		else if (memory.getBank(bankNo) instanceof RamBank == true) 
+		else if (memory.getBank(topBankNo) instanceof RamBank == true)
 			return RamCard;		
-		else if (memory.getBank(bankNo) instanceof EpromBank == true) 
+		else if (memory.getBank(topBankNo) instanceof EpromBank == true)
 			return EpromCard;		
-		else if (memory.getBank(bankNo) instanceof IntelFlashBank == true) 
+		else if (memory.getBank(topBankNo) instanceof IntelFlashBank == true)
 			return IntelFlashCard;		
-		else if (memory.getBank(bankNo) instanceof AmdFlashBank == true) 
+		else if ( (memory.getBank(topBankNo) instanceof AmdFlashBank == true) && (memory.getBank(bottomBankNo) instanceof AmdFlashBank == true) )
 			return AmdFlashCard;		
-		else if (memory.getBank(bankNo) instanceof StmFlashBank == true) 
+		else if ( (memory.getBank(topBankNo) instanceof AmdFlashBank == true) && (memory.getBank(bottomBankNo) instanceof RamBank == true) )
+			return AmdHybridRamCard;
+		else if (memory.getBank(topBankNo) instanceof StmFlashBank == true)
 			return StmFlashCard;		
 		else
 			return 0; 
