@@ -1,3 +1,4 @@
+
 lstoff
 
 ; **************************************************************************************************
@@ -79,6 +80,17 @@ DEFC FE_AMD_MFCD = $01      ; AMD Manufacturer code
 DEFC FE_AM29F010B = $0120   ; 128Kb memory, 8 x 16K erasable sectors, 8 x 16K banks (z88 memory model)
 DEFC FE_AM29F040B = $01A4   ; 512Kb memory, 8 x 64K erasable sectors, 32 x 16K banks (z88 memory model)
 DEFC FE_AM29F080B = $01D5   ; 1Mb memory, 16 x 64K erasable sectors, 64 x 16K banks (z88 memory model)
+; ==========================================================================================
+
+
+; ==========================================================================================
+; AMIC Flash Memory constants:
+
+DEFC FE_AMIC_MFCD = $37      ; AMIC Manufacturer code
+
+; Unique Flash Memory ID, 29Fxxx series, Uniform 64K Sectors (combination of Manufacturer Code and Device Code):
+; These 3rd generation Flash chips only require 5V for programming and erasure (in all z88 slots!)
+DEFC FE_AMIC29F040B = $3786   ; 512Kb memory, 8 x 64K erasable sectors, 32 x 16K banks (z88 memory model)
 ; ==========================================================================================
 
 ENDIF

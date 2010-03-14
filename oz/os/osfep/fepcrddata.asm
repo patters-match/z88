@@ -1,3 +1,4 @@
+
 ; **************************************************************************************************
 ; OZ Flash Memory Management.
 ;
@@ -94,7 +95,7 @@
         ret
 
 .DeviceCodeTable
-                defb 6
+                defb 7
 
                 defw FE_I28F004S5               ; Intel flash
                 defb 32, FE_28F                 ; 8 x 64K sectors / 32 x 16K banks (512Kb)
@@ -120,8 +121,13 @@
                 defb 64, FE_29F                 ; 16 x 64K sectors / 64 x 16K banks (1024Kb)
                 defw mnem_am080b
 
+                defw FE_AMIC29F040B             ; Amic flash
+                defb 32, FE_29F                 ; 8 x 64K sectors / 32 x 16K banks (512Kb)
+                defw mnem_amc040b
+
 .mnem_i004      defm "I28F004S5 (512K)", 0
 .mnem_i8S5      defm "I28F008S5 (1Mb)", 0
 .mnem_am010b    defm "AM29F010B (128K)", 0
 .mnem_am040b    defm "AM29F040B (512K)", 0
 .mnem_am080b    defm "AM29F080B (1Mb)", 0
+.mnem_amc040b   defm "AMIC29F040B (512K)", 0
