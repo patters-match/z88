@@ -725,7 +725,7 @@ CreateCrc32File(void)
   if (crc32file != NULL)
     {
       crc32val = crc32(codearea, CODESIZE);
-      fprintf(crc32file,"%lX\r\n", crc32val);
+      fprintf(crc32file,"%08X\r\n", (unsigned int) crc32val);
       fclose (crc32file);
     }
   else
