@@ -38,6 +38,7 @@
         include "error.def"
         include "stdio.def"
         include "syspar.def"
+        include "map.def"
         include "oz.def"
 
 xdef    OSMap
@@ -64,8 +65,8 @@ xref    RestoreActiveWd                         ; [Kernel1]/mth1.asm
 
 .OSMapMain
         ld      b, c
-        djnz    mp_def
-.mp_wr
+        djnz    mp_def_entry
+.mp_wr_entry
         push    hl                              ; write a line to the map
         call    GetMapWidth
         jr      c, osmap_3                      ; GetWindowFrame failed? exit
@@ -120,8 +121,9 @@ xref    RestoreActiveWd                         ; [Kernel1]/mth1.asm
 .osmap_3
         pop     hl
         ret
-.mp_def
-        djnz    mp_gra
+
+.mp_def_entry
+        djnz    mp_gra_entry
 ._mp_def
         ex      af, af'                         ; define a map using the Panel default width
         call    ScreenOpen
@@ -163,16 +165,16 @@ xref    RestoreActiveWd                         ; [Kernel1]/mth1.asm
         ex      af, af'
         jp      PutOSFrame_BC
 
-.mp_gra
-        djnz    mp_del
+.mp_gra_entry
+        djnz    mp_del_entry
         jr      _mp_def                         ; mp_def
 
-.mp_del
-        djnz    mp_mem
+.mp_del_entry
+        djnz    mp_mem_entry
         or      a                               ; mp_del (do nothing!)
         ret
 
-.mp_mem
+.mp_mem_entry
         djnz    osmap_err                       ; any argument bigger than MP_MEM is unknown functionality.
 
         ld      c,(iy+OSFrame_B)                ; get MS_Sx argument

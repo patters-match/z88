@@ -410,7 +410,6 @@ xdef UpdateFreeSpaceRamCard
                     res     6,h
                     or      h
                     ld      h,a                             ; Base of map area adjusted to segment 2 for BHL
-                    set     4,l                             ; first visible row is 16 bytes after base...
                     ld      (graphics_base),hl              ; preserve base of graphics area
                     ld      a,b
                     ld      (graphics_bank),a
@@ -428,7 +427,6 @@ xdef UpdateFreeSpaceRamCard
                     rst  OZ_MPB
                     push bc
                     ld   bc, 10*8*8
-                    res  4,l
                     ld   (hl),0
                     ld   d,h
                     ld   e,1                 ; de = base_graphics+1
