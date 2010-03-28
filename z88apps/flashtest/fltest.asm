@@ -25,7 +25,8 @@
      lib CreateWindow, GreyApplWindow
      lib IntHex
 
-     xref FlashCardId, FlashCardData, FlashBlockErase, RamTest
+     lib FlashEprCardId, FlashEprCardData, FlashEprBlockErase
+     xref RamTest
 
      xdef FlashTest_DOR
 
@@ -39,8 +40,6 @@
      include "error.def"
      include "time.def"
      include "syspar.def"
-
-     defc FE_AM29F032B = $0141                  ; Rakewell 2M/4M uses this chip as flash memory
 
 
 ; small workspace at bottom of Stack frame...
@@ -206,16 +205,11 @@ endif
                     CALL_OZ(Gn_Nln)
                     POP  HL
 
-                    LD   DE, FE_AM29F032B
-                    CP   A
-                    SBC  HL,DE
-                    JR   NZ, format_card
-                    CALL Test2m4mRam                   ; Perform a RAM test for Rakewell 2M/4M card.
-                    RET  C
-
 ; Flash Eprom Card available in slot 3,
 ; now format all 16 blocks on the card...
 .format_card
+                    LD   A,(totbanks)
+                    LD   B,A
                     CALL FormatCard
                     RET  C
 
@@ -235,6 +229,8 @@ endif
                     JR   NZ, program_err
 
 ; finally, reset the card again...
+                    LD   A,(totbanks)
+                    LD   B,A
                     CALL FormatCard
                     RET  C
 
@@ -265,11 +261,16 @@ endif
 
 ; ******************************************************************
 ; Test that databus pins work (D0-D7).
-; We're using C00000 (bottom of slot 3) as test address.
+; We're using XX0000 (bottom of chip on slot) as test address.
 ;
 .TestDataBus
-                    LD   B,$C0               ; B = bottom of slot 3
-                    LD   HL,0
+                   LD   A,(totbanks)
+                   LD   C,A                 ; Total of banks on card
+                   LD   A,$FF               ; Get bottom bank of chip in slot 3 (0xC0 for 1Mb, 0xE0 for 512K)
+                   SUB  C
+                   INC  A
+                   LD   B,A                 ; begin test at bottom bank of flash chip
+                   LD   HL,0
 
 ; ******************************************************************
 ; Byte Write test at (BHL).
@@ -365,12 +366,10 @@ endif
 ;
 .TestAddressLines
                     LD   C,3
-                    CALL FlashCardId
+                    CALL FlashEprCardId
                     RET  C                   ; no Flash Card in slot 3...
 
-                    DEC  B
-                    SET  6,B
-                    SET  7,B                 ; B = top of slot 3
+                    LD   B,$FF               ; B = top of slot 3
 .test_nextbank_loop
                     LD   HL, testaddrline_msg
                     CALL_OZ(Gn_Sop)
@@ -400,7 +399,12 @@ endif
                     JR   Z, test_nextoffset_loop
 
                     DEC  B                   ; A15-A19 tested?
-                    LD   A,$BF
+
+                    LD   A,(totbanks)
+                    LD   C,A                 ; Total of banks on card
+                    LD   A,$FF               ; Get bottom bank-1 of chip in slot 3 (ie. 0xBF for 1Mb, 0xDF for 512K)
+                    SUB  C
+
                     CP   B                   ; tested bottom bank of slot 3?
                     JR   NZ,test_nextbank_loop
                     RET                      ; return Fc = 0...
@@ -429,8 +433,11 @@ endif
                     JR   NZ, null_buffer     ; (buffer) = 0
 
                     LD   A,(totbanks)
-                    LD   C,A                 ; Total of banks on card
-                    LD   B,$C0               ; start programming of bank $C0
+                    LD   C,A                 ; C = Total of banks on card
+                    LD   A,$FF
+                    SUB  C
+                    INC  A
+                    LD   B,A                 ; start programming bottom bank of flash chip
 
                     XOR  A
                     LD   (ErrorFlag),A       ; reset error flag
@@ -570,7 +577,7 @@ endif
 ; Format the Flash Eprom Card
 ;
 ; In:
-;     None.
+;     B = total bank on card.
 ; Out:
 ;     Success:
 ;        Fc = 0, Card formatted
@@ -587,17 +594,8 @@ endif
                     PUSH DE
                     PUSH HL
 
-                    CALL FlashEprInfo
-                    LD   DE, FE_AM29F032B
-                    CP   A
-                    SBC  HL,DE
-                    JR   Z, AM29F032B_sectors
-
                     SRL  B
                     SRL  B                   ; B = returned number of sectors on card
-                    JR   format_loop
-.AM29F032B_sectors
-                    LD   B,64                ; The AM29F032B contains 64 sectors
 .format_loop
 
                     PUSH BC
@@ -617,7 +615,7 @@ endif
 
                     LD   C,3                 ; slot 3
                     DEC  B                   ; actual block to erase
-                    CALL FlashBlockErase     ; slot 3...
+                    CALL FlashEprBlockErase  ; slot 3...
                     JR   NC, format_ok
 .format_err
                     PUSH AF
@@ -690,6 +688,7 @@ endif
 ; OUT:
 ;    Fc = 0, Flash Eprom Recognized in slot 3
 ;         B = total of banks on Flash Eprom
+;         (totbanks) = total of banks on Flash Eprom
 ;         DE = pointer to Mnemonic description of Flash Eprom
 ;         HL = Flash Memory ID
 ;              H = Manufacturer Code (FE_INTEL_MFCD, FE_AMD_MFCD)
@@ -697,14 +696,14 @@ endif
 ;    Fc = 1, Flash Eprom not found in slot 3, or Device code not found
 ;
 .FlashEprInfo       LD   C,3
-                    CALL FlashCardId
+                    CALL FlashEprCardId
                     RET  C
                     PUSH BC
                     LD   (flashtype),A            ; remember Flash Card type...
                     LD   A,B
                     LD   (totbanks),A
 
-                    CALL FlashCardData
+                    CALL FlashEprCardData
                     POP  BC
                     RET
 
@@ -739,7 +738,7 @@ endif
 ; Check presence of Flash Eprom in slot 3
 ;
 .CheckFlashCard     LD   C,3
-                    CALL FlashCardId
+                    CALL FlashEprCardId
                     RET  NC
 
                     LD   A,3                      ; FE not available
@@ -748,88 +747,6 @@ endif
                     RET
 
 
-; ************************************************************************************************
-; Rakewell 2M/4M card functionality.
-; Perform test of available RAM.
-;
-.Test2m4mRam        PUSH AF
-                    PUSH BC
-                    PUSH HL
-
-                    LD   DE,$5446                 ; Use "FT" as Watermark for evaluating RAM size
-
-                    LD   B,-1                     ; B = calculate total of 512K blocks of RAM
-.validate_next_block
-                    INC  B
-                    CALL Bind512kBlock            ; bind block B
-
-                    PUSH BC
-                    LD   BC,$C002
-                    CALL MemDefBank               ; Bind in first bank (in slot 3) of 512K RAM
-                    PUSH BC                       ; to check if it contains a RAM watermark
-                    LD   HL,($8000)
-                    CP   A
-                    SBC  HL,DE
-                    JR   Z, found_ram
-                    LD   ($8000),DE               ; Fz = 0: no "FT" watermark, put it in...
-.found_ram          POP  BC
-                    CALL MemDefBank               ; restore bank binding
-                    POP  BC
-                    JR   NZ,validate_next_block   ; this block didn't have the watermark
-
-; found RAM watermark - first mirror block appeared, then B = total of 512K blocks of RAM found
-; now, each 512K block will be RAM tested..
-                    LD   C,0                      ; begin with block 0
-.test_512K_block
-                    PUSH BC
-                    LD   B,C
-                    CALL Bind512kBlock            ; bind block B in slot 3
-                    LD   B,32                     ; test 32 x 16K banks (512K) in slot 3...
-                    CALL RamTest
-                    POP  BC
-                    LD   A,H
-                    OR   L                        ; HL != 0, then RAM test failed...
-                    JR   NZ, ram_failed
-                    INC  C                        ; next block
-                    DJNZ test_512K_block
-                    JR   exit_Test2m4mRam
-.ram_failed
-                    SCF                           ; display failed address in hl'
-.exit_Test2m4mRam
-                    POP  HL
-                    POP  BC
-                    POP  AF
-                    RET
-
-
-; ************************************************************************************************
-; Rakewell 2M/4M card functionality.
-; Bind block B into lower 512K card memory of slot 3.
-;
-.Bind512kBlock      PUSH AF
-                    PUSH BC
-                    PUSH HL
-
-                    LD   A,B
-                    LD   BC,$FF02
-                    CALL MemDefBank               ; Bind in top bank of slot 3 to access latch register
-                    PUSH BC                       ; preserve old segment 2 binding
-
-                    LD   HL,$BFFF                 ; top address of card (here, in segment 2)
-                    DI                            ; ensure that card slot polling interrupt doesn't
-                    LD   (HL),A                   ; occur while writing to the latch register (and counter)
-                    LD   (HL),A
-                    LD   (HL),A
-                    LD   (HL),A                   ; 4th write will bind block A to lower 512K address space
-                    EI
-
-                    POP  BC
-                    CALL MemDefBank               ; restore segment 2 bank binding
-
-                    POP  HL
-                    POP  BC
-                    POP  AF
-                    RET
 
 
 ; **********************************************************************************************************
@@ -1123,5 +1040,4 @@ endif
 
 .Release_msg
                     DEFM "Flash Card Testing Tool for", 13, 10
-                    DEFM "Intel I28F00xS5 and Amd AM29F0xxB devices", 13, 10, 0
-
+                    DEFM "Intel I28F00xS5 and Amd compatible 29F0xxB devices", 13, 10, 0

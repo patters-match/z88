@@ -22,7 +22,7 @@
 cd ../../stdlib; ./makelib.sh; cd ../z88apps/flashtest
 
 rm -f *.obj *.map flashtest.epr fltest.bin romhdr.bin
-../../tools/mpm/mpm -b -I../../oz/def -l../../stdlib/standard.lib fltest.asm ramcard.asm fepcrdid.asm fepcrddata.asm fepblera.asm
+../../tools/mpm/mpm -b -I../../oz/def -l../../stdlib/standard.lib fltest.asm ramcard.asm
 ../../tools/mpm/mpm -b romhdr.asm
 if test `find . -name '*.err' | wc -l` != 0; then
     rm -f *.obj *.map flashtest.epr fltest.bin romhdr.bin

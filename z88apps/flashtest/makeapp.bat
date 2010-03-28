@@ -23,7 +23,7 @@ call makelib.bat
 cd ..\z88apps\flashtest
 
 del *.obj *.map flashtest.epr fltest.bin romhdr.bin
-..\..\tools\mpm\mpm -I..\..\oz\def -l..\..\stdlib\standard.lib -b fltest.asm ramcard.asm fepcrdid.asm fepcrddata.asm fepblera.asm
+..\..\tools\mpm\mpm -I..\..\oz\def -l..\..\stdlib\standard.lib -b fltest.asm ramcard.asm
 ..\..\tools\mpm\mpm -b romhdr.asm
 dir *.err 2>nul >nul || goto CREATE_EPR
 goto LIST_ERRORS
