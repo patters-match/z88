@@ -5,9 +5,8 @@ xdef RamTest
 ; IN:
 ;   B = banks to test in slot 3 (from $C0 + B-1)
 ; OUT:
-;   H = pass = $00, fail = pass number
-;   L = pass = $00, fail = bank number
-;   hl' = last address in bank
+;   A = pass = $00, fail = pass number
+;   BHL = last testing extended address
 ;
 .RamTest
                     di
@@ -25,7 +24,7 @@ xdef RamTest
                     ld      a,e            ; restore pass number
                     ld      d,$c0          ; first bank in slot 3
 .nxtbank
-                    out     (c),d          ; get the bank into segment 3
+                    out     (c),d          ; get the bank into segment 2
                     ld      hl,$8000       ; going to use segment 2
 .nxtbyte
                     ld      a,e            ; restore the pass number
@@ -80,16 +79,12 @@ xdef RamTest
                     ld      d,a            ; passed - return 0 in h & l
                     jr      setretrn       ;
 .failed
-                    ld      a,e            ; restore the pass number
+                    ld      a,e            ; return A = the pass number
 .setretrn
-                    exx                    ; last address->hl'
-                    ld      h,a            ; pass = $00, fail = pass number
-                    exx
-                    ld      a,d
-                    exx
-                    ld      l,a            ; pass = $00, fail = bank number
+                    ld      b,d            ; return BHL = last testing address
                     ex      af,af'         ; get the original bank for segment 2
                     ld      c,$d2          ; segment register 2 again...
                     out     (c),a          ; restore the original bank to segment 2
+                    ex      af,af'         ; return A = the pass number
                     ei
                     ret

@@ -101,11 +101,11 @@ IF !DEBUG
 
 .FlashTest_Help     DEFM $7F
                     DEFM "Flash Card Testing Tool for",$7F
-                    DEFM "Intel I28F00xS5, Amd AM29F0xxB devices", $7F
+                    DEFM "Intel I28F00xS5, Amd compatible 29F0xxB devices", $7F
                     DEFM $7F
 endif
 .progversion_msg
-                    DEFM "Release V1.4-dev, (C) G. Strube, May 2009", 0
+                    DEFM "Release V1.4, (C) G. Strube, Apr 2010", 0
 
 ; ******************************************************************************
 ;
@@ -197,7 +197,7 @@ endif
                     LD   HL, fe_found_msg
                     CALL_OZ(Gn_sop)                    ; display chip information
                     CALL FlashEprInfo
-                    JR   C, FlashEpr_not_found
+                    JP   C, FlashEpr_not_found
                     PUSH HL
                     EX   DE,HL
                     CALL_OZ(Gn_sop)                    ; display chip information
@@ -226,7 +226,7 @@ endif
                     CALL ProgramCard
                     LD   A,(ErrorFlag)
                     OR   A
-                    JR   NZ, program_err
+                    JP   NZ, program_err
 
 ; finally, reset the card again...
                     LD   A,(totbanks)
@@ -234,6 +234,81 @@ endif
                     CALL FormatCard
                     RET  C
 
+                    LD   A,(totbanks)
+                    CP   32                            ; 512K chip?
+                    JR   Z, PollForRam
+                    OR   A                             ; No, dont check for RAM, return Fc = 0
+                    RET
+                    
+; ***************************************************************************************************************                    
+.PollForRam
+                    LD   D,3
+                    LD   E,0                           ; check $C0 (bottom of slot 3) and upwards for RAM bank
+                    CALL PollForRam_loop
+                    INC  E
+                    DEC  E
+                    JR   Z, test_completed             ; No RAM found - Flash Card test completed..
+                    LD   B,E
+                    PUSH BC                            ; B = banks of RAM to be tested...
+                    
+                    LD   H,0
+                    LD   L,E
+                    ADD  HL,HL
+                    ADD  HL,HL
+                    ADD  HL,HL
+                    ADD  HL,HL                         ; Banks * 16 = Size of RAM in K
+                    PUSH HL
+                    POP  BC
+                    LD   HL,2
+                    LD   DE,buffer
+                    PUSH DE
+                    OZ   GN_Pdn
+                    XOR  A
+                    LD   (DE),A
+                    POP  HL
+                    OZ   GN_NLn
+                    OZ   Gn_Sop
+                    LD   A,'K'
+                    OZ   OS_Out
+                    LD   HL, ramcard_found_msg
+                    OZ   Gn_Sop
+                    
+                    LD   HL, ramtest_prompt_msg
+                    LD   DE, no_msg                    ; default 'No' to do RAM test
+                    CALL YesNo
+                    POP  BC
+                    JR   NZ, test_completed
+
+                    LD   HL, ramtesting_msg                    
+                    OZ   Gn_Sop
+                    CALL RamTest                       ; test B banks of RAM
+.check_ramtest
+                    OR   A
+                    JR   Z, test_completed             ; A=0, RAM test completed successfully..
+
+                    LD   A, B
+                    AND  @00111111
+                    LD   (ExtAddr),A
+                    RES  7,H
+                    RES  6,H
+                    LD   (ExtAddr+1),HL                ; failed RAM test ext. address...
+
+                    LD   HL,ramtestfailed_msg
+                    OZ   Gn_Sop
+                    CALL DispExtAddr
+                    CALL_OZ(Gn_Nln)
+                    RET
+.PollForRam_loop
+                    LD   BC,NQ_Slt
+                    OZ   OS_Nq                         ; get bank type information
+                    AND  [BU_WRK | BU_FIX | BU_RES | BU_APL | BU_FRE]
+                    JR   NZ, ram_bank
+                    RET                                ; E = total of banks found as a RAM related types
+.ram_bank
+                    INC  E
+                    JR   PollForRam_loop
+                    
+.test_completed
 ; the test have been performed successfully
 ; Display "Completed Message" and exit.
                     LD   HL, Completedmsg
@@ -986,6 +1061,65 @@ endif
                     POP  AF
                     RET
 
+; *************************************************************************************
+;
+.yesno
+                    LD   BC, yesno_loop
+                    PUSH BC
+                    JP   (HL)                ; call display message
+.yesno_loop         LD   H,D
+                    LD   L,E
+                    OZ   gn_sop
+                    OZ   OS_Pur              ; make sure no keys in sys. inp. buffer...
+                    CALL rdch
+                    JR   C,yesno_loop        ; ignore pre-emption...
+                    CP   IN_ESC
+                    JR   Z, abort_yesno
+                    CP   13
+                    JR   NZ,yn1
+                    LD   HL,yes_msg
+                    SBC  HL,DE               ; Yes, Fc = 0, Fz = 1
+                    RET  Z
+                    OR   A                   ; No, Fc = 0, Fz = 0
+                    RET
+.abort_yesno
+                    OR   A                   ; ESC pressed
+                    RET                      ; return Fc = 0, Fz = 0
+.yn1
+                    OR   32
+                    CP   'y'
+                    JR   NZ,yn2
+                    LD   DE,yes_msg
+                    JR   yesno_loop
+.yn2                                          ; all other keypressed means 'No'...
+                    LD   DE,no_msg
+                    JR   yesno_loop
+; *************************************************************************************
+
+; *************************************************************************************
+;
+.rdch
+                    CALL_OZ os_in
+                    JR   NC,rd2
+                    CP   RC_ESC
+                    JR   Z, ret_esc
+                    SCF
+                    RET
+.ret_esc
+                    LD   A, IN_ESC
+                    RET
+.rd2
+                    CP   0
+                    RET  NZ
+                    CALL_OZ os_in
+                    RET
+; *************************************************************************************
+
+.ramtest_prompt_msg
+                    LD   HL, ramtest_msg
+                    CALL_OZ gn_sop
+                    RET
+
 
 ; ***********************************************************************************************
 ; Text constants
@@ -995,6 +1129,14 @@ endif
 
 .CLI_file           DEFM "/eprlog", 0            ; standard CLI logfile 1, 5 bytes long
 .CLI_command        DEFM ".S", 0
+
+.yes_msg            DEFM 13,1,"2+C Yes",8,8,8,0
+.no_msg             DEFM 13,1,"2+C No ",8,8,8,0
+
+.ramcard_found_msg  DEFM " RAM found.", 13, 10, 0
+.ramtest_msg        DEFM "Execute RAM test? ", 13, 10, 0
+.ramtesting_msg     DEFM "Testing RAM...", 13, 10, 0
+.ramtestfailed_msg  DEFM "RAM test failed at address ",0
 
 .ByteNotEmptyErrMsg defm "Byte not empty at address ",0
 .VerifyErrMsg       defm "Byte program verify error: (", 0
