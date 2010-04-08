@@ -321,8 +321,6 @@ xdef UpdateFreeSpaceRamCard
                     dec  e
                     ret  nz                       ; 8x8 matrix row still not complete
                     ld   e,8
-                    add  hl,bc                    ; skip the 16 bytes off-screen bytes
-                    add  hl,bc                    ; where the next visible 8x8 matrix row begins
                     ret
 
 
@@ -405,11 +403,8 @@ xdef UpdateFreeSpaceRamCard
                     ld      b,0
                     ld      a,sc_hr0
                     oz      os_sci                          ; get base address of map area (hires0) in BHL
-                    ld      a,MM_S2
-                    res     7,h
-                    res     6,h
-                    or      h
-                    ld      h,a                             ; Base of map area adjusted to segment 2 for BHL
+                    set     7,h
+                    res     6,h                             ; Base of map area adjusted to segment 2 for BHL
                     ld      (graphics_base),hl              ; preserve base of graphics area
                     ld      a,b
                     ld      (graphics_bank),a
