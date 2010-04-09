@@ -2275,19 +2275,19 @@ defc    DM_RAM                  =$81
 ; If expanded RAM was found (>=128K), then return Fc = 0, A = bottom bank of found RAM card.
 ;
 .Chk128KB
-        ld      a, (ubSlotRamSize+2)            ; RAM in slot 2
-        cp      128/16
-        ld      a, $80
-        ret     nc
-
-        ld      a, (ubSlotRamSize+1)            ; RAM in slot 1
+        ld      a, (ubSlotRamSize+1)            ; check expanded RAM in slot 1 first.
         cp      128/16
         ld      a, $40
         ret     nc
 
-.Chk128KBslot0
-        ld      a, (ubSlotRamSize)              ; RAM in slot 0
+        ld      a, (ubSlotRamSize+2)            ; then, for expanded RAM in slot 2
         cp      128/16
+        ld      a, $80
+        ret     nc
+
+.Chk128KBslot0
+        ld      a, (ubSlotRamSize)              ; finally, check if RAM in slot 0 >= 128K
+        cp      128/16                          ; (less likely, since it requires hardware modification)
         ld      a, $21
         ret
 
