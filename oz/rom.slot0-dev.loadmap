@@ -1,5 +1,5 @@
 ; **************************************************************************************************
-; Z88 512K 'OZ' slot 0 ROM loadmap for MakeApp utility.
+; Z88 512K 'OZ' slot 0 ROM + Intuition debugger loadmap for MakeApp utility.
 ;
 ; This file is part of the Z88 operating system, OZ      0000000000000000      ZZZZZZZZZZZZZZZZZZZ
 ;                                                       000000000000000000   ZZZZZZZZZZZZZZZZZZZ
@@ -70,6 +70,9 @@ os/lowram/lowram.bin 0a3d00                     ; LOWRAM code (RST routines, etc
 ; Bank 11: FlashStore & Floating Point Package
 apps/flashstore/fsapp.bin 0b0000
 fp/fpp.bin 0b2c00                               ; $EC00: Floating Point Package
+
+; Bank 12 (0Ch): Reserved for Intuition
+apps/intuition/debugS00.bin 0c0000              ; $2000: Intuition debugger integrated in RST 08H
 
 ; ROM header at top of 512K address space
 mth/romhdr.bin 1f3fc0                           ; Front DOR and 'OZ'/'oz' header at top of ROM code

@@ -1,5 +1,5 @@
 :: **************************************************************************************************
-:: OZ ROM slot 0/1 compilation script for Windows/DOS
+:: OZ ROM slot 0/1 compilation script for Windows/DOS, with integrated Intuition debugger
 :: (C) Gunther Strube (gbs@users.sf.net) 2005-2007
 ::
 :: This file is part of the Z88 operating system, OZ.     0000000000000000      ZZZZZZZZZZZZZZZZZZZ
@@ -113,7 +113,7 @@ goto COMPILE_ERROR
 :: -------------------------------------------------------------------------------------------------
 :COMPILE_KERNEL
 echo compiling OZ kernel
-call kernel %ozslot% 2>nul >nul
+call kernel %ozslot% -DOZ_INTUITION 2>nul >nul
 if "%compile_status%"=="1" goto COMPILE_ERROR
 
 :: -------------------------------------------------------------------------------------------------
@@ -203,6 +203,14 @@ echo compiling OZ ROM Header
 cd mth
 ..\..\tools\mpm\mpm -db -DOZ_SLOT%ozslot% -I..\def @romhdr.prj 2>nul >nul
 cd ..
+if ERRORLEVEL 0 goto COMPILE_INTUITION
+goto COMPILE_ERROR
+
+:COMPILE_INTUITION
+echo compiling Intuition for OZ
+cd apps\intuition
+call make.debug.bat %ozslot%
+cd ..\..
 if ERRORLEVEL 0 goto COMBINE_BANKS
 goto COMPILE_ERROR
 
@@ -210,7 +218,7 @@ goto COMPILE_ERROR
 :: ROM was compiled successfully, combine the compiled 16K banks into a complete 512K binary
 :COMBINE_BANKS
 echo Compiled Z88 ROM, and combined into %oz_bin% file.
-..\tools\makeapp\makeapp.bat -f rom.slot%ozslot%.loadmap
+..\tools\makeapp\makeapp.bat -f rom.slot%ozslot%-dev.loadmap
 goto END
 
 :COMPILE_ERROR

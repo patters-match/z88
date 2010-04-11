@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # **************************************************************************************************
-# OZ ROM slot 0/1 compilation script for Unix.
+# OZ ROM slot 0/1 compilation script for Unix, with integrated Intuition debugger
 # (C) Gunther Strube (gbs@users.sf.net) 2005-2007
 #
 # This file is part of the Z88 operating system, OZ.     0000000000000000      ZZZZZZZZZZZZZZZZZZZ
@@ -121,7 +121,7 @@ fi
 
 # -------------------------------------------------------------------------------------------------
 echo compiling OZ kernel
-. kernel.sh $ozslot
+. kernel.sh $ozslot -DOZ_INTUITION
 if test `find . -name '*.err' | wc -l` != 0; then
   cat os/*.err
   echo Script aborted.
@@ -237,6 +237,12 @@ if test `find . -name '*.err' | wc -l` != 0; then
   exit 1
 fi
 
+# -------------------------------------------------------------------------------------------------
+echo compiling Intuition
+cd apps/intuition
+. make.debug.sh $ozslot
+cd ../..
+
 if test `find . -name '*.err' | wc -l` != 0; then
   cat apps/intuition/*.err
   echo Script aborted.
@@ -246,4 +252,4 @@ fi
 # -------------------------------------------------------------------------------------------------
 # ROM was compiled successfully, combine the compiled 16K banks into a complete 512K binary
 echo Compiled Z88 ROM, now being combined into $os_bin file.
-../tools/makeapp/makeapp.sh -f rom.slot$ozslot.loadmap
+../tools/makeapp/makeapp.sh -f rom.slot$ozslot-dev.loadmap

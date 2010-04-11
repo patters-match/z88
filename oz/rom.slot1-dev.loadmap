@@ -1,5 +1,5 @@
 ; **************************************************************************************************
-; Z88 512K 'OZ' slot 1 ROM loadmap for MakeApp utility.
+; Z88 512K 'OZ' slot 1 ROM + Intuition debugger loadmap for MakeApp utility.
 ;
 ; This file is part of the Z88 operating system, OZ      0000000000000000      ZZZZZZZZZZZZZZZZZZZ
 ;                                                       000000000000000000   ZZZZZZZZZZZZZZZZZZZ
@@ -31,6 +31,9 @@ romupdate oz.1
 ;
 ; The remaining empty space towards the bottom may be exploited by FlashStore
 ; as an "Eprom" filing system (on first 64K boundary below OZ ROM).
+
+; Bank $72: Reserved for Intuition
+apps/intuition/debugS00.bin 720000              ; $2000: Intuition debugger integrated in RST 08H
 
 ; Bank $74: EazyLink & LOWRAM
 apps/eazylink/eazylink.bin 740000               ; $8000: EazyLink popdown
