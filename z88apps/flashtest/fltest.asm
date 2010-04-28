@@ -105,7 +105,7 @@ IF !DEBUG
                     DEFM $7F
 endif
 .progversion_msg
-                    DEFM "Release V1.4, (C) G. Strube, Apr 2010", 0
+                    DEFM "Release V1.4.1, (C) G. Strube, Apr 2010", 0
 
 ; ******************************************************************************
 ;
@@ -284,7 +284,7 @@ endif
                     CALL RamTest                       ; test B banks of RAM
 .check_ramtest
                     OR   A
-                    JR   Z, test_completed             ; A=0, RAM test completed successfully..
+                    JR   Z, RAM_test_completed         ; A=0, RAM test completed successfully..
 
                     LD   A, B
                     AND  @00111111
@@ -307,7 +307,9 @@ endif
 .ram_bank
                     INC  E
                     JR   PollForRam_loop
-                    
+.RAM_test_completed
+                    LD   HL, RamCompletedmsg                    
+                    CALL_OZ Gn_Sop
 .test_completed
 ; the test have been performed successfully
 ; Display "Completed Message" and exit.
@@ -1144,6 +1146,7 @@ endif
 .Verify3ErrMsg      defm ", but should have been ", 0
 .Progaddrerrmsg     defm "Programming of byte failed at ", 0
 .Progerrmsg         defm "Programming of card failed.", 13, 10, 0
+.RamCompletedmsg    defm 1, "BSuccessfully tested RAM memory with no errors.", 1, "B", 13, 10, 0
 .Completedmsg       defm 1, "BTest of Flash Card completed successfully with no errors.", 1, "B", 13, 10, 0
 .CardNotFound       defm 1, "BFlash Card was not found in slot 3.", 1, "B", 13, 10, 0
 .formatmsg          defm "Formatting sector ", 0
