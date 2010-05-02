@@ -23,6 +23,7 @@
 
      include "error.def"
      include "memory.def"
+     include "flashepr.def"
 
 
 ;***************************************************************************************************
@@ -48,7 +49,7 @@
 ;    $3FF7       $01
 ;    $3FF8       4 byte random id
 ;    $3FFC       size of card in banks (2=32K, 8=128K, 16=256K, 64=1Mb)
-;    $3FFD       sub-type, $7E for 32K cards, and $7C for 128K (or larger) cards
+;    $3FFD       sub-type: $7E, $7C, $7A for UV 32K, 128K & 256K cards. $77, $6F for Intel and Amd Flash
 ;    $3FFE       'o'
 ;    $3FFF       'z' (file eprom identifier, lower case 'oz')
 ;    ------------------------------------------------------------------------------
@@ -56,7 +57,7 @@
 ;    00003fc0h: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ; ................
 ;    00003fd0h: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ; ................
 ;    00003fe0h: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ; ................
-;    00003ff0h: 00 00 00 00 00 00 00 01 73 D1 4B 3C 02 7E 6F 7A ; ........s—K<.~oz
+;    00003ff0h: 00 00 00 00 00 00 00 01 73 D1 4B 3C 02 7E 6F 7A ; ........s?<.~oz
 ;    ------------------------------------------------------------------------------
 ;
 ; B) A sub-standard 'oz' header is recognized at offset $3FEE inside an application 'OZ' header that
@@ -153,7 +154,6 @@
                                              ; B = app card banks, C = total size of card in banks
                     LD   E,C                 ; preserve card size in E
                     LD   C,D                 ; C = slot number
-
                     CALL DefHeaderPosition   ; locate and validate File Eprom Header
                     JR   C, no_filespace     ; whole card used for Applications...
                     POP  HL                  ; old DE
@@ -197,7 +197,7 @@
 ; OUT:
 ;         Fc = 0 (success),
 ;              Fz = 1, Header found
-;                   A = sub type of File Eprom
+;                   A = sub type of File Eprom or File Flash Card
 ;                   C = size of File Eprom Area in 16K banks
 ;              Fz = 0, Header not found
 ;                   A undefined
@@ -215,26 +215,49 @@
                     PUSH BC
                     PUSH HL
                     CALL FlashEprCardId      ; poll for known flash card types
+                    ld   d,a                 ; preserve chip type (FE_28F or FE_29F)...
                     LD   A,B                 ; if flash card was found, then B contains physical size in 16K banks
                     POP  HL                  ; (this overrules the card size supplied to this routine)
                     POP  BC
                     JR   C, epr_filearea     ; there's no Flash Card, so check top bank below app area
+                    ld   e,a                 ; E = the physical size of the flash
                     SUB  B                   ; <Total banks> - <ROM banks> = lowest bank of ROM area
                     CP   3                   ;
-                    JR   Z, appcard_no_room  ; Application card uses banks
-                    JR   C, exit_DefHdrPos   ; in lowest 64K block of card...
+                    call z, appcard_no_room  ; Application card uses banks
+                    call c, appcard_no_room  ; in lowest 64K block of card...
+                    jr   c, exit_DefHeaderPosition
                     AND  @11111100           ; File area are only found in Flash Card sector (64K) boundaries
-                    JR   checkfhdr
-.epr_filearea       LD   A,E                 ; use supplied card size in E
+                    call checkfhdr
+                    jr   c,exit_DefHeaderPosition
+                    jr   nz,exit_DefHeaderPosition
+                    ld   a,d
+                    pop  de
+                    cp   FE_28F
+                    ld   a,$77               ; if Intel Flash was found then the sub type is always $77
+                    ret  z
+                    ld   a,$6F               ; if Amd/Stm Flash was found then the sub type is always $6F
+                    cp   a
+                    ret
+.epr_filearea                                ; normal UV Eprom found
+                    ld   a,e                 ; use supplied card size in E
                     SUB  B                   ; <Total banks> - <ROM banks> = lowest bank of ROM area
+                    call checkfhdr
+.exit_DefHeaderPosition
+                    pop  de
+                    ret
 .checkfhdr
                     DEC  A                   ; A = Top Bank of File Area
+                    bit  5,e                 ; is physical size of Flash / Epr $20 banks? (usually is $40)
+                    ld   e,a                 ; relative top bank is size of file area + 1 (returned in C later)
+                    jr   z,check_bigcard_fa
+                    set  5,a                 ; for 512K Flash or Epr redefine bank location in upper 512K address map
+.check_bigcard_fa
                     LD   B,A                 ; B = relative bank number of "oz" header (or potential), C = slot number
                     CALL CheckFileEprHeader
-                    JR   NC,exit_DefHdrPos   ; header found, at absolute bank B, C = File Area in banks
+                    ret  nc                  ; header found, at absolute bank B, C = File Area in banks
                     EX   AF,AF'
                     LD   A,C
-                    LD   C,B
+                    ld   c,e
                     INC  C                   ; C = potential size of file area in banks
                     RRCA
                     RRCA
@@ -243,16 +266,14 @@
                     EX   AF,AF'
                     JR   C, new_filearea     ; "oz" File Eprom Header not found, but potential area...
                     CP   A                   ; B = absolute bank of "oz" Header, C = size of File Area in banks
-.exit_DefHdrPos
-                    POP  DE
                     RET                      ; return flag status = found!
 .new_filearea
                     OR   B                   ; Fc = 0, Fz = 0, indicate potential file area
-                    JR   exit_DefHdrPos
+                    ret
 .appcard_no_room
                     LD   A,RC_ROOM
                     SCF
-                    JR   exit_DefHdrPos
+                    ret
 
 
 ; ************************************************************************
