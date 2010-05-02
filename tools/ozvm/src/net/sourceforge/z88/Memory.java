@@ -494,66 +494,77 @@ public final class Memory {
 		size -= (size % (Bank.SIZE/1024));
 		int totalEprBanks = size / (Bank.SIZE/1024); // number of 16K banks in Eprom Card
 		Bank banks[] = new Bank[totalEprBanks]; // the card container
+		Bank ramBanks[];
+		Bank amdBanks[], amicBanks[];
 
-                if (eprType == SlotInfo.AmdHybridRamCard) {
-                    Bank ramBanks[] = createCard(512, SlotInfo.RamCard);
-                    Bank amdBanks[] = createCard(512, SlotInfo.AmdFlashCard);
+        switch (eprType) {
+            case SlotInfo.AmdHybridRamCard:
+                ramBanks = createCard(512, SlotInfo.RamCard);
+                amdBanks = createCard(512, SlotInfo.AmdFlashCard);
 
-                    System.arraycopy(ramBanks, 0, banks, 0, ramBanks.length);
-                    System.arraycopy(amdBanks, 0, banks, ramBanks.length, amdBanks.length);
-                } else {
-                    for (int curBank = 0; curBank < totalEprBanks; curBank++) {
-                            switch(eprType) {
-                                    case SlotInfo.RamCard:
-                                            banks[curBank] = new RamBank();
-                                            break;
+                System.arraycopy(ramBanks, 0, banks, 0, ramBanks.length);
+                System.arraycopy(amdBanks, 0, banks, ramBanks.length, amdBanks.length);
+                break;
 
-                                    case SlotInfo.EpromCard:
-                                            // Traditional UV Eproms (all size configurations allowed)
-                                            if (totalEprBanks <= 2)
-                                                    banks[curBank] = new EpromBank(EpromBank.VPP32KB);
-                                            else
-                                                    banks[curBank] = new EpromBank(EpromBank.VPP128KB);
-                                            break;
+            case SlotInfo.AmicHybridRamCard:
+                ramBanks = createCard(512, SlotInfo.RamCard);
+                amicBanks = createCard(512, SlotInfo.AmicFlashCard);
 
-                                    case SlotInfo.IntelFlashCard:
-                                            // Intel Flash Eprom Cards exists in 512K and 1MB configurations
-                                            switch(totalEprBanks) {
-                                                    case 32: banks[curBank] = new IntelFlashBank(IntelFlashBank.I28F004S5); break;
-                                                    case 64: banks[curBank] = new IntelFlashBank(IntelFlashBank.I28F008S5); break;
-                                                    default:
-                                                            return null; // Only 512K or 1MB Intel Flash Cards are allowed.
-                                            }
-                                            break;
+                System.arraycopy(ramBanks, 0, banks, 0, ramBanks.length);
+                System.arraycopy(amicBanks, 0, banks, ramBanks.length, amicBanks.length);
+                break;
 
-                                    case SlotInfo.AmdFlashCard:
-                                            // Amd Flash Eprom Cards exists in 128K, 512K and 1MB configurations
-                                            switch(totalEprBanks) {
-                                                    case 8: banks[curBank] = new AmdFlashBank(AmdFlashBank.AM29F010B); break;
-                                                    case 32: banks[curBank] = new AmdFlashBank(AmdFlashBank.AM29F040B); break;
-                                                    case 64: banks[curBank] = new AmdFlashBank(AmdFlashBank.AM29F080B); break;
-                                                    default:
-                                                            return null; // Only 128K, 512K or 1MB Amd Flash Cards are allowed.
-                                            }
-                                            break;
+            default:
+                for (int curBank = 0; curBank < totalEprBanks; curBank++) {
+                        switch(eprType) {
+                                case SlotInfo.RamCard:
+                                        banks[curBank] = new RamBank();
+                                        break;
 
-                                    case SlotInfo.StmFlashCard:
-                                            // Stm Flash Eprom Cards exists in 128K, 512K and 1MB configurations
-                                            switch(totalEprBanks) {
-                                                    case 8: banks[curBank] = new StmFlashBank(StmFlashBank.ST29F010B); break;
-                                                    case 32: banks[curBank] = new StmFlashBank(StmFlashBank.ST29F040B); break;
-                                                    case 64: banks[curBank] = new StmFlashBank(StmFlashBank.ST29F080D); break;
-                                                    default:
-                                                            return null; // Only 128K, 512K or 1MB Stm Flash Cards are allowed.
-                                            }
-                                            break;
+                                case SlotInfo.EpromCard:
+                                        // Traditional UV Eproms (all size configurations allowed)
+                                        if (totalEprBanks <= 2)
+                                                banks[curBank] = new EpromBank(EpromBank.VPP32KB);
+                                        else
+                                                banks[curBank] = new EpromBank(EpromBank.VPP128KB);
+                                        break;
 
-                                    default:
-                                            banks[curBank] = new RomBank();
-                                            break;
-                            }
-                    }
+                                case SlotInfo.IntelFlashCard:
+                                        // Intel Flash Eprom Cards exists in 512K and 1MB configurations
+                                        switch(totalEprBanks) {
+                                                case 32: banks[curBank] = new IntelFlashBank(IntelFlashBank.I28F004S5); break;
+                                                case 64: banks[curBank] = new IntelFlashBank(IntelFlashBank.I28F008S5); break;
+                                                default:
+                                                        return null; // Only 512K or 1MB Intel Flash Cards are allowed.
+                                        }
+                                        break;
+
+                                case SlotInfo.AmdFlashCard:
+                                        // Amd Flash Eprom Cards exists in 128K, 512K and 1MB configurations
+                                        switch(totalEprBanks) {
+                                                case 8: banks[curBank] = new AmdFlashBank(AmdFlashBank.AM29F010B); break;
+                                                case 32: banks[curBank] = new AmdFlashBank(AmdFlashBank.AM29F040B); break;
+                                                case 64: banks[curBank] = new AmdFlashBank(AmdFlashBank.AM29F080B); break;
+                                                default:
+                                                        return null; // Only 128K, 512K or 1MB Amd Flash Cards are allowed.
+                                        }
+                                        break;
+
+                                case SlotInfo.AmicFlashCard:
+                                        // Amic Flash exists in 512K configuration
+                                        switch(totalEprBanks) {
+                                                case 32: banks[curBank] = new AmicFlashBank(); break;
+                                                default:
+                                                        return null; // Only 512K Flash chip are allowed.
+                                        }
+                                        break;
+
+                                default:
+                                        banks[curBank] = new RomBank();
+                                        break;
+                        }
                 }
+            }
 
 		return banks;
 	}
@@ -613,6 +624,30 @@ public final class Memory {
 		}
 	}
 
+
+	/**
+	 * Insert hybrid 512K RAM / 512K AMIC card in slots 1 - 3.
+
+	 * Slot 1 (1Mb):   banks 40 - 7F
+	 * Slot 2 (1Mb):   banks 80 - BF
+	 * Slot 3 (1Mb):   banks C0 - FF
+	 *
+	 * @param slot number which Card will be inserted into
+	 * @return true, if card was inserted, false, if illegal size and type
+	 */
+	public boolean insertRamAmicCard(int slot) {
+		slot %= 4; // allow only slots 0 - 3 range.
+                if (slot == 0)
+                    return false;
+
+		Bank cardBanks[] = createCard(1024, SlotInfo.AmicHybridRamCard);
+		if (cardBanks != null) {
+			insertCard(cardBanks, slot); // insert the physical card into Z88 memory
+			return true;
+		} else {
+			return false;
+		}
+	}
 
 	/**
 	 * Insert empty File Card (file header automatically created) into
@@ -702,7 +737,7 @@ public final class Memory {
 	 *
 	 * @param slot to insert card with loaded binary image
 	 * @param sizeK of Card in Kb
-	 * @param eprType SlotInfo.EpromCard, SlotInfo.IntelFlashCard, SlotInfo.AmdFlashCard, SlotInfo.StmFlashCard
+	 * @param eprType SlotInfo.EpromCard, SlotInfo.IntelFlashCard, SlotInfo.AmdFlashCard, SlotInfo.AmicFlashCard
 	 * @param selectedFiles a collection of selected filenames
 	 * @throws IOException
 	 */
