@@ -254,10 +254,16 @@ public class Slots extends JPanel {
 
 		if (slotNo > 0) {
 			if (slotType != SlotInfo.EmptySlot) {
-				if (slotType != SlotInfo.AmdHybridRamCard)
-					slotText = (memory.getExternalCardSize(slotNo) * 16) + "K " + slotText;
-                                else
-					slotText = "512/512K AMD/RAM";
+				switch(slotType) {
+				    case SlotInfo.AmdHybridRamCard:
+				        slotText = "512/512K AMD/RAM";
+				        break;
+				    case SlotInfo.AmicHybridRamCard:
+				        slotText = "512/512K AMIC/RAM";
+				        break;
+				    default:
+					    slotText = (memory.getExternalCardSize(slotNo) * 16) + "K " + slotText;
+				}
 			}
 		}
 
