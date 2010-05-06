@@ -29,31 +29,14 @@
 
         include "sysvar.def"
 
-; If STANDALONE is defined as "0" then it needs two additional files,
-; "forever_h.bin" and "forever_t.bin" which are binary dumps of the
-; Forever compilation, first one being first 28893 bytes and the latter
-; one the remaining 64 bytes.
-; There are no bytes to spare if it's part of compilation.
+xdef    EPFetchDOR
 
-defc    STANDALONE = 1
 defc    BANK    = 63                    ; we are here
-
-
- if     STANDALONE=1
 
         org     $C000
 
 defc    LINK_BANK = 0                   ; next app is here
 defc    LINK_ADDR = 0
-
- else
-        org     $8000
-
-defc    LINK_BANK       = $3f
-defc    LINK_ADDR       = $da92
-        binary  "forever_h.bin"
-
- endif
 
 defc    SafeWorkspaceSize       = $171
 defc    SafeWorkspaceStart      = $1ffe - SafeWorkspaceSize
@@ -94,44 +77,13 @@ defc    CMD_MEM         = 5
 
 ;       file entry has the form:
 ;
-;1 byte      n           length of filename
-;1 byte      x           '/' for latest version, $00 for old (deleted) version
-;n-1 bytes   'xxxx'      filename
-;4 bytes     m           length of file (least significant byte first)
-;m bytes                 body of file
+;1 byteï¿½ï¿½ï¿½ï¿½ï¿½ nï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ length of filename
+;1 byteï¿½ï¿½ï¿½ï¿½ï¿½ xï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ '/' for latest version, $00 for old (deleted) version
+;n-1 bytesï¿½ï¿½ 'xxxx'ï¿½ï¿½ï¿½ï¿½ï¿½ filename
+;4 bytesï¿½ï¿½ï¿½ï¿½ mï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ length of file (least significant byte first)
+;m bytesï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ body of file
 
 
-.EPFetchDOR
-
-        defp    0,0                             ; parent
-        defp    LINK_ADDR,LINK_BANK             ; brother
-        defp    0,0                             ; son
-
-        defb    DM_ROM,46
-
-        defb    '@',18
-        defb    0,0
-        defb    'F'                             ; cmd letter
-        defb    0                               ; cont. RAM
-        defw    0                               ; env. overhead
-        defw    0                               ; unsafe mem
-        defw    SafeWorkspaceSize               ; safe mem
-        defw    EPFetch                         ; entry point
-        defb    0,0,0,BANK                      ; bindings
-        defb    8                               ; type=popdown
-        defb    3                               ; inversed caps
-
-        defb    'H',12
-        defp    sTopics, BANK
-        defp    sCommands, BANK
-        defp    sHelp, BANK
-        defp    0, 0
-
-        defb    'N',10
-        defm    "EP-Fetch2",0
-        defb    -1
-
-;       ----
 
 .EPFetch
         xor     a
@@ -1194,7 +1146,7 @@ defc    MAXFILENAMELEN  = PRINTWIDTH2C
         call    RdBHL_Inc
         cp      $a0                             ; '_'
         jr      z, gfi_2
-        cp      $a3                             ; '£'
+        cp      $a3                             ; 'ï¿½'
         jr      z, gfi_2
         cp      $7f
         ccf
@@ -1910,6 +1862,38 @@ defc    MAXFILENAMELEN  = PRINTWIDTH2C
 
 ;       ----
 
+.EPFetchDOR
+
+        defp    0,0                             ; parent
+        defp    LINK_ADDR,LINK_BANK             ; brother
+        defp    0,0                             ; son
+
+        defb    DM_ROM,46
+
+        defb    '@',18
+        defb    0,0
+        defb    'F'                             ; cmd letter
+        defb    0                               ; cont. RAM
+        defw    0                               ; env. overhead
+        defw    0                               ; unsafe mem
+        defw    SafeWorkspaceSize               ; safe mem
+        defw    EPFetch                         ; entry point
+        defb    0,0,0,BANK                      ; bindings
+        defb    8                               ; type=popdown
+        defb    3                               ; inversed caps
+
+        defb    'H',12
+        defp    sTopics, BANK
+        defp    sCommands, BANK
+        defp    sHelp, BANK
+        defp    0, 0
+
+        defb    'N',10
+        defm    "EP-Fetch2",0
+        defb    -1
+
+;       ----
+
 .sTopics        defb 0
 
 .sTPh           defb sTP1-sTPh
@@ -2029,7 +2013,7 @@ defc    MAXFILENAMELEN  = PRINTWIDTH2C
                 defb 0
                 defb sC-sCbottom
 
-.sC             defb 0
+                defb 0
 
 ;       ----
 
@@ -2062,31 +2046,3 @@ defc    MAXFILENAMELEN  = PRINTWIDTH2C
                 defm    $7f
                 defm    "If line feeds don't work correctly, try toggling the",$7f
                 defm    "'Allow Line feed.'",0
-
-
-
- if STANDALONE=1
-                defs    ($ffc0-$PC)&$3fff
-                defp    0,0
-                defp    0,0
-                defp    EPFetchDOR, BANK
-                defb    $13,8
-                defb    'N',5
-                defm    "APPL",0
-                defb    -1
-
-                defs    $fff8-$ffc0-19
-
-; $fff6
-                defw    $2003           ; app ID
-                defb    5               ; country (se)
-                defb    $80             ; app
-                defb    1               ; 16KB
-                defb    0               ; subtype
-                defm    "OZ"
-
- else
-;               defs    1               ; !! no more free space !!
-                binary  "forever_t.bin"
- endif
-

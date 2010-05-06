@@ -19,4 +19,8 @@
 :: (this compile script is located in /z88apps/epfetch)
 
 del *.obj *.bin *.map
-..\..\tools\mpm\mpm -b -I..\..\oz\def epfetch2
+..\..\tools\mpm\mpm -bg -I..\..\oz\def epfetch2
+..\..\tools\mpm\mpm -b romhdr
+
+# Create a 16K Rom Card with EP-Fetch2
+../../tools/makeapp/makeapp.bat -f epfetch2.loadmap
