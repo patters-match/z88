@@ -1083,27 +1083,45 @@ public final class Memory {
 	 * @return number of 16K banks of inserted Card
 	 */
 	public int getExternalCardSize(final int slotNo) {
-		int cardSize = -1;					// preset to "no card available"...
-		int bankNo = ((slotNo & 3) << 6);	// bottom bank number of slot
-		int bottomBankNo = bankNo;
-		int maxBanks;
+		int cardSize = -1;                          // preset to "no card available"...
+		int bankNo = ((slotNo & 3) << 6) | 0x3f;    // top bank number of slot
 
 		if (isSlotEmpty(slotNo) == true)
 			return -1;
 		else {
-			if (slotNo > 0) {
-				maxBanks = 64;	// each external slot has 1Mb address range
+			Bank topBank = getBank(bankNo);
 
-				Bank bottomBank = getBank(bottomBankNo);
+    		if ( topBank instanceof AmdFlashBank == true) {
+    		    AmdFlashBank afb = (AmdFlashBank) topBank;
+    		    switch(afb.getDeviceCode()) {
+    		        case AmdFlashBank.AM29F010B: return 8;
+    		        case AmdFlashBank.AM29F040B: return 32;
+    		        case AmdFlashBank.AM29F080B: return 64;
+    		    }
+    		}
+    		if ( topBank instanceof AmicFlashBank == true) {
+    		    // Rakewell only uses a 512K chip in a hybrid card.
+    		    // No other chip types are available
+    	        return 32;
+    		}
+    		if ( topBank instanceof IntelFlashBank == true) {
+    	        return 64;
+    		}
+
+            // rest of card types are scanned in slot..
+			if (slotNo > 0) {
+				int maxBanks = 64;	// each external slot has 1Mb address range
+
 				cardSize = 1;
-				while (++bankNo < (bottomBankNo+maxBanks)) {
-					if (getBank(bankNo) != bottomBank)
+				while (--maxBanks > 0) {
+					if (getBank(--bankNo) != topBank)
 						cardSize++;
 					else
 						break;
 				}
 			}
 
+            System.out.println("Memory.getExternalCardSize() = " + cardSize);
 			return cardSize;
 		}
 	}

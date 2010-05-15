@@ -394,9 +394,11 @@ public abstract class GenericAmdFlashBank extends Bank {
 
 	/**
 	 * Erase complete Flash Memory (never fails in this emulation!).
+	 * the banks representing the chip are erased from top of
+	 * slot downwards.
 	 */
 	private void eraseChipCommand() {
-		int cardTopBank;
+		int cardTopBank, totalCardBanks = 0;
 
 		// through this bank number we find the bottom Bank number of the slot
 		int thisBottomSlotBank = (getBankNumber() & 0xC0);
@@ -408,10 +410,26 @@ public abstract class GenericAmdFlashBank extends Bank {
 			// get the top bank number of the card (might not be the top of the slot!)
 			cardTopBank = memory.getBank(thisBottomSlotBank | 0x3F).getBankNumber();
 
-		for (int thisBank = thisBottomSlotBank; thisBank<=cardTopBank; thisBank++) {
-			GenericAmdFlashBank b = (GenericAmdFlashBank) memory.getBank(thisBank);
-			b.eraseBank();
+   		Bank bank = memory.getBank(cardTopBank);
+		if ( bank instanceof AmdFlashBank == true) {
+		    AmdFlashBank afb = (AmdFlashBank) bank;
+		    switch(afb.getDeviceCode()) {
+		        case AmdFlashBank.AM29F010B: totalCardBanks = 8; break;
+		        case AmdFlashBank.AM29F040B: totalCardBanks = 32; break;
+		        case AmdFlashBank.AM29F080B: totalCardBanks = 64; break;
+		    }
 		}
+		if ( bank instanceof AmicFlashBank == true) {
+		    // Rakewell only uses a 512K chip in a hybrid card.
+		    // No other chip types are available
+	        totalCardBanks = 32;
+		}
+
+		while (totalCardBanks-- > 0) {
+		    System.out.println("Erasing " + cardTopBank);
+			GenericAmdFlashBank b = (GenericAmdFlashBank) memory.getBank(cardTopBank--);
+			b.eraseBank();
+		};
 
 		// indicate success when application polls for read status cycles...
 		readStatusStack = presetSequence(readStatusCommandSuccess);
@@ -433,6 +451,7 @@ public abstract class GenericAmdFlashBank extends Bank {
 			int bottomBankOfSector = getBankNumber() & 0xFC;  // bottom bank of sector
 
 			for (int thisBank = bottomBankOfSector; thisBank <= (bottomBankOfSector+3); thisBank++) {
+			    System.out.println("Erasing " + thisBank);
 				GenericAmdFlashBank b = (GenericAmdFlashBank) memory.getBank(thisBank);
 				b.eraseBank();
 			}

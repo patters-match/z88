@@ -1401,12 +1401,6 @@ public class Slots extends JPanel {
 				formatFileAreaMenuItem.setText(formatFileAreaMsg);
 				formatFileAreaMenuItem.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
-                		if (Z88.getInstance().getProcessorThread() != null) {
-                    		// cannot format while Z88 is running...
-                    		JOptionPane.showMessageDialog(null, "Cannot format file are while Z88 is running.");
-                    		return;
-                		}
-
 						if (JOptionPane.showConfirmDialog(Slots.this, "Format file area?\nWarning: All files will be lost.",
 								formatFileAreaMsg + " in slot " + cardSlotNo, JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
 							if (FileArea.create(cardSlotNo, true) == true)

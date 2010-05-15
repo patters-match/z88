@@ -136,21 +136,21 @@ public class SlotInfo {
 	 */
 	public int getFileHeaderBank(final int slotNo) {
 		// start scan at bottom of card, then upwards...
-		int bankNo = ((slotNo & 3) << 6) ;
-		Bank bank = memory.getBank(bankNo);
+		int bottomBankNo = ((slotNo & 3) << 6);
+		int bankNo = bottomBankNo | 0x3f;
 
-		if ( (bank instanceof EpromBank == true) |
-				(bank instanceof GenericAmdFlashBank == true) |
-				(bank instanceof IntelFlashBank == true) ) {
+		while ( bankNo-- >= bottomBankNo) {
+    		Bank bank = memory.getBank(bankNo);
 
-			for( int topBank=bankNo | (memory.getExternalCardSize(slotNo)-1);
-				bankNo <= topBank; bankNo++) {
-				if (isFileHeader(bankNo) == true) return bankNo;
+    		if ( (bank instanceof EpromBank == true) |
+    				(bank instanceof GenericAmdFlashBank == true) |
+    				(bank instanceof IntelFlashBank == true) ) {
+			    if (isFileHeader(bankNo) == true) {
+			        return bankNo;
+			    }
 			}
-			return -1;	// reached top of bank, and no file header was found
-		} else {
-			return -1;	// File area not found in Ram cards or empty slots..
 		}
+		return -1;	// reached top of bottom of card or card type changed, and no file header was found
 	}
 
 	/**
