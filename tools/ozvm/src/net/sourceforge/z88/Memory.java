@@ -324,7 +324,11 @@ public final class Memory {
 				if (bankFileFormat == false) {
 					// dump slot as a single file...
 					bottomBankNo = slotNumber << 6;
-					topBankNo = bottomBankNo + (getExternalCardSize(slotNumber)-1);
+					switch (SlotInfo.getInstance().getCardType(slotNumber)) {
+					    case SlotInfo.AmdHybridRamCard: topBankNo = bottomBankNo + 0x3f; break;
+					    case SlotInfo.AmicHybridRamCard: topBankNo = bottomBankNo + 0x3f; break;
+					    default: topBankNo = bottomBankNo + (getExternalCardSize(slotNumber)-1);
+					}
 					dumpBanksToFile(bottomBankNo, topBankNo, dirName, fileName);
 				} else {
 					// dump slot from top bank (63 / 0x3F), downwards...
@@ -339,8 +343,8 @@ public final class Memory {
 						}
 					}
 
-                                        if (SlotInfo.getInstance().isOzRom(slotNumber) == true)
-                                            createOzRomUpdCfgFile(slotNumber, dirName, fileName);
+                    if (SlotInfo.getInstance().isOzRom(slotNumber) == true)
+                        createOzRomUpdCfgFile(slotNumber, dirName, fileName);
 				}
 			}
 		}
@@ -356,51 +360,51 @@ public final class Memory {
 	 */
 	public boolean createOzRomUpdCfgFile(int slotNo, String exportDir, String bankFileName) {
 		int totalBanks = 0;
-                int topBankNo, bottomBankNo;
-                int appCardBanks = getExternalCardSize(slotNo);
+        int topBankNo, bottomBankNo;
+        int appCardBanks = getExternalCardSize(slotNo);
 		int base_slot_bank = 64-appCardBanks;
 
-                if (SlotInfo.getInstance().isOzRom(slotNo) == true) {
-                    topBankNo = (((slotNo & 3) << 6) | 0x3F);
-                    bottomBankNo = topBankNo - (appCardBanks-1);
-                    for (int bankNo=topBankNo; bankNo >= bottomBankNo; bankNo--) {
-                            if (getBank(bankNo).isEmpty() == false)
-                                    totalBanks++; // count total number of banks to be blown to slot 0
-                    }
+        if (SlotInfo.getInstance().isOzRom(slotNo) == true) {
+            topBankNo = (((slotNo & 3) << 6) | 0x3F);
+            bottomBankNo = topBankNo - (appCardBanks-1);
+            for (int bankNo=topBankNo; bankNo >= bottomBankNo; bankNo--) {
+                    if (getBank(bankNo).isEmpty() == false)
+                            totalBanks++; // count total number of banks to be blown to slot 0
+            }
 
-                    try {
-                            File f = new File(exportDir + File.separator + "romupdate.cfg");
-                            f.delete();
+            try {
+                    File f = new File(exportDir + File.separator + "romupdate.cfg");
+                    f.delete();
 
-                            RandomAccessFile cardFile = new RandomAccessFile(exportDir + File.separator + "romupdate.cfg", "rw");
-                            cardFile.writeBytes("CFG.V3\n");
-                            cardFile.writeBytes("; OZ ROM, and total amount of banks to update.\n");
+                    RandomAccessFile cardFile = new RandomAccessFile(exportDir + File.separator + "romupdate.cfg", "rw");
+                    cardFile.writeBytes("CFG.V3\n");
+                    cardFile.writeBytes("; OZ ROM, and total amount of banks to update.\n");
 
-                            cardFile.writeBytes("OZ.1" + "," + totalBanks + "\n");
-                            cardFile.writeBytes("; Bank file, CRC, destination bank to update (in slot " + slotNo + ").\n");
+                    cardFile.writeBytes("OZ.1" + "," + totalBanks + "\n");
+                    cardFile.writeBytes("; Bank file, CRC, destination bank to update (in slot " + slotNo + ").\n");
 
-                            for (int bankNo=bottomBankNo; bankNo <= topBankNo; bankNo++) {
-                                    if (getBank(bankNo).isEmpty() == false)	{
-                                            cardFile.writeBytes("\"" + bankFileName + "." + (bankNo & 0x3f) + "\",");
-                                            cardFile.writeBytes("$" + Long.toHexString(getBank(bankNo).getCRC32()) + ",");
-                                            cardFile.writeBytes("$" + Dz.byteToHex( (slotNo << 6) | (base_slot_bank + (bankNo & 0x3f)), false) + "\n");
-                                    }
+                    for (int bankNo=bottomBankNo; bankNo <= topBankNo; bankNo++) {
+                            if (getBank(bankNo).isEmpty() == false)	{
+                                    cardFile.writeBytes("\"" + bankFileName + "." + (bankNo & 0x3f) + "\",");
+                                    cardFile.writeBytes("$" + Long.toHexString(getBank(bankNo).getCRC32()) + ",");
+                                    cardFile.writeBytes("$" + Dz.byteToHex( (slotNo << 6) | (base_slot_bank + (bankNo & 0x3f)), false) + "\n");
                             }
-                            cardFile.close();
-
-                    } catch (FileNotFoundException e) {
-                            // TODO Auto-generated catch block
-                            e.printStackTrace();
-                    } catch (IOException e) {
-                            // TODO Auto-generated catch block
-                            e.printStackTrace();
                     }
+                    cardFile.close();
 
-                    return true;
-                } else {
-                    // not an OZ rom...
-                    return false;
-                }
+            } catch (FileNotFoundException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+            } catch (IOException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+            }
+
+            return true;
+        } else {
+            // not an OZ rom...
+            return false;
+        }
 	}
 
 	/**
@@ -1121,7 +1125,6 @@ public final class Memory {
 				}
 			}
 
-            System.out.println("Memory.getExternalCardSize() = " + cardSize);
 			return cardSize;
 		}
 	}

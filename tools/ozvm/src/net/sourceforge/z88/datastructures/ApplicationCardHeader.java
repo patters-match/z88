@@ -48,7 +48,6 @@ public class ApplicationCardHeader {
 			cardId = (memory.getByte(0x3FF9, bankNo) << 8) | memory.getByte(0x3FF8, bankNo);
 			countryCode = memory.getByte(0x3FFA, bankNo);
 			appAreaSize = memory.getByte(0x3FFC, bankNo);
-			System.out.println("App/OZ hdr (bank " + bankNo + ") for slot " + slotNo + ": area size = " + appAreaSize);
 		}
 	}
 

@@ -708,8 +708,6 @@ public class FileArea {
 
 		int topBankNo = (slotNumber << 6) | 0x3f;
 
-        System.out.println("FileArea.create(): topBankNo = " + topBankNo);
-
 		// get top bank of slot to determine card type (but this might be a hybrid card)...
 		Bank bank = memory.getBank(topBankNo);
 		if ((bank instanceof EpromBank == false)
@@ -722,13 +720,10 @@ public class FileArea {
 			if (fileHdrBank != -1) {
 				// file header found somewhere on card.
 				// format file area from bank of file header, downwards...
-				System.out.println("FileArea.create(): has hdr at bank " + fileHdrBank);
 				if (formatArea == true)
 					formatFileArea(fileHdrBank);
 			} else {
 				if ((slotinfo.isOzRom(slotNumber) == true) | (slotinfo.isApplicationCard(slotNumber) == true)) {
-			        System.out.println("FileArea.create(): no hdr, but app/oz card");
-
 					ApplicationCardHeader appCrdHdr = new ApplicationCardHeader(
 							slotNumber);
 					if (bank instanceof EpromBank == true) {
@@ -746,8 +741,6 @@ public class FileArea {
 						int fileAreaSize = memory.getExternalCardSize(slotNumber)
 								- appCrdHdr.getAppAreaSize();
                         fileAreaSize -= (fileAreaSize % 4);
-
-                        System.out.println("FileArea.create(): file area size = " + fileAreaSize);
 
 						// validate free space for Flash Cards...
 						if (bank instanceof GenericAmdFlashBank == true) {
@@ -771,13 +764,11 @@ public class FileArea {
 						}
 
 						int topFileAreaBank = ((topBankNo - appCrdHdr.getAppAreaSize()) & 0xFC) - 1;
-						System.out.println("FileArea.create(): top bank of file area below apps = " + topFileAreaBank);
 
 						if (formatArea == true)
 							formatFileArea(topFileAreaBank);
 					}
 				} else {
-				    System.out.println("FileArea.create(): empty card");
 					// empty card, write file header at top of card...
 					if (formatArea == true)
 						formatFileArea(topBankNo);
@@ -870,8 +861,6 @@ public class FileArea {
 				| (bank instanceof GenericAmdFlashBank == true)
 				| (bank instanceof IntelFlashBank == true)) {
 
-            System.out.println("createFileHeader on flash/epr in bank " + bankNo);
-
 			for (int offset = 0x3FC0; offset < 0x3FF7; offset++)
 				memory.setByte(offset, bankNo, 0);
 
@@ -902,7 +891,6 @@ public class FileArea {
 
 			return true;
 		} else {
-		    System.out.println("createFileHeader: No flash/epr!");
 			// header can't be written to Ram cards or empty slots..
 			return false;
 		}
@@ -949,6 +937,7 @@ public class FileArea {
 	 */
 	private static void formatFileArea(int topBank) {
 	    int bankNo = topBank;
+	    int totalBanks = (bankNo & 0x3f); // botton of slot is limit..
 		Memory memory = Z88.getInstance().getMemory();
 
 		// format file area from top bank, downwards...
@@ -967,9 +956,8 @@ public class FileArea {
     		    break;
     		}
 
-            System.out.println("Format file area: bank = " + bankNo);
     		bankNo--;
-		} while ( (bankNo & 0x3f) >= 0); // stop at bottom of slot
+		} while ( totalBanks-- > 0); // stop at bottom of slot
 
 		createFileHeader(topBank);
 	}

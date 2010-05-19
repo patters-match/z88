@@ -426,7 +426,6 @@ public abstract class GenericAmdFlashBank extends Bank {
 		}
 
 		while (totalCardBanks-- > 0) {
-		    System.out.println("Erasing " + cardTopBank);
 			GenericAmdFlashBank b = (GenericAmdFlashBank) memory.getBank(cardTopBank--);
 			b.eraseBank();
 		};
@@ -451,7 +450,6 @@ public abstract class GenericAmdFlashBank extends Bank {
 			int bottomBankOfSector = getBankNumber() & 0xFC;  // bottom bank of sector
 
 			for (int thisBank = bottomBankOfSector; thisBank <= (bottomBankOfSector+3); thisBank++) {
-			    System.out.println("Erasing " + thisBank);
 				GenericAmdFlashBank b = (GenericAmdFlashBank) memory.getBank(thisBank);
 				b.eraseBank();
 			}
