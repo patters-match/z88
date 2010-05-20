@@ -54,6 +54,12 @@ public class FileArea {
 	/** the slot number of the File area. */
 	private int slotNumber;
 
+        /** The top bank number of the File Area, -1 if no file area */
+        private int fileAreaTopBank;
+
+        /** The bottom bank number of the File Area */
+        private int fileAreaBottomBank;
+
 	/**
 	 * The File Header of this File Area. Will be used to validate if another
 	 * File area has been inserted into this slot since last time this object
@@ -76,11 +82,12 @@ public class FileArea {
 		slotinfo = SlotInfo.getInstance();
 
 		slotNumber = slotNo;
-		int bankNo = slotinfo.getFileHeaderBank(slotNumber);
-		if (bankNo == -1)
+		fileAreaTopBank = slotinfo.getFileHeaderBank(slotNumber);
+		if (fileAreaTopBank == -1)
 			throw new FileAreaNotFoundException();
 		else {
-			fileAreaHdr = new FileAreaHeader(bankNo);
+			fileAreaHdr = new FileAreaHeader(fileAreaTopBank);
+                        fileAreaBottomBank = fileAreaTopBank - fileAreaHdr.getSize() + 1;
 			refreshFileList(); // automatically build the file list...
 		}
 	}
@@ -107,7 +114,7 @@ public class FileArea {
 		filesList = new LinkedList();
 
 		// start scanning at bottom of card...
-		int fileEntryPtr = (slotNumber << 6) << 16;
+		int fileEntryPtr = fileAreaBottomBank << 16;
 		while (memory.getByte(fileEntryPtr) != 0xFF
 				& memory.getByte(fileEntryPtr) != 0x00) {
 
@@ -224,7 +231,7 @@ public class FileArea {
 				freeSpace = ptrToInt(fileHdrPtr) - ptrToInt(freeSpacePtr);
 			} else {
 				// the file area is empty, return all available space in file area
-				freeSpace = fileAreaHdr.getSize() * Bank.SIZE - 64;
+				freeSpace = getFileAreaSize();
 			}
 		}
 
@@ -261,7 +268,7 @@ public class FileArea {
 	}
 
 	/**
-	 * Return the size of the file area in bytes.
+	 * Return the size of the file area in bytes, regardless of content
 	 *
 	 * @return the size of the file area in bytes
 	 * @throws FileAreaNotFoundException
@@ -270,7 +277,7 @@ public class FileArea {
 		if (isFileAreaAvailable() == false)
 			throw new FileAreaNotFoundException();
 		else {
-			return fileAreaHdr.getSize() * Bank.SIZE - 64;
+			return fileAreaHdr.getSize() * Bank.SIZE - 64; // correct size without file header...
 		}
 	}
 
@@ -342,7 +349,7 @@ public class FileArea {
 						+ fe.getHdrLength() + fe.getFileLength());
 			} else {
 				// no files are available, point at bottom of card...
-				return (slotNumber << 6) << 16;
+				return fileAreaBottomBank << 16;
 			}
 		}
 	}
@@ -545,31 +552,29 @@ public class FileArea {
 	 * @return <b>true</b>, if a file area was found.
 	 */
 	public boolean isFileAreaAvailable() {
-		int bankNo;
-
 		if (fileAreaHdr == null) {
-			bankNo = slotinfo.getFileHeaderBank(slotNumber);
-			if (bankNo == -1)
-				return false;
-			else {
-				fileAreaHdr = new FileAreaHeader(bankNo);
-				refreshFileList(); // automatically build the file list...
-				return true;
-			}
+                        fileAreaTopBank = slotinfo.getFileHeaderBank(slotNumber);
+                        if (fileAreaTopBank == -1)
+                                return false;
+                        else {
+                                fileAreaHdr = new FileAreaHeader(fileAreaTopBank);
+                                fileAreaBottomBank = fileAreaTopBank - fileAreaHdr.getSize() + 1;
+                                refreshFileList(); // automatically build the file list...
+                        }
 		}
 
-		bankNo = fileAreaHdr.getBankNo();
-		if (slotinfo.isFileHeader(bankNo) == false) {
+		if (slotinfo.isFileHeader(fileAreaTopBank) == false) {
 			// card with file area has been removed. Check if a new card
 			// might have been inserted in this slot with another file area...
-			bankNo = slotinfo.getFileHeaderBank(slotNumber);
-			if (bankNo == -1) {
+			fileAreaTopBank = slotinfo.getFileHeaderBank(slotNumber);
+			if (fileAreaTopBank == -1) {
 				// file area definitely gone...
 				fileAreaHdr = null;
 				filesList = null;
 				return false;
 			} else {
-				fileAreaHdr = new FileAreaHeader(bankNo);
+				fileAreaHdr = new FileAreaHeader(fileAreaTopBank);
+                                fileAreaBottomBank = fileAreaTopBank - fileAreaHdr.getSize() + 1;
 				refreshFileList(); // automatically build the file list...
 				return true;
 			}
@@ -577,10 +582,10 @@ public class FileArea {
 			// file header is available at the same position, but
 			// is it a new file area (compared to the previous scanned
 			// file area for this slot)?
-			int randomId = (memory.getByte(0x3FF8, bankNo) << 24) |
-							memory.getByte(0x3FF9, bankNo) << 16 |
-							memory.getByte(0x3FFA, bankNo) << 8 |
-							memory.getByte(0x3FFB, bankNo);
+			int randomId = (memory.getByte(0x3FF8, fileAreaTopBank) << 24) |
+							memory.getByte(0x3FF9, fileAreaTopBank) << 16 |
+							memory.getByte(0x3FFA, fileAreaTopBank) << 8 |
+							memory.getByte(0x3FFB, fileAreaTopBank);
 
 			if (randomId != fileAreaHdr.getRandomId()) {
 				// A new file area that has the same size and
@@ -740,7 +745,7 @@ public class FileArea {
 						// create file area in flash card (modulus 64K sector aligned)...
 						int fileAreaSize = memory.getExternalCardSize(slotNumber)
 								- appCrdHdr.getAppAreaSize();
-                        fileAreaSize -= (fileAreaSize % 4);
+                                                fileAreaSize -= (fileAreaSize % 4);
 
 						// validate free space for Flash Cards...
 						if (bank instanceof GenericAmdFlashBank == true) {
@@ -938,28 +943,28 @@ public class FileArea {
 	private static void formatFileArea(int topBank) {
 	    int bankNo = topBank;
 	    int totalBanks = (bankNo & 0x3f); // botton of slot is limit..
-		Memory memory = Z88.getInstance().getMemory();
+            Memory memory = Z88.getInstance().getMemory();
 
-		// format file area from top bank, downwards...
-		do
-		{
-        	Bank bank = memory.getBank(bankNo);
-        	if ((bank instanceof EpromBank == true)
-        			| (bank instanceof GenericAmdFlashBank == true)
-        			| (bank instanceof IntelFlashBank == true))
-        	{
-    			for (int offset = 0; offset < 0x4000; offset++)
-    				memory.setByte(offset, bankNo, 0xFF);
-    		} else {
-    		    // we're no longer in a card that can hold a file area...
-    		    // (probably, we are part of a hybrid card..)
-    		    break;
-    		}
+            // format file area from top bank, downwards...
+            do
+            {
+            Bank bank = memory.getBank(bankNo);
+            if ((bank instanceof EpromBank == true)
+                            | (bank instanceof GenericAmdFlashBank == true)
+                            | (bank instanceof IntelFlashBank == true))
+            {
+                    for (int offset = 0; offset < 0x4000; offset++)
+                            memory.setByte(offset, bankNo, 0xFF);
+            } else {
+                // we're no longer in a card that can hold a file area...
+                // (probably, we are part of a hybrid card..)
+                break;
+            }
 
-    		bankNo--;
-		} while ( totalBanks-- > 0); // stop at bottom of slot
+            bankNo--;
+            } while ( totalBanks-- > 0); // stop at bottom of slot
 
-		createFileHeader(topBank);
+            createFileHeader(topBank);
 	}
 
 

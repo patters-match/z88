@@ -139,16 +139,20 @@ public class SlotInfo {
 		int bottomBankNo = ((slotNo & 3) << 6);
 		int bankNo = bottomBankNo | 0x3f;
 
-		while ( bankNo-- >= bottomBankNo) {
-    		Bank bank = memory.getBank(bankNo);
+		while ( bankNo >= bottomBankNo) {
+                    Bank bank = memory.getBank(bankNo);
 
-    		if ( (bank instanceof EpromBank == true) |
-    				(bank instanceof GenericAmdFlashBank == true) |
-    				(bank instanceof IntelFlashBank == true) ) {
-			    if (isFileHeader(bankNo) == true) {
-			        return bankNo;
-			    }
-			}
+                    if ( (bank instanceof EpromBank == true) |
+                            (bank instanceof GenericAmdFlashBank == true) |
+                            (bank instanceof IntelFlashBank == true) ) {
+                        if (isFileHeader(bankNo) == true) {
+                            return bankNo;
+                        }
+                    } else {
+                        break;
+                    }
+
+                    bankNo--;
 		}
 		return -1;	// reached top of bottom of card or card type changed, and no file header was found
 	}
