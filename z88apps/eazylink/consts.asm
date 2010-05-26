@@ -1,6 +1,6 @@
 ; *************************************************************************************
 ; EazyLink - Fast Client/Server File Management, including support for PCLINK II protocol
-; (C) Gunther Strube (gbs@users.sourceforge.net) 1990-2006
+; (C) Gunther Strube (gbs@users.sourceforge.net) 1990-2010
 ;
 ; EazyLink is free software; you can redistribute it and/or modify it under the terms of the
 ; GNU General Public License as published by the Free Software Foundation;
@@ -67,7 +67,7 @@
 .pclink_synch       DEFB 5, 6
 .extended_synch     DEFB 1, 2
 
-.menu_banner        DEFM "EazyLink V5.0.5.DEV", 0
+.menu_banner        DEFM "EazyLink V5.0.5.1", 0
 .command_banner     DEFM "Commands", 0
 .message1           DEFM "Running",    0
 .message2           DEFM "Waiting...", 0
