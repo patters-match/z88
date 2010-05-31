@@ -941,13 +941,13 @@ public class FileArea {
 	 *            the top bank of the file area including the header at $3FC0
 	 */
 	private static void formatFileArea(int topBank) {
-	    int bankNo = topBank;
-	    int totalBanks = (bankNo & 0x3f); // botton of slot is limit..
-            Memory memory = Z88.getInstance().getMemory();
+        int bankNo = topBank;
+        Memory memory = Z88.getInstance().getMemory();
+        int totalBanks = ((bankNo & 0x3f) % memory.getExternalCardSize(topBank >> 6));
 
-            // format file area from top bank, downwards...
-            do
-            {
+        // format file area from top bank, downwards...
+        do
+        {
             Bank bank = memory.getBank(bankNo);
             if ((bank instanceof EpromBank == true)
                             | (bank instanceof GenericAmdFlashBank == true)
@@ -962,9 +962,9 @@ public class FileArea {
             }
 
             bankNo--;
-            } while ( totalBanks-- > 0); // stop at bottom of slot
+        } while ( totalBanks-- > 0); // stop at bottom of slot
 
-            createFileHeader(topBank);
+        createFileHeader(topBank);
 	}
 
 
