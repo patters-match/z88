@@ -284,6 +284,10 @@
         inc     hl
         call    PrntTinyCaps
         OZ      GN_Sop
+        inc     hl                              ; step beyond null-terminator
+        ld      a,(hl)
+        cp      'S'                             ; special slot X text?
+        call    z, PrFcSlotNo                   ; yes, display " in slot X " for file card command..
         call    PrntTinyCaps
         call    PrntJustifyN
 
@@ -2083,18 +2087,13 @@
         defm    1,"R",0
         ret
 
-.PrntInSlotNo
-        OZ      OS_Pout
-        defm    1,"2I4",1,"2JN",1,"4+TRU"      ; select window of title banner, normal justification, tiny & reverse & underline
-        defm    1,"3@",0
-        add     $20
-        OZ      OS_Out                         ; display "IN SLOT " at 0,x (in the title banner)
+.PrFcSlotNo
         OZ      OS_Pout
         defm    $20,"IN SLOT ",0
         ld      a,(f_filecardslot)
         or      $30
         OZ      OS_Out
-        jr      PrntSelWin3                    ; select window "3" for main text output of command
+        ret
 
 .Move_XY_BC
         push    af
@@ -2187,12 +2186,12 @@ defc    TotalCommands = 16
 .c_save
         defb    $C0
         defw    Save
-        defm    "Save to File Card",0
+        defm    "Save to File Card",0,'S'
 
 .c_fetch
         defb    $0D
         defw    Fetch
-        defm    "Fetch from File Card",0
+        defm    "Fetch from File Card",0,'S'
 
 .c_exec
         defb    $08
@@ -2242,7 +2241,7 @@ defc    TotalCommands = 16
 .c_catE
         defb    $2C
         defw    CatalogueEPROM
-        defm    "Catalogue File Card",0
+        defm    "Catalogue File Card",0,'S'
 
 
 ; --------------------------------------------------------------------------------------------------------------
@@ -2545,9 +2544,6 @@ defc    TotalCommands = 16
         call    ZeroIX
         call    PrntDotOpen
 
-        ld      a,50
-        call    PrntInSlotNo                    ; print "IN SLOT x" at column 50 in banner of command window, where x is (f_filecardslot)
-
         ld      a,(f_filecardslot)
         ld      c,a
 
@@ -2609,9 +2605,6 @@ defc    TotalCommands = 16
 
 ;----
 .Save
-        ld      a,49
-        call    PrntInSlotNo                    ; print "IN SLOT x" at column 48 in banner of command window, where x is (f_filecardslot)
-
         call    CloseSource
         ret     c
         call    ValidateFileType
@@ -2629,9 +2622,6 @@ defc    TotalCommands = 16
 
 ;----
 .Fetch
-        ld      a,51
-        call    PrntInSlotNo                    ; print "IN SLOT x" at column 51 in banner of command window, where x is (f_filecardslot)
-
         call    PrntSrcDest
         call    InputSrcName
         ret     c
