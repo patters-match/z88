@@ -2401,8 +2401,7 @@ defc    TotalCommands = 16
         jr      nc,inp_dev_loop                 ; only "0" to "3" allowed
 
         sub     48
-        jr      nz, check_for_ram
-        call    checkflash                      ; check if there is a flash chip in slot 0
+        call    checkflash                      ; check if there is a flash chip in slot X
         jr      nc, possible_filecard           ; found it, register as selected device
 .check_for_ram
         call    checkram
@@ -2416,9 +2415,7 @@ defc    TotalCommands = 16
         inc     d
         cp      4
         jr      z, wrap_slot1                   ; scan slots 0 - 3
-        cp      0
-        jr      nz, check_ram
-        call    checkflash                      ; check if there is a flash chip in slot 0
+        call    checkflash                      ; check if there is a flash chip in slot X
         jr      nc, possible_filecard           ; found it, register as selected device
 .check_ram
         call    checkram                        ; check if there's a RAM card in selected slot A
