@@ -96,16 +96,17 @@ ENDIF
         push    bc
         call    getAppHandle
         pop     hl                              ; L = slot number
-        ret     c
+        ret     c                               ; fatal error... 
         ld      a,c                             ; the low byte of the handle reveals the slot mask...
         and     @11000000                       ; keep only slot mask
         rlca
         rlca                                    ; slot mask -> slot number
         cp      l
         jr      nz, no_oz
-        ret                                     ; OZ found, return Fz = 0 (preset on OZ entry)
+        ret                                     ; OZ found, return Fz = 0 (preset on OZ entry), Fc = 0 (success system call)
 .no_oz
         set     Z80F_B_Z, (iy+OSFrame_F)        ; Fz=1, OZ not found
+        cp      a                               ; Fc = 0, dont return error from this system call..
         ret
 
 
