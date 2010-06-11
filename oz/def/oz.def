@@ -38,7 +38,7 @@ defc    OZVERSION               = $42
 ; rom layout:
 
 IF OZ_SLOT1
-        defc ROMSIZE            =14             ; OZ is located at top 12 banks in slot 1 on a 1Mb AMD 29F080B Flash Card
+        defc ROMSIZE            =12             ; OZ is located at top 12 banks in slot 1 on a 1Mb AMD 29F080B Flash Card
 
         defc OZBANK_INTUITION   =$72            ; Intuition debugger bank en EVEN number because of LOWRAM binding hardware
         defc OZBANK_LOWRAM      =$74            ; LOWRAM code to be installed during reset (located in EazyLink bank)
