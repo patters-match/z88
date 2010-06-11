@@ -2140,15 +2140,15 @@ defc    TotalCommands = 16
         defw    c_copy
         defw    c_rename
         defw    c_erase
+        defw    c_view
         defw    c_seldir
         defw    c_seldev
+        defw    c_selfcd
         defw    c_exec
         defw    c_crdir
+        defw    c_crefcd
         defw    c_tcopy
         defw    c_nmatch
-        defw    c_selfcd
-        defw    c_crefcd
-        defw    c_view
 
 ;       flags in first byte
 ;       bit     mask                                    tcp cpy del cat sve ftc exe sdi mtc ren sde mkd EPR
@@ -2216,7 +2216,7 @@ defc    TotalCommands = 16
 .c_view
         defb    $C0
         defw    View
-        defm    "View File",0
+        defm    "View",0
 
 .c_seldev
         defb    $0C
