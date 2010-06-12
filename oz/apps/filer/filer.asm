@@ -2133,22 +2133,22 @@
 
 defc    TotalCommands = 16
 .CmdTable
-        defw    c_catf
-        defw    c_catE
-        defw    c_save
-        defw    c_fetch
-        defw    c_copy
-        defw    c_rename
-        defw    c_erase
-        defw    c_view
-        defw    c_seldir
-        defw    c_seldev
-        defw    c_selfcd
-        defw    c_exec
-        defw    c_crdir
-        defw    c_crefcd
-        defw    c_tcopy
-        defw    c_nmatch
+        defw    c_catf                          ; MTH command code $21 
+        defw    c_catE                          ; MTH command code $22 
+        defw    c_save                          ; MTH command code $23
+        defw    c_fetch                         ; MTH command code $24
+        defw    c_copy                          ; MTH command code $25 
+        defw    c_rename                        ; MTH command code $26 
+        defw    c_erase                         ; MTH command code $27
+        defw    c_view                          ; MTH command code $28
+        defw    c_seldir                        ; MTH command code $29
+        defw    c_seldev                        ; MTH command code $2a
+        defw    c_selfcd                        ; MTH command code $2b
+        defw    c_exec                          ; MTH command code $2c
+        defw    c_crdir                         ; MTH command code $2d
+        defw    c_crefcd                        ; MTH command code $2e
+        defw    c_tcopy                         ; MTH command code $2f
+        defw    c_nmatch                        ; MTH command code $30
 
 ;       flags in first byte
 ;       bit     mask                                    tcp cpy del cat sve ftc exe sdi mtc ren sde mkd EPR
@@ -2184,7 +2184,7 @@ defc    TotalCommands = 16
         defm    "Catalogue files",0
 
 .c_save
-        defb    $C0
+        defb    $C2
         defw    Save
         defm    "Save to File Card",0,'S'
 

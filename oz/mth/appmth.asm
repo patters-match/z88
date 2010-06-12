@@ -2003,7 +2003,7 @@ xdef    FlashStoreTopics, FlashStoreCommands, FlashStoreHelp
 
 .Filer_cmd5
         defb    Filer_cmd5_end-Filer_cmd5+1	    ; Length of command
-        defb    $2a	; command code
+        defb    $2c	; command code
         defm    "EX", $00                       ; <>EX, Execute
         defm    $e8, "ecu", $af
         defb    $00	; Command attribute
@@ -2030,7 +2030,7 @@ xdef    FlashStoreTopics, FlashStoreCommands, FlashStoreHelp
 
 .Filer_cmd25
         defb    Filer_cmd25_end-Filer_cmd25+1	; Length of command
-        defb    $30	; command code
+        defb    $28	; command code
         defm    "VF", $00                       ; <>VF, View File
         defm    "View ", $ba       ; "View File"
         defb    $00	; Command attribute
@@ -2048,7 +2048,7 @@ xdef    FlashStoreTopics, FlashStoreCommands, FlashStoreHelp
 
 .Filer_cmd9
         defb    Filer_cmd9_end-Filer_cmd9+1	    ; Length of command
-        defb    $2b	; command code
+        defb    $2d	; command code
         defm    "CD", $00                       ; <>CD, Create Directory
         defm    "C", $8d, $91, $82, $b6
         defb    $01	; Command attribute         ; (new column)
@@ -2057,7 +2057,7 @@ xdef    FlashStoreTopics, FlashStoreCommands, FlashStoreHelp
 
 .Filer_cmd10
         defb    Filer_cmd10_end-Filer_cmd10+1	; Length of command
-        defb    $28	; command code
+        defb    $29	; command code
         defm    "SI", $00                       ; <>SI, Select Directory
         defm    $e3, $b6
         defb    $00	; Command attribute
@@ -2146,7 +2146,7 @@ xdef    FlashStoreTopics, FlashStoreCommands, FlashStoreHelp
 
 .Filer_cmd20
         defb    Filer_cmd20_end-Filer_cmd20+1	; Length of command
-        defb    $29	; command code
+        defb    $2a	; command code
         defm    "SV", $00                       ; <>SV, Select Device
         defm    $e3, "Devi", $c9
         defb    $00	; Command attribute
@@ -2155,7 +2155,7 @@ xdef    FlashStoreTopics, FlashStoreCommands, FlashStoreHelp
 
 .Filer_cmd23
         defb    Filer_cmd23_end-Filer_cmd23+1	; Length of command
-        defb    $2e	; command code
+        defb    $2b	; command code
         defm    "SE", $00                       ; <>SE, Select File Card
         defm    $e3, $ee
         defb    $00	; Command attribute
@@ -2164,7 +2164,7 @@ xdef    FlashStoreTopics, FlashStoreCommands, FlashStoreHelp
 
 .Filer_cmd24
         defb    Filer_cmd24_end-Filer_cmd24+1	; Length of command
-        defb    $2f	; command code
+        defb    $2e	; command code
         defm    "EC", $00                       ; <>EC, Create File Card
         defm    "C", $8d, $91, $82, $ee
         defb    $00	; Command attribute
@@ -2173,7 +2173,7 @@ xdef    FlashStoreTopics, FlashStoreCommands, FlashStoreHelp
 
 .Filer_cmd21
         defb    Filer_cmd21_end-Filer_cmd21+1	; Length of command
-        defb    $2c	; command code
+        defb    $2f	; command code
         defm    "TC", $00                       ; <>TC, Tree Copy
         defm    "T", $8d, $82, $de
         defb    $00	; Command attribute
@@ -2182,7 +2182,7 @@ xdef    FlashStoreTopics, FlashStoreCommands, FlashStoreHelp
 
 .Filer_cmd22
         defb    Filer_cmd22_end-Filer_cmd22+1	; Length of command
-        defb    $2d	; command code
+        defb    $30	; command code
         defm    "NM", $00                       ; <>NM, Name Match
         defm    "N", $ed, $82, $f7
         defb    $00	; Command attribute
