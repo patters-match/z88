@@ -2133,12 +2133,12 @@
 
 defc    TotalCommands = 16
 .CmdTable
-        defw    c_catf                          ; MTH command code $21 
-        defw    c_catE                          ; MTH command code $22 
+        defw    c_catf                          ; MTH command code $21
+        defw    c_catE                          ; MTH command code $22
         defw    c_save                          ; MTH command code $23
         defw    c_fetch                         ; MTH command code $24
-        defw    c_copy                          ; MTH command code $25 
-        defw    c_rename                        ; MTH command code $26 
+        defw    c_copy                          ; MTH command code $25
+        defw    c_rename                        ; MTH command code $26
         defw    c_erase                         ; MTH command code $27
         defw    c_view                          ; MTH command code $28
         defw    c_seldir                        ; MTH command code $29
@@ -2214,7 +2214,7 @@ defc    TotalCommands = 16
         defm    "Rename ",0
 
 .c_view
-        defb    $C0
+        defb    $80
         defw    View
         defm    "View",0
 
