@@ -32,7 +32,7 @@
 
 defc    NBUFSIZE        = 240
 
-defvars FILER_SAFE_WS_START
+defvars FILER_UNSAFE_WS_START
      f_Confirm               ds.b    1
      f_Flags1                ds.b    1
      f_OutLnCnt              ds.b    1
@@ -40,7 +40,9 @@ defvars FILER_SAFE_WS_START
      f_nSrcSegments          ds.b    1
      f_SourceHandle          ds.w    1
      f_DestHandle            ds.w    1
-                                     ; above variables get cleared every time a new command is executed
+enddef
+
+defvars FILER_SAFE_WS_START
      f_ActiveWd              ds.b    1
      f_SelectorPos           ds.b    1
      f_SelectedCmd           ds.b    1

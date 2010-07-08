@@ -57,9 +57,9 @@
         xdef GetKey
 
 .Filer
-        xor     a                               ; clear variables up to and including two bytes of StrBuffer
+        xor     a                               ; clear variables up to f_StrBuffer
         ld      hl, FILER_SAFE_WS_START
-        ld      b, 34
+        ld      b, f_StrBuffer - FILER_SAFE_WS_START
 .f_1
         ld      (hl), a
         inc     hl

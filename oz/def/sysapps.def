@@ -98,9 +98,9 @@ defc    INDEX_UNSAFE_WS_START   = $1FFE-INDEX_UNSAFE_WS
 defc    INDEX_SAFE_WS           = 32
 defc    INDEX_SAFE_WS_START     = INDEX_UNSAFE_WS_START - INDEX_SAFE_WS
 
-defc    FILER_UNSAFE_WS         = 0
+defc    FILER_UNSAFE_WS         = $10
 defc    FILER_UNSAFE_WS_START   = $1FFE-FILER_UNSAFE_WS
-defc    FILER_SAFE_WS           = $243
+defc    FILER_SAFE_WS           = $240
 defc    FILER_SAFE_WS_START     = FILER_UNSAFE_WS_START - FILER_SAFE_WS
 
 defc    PRTED_UNSAFE_WS         = 0
