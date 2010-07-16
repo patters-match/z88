@@ -255,7 +255,8 @@
 ;
 .InstallOZ
                     ld   iy,ozbanks                     ; get ready for first oz bank entry of [total_ozbanks]
-                    ld   b,(iy-1)                       ; total of banks to update to slot X...
+                    ld   hl,total_ozbanks
+                    ld   b,(hl)                         ; total of banks to update to slot X...
 .update_ozrom_loop
                     push bc
                     ld   hl, ozbank_loader_ret
