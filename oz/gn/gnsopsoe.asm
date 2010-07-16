@@ -111,7 +111,7 @@
 
         res     7, h                            ; then adjust offset to segment 1
         set     6, h
-        OZ      OS_Bout
+        call    GNSop
 
         res     6,h                             ; strip segment 1 mask (now a pure bank offset)
         ld      a,(iy+OSFrame_H)
