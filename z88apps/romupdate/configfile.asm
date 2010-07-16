@@ -22,7 +22,7 @@
      lib FileEprFindFile, FileEprFileSize
      lib MemGetBank
 
-     xdef ReadConfigFile, LoadEprFile
+     xdef ReadConfigFile, LoadEprFile, CheckConfigLocation
      xref ErrMsgNoCfgfile, ErrMsgCfgSyntax, ErrMsgBankFile, ErrMsgCrcFailBankFile
      xref ValidateRamBankFile, OpenRamBankFile
      xref MsgCrcCheckBankFile, LoadRamBankFile, CrcBuffer, CheckBankFileCrc

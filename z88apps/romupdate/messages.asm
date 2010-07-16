@@ -42,7 +42,7 @@
      xdef hrdreset_msg, removecrd_msg
      xdef yes_msg, no_msg
 
-     xref suicide, GetSlotNo, GetSectorNo, GetOZSlotNo
+     xref suicide, GetSlotNo, GetSectorNo, GetOZSlotNo, CheckConfigLocation
 
 
 
@@ -125,16 +125,44 @@
 ; Program Progress message "CRC Checking <BankFile> bank file."
 ;
 .MsgCrcCheckBankFile
+                    push af
+                    push bc
+                    push de
                     push hl
+
                     ld   hl,crcbankfile1_msg
                     oz   GN_Sop
                     call VduToggleBoldTypeface
+
+                    call CheckConfigLocation
+                    jr   z, displ_cur_ramdir
+
+                    ld   hl,eprdev
+                    oz   GN_Sop                         ; display EPR.X in front of filename
+                    ld   a,(slotozfiles)
+                    or   $30
+                    oz   OS_Out
+                    jr   disp_bankflnm
+.displ_cur_ramdir
+                    ld   bc,NQ_Dev
+                    oz   OS_Nq
+                    oz   GN_Soe                         ; display current RAM device
+                    ld   bc,NQ_Dir
+                    oz   OS_Nq
+                    oz   GN_Soe                         ; display current RAM directory
+.disp_bankflnm
+                    ld   a,'/'
+                    oz   OS_Out
                     ld   hl,bankfilename
                     oz   GN_Sop
                     call VduToggleBoldTypeface
                     ld   hl,crcbankfile2_msg
                     call SopNln
+
                     pop  hl
+                    pop  de
+                    pop  bc
+                    pop  af
                     ret
 ; *************************************************************************************
 
@@ -811,3 +839,4 @@
 
 .hrdreset_msg       defm "Z88 will automatically HARD RESET when updating has been completed", 0
 .removecrd_msg      defm 12, "Insert flash Card with OZ in slot 1 and hard reset Z88.", 0
+.eprdev             defm "EPR.",0
