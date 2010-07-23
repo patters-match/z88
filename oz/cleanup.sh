@@ -29,6 +29,7 @@ rm -f oz-*.?? romupdate.cfg
 
 # delete all compile output files
 find . -name "*.bin" | xargs rm -f
+find . -name "*.bn?" | xargs rm -f
 find . -name "*.epr" | xargs rm -f
 find . -name "*.map" | xargs rm -f
 find . -name "*.err" | xargs rm -f
