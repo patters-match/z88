@@ -176,11 +176,8 @@
 ; of the top of the file area; shrink it to give space for OZ installation in top of card.
 ;
 .EraseOzFlashCard
-                    jr   EraseOzFlashCard
                     call GetOZSlotNo                    ; slot no in C
-
-                    call FlashEprCardErase
-                    ret
+                    jp   FlashEprCardErase
 
 ; ----------------------------------------------------------------------------------------------------------------------
 ; Install OZ banks on Card, identified by ozbanks[] array.
