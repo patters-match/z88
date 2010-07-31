@@ -176,79 +176,11 @@
 ; of the top of the file area; shrink it to give space for OZ installation in top of card.
 ;
 .EraseOzFlashCard
+                    jr   EraseOzFlashCard
                     call GetOZSlotNo                    ; slot no in C
-                    push bc
-                    inc  c
-                    dec  c
-                    jr   z, erase_chip                  ; always erase entire chip for slot 0 (file area cannot be shrinked)
 
-                    call FileEprRequest                 ; check if File Area is available in slot C
-                    jr   z, check_filearea_pos          ; was found, check where it begins (in top or further down)..
-                    jr   c, check_empty_ozcard          ; either flash card is empty or there is no room for file area below apps area
-                    jr   prepare_for_oz                 ; card has applications or OZ installed, but no file area - erase and install new OZ
-.check_filearea_pos
-                    ld   hl,total_ozbanks
-                    ld   a,$3f                          ; a = relative top bank number of card
-                    res  7,b                            ; file area exists, check if it can be shrinked to make room for OZ
-                    res  6,b                            ; remove slot mask of bank number of file area header.
-                    sub  b                              ; A = no of banks above file area
-                    cp   (hl)                           ; does OZ area fit within that size, or is it necessary to shrink file area?
-                    jr   nc,prepare_oz_erase0           ; new OZ area fits in area above file area!
-.prepare_shrink_fla
-                    ld   b,a
-                    ld   a,(hl)                         ; file area needs to be shrinked X sectors...
-                    sub  b                              ; new_oz_area - current_app_area = shrink size...
-                    srl  a
-                    srl  a                              ; shrink bank size difference / 4 = total no. of 64K sectors
-                    jr   nz,shrink_filearea             ; if less than 4 banks, then minimum one sector...
-                    inc  a                              ; +1
-.shrink_filearea
-                    pop  bc
-                    push bc
-                    ld   b,a
-                    call FlashEprReduceFileArea         ; shrink file area in slot C with B sectors.
-.prepare_oz_erase0
-                    pop  bc
-                    jr   c, shrinkfailed                ; figure out why it failed, and display appropriate message
-                    push bc
-                    call FlashEprCardId                 ; shrinking of file area done successfully,
-                    ld   c,b                            ; get C = total physical banks of flash card
-                    jr   prepare_oz_erase               ; finally, erase application area for new OZ
-.check_empty_ozcard
-                    cp   RC_ONF                         ; Object Not Found...
-                    jr   z, erase_chip                  ; slot contains an 'empty' card, ie. no found applications nor file area
-
-.prepare_for_oz     pop  bc                             ; card could have applications on it (File area would be possible to create)
-                    push bc
-                    call ApplEprType                    ; check for applications..
-                    jr   c, erase_chip                  ; no Applications nor OZ found in slot, just erase the whole card...
-                    cp   CX_OS                          ; OZ operating system?
-                    jr   nz,erase_chip                  ; no, erase completely (Application Card)
-.prepare_oz_erase
-                    ld   a,(total_ozbanks)              ; erase no. of sectors of OZ to be installed
-                    srl  a                              ; (banks / 4 = total no. of 64K sectors)
-                    srl  a
-                    ld   d,a                            ; D = number of blocks to erase
-                    srl  c
-                    srl  c                              ; C returned from ApplEprType is physical card size..
-                    dec  c                              ; converted total size of card to top block number to erase
-                    ld   a,c
-                    pop  bc                             ; erase sectors in slot C
-                    ld   b,a                            ; begin with top sector on card
-.erase_ozarea
-                    call FlashEprBlockErase
-                    dec  b                              ; next sector number is below the sector just erased...
-                    dec  d
-                    jr   nz, erase_ozarea               ; erase top area of card for OZ
+                    call FlashEprCardErase
                     ret
-.erase_chip
-                    pop  bc                             ; erase entire card (with unknown contents) in slot C
-                    jp   FlashEprCardErase
-.Shrinkfailed
-                    ret
-;                    cp   RC_ROOM
-;                    jp   z, ErrMsgFileAreaNotShrinkable
-;                    jp   ErrMsgFailedFileAreaShrinking
 
 ; ----------------------------------------------------------------------------------------------------------------------
 ; Install OZ banks on Card, identified by ozbanks[] array.
