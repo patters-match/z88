@@ -362,14 +362,13 @@ public final class Memory {
 		int totalBanks = 0;
         int topBankNo, bottomBankNo;
         int appCardBanks = getExternalCardSize(slotNo);
-		int base_slot_bank = 64-appCardBanks;
 
         if (SlotInfo.getInstance().isOzRom(slotNo) == true) {
             topBankNo = (((slotNo & 3) << 6) | 0x3F);
             bottomBankNo = topBankNo - (appCardBanks-1);
             for (int bankNo=topBankNo; bankNo >= bottomBankNo; bankNo--) {
                     if (getBank(bankNo).isEmpty() == false)
-                            totalBanks++; // count total number of banks to be blown to slot 0
+                            totalBanks++; // count total number of banks that are used in slot
             }
 
             try {
@@ -387,7 +386,7 @@ public final class Memory {
                             if (getBank(bankNo).isEmpty() == false)	{
                                     cardFile.writeBytes("\"" + bankFileName + "." + (bankNo & 0x3f) + "\",");
                                     cardFile.writeBytes("$" + Long.toHexString(getBank(bankNo).getCRC32()) + ",");
-                                    cardFile.writeBytes("$" + Dz.byteToHex( (slotNo << 6) | (base_slot_bank + (bankNo & 0x3f)), false) + "\n");
+                                    cardFile.writeBytes("$" + Dz.byteToHex( (bankNo & 0x3f), false) + "\n");
                             }
                     }
                     cardFile.close();
