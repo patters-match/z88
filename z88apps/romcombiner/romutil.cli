@@ -259,7 +259,7 @@ NEW
  5290   PROCload(FNbankfile$(romflnm$,I%),bank%)
  5300   H%=bank% DIV 256:L%=bank% MOD 256: B%=16384 DIV 256: C%=16384 MOD 256
  5310   CRC32%=USR(crc32bank)
- 5320   PRINT#X%,CHR$(&22)+FNbankfile$(romflnm$,I%)+CHR$(&22)+",$"+STR$~(CRC32%)+",$"+STR$~(I%))
+ 5320   PRINT#X%,CHR$(&22)+FNbankfile$(romflnm$,I%)+CHR$(&22)+",$"+STR$~(CRC32%)+",$"+STR$~(I%)
  5500 NEXT I%
  5890 CLOSE#X%
  5895 PRINT "OZ ROM bank files have been completed."
