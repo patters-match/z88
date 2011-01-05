@@ -98,8 +98,15 @@ DEFC FE_IID = $90           ; get INTELligent identification code (manufacturer 
                     LD   B,A
                     CALL NC,FetchCardID      ; if not RAM, get info of AMD Flash Memory chip in top of slot (if avail in slot C)...
                     POP  BC
-                    JR   NC, get_crddata     ; AMD flash found, get card ID data...
-
+                    JR   C,check_bottom_slot
+                    PUSH BC
+                    CALL FlashEprCardData    ; AMD flash might have been found, try to get card ID data...
+                    LD   D,B
+                    POP  BC
+                    JR   C,check_bottom_slot
+                    LD   B,D                 ; return B = total banks of card
+                    JR   got_cardid
+.check_bottom_slot                           ; top bank in slot revealed no AMD/AMIC, now try poll bottom bank of slot..
                     LD   HL,0
                     CALL SafeBHLSegment      ; get a safe segment in C, HL points into segment (not this executing segment!)
                     CALL CheckRam
@@ -110,7 +117,7 @@ DEFC FE_IID = $90           ; get INTELligent identification code (manufacturer 
 .get_crddata
                     CALL FlashEprCardData    ; verify Flash Memory ID with known Manufacturer & Device Codes
                     JR   C, unknown_flashmem
-                                             ; H = Manufacturer Code, L = Device Code
+.got_cardid                                  ; H = Manufacturer Code, L = Device Code
                     POP  DE                  ; B = banks on card, A = chip series (28F or 29F)
                     LD   C,E                 ; original C restored
 .end_FlashEprCardId
