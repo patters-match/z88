@@ -230,7 +230,7 @@
 ; *******************************************************************************************************************
 ;
 .FlashStoreHelp
-                    DEFM 12, "FlashStore V1.9.1 (May 2010)", $7F, $7F
+                    DEFM 12, "FlashStore V1.9.2 (Jan 2011)", $7F, $7F
                     DEFM "Manage files on Rakewell Flash Cards and RAM.", $7F, $7F
                     DEFM "Developed by", $7F
                     DEFM "T.Peycru, G.Strube & V.Gerhardi, (C) 1997-2007, GPL licence", $7F, $7F
