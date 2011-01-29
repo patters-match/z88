@@ -2838,11 +2838,16 @@ enddef
         defm    "Germany",0                     ; G
         defm    "usA",0                         ; A
         defm    "sPain",0                       ; P
-        defm    "Italy",0                       ; I
-        defm    "Norway",0                      ; N
-        defm    "sWitzerland",0                 ; W
-        defm    "iCeland",0                     ; C
-        defm    "Japan",0                       ; J
-        defm    "Turkey"                        ; T
         defm    -1
+
+; Gbs 2011/01/29: Uncomment each layout below, when implemented, first "Italy", then "Norway", etc...
+;
+;        defm    "Italy",0                       ; I
+;        defm    "Norway",0                      ; N
+;        defm    "sWitzerland",0                 ; W
+;        defm    "iCeland",0                     ; C
+;        defm    "Japan",0                       ; J
+;        defm    "Turkey"                        ; T
+;        defm    -1
+
 .endOfPanelData
