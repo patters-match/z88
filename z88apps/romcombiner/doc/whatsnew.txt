@@ -1,3 +1,12 @@
+ROMCombiner v2.08 - What's New?
+===============================
+
+Allow to blow and erase banks for AMD/AMIC cards in all slots.
+
+Gunther Strube, 23th April 2011
+
+
+
 ROMCombiner v2.07 - What's New?
 ===============================
 
