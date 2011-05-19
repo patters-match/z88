@@ -133,9 +133,7 @@ DEFC FE_WRI = $40           ; byte write command
                     PUSH BC                            ; preserve old bank binding of segment C
                     LD   B,A                           ; but use current bank as reference...
 
-                    DI                                 ; no maskable interrupts allowed while doing flash hardware commands...
                     CALL FEP_WriteBlock
-                    EI                                 ; maskable interrupts allowed again
 
                     LD   D,B                           ; preserve current Bank number of pointer...
                     POP  BC

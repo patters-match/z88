@@ -69,7 +69,6 @@ DEFC FE_IID = $90           ; get INTELligent identification code (manufacturer 
                     PUSH IY
                     PUSH DE
                     PUSH BC
-                    DI                       ; no maskable interrupts allowed while doing flash hardware commands...
 
                     LD   A,C
                     AND  @00000011           ; only slots 0, 1, 2 or 3 possible
@@ -121,7 +120,6 @@ DEFC FE_IID = $90           ; get INTELligent identification code (manufacturer 
                     POP  DE                  ; B = banks on card, A = chip series (28F or 29F)
                     LD   C,E                 ; original C restored
 .end_FlashEprCardId
-                    EI                       ; maskable interrupts allowed again
                     POP  DE                  ; original DE restored
                     POP  IY
                     RET                      ; Fc = 0, Fz = 1

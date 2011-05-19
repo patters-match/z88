@@ -105,9 +105,7 @@ DEFC FE_WRI = $40           ; byte write command
                     LD   D,B                 ; copy of bank number
                     CALL MemDefBank          ; bind bank B into segment...
                     PUSH BC
-                    DI                       ; no maskable interrupts allowed while doing flash hardware commands...
                     CALL FEP_BlowByte        ; blow byte in A to (BHL) address
-                    EI                       ; maskable interrupts allowed again
                     POP  BC
                     CALL MemDefBank          ; restore original bank binding
 
