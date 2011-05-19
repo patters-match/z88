@@ -19,7 +19,6 @@
     MODULE Serialport_IO
 
     XREF ErrHandler
-    XREF System_Error
     XREF Write_Message, Message2, ESC_B, ESC_ESC
 
     XDEF Check_synch, Send_Synch, Check_timeout, SendString, SendString_ackn
@@ -27,7 +26,6 @@
     XDEF GetByte, GetByte_ackn, PutByte, PutByte_ackn, TranslateByte
     XDEF Getbyte_raw_ackn
     XDEF Dump_serport_in_byte
-    XDEF UseHWSerPort, UseOZSerPort
 
     INCLUDE "rtmvars.def"
     INCLUDE "fileio.def"
@@ -164,7 +162,8 @@
 
 
 ; ***********************************************************************
-.RxByte           PUSH BC
+.RxByte           
+                  PUSH BC
                   LD   BC,3000
                   LD   IX,(serport_handle)
                   OZ   Os_Gbt                        ; get a byte from serial port, using OZ standard interface
@@ -174,126 +173,12 @@
 
 
 ; ***********************************************************************
-.SxByte           PUSH BC
-                  PUSH AF
-                  LD   A,(HWSER_flag)                ; use fast serial port I/O?
-                  OR   A
-                  JR   Z, use_oz_pbt
-                  POP  AF
-                  CALL hw_txbt                       ; send byte to serial port, using direct hardware
-                  JR   io_check
-.use_oz_pbt       POP  AF
+.SxByte
+                  PUSH BC
                   LD   BC,3000
                   LD   IX,(serport_handle)
                   OZ   Os_Pbt                        ; send byte to serial port, using OZ interface
                   JR   io_check
-
-
-; ***********************************************************************
-; Transmit byte using Serial Port Hardware using 30 second timeout.
-; (Based on original routine kindly provided by Dennis Gröning)
-;
-; IN:
-;       A = byte to send
-; OUT:
-;         Success:
-;              Fc = 0, Fz = 0
-;         Failure:
-;              Fc = 1, couldn't transmit byte within timeout
-;              A = RC_Time
-;
-; Registers changed on return:
-;    A.BCDEHL/IXIY ........ same
-;    .F....../.... afbc.... different
-;
-.hw_txbt            exx
-                    ex   af,af'                        ; preserve byte to send in A'
-                    ld   b,30
-                    call get_timeout_sec               ; return B to be 31 seconds ahead of current BL_TIM1
-.hw_pollsend
-                    in   a,(bl_uit)                    ; check TDRE
-                    bit  bb_uittdre,a
-                    jr   nz,tx                         ; hardware ready to transmit a new byte..
-.tx_check_timeout
-                    call get_sec                       ; get current second counter from Blink hardware
-                    cp   b                             ; reached timeout?
-                    jr   z,signal_fail                 ; couldn't transmit byte within timeout
-
-                    ld   a,@01111111                   ; Read row A15 (containing ESC key)
-                    in   a,(bl_kbd)
-                    cp   @11011111                     ; ESC pressed?
-                    jr   z, esc_pressed
-                    jr   hw_pollsend                   ; still time left to poll for transmit ready state...
-.tx
-                    ex   af,af'                        ; send byte in A to serial port
-                    ld   bc, [6<<8] | bl_txd
-                    out  (c),a
-                    ld   b,a
-                    or   $ff                           ; signal success, Fc = 0, Fz = 0
-                    ld   a,b
-                    exx
-                    ret
-.signal_fail
-                    exx
-                    ld   a, RC_Time                    ; report time out error code
-                    scf
-                    ret
-.esc_pressed
-                    exx
-                    ld   a, RC_Esc                     ; report ESC error code
-                    scf
-                    ret
-
-; ***********************************************************************
-.get_timeout_sec    call get_sec
-                    add  a,b
-                    cp   60
-                    jr   nc,sec_too_big
-                    ld   b,a
-                    ret
-.sec_too_big        sub  60
-                    ld   b,a
-                    ret
-.get_sec            in   a,(bl_tim1)
-.get_sec_again      ld   c,a
-                    in   a,(bl_tim1)
-                    cp   c
-                    ret  z
-                    jr   get_sec_again
-
-; ***********************************************************************
-.UseHWSerPort
-                    push af
-                    push bc
-                    ld   a,$ff
-                    ld   (HWSER_flag),a
-
-                    ld   bc, [4<<8] | BL_INT
-                    ld   a,(bc)
-                    res  BB_INTUART,a             ; disable UART interrupts
-                    res  BB_INTTIME,a             ; disable RTC interrupts
-                    ld   (bc),a
-                    out  (c),a
-                    pop  bc
-                    pop  af
-                    ret
-
-; ***********************************************************************
-.UseOZSerPort
-                    push af
-                    push bc
-                    xor  a
-                    ld   (HWSER_flag),a
-
-                    ld   bc, [4<<8] | BL_INT
-                    ld   a,(bc)
-                    set  BB_INTUART,a             ; enable UART interrupts
-                    set  BB_INTTIME,a             ; enable RTC interrupts
-                    ld   (bc),a
-                    out  (c),a
-                    pop  bc
-                    pop  af
-                    ret
 
 
 ; ***********************************************************************
@@ -354,7 +239,6 @@
 .Check_timeout    CALL ErrHandler
                   CP   RC_Time                       ; timeout?
                   JR   Z,timeout_flag
-                  CALL System_error
                   SCF
                   RET                                ; other errors.
 .timeout_flag     LD   HL,message2                   ; 'Waiting...'

@@ -20,7 +20,7 @@
 
     XREF Get_wcard_handle, Find_next_match, CLose_wcard_handler, Get_file_handle
     XREF System_Error
-    XREF Transfer_file
+    XREF Transfer_filename, Transfer_RamfileImage
     XREF Def_RamDev_wildc
 
     XDEF SearchFileSystem, Get_Directories
@@ -50,9 +50,14 @@
                   JR   Z,new_file                    ; equal date stamps, proces file ...
                   JR   filenames_loop                ; already updated, continue ...
 .new_file         LD   HL, filename_buffer
-                  CALL Transfer_file                 ; transfer file without ACKN protocol...
+                  CALL Transfer_filename             ; transfer file without ACKN protocol...
                   JR   C, search_filer_aborted       ; Ups - transmission error
                   JR   Z, search_filer_aborted
+
+                  CALL Transfer_RamfileImage         ; transfer file without ACKN protocol...
+                  JR   C, search_filer_aborted       ; Ups - transmission error
+                  JR   Z, search_filer_aborted
+
                   LD   A,op_up                       ; Open for Update...
                   LD   HL, filename_buffer
                   LD   D,H

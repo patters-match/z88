@@ -1,6 +1,6 @@
 ; *************************************************************************************
 ; EazyLink - Fast Client/Server File Management, including support for PCLINK II protocol
-; (C) Gunther Strube (gbs@users.sourceforge.net) 1990-2006
+; (C) Gunther Strube (gbs@users.sourceforge.net) 1990-2011
 ;
 ; EazyLink is free software; you can redistribute it and/or modify it under the terms of the
 ; GNU General Public License as published by the Free Software Foundation;
@@ -133,6 +133,7 @@
      LIB CreateDirectory
      LIB RamDevFreeSpace
      LIB createfilename
+     LIB FileEprFindFile,FileEprFileSize,FileEprFreeSpace,FlashEprFileDelete
 
      XREF LoadTranslations
      XREF menu_banner, Command_banner
@@ -154,12 +155,11 @@
      XREF Use_StdTranslations
      XREF Dump_serport_in_byte, serdmpfile_in, serdmpfile_out
      XREF SafeSegmentMask
-     XREF UseOZSerPort, UseHWSerPort
+     XREF CheckEprName, CheckFileAreaOfSlot
 
      XREF EazyLinkTopics
      XREF EazyLinkCommands
      XREF EazyLinkHelp
-
 
      XDEF ErrHandler
      XDEF Write_message, Debug_message
@@ -252,12 +252,11 @@ ENDIF
                CALL_OZ(Os_Esc)
 
                XOR  A
-               LD   (HWSER_flag),A                ; use OZ serial port I/O by default
                LD   (MenuBarPosn),A               ; Display Menu Bar at top line the first time...
                LD   (UserToggles),A               ; Linefeed conversion OFF, Translations OFF
 
                CALL Appl_Main                     ; Call the code...
-               JR   Kill
+               JR   kill
 
 
 
@@ -301,8 +300,9 @@ ENDIF
                CALL Write_message
                CALL DisplMenuBar                  ; Display initial menubar
 
+.endless
                CALL Fetch_synch                   ; 111112 & 555556 synch and ESC cmds
-               RET
+               JR   endless
 
 
 ; ***********************************************************************
@@ -479,8 +479,8 @@ ENDIF
 
                LD   A,(PollHandshakeCounter)      ; get timeout counter for handshake check
                INC  A
-               CP   20
-               JR   NZ, exit_handshake_change     ; we're not allowing a handshake check until 2 seconds has passed
+               CP   10
+               JR   NZ, exit_handshake_change     ; we're not allowing a handshake check until 1 seconds has passed
 
                LD   A,(CurrentSerportMode)
                LD   B,A                           ; get current serial handshake mode
@@ -643,7 +643,7 @@ ENDIF
                CALL Extended_ESC_commands         ; synch sent - wait for commands
                RET  C                             ; return on system error (ESC key)
                JR   Z,Fetch_synch                 ; command executed, wait for new
-               RET                                ; ESC "Q" command received...
+               JP   kill                          ; ESC "Q" command received...
 
 .check_pclink_synch
                CP   $05
@@ -837,8 +837,6 @@ ENDIF
 .ESC_V_cmd     LD   HL,message21
                CALL Debug_message
 
-               CALL UseHWSerPort
-
                LD   HL,ESC_N
                CALL SendString
                JR   C, esc_v_aborted
@@ -855,7 +853,6 @@ ENDIF
 
 .esc_v_aborted CALL Msg_Command_aborted
 .end_ESC_V_cmd
-               CALL UseOZSerPort
                XOR A
                RET
 
@@ -878,6 +875,9 @@ ENDIF
                LD   HL,filename_buffer
                CALL Debug_message                 ; write filename to screen
 
+               CALL CheckEprName                  ; Path begins with ":EPR.x"?
+               JR   Z, get_fa_filesize            ; Yes, try to get size of file in File Area...
+
                LD   A, op_in                      ; open file for transfer...
                LD   D,H
                LD   E,L                           ; (explicit filename overwrite original fname)
@@ -888,18 +888,16 @@ ENDIF
                LD   A, FA_EXT
                LD   DE,0
                CALL_OZ(OS_Frm)                    ; get size of file
+               CALL Close_file                    ; close file
                LD   (File_ptr),BC
                LD   (File_ptr+2),DE               ; low byte, high byte sequense
-               CALL Close_file                    ; close file
-
+.send_filelength
                LD   HL, File_ptr                  ; convert 32bit integer
                LD   DE, filename_buffer           ; to an ASCII string
                LD   A, 1                          ; disable zero blanking
                CALL_OZ(GN_Pdn)
                XOR  A
                LD   (DE),A                        ; null-terminate string
-
-               CALL UseHWSerPort
 
                LD   HL,ESC_N
                CALL SendString
@@ -919,9 +917,23 @@ ENDIF
 
 .esc_x_aborted CALL Msg_Command_aborted
 .end_ESC_X_cmd
-               CALL UseOZSerPort
                XOR A
                RET
+.get_fa_filesize                                  ; Get size of File in File Area
+               call    CheckFileAreaOfSlot
+               jr      c,file_not_found           ; this slot had no file area (no card)...
+               jr      nz,file_not_found          ; this slot had no file area (card, but no file area)
+
+               ld      de,filename_buffer+6       ; search for filename beginning at "/" in filea area of slot C
+               call    FileEprFindFile            ; search for filename on file eprom...
+               jr      c,file_not_found           ; this slot had no file area (no card)...
+               jr      nz,file_not_found          ; File Entry was not found...
+
+               call    FileEprFileSize            ; get 24bit file size in CDE (C = high byte)
+               LD      (File_ptr),de
+               ld      b,0
+               LD      (File_ptr+2),bc            ; CDE -> (File_ptr)
+               jr      send_filelength
 
 
 ; ************************************************************
@@ -945,6 +957,9 @@ ENDIF
                LD   HL,filename_buffer
                CALL Debug_message                 ; write filename to screen
 
+               CALL CheckEprName                  ; Path begins with ":EPR.x"?
+               JP   Z, fileentry_fakesdates       ; Yes, send dummy dates to satisfy clients
+
                LD   DE,creation_date
                LD   H,dr_rd
                LD   L,'C'                         ; get Create Date Stamp
@@ -962,8 +977,6 @@ ENDIF
                CALL_OZ(Gn_Ptm)                    ; convert internal time to ASCII...
                XOR  A
                LD   (DE),A                        ; null-terminate string
-
-               CALL UseHWSerPort
 
                LD   HL,ESC_N
                CALL SendString
@@ -1011,10 +1024,37 @@ ENDIF
 .esc_u_aborted
                CALL Msg_Command_aborted
 .end_ESC_U_cmd
-               CALL UseOZSerPort
                XOR A
                RET
+.zero_date     DEFM "00/00/0000 00:00:00",0
 
+.fileentry_fakesdates
+               call    CheckFileAreaOfSlot
+               jr      c,file_not_avail           ; this slot had no file area (no card)...
+               jr      nz,file_not_avail          ; this slot had no file area (card, but no file area)
+
+               ld      de,filename_buffer+6       ; search for filename beginning at "/" in filea area of slot C
+               call    FileEprFindFile            ; search for filename on file eprom...
+               jr      c,file_not_avail           ; this slot had no file area (no card)...
+               jr      nz,file_not_avail          ; File Entry was not found...
+
+               LD   HL,ESC_N
+               CALL SendString
+               JR   C, esc_u_aborted
+               JR   Z, esc_u_aborted
+               LD   HL,zero_date                  ; dummy create stamp...
+               CALL SendString
+               JR   C, esc_u_aborted
+               JR   Z, esc_u_aborted
+               LD   HL,ESC_N
+               CALL SendString
+               JR   C, esc_u_aborted
+               JR   Z, esc_u_aborted
+               LD   HL,zero_date                  ; dummy update stamp...
+               CALL SendString
+               JR   C, esc_u_aborted
+               JR   Z, esc_u_aborted
+               JR   file_not_avail                ; terminate with ESC Z, according to protocol
 
 
 ; ************************************************************
@@ -1037,6 +1077,9 @@ ENDIF
                LD   HL, Message25
                CALL Debug_message                 ; "Set Date Stamp."
 
+               CALL CheckEprName                  ; Path begins with ":EPR.x"?
+               JP   Z, fileentry_updfakedate      ; Yes, pretend to update a file date..
+
                LD   HL,file_buffer                ; get create date stamp
 .date1_loop    CALL Getbyte
                JR   C,esc_u_aborted
@@ -1048,14 +1091,14 @@ ENDIF
                JR   date1_loop
 .enddate1_ident
                CALL Getbyte                       ; ESC 'N'
-               JR   C,esc_u_aborted
-               JR   Z,esc_u_aborted               ; timeout - communication stopped
+               JP   C,esc_u_aborted
+               JP   Z,esc_u_aborted               ; timeout - communication stopped
                LD   (HL), 0                       ; Null-terminate received date stamp.
 
                LD   HL,DirName_stack              ; get update date stamp
 .date2_loop    CALL Getbyte
-               JR   C,esc_u_aborted
-               JR   Z,esc_u_aborted               ; timeout - communication stopped
+               JP   C,esc_u_aborted
+               JP   Z,esc_u_aborted               ; timeout - communication stopped
                CP   ESC
                JR   Z,enddate2_ident
                LD   (HL),A
@@ -1063,8 +1106,8 @@ ENDIF
                JR   date2_loop
 .enddate2_ident
                CALL Getbyte                       ; ESC 'N'
-               JR   C,esc_u_aborted
-               JR   Z,esc_u_aborted               ; timeout - communication stopped
+               JP   C,esc_u_aborted
+               JP   Z,esc_u_aborted               ; timeout - communication stopped
                LD   (HL), 0                       ; Null-terminate received date stamp.
 
                LD   HL,filename_buffer
@@ -1112,17 +1155,25 @@ ENDIF
                LD   H, dr_wr
                LD   L, 'U'                        ; Set Update Date Stamp
                CALL rw_date                       ; name of file in <filename_buffer>
-
-               CALL UseHWSerPort
+.dateupd_completed
                LD   HL,ESC_Y                      ; Signal "Date Stamp executed"
                CALL SendString
-               CALL UseOZSerPort
                JP   C, esc_u_aborted
                JP   Z, esc_u_aborted
                XOR  A
                RET
 .comma         DEFM ", ", 0
 
+.fileentry_updfakedate
+               call    CheckFileAreaOfSlot
+               jp      c,file_not_avail           ; this slot had no file area (no card)...
+               jp      nz,file_not_avail          ; this slot had no file area (card, but no file area)
+
+               ld      de,filename_buffer+6       ; search for filename beginning at "/" in filea area of slot C
+               call    FileEprFindFile            ; search for filename on file eprom...
+               jp      c,file_not_avail           ; this slot had no file area (no card)...
+               jp      nz,file_not_avail          ; File Entry was not found...
+               jr      dateupd_completed          ; pretend that date stamps were updated to satisfy Client..
 
 
 ; ************************************************************
@@ -1227,8 +1278,6 @@ ENDIF
                XOR  A
                LD   (DE),A                        ; null-terminate ASCII
 
-               CALL UseHWSerPort
-
                LD   HL,ESC_N
                CALL SendString
                JR   C, esc_e_aborted
@@ -1267,7 +1316,6 @@ ENDIF
 .esc_e_aborted
                CALL Msg_Command_aborted
 .end_ESC_E_cmd
-               CALL UseOZSerPort
                XOR A
                RET
 
@@ -1292,6 +1340,9 @@ ENDIF
                LD   HL,filename_buffer
                CALL Debug_message                 ; write filename to screen
 
+               CALL CheckEprName                  ; Path begins with ":EPR.x"?
+               JR   Z, file_entry_avail           ; Yes, check if file is found in File area of slot X.
+
                LD   A, op_in                      ; open file for transfer...
                LD   D,H
                LD   E,L                           ; (explicit filename overwrite original fname)
@@ -1299,20 +1350,16 @@ ENDIF
                JR   C, file_not_exist             ; ups, file not available
                LD   (file_handle),IX
                CALL Close_file                    ; close file
-
-               CALL UseHWSerPort
+.file_exists
                LD   HL,ESC_Y                      ; Signal "File exist!"
                CALL SendString
-               CALL UseOZSerPort
                JR   C, esc_f_aborted
                JR   Z, esc_f_aborted
                XOR  A
                RET
 .file_not_exist
-               CALL UseHWSerPort
                LD   HL,ESC_Z                      ; Signal "File does not exist!"
                CALL SendString
-               CALL UseOZSerPort
                JR   C, esc_f_aborted
                JR   Z, esc_f_aborted
                XOR  A
@@ -1320,7 +1367,16 @@ ENDIF
 .esc_f_aborted CALL Msg_Command_aborted
                XOR A
                RET
+.file_entry_avail                                 ; Check if File exists in File Area
+               call    CheckFileAreaOfSlot
+               jr      c,file_not_exist           ; this slot had no file area (no card)...
+               jr      nz,file_not_exist          ; this slot had no file area (card, but no file area)
 
+               ld      de,filename_buffer+6       ; search for filename beginning at "/" in filea area of slot C
+               call    FileEprFindFile            ; search for filename on file eprom...
+               jr      c,file_not_exist           ; this slot had no file area (no card)...
+               jr      nz,file_not_exist          ; File Entry was not found...
+               jr      file_exists
 
 
 ; ************************************************************
@@ -1340,6 +1396,11 @@ ENDIF
                CALL Restore_TraFlag
                JR   C,esc_w_aborted
                JR   Z,esc_w_aborted               ; timeout - communication stopped
+
+               LD   HL, filename_buffer
+               CALL CheckEprName                  ; Path begins with ":EPR.x"?
+               JR   Z, not_renamed                ; Yes, but Rename is not supported file File Entries..
+
                LD   B,0
                LD   HL, filename_buffer
                CALL_OZ(Gn_Sop)
@@ -1412,6 +1473,9 @@ ENDIF
                LD   HL, filename_buffer
                CALL Write_message                 ; display filename...
 
+               CALL CheckEprName                  ; Path begins with ":EPR.x"?
+               JR   Z, dir_in_use                 ; Yes, but directories is not supported File Area..
+
                LD   B, 0
                CALL CreateDirectory
                JR   C, dir_in_use
@@ -1454,11 +1518,14 @@ ENDIF
                LD   HL, filename_buffer
                CALL Write_message                 ; display filename...
 
+               CALL CheckEprName                  ; Path begins with ":EPR.x"?
+               JR   Z, delete_fileentry           ; Yes, try to delete file entry
+
                LD   B,0
                LD   HL, filename_buffer
                CALL_OZ(Gn_Del)                    ;
                JR   C, file_in_use                ; ups, file not available or in use
-
+.file_deleted
                LD   HL,ESC_Y                      ; Signal "File/Directory deleted"
                CALL SendString
                JR   C, esc_r_aborted
@@ -1475,6 +1542,19 @@ ENDIF
 .esc_r_aborted CALL Msg_Command_aborted
                XOR A
                RET
+.delete_fileentry
+               call    CheckFileAreaOfSlot        ; File area in slot A?
+               jr      c,file_in_use              ; this slot had no file area (no card)...
+               jr      nz,file_in_use             ; this slot had no file area (card, but no file area)
+
+               ld      de,filename_buffer+6       ; search for filename beginning at "/" in filea area of slot C
+               call    FileEprFindFile            ; search for filename on file eprom...
+               jr      c,file_in_use              ; this slot had no file area (no card)...
+               jr      nz,file_in_use             ; File Entry was not found...
+
+               call    FlashEprFileDelete         ; mark file entry as deleted, if possible...
+               jr      c, file_in_use
+               jr      file_deleted
 
 
 ; ************************************************************
@@ -1498,8 +1578,6 @@ ENDIF
                EX   DE,HL
                ADD  HL,BC
                LD   (HL),0                        ; null-terminate device name
-
-               CALL UseHWSerPort
 
                LD   HL,ESC_N
                CALL SendString
@@ -1539,7 +1617,6 @@ ENDIF
 .esc_g2_aborted
                CALL Msg_Command_aborted
 .end_ESC_G_cmd2
-               CALL UseOZSerPort
                XOR A
                RET
 
@@ -1561,6 +1638,7 @@ ENDIF
                LD   C,0
                LD   E,D
                LD   D,0                           ; <free pages> * 256
+.send_free_bytes2
                LD   (File_ptr),BC
                LD   (File_ptr+2),DE               ; low byte, high byte sequense
 
@@ -1571,8 +1649,6 @@ ENDIF
                XOR  A
                LD   (DE),A                        ; null-terminate string
 
-               CALL UseHWSerPort
-
                LD   HL,ESC_N
                CALL SendString                    ; String transmitted
                JR   C, esc_m_aborted
@@ -1582,7 +1658,7 @@ ENDIF
                CALL SendString
                JR   C, esc_m_aborted
                JR   Z, esc_m_aborted
-.no_Ram_Device
+.no_Device
                LD   HL,ESC_Z
                CALL SendString                    ; String transmitted
                JR   C, esc_m_aborted
@@ -1591,13 +1667,12 @@ ENDIF
 .esc_m_aborted
                CALL Msg_Command_aborted
 .end_ESC_M_cmd
-               CALL UseOZSerPort
                XOR A
                RET
 
 
 ; ************************************************************
-; Get explicit free memory in specified RAM card slot
+; Get explicit free memory in specified RAM/EPR card slot
 ;
 ; <RamDeviceNumber> = "0", "1", "2", "3" or "-" (all)
 ;
@@ -1621,9 +1696,15 @@ ENDIF
 
                SUB  48
                CALL RamDevFreeSpace
-               JR   C, no_Ram_Device         ; RAM device not available...
-               JR   send_free_bytes
+               JR   NC,send_free_bytes       ; RAM was found... return free space..
 
+               ld      a,(filename_buffer)   ; get device number for possible EPR device in slot
+               call    CheckFileAreaOfSlot   ; File area in slot A?
+               jr      z,get_fa_free_space   ; Yes, return amount of free space in file area
+               jr      no_Device
+.get_fa_free_space
+               call FileEprFreeSpace         ; return Free space of File Area in DEBC
+               jr   send_free_bytes2
 
 ; ************************************************************
 ;

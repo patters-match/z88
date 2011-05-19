@@ -28,7 +28,7 @@
     XREF ESC_m_cmd, ESC_p_cmd, ESC_E_cmd, ESC_M_cmd2
 
     XDEF TraFilename
-    XDEF serial_port, ramdev_wildcard
+    XDEF serial_port, ramdev_wildcard, eprdev
     XDEF serdmpfile_in, serdmpfile_out
     XDEF pclink_synch, extended_synch
     XDEF menu_banner
@@ -40,7 +40,7 @@
     XDEF Message29, Message30, Message31, Message32, Message33, Message34
     XDEF Message35, Message36
     XDEF Error_Message0, Error_Message1, Error_Message2, Error_Message3
-    XDEF Error_Message4, Error_Message5
+    XDEF Error_Message4, Error_Message5, Error_message6
     XDEF ESC_Z, ESC_F, ESC_N, ESC_E, ESC_Y, ESC_B, ESC_ESC, CRLF
     XDEF Current_dir, Parent_dir
     XDEF BaudRate, No_Parameter, Yes_Parameter
@@ -56,10 +56,11 @@
 ; ***                      Static definitions; device & filenames, messages, etc.                        **
 ; *********************************************************************************************************
 
-.EasyLinkVersion    DEFM "5.0-05", 0
+.EasyLinkVersion    DEFM "5.1-05", 0
 .TraFilename        DEFM ":*//Translate.dat", 0
 .serial_port        DEFM ":COM.0", 0
 .ramdev_wildcard    DEFM ":RAM.*", 0
+.eprdev             DEFM ":EPR."
 .serdmpfile_in      DEFM "/serdump.in", 0                        ; create files in default RAM device
 .serdmpfile_out     DEFM "/serdump.out", 0
 .msg_serdmpfile_enable DEFM "Serial port logging enabled"  , 0
@@ -67,7 +68,7 @@
 .pclink_synch       DEFB 5, 6
 .extended_synch     DEFB 1, 2
 
-.menu_banner        DEFM "EazyLink V5.0.5.1", 0
+.menu_banner        DEFM "EazyLink V5.1", 0
 .command_banner     DEFM "Commands", 0
 .message1           DEFM "Running",    0
 .message2           DEFM "Waiting...", 0
@@ -112,6 +113,7 @@
 .error_message3     DEFM "Protocol error: Unknown ESC command.", 0
 .error_message4     DEFM "File aborted.", 0
 .error_message5     DEFM "No Room.", 0
+.error_message6     DEFM "File Card Write Error.", 0
 
 .ESC_Z              DEFM ESC, "Z", 0
 .ESC_F              DEFM ESC, "F", 0
@@ -130,7 +132,7 @@
 .Yes_Parameter      DEFB 'Y'
 
 ; Lookup table of commands available.
-; total of commands defined in "defs.asm"
+; total of commands defined 
 .EscCommands        DEFB 'A'                 ; PCLINK  II 'Hello'
                     DEFB 'H'                 ; PCLINK  II Devices
                     DEFB 'D'                 ; PCLINK  II Directories

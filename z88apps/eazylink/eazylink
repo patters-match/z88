@@ -23,5 +23,7 @@ mltlink
 srchfsys
 byteio
 fileio
+eprfsave
+eprfsend
 consts
 mth
