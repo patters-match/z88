@@ -136,7 +136,7 @@ NEW
  4220 PROCDispTitle
  4230 PRINT
  4240 F=0:FLASH=0
- 4250 PRINT "What EPROM type is in slot 3: [1]28K, [2]56K, [3]2K or [F]LASH?"
+ 4250 PRINT "Select EPROM type: [1]28K, [2]56K, [3]2K or [F]LASH?"
  4252 REPEAT: K$=GET$: UNTIL K$="F" OR K$="f" OR K$="1" OR K$="2" OR K$="3"
  4254 IF K$="F" OR K$="f" THEN EP%=0
  4255 IF K$="1" THEN EP%=128
