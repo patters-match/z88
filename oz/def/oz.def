@@ -33,7 +33,7 @@ IF !__OZ_DEF__
 define __OZ_DEF__
 
 ; version:
-defc    OZVERSION               = $42
+defc    OZVERSION               = $43
 
 ; rom layout:
 

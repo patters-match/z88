@@ -1250,7 +1250,7 @@ xref    sub_EFBB                                ; [Kernel0]/osin.asm
 IF OZ_INTUITION
         defm    $BC," ", (OZVERSION>>4)+48, '.', (OZVERSION&$0f)+48," DEV $Revision$"
 ELSE
-        defm    $BC," ", (OZVERSION>>4)+48, '.', (OZVERSION&$0f)+48," $Revision$"
+        defm    $BC," ", (OZVERSION>>4)+48, '.', (OZVERSION&$0f)+48," RC1 $Revision$"
 ENDIF
         defm    $7F,$7F,$DE,"r"
         defm    $CC,$84,"(C) Tr"
