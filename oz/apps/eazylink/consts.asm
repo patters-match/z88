@@ -1,6 +1,6 @@
 ; *************************************************************************************
 ; EazyLink - Fast Client/Server File Management, including support for PCLINK II protocol
-; (C) Gunther Strube (gbs@users.sourceforge.net) 1990-2006
+; (C) Gunther Strube (gbs@users.sourceforge.net) 1990-2011
 ;
 ; EazyLink is free software; you can redistribute it and/or modify it under the terms of the
 ; GNU General Public License as published by the Free Software Foundation;
@@ -28,7 +28,8 @@
     XREF ESC_m_cmd, ESC_p_cmd, ESC_E_cmd, ESC_M_cmd2
 
     XDEF TraFilename
-    XDEF serial_port, ramdev_wildcard
+    XDEF serial_port, ramdev_wildcard, eprdev
+    XDEF serdmpfile_in, serdmpfile_out
     XDEF pclink_synch, extended_synch
     XDEF menu_banner
     XDEF Message1, Message2, Message3, Message8
@@ -38,7 +39,7 @@
     XDEF Message29, Message32
     XDEF Message35, Message36
     XDEF Error_Message0, Error_Message1, Error_Message2, Error_Message3
-    XDEF Error_Message4, Error_Message5
+    XDEF Error_Message4, Error_Message5, Error_message6
     XDEF ESC_Z, ESC_F, ESC_N, ESC_E, ESC_Y, ESC_B, ESC_ESC, CRLF
     XDEF Current_dir, Parent_dir
     XDEF BaudRate, No_Parameter, Yes_Parameter
@@ -54,10 +55,11 @@
 ; ***                      Static definitions; device & filenames, messages, etc.                        **
 ; *********************************************************************************************************
 
-.EasyLinkVersion    DEFM "5.0-05", 0
+.EasyLinkVersion    DEFM "5.1-05", 0
 .TraFilename        DEFM ":*//Translate.dat", 0
 .serial_port        DEFM ":COM.0", 0
 .ramdev_wildcard    DEFM ":RAM.*", 0
+.eprdev             DEFM ":EPR."
 .pclink_synch       DEFB 5, 6
 .extended_synch     DEFB 1, 2
 
@@ -93,6 +95,7 @@
 .error_message3     DEFM "Protocol error: Unknown ESC command.", 0
 .error_message4     DEFM "File aborted.", 0
 .error_message5     DEFM "No Room.", 0
+.error_message6     DEFM "File Card Write Error.", 0
 
 .ESC_Z              DEFM ESC, "Z", 0
 .ESC_F              DEFM ESC, "F", 0

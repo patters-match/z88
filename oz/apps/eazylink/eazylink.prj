@@ -1,6 +1,6 @@
 ; *************************************************************************************
 ; EazyLink - Fast Client/Server File Management, including support for PCLINK II protocol
-; (C) Gunther Strube (gbs@users.sourceforge.net) 1990-2006
+; (C) Gunther Strube (gbs@users.sourceforge.net) 1990-2011
 ;
 ; EazyLink is free software; you can redistribute it and/or modify it under the terms of the
 ; GNU General Public License as published by the Free Software Foundation;
@@ -16,9 +16,11 @@
 ;
 ; *************************************************************************************
 
-eazylink    : stdio.def error.def integer.def time.def fileio.def dor.def syspar.def serintfc.def director.def screen.def sysapps.def rtmvars.def
+eazylink    : stdio.def error.def integer.def time.def fileio.def eprom.def dor.def syspar.def serintfc.def director.def screen.def sysapps.def rtmvars.def
 pclink      : fileio.def dor.def stdio.def error.def rtmvars.def
 mltlink     : error.def fileio.def dor.def stdio.def rtmvars.def
+eprfsave    : error.def fileio.def memory.def director.def oz.def blink.def stdio.def eprom.def flashepr.def rtmvars.def
+eprfsend    : eprom.def error.def
 srchfsys    : dor.def fileio.def rtmvars.def
 byteio      : fileio.def screen.def error.def blink.def rtmvars.def
 fileio      : fileio.def rtmvars.def

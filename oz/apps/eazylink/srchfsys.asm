@@ -1,6 +1,6 @@
 ; *************************************************************************************
 ; EazyLink - Fast Client/Server File Management, including support for PCLINK II protocol
-; (C) Gunther Strube (gbs@users.sourceforge.net) 1990-2006
+; (C) Gunther Strube (gbs@users.sourceforge.net) 1990-2011
 ;
 ; EazyLink is free software; you can redistribute it and/or modify it under the terms of the
 ; GNU General Public License as published by the Free Software Foundation;
@@ -20,6 +20,7 @@
 
     XREF Get_wcard_handle, Find_next_match, CLose_wcard_handler, Get_file_handle
     XREF System_Error
+    XREF Transfer_filename, Transfer_RamfileImage	
     XREF Transfer_file
     XREF Def_RamDev_wildc
 
@@ -50,9 +51,14 @@
                   JR   Z,new_file                    ; equal date stamps, proces file ...
                   JR   filenames_loop                ; already updated, continue ...
 .new_file         LD   HL, filename_buffer
-                  CALL Transfer_file                 ; transfer file without ACKN protocol...
+                  CALL Transfer_filename             ; transfer file without ACKN protocol...
                   JR   C, search_filer_aborted       ; Ups - transmission error
                   JR   Z, search_filer_aborted
+
+                  CALL Transfer_RamfileImage         ; transfer file without ACKN protocol...
+                  JR   C, search_filer_aborted       ; Ups - transmission error
+                  JR   Z, search_filer_aborted
+
                   LD   A,op_up                       ; Open for Update...
                   LD   HL, filename_buffer
                   LD   D,H
