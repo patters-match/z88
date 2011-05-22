@@ -133,9 +133,7 @@
         push    bc                            ; preserve old bank binding of segment C
         ld      b,a                           ; but use current bank as reference...
 
-        di                                    ; no maskable interrupts allowed while doing flash hardware commands...
         call    FEP_WriteBlock
-        ei                                    ; maskable interrupts allowed again
 
         ld      d,b                           ; preserve current Bank number of pointer...
         pop     bc

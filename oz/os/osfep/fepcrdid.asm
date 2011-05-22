@@ -67,7 +67,6 @@
         push    iy
         push    de
         push    bc
-        di                                      ; no maskable interrupts allowed while doing flash hardware commands...
 
         ld      a,c
         and     @00000011                       ; only slots 0, 1, 2 or 3 possible
@@ -116,7 +115,6 @@
         pop     de                              ; B = banks on card, A = chip series (28F or 29F)
         ld      c,e                             ; original C restored
 .end_FlashEprCardId
-        ei                                      ; maskable interrupts allowed again
         pop     de                              ; original DE restored
         pop     iy
         ret                                     ; Fc = 0, Fz = 1

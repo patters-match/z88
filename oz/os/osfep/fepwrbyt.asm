@@ -103,9 +103,7 @@
         ld      d,b                             ; copy of bank number
         rst     OZ_MPB                          ; bind bank B into segment...
         push    bc
-        di                                      ; no maskable interrupts allowed while doing flash hardware commands...
         call    FEP_BlowByte                    ; blow byte in A to (BHL) address
-        ei                                      ; maskable interrupts allowed again
         pop     bc
         rst     OZ_MPB                          ; restore original bank binding
 
