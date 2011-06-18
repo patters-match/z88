@@ -30,7 +30,7 @@ def read_translations(filename):
 	translatetopipe={}
 	
 	try:
-		dictionary=open(filename,"r")
+		dictionary=open(filename,"rb")
 	except IOError:
 		return False,{},{}
 	primera=True
@@ -90,17 +90,19 @@ class rtf:
 		this.conversor=pddutilities()
 		
 		if (mode=="r")|(mode=="R"):
-			this.mode="r"
+			this.fmode="r"
+			this.tmpmode="rb"
 		else:
-			this.mode="w"
+			this.fmode="w"
+			this.tmpmode="wb"
 			
-		this.fichero=open(filename,this.mode)
+		this.fichero=open(filename,this.tmpmode)
 		this.last_read=""
 		
 		this.creturnD="\015" # 0x0D
 		this.creturnA="\012" # 0x0A
 		
-		if this.mode=="r":
+		if this.fmode=="r":
 			this.text=""
 			this.wrap_len=72
 			this.creturn="\015" # 0x0D, newline code for PipeDream
@@ -346,7 +348,7 @@ class rtf:
 		return 0
 
 	def close(this):
-		if this.mode=="w":
+		if this.fmode=="w":
 			this.conversor.close()
 			if this.ctranslate:
 				texto=this.conversor.pseudo2latin(this.conversor.ctext,this.dictfile)
@@ -449,14 +451,16 @@ class abiword:
 		this.conversor=pddutilities()
 		
 		if (mode=="r")|(mode=="R"):
-			this.mode="r"
+			this.fmode="r"
+			this.tmpmode="rb"
 		else:
-			this.mode="w"
+			this.fmode="w"
+			this.tmpmode="wb"
 			
-		this.fichero=open(filename,this.mode)
+		this.fichero=open(filename,this.tmpmode)
 		this.last_read=""
 		
-		if this.mode=="r":
+		if this.fmode=="r":
 			this.text=""
 			this.wrap_len=72
 			this.creturn="\015" # 0x0D, newline code for PipeDream
@@ -486,7 +490,7 @@ class abiword:
 		this.conversor.write(caracter)
 	
 	def close(this):
-		if this.mode=="w":
+		if this.fmode=="w":
 			this.conversor.close()
 			if this.ctranslate:
 				texto=this.conversor.pseudo2latin(this.conversor.ctext,this.dictfile)

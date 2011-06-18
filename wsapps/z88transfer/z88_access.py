@@ -38,14 +38,35 @@ class z88access:
 		self.myserial.rtscts=1
 
 
-	def check_name(self,name):
+	def check_name(self,name,isdir):
 		
-		allowed_letters="abcdefghijklmnopqrstuvwxyz0123456789."
+		allowed_letters="abcdefghijklmnopqrstuvwxyz0123456789.-"
 		
+		lenname=len(name)
+
 		for letter in name.lower():
 			if allowed_letters.find(letter) == -1:
-				return True
-		return False
+				return _("The Name contains no valid characters")
+		
+		if (isdir and (lenname>12)):
+			return _("The directory name is longer than 12 characters")
+		
+		if ((isdir==False) and (lenname>16)):
+			return _("The filename is longer than 16 characters")
+		
+		if (name.count(".")>1):
+			return _("Names can't contain more than one dot")
+		
+		pos=name.find(".")
+		if (pos!=-1):
+			if (pos==0):
+				return _("Names can't start with a dot")
+			if ((lenname-pos)>4):
+				return _("The extension can't be bigger than three characters")
+			if (pos>12):
+				return _("The name before a dot can't be bigger than 12 characters")
+
+		return ""
 
 
 	def set_params(self,speed=9600,device="/dev/ttyS0",protocol="PCLINK"):

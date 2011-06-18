@@ -215,7 +215,7 @@ class copy_z88(copy_base):
 			else:
 				fichero = z88_pipex.rtf(self.pcpath+self.filename,"w",use_pseudo,self.frompipe)
 		else:
-			fichero = open(self.pcpath+self.filename,"w")
+			fichero = open(self.pcpath+self.filename,"wb")
 
 		counter = 0.0
 		while True:
@@ -296,7 +296,7 @@ class copy_pc(copy_base):
 		if self.doexport:
 			fichero=StringIO.StringIO(self.abiclass.text) # emulate a file with converted text
 		else:
-			fichero=open(self.pcpath+self.filename,"r")		
+			fichero=open(self.pcpath+self.filename,"rb")		
 		
 		counter = 0.0
 		while True:
@@ -394,8 +394,8 @@ class pref_window:
 		self.main_window.show()
 		
 		self.port = self.arbol.get_widget("entry_serial_port")
-		self.speed = self.arbol.get_widget("serial_speed_entry")
-		self.protocol = self.arbol.get_widget("serial_protocol_entry")
+		self.speed = self.arbol.get_widget("entry_speed").child
+		self.protocol = self.arbol.get_widget("entry_protocol").child
 		self.pseudo = self.arbol.get_widget("pseudospanish")
 		self.export = self.arbol.get_widget("abiword")
 		self.export2 = self.arbol.get_widget("rtfconv")
@@ -494,7 +494,7 @@ class main_window:
 			nfile += os.sep
 		
 		nfile += ".config_z88transfer"
-		conffile = open(nfile,"w")
+		conffile = open(nfile,"wb")
 		conffile.write("speed "+str(self.serial_speed)+"\n")
 		conffile.write("port "+self.serial_port+"\n")
 		conffile.write("protocol "+self.serial_protocol+"\n")
@@ -527,7 +527,7 @@ class main_window:
 		nfile += ".config_z88transfer"
 		
 		try:
-			conffile = open(nfile,"r")
+			conffile = open(nfile,"rb")
 		except IOError:
 			return
 
@@ -755,8 +755,9 @@ class main_window:
 		if retval != -5:
 			return
 		
-		if self.z88.check_name(name):
-			self.show_message(_("The folder name contains invalid characters"),_("Error"))
+		retstr=self.z88.check_name(name,True)
+		if retstr!="":
+			self.show_message(retstr,_("Error"))
 			return
 
 		if self.z88.create_folder(self.z88path+name) != 0:
@@ -792,8 +793,9 @@ class main_window:
 		if retval != -5:
 			return
 		
-		if self.z88.check_name(name):
-			self.show_message(_("The new name contains invalid characters"),_("Error"))
+		retstr=self.z88.check_name(name,False)
+		if retstr!="":
+			self.show_message(retstr,_("Error"))
 			return
 
 		if self.z88.rename_file(self.z88path+file_name,name) != 0:
@@ -899,7 +901,7 @@ class main_window:
 				break
 			elif retval == -3:
 				self.show_message(_("Aborted by the user"), _("Aborted"))
-				had.error = True
+				had_error = True
 				break
 				
 		if had_error == False:
@@ -912,7 +914,6 @@ class main_window:
 	def on_copy_to_z88_clicked(self,widget):
 		
 		files = self.get_pc_marked()
-
 		if (self.z88.protocol=="IMP-EXPORT"):
 			if len(files)>1:
 				self.show_message(_("With IMP-EXPORT protocol you can't select more than one file"),_("Error"))
@@ -925,11 +926,12 @@ class main_window:
 		for element in files:
 			if element[-1] == os.sep:
 				continue
-			if self.z88.check_name(element.lower()):
-				self.show_message(_("There are filenames with no valid characters. Aborting."),_("Error"))
+			retstr=self.z88.check_name(element.lower(),False)
+			if retstr!="":
+				self.show_message(retstr,_("Error"))
 				return
 			else:
-				files2.append(element.lower())
+				files2.append(element)
 
 		if len(files2) == 0:
 			return
@@ -1003,7 +1005,7 @@ class main_window:
 				break
 			elif retval == -3:
 				self.show_message(_("Aborted by the user"), _("Aborted"))
-				had.error = True
+				had_error = True
 				break
 				
 		if had_error == False:
@@ -1136,7 +1138,7 @@ class main_window:
 						counter += 1
 			else:
 				for element in content:
-					if (element == "") or (element == "."+os.sep) or (element == ".") or (element[:2] == ".."):
+					if (element == "") or (element == "."+os.sep) or (element == ".") or (element[:2] == "..") or (element[-1]=="~"):
 						continue
 					if (show_hidden == False) and (element[0] == "."):
 						continue
@@ -1197,6 +1199,7 @@ class main_window:
 
 	def pcclick(self,view,button):
 
+		# si no es doble click, no hacemos nada
 		if button.type != gtk.gdk._2BUTTON_PRESS:
 			return
 

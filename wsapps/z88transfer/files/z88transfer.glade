@@ -24,7 +24,7 @@
                 <signal name="clicked" handler="on_reload_clicked"/>
               </widget>
               <packing>
-                <property name="expand">False</property>
+                <property name="homogeneous">True</property>
               </packing>
             </child>
             <child>
@@ -36,7 +36,7 @@
                 <signal name="clicked" handler="on_setclock_clicked"/>
               </widget>
               <packing>
-                <property name="expand">False</property>
+                <property name="homogeneous">True</property>
               </packing>
             </child>
             <child>
@@ -48,7 +48,7 @@
                 <signal name="clicked" handler="on_freemem_clicked"/>
               </widget>
               <packing>
-                <property name="expand">False</property>
+                <property name="homogeneous">True</property>
               </packing>
             </child>
             <child>
@@ -60,10 +60,6 @@
                   </widget>
                 </child>
               </widget>
-              <packing>
-                <property name="expand">False</property>
-                <property name="homogeneous">False</property>
-              </packing>
             </child>
             <child>
               <widget class="GtkToolButton" id="preferences_buton">
@@ -72,7 +68,7 @@
                 <signal name="clicked" handler="on_preferences_clicked"/>
               </widget>
               <packing>
-                <property name="expand">False</property>
+                <property name="homogeneous">True</property>
               </packing>
             </child>
             <child>
@@ -82,7 +78,7 @@
                 <signal name="clicked" handler="on_about_clicked"/>
               </widget>
               <packing>
-                <property name="expand">False</property>
+                <property name="homogeneous">True</property>
               </packing>
             </child>
           </widget>
@@ -97,27 +93,25 @@
             <property name="n_columns">5</property>
             <property name="column_spacing">1</property>
             <child>
-              <widget class="GtkVSeparator" id="vseparator1">
-                <property name="width_request">10</property>
-                <property name="visible">True</property>
-              </widget>
-              <packing>
-                <property name="left_attach">2</property>
-                <property name="right_attach">3</property>
-                <property name="bottom_attach">2</property>
-                <property name="x_options">GTK_FILL</property>
-                <property name="y_options">GTK_FILL</property>
-              </packing>
-            </child>
-            <child>
-              <widget class="GtkLabel" id="importexport">
+              <widget class="GtkLabel" id="label12">
                 <property name="visible">True</property>
                 <property name="xalign">0</property>
                 <property name="yalign">0</property>
+                <property name="label" translatable="yes">Speed: </property>
               </widget>
               <packing>
-                <property name="left_attach">4</property>
-                <property name="right_attach">5</property>
+                <property name="x_options">GTK_FILL</property>
+                <property name="y_options"></property>
+              </packing>
+            </child>
+            <child>
+              <widget class="GtkLabel" id="label13">
+                <property name="visible">True</property>
+                <property name="xalign">0</property>
+                <property name="yalign">0</property>
+                <property name="label" translatable="yes">Protocol: </property>
+              </widget>
+              <packing>
                 <property name="top_attach">1</property>
                 <property name="bottom_attach">2</property>
                 <property name="x_options">GTK_FILL</property>
@@ -125,14 +119,43 @@
               </packing>
             </child>
             <child>
-              <widget class="GtkLabel" id="label_port">
+              <widget class="GtkLabel" id="label_protocol">
                 <property name="visible">True</property>
                 <property name="xalign">0</property>
                 <property name="yalign">0</property>
               </widget>
               <packing>
-                <property name="left_attach">4</property>
-                <property name="right_attach">5</property>
+                <property name="left_attach">1</property>
+                <property name="right_attach">2</property>
+                <property name="top_attach">1</property>
+                <property name="bottom_attach">2</property>
+                <property name="x_options">GTK_FILL</property>
+                <property name="y_options"></property>
+              </packing>
+            </child>
+            <child>
+              <widget class="GtkLabel" id="label_speed">
+                <property name="visible">True</property>
+                <property name="xalign">0</property>
+                <property name="yalign">0</property>
+              </widget>
+              <packing>
+                <property name="left_attach">1</property>
+                <property name="right_attach">2</property>
+                <property name="x_options">GTK_FILL</property>
+                <property name="y_options"></property>
+              </packing>
+            </child>
+            <child>
+              <widget class="GtkLabel" id="label14">
+                <property name="visible">True</property>
+                <property name="xalign">0</property>
+                <property name="yalign">0</property>
+                <property name="label" translatable="yes">Serial port: </property>
+              </widget>
+              <packing>
+                <property name="left_attach">3</property>
+                <property name="right_attach">4</property>
                 <property name="x_options">GTK_FILL</property>
                 <property name="y_options"></property>
               </packing>
@@ -154,41 +177,27 @@
               </packing>
             </child>
             <child>
-              <widget class="GtkLabel" id="label14">
+              <widget class="GtkLabel" id="label_port">
                 <property name="visible">True</property>
                 <property name="xalign">0</property>
                 <property name="yalign">0</property>
-                <property name="label" translatable="yes">Serial port: </property>
               </widget>
               <packing>
-                <property name="left_attach">3</property>
-                <property name="right_attach">4</property>
+                <property name="left_attach">4</property>
+                <property name="right_attach">5</property>
                 <property name="x_options">GTK_FILL</property>
                 <property name="y_options"></property>
               </packing>
             </child>
             <child>
-              <widget class="GtkLabel" id="label_speed">
+              <widget class="GtkLabel" id="importexport">
                 <property name="visible">True</property>
                 <property name="xalign">0</property>
                 <property name="yalign">0</property>
               </widget>
               <packing>
-                <property name="left_attach">1</property>
-                <property name="right_attach">2</property>
-                <property name="x_options">GTK_FILL</property>
-                <property name="y_options"></property>
-              </packing>
-            </child>
-            <child>
-              <widget class="GtkLabel" id="label_protocol">
-                <property name="visible">True</property>
-                <property name="xalign">0</property>
-                <property name="yalign">0</property>
-              </widget>
-              <packing>
-                <property name="left_attach">1</property>
-                <property name="right_attach">2</property>
+                <property name="left_attach">4</property>
+                <property name="right_attach">5</property>
                 <property name="top_attach">1</property>
                 <property name="bottom_attach">2</property>
                 <property name="x_options">GTK_FILL</property>
@@ -196,29 +205,16 @@
               </packing>
             </child>
             <child>
-              <widget class="GtkLabel" id="label13">
+              <widget class="GtkVSeparator" id="vseparator1">
+                <property name="width_request">10</property>
                 <property name="visible">True</property>
-                <property name="xalign">0</property>
-                <property name="yalign">0</property>
-                <property name="label" translatable="yes">Protocol: </property>
               </widget>
               <packing>
-                <property name="top_attach">1</property>
+                <property name="left_attach">2</property>
+                <property name="right_attach">3</property>
                 <property name="bottom_attach">2</property>
                 <property name="x_options">GTK_FILL</property>
-                <property name="y_options"></property>
-              </packing>
-            </child>
-            <child>
-              <widget class="GtkLabel" id="label12">
-                <property name="visible">True</property>
-                <property name="xalign">0</property>
-                <property name="yalign">0</property>
-                <property name="label" translatable="yes">Speed: </property>
-              </widget>
-              <packing>
-                <property name="x_options">GTK_FILL</property>
-                <property name="y_options"></property>
+                <property name="y_options">GTK_FILL</property>
               </packing>
             </child>
           </widget>
@@ -281,7 +277,6 @@
                         <property name="can_focus">True</property>
                         <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
                         <property name="headers_visible">False</property>
-                        <property name="headers_clickable">True</property>
                         <signal name="button_press_event" handler="z88click"/>
                       </widget>
                     </child>
@@ -294,16 +289,18 @@
                   <widget class="GtkTable" id="table2">
                     <property name="visible">True</property>
                     <property name="n_rows">3</property>
-                    <property name="n_columns">1</property>
                     <child>
-                      <widget class="GtkButton" id="z88_newfolder">
+                      <widget class="GtkButton" id="z88_renamefile">
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
-                        <property name="label" translatable="yes">New folder</property>
+                        <property name="label" translatable="yes">Rename file</property>
                         <property name="use_underline">True</property>
-                        <signal name="clicked" handler="on_z88_newfolder_clicked"/>
+                        <property name="response_id">0</property>
+                        <signal name="clicked" handler="on_z88_renamefile_clicked"/>
                       </widget>
                       <packing>
+                        <property name="top_attach">1</property>
+                        <property name="bottom_attach">2</property>
                         <property name="y_options"></property>
                       </packing>
                     </child>
@@ -313,6 +310,7 @@
                         <property name="can_focus">True</property>
                         <property name="label" translatable="yes">Delete file or folder</property>
                         <property name="use_underline">True</property>
+                        <property name="response_id">0</property>
                         <signal name="clicked" handler="on_z88_deletefile_clicked"/>
                       </widget>
                       <packing>
@@ -322,16 +320,15 @@
                       </packing>
                     </child>
                     <child>
-                      <widget class="GtkButton" id="z88_renamefile">
+                      <widget class="GtkButton" id="z88_newfolder">
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
-                        <property name="label" translatable="yes">Rename file</property>
+                        <property name="label" translatable="yes">New folder</property>
                         <property name="use_underline">True</property>
-                        <signal name="clicked" handler="on_z88_renamefile_clicked"/>
+                        <property name="response_id">0</property>
+                        <signal name="clicked" handler="on_z88_newfolder_clicked"/>
                       </widget>
                       <packing>
-                        <property name="top_attach">1</property>
-                        <property name="bottom_attach">2</property>
                         <property name="y_options"></property>
                       </packing>
                     </child>
@@ -355,6 +352,7 @@
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
+                    <property name="response_id">0</property>
                     <signal name="clicked" handler="on_copy_from_z88_clicked"/>
                     <child>
                       <widget class="GtkImage" id="image1">
@@ -375,6 +373,7 @@
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
+                    <property name="response_id">0</property>
                     <signal name="clicked" handler="on_copy_to_z88_clicked"/>
                     <child>
                       <widget class="GtkImage" id="image2">
@@ -447,7 +446,6 @@
                         <property name="can_focus">True</property>
                         <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
                         <property name="headers_visible">False</property>
-                        <property name="headers_clickable">True</property>
                         <signal name="button_press_event" handler="pcclick"/>
                       </widget>
                     </child>
@@ -555,9 +553,8 @@
     <property name="window_position">GTK_WIN_POS_CENTER</property>
     <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
     <property name="has_separator">False</property>
-    <property name="name">Z88Transfer</property>
-    <property name="version">3.0</property>
-    <property name="copyright" translatable="yes">(C) 2005-07 Raster Software Vigo</property>
+    <property name="version">3.1</property>
+    <property name="copyright" translatable="yes">(C) 2005-2008 Raster Software Vigo</property>
     <property name="website">http://www.rastersoft.com/programas/z88transfer.html</property>
     <property name="authors">Sergio Costas Rodriguez (raster@rastersoft.com)</property>
     <child internal-child="vbox">
@@ -618,6 +615,7 @@
                 <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
                 <property name="label" translatable="yes">gtk-ok</property>
                 <property name="use_stock">True</property>
+                <property name="response_id">0</property>
               </widget>
             </child>
           </widget>
@@ -800,6 +798,7 @@ IMP-EXPORT</property>
                             <property name="can_focus">True</property>
                             <property name="label" translatable="yes">No import/export</property>
                             <property name="use_underline">True</property>
+                            <property name="response_id">0</property>
                             <property name="draw_indicator">True</property>
                             <signal name="toggled" handler="on_group_changed"/>
                           </widget>
@@ -814,6 +813,7 @@ IMP-EXPORT</property>
                             <property name="can_focus">True</property>
                             <property name="label" translatable="yes">Import/export in Abiword</property>
                             <property name="use_underline">True</property>
+                            <property name="response_id">0</property>
                             <property name="draw_indicator">True</property>
                             <property name="group">notrans</property>
                             <signal name="toggled" handler="on_group_changed"/>
@@ -830,6 +830,7 @@ IMP-EXPORT</property>
                             <property name="can_focus">True</property>
                             <property name="label" translatable="yes">Import/export in RTF</property>
                             <property name="use_underline">True</property>
+                            <property name="response_id">0</property>
                             <property name="draw_indicator">True</property>
                             <property name="group">notrans</property>
                             <signal name="toggled" handler="on_group_changed"/>
@@ -846,6 +847,7 @@ IMP-EXPORT</property>
                             <property name="can_focus">True</property>
                             <property name="label" translatable="yes">Pseudo translation</property>
                             <property name="use_underline">True</property>
+                            <property name="response_id">0</property>
                             <property name="draw_indicator">True</property>
                           </widget>
                           <packing>
@@ -1147,7 +1149,6 @@ IMP-EXPORT</property>
           <widget class="GtkProgressBar" id="transfer_total">
             <property name="visible">True</property>
             <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
-            <property name="text" translatable="yes"></property>
           </widget>
           <packing>
             <property name="expand">False</property>
@@ -1158,7 +1159,6 @@ IMP-EXPORT</property>
           <widget class="GtkProgressBar" id="transfer_partial">
             <property name="visible">True</property>
             <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
-            <property name="text" translatable="yes"></property>
           </widget>
           <packing>
             <property name="expand">False</property>
@@ -1173,6 +1173,7 @@ IMP-EXPORT</property>
             <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
             <property name="label" translatable="yes">gtk-cancel</property>
             <property name="use_stock">True</property>
+            <property name="response_id">0</property>
             <signal name="clicked" handler="on_cancel_clicked"/>
           </widget>
           <packing>
