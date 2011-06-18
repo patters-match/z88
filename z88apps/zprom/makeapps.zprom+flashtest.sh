@@ -28,7 +28,7 @@ rm -f *.obj *.bin *.map zprom.epr
 ../../tools/mpm/mpm -b -I../../oz/def romhdr
 
 # Compile FlashTest to reside at $EB00 in bank $3F
-../../tools/mpm/mpm -rEB00 -I../../oz/def -l../../stdlib/standard.lib -b ../flashtest/fltest.asm
+../../tools/mpm/mpm -rEB00 -I../../oz/def -l../../stdlib/standard.lib -b ../flashtest/fltest.asm ../flashtest/ramcard.asm
 
 # Create a 32K Rom Card with Zprom and FlashTest ($3E contains MTH, $3F contains application code for Zprom and FlashTest)
 ../../tools/makeapp/makeapp.sh -f zprom+flashtest.loadmap

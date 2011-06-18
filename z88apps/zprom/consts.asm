@@ -87,16 +87,14 @@
 .FlashEpr           DEFM "FLASH", 0
 
 .FlashEprTypes
-                    DEFB 9
+                    DEFB 7
                     DEFW FE_I28F004S5, 8, mnem_i004
                     DEFW FE_I28F008SA, 16, mnem_i008
                     DEFW FE_I28F008S5, 16, mnem_i8s5
                     DEFW FE_AM29F010B, 8, mnem_am010b
                     DEFW FE_AM29F040B, 8, mnem_am040b
                     DEFW FE_AM29F080B, 16, mnem_am080b
-                    DEFW FE_ST29F010B, 8, mnem_st010b
-                    DEFW FE_ST29F040B, 8, mnem_st040b
-                    DEFW FE_ST29F080D, 16, mnem_st080d
+                    DEFW FE_AMIC29F040B, 8, mnem_amic40b
 
 .mnem_i004          DEFM "INTEL 28F004S5 (512Kb, 8 x 64Kb sectors)", 0
 .mnem_i008          DEFM "INTEL 28F008SA (1024Kb, 16 x 64Kb sectors)", 0
@@ -104,9 +102,7 @@
 .mnem_am010b        DEFM "AMD AM29F010B (128Kb, 8 x 16K sectors)", 0
 .mnem_am040b        DEFM "AMD AM29F040B (512Kb, 8 x 64K sectors)", 0
 .mnem_am080b        DEFM "AMD AM29F080B (1024Kb, 16 x 64K sectors)", 0
-.mnem_st010b        DEFM "STM ST29F010B (128Kb, 8 x 16K sectors)", 0
-.mnem_st040b        DEFM "STM ST29F040B (512Kb, 8 x 64K sectors)", 0
-.mnem_st080d        DEFM "STM ST29F080D (1024Kb, 16 x 64K sectors)", 0
+.mnem_amic40b       DEFM "AMIC AM29F040B (512Kb, 8 x 64K sectors)", 0
 
 .Error_banner       DEFM "Error:", 0
 .status_banner      DEFM "ZPROM SETTINGS:", 0
