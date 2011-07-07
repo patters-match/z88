@@ -200,12 +200,12 @@
                   jr      c,no_more_names            ; this slot had no file area (no card)...
                   jr      nz,no_more_names           ; this slot had no file area (card, but no file area)
 
-                  call    GetFirstEprFile            ; slot C => BHL of first entry in file area..
-.send_fa_names    jr      c, no_more_names           ; no more entries in file area...
-
                   ld      a,c
                   or      $30
                   call    SetEprDevName              ; Begin filename with device name, ":EPR.x"
+
+                  call    GetFirstEprFile            ; slot C => BHL of first entry in file area..
+.send_fa_names    jr      c, no_more_names           ; no more entries in file area...
 
                   ld      de, filename_buffer+6      ; append filename at after ":EPR.x", null-terminated
                   call    FileEprFilename            ; copy filename from current file entry to (DE)
@@ -673,11 +673,11 @@
                   JR   Z,ESCcmd_ident
                   LD   (HL),A
                   INC  HL
+                  LD   (HL), 0                       ; Null-terminate received wildcard search path.
                   JR   pathname_loop
 .ESCcmd_ident     CALL Getbyte                       ; either 'Z','F' or 'N'
                   RET  C
                   RET  Z
-                  LD   (HL), 0                       ; Null-terminate received wildcard search path.
                   SET  0,A
                   OR   A                             ; signal succes
                   RET
