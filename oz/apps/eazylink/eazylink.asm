@@ -801,11 +801,11 @@
                CALL Restore_TraFlag
                JR   C,esc_x_aborted
                JR   Z,esc_x_aborted               ; timeout - communication stopped
-               LD   HL,filename_buffer
 
-			   CALL CheckEprName                  ; Path begins with ":EPR.x"?
+               LD   HL,filename_buffer
+               CALL CheckEprName                  ; Path begins with ":EPR.x"?
                JR   Z, get_fa_filesize            ; Yes, try to get size of file in File Area...
-			   
+
                LD   A, op_in                      ; open file for transfer...
                LD   D,H
                LD   E,L                           ; (explicit filename overwrite original fname)
@@ -883,6 +883,7 @@
                JP   C,esc_u_aborted
                JP   Z,esc_u_aborted               ; timeout - communication stopped
 
+               LD   HL,filename_buffer
                CALL CheckEprName                  ; Path begins with ":EPR.x"?
                JP   Z, fileentry_fakesdates       ; Yes, send dummy dates to satisfy clients
 
@@ -1003,6 +1004,7 @@
                JR   C,esc_u_aborted
                JR   Z,esc_u_aborted               ; timeout - communication stopped
 
+               LD   HL,filename_buffer
                CALL CheckEprName                  ; Path begins with ":EPR.x"?
                JP   Z, fileentry_updfakedate      ; Yes, pretend to update a file date..
 
@@ -1249,9 +1251,10 @@
                JR   C,esc_f_aborted
                JR   Z,esc_f_aborted               ; timeout - communication stopped
 
+               LD   HL,filename_buffer
                CALL CheckEprName                  ; Path begins with ":EPR.x"?
                JR   Z, file_entry_avail           ; Yes, check if file is found in File area of slot X.
-			   
+
                LD   HL,filename_buffer
                LD   A, op_in                      ; open file for transfer...
                LD   D,H
@@ -1386,7 +1389,7 @@
 
                CALL CheckEprName                  ; Path begins with ":EPR.x"?
                JR   Z, dir_in_use                 ; Yes, but directories is not supported File Area..
-			   
+
                LD   B, 0
                CALL CreateDirectory
                JR   C, dir_in_use
@@ -1426,6 +1429,7 @@
                CALL Restore_TraFlag
                JR   C,esc_r_aborted
                JR   Z,esc_r_aborted               ; timeout - communication stopped
+
                LD   HL, filename_buffer
                CALL Write_message                 ; display filename...
 
