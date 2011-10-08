@@ -298,6 +298,7 @@ ENDIF
 
                LD   HL,message1                   ; 'Running'
                CALL Write_message
+               CALL DisplayEazyLinkVersion        ; Display EazyLink version & protocol in bottom of topic window
                CALL DisplMenuBar                  ; Display initial menubar
 
 .endless
@@ -769,6 +770,22 @@ ENDIF
                POP  BC
                POP  AF
                RET
+
+
+; ***********************************************************************
+; Display EazyLink version & protocol level in bottom of topic window.
+;
+.DisplayEazyLinkVersion
+               PUSH AF
+               PUSH HL
+               LD   HL, topictxt
+               CALL_OZ(GN_Sop)
+               LD   HL, EasyLinkVersion
+               CALL_OZ(GN_Sop)
+               POP  HL
+               POP  AF
+               RET
+.topictxt      DEFM 1, "2H7", 1, '3', '@', 32+0, 32+7, 0
 
 
 ; ***********************************************************************

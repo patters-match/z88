@@ -68,7 +68,7 @@
 .pclink_synch       DEFB 5, 6
 .extended_synch     DEFB 1, 2
 
-.menu_banner        DEFM "EazyLink V5.1", 0
+.menu_banner        DEFM "EazyLink", 0
 .command_banner     DEFM "Commands", 0
 .message1           DEFM "Running",    0
 .message2           DEFM "Waiting...", 0

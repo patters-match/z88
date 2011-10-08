@@ -74,13 +74,13 @@
 ;
 .EazyLinkHelp
                     DEFB 12
-                    DEFM "EazyLink V5.0.5.1 - flexible file transfer", $7F
+                    DEFM "EazyLink V5.1 - flexible file transfer", $7F
                     DEFB $7F
-                    DEFM "Copyright (C) by G.Strube (gbs@users.sf.net) 1991-2010", $7F
+                    DEFM "Copyright (C) by G.Strube (gbs@users.sf.net) 1991-2011", $7F
                     DEFB $7F
                     DEFM "This software is released as Open Source (GPL licence).", $7F
-                    DEFM "Get latest news, updates for EazyLink and other Z88", $7F
-                    DEFM "software at http://z88.sf.net or http://www.rakewell.com"
+                    DEFM "Get latest news, updates for EazyLink and", $7F
+                    DEFM "other Z88 software at http://www.rakewell.com"
                     DEFB 0
 
 .cmd_d_help
