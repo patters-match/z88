@@ -162,6 +162,15 @@ xdef    FlashStoreTopics, FlashStoreCommands, FlashStoreHelp
 .PipeDreamTopics
         defb    0	; Start topic marker
 
+; "Info"
+.PipeDream_tpc0
+        defb    PipeDream_tpc0_end-PipeDream_tpc0+1	; Length of topic
+        defm    "Info"
+        defw    0	; No help page
+        defb    $13	; Topic attribute
+.PipeDream_tpc0_end
+        defb    PipeDream_tpc0_end-PipeDream_tpc0+1
+
 ; "Blocks"
 .PipeDream_tpc1
         defb    PipeDream_tpc1_end-PipeDream_tpc1+1	; Length of topic
@@ -222,6 +231,118 @@ xdef    FlashStoreTopics, FlashStoreCommands, FlashStoreHelp
 
 .PipeDreamCommands
         defb    0
+
+.PipeDream_itpc1
+        defb    PipeDream_itpc1_end-PipeDream_itpc1+1	; Length of command
+        defb    $00	; command code
+        defm    $00
+
+        defm    "Tr", $90, $ce, $9c, "s"
+        defb    (PipeDream_help_itpc1-PipeDreamHelp) / 256	; high byte of help offset
+        defb    (PipeDream_help_itpc1-PipeDreamHelp) % 256	; low byte of help offset
+        defb    $10	; Command attribute
+.PipeDream_itpc1_end
+        defb    PipeDream_itpc1_end-PipeDream_itpc1+1
+.PipeDream_itpc2
+        defb    PipeDream_itpc2_end-PipeDream_itpc2+1	; Length of command
+        defb    $00	; command code
+        defm    $00
+
+        defm    "Log", $ce, $9c, "s"
+        defb    (PipeDream_help_itpc2-PipeDreamHelp) / 256	; high byte of help offset
+        defb    (PipeDream_help_itpc2-PipeDreamHelp) % 256	; low byte of help offset
+        defb    $10	; Command attribute
+.PipeDream_itpc2_end
+        defb    PipeDream_itpc2_end-PipeDream_itpc2+1
+.PipeDream_itpc3
+        defb    PipeDream_itpc3_end-PipeDream_itpc3+1	; Length of command
+        defb    $00	; command code
+        defm    $00
+
+        defm    "Li", $ca, $9c, "s"
+        defb    (PipeDream_help_itpc3-PipeDreamHelp) / 256	; high byte of help offset
+        defb    (PipeDream_help_itpc3-PipeDreamHelp) % 256	; low byte of help offset
+        defb    $10	; Command attribute
+.PipeDream_itpc3_end
+        defb    PipeDream_itpc3_end-PipeDream_itpc3+1
+.PipeDream_itpc4
+        defb    PipeDream_itpc4_end-PipeDream_itpc4+1	; Length of command
+        defb    $00	; command code
+        defm    $00
+
+        defm    "S", $a5, $84, $9c, "s"
+        defb    (PipeDream_help_itpc4-PipeDreamHelp) / 256	; high byte of help offset
+        defb    (PipeDream_help_itpc4-PipeDreamHelp) % 256	; low byte of help offset
+        defb    $10	; Command attribute
+.PipeDream_itpc4_end
+        defb    PipeDream_itpc4_end-PipeDream_itpc4+1
+.PipeDream_itpc5
+        defb    PipeDream_itpc5_end-PipeDream_itpc5+1	; Length of command
+        defb    $00	; command code
+        defm    $00
+
+        defm    "In", $af, "g", $ef, "& D", $91, $82, $9c, "s"
+        defb    (PipeDream_help_itpc5-PipeDreamHelp) / 256	; high byte of help offset
+        defb    (PipeDream_help_itpc5-PipeDreamHelp) % 256	; low byte of help offset
+        defb    $10	; Command attribute
+.PipeDream_itpc5_end
+        defb    PipeDream_itpc5_end-PipeDream_itpc5+1
+.PipeDream_itpc6
+        defb    PipeDream_itpc6_end-PipeDream_itpc6+1	; Length of command
+        defb    $00	; command code
+        defm    $00
+
+        defm    $ab, "ndi", $87, $95, "s"
+        defb    (PipeDream_help_itpc6-PipeDreamHelp) / 256	; high byte of help offset
+        defb    (PipeDream_help_itpc6-PipeDreamHelp) % 256	; low byte of help offset
+        defb    $10	; Command attribute
+.PipeDream_itpc6_end
+        defb    PipeDream_itpc6_end-PipeDream_itpc6+1
+.PipeDream_itpc7
+        defb    PipeDream_itpc7_end-PipeDream_itpc7+1	; Length of command
+        defb    $00	; command code
+        defm    $00
+
+        defm    $f6
+        defb    (PipeDream_help_itpc7-PipeDreamHelp) / 256	; high byte of help offset
+        defb    (PipeDream_help_itpc7-PipeDreamHelp) % 256	; low byte of help offset
+        defb    $10	; Command attribute
+.PipeDream_itpc7_end
+        defb    PipeDream_itpc7_end-PipeDream_itpc7+1
+.PipeDream_itpc8
+        defb    PipeDream_itpc8_end-PipeDream_itpc8+1	; Length of command
+        defb    $00	; command code
+        defm    $00
+
+        defm    $b8, $f6
+        defb    (PipeDream_help_itpc8-PipeDreamHelp) / 256	; high byte of help offset
+        defb    (PipeDream_help_itpc8-PipeDreamHelp) % 256	; low byte of help offset
+        defb    $10	; Command attribute
+.PipeDream_itpc8_end
+        defb    PipeDream_itpc8_end-PipeDream_itpc8+1
+.PipeDream_itpc9
+        defb    PipeDream_itpc9_end-PipeDream_itpc9+1	; Length of command
+        defb    $00	; command code
+        defm    $00
+
+        defm    $c8, "la", $87, $95, " ", $f6
+        defb    (PipeDream_help_itpc9-PipeDreamHelp) / 256	; high byte of help offset
+        defb    (PipeDream_help_itpc9-PipeDreamHelp) % 256	; low byte of help offset
+        defb    $10	; Command attribute
+.PipeDream_itpc9_end
+        defb    PipeDream_itpc9_end-PipeDream_itpc9+1
+.PipeDream_itpc10
+        defb    PipeDream_itpc10_end-PipeDream_itpc10+1	; Length of command
+        defb    $00	; command code
+        defm    $00
+
+        defm    "Wildc", $8c, "ds"
+        defb    (PipeDream_help_itpc10-PipeDreamHelp) / 256	; high byte of help offset
+        defb    (PipeDream_help_itpc10-PipeDreamHelp) % 256	; low byte of help offset
+        defb    $10	; Command attribute
+.PipeDream_itpc10_end
+        defb    PipeDream_itpc10_end-PipeDream_itpc10+1
+        defb    1	; Command topic separator
 
 .PipeDream_cmd1
         defb    PipeDream_cmd1_end-PipeDream_cmd1+1	; Length of command
@@ -1772,7 +1893,7 @@ xdef    FlashStoreTopics, FlashStoreCommands, FlashStoreHelp
         defb    PrinterEd_cmd10_end-PrinterEd_cmd10+1	; Length of command
         defb    $2e	; command code
         defm    "ISO", $00
-        defm    "ISO Translations"
+        defm    "ISO Transla",$87,"s"
         defb    $00	; Command attribute
 .PrinterEd_cmd10_end
         defb    PrinterEd_cmd10_end-PrinterEd_cmd10+1
@@ -2337,7 +2458,7 @@ xdef    FlashStoreTopics, FlashStoreCommands, FlashStoreHelp
 .cmd_sc             DEFB cmd_sc_end - cmd_sc                                    ; length of command definition
                     DEFB FlashStore_CC_sc                                       ; command code
                     DEFM "SC", 0                                                ; keyboard sequence
-                    DEFM $E3, "Card", 0                                         ; "Select Card"
+                    DEFM $E3, "C",$8C,"d", 0                                         ; "Select Card"
                     DEFB (cmd_sc_help - FlashStoreHelp) / 256                   ; high byte of rel. pointer
                     DEFB (cmd_sc_help - FlashStoreHelp) % 256                   ; low byte of rel. pointer
                     DEFB @00010000                                              ; command has help page
@@ -2348,7 +2469,7 @@ xdef    FlashStoreTopics, FlashStoreCommands, FlashStoreHelp
 .cmd_cf             DEFB cmd_cf_end - cmd_cf                                    ; length of command definition
                     DEFB FlashStore_CC_cf                                       ; command code
                     DEFM "CF", 0                                                ; keyboard sequence
-                    DEFM "Catalogue Card ", $FD, 0                              ; "Catalogue Card Files"
+                    DEFM "C",$91,$95,"ogue C",$8C,"d ", $FD, 0                              ; "Catalogue Card Files"
                     DEFB (cmd_cf_help - FlashStoreHelp) / 256                   ; high byte of rel. pointer
                     DEFB (cmd_cf_help - FlashStoreHelp) % 256                   ; low byte of rel. pointer
                     DEFB @00010000                                              ; command has help page
@@ -2370,7 +2491,7 @@ xdef    FlashStoreTopics, FlashStoreCommands, FlashStoreHelp
 .cmd_sv             DEFB cmd_sv_end - cmd_sv                                    ; length of command definition
                     DEFB FlashStore_CC_sv                                       ; command code
                     DEFM "SV", 0                                                ; keyboard sequence
-                    DEFM $E3, "RAM Device", 0                                   ; "Select RAM Device"
+                    DEFM $E3, "R",$ED," Device", 0                                   ; "Select RAM Device"
                     DEFB (cmd_sv_help - FlashStoreHelp) / 256                   ; high byte of rel. pointer
                     DEFB (cmd_sv_help - FlashStoreHelp) % 256                   ; low byte of rel. pointer
                     DEFB @00010000                                              ; command has help page
@@ -2381,7 +2502,7 @@ xdef    FlashStoreTopics, FlashStoreCommands, FlashStoreHelp
 .cmd_fe             DEFB cmd_fe_end - cmd_fe                                    ; length of command definition
                     DEFB FlashStore_CC_fe                                       ; command code
                     DEFM "FE", 0                                                ; keyboard sequence
-                    DEFM "Erase ", $BA, " from Card", 0                         ; "Erase File from Card", 0
+                    DEFM "Era",$EB," ", $BA, " from C",$8C,"d", 0                         ; "Erase File from Card", 0
                     DEFB (cmd_fe_help - FlashStoreHelp) / 256                   ; high byte of rel. pointer
                     DEFB (cmd_fe_help - FlashStoreHelp) % 256                   ; low byte of rel. pointer
                     DEFB @00010001                                              ; command has help page
@@ -2403,7 +2524,7 @@ xdef    FlashStoreTopics, FlashStoreCommands, FlashStoreHelp
 .cmd_fs             DEFB cmd_fs_end - cmd_fs                                    ; length of command definition
                     DEFB FlashStore_CC_fs                                       ; command code
                     DEFM "FS", 0                                                ; keyboard sequence
-                    DEFM $BD, $82, $FD, " to Card", 0                           ; "Save Files to Card"
+                    DEFM $BD, $82, $FD, " ",$9E," C",$8C,"d", 0                           ; "Save Files to Card"
                     DEFB (cmd_fs_help - FlashStoreHelp) / 256                   ; high byte of rel. pointer
                     DEFB (cmd_fs_help - FlashStoreHelp) % 256                   ; low byte of rel. pointer
                     DEFB @00010000                                              ; command has help page, new column
@@ -2414,7 +2535,7 @@ xdef    FlashStoreTopics, FlashStoreCommands, FlashStoreHelp
 .cmd_fl             DEFB cmd_fl_end - cmd_fl                                    ; length of command definition
                     DEFB FlashStore_CC_fl                                       ; command code
                     DEFM "FL", 0                                                ; keyboard sequence
-                    DEFM "Fetch ", $BA, " from Card", 0                         ; "Fetch file from Card"
+                    DEFM "Fet",$B4," ", $BA, " from C",$8C,"d", 0                         ; "Fetch file from Card"
                     DEFB (cmd_fl_help - FlashStoreHelp) / 256                   ; high byte of rel. pointer
                     DEFB (cmd_fl_help - FlashStoreHelp) % 256                   ; low byte of rel. pointer
                     DEFB @00010000                                              ; command has help page
@@ -2436,7 +2557,7 @@ xdef    FlashStoreTopics, FlashStoreCommands, FlashStoreHelp
 .cmd_bf             DEFB cmd_bf_end - cmd_bf                                    ; length of command definition
                     DEFB FlashStore_CC_bf                                       ; command code
                     DEFM "BF", 0                                                ; keyboard sequence
-                    DEFM "Backup ", $FD, " from RAM", 0                         ; "Backup files from RAM"
+                    DEFM "Backup ", $FD, " from R",$ED,0                         ; "Backup files from RAM"
                     DEFB (cmd_bf_help - FlashStoreHelp) / 256                   ; high byte of rel. pointer
                     DEFB (cmd_bf_help - FlashStoreHelp) % 256                   ; low byte of rel. pointer
                     DEFB @00010000                                              ; command has help page
@@ -2447,7 +2568,7 @@ xdef    FlashStoreTopics, FlashStoreCommands, FlashStoreHelp
 .cmd_rf             DEFB cmd_rf_end - cmd_rf                                    ; length of command definition
                     DEFB FlashStore_CC_rf                                       ; command code
                     DEFM "RF", 0                                                ; keyboard sequence
-                    DEFM "Restore ", $FD, " to RAM", 0                          ; "Restore files to RAM"
+                    DEFM "Res",$9E,"re ", $FD, " ",$9E," R",$ED,0                          ; "Restore files to RAM"
                     DEFB (cmd_rf_help - FlashStoreHelp) / 256                   ; high byte of rel. pointer
                     DEFB (cmd_rf_help - FlashStoreHelp) % 256                   ; low byte of rel. pointer
                     DEFB @00010000                                              ; command has help page
@@ -2459,7 +2580,7 @@ xdef    FlashStoreTopics, FlashStoreCommands, FlashStoreHelp
 .cmd_fc             DEFB cmd_fc_end - cmd_fc                                    ; length of command definition
                     DEFB FlashStore_CC_fc                                       ; command code
                     DEFM "FC", 0                                                ; keyboard sequence
-                    DEFM $DE, " all ", $FD, " to Card", 0                       ; "Copy all files to Card"
+                    DEFM $DE, " ",$95,"l ", $FD, " ",$9E," C",$8C,"d", 0                       ; "Copy all files to Card"
                     DEFB (cmd_fc_help - FlashStoreHelp) / 256                   ; high byte of rel. pointer
                     DEFB (cmd_fc_help - FlashStoreHelp) % 256                   ; low byte of rel. pointer
                     DEFB @00010000                                              ; command has help page
@@ -2470,7 +2591,7 @@ xdef    FlashStoreTopics, FlashStoreCommands, FlashStoreHelp
 .cmd_ffa            DEFB cmd_ffa_end - cmd_ffa                                  ; length of command definition
                     DEFB FlashStore_CC_ffa                                      ; command code
                     DEFM "FFA", 0                                               ; keyboard sequence
-                    DEFM "Format ", $BA, " Area", 0                             ; "Format File Area"
+                    DEFM "Form",$91," ", $BA, " A",$8D,"a", 0                             ; "Format File Area"
                     DEFB (cmd_ffa_help - FlashStoreHelp) / 256                  ; high byte of rel. pointer
                     DEFB (cmd_ffa_help - FlashStoreHelp) % 256                  ; low byte of rel. pointer
                     DEFB @00010000                                              ; command has help page
@@ -2492,7 +2613,7 @@ xdef    FlashStoreTopics, FlashStoreCommands, FlashStoreHelp
 .cmd_fetch          DEFB cmd_fetch_end - cmd_fetch                              ; length of command definition
                     DEFB 13                                                     ; command code
                     DEFM MU_ENT, 0                                              ; keyboard sequence
-                    DEFM "Fetch ", $BA, " at ", $DC, 0                          ; "Fetch File at Cursor"
+                    DEFM "Fet",$B4," ", $BA, " a",$84,$DC, 0                          ; "Fetch File at Cursor"
                     DEFB 0                                                      ; no help
                     DEFB 0                                                      ;
                     DEFB @00010000                                              ; command has help page
@@ -2503,7 +2624,7 @@ xdef    FlashStoreTopics, FlashStoreCommands, FlashStoreHelp
 .cmd_delete         DEFB cmd_delete_end - cmd_delete                            ; length of command definition
                     DEFB IN_DEL                                                 ; command code
                     DEFM MU_DEL, 0                                              ; keyboard sequence
-                    DEFM $96, $BA, " at ", $DC, 0                               ; "Delete File at Cursor"
+                    DEFM $96, $BA, " a",$84,$DC, 0                               ; "Delete File at Cursor"
                     DEFB 0                                                      ; no help
                     DEFB 0                                                      ;
                     DEFB @00010000                                              ; command has help page
@@ -2515,171 +2636,248 @@ xdef    FlashStoreTopics, FlashStoreCommands, FlashStoreHelp
 
 ; *******************************************************************************************************************
 .IndexHelp
-        defm    $7F, "All insertion and removal of cards must be done from", $7F
-        defm    $92, "INDEX. Do not remove any RAM card, or a ROM card", $7F
-        defm    "which is in use. A continuous tone asks for a ROM", $7F
-        defm    "card to be reinserted into its original ", $FA, ".", $7F
-        defm    "A ", 1,"TFAIL", 1, "T message requires ", $92, "machine to be reset.", 0
+        defm    $7F, "All ",$85,$EB,"r",$87," ",$93,$B2,$8D,"mov",$95," ",$89,"c",$8C,"ds mus",$84,"be done from", $7F
+        defm    $92, "INDEX. Do no",$84,$8D,"move ",$93,"y R",$ED," c",$8C,"d",$A4,$8F," a ROM c",$8C,"d", $7F
+        defm    "whi",$B4,$B7,$85," u",$EB,". A cont",$85,"uous ",$9E,"ne ask",$8E,"f",$8F," a ROM", $7F
+        defm    "c",$8C,$B2,$9E," be ",$8D,"-",$85,$EB,"r",$AF,$B2,$85,$9E," it",$8E,$8F,$90,$85,$95," ", $FA, ".", $7F
+        defm    "A ", 1,"TFAIL", 1, "T message ",$8D,"qui",$8D,$8E,$92, "ma",$B4,$85,"e ",$9E," be ",$8D,$EB,"t.", 0
 
 .IndexCardHelp
         defb $7F
-        defm "Shows available ressources of inserted cards and free space", $7F
-        defm "available on any selected RAM device. Further, it displays", $7F
-        defm "a graphical map of the used and free memory of the RAM card.", $7F
-        defm "An enabled pixel (dark) identifies used space (used by files", $7F
-        defm "or system). Void pixels are free space.", 0
+        defm "Sh",$9D,$8E,"available ",$8D,"sso",$C6,"ce",$8E,$89,$85,$EB,"r",$AF,$B2,"c",$8C,"d",$8E,$93,$B2,"f",$8D,"e space", $7F
+        defm "available on ",$93,"y ",$EB,"lec",$AF,$B2,"R",$ED," device. F",$C6,$88,$86,$A4,"i",$84,"displays", $7F
+        defm "a graphic",$95," map ",$89,$92,"u",$EB,$B2,$93,$B2,"f",$8D,"e mem",$8F,"y ",$89,$92,"R",$ED," c",$8C,"d.", $7F
+        defm "An enable",$B2,"pixel (d",$8C,"k) identifie",$8E,"u",$EB,$B2,"space (u",$EB,$B2,"by files", $7F
+        defm $8F," sys",$AF,"m). Voi",$B2,"pixel",$8E,$8C,"e f",$8D,"e space.", 0
 
 ; *******************************************************************************************************************
 .PipeDreamHelp
         defm    $7F
-        defm    "PipeDream is a combined ", $D3, "-processor, Spreadsheet", $7F
-        defm    "and Database application. Use ", $92, "HELP key and browse the", $7F
-        defm    "INFO topics to view PipeDreams mathematical functions.", 0
+        defm    "PipeD",$8D,$ED,$B7,"a comb",$85,"e",$B2, $D3, "-process",$8F,$A4,"Sp",$8D,"adsheet", $7F
+        defm    $93,$B2,"D",$91,"aba",$EB," applica",$87,". U",$EB," ", $92, "HELP key ",$93,$B2,"br",$9D,$EB," ",$92,$7F
+        defm    "INFO ",$9E,"pic",$8E,$9E," view PipeD",$8D,$ED,$8E,"ma",$88,"em",$91,"ic",$95," func",$87,"s.", 0
+
+.PipeDream_help_itpc1
+        defb    $43,$4f,$53,$f9,$a4,$53,$49,$4e,$f9,$a4,$54,$41,$4e,$f9,$f0,$20	; COS..SIN..TAN.. 
+        defb    $92,$cd,$89,$92,$8c,$67,$75,$6d,$a2,$74,$9a,$41,$43,$53,$c1,$29	; .....gum.t.ACS.)
+        defb    $a4,$41,$53,$4e,$c1,$29,$a4,$41,$54,$4e,$c1,$29,$f0,$20,$92,$8c	; .ASN.).ATN.). ..
+        defb    $63,$20,$cd,$c2,$22,$7f,$28,$a3,$9f,$29,$9a,$52,$41,$44,$28,$f1	; c .."(..).RAD(.
+        defb    $29,$83,$22,$f1,$f2,$9f,$9a,$44,$45,$47,$f9,$83,$22,$9f,$f2,$f1	; )."....DEG.."...
+        defb    $2e,$00	; ..LN..n... .g.i
+.PipeDream_help_itpc2
+        defb    $7f,$4c,$4e,$c1,$ae,$6e,$91,$c6,$95,$20,$a5,$67,$8c,$69,$88,$6d	; LN..n... .g.i.m
+        defb    $a4,$28,$a5,$67,$20,$65,$29,$20,$c2,$b0,$4c,$4f,$47,$c1,$ae,$a5	; .(.g e) ..LOG...
+        defb    $67,$8c,$69,$88,$d7,$bb,$62,$61,$73,$82,$31,$30,$20,$c2,$b0,$45	; g.i...bas.10 ..E
+        defb    $58,$50,$c1,$ae,$63,$bc,$73,$74,$93,$84,$65,$a4,$bb,$92,$70,$9d	; XP..c.st..e...p.
+        defb    $ef,$c2,$22,$2e,$00	; .."..CHOOSE... .
+.PipeDream_help_itpc3
+        defb    $43,$48,$4f,$4f,$53,$45,$e5,$83,$93,$20,$c7,$6d,$a2,$84,$66	; CHOOSE... .m..fr
+        defb    $72	; ro.".".us..efir
+        defb    $6f,$d7,$22,$a0,$22,$a4,$75,$73,$c0	; o.".".us..efir.
+        defb    $88,$65,$7f,$66,$69,$72,$ca,$c7,$6d,$a2,$84,$61,$8e,$93,$20,$85	; .efir..m..a.. .
+        defb    $e4,$78,$20,$85,$bb,$92,$8d,$6d,$61,$85,$c0,$c7,$6d,$a2,$74,$73	; .x ....ma...m.ts
+        defb    $9a	; .eg.CHOOSE(3.4.5
+        defb    $65,$67,$ce,$43,$48,$4f,$4f,$53	; eg.CHOOSE(3.4.5.
+        defb    $45	; E(3.4.5.6).6.COU
+        defb    $28,$33,$a4	; (3.4.5.6).6.COUN
+        defb    $34,$a4	; 4.5.6).6.COUNT..
+        defb    $35	; 5.6).6.COUNT....
+        defb    $a4,$36,$29,$b7,$36,$9a,$43,$4f,$55	; .6).6.COUNT.....
+        defb    $4e,$54,$e5,$b7,$92,$a1,$89,$6e,$bc,$2d,$62,$6c,$93,$6b,$20,$cf	; NT.....n.-bl.k .
+        defb    $4d,$41,$58,$f3	; MAX.ax....MIN...
+        defb    $61	; ax....MIN......S
+        defb    $78,$ce,$e6,$89,$cf,$4d,$49,$4e,$f3,$85,$ce,$e6,$89,$cf,$53,$55	; x....MIN......SU
+        defb    $4d,$e5,$b7,$92,$92,$73,$75,$d7,$89,$92,$69,$af,$6d,$8e,$f4,$a0	; M....su...i.m...
+        defb    $22,$2e,$00	; "..COL..c...INDE
+.PipeDream_help_itpc4
+        defb    $43,$4f,$4c,$83,$92,$63,$8a,$d0,$9a,$49,$4e,$44,$45,$58,$28,$63	; COL..c...INDEX(c
+        defb    $8a,$2c,$72,$9d,$ae,$e6,$89,$92,$73,$a5,$74,$7f,$8d,$66,$86,$a2	; .,r.....s.t.f..
+        defb    $c9,$b2,$62,$d6,$22,$63,$8a,$22,$20,$93,$b2,$22,$72,$9d,$b0,$4c	; ..b."c." .."r..L
+        defb    $4f,$4f,$4b,$55,$50,$28,$6b,$65,$79,$2c,$e7,$31,$2c,$e7,$32,$ae	; OOKUP(key,.1,.2.
+        defb    $e6,$f4,$e7,$32,$22,$7f,$63,$8f,$8d,$73,$70,$bc,$64,$c0,$bb,$92	; ...2"c..sp.d...
+        defb    $70,$6f,$73,$69,$87,$20,$92,$6b,$65,$d6,$6f,$63,$63,$c6,$8e,$f4	; posi. .ke.occ...
+        defb    $e7,$31,$b0,$57,$69,$6c,$64,$63,$8c,$64,$8e,$6d,$61,$d6,$62,$82	; .1.Wildc.d.ma.b.
+        defb    $75,$eb,$b2,$f4,$6b,$65,$79,$22,$ce,$49,$66,$20,$6e,$6f,$20,$6d	; u...key".If no m
+        defb    $91,$b4,$20,$3d,$20,$22,$4c,$6f,$6f,$6b,$75,$70,$b0,$52,$4f,$57	; .. = "Lookup.ROW
+        defb    $83,$92,$72,$9d,$d0,$2e,$00	; ..r....ABS..abso
+.PipeDream_help_itpc5
+        defb    $41,$42,$53,$c1,$ae,$61,$62,$73,$6f,$6c,$75,$74,$82,$e6,$c2,$b0	; ABS..absolut....
+        defb    $44,$41,$59,$28,$f5,$ae,$64,$61,$d6,$a1,$f4,$f5,$b0,$4d,$4f,$4e	; DAY(..da.....MON
+        defb    $54,$48,$28,$f5,$ae,$6d,$bc,$88,$20,$a1,$f4,$f5,$b0,$50,$49,$83	; TH(..m.. ....PI.
+        defb    $92,$e6,$33,$2e,$31,$34,$31,$35,$39,$32,$36,$35,$33,$9a,$53,$47	; ..3.141592653.SG
+        defb    $4e,$c1,$29,$83,$2d,$31,$a4,$30,$a4,$31,$20,$e4,$70,$a2,$64,$c0	; N.).-1.0.1 .p.d.
+        defb    $bc,$20,$92,$73,$90,$6e,$20,$c2,$b0,$53,$51,$52,$c1,$ae,$73,$71	; . .s.n ..SQR..sq
+        defb    $75,$8c,$82,$72,$6f,$6f,$84,$c2,$b0,$59,$45,$41,$52,$28,$f5,$ae	; u..roo...YEAR(..
+        defb    $79,$65,$8c,$20,$a1,$89,$22,$f5,$22,$2e,$00	; ye. .."."..IF(b
+.PipeDream_help_itpc6
+        defb    $7f,$49,$46,$28,$62,$6f,$6f,$8b,$93,$2c,$88,$a2,$2c,$65,$6c,$eb	; IF(boo..,..,el.
+        defb    $29,$9a,$7f,$49,$66,$20,$92,$e6,$89,$92,$22,$62,$6f,$6f,$8b,$93	; ).If ...."boo..
+        defb    $22,$b7,$54,$52,$55,$45,$20,$c1,$bc,$2d,$7a,$86,$6f,$29,$a4,$49	; ".TRUE ..-z.o).I
+        defb    $46,$f0,$8e,$22,$88,$a2,$22,$a4,$6f,$88,$86,$77,$69,$73,$82,$49	; F.."..".o..wis.I
+        defb    $46,$83,$22,$65,$6c,$eb,$b0,$7f,$65,$67,$ce,$49,$46,$28,$35,$3e	; F."el..eg.IF(5>
+        defb    $31,$a4,$22,$6d,$6f,$8d,$22,$a4,$22,$8b,$73,$73,$22,$29,$b7,$22	; 1."mo.".".ss")."
+        defb    $6d,$6f,$8d,$22,$2e,$00	; mo."..Add.+Sub
+.PipeDream_help_itpc7
+        defb    $7f,$41,$64,$64,$aa,$2b,$7f,$53,$75,$62,$74,$e2,$63,$74,$aa,$2d	; Add.+Subt.ct.-
+        defb    $7f,$4d,$75,$6c,$74,$69,$d9,$79,$aa,$2a,$7f,$44,$69,$76,$69,$e4	; Multi.y.*Divi.
+        defb    $aa,$2f,$7f,$52,$61,$69,$73,$82,$bb,$70,$9d,$86,$aa,$5e,$00	; ./Rais..p...^.
+.PipeDream_help_itpc8
+        defb    $7f,$7f,$b8,$41,$4e,$44,$aa,$26,$7f,$b8,$4f,$52,$aa,$7c,$7f,$b8	; .AND.&.OR.|.
+        defb    $4e,$4f,$54,$aa,$21,$00	; NOT.!.Les....<
+.PipeDream_help_itpc9
+        defb    $7f,$4c,$65,$73,$8e,$88,$93,$aa,$3c,$7f,$4c,$65,$73,$8e,$88,$93	; Les....<Les...
+        defb    $20,$8f,$20,$65,$d5,$aa,$3c,$3d,$7f,$4e,$6f,$84,$65,$d5,$aa,$3c	;  . e..<=No.e..<
+        defb    $3e,$7f,$45,$d5,$aa,$3d,$7f,$47,$8d,$91,$ef,$88,$93,$aa,$3e,$7f	; >E..=G......>
+        defb    $47,$8d,$91,$ef,$88,$93,$20,$8f,$20,$65,$d5,$3a,$20,$3e,$3d,$00	; G..... . e.: >=.
+.PipeDream_help_itpc10
+        defb    $7f,$7f,$41,$6e,$d6,$73,$85,$67,$6c,$82,$63,$99,$aa,$5e,$3f,$7f	; An.s.gl.c..^?
+        defb    $41,$6e,$d6,$a1,$89,$63,$99,$73,$aa,$5e,$23,$00	; An...c.s.^#.....
+
 
 ; *******************************************************************************************************************
 .DiaryHelp
         defm    $7F
-        defm    "This is a 'Page a Day' diary. Multiple diary", $7F
-        defm    "applications may be used for example for work and home.", $7F
-        defm    "The Calendar popdown when selected from ", $92, "Diary", $7F
-        defm    "can be used to view active days and navigate around.", 0
+        defm    "This",$B7,"a 'Page a Day' di",$8C,"y. Multiple di",$8C,"y", $7F
+        defm    "applica",$87,$8E,"may be u",$EB,$B2,"f",$8F," ex",$ED,"ple f",$8F," w",$8F,"k ",$93,$B2,"home.", $7F
+        defm    "The C",$95,"end",$8C," popd",$9D,"n when ",$EB,"lec",$AF,$B2,"from ", $92, "Di",$8C,"y", $7F
+        defm    "c",$93," be u",$EB,$B2,$9E," view active day",$8E,$93,$B2,"nav",$90,$C3," ",$8C,"ound.", 0
 
 ; *******************************************************************************************************************
 .BasicHelp
         defm    $7F
-        defm    "Develop your own BBC BASIC programs, store them in ", $92, "RAM", $7F
-        defm    "filing system as files and RUN them inside one or several", $7F
-        defm    "BBC BASIC applications. A built-in Z80 assembler enables", $7F
-        defm    "you to compile and embed machine code inside your programs", $7F
-        defm    "that may access advanced features of ", $92, "operating system.",0
+        defm    "Develop yo",$C6," ",$9D,"n BBC BASIC progr",$ED,"s",$A4,"s",$9E,$8D," ",$88,"em ",$85," ", $92, "R",$ED,$7F
+        defm    "fil",$C0,"sys",$AF,"m a",$8E,$BA,$8E,$93,$B2,"RUN ",$88,"em ",$85,"side one ",$8F," ",$EB,"v",$86,$95,$7F
+        defm    "BBC BASIC applica",$87,"s. A built-",$85," Z80 as",$EB,"mbl",$86," enables", $7F
+        defm    "you ",$9E," compile ",$93,$B2,"embe",$B2,"ma",$B4,$85,"e code ",$85,"side yo",$C6," progr",$ED,"s", $7F
+        defm    $88,"a",$84,"may acces",$8E,"adv",$93,"ce",$B2,"fe",$91,"u",$8D,$8E,$89,$92, "op",$86,$91,$C0,"sys",$AF,"m.",0
 
 ; *******************************************************************************************************************
 .CalculatorHelp
         defm    $7F
-        defm    "A simple pocket calculator with some useful", $7F
-        defm    "Imperial to Metric conversion functions.", 0
+        defm    "A simple pocke",$84,"c",$95,"cul",$91,$8F," wi",$88," some u",$EB,"ful", $7F
+        defm    "Imp",$86,"i",$95," ",$9E," Metric conv",$86,"sion func",$87,"s.", 0
 
 ; *******************************************************************************************************************
 .CalendarHelp
         defm    $7F
-        defm    "This 'Julian proleptic' calendar starts from 4712 BC and is", $7F
-        defm    "year 2000 compliant. To manually jump to a date, press the", $7F
-        defm    $D2," key and edit ", $92, "'Look for' date. Use ", $92, $DC, " keys", $7F
-        defm    "together with ", $92, "shift and diamond keys to navigate through", $7F
-        defm    "days months and years. A mark on a day indicates an entry is", $7F
-        defm    "made on that date in ", $92, "Diary.", 0
+        defm    "Thi",$8E,"'Juli",$93," proleptic' c",$95,"end",$8C," st",$8C,"t",$8E,"from 4712 BC ",$93,$B2,"is", $7F
+        defm    "ye",$8C," 2000 compli",$93,"t. To m",$93,"u",$95,"ly jump ",$9E," a ",$F5,$A4,"p",$8D,"s",$8E,$92,$7F
+        defm    $D2," key ",$93,$B2,"edi",$84,$92, "'Look f",$8F,"' ",$F5,". U",$EB," ", $92, $DC, " keys", $7F
+        defm    $9E,"ge",$88,$86," wi",$88," ", $92, "shif",$84,$93,$B2,"di",$ED,"on",$B2,"key",$8E,$9E," nav",$90,$C3," ",$88,"rough", $7F
+        defm    "day",$8E,"mon",$88,$8E,$93,$B2,"ye",$8C,"s. A m",$8C,"k on a day ",$85,"dic",$C3,$8E,$93," entry is", $7F
+        defm    "made on ",$88,"a",$84,$F5," ",$85," ", $92, "Di",$8C,"y.", 0
 
 ; *******************************************************************************************************************
 .AlarmHelp
         defm    $7F
-        defm    "Set either single or repeating alarm events", $7F
-        defm    "to sound ", $92, "bell or execute commands to launch", $7F
-        defm    "system applications or resources.", 0
+        defm    "Se",$84,"ei",$88,$86," s",$85,"gle ",$8F," ",$8D,"pe",$91,$C0,$95,$8C,"m events", $7F
+        defm    $9E," soun",$B2, $92, "bell ",$8F," execu",$AF," ",$D8," ",$9E," laun",$B4,$7F
+        defm    "sys",$AF,"m applica",$87,$8E,$8F," ",$8D,"so",$C6,"ces.", 0
 
 ; *******************************************************************************************************************
 .FilerHelp
         defm    $7F
-        defm    "The Filer is used to manage stored files generated from", $7F
-        defm    "Applications in RAM, EPROM or FLASH cards.", $7F
-        defm    "When ", $92, "Filer is selected from inside an application", $7F
-        defm    $BA, " Load command, a file can be marked with ", $92, $D2, " key", $7F
-        defm    "followed by ", $92, $B1, " key to save typing in ", $92, "file name", $7F
-        defm    "to be loaded in ", $92, "application.", 0
+        defm    "The ",$BA,"r",$B7,"u",$EB,$B2,$9E," m",$93,"age s",$9E,$8D,$B2,$BA,$8E,"gen",$86,$C3,$B2,"from", $7F
+        defm    "Applica",$87,$8E,$85," R",$ED,$A4,"Eprom ",$8F," Flash c",$8C,"ds.", $7F
+        defm    "When ", $92, $BA,"r",$B7,$EB,"lec",$AF,$B2,"from ",$85,"side ",$93," applica",$87,$7F
+        defm    $BA, " ",$E1," comm",$93,"d",$A4,"a ",$BA," c",$93," be m",$8C,"ke",$B2,"wi",$88," ", $92, $D2, " key", $7F
+        defm    "foll",$9D,"e",$B2,"by ", $92, $B1, " key ",$9E," save typ",$C0,$85," ", $92, $BA," n",$ED,"e", $7F
+        defm    $9E," be loade",$B2,$85," ", $92, "applica",$87,".", 0
 
 ; *******************************************************************************************************************
 .PrinterEdHelp
         defm    $7F
-        defm    "The Printer Editor allows different printer commands to", $7F
-        defm    "be defined, saved, loaded and used. The default printer", $7F
-        defm    "commands are ", $92, "Epson FX80 or FX (ESC/P) or ESC/P2.", $7F
-        defm    "Remember to use ", $92, $BA, " Update command to update the", $7F
-        defm    "settings after loading or changing ", $92, "definitions.", 0
+        defm    "The ",$FE,$86," Edit",$8F," ",$95,"l",$9D,$8E,"diffe",$8D,"n",$84,"print",$86," ",$D8," ",$9E, $7F
+        defm    "be def",$85,"ed",$A4,"saved",$A4,"loade",$B2,$93,$B2,"u",$EB,"d. The defaul",$84,"print",$86,$7F
+        defm    $D8," ",$8C,"e ", $92, "Epson FX80 ",$8F," FX (ESC/P) ",$8F," ESC/P2.", $7F
+        defm    "Rememb",$86," ",$9E," u",$EB," ", $92, $BA, " ",$B9,$F5," comm",$93,$B2,$9E," up",$F5," ",$92,$7F
+        defm    $EB,"tt",$85,"g",$8E,"aft",$86," load",$C0,$8F," ",$B4,$93,"g",$C0,$92, "def",$85,"i",$87,"s.", 0
 
 ; *******************************************************************************************************************
 .PanelHelp
         defm    $7F
-        defm    "Use ", $92, "Panel for start up settings that Applications use.", $7F
-        defm    "Keyboard settings & country layout selection, Serial Port", $7F
-        defm    "speed for printing and file transfer, User preferences,", $7F
-        defm    "Default Devices and Directories settings are here.", 0
+        defm    "U",$EB," ", $92, "P",$93,"el f",$8F," st",$8C,$84,"up ",$EB,"tt",$85,"g",$8E,$88,"a",$84,"Applica",$87,$8E,"u",$EB,".", $7F
+        defm    "Keybo",$8C,$B2,$EB,"tt",$85,"g",$8E,"& country layou",$84,$EB,"lec",$87,$A4,"S",$86,"i",$95," P",$8F,"t", $7F
+        defm    "spee",$B2,"f",$8F," pr",$85,"t",$C0,$93,$B2,$BA," tr",$93,"sf",$86,$A4,"U",$EB,"r p",$8D,"fe",$8D,"nces,", $7F
+        defm    "Defaul",$84,"Device",$8E,$93,$B2,"Di",$8D,"ct",$8F,"ie",$8E,$EB,"tt",$85,"g",$8E,$8C,"e he",$8D,".", 0
 
 ; *******************************************************************************************************************
 .ClockHelp
         defm    $7F
-        defm    "Displays ", $92, "current Day, Date and Time.", $7F
-        defm    "Set ", $92, "current Date and Time here to ensure that alarm", $7F
-        defm    "events execute on time and applications use correct data.", 0
+        defm    "Display",$8E,$92, "c",$C6,$8D,"n",$84,"day",$A4,$F5," ",$93,$B2,"Time.", $7F
+        defm    "Se",$84,$92, "c",$C6,$8D,"n",$84,$F5," ",$93,$B2,"Time he",$8D," ",$9E," ensu",$8D," ",$88,"a",$84,$95,$8C,"m", $7F
+        defm    "event",$8E,"execu",$AF," on time ",$93,$B2,"applica",$87,$8E,"u",$EB," c",$8F,$8D,"c",$84,"d",$91,"a.", 0
 
 ; *******************************************************************************************************************
 .TerminalHelp
         defm    $7F
-        defm    "The Terminal allows simple VT-52 communication", $7F
-        defm    "to another computer using ", $92, "Serial Port.", 0
+        defm    "The T",$86,"min",$95," ",$95,"l",$9D,$8E,"simple VT-52 communica",$87,$7F
+        defm    $9E," ",$93,"o",$88,$86," comput",$86," us",$C0,$92, "S",$86,"i",$95," P",$8F,"t.", 0
 
 ; *******************************************************************************************************************
 .ImpExpHelp
         defm    $7F
-        defm    "This ", $BA, " Transfer Program allows files to be shared with", $7F
-        defm    "other computers. Serial port speed is set in ", $92, "Panel.", 0
+        defm    "Thi",$8E,$BA, " Tr",$93,"sf",$86," Progr",$ED," ",$95,"l",$9D,$8E,$BA,$8E,$9E," be sh",$8C,"e",$B2,"wi",$88,$7F
+        defm    "o",$88,$86," comput",$86,"s. S",$86,"i",$95," p",$8F,$84,"speed",$B7,$EB,$84,$85," ", $92, "P",$93,"el.", 0
 
 ; *******************************************************************************************************************
 .EazyLinkHelp
         DEFB    12
-        DEFM    "EazyLink", $7F
+        DEFM    "EazyL",$85,"k", $7F
         DEFB    $7F
-        DEFM    "Fast Client/Server Remote ", $BA, " Management,", $7F
-        DEFM    "including support for PC-LINK II clients."
+        DEFM    "Fas",$84,"Client/S",$86,"v",$86," Remo",$AF," ", $BA, " M",$93,"agement,", $7F
+        DEFM    $85,"clud",$C0,"supp",$8F,$84,"f",$8F," PC-LINK II clients."
         DEFB    0
 
 
 ; *******************************************************************************************************************
 .FlashStoreHelp
-                    DEFM 12, "FlashStore", $7F, $7F
-                    DEFM "Manage ", $FD, " on Rakewell Flash Cards and RAM.", 0
+                    DEFM 12, "FlashS",$9E,$8D,$7F, $7F
+                    DEFM "M",$93,"age ", $FD, " on Rakewell Flash C",$8C,"d",$8E,$93,$B2,"R",$ED,".", 0
 .cmd_sc_help
                     DEFM $7F
-                    DEFM "Selects which ", $BA, " Card to use when you have more than one."
+                    DEFM "Select",$8E,"whi",$B4," ", $EE, " ",$9E," u",$EB," when you have mo",$8D," ",$88,$93," one."
                     DEFB 0
 .cmd_cf_help
                     DEFM $7F
-                    DEFM "Lists filenames on ", $BA, " Card area to PipeDream file."
+                    DEFM "List",$8E,$BA,"n",$ED,"e",$8E,"on ", $EE, " A",$8D,"a ",$9E," PipeD",$8D,$ED," ",$BA,"."
                     DEFB 0
 .cmd_sv_help
                     DEFM $7F
-                    DEFM "Changes default RAM device for this session."
+                    DEFM "Ch",$93,"ge",$8E,"defaul",$84,"R",$ED," device f",$8F," ",$88,"i",$8E,$EB,"ssion."
                     DEFB 0
 .cmd_fs_help
                     DEFM $7F
-                    DEFM "Saves files from RAM device to ", $BA, " Card Area."
+                    DEFM $BD,"e",$8E,$BA,$8E,"from R",$ED," device ",$9E," ", $EE, " A",$8D,"a."
                     DEFB 0
 .cmd_fl_help
                     DEFM $7F
-                    DEFM "Fetches a ", $BA, " from ", $BA, " Card Area to RAM device."
+                    DEFM "Fet",$B4,"e",$8E,"a ", $BA, " from ", $EE, " A",$8D,"a ",$9E," R",$ED," device."
                     DEFB 0
 .cmd_fe_help
                     DEFM $7F
-                    DEFM "Marks a ", $BA, " in ", $BA, " Card Area as deleted."
+                    DEFM "M",$8C,"k",$8E,"a ", $BA, " ",$85," ", $EE, " A",$8D,"a a",$8E,"dele",$AF,"d."
                     DEFB 0
 .cmd_bf_help
                     DEFM $7F
-                    DEFM "Saves all files from RAM device to ", $BA, " Card Area."
+                    DEFM $BD,"e",$8E,$95,"l ",$BA,$8E,"from R",$ED," device ",$9E," ", $EE, " A",$8D,"a."
                     DEFB 0
 .cmd_rf_help
                     DEFM $7F
-                    DEFM "Fetches all files from ", $BA, " Card Area to RAM device."
+                    DEFM "Fet",$B4,"e",$8E,$95,"l ",$BA,$8E,"from ", $EE, " A",$8D,"a ",$9E," R",$ED," device."
                     DEFB 0
 .cmd_ffa_help
                     DEFM $7F
-                    DEFM "Formats and erases complete ", $BA, " Card Area."
+                    DEFM "F",$8F,"m",$91,$8E,$93,$B2,$86,"a",$EB,$8E,"comple",$AF," ", $EE, " A",$8D,"a."
                     DEFB 0
 .cmd_tfv_help
                     DEFM $7F
-                    DEFM "Changes between browsing only saved files or", $7F
-                    DEFM "also files marked as deleted."
+                    DEFM "Ch",$93,"ge",$8E,"between br",$9D,"s",$C0,"only save",$B2,$BA,$8E,$8F,$7F
+                    DEFM $95,"so ",$BA,$8E,"m",$8C,"ke",$B2,"a",$8E,"dele",$AF,"d."
                     DEFB 0
 .cmd_fc_help
                     DEFM $7F
-                    DEFM "Copy saved files in current ", $BA, " Card Area to", $7F
-                    DEFM "another flash card in a different ", $FA, "."
+                    DEFM $DE," save",$B2,$BA,$8E,$85," c",$C6,$8D,"n",$84,$EE, " A",$8D,"a ",$9E, $7F
+                    DEFM $93,"o",$88,$86," flash c",$8C,$B2,$85," a diffe",$8D,"n",$84,$FA, "."
                     DEFB 0
 

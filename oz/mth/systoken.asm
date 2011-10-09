@@ -176,7 +176,7 @@ xdef    SysTokenBase
 .token86
         defm "er"
 .token87
-        defm "tion"
+        defm "ti",$BC                           ; "tion"  
 .token88
         defm "th"
 .token89
@@ -252,7 +252,7 @@ xdef    SysTokenBase
 .tokenAC
         defm "D", $9D, "n"                      ; "Down"
 .tokenAD
-        defm "Activ", $82, "Day"                ; "Active Day"
+        defm "Activ", $82, "D",$FB              ; "Active Day"
 .tokenAE
         defm ")", $83, $92
 .tokenAF
@@ -338,7 +338,7 @@ xdef    SysTokenBase
 .tokenD7
         defm "m "
 .tokenD8
-        defm $AB, "mm", $93, "ds"               ; "Commands"
+        defm "comm", $93, "ds"                  ; "commands"
 .tokenD9
         defm "pl"
 .tokenDA
