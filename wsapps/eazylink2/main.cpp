@@ -9,7 +9,7 @@ int main(int argc, char *argv[])
     MainWindow w;
     Z88SerialPort p;
 
-    if ( p.open("/dev/ttyUSB0") == true ) {
+    if ( p.open() == true ) {
         p.helloZ88();
         p.close();
     }

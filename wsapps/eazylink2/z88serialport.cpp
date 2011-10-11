@@ -12,7 +12,7 @@ Z88SerialPort::Z88SerialPort()
 
     // define some default serial port device names for the specific platform
 #ifdef Q_OS_WIN32
-    portName = "COM1";
+    portName = "COM6";
 #else
 #ifdef Q_OS_MAC
     //QString portName = "/dev/tty.Bluetooth-Modem";
@@ -22,6 +22,7 @@ Z88SerialPort::Z88SerialPort()
 #endif
 #endif
 
+    qDebug() << "Defining default device: " << portName;
 }
 
 
