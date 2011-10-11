@@ -1,14 +1,11 @@
+#include <QtCore/QList>
+#include <QtCore/QByteArray>
 #include "z88serialport.h"
 
 
 Z88SerialPort::Z88SerialPort()
 {
-    char synchprotocol[] = {1,1,2};
-    char helloCmdSequense[] = {27, 'a'};
-
     transmitting = portOpenStatus = false;
-    synch = QByteArray( synchprotocol, 3); // EazyLink Synchronize protocol
-    helloCmd = QByteArray( helloCmdSequense, 2); // EazyLink V4.4 Hello Request Command
 
     // define some default serial port device names for the specific platform
 #ifdef Q_OS_WIN32
@@ -18,7 +15,7 @@ Z88SerialPort::Z88SerialPort()
     //QString portName = "/dev/tty.Bluetooth-Modem";
     portName = "/dev/cu.Bluetooth-Modem";
 #else
-    QString portName = "/dev/ttyS0";
+    portName = "/dev/ttyUSB0";
 #endif
 #endif
 
@@ -41,7 +38,7 @@ bool Z88SerialPort::open(QString pName)
     }
 
     portName = pName;
-    port = SerialPort(pName);
+    port = SerialPort(portName);
 
     if (!port.open(QIODevice::ReadWrite | QIODevice::Text)) {
         qDebug() << "!!! Port" << port.portName() << "could not be opened!!!";
@@ -85,10 +82,111 @@ void Z88SerialPort::close()
 
 
 /*****************************************************************************
+ *      EazyLink Server V4.4
+ *      Send a 'hello' to the Z88 and return true if Yes, or false if No
+ *****************************************************************************/
+bool Z88SerialPort::helloZ88()
+{
+    char helloCmdSequense[] = {27, 'a'};
+    QByteArray helloCmd = QByteArray( helloCmdSequense, 2); // EazyLink V4.4 Hello Request Command
+
+    if ( sendCommand(helloCmd) == true) {
+        if (transmitting == true) {
+            qDebug() << "helloZ88(): Transmission already ongoing with Z88 - aborting...";
+            return false;
+        } else {
+            QByteArray helloResponse = port.read(2);
+            transmitting = false;
+
+            if ( helloResponse.count() != 2) {
+                qDebug() << "helloZ88(): Bad response from Z88!";
+                qDebug() << "Error:" << port.lastError();
+                port.clearLastError();
+
+                return false;
+            } else {
+                if (helloResponse.at(1) == 'Y') {
+                    qDebug() << "helloZ88(): Z88 responded 'hello'!";
+                    return true;        // hello response correctly received from Z88
+                } else
+                    return false;       // hello response from Z88 not correct
+            }
+        }
+    } else {
+        return false;
+    }
+}
+
+
+/*****************************************************************************
+ *      EazyLink Server V4.4
+ *      Send a 'quit' to the Z88 and return true if Z88 responded
+ *****************************************************************************/
+bool Z88SerialPort::quitZ88()
+{
+    char quitCmdSequense[] = {27, 'q'};
+    QByteArray quitCmd = QByteArray( quitCmdSequense, 2); // EazyLink V4.4 Quit Request Command
+
+    if ( sendCommand(quitCmd) == true) {
+        if (transmitting == true) {
+            qDebug() << "quitZ88(): Transmission already ongoing with Z88 - aborting...";
+            return false;
+        } else {
+            QByteArray quitResponse = port.read(2);
+            transmitting = false;
+
+            if ( quitResponse.count() != 2) {
+                qDebug() << "quitZ88(): Bad response from Z88!";
+                qDebug() << "Error:" << port.lastError();
+                port.clearLastError();
+
+                return false;
+            } else {
+                if (quitResponse.at(1) == 'Y') {
+                    qDebug() << "quitZ88(): Z88 responded 'Goodbye'!";
+                    return true;        // quit response correctly received from Z88
+                } else
+                    return false;       // quit response from Z88 not correct
+            }
+        }
+    } else {
+        return false;
+    }
+}
+
+
+/*****************************************************************************
+ *      EazyLink Server V4.4
+ *      Get Z88 devices.
+ *****************************************************************************/
+QList<QByteArray> Z88SerialPort::getDevices()
+{
+    char devicesCmdSequense[] = {27, 'h'};
+    QByteArray devicesCmd = QByteArray( devicesCmdSequense, 2); // EazyLink V4.4 Device Request Command
+    QList<QByteArray> deviceList;
+
+    if ( sendCommand(devicesCmd) == true) {
+        if (transmitting == true) {
+            qDebug() << "getDevices(): Transmission already ongoing with Z88 - aborting...";
+        } else {
+            // receive device elements into list
+            receiveListItems(deviceList);
+            transmitting = false;
+        }
+    }
+
+    return deviceList;
+}
+
+
+/*****************************************************************************
  *      Synchronize with Z88 before sending command
  *****************************************************************************/
 bool Z88SerialPort::synchronize()
 {
+    char        synchprotocol[] = {1,1,2};
+    QByteArray  synch = QByteArray( synchprotocol, 3); // EazyLink Synchronize protocol
+
     if (portOpenStatus == false) {
         // signal no synchronisation accomplished
         return false;
@@ -159,34 +257,11 @@ bool Z88SerialPort::sendCommand(QByteArray cmd)
 
 
 /*****************************************************************************
- *      EazyLink Server V4.4
- *      Send a 'hello' to the Z88 and return true if Yes, or false if No
+ *      Helper function to receive list items from
+ *          Get Z88 Devices
+ *          Get Z88 Directories
+ *          ...
  *****************************************************************************/
-bool Z88SerialPort::helloZ88()
+void Z88SerialPort::receiveListItems(QList<QByteArray> &list)
 {
-    if ( sendCommand(helloCmd) == true) {
-        if (transmitting == true) {
-            qDebug() << "helloZ88(): Transmission already ongoing with Z88 - aborting...";
-            return false;
-        } else {
-            QByteArray helloResponse = port.read(2);
-            transmitting = false;
-
-            if ( helloResponse.count() != 2) {
-                qDebug() << "helloZ88(): Bad response from Z88!";
-                qDebug() << "Error:" << port.lastError();
-                port.clearLastError();
-
-                return false;
-            } else {
-                if (helloResponse.at(1) == 'Y') {
-                    qDebug() << "helloZ88(): Z88 responded 'hello'!";
-                    return true;        // hello response correctly received from Z88
-                } else
-                    return false;       // hello response from Z88 not correct
-            }
-        }
-    } else {
-        return false;
-    }
 }

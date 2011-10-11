@@ -13,19 +13,19 @@ public:
     bool open();
     bool open(QString portName);
     void close();
-    bool helloZ88();                            // poll for "hello" to Z88
+    bool helloZ88();                                        // poll for "hello" to Z88
+    bool quitZ88();                                         // quit EazyLink popdown on Z88
+    QList<QByteArray> getDevices();                         // return a list of Z88 Storage Devices
 
 private:
-    QByteArray  synch;                          // [1, 1, 2]
-    QByteArray  helloCmd;                       // [ 27, 'a']
+    SerialPort  port;                                       // the device handle
+    bool        portOpenStatus;                             // status of opened port; true = opened, otherwise false for closed
+    bool        transmitting;                               // a transmission is current ongoing
+    QString     portName;                                   // the default platform serial port device name
 
-    SerialPort  port;                           // the device handle
-    bool        portOpenStatus;                 // status of opened port; true = opened, otherwise false for closed
-    bool        transmitting;                   // a transmission is current ongoing
-    QString     portName;                       // the default platform serial port device name
-
-    bool        synchronize();                  // Synchronize with Z88 before sending command
-    bool        sendCommand(QByteArray cmd);    // Transmit ESC command to Z88
+    bool        synchronize();                              // Synchronize with Z88 before sending command
+    bool        sendCommand(QByteArray cmd);                // Transmit ESC command to Z88
+    void        receiveListItems(QList<QByteArray> &list);
 };
 
 #endif // Z88SERIALPORT_H

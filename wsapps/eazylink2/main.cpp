@@ -11,6 +11,7 @@ int main(int argc, char *argv[])
 
     if ( p.open() == true ) {
         p.helloZ88();
+        p.quitZ88();
         p.close();
     }
     w.show();
