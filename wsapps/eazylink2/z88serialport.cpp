@@ -54,7 +54,7 @@ bool Z88SerialPort::open(QString pName)
         port.setStopBits(SerialPort::OneStopBit);
         port.setFlowControl(SerialPort::HardwareFlowControl);
         port.setAutoFlushOnWrite(true);
-
+/*
         qDebug() << "SerialPort Settings:";
         qDebug() << "  Port name          :" << port.portName();
         qDebug() << "  Baud rate          :" << port.baudRate();
@@ -65,7 +65,7 @@ bool Z88SerialPort::open(QString pName)
         qDebug() << "  Auto flush on write:" << port.autoFlushOnWrite();
         qDebug() << "  Status             :" << port.lineStatus();
         qDebug();
-
+*/
         return true;
     }
 }
@@ -165,6 +165,7 @@ QList<QByteArray> Z88SerialPort::getDevices()
     QByteArray devicesCmd = QByteArray( devicesCmdSequense, 2); // EazyLink V4.4 Device Request Command
     QList<QByteArray> deviceList;
 
+    qDebug() << "getDevices():";
     if ( sendCommand(devicesCmd) == true) {
         if (transmitting == true) {
             qDebug() << "getDevices(): Transmission already ongoing with Z88 - aborting...";
@@ -176,6 +177,100 @@ QList<QByteArray> Z88SerialPort::getDevices()
     }
 
     return deviceList;
+}
+
+
+/*****************************************************************************
+ *      EazyLink Server V4.4
+ *      Get directories in defined path, directories are returned in list
+ *****************************************************************************/
+QList<QByteArray> Z88SerialPort::getDirectories(QByteArray path)
+{
+    QList<QByteArray> directoriesList;
+    char directoriesCmdSequense[] = {27, 'd'};
+    QByteArray directoriesCmd = QByteArray( directoriesCmdSequense, 2);
+    char escz[] = { 27, 'Z'};
+    QByteArray escZ = QByteArray( escz, 2);
+
+    qDebug() << "getDirectories(" << path << "):";
+
+    directoriesCmd.append(path);
+    directoriesCmd.append(escZ);
+    if ( sendCommand(directoriesCmd) == true) {
+        if (transmitting == true) {
+            qDebug() << "getDirectories(): Transmission already ongoing with Z88 - aborting...";
+        } else {
+            // receive device elements into list
+            receiveListItems(directoriesList);
+            transmitting = false;
+        }
+    }
+
+    return directoriesList;
+}
+
+
+/*****************************************************************************
+ *      EazyLink Server V4.4
+ *      Get filename in defined path, filenames are returned in list
+ *****************************************************************************/
+QList<QByteArray> Z88SerialPort::getFilenames(QByteArray path)
+{
+    QList<QByteArray> filenamesList;
+    char filesCmdSequense[] = {27, 'n'};
+    QByteArray filesCmd = QByteArray( filesCmdSequense, 2);
+    char escz[] = { 27, 'Z'};
+    QByteArray escZ = QByteArray( escz, 2);
+
+    qDebug() << "getFilenames(" << path << "):";
+
+    filesCmd.append(path);
+    filesCmd.append(escZ);
+    if ( sendCommand(filesCmd) == true) {
+        if (transmitting == true) {
+            qDebug() << "getFilenames(): Transmission already ongoing with Z88 - aborting...";
+        } else {
+            // receive device elements into list
+            receiveListItems(filenamesList);
+            transmitting = false;
+        }
+    }
+
+    return filenamesList;
+}
+
+
+/*****************************************************************************
+ *      Get a byte from the Z88 serial port
+ *****************************************************************************/
+bool Z88SerialPort::getByte(unsigned char &byte)
+{
+    byte = 0; // by default no byte
+
+    if (portOpenStatus == false) {
+        // signal no byte received
+        return false;
+    } else {
+        if (transmitting == true) {
+            qDebug() << "getByte(): Transmission already ongoing with Z88 - aborting receive byte...";
+            return false;
+        } else {
+            transmitting = true;
+            QByteArray receivedByte = port.read(1);
+            transmitting = false;
+
+            if ( receivedByte.count() != 1) {
+                qDebug() << "getByte(): No byte received from Z88!";
+                qDebug() << "Error:" << port.lastError();
+                port.clearLastError();
+
+                return false;
+            } else {
+                byte = receivedByte.at(0);
+                return true;
+            }
+        }
+    }
 }
 
 
@@ -257,11 +352,51 @@ bool Z88SerialPort::sendCommand(QByteArray cmd)
 
 
 /*****************************************************************************
- *      Helper function to receive list items from
+ *      Helper function to receive list items from commands like
  *          Get Z88 Devices
  *          Get Z88 Directories
  *          ...
  *****************************************************************************/
 void Z88SerialPort::receiveListItems(QList<QByteArray> &list)
 {
+    unsigned char byte;
+    QByteArray item;
+
+    list.clear();
+
+    while(1) {
+        if (getByte(byte) == true) {
+            switch(byte) {
+                case 27:
+                    getByte(byte);
+                    switch(byte) {
+                        case 'N':
+                            if (item.length() > 0) {
+                                qDebug() << "receiveListItems(): " << item;
+                                list.append(item);          // Current item finished
+                                item.clear();               // get ready for a new item (name)
+                            }
+                            break;
+
+                        case 'Z':
+                            if (item.length() > 0) {
+                                qDebug() << "receiveListItems(): " << item;
+                                list.append(item);
+                            }
+                            return;                     // end of items - exit
+
+                        default:
+                            return;                     // illegal escape command - abort
+                    }
+                    break;
+
+                default:
+                    item.append(byte);   // new byte collected in current item
+            }
+
+        } else {
+            // receiveing data stream has stopped...
+            return;
+        }
+    }
 }
