@@ -1,4 +1,25 @@
+/*********************************************************************************************
+
+ EazyLink2 - Fast Client/Server Z88 File Management
+ (C) Gunther Strube (gbs@users.sourceforge.net) 2011
+
+ EazyLink2 is free software; you can redistribute it and/or modify it under the terms of the
+ GNU General Public License as published by the Free Software Foundation;
+ either version 2, or (at your option) any later version.
+ EazyLink2 is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ See the GNU General Public License for more details.
+ You should have received a copy of the GNU General Public License along with EazyLink2;
+ see the file COPYING. If not, write to the
+ Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+
+**********************************************************************************************/
+
+#include <QtCore/QCoreApplication>
+#include <QtCore/QEventLoop>
 #include <QtCore/QList>
+#include <QtCore/QDateTime>
+#include <QtCore/QTime>
 #include <QtCore/QByteArray>
 #include "z88serialport.h"
 
@@ -6,6 +27,8 @@
 Z88SerialPort::Z88SerialPort()
 {
     transmitting = portOpenStatus = false;
+    escN = QByteArray( (char []) { 27, 'N'}, 2);
+    escZ = QByteArray( (char []) { 27, 'Z'}, 2);
 
     // define some default serial port device names for the specific platform
 #ifdef Q_OS_WIN32
@@ -71,6 +94,12 @@ bool Z88SerialPort::open(QString pName)
 }
 
 
+void Z88SerialPort::setPortName(QString pName)
+{
+    portName = pName;
+}
+
+
 void Z88SerialPort::close()
 {
     if (portOpenStatus == true) {
@@ -87,34 +116,28 @@ void Z88SerialPort::close()
  *****************************************************************************/
 bool Z88SerialPort::helloZ88()
 {
-    char helloCmdSequense[] = {27, 'a'};
-    QByteArray helloCmd = QByteArray( helloCmdSequense, 2); // EazyLink V4.4 Hello Request Command
+    QByteArray helloCmd = QByteArray( (char []) { 27, 'a'}, 2); // EazyLink V4.4 Hello Request Command
 
     if ( sendCommand(helloCmd) == true) {
         if (transmitting == true) {
             qDebug() << "helloZ88(): Transmission already ongoing with Z88 - aborting...";
-            return false;
         } else {
             QByteArray helloResponse = port.read(2);
             transmitting = false;
 
             if ( helloResponse.count() != 2) {
                 qDebug() << "helloZ88(): Bad response from Z88!";
-                qDebug() << "Error:" << port.lastError();
                 port.clearLastError();
-
-                return false;
             } else {
                 if (helloResponse.at(1) == 'Y') {
                     qDebug() << "helloZ88(): Z88 responded 'hello'!";
                     return true;        // hello response correctly received from Z88
-                } else
-                    return false;       // hello response from Z88 not correct
+                }
             }
         }
-    } else {
-        return false;
     }
+
+    return false;
 }
 
 
@@ -124,34 +147,28 @@ bool Z88SerialPort::helloZ88()
  *****************************************************************************/
 bool Z88SerialPort::quitZ88()
 {
-    char quitCmdSequense[] = {27, 'q'};
-    QByteArray quitCmd = QByteArray( quitCmdSequense, 2); // EazyLink V4.4 Quit Request Command
+    QByteArray quitCmd = QByteArray( (char []) { 27, 'q'}, 2); // EazyLink V4.4 Quit Request Command
 
     if ( sendCommand(quitCmd) == true) {
         if (transmitting == true) {
             qDebug() << "quitZ88(): Transmission already ongoing with Z88 - aborting...";
-            return false;
         } else {
             QByteArray quitResponse = port.read(2);
             transmitting = false;
 
             if ( quitResponse.count() != 2) {
                 qDebug() << "quitZ88(): Bad response from Z88!";
-                qDebug() << "Error:" << port.lastError();
                 port.clearLastError();
-
-                return false;
             } else {
                 if (quitResponse.at(1) == 'Y') {
                     qDebug() << "quitZ88(): Z88 responded 'Goodbye'!";
                     return true;        // quit response correctly received from Z88
-                } else
-                    return false;       // quit response from Z88 not correct
+                }
             }
         }
-    } else {
-        return false;
     }
+
+    return false;
 }
 
 
@@ -161,11 +178,9 @@ bool Z88SerialPort::quitZ88()
  *****************************************************************************/
 QList<QByteArray> Z88SerialPort::getDevices()
 {
-    char devicesCmdSequense[] = {27, 'h'};
-    QByteArray devicesCmd = QByteArray( devicesCmdSequense, 2); // EazyLink V4.4 Device Request Command
+    QByteArray devicesCmd = QByteArray( (char []) { 27, 'h'}, 2); // EazyLink V4.4 Device Request Command
     QList<QByteArray> deviceList;
 
-    qDebug() << "getDevices():";
     if ( sendCommand(devicesCmd) == true) {
         if (transmitting == true) {
             qDebug() << "getDevices(): Transmission already ongoing with Z88 - aborting...";
@@ -187,12 +202,8 @@ QList<QByteArray> Z88SerialPort::getDevices()
 QList<QByteArray> Z88SerialPort::getDirectories(QByteArray path)
 {
     QList<QByteArray> directoriesList;
-    char directoriesCmdSequense[] = {27, 'd'};
-    QByteArray directoriesCmd = QByteArray( directoriesCmdSequense, 2);
-    char escz[] = { 27, 'Z'};
-    QByteArray escZ = QByteArray( escz, 2);
-
-    qDebug() << "getDirectories(" << path << "):";
+    QByteArray directoriesCmd = QByteArray( (char []) { 27, 'd'}, 2);
+    QByteArray escZ = QByteArray( (char []) { 27, 'Z'}, 2);
 
     directoriesCmd.append(path);
     directoriesCmd.append(escZ);
@@ -216,13 +227,9 @@ QList<QByteArray> Z88SerialPort::getDirectories(QByteArray path)
  *****************************************************************************/
 QList<QByteArray> Z88SerialPort::getFilenames(QByteArray path)
 {
+    QByteArray filesCmd = QByteArray( (char []) { 27, 'n'}, 2);
+    QByteArray escZ = QByteArray( (char []) { 27, 'Z'}, 2);
     QList<QByteArray> filenamesList;
-    char filesCmdSequense[] = {27, 'n'};
-    QByteArray filesCmd = QByteArray( filesCmdSequense, 2);
-    char escz[] = { 27, 'Z'};
-    QByteArray escZ = QByteArray( escz, 2);
-
-    qDebug() << "getFilenames(" << path << "):";
 
     filesCmd.append(path);
     filesCmd.append(escZ);
@@ -241,36 +248,560 @@ QList<QByteArray> Z88SerialPort::getFilenames(QByteArray path)
 
 
 /*****************************************************************************
+ *      EazyLink Server V4.4
+ *      Enable translation mode during file transfer
+ *****************************************************************************/
+bool Z88SerialPort::translationOn()
+{
+    QByteArray transOnCmd = QByteArray( (char []) { 27, 't'}, 2);
+
+    if ( sendCommand(transOnCmd) == true) {
+        return true;  // Z88 now has translations enabled
+    } else {
+        return false;
+    }
+}
+
+
+/*****************************************************************************
+ *      EazyLink Server V4.4
+ *      Disable translation mode during file transfer
+ *****************************************************************************/
+bool Z88SerialPort::translationOff()
+{
+    QByteArray transOffCmd = QByteArray( (char []) { 27, 'T'}, 2);
+
+    if ( sendCommand(transOffCmd) == true) {
+        return true;  // Z88 now has translations disabled
+    } else {
+        return false;
+    }
+}
+
+
+/*****************************************************************************
+ *      EazyLink Server V4.4
+ *      Enable linefeed conversion mode during file transfer
+ *****************************************************************************/
+bool Z88SerialPort::linefeedConvOn()
+{
+    QByteArray lfConvOnCmd = QByteArray( (char []) { 27, 'c'}, 2);
+
+    if ( sendCommand(lfConvOnCmd) == true) {
+        return true;  // Z88 now has linefeed conversion enabled
+    } else {
+        return false;
+    }
+}
+
+
+/*****************************************************************************
+ *      EazyLink Server V4.6
+ *      Remote updating of translation table
+ *      (reload and install translation table from Z88 filing system)
+ *****************************************************************************/
+bool Z88SerialPort::reloadTranslationTable()
+{
+    QByteArray reloadTraTableCmd = QByteArray( (char []) { 27, 'z'}, 2);
+
+    if ( sendCommand(reloadTraTableCmd) == true) {
+        return true;  // Z88 now has reload translation table.
+    } else {
+        return false;
+    }
+}
+
+
+/*****************************************************************************
+ *      EazyLink Server V4.4
+ *      Disable linefeed conversion mode during file transfer
+ *****************************************************************************/
+bool Z88SerialPort::linefeedConvOff()
+{
+    QByteArray lfConvOffCmd = QByteArray( (char []) { 27, 'C'}, 2);
+
+    if ( sendCommand(lfConvOffCmd) == true) {
+        return true;  // Z88 now has linefeed conversion disabled
+    } else {
+        return false;
+    }
+}
+
+
+/*****************************************************************************
+ *      EazyLink Server V4.5
+ *      Get EazyLink Server (main) Version and protocol level
+ *****************************************************************************/
+QByteArray Z88SerialPort::getEazyLinkZ88Version()
+{
+    QByteArray versionCmd = QByteArray( (char []) { 27, 'v'}, 2);
+    QByteArray versionString;
+    QList<QByteArray> versionList;
+
+    versionString.clear();
+
+    if ( sendCommand(versionCmd) == true) {
+        if (transmitting == true) {
+            qDebug() << "getEazyLinkZ88Version(): Transmission already ongoing with Z88 - aborting...";
+        } else {
+            // receive version string
+            receiveListItems(versionList);
+            transmitting = false;
+
+            if (versionList.count() > 0) {
+                versionString = versionList.at(0); // the "list" has only one item...
+            }
+        }
+    }
+
+    return versionString;
+}
+
+
+/*****************************************************************************
+ *      EazyLink Server V4.7
+ *      Get Z88 RAM defaults
+ *****************************************************************************/
+QList<QByteArray> Z88SerialPort::getRamDefaults()
+{
+    QByteArray ramDefaultCmd = QByteArray( (char []) { 27, 'g'}, 2);
+    QList<QByteArray> ramDefaultList;
+
+    if ( sendCommand(ramDefaultCmd) == true) {
+        if (transmitting == true) {
+            qDebug() << "getRamDefaults(): Transmission already ongoing with Z88 - aborting...";
+        } else {
+            // receive device elements into list
+            receiveListItems(ramDefaultList);
+            transmitting = false;
+        }
+    }
+
+    return ramDefaultList;
+}
+
+
+/*****************************************************************************
+ *      EazyLink Server V4.5
+ *      Respond ESC 'Y' if file exists on Z88 (return true)
+ *****************************************************************************/
+bool Z88SerialPort::isFileAvailable(QByteArray filename)
+{
+    QByteArray fileExistCmd = QByteArray( (char []) { 27, 'f'}, 2);
+    QByteArray escZ = QByteArray( (char []) { 27, 'Z'}, 2);
+
+    fileExistCmd.append(filename);
+    fileExistCmd.append(escZ);
+    if ( sendCommand(fileExistCmd) == true) {
+        if (transmitting == true) {
+            qDebug() << "isFileAvailable(): Transmission already ongoing with Z88 - aborting...";
+        } else {
+            QByteArray fileExistResponse = port.read(2);
+            transmitting = false;
+
+            if ( fileExistResponse.count() != 2) {
+                qDebug() << "isFileAvailable(): Bad response from Z88!";
+                port.clearLastError();
+            } else {
+                if (fileExistResponse.at(1) == 'Y') {
+                    return true;        // Z88 responded that file exists
+                }
+            }
+        }
+    }
+
+    return false; // no serial port communication or file not available..
+}
+
+
+/*****************************************************************************
+ *      EazyLink Server V4.5
+ *      Get create and update date stamp of Z88 file
+ *****************************************************************************/
+QList<QByteArray> Z88SerialPort::getFileDateStamps(QByteArray filename)
+{
+    QByteArray fileDateStampCmd = QByteArray( (char []) { 27, 'u'}, 2);
+    QByteArray escZ = QByteArray( (char []) { 27, 'Z'}, 2);
+    QList<QByteArray> dateStampList;
+
+    fileDateStampCmd.append(filename);
+    fileDateStampCmd.append(escZ);
+    if ( sendCommand(fileDateStampCmd) == true) {
+        if (transmitting == true) {
+            qDebug() << "getFileDateStamps(): Transmission already ongoing with Z88 - aborting...";
+        } else {
+            // receive date stamps into list
+            receiveListItems(dateStampList);
+            transmitting = false;
+        }
+    }
+
+    return dateStampList;
+}
+
+
+/*****************************************************************************
+ *      EazyLink Server V4.5
+ *      Get size of Z88 file (in bytes)
+ *****************************************************************************/
+QByteArray Z88SerialPort::getFileSize(QByteArray filename)
+{
+    QByteArray fileDateStampCmd = QByteArray( (char []) { 27, 'x'}, 2);
+    QList<QByteArray> fileSizeList;
+    QByteArray fileSizeString;
+
+    fileDateStampCmd.append(filename);
+    fileDateStampCmd.append(escZ);
+    if ( sendCommand(fileDateStampCmd) == true) {
+        if (transmitting == true) {
+            qDebug() << "getFileSize(): Transmission already ongoing with Z88 - aborting...";
+        } else {
+            // receive date stamps into list
+            receiveListItems(fileSizeList);
+            transmitting = false;
+
+            if (fileSizeList.count() > 0) {
+                fileSizeString = fileSizeList.at(0); // the "list" has only one item...
+            }
+
+        }
+    }
+
+    return fileSizeString;
+}
+
+
+/*****************************************************************************
+ *      EazyLink Server V4.8
+ *      Get Z88 system Date/Time (Clock)
+ *****************************************************************************/
+QList<QByteArray> Z88SerialPort::getZ88Time()
+{
+    QByteArray getZ88TimeCmd = QByteArray( (char []) { 27, 'e'}, 2);
+    QList<QByteArray> timeList;
+
+    if ( sendCommand(getZ88TimeCmd) == true) {
+        if (transmitting == true) {
+            qDebug() << "getZ88Time(): Transmission already ongoing with Z88 - aborting...";
+        } else {
+            // receive time stamp into list
+            receiveListItems(timeList);
+            transmitting = false;
+        }
+    }
+
+    return timeList;
+}
+
+
+/*****************************************************************************
+ *      EazyLink Server V4.8
+ *      Set Z88 System Clock using PC system time
+ *****************************************************************************/
+bool Z88SerialPort::setZ88Time()
+{
+    QByteArray setZ88TimeCmd = QByteArray( (char []) { 27, 'p'}, 2);
+    QDateTime dt = QDateTime(QDateTime::currentDateTime());
+
+    setZ88TimeCmd.append(dt.toString("dd/MM/yyyy"));
+    setZ88TimeCmd.append(escN);
+    setZ88TimeCmd.append(dt.toString("hh:mm:ss"));
+    setZ88TimeCmd.append(escZ);
+
+    if ( sendCommand(setZ88TimeCmd) == true) {
+        if (transmitting == true) {
+            qDebug() << "setZ88Time(): Transmission already ongoing with Z88 - aborting...";
+        } else {
+            QTime timeout = QTime::currentTime().addSecs(5);
+            while(QTime::currentTime() < timeout) {
+                QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
+                // wait max 5 secs for a response, because Z88 uses some seconds to set it's clock...
+                if (port.bytesAvailable() > 0)
+                    break;
+            }
+
+            QByteArray setZ88TimeResponse = port.read(2);
+            transmitting = false;
+
+            if ( setZ88TimeResponse.count() != 2) {
+                qDebug() << "setZ88Time(): Bad response from Z88!";
+                port.clearLastError();
+            } else {
+                if (setZ88TimeResponse.at(1) == 'Y') {
+                    return true;        // Z88 time was set
+                }
+            }
+        }
+    }
+
+    return false;
+}
+
+
+/*****************************************************************************
+ *      EazyLink Server V4.5
+ *      Set create and update date stamp of Z88 file
+ *****************************************************************************/
+bool Z88SerialPort::setFileDateStamps(QByteArray filename, QByteArray createDate, QByteArray updateDate)
+{
+    QByteArray setFileTimeStampCmd = QByteArray( (char []) { 27, 'U'}, 2);
+
+    setFileTimeStampCmd.append(filename);
+    setFileTimeStampCmd.append(escN);
+    setFileTimeStampCmd.append(createDate);
+    setFileTimeStampCmd.append(escN);
+    setFileTimeStampCmd.append(updateDate);
+    setFileTimeStampCmd.append(escZ);
+
+    if ( sendCommand(setFileTimeStampCmd) == true) {
+        if (transmitting == true) {
+            qDebug() << "setZ88Time(): Transmission already ongoing with Z88 - aborting...";
+        } else {
+            QTime timeout = QTime::currentTime().addSecs(5);
+            while(QTime::currentTime() < timeout) {
+                QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
+                // wait max 5 secs for a response, because Z88 uses a little time to set the time stamps on the file
+                if (port.bytesAvailable() > 0)
+                    break;
+            }
+
+            QByteArray setFileTimeStampResponse = port.read(2);
+            transmitting = false;
+
+            if ( setFileTimeStampResponse.count() != 2) {
+                qDebug() << "setFileDateStamps(): Bad response from Z88!";
+                port.clearLastError();
+            } else {
+                if (setFileTimeStampResponse.at(1) == 'Y') {
+                    return true;        // time stamps were set
+                }
+            }
+        }
+    }
+
+    return false;
+}
+
+
+/*****************************************************************************
+ *      EazyLink Server V4.7
+ *      Create directory path on Z88.
+ *****************************************************************************/
+bool Z88SerialPort::createDir(QByteArray pathName)
+{
+    QByteArray createDirCmd = QByteArray( (char []) { 27, 'y'}, 2);
+
+    createDirCmd.append(pathName);
+    createDirCmd.append(escZ);
+
+    if ( sendCommand(createDirCmd) == true) {
+        if (transmitting == true) {
+            qDebug() << "createDir(): Transmission already ongoing with Z88 - aborting...";
+        } else {
+            QTime timeout = QTime::currentTime().addSecs(5);
+            while(QTime::currentTime() < timeout) {
+                QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
+                // wait max 5 secs for a response, because Z88 can use some time creating a directory on the Z88
+                if (port.bytesAvailable() > 0)
+                    break;
+            }
+
+            QByteArray createDirResponse = port.read(2);
+            transmitting = false;
+
+            if ( createDirResponse.count() != 2) {
+                qDebug() << "createDir(): Bad response from Z88!";
+                port.clearLastError();
+            } else {
+                if (createDirResponse.at(1) == 'Y') {
+                    return true;        // file/dir were created
+                }
+            }
+        }
+    }
+
+    return false;
+}
+
+
+/*****************************************************************************
+ *      EazyLink Server V4.6
+ *      Delete file/dir on Z88.
+ *****************************************************************************/
+bool Z88SerialPort::deleteFileDir(QByteArray filename)
+{
+    QByteArray deleteFileDirCmd = QByteArray( (char []) { 27, 'r'}, 2);
+
+    deleteFileDirCmd.append(filename);
+    deleteFileDirCmd.append(escZ);
+
+    if ( sendCommand(deleteFileDirCmd) == true) {
+        if (transmitting == true) {
+            qDebug() << "deleteFileDir(): Transmission already ongoing with Z88 - aborting...";
+        } else {
+            QTime timeout = QTime::currentTime().addSecs(30);
+            while(QTime::currentTime() < timeout) {
+                QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
+                // wait max 30 secs for a response, because Z88 can use quite a long time deleting a big file on the Z88
+                if (port.bytesAvailable() > 0)
+                    break;
+            }
+
+            QByteArray deleteFileDirResponse = port.read(2);
+            transmitting = false;
+
+            if ( deleteFileDirResponse.count() != 2) {
+                qDebug() << "deleteFileDir(): Bad response from Z88!";
+                port.clearLastError();
+            } else {
+                if (deleteFileDirResponse.at(1) == 'Y') {
+                    return true;        // file/dir were deleted
+                }
+            }
+        }
+    }
+
+    return false;
+}
+
+
+/*****************************************************************************
+ *      EazyLink Server V4.7
+ *      Rename file/directory on Z88.
+ *****************************************************************************/
+bool Z88SerialPort::renameFileDir(QByteArray pathName, QByteArray fileName)
+{
+    QByteArray renameFileDirCmd = QByteArray( (char []) { 27, 'w'}, 2);
+
+    renameFileDirCmd.append(pathName);  // filename (with explicit path)
+    renameFileDirCmd.append(escN);
+    renameFileDirCmd.append(fileName);  // short filename (12+3, without path)
+    renameFileDirCmd.append(escZ);
+
+    if ( sendCommand(renameFileDirCmd) == true) {
+        if (transmitting == true) {
+            qDebug() << "renameFileDir(): Transmission already ongoing with Z88 - aborting...";
+        } else {
+            QTime timeout = QTime::currentTime().addSecs(5);
+            while(QTime::currentTime() < timeout) {
+                QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
+                // wait max 5 secs for a response, because Z88 can use some time renaming a file on the Z88
+                if (port.bytesAvailable() > 0)
+                    break;
+            }
+
+            QByteArray renameFileDirResponse = port.read(2);
+            transmitting = false;
+
+            if ( renameFileDirResponse.count() != 2) {
+                qDebug() << "renameFileDir(): Bad response from Z88!";
+                port.clearLastError();
+            } else {
+                if (renameFileDirResponse.at(1) == 'Y') {
+                    return true;        // file/dir were renamed
+                }
+            }
+        }
+    }
+
+    return false;
+}
+
+
+/*****************************************************************************
+ *      EazyLink Server V4.8
+ *      Get free memory for all RAM cards
+ *****************************************************************************/
+QByteArray Z88SerialPort::getZ88FreeMem()
+{
+    QByteArray freeMemoryCmd = QByteArray( (char []) { 27, 'm'}, 2);
+    QList<QByteArray> freeMemoryList;
+    QByteArray freeMemoryString;
+
+    if ( sendCommand(freeMemoryCmd) == true) {
+        if (transmitting == true) {
+            qDebug() << "getZ88FreeMem(): Transmission already ongoing with Z88 - aborting...";
+        } else {
+            // receive free memory string into list
+            receiveListItems(freeMemoryList);
+            transmitting = false;
+
+            if (freeMemoryList.count() > 0) {
+                freeMemoryString = freeMemoryList.at(0); // the "list" has only one item...
+            }
+
+        }
+    }
+
+    return freeMemoryString;
+}
+
+
+/*****************************************************************************
+ *      EazyLink Server V4.8
+ *      Get free memory for specific device
+ *****************************************************************************/
+QByteArray Z88SerialPort::getZ88DeviceFreeMem(QByteArray device)
+{
+    QByteArray freeMemDevCmd = QByteArray( (char []) { 27, 'M'}, 2);
+    QList<QByteArray> freeMemoryList;
+    QByteArray freeMemoryString;
+
+    freeMemDevCmd.append(device);
+    freeMemDevCmd.append(escZ);
+
+    if ( sendCommand(freeMemDevCmd) == true) {
+        if (transmitting == true) {
+            qDebug() << "getZ88DeviceFreeMem(): Transmission already ongoing with Z88 - aborting...";
+        } else {
+            // receive free memory string into list
+            receiveListItems(freeMemoryList);
+            transmitting = false;
+
+            if (freeMemoryList.count() > 0) {
+                freeMemoryString = freeMemoryList.at(0); // the "list" has only one item...
+            }
+
+        }
+    }
+
+    return freeMemoryString;
+}
+
+
+/*********************************************************************************************************
+ *      Private class methods
+ ********************************************************************************************************/
+
+
+/*****************************************************************************
  *      Get a byte from the Z88 serial port
  *****************************************************************************/
 bool Z88SerialPort::getByte(unsigned char &byte)
 {
     byte = 0; // by default no byte
+    bool byteReceived = false;
 
-    if (portOpenStatus == false) {
-        // signal no byte received
-        return false;
-    } else {
+    if (portOpenStatus == true) {
         if (transmitting == true) {
             qDebug() << "getByte(): Transmission already ongoing with Z88 - aborting receive byte...";
-            return false;
         } else {
             transmitting = true;
             QByteArray receivedByte = port.read(1);
-            transmitting = false;
 
             if ( receivedByte.count() != 1) {
                 qDebug() << "getByte(): No byte received from Z88!";
-                qDebug() << "Error:" << port.lastError();
                 port.clearLastError();
-
-                return false;
             } else {
                 byte = receivedByte.at(0);
-                return true;
+                byteReceived = true;
             }
+
+            transmitting = false;
         }
     }
+
+    return byteReceived;
 }
 
 
@@ -279,26 +810,19 @@ bool Z88SerialPort::getByte(unsigned char &byte)
  *****************************************************************************/
 bool Z88SerialPort::synchronize()
 {
-    char        synchprotocol[] = {1,1,2};
-    QByteArray  synch = QByteArray( synchprotocol, 3); // EazyLink Synchronize protocol
+    QByteArray  synch = QByteArray( (char []) {1, 1, 2}, 3); // EazyLink Synchronize protocol
 
-    if (portOpenStatus == false) {
-        // signal no synchronisation accomplished
-        return false;
-    } else {
+    if (portOpenStatus == true) {
         if (transmitting == true) {
             qDebug() << "synchronize(): Transmission already ongoing with Z88 - aborting synchronization...";
-            return false;
         } else {
             transmitting = true;
 
             if (port.write(synch) != synch.length()) {
                 qDebug() << "synchronize(): Unable to synchronize with Z88!";
-                qDebug() << "Error:" << port.lastError();
                 port.clearLastError();
 
                 transmitting = false;
-                return false;
             }
 
             QByteArray synchresponse = port.read(3);
@@ -306,18 +830,15 @@ bool Z88SerialPort::synchronize()
 
             if ( synchresponse.count() != 3) {
                 qDebug() << "synchronize(): Bad synchronize response from Z88!";
-                qDebug() << "Error:" << port.lastError();
                 port.clearLastError();
-
-                return false;
             } else {
                 if (synchresponse.at(2) == 2)
                     return true;        // synch response correct received from Z88
-                else
-                    return false;       // synch from Z88 didn't arrive
             }
         }
     }
+
+    return false;       // synch from Z88 didn't arrive
 }
 
 
@@ -329,30 +850,30 @@ bool Z88SerialPort::sendCommand(QByteArray cmd)
     if ( synchronize() == true ) {
         if (transmitting == true) {
             qDebug() << "sendCommand(): Transmission already ongoing with Z88 - aborting...";
-            return false;
         } else {
             transmitting = true;
 
             if ( port.write(cmd) != cmd.length() ) {
                 qDebug() << "sendCommand(): Command not transmitted properly to Z88!";
-                qDebug() << "Error:" << port.lastError();
                 port.clearLastError();
 
                 transmitting = false;
-                return false;
             } else {
                 // command transmitted correctly to Z88
                 transmitting = false;
                 return true;
             }
         }
-    } else
-        return false;
+    }
+
+    return false;
 }
 
 
 /*****************************************************************************
- *      Helper function to receive list items from commands like
+ *      Helper function to receive list items in the following format:
+ *          ESC N ... [ESC N ...] ESC Z  {1 or more elements}
+ *
  *          Get Z88 Devices
  *          Get Z88 Directories
  *          ...
@@ -372,7 +893,6 @@ void Z88SerialPort::receiveListItems(QList<QByteArray> &list)
                     switch(byte) {
                         case 'N':
                             if (item.length() > 0) {
-                                qDebug() << "receiveListItems(): " << item;
                                 list.append(item);          // Current item finished
                                 item.clear();               // get ready for a new item (name)
                             }
@@ -380,7 +900,6 @@ void Z88SerialPort::receiveListItems(QList<QByteArray> &list)
 
                         case 'Z':
                             if (item.length() > 0) {
-                                qDebug() << "receiveListItems(): " << item;
                                 list.append(item);
                             }
                             return;                     // end of items - exit
