@@ -13,7 +13,7 @@ TARGET = mpm
 
 DEFINES += MPM_Z80
 win32 {
-        DEFINES += WIN32
+        DEFINES += MSDOS
 }
 
 !win32 {
