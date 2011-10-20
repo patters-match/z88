@@ -67,7 +67,7 @@ modules.o: modules.c config.h datastructs.h exprprsr.h symtables.h libraries.h z
 libraries.o: libraries.c config.h libraries.h datastructs.h symtables.h modules.h pass.h errors.h
 symtables.o: symtables.c config.h datastructs.h errors.h
 asmdrctv.o: asmdrctv.c config.h asmdrctv.h datastructs.h exprprsr.h symtables.h pass.h errors.h z80_prsline.h
-crc32.o: crc32.h
+crc32.o: crc32.c crc32.h
 errors.o: errors.c config.h errors.h datastructs.h
 z80_prsline.o: z80_prsline.c config.h datastructs.h symtables.h z80_prsline.h pass.h asmdrctv.h errors.h
 z80_asmdrctv.o: z80_asmdrctv.c config.h datastructs.h exprprsr.h asmdrctv.h errors.h z80_prsline.h
