@@ -570,11 +570,6 @@ public class MakeApp {
 
                 if (romUpdateConfigFileType == 3 | romUpdateConfigFileType == 2) {
                     // OZ binaries are being generated..
-                    // use filenames with SVN revision number and 's0' or 's1' to identify slot relationship.
-                    if (revFromSvnWs.compareTo("0") != 0) {
-                        bFilename += "-b" + revFromSvnWs;
-                    }
-
                     bFilename += (romUpdateConfigFileType == 3) ? "s1": "s0";
                 }
 
@@ -636,9 +631,6 @@ public class MakeApp {
 						}
 					}
 				}
-
-				// replace "$Revision$" inside binary with "build xxxxx"
-				adjustRevisionKeywordMacro();
 
 				// all binary fragments loaded, now dump the final code space as complete output file...
 				RandomAccessFile cardFile = new RandomAccessFile(outputFilename, "rw");
