@@ -66,11 +66,20 @@ documentation in the Git repository, you simply check out the repository
 to a locally preferred place on your workstation hard drive:
 
 git clone https://cambridge@bitbucket.org/cambridge/z88.git
+(this is anonymous checkout only)
 
 (the above example uses the command line client tool, available on all
 supported operating systems by official Git project)
 
 There are myriads of other Git clients out there to use. 
+
+If you are a developer with write permission, you must generate a
+SSH public/private key pair and install your public key into your 
+bitbuket account, then:
+
+git clone git@bitbucket.org:cambridge/z88.git
+
+Windows users: Install Putty, generate/export SSH keys with PuttyGen)
 
 Once you've got yourself the latest snapshot of the repository, you
 will get the following directory structure with lots of files in it:
