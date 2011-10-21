@@ -2,16 +2,15 @@
 Introduction
 ----------------------------------------------------------------------
 
-Welcome to the Z88 development Subversion repository! The place to get
+Welcome to the Z88 development repository! The place to get
 the latest software for Z88 applications, workstation tools and various
 utilities. The repository directory file layout has been designed to be
-self-contained as much as possible so that once you check out the main
-development trunk you will be able to compile all Z88 native software
-and run the Z88 emulator within the directory structure of the
-repository. Further, you can easily copy or move the complete directory
-structure to another media and carry on working, including getting new
-updates from Subversion or committing changes back to the repository.
-
+self-contained as much as possible so that once you check out the repository,
+you will be able to compile all Z88 native software and run the Z88 emulator 
+within the directory structure of the repository. Further, you can easily 
+copy or move the complete directory structure to another media and carry on 
+working, including getting new updates from the Git repsoitory or committing 
+changes back to the repository (if you have been granted write access).
 
 
 ----------------------------------------------------------------------
@@ -22,11 +21,10 @@ The cross platform tools, scripts and other Z88 software to be compiled
 into executable form supports Linux/Mac OS X/Unix and the Windows
 operating systems.
 
-The first requirement is to checkout the Subversion trunk (main
-development or HEAD in CVS terms) you need to have a Subversion client
-installed on your preferred operating system. Please refer to the
-documentation on Sourceforge (http://sourceforge.net/svn/?group_id=69038),
-http://subversion.tigris.org or online book http://svnbook.red-bean.com.
+The first requirement is to checkout the Git Master branch (main
+development or HEAD in CVS terms) you need to have a Git client
+installed on your preferred operating system. We recomment SmartGit
+for cross-platform use, tortoisegit for Window or SourceTree for Mac.
 
 The second requirement on your operating system is an ANSI C compiler
 installed and accessible from the command line shell. This is needed to
@@ -59,24 +57,19 @@ which you can get from http://launch4j.sourceforge.net.
 
 
 ----------------------------------------------------------------------
-Getting started with Subversion and a quick tour of the repository layout
+Getting started with Git and a quick tour of the repository layout
 ----------------------------------------------------------------------
 
 To get the complete main development tree of all source files and
-documentation in the Subversion repository, you simply check out the
-/trunk directory to a locally preferred place on your workstation hard
-drive:
+documentation in the Git repository, you simply check out the repository 
+to a locally preferred place on your workstation hard drive:
 
-svn co https://svn.sourceforge.net/svnroot/z88/trunk
+git clone https://cambridge@bitbucket.org/cambridge/z88.git
 
 (the above example uses the command line client tool, available on all
-supported operating systems by official Subversion project)
+supported operating systems by official Git project)
 
-There are myriads of other Subversion clients out there to use. The most
-known tools are TortoiseSVN (http://tortoisesvn.tigris.org/, Windows
-Explorer Gui Shell integration), SubClipse (http://subclipse.tigris.org,
-Eclipse IDE plugin, similar to the CVS integration). There's a nice
-list of clients here: http://subversion.tigris.org/links.html
+There are myriads of other Git clients out there to use. 
 
 Once you've got yourself the latest snapshot of the repository, you
 will get the following directory structure with lots of files in it:
@@ -102,8 +95,7 @@ will get the following directory structure with lots of files in it:
      /fontbitmap    Generate asm source for ROM fonts & token table
      /jdk           Eclipse Java Compiler and the MakeJar utility
                     (these tools are used to compile executable Jar's
-                    for OZvm, MakeApp and FontBitMap applications), and
-                    SVN Java Client libraries.
+                    for OZvm, MakeApp and FontBitMap applications.
      /makeapp       Binary loader to make Z88 ROM & Application Cards
      /mpm           Z80/Z88 Cross Module Assembler & Linker
      /ozvm          Z88 Virtual Machine & Debugger
@@ -291,8 +283,3 @@ directory>. The following script both compiles the Jar file and makes a
 z88.exe program:
 
     makeexe.bat
-
-
-----------------------------------------------------------------------
-Last edited: $Id$
-----------------------------------------------------------------------
