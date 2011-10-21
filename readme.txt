@@ -2,10 +2,11 @@
 Introduction
 ----------------------------------------------------------------------
 
-Welcome to the Z88 development repository! The place to get
-the latest software for Z88 applications, workstation tools and various
-utilities. The repository directory file layout has been designed to be
-self-contained as much as possible so that once you check out the repository,
+Welcome to the Z88 development repository! The place to get the latest software 
+for Z88 applications, workstation tools and various utilities. 
+
+The repository directory file layout has been designed to beself-contained 
+as much as possible so that once you check out the repository,
 you will be able to compile all Z88 native software and run the Z88 emulator 
 within the directory structure of the repository. Further, you can easily 
 copy or move the complete directory structure to another media and carry on 
