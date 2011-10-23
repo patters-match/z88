@@ -1,7 +1,7 @@
-ZipUp v1.01
+ZipUp v1.02
 ===========
 
-(c) Garry Lancaster, 1999
+(c) Garry Lancaster, 1999-2011
 
 
 Introduction
@@ -117,6 +117,7 @@ at any time by pressing ESC.
 
 History
 -------
+v1.02   Bugfix: Exit with "no room" error if run on an unexpanded Z88
 v1.01	Bugfix: ZIP file could be added to itself with some 
 	wildcards.
 	Default extension of ".zip" now used if none given.
@@ -129,4 +130,4 @@ If you encounter any problems using the software, or you have any
 comments or suggestions, please contact me via the Z88 Forever! 
 Website.
 
-Garry Lancaster, 4th September 1999
+Garry Lancaster, 23rd October 2011

@@ -282,7 +282,7 @@ include "data.def"
         defm    1, "7#1", 33, 32, 111, 40, 131
         defm    1, "2I1"
         defm    1, "4+TUR", 1, "2JC", 1, "3@", 32, 32
-        defm    "Unzip v1.12 by Garry Lancaster"
+        defm    "Unzip v1.13 by Garry Lancaster"
         defm    1, "3@", 32, 32, 1, "2A", 112
         defm    1, "7#1", 33, 33, 111, 39, 129
         defm    1, "2C1", 1, "2+S"

@@ -19,6 +19,8 @@
 
 ; Data definitions
 
+defc    ram_pages=160           ; bad application pages requested
+
 defc	crctb=$c000		; CRC table origin
 defc	appl_org=$c400		; application origin
 defc	inbuffer=$3000		; input buffer

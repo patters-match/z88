@@ -42,7 +42,7 @@ include "data.def"
 .ininfstart
         defw    0
         defb    'U'             ; application key
-        defb    160             ; 40K contigious RAM
+        defb    ram_pages
         defw    0               ; overhead
         defw    0               ; unsafe workspace
         defw    0               ; safe workspace
@@ -152,7 +152,7 @@ include "data.def"
         defb    $7f
         defm    "A", $83, " e", $85, "ion utility for ZIP", $8d, $7f
         defm    "(c) Garry Lancaster", $7f
-        defm    "v1.12 - 11th March 2002", $7f, $7f
+        defm    "v1.13 - 23rd October 2011", $7f, $7f
         defb    0
 
 .in_help_opts

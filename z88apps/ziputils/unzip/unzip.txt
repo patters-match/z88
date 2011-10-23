@@ -1,7 +1,7 @@
-Unzip v1.11
+Unzip v1.13
 ===========
 
-(c) Garry Lancaster, 1999
+(c) Garry Lancaster, 1999-2011
 
 
 Introduction
@@ -115,6 +115,8 @@ is replaced with the name "badfilename".
 
 History
 -------
+v1.13	Bugfix: exit with "no room" error if run on an unexpanded Z88.
+v1.12	Bugfix: allow opening files on rewindable non-RAM devices.
 v1.11	Default ".zip" extension now used if none given.
 v1.10	Fifth release. Split of full/lite versions. Bugfix for CRC 
 	checking of zero-length files.
@@ -137,4 +139,4 @@ If you encounter any problems using the software, or you have any
 comments or suggestions, please contact me via the Z88 Forever! 
 website.
 
-Garry Lancaster, 4th September 1999
+Garry Lancaster, 23rd October 2011

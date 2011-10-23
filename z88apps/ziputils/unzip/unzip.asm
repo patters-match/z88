@@ -23,6 +23,7 @@
 
 include "error.def"
 include "fileio.def"
+include "director.def"
 include "data.def"
 include "messages.def"
 
@@ -52,6 +53,12 @@ include "messages.def"
         ret
 
 .mainentry
+        ld      a,(ix+2)        ; get page past end of bad application RAM
+        cp      $20+ram_pages   ; must match expected memory
+        jr      z,badram_okay
+        ld      a,rc_room       ; otherwise exit with "no room"
+        call_oz(os_bye)
+.badram_okay
         ld      a,@00011010     ; initial options
         ld      (options),a
         ld      a,sc_ena

@@ -22,6 +22,8 @@
 
 ;       define  DEBUG                   ; debugging routines
 
+        defc    ram_pages=160           ; bad application pages requested
+
         defc    crctb=$c000             ; CRC table origin
         defc    appl_org=$d800          ; application origin
         defc    inbuffer=$4000          ; input buffer
