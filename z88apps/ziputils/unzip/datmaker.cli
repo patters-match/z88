@@ -1,0 +1,43 @@
+.; *************************************************************************************
+.;
+.; Alchemist News datafile creation utility, (c) Garry Lancaster, 1999-2011
+.; This file is part of UnZip.
+.;
+.; UnZip is free software; you can redistribute it and/or modify it under the terms of the
+.; GNU General Public License as published by the Free Software Foundation;
+.; either version 2, or (at your option) any later version.
+.; UnZip is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+.; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+.; See the GNU General Public License for more details.
+.; You should have received a copy of the GNU General Public License along with UnZip;
+.; see the file COPYING. If not, write to the
+.; Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+.;
+.; $Id$
+.;
+.; *************************************************************************************
+.J
+NEW
+   10 *NAME DAT Maker
+   20 CLS
+   30 INPUT "ZIP file to convert";Z$
+   40 ZF%=OPENIN(Z$)
+   50 IF ZF%=0 THEN PRINT "Error opening ZIP file":END
+   60 IF BGET#ZF%<>ASC("P") OR BGET#ZF%<>ASC("K") OR BGET#ZF%<>3 OR BGET#ZF%<>4 THEN PRINT "Not a valid ZIP file":END
+   70 PTR#ZF%=18
+   80 CSZ%=BGET#ZF%+&100*BGET#ZF%+&10000*BGET#ZF%+&1000000*BGET#ZF%
+   90 SZ%=BGET#ZF%+&100*BGET#ZF%+&10000*BGET#ZF%+&1000000*BGET#ZF%
+  100 IF SZ%=0 OR SZ%>16384 THEN PRINT "Invalid uncompressed size":END
+  110 FI%=BGET#ZF%+&100*BGET#ZF%
+  120 EF%=BGET#ZF%+&100*BGET#ZF%
+  130 PTR#ZF%=PTR#ZF%+FI%+EF%
+  140 INPUT "DAT file to create";D$
+  150 DF%=OPENOUT(D$)
+  160 IF DF%=0 THEN PRINT "Unable to create file":END
+  170 PRINT "Working..."
+  180 BPUT#DF%,SZ% MOD &100:BPUT#DF%,SZ% DIV &100
+  190 FOR I%=1 TO CSZ%:BPUT#DF%,BGET#ZF%:NEXT I%
+  200 BPUT#DF%,0
+  210 CLOSE#DF%:CLOSE#ZF%
+  220 PRINT "Finished!"
+  230 END

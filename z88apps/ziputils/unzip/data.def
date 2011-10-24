@@ -21,41 +21,58 @@
 
 defc    ram_pages=160           ; bad application pages requested
 
-defc	crctb=$c000		; CRC table origin
-defc	appl_org=$c400		; application origin
-defc	inbuffer=$3000		; input buffer
-defc	inbuflen=$1000		; and length
-defc	outbuffer=$4000		; output buffer
-defc	outbuflen=$8000		; and length
-defc	worksp=$2000		; workspace
-defc	in_bank=$3f		; application bank
-defc	brother_add=$d800	; brother DOR address (ZipUp)
-defc	brother_bank=$3f	; brother DOR bank
+if ALCHNEWS
 
-defc	commands=4
-defc	stacksig=$f731
+defc    crctb=$f800             ; CRC table origin
+defc    appl_org=$728f          ; application origin
+defc    inbuffer=$7f00          ; input buffer
+defc    inbuflen=$100           ; and length
+defc    outbuffer=$8000         ; output buffer 
+defc    outbuflen=$4000         ; and length
+defc    worksp=$77bd            ; workspace
+defc    in_bank=$18             ; application bank
+defc    brother_add=$c000       ; brother DOR address
+defc    brother_bank=$14        ; brother DOR bank
 
-defvars	worksp
+else ; ALCHNEWS
+
+defc    crctb=$c000             ; CRC table origin
+defc    appl_org=$c400          ; application origin
+defc    inbuffer=$3000          ; input buffer
+defc    inbuflen=$1000          ; and length
+defc    outbuffer=$4000         ; output buffer
+defc    outbuflen=$8000         ; and length
+defc    worksp=$2000            ; workspace
+defc    in_bank=$3f             ; application bank
+defc    brother_add=$d800       ; brother DOR address (ZipUp)
+defc    brother_bank=$3f        ; brother DOR bank
+
+endif ; ALCHNEWS
+
+defc    commands=4
+defc    stacksig=$f731
+
+defvars worksp
 {
-        dbg_buffer	ds.b 8  ; First value for debugging purposes only
-        lastclv	        ds.b 2
-        seqptr	        ds.l 1
-        inhandle	ds.w 1
-        outhandle	ds.w 1
-        oihandle	ds.w 1
-        lastseg	        ds.w 1
-        onepercent	ds.b 3
-        header	        ds.b 30
-        openfiles	ds.b 1
-        options	        ds.b 1
-        lastmsg	        ds.w 1
-        redrawflag	ds.b 1
-        curpos	        ds.b 2
-        workarea	ds.b 1770
-        listptr	        ds.w 2
-        progpercent	ds.b 1
-        cursizeK	ds.b 3
-        bigfile	        ds.b 1
-        flushsize	ds.w 1
-        progmessage	ds.b 16
+        dbg_buffer      ds.b 8  ; First value for debugging purposes only
+        lastclv         ds.b 2
+        seqptr          ds.l 1
+        inhandle        ds.w 1
+        outhandle       ds.w 1
+        oihandle        ds.w 1
+        lastseg         ds.w 1
+        onepercent      ds.b 3
+        header          ds.b 30
+        openfiles       ds.b 1
+        options         ds.b 1
+        lastmsg         ds.w 1
+        redrawflag      ds.b 1
+        curpos          ds.b 2
+        workarea        ds.b 1770
+        listptr         ds.w 2
+        progpercent     ds.b 1
+        cursizeK        ds.b 3
+        bigfile         ds.b 1
+        flushsize       ds.w 1
+        progmessage     ds.b 16
 }
