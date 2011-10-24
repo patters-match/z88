@@ -1,0 +1,21 @@
+; *******************************************************************************************************************
+; ZipUtils & XY-Modem loadmap for MakeApp.
+;
+; *******************************************************************************************************************
+
+; generate a 16K Eprom image
+outputfile ziputils+xymodem.epr
+save16k
+size 16
+
+unzip/crctable.bin 3fc000               ; CRC Table used by Unzip & ZipUp
+unzip/application.bin 3f0400            ; Locate UnZip application right after CRC table (addressed for $C400)
+zipup/application.bin 3f1800            ; Locate ZiUp application at 1800 (addressed for $D800)
+../xymodem/xy-modem.bin 3f32d4          ; Locate XYModem popdown at 32D4
+
+; The linked DOR list for this 16K application card is
+;   Unzip
+;   ZipUp
+;   XY-Modem
+patch 3f3fc6 00 04 3f                   ; patch Rom header to point at Unzip Dor ($0400, first DOR)
+patch 3f1803 05 3e 3f                   ; patch ZipUp DOR ($1800) to point at XY-modem DOR (was last DOR)
