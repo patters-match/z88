@@ -88,8 +88,6 @@ xref    OZwd__fail                              ; [Kernel0]/ozwindow.asm
 
 xref    RAMxDOR                                 ; [Kernel1]/misc1.asm
 
-defc    DM_RAM                  =$81
-
 ;       ----
 
 ;IN:    A=flags, C=slot/bank (if MM_B_SLT set in A)
@@ -1400,7 +1398,7 @@ defc    DM_RAM                  =$81
         ld      a, (hl)
         call    DORPtr2FilePtr                  ; son
 
-        cp      DN_FIL
+        cp      Dn_Fil
         jr      nz, rbmat_3
 
         ld      d, b                            ; DE=BC, son
@@ -1409,9 +1407,9 @@ defc    DM_RAM                  =$81
         jr      rbmat_5                         ; continue to brother
 
 .rbmat_3
-        cp      DN_DIR                          ; dir and device share same code
+        cp      Dn_Dir                          ; dir and device share same code
         jr      z, rbmat_4
-        cp      DM_RAM
+        cp      Dm_Dev
         jr      nz, rbmat_6                     ; bad type? exit
 .rbmat_4
         call    RebuildMAT                      ; recursive call
