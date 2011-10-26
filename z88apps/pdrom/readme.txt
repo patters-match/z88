@@ -12,11 +12,20 @@ Graphics:
         Utility to display Z-Image format graphics file. A sample file,
         demo.img, is also provided.
 
-No source is avaliable for this ROM, so the binary bank images (and an
+Full source is not avaliable for this ROM, so the binary bank images (and an
 emulator version) are provided here.
 
-The zhelp+zmacro.bin image is an extraction of the two most useful 
-applications in the ROM, and is used in the Z88 Forever compilation ROM.
-This image file should be located at $C000 in bank 63.
+The zhelp+zmacro.mth image is an extraction of the MTH structures for the
+two most useful applications in the ROM, and is used in the Z88 Forever
+compilation ROM. This image file should be located at $C000 in bank 63,
+and is designed for the applications to be loaded at $C000 in bank 62.
+
+The zhelp+zmacro.asm source file contains reverse-engineered source-code
+for the Z-Help and Z-Macro applications. This file was created with the aid
+of the dZ80 utility.
+
+The makeapp scripts build the Z-Help and Z-Macro applications for inclusion
+in the Z88 Forever compilation ROM.
+
 
 Garry Lancaster, 26th October 2011
