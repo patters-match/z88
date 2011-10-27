@@ -44,10 +44,8 @@ The third requirement on your operating system is Sun's Java Runtime
 Environment V1.4 or newer. Several command line tools (which is
 part of the tool chain to develop Z88 applications) and the Z88 emulator
 (virtual Z88 hardware and debugging environment) are implemented in
-Java. Get your JRE from http://java.sun.com for Windows or Linux
-operating systems. Alternatively, get a free JRE for Linux from
-Blackdown: http://www.blackdown.org/
-Java V1.4 JRE (or newer) is bundled by default on Mac OS X.
+Java. Get your JRE from http://java.sun.com. Java V1.4 JRE (or newer) is 
+bundled by default on Mac OS X.
 
 There's an extra feature for Windows users which enables you to create
 an EXE program out of an executable Jar (it is a Java JAR file wrapper).
@@ -114,14 +112,21 @@ will get the following directory structure with lots of files in it:
      z88transfer    EazyLink Client by Sergio Costas (requires Python)
 
 /z88apps            Z88 Applications & popdowns (Z80 source code)
+     /alarmsafe     Alarm archiving popdown utility
      /debugapp      An empty popdown for OZvm debugging (load/run code)
      /eazylink      EazyLink popdown & PcLink II emulation
      /epfetch       File Eprom Management
      /flashstore    Rakewell Flash Card File Management
      /flashstest    Rakewell Flash Card testing popdown
+     /forever       Compilation build of:
+                    pdrom, zdis, zmonitor, fview, alarmsafe, lockup, 
+                    epfetch & freeram.
      /freeram       Small utility to display free RAM graphically
      /fview         Simple Ascii File Viewer popdown.
      /intuition     Z88 Application Debugger/Disassembler
+     /lockup        Password protection popdown utility
+     /pdrom         4 applications by Richard Haw, released in 1989:
+                    Z-Help, Z-Macro, Utilities, Graphics
      /romcombiner   BBC BASIC utility to combine applications to card.
      /romupdate     BBC BASIC utility to update/add apps to Flash Cards
      /wavplay       Play polyphonic sounds on Z88 Loudspeaker
@@ -193,6 +198,8 @@ or
 nmake /f makefile.z80.msvc.win32 [using MS Visual Studio on Windows]
 or
 make -f makefile.z80.gcc.unix [using GCC on GCC/Linux/Mac OS X/Unix]
+or
+qmake mpm.pro; make [using Qt/Qt-Creator installed on Windows/Mac/Linux]
 
 
 -- Compiling MakeApp --
