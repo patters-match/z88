@@ -326,5 +326,3 @@ include "saverst.def"
 .mail_name
         defm    "NAME",0
 
-.als_link
-
