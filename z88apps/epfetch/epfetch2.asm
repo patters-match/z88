@@ -84,6 +84,191 @@ defc    CMD_MEM         = 5
 ;m bytes���������������� body of file
 
 
+.EPFetchDOR
+
+        defp    0,0                             ; parent
+        defp    LINK_ADDR,LINK_BANK             ; brother
+        defp    0,0                             ; son
+
+        defb    DM_ROM,46
+
+        defb    '@',18
+        defb    0,0
+        defb    'F'                             ; cmd letter
+        defb    0                               ; cont. RAM
+        defw    0                               ; env. overhead
+        defw    0                               ; unsafe mem
+        defw    SafeWorkspaceSize               ; safe mem
+        defw    EPFetch                         ; entry point
+        defb    0,0,0,BANK                      ; bindings
+        defb    8                               ; type=popdown
+        defb    3                               ; inversed caps
+
+        defb    'H',12
+        defp    sTopics, BANK
+        defp    sCommands, BANK
+        defp    sHelp, BANK
+        defp    0, 0
+
+        defb    'N',10
+        defm    "EP-Fetch2",0
+        defb    -1
+
+;       ----
+
+.sTopics        defb 0
+
+.sTPh           defb sTP1-sTPh
+                defm "Printing"
+                defb >(sHelp2-sHelp),<(sHelp2-sHelp)
+                defb $12
+                defb sTP1-sTPh
+
+.sTP1           defb sTPe-sTP1
+                defm "Commands"
+                defb 0
+                defb sTPe-sTP1
+
+.sTPe           defb 0
+
+;       ----
+
+.sCommands      defb 0
+
+.sH1            defb sH2-sH1
+                defb 0,0
+                defm "Serial settings"
+                defb >(sH1txt-sHelp),<(sH1txt-sHelp)
+                defb $10
+                defb sH2-sH1
+
+.sH2            defb sHx-sH2
+                defb 0,0
+                defm "Printer settings"
+                defb >(sH2txt-sHelp),<(sH2txt-sHelp)
+                defb $10
+                defb sHx-sH2
+
+.shx            defb 1
+
+.sCfetch        defb sCrescan-sCfetch
+                defb CMD_FETCH
+                defb $E1, 0
+                defm "Fetch a file"
+                defb 0
+                defb sCrescan-sCfetch
+
+.sCrescan       defb sCfiles-sCrescan
+                defb CMD_RESCAN
+                defb $D1, 0
+                defm "Re-scan EPROM"
+                defb 0
+                defb sCfiles-sCrescan
+
+.sCfiles        defb sCprint-sCfiles
+                defb CMD_SAVELIST
+                defm "FS", 0
+                defm "Save file list"
+                defb 0
+                defb sCprint-sCfiles
+
+.sCprint        defb sCmem-sCprint
+                defb CMD_PRINTLIST
+                defm "PO", 0
+                defm "Print file list"
+                defb 0
+                defb sCmem-sCprint
+
+.sCmem          defb sCesc-sCmem
+                defb CMD_MEM
+                defm "M", 0
+                defm "Free memory"
+                defb 0
+                defb sCesc-sCmem
+
+.sCesc          defb sCprev-sCesc
+                defb CMD_ESC
+                defb ESC, 0
+                defm "Escape"
+                defb 0
+                defb sCprev-sCesc
+
+.sCprev         defb sCnext-sCprev
+                defb IN_UP
+                defb IN_UP, 0
+                defm "Previous file"
+                defb 1
+                defb sCnext-sCprev
+
+.sCnext         defb sCprevpg-sCnext
+                defb IN_DWN
+                defb IN_DWN, 0
+                defm "Next file"
+                defb 0
+                defb sCprevpg-sCnext
+
+.sCprevpg       defb sCnextpg-sCprevpg
+                defb IN_SUP
+                defb IN_SUP, 0
+                defm "Previous page"
+                defb 0
+                defb sCnextpg-sCprevpg
+
+.sCnextpg       defb sCtop-sCnextpg
+                defb IN_SDWN
+                defb IN_SDWN, 0
+                defm "Next page"
+                defb 0
+                defb sCtop-sCnextpg
+
+.sCtop          defb sCbottom-sCtop
+                defb IN_DUP
+                defb IN_DUP, 0
+                defm "First file"
+                defb 0
+                defb sCbottom-sCtop
+
+.sCbottom       defb sC-sCbottom
+                defb IN_DDWN
+                defb IN_DDWN, 0
+                defm "Last file"
+                defb 0
+                defb sC-sCbottom
+
+                defb 0
+
+;       ----
+
+.PrintHelp
+
+;       max. 62 chars/line
+
+.sHelp          defm    $7F
+                defm    "This utility is for EPROMs and Flash EPROMs.",$7f
+                defm    "To fetch a file move bar over the filename required.",$7f
+                defm    "Deleted files are shown in ",1,"T","tiny text",1,"T"," and preceeded by -",$7f
+                defm    "The printing and listing of filenames is supported.",$7f,$7f
+                defm    1,"T","Modified GWL 1998-99, JO 2004-05",0
+
+
+.sHelp2         defm    1,"2JL",1,"2L!",$7f
+                defm    "This topic has some suggestions in case you have problems",$7f
+                defm    "with print out.",0
+
+
+.sH1txt         defm    1,"2JL",1,"2L!",$7f
+                defm    "Check Panel 'baud rates', 'Parity' and 'Xon/Xoff' settings.",$7f
+                defm    "If you don't know the required settings for your printer,",$7f
+                defm    "try 'Parity' ",1,"BNone",1,"B, 'Xon/Xoff' ",1,"BNo",1,"B.",0
+
+.sH2txt         defm    1,"2JL",1,"2L!",$7f
+                defm    "Check PrinterEd (Page 2) Printer 'on/off' sequences.",$7f
+                defm    "If you don't know correct settings, try clearing both of",$7f
+                defm    "them.",$7f
+                defm    $7f
+                defm    "If line feeds don't work correctly, try toggling the",$7f
+                defm    "'Allow Line feed.'",0
+
 
 .EPFetch
         xor     a
@@ -1861,188 +2046,3 @@ defc    MAXFILENAMELEN  = PRINTWIDTH2C
 .crlf_txt       defm    13,10
 
 ;       ----
-
-.EPFetchDOR
-
-        defp    0,0                             ; parent
-        defp    LINK_ADDR,LINK_BANK             ; brother
-        defp    0,0                             ; son
-
-        defb    DM_ROM,46
-
-        defb    '@',18
-        defb    0,0
-        defb    'F'                             ; cmd letter
-        defb    0                               ; cont. RAM
-        defw    0                               ; env. overhead
-        defw    0                               ; unsafe mem
-        defw    SafeWorkspaceSize               ; safe mem
-        defw    EPFetch                         ; entry point
-        defb    0,0,0,BANK                      ; bindings
-        defb    8                               ; type=popdown
-        defb    3                               ; inversed caps
-
-        defb    'H',12
-        defp    sTopics, BANK
-        defp    sCommands, BANK
-        defp    sHelp, BANK
-        defp    0, 0
-
-        defb    'N',10
-        defm    "EP-Fetch2",0
-        defb    -1
-
-;       ----
-
-.sTopics        defb 0
-
-.sTPh           defb sTP1-sTPh
-                defm "Printing"
-                defb >(sHelp2-sHelp),<(sHelp2-sHelp)
-                defb $12
-                defb sTP1-sTPh
-
-.sTP1           defb sTPe-sTP1
-                defm "Commands"
-                defb 0
-                defb sTPe-sTP1
-
-.sTPe           defb 0
-
-;       ----
-
-.sCommands      defb 0
-
-.sH1            defb sH2-sH1
-                defb 0,0
-                defm "Serial settings"
-                defb >(sH1txt-sHelp),<(sH1txt-sHelp)
-                defb $10
-                defb sH2-sH1
-
-.sH2            defb sHx-sH2
-                defb 0,0
-                defm "Printer settings"
-                defb >(sH2txt-sHelp),<(sH2txt-sHelp)
-                defb $10
-                defb sHx-sH2
-
-.shx            defb 1
-
-.sCfetch        defb sCrescan-sCfetch
-                defb CMD_FETCH
-                defb $E1, 0
-                defm "Fetch a file"
-                defb 0
-                defb sCrescan-sCfetch
-
-.sCrescan       defb sCfiles-sCrescan
-                defb CMD_RESCAN
-                defb $D1, 0
-                defm "Re-scan EPROM"
-                defb 0
-                defb sCfiles-sCrescan
-
-.sCfiles        defb sCprint-sCfiles
-                defb CMD_SAVELIST
-                defm "FS", 0
-                defm "Save file list"
-                defb 0
-                defb sCprint-sCfiles
-
-.sCprint        defb sCmem-sCprint
-                defb CMD_PRINTLIST
-                defm "PO", 0
-                defm "Print file list"
-                defb 0
-                defb sCmem-sCprint
-
-.sCmem          defb sCesc-sCmem
-                defb CMD_MEM
-                defm "M", 0
-                defm "Free memory"
-                defb 0
-                defb sCesc-sCmem
-
-.sCesc          defb sCprev-sCesc
-                defb CMD_ESC
-                defb ESC, 0
-                defm "Escape"
-                defb 0
-                defb sCprev-sCesc
-
-.sCprev         defb sCnext-sCprev
-                defb IN_UP
-                defb IN_UP, 0
-                defm "Previous file"
-                defb 1
-                defb sCnext-sCprev
-
-.sCnext         defb sCprevpg-sCnext
-                defb IN_DWN
-                defb IN_DWN, 0
-                defm "Next file"
-                defb 0
-                defb sCprevpg-sCnext
-
-.sCprevpg       defb sCnextpg-sCprevpg
-                defb IN_SUP
-                defb IN_SUP, 0
-                defm "Previous page"
-                defb 0
-                defb sCnextpg-sCprevpg
-
-.sCnextpg       defb sCtop-sCnextpg
-                defb IN_SDWN
-                defb IN_SDWN, 0
-                defm "Next page"
-                defb 0
-                defb sCtop-sCnextpg
-
-.sCtop          defb sCbottom-sCtop
-                defb IN_DUP
-                defb IN_DUP, 0
-                defm "First file"
-                defb 0
-                defb sCbottom-sCtop
-
-.sCbottom       defb sC-sCbottom
-                defb IN_DDWN
-                defb IN_DDWN, 0
-                defm "Last file"
-                defb 0
-                defb sC-sCbottom
-
-                defb 0
-
-;       ----
-
-.PrintHelp
-
-;       max. 62 chars/line
-
-.sHelp          defm    $7F
-                defm    "This utility is for EPROMs and Flash EPROMs.",$7f
-                defm    "To fetch a file move bar over the filename required.",$7f
-                defm    "Deleted files are shown in ",1,"T","tiny text",1,"T"," and preceeded by -",$7f
-                defm    "The printing and listing of filenames is supported.",$7f,$7f
-                defm    1,"T","Modified GWL 1998-99, JO 2004-05",0
-
-
-.sHelp2         defm    1,"2JL",1,"2L!",$7f
-                defm    "This topic has some suggestions in case you have problems",$7f
-                defm    "with print out.",0
-
-
-.sH1txt         defm    1,"2JL",1,"2L!",$7f
-                defm    "Check Panel 'baud rates', 'Parity' and 'Xon/Xoff' settings.",$7f
-                defm    "If you don't know the required settings for your printer,",$7f
-                defm    "try 'Parity' ",1,"BNone",1,"B, 'Xon/Xoff' ",1,"BNo",1,"B.",0
-
-.sH2txt         defm    1,"2JL",1,"2L!",$7f
-                defm    "Check PrinterEd (Page 2) Printer 'on/off' sequences.",$7f
-                defm    "If you don't know correct settings, try clearing both of",$7f
-                defm    "them.",$7f
-                defm    $7f
-                defm    "If line feeds don't work correctly, try toggling the",$7f
-                defm    "'Allow Line feed.'",0
