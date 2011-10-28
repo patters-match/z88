@@ -29,6 +29,8 @@ public:
     Z88SerialPort();
     bool open();
     bool open(QString pName);
+    bool openXonXoff();
+    bool openXonXoff(QString pName);
     void close();
     void setPortName(QString pName);                                // define the serial port device name
 
@@ -47,6 +49,8 @@ public:
     bool setFileDateStamps(QByteArray fileName,
                            QByteArray createDate,
                            QByteArray updateDate);                  // set Create & Update date stamps of Z88 file
+    bool impExpSendFile(QString hostFilename);                      // send a file to Z88 using Imp/Export protocol
+
     QByteArray getEazyLinkZ88Version();                             // receive string of EazyLink popdown version and protocol level
     QByteArray getZ88FreeMem();                                     // receive string of Z88 All Free Memory
     QByteArray getZ88DeviceFreeMem(QByteArray device);              // receive string of Free Memory from specific device
@@ -63,13 +67,17 @@ private:
     bool        portOpenStatus;                             // status of opened port; true = opened, otherwise false for closed
     bool        transmitting;                               // a transmission is current ongoing
     QString     portName;                                   // the default platform serial port device name
+    QByteArray  escB;                                       // ESC B constant
     QByteArray  escN;                                       // ESC N constant
+    QByteArray  escE;                                       // ESC E constant
+    QByteArray  escF;                                       // ESC F constant
     QByteArray  escZ;                                       // ESC Z constant
 
 
     bool        getByte(unsigned char  &byte);              // Receive a byte from the Z88
     bool        synchronize();                              // Synchronize with Z88 before sending command
     bool        sendCommand(QByteArray cmd);                // Transmit ESC command to Z88
+    bool        sendFilename(QByteArray filename);          // Transmit ESC N <filename> ESC F sequence to Z88
     void        receiveListItems(QList<QByteArray> &list);  // Receive list of items (eg. devices, directories, filenames)
 };
 

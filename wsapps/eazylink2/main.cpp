@@ -27,28 +27,34 @@ int main(int argc, char *argv[])
     Z88SerialPort p;
 
     if ( p.open() == true ) {
-        p.helloZ88();
+        // Use 9600, hardware handshaking, to transmit to Imp/Export
+        qDebug() << p.impExpSendFile("/home/gbs/z88/z88apps/romupdate/romupdate.bas");
+        qDebug() << p.impExpSendFile("/home/gbs/z88/z88apps/romupdate/romupdate.crc");
 
-        qDebug() << "Z88 EazyLink version / protocol = " << p.getEazyLinkZ88Version();
-        qDebug() << "Z88 current time = " << p.getZ88Time();
-        qDebug() << "Set Z88 time using PC time = " << p.setZ88Time();
-        qDebug() << "Z88 current time = " << p.getZ88Time();
-        qDebug() << "Z88 Free Memory = " << p.getZ88FreeMem();
-        qDebug() << "Z88 Free Memory for :RAM.1 = " << p.getZ88DeviceFreeMem("1");
-        qDebug() << "Z88 Devices = " << p.getDevices();
-        qDebug() << "Z88 RAM Defaults = " << p.getRamDefaults();
-        qDebug() << "Z88 RAM Directories for :RAM.1 = " << p.getDirectories(":RAM.1//*");
-        qDebug() << "Z88 Files in EPR.3 = " << p.getFilenames(":EPR.3");
-        qDebug() << "Date stamps of ':RAM.1/Readme.txt' = " << p.getFileDateStamps(":RAM.1/Readme.txt");
-        qDebug() << "Set timestamps of ':RAM.1/Readme.txt' = 01/09/1999 09:05:01 01/10/2011 18:05:17: " <<
-                    p.setFileDateStamps(":RAM.1/Readme.txt", "01/09/1999 09:05:01", "01/10/2011 18:05:17");
-        qDebug() << "File size of ':RAM.1/Readme.txt' = " << p.getFileSize(":RAM.1/Readme.txt");
-        qDebug() << "Creating directory ':RAM.1/tempdir1/tempdir2': " << p.createDir(":RAM.1/tempdir1/tempdir2");
-        qDebug() << "Rename directory ':RAM.1/tempdir1/tempdir2' to 'tempdir3': " << p.renameFileDir(":RAM.1/tempdir1/tempdir2", "tempdir3");
-        qDebug() << "Deleting directory ':RAM.1/tempdir1/tempdir3': " << p.deleteFileDir(":RAM.1/tempdir1/tempdir3");
-        qDebug() << "Deleting directory ':RAM.1/tempdir1': " << p.deleteFileDir(":RAM.1/tempdir");
+//          p.helloZ88();
 
-        // p.quitZ88();
+//          qDebug() << "Z88 EazyLink version / protocol = " << p.getEazyLinkZ88Version();
+//          qDebug() << "Z88 current time = " << p.getZ88Time();
+//          qDebug() << "Set Z88 time using PC time = " << p.setZ88Time();
+//          qDebug() << "Z88 current time = " << p.getZ88Time();
+//          qDebug() << "Z88 Free Memory = " << p.getZ88FreeMem();
+//          qDebug() << "Z88 Free Memory for :RAM.1 = " << p.getZ88DeviceFreeMem("1");
+//          qDebug() << "Z88 Devices = " << p.getDevices();
+//          qDebug() << "Z88 RAM Defaults = " << p.getRamDefaults();
+//          qDebug() << "Z88 RAM Directories for :RAM.1 = " << p.getDirectories(":RAM.1//*");
+//          qDebug() << "Z88 Files in EPR.3 = " << p.getFilenames(":EPR.3");
+//          qDebug() << "Date stamps of ':RAM.1/Readme.txt' = " << p.getFileDateStamps(":RAM.1/Readme.txt");
+//          qDebug() << "Set timestamps of ':RAM.1/Readme.txt' = 01/09/1999 09:05:01 01/10/2011 18:05:17: " <<
+//                      p.setFileDateStamps(":RAM.1/Readme.txt", "01/09/1999 09:05:01", "01/10/2011 18:05:17");
+//          qDebug() << "File size of ':RAM.1/Readme.txt' = " << p.getFileSize(":RAM.1/Readme.txt");
+//          qDebug() << "Creating directory ':RAM.1/tempdir1/tempdir2': " << p.createDir(":RAM.1/tempdir1/tempdir2");
+//          qDebug() << "Rename directory ':RAM.1/tempdir1/tempdir2' to 'tempdir3': " << p.renameFileDir(":RAM.1/tempdir1/tempdir2", "tempdir3");
+//          qDebug() << "Deleting directory ':RAM.1/tempdir1/tempdir3': " << p.deleteFileDir(":RAM.1/tempdir1/tempdir3");
+//          qDebug() << "Deleting directory ':RAM.1/tempdir1': " << p.deleteFileDir(":RAM.1/tempdir");
+
+
+          // p.quitZ88();
+
         p.close();
     }
 
