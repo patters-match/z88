@@ -42,7 +42,6 @@
         include "memory.def"
         include "stdio.def"
         include "syspar.def"
-        include "serintfc.def"
         include "sysapps.def"
         include "impexp.inc"
 
@@ -598,10 +597,8 @@ enddef
 ;       ----
 
 .RcvB
-        push    hl
-        ld      l, si_gbt
-        oz      os_si
-        pop     hl
+        ld      ix, (SerHandle)
+        OZ      OS_Gb
         jr      nc, gb_1
         ld      a, ERR_System
         ret
@@ -624,10 +621,8 @@ enddef
 .MaySendB
         call    TestEsc
         jr      c, mpb_1
-        push    hl
-        ld      l, si_pbt
-        oz      os_si
-        pop     hl
+        ld      ix, (SerHandle)
+        OZ      OS_Pb                           ; write byte A to handle IX
         ret     nc
         ld      a, ERR_System
         ret
