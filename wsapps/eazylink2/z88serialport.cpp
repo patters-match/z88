@@ -1,7 +1,7 @@
 /*********************************************************************************************
 
  EazyLink2 - Fast Client/Server Z88 File Management
- (C) Gunther Strube (gbs@users.sourceforge.net) 2011
+ (C) Gunther Strube (gstrube@gmail.com) 2011
 
  EazyLink2 is free software; you can redistribute it and/or modify it under the terms of the
  GNU General Public License as published by the Free Software Foundation;
@@ -21,7 +21,6 @@
 #include <QtCore/QDateTime>
 #include <QtCore/QTime>
 #include <QtCore/QFile>
-#include <QFileInfo>
 #include <QtCore/QByteArray>
 #include "z88serialport.h"
 
@@ -29,6 +28,7 @@
 Z88SerialPort::Z88SerialPort()
 {
     transmitting = portOpenStatus = false;
+    escEsc = QByteArray( (char []) { 27, 27}, 2);
     escB = QByteArray( (char []) { 27, 'B'}, 2);
     escN = QByteArray( (char []) { 27, 'N'}, 2);
     escE = QByteArray( (char []) { 27, 'E'}, 2);
@@ -823,13 +823,12 @@ QByteArray Z88SerialPort::getZ88DeviceFreeMem(QByteArray device)
 
 
 /*****************************************************************************
- *      Send a file to Z88 using Imp/Export protocol
+ *      Send a file to Z88 using Imp/Export protocol (Imp/Export popdown batch mode)
  *      Caller must ensure that the filename applies to Z88 standard
  *****************************************************************************/
-bool Z88SerialPort::impExpSendFile(QString hostFilename)
+bool Z88SerialPort::impExpSendFile(QByteArray z88Filename, QString hostFilename)
 {
     QFile hostFile(hostFilename);
-    QFileInfo fileInfo(hostFilename);
     QByteArray byte, escBSequence;
 
     if (hostFile.exists() == true) {
@@ -840,7 +839,7 @@ bool Z88SerialPort::impExpSendFile(QString hostFilename)
                 // qDebug() << "impExpSendFile(): Transmitting '" << hostFilename << "' file...";
 
                 // file opened for read-only...
-                if (sendFilename(fileInfo.fileName().toAscii()) == true) {
+                if (sendFilename(z88Filename) == true) {
                     transmitting = true;
 
                     while (!hostFile.atEnd()) {
@@ -887,6 +886,82 @@ bool Z88SerialPort::impExpSendFile(QString hostFilename)
 
     } else {
         qDebug() << "impExpSendFile(): File doesn't exist - aborting...";
+    }
+
+    return false;
+}
+
+
+/*****************************************************************************
+ *      EazyLink Server V4.4
+ *      Send a file to Z88 using EazyLink protocol
+ *      Caller must ensure that the filename applies to Z88 standard
+ *****************************************************************************/
+bool Z88SerialPort::sendFile(QByteArray z88Filename, QString hostFilename)
+{
+    QByteArray sendFilesCmd = QByteArray( (char []) { 27, 'b'}, 2);
+    QFile hostFile(hostFilename);
+    QByteArray byte;
+
+    if (hostFile.exists() == true) {
+        if (transmitting == true) {
+            qDebug() << "sendFile(): Transmission already ongoing with Z88 - aborting...";
+        } else {
+            if (hostFile.open(QIODevice::ReadOnly) == true) {
+                // file opened for read-only...
+                qDebug() << "sendFile(): Transmitting '" << hostFilename << "' file...";
+
+                if ( sendCommand(sendFilesCmd) == false) {
+                    qDebug() << "sendFile(): EazyLink send file command not acknowledged - aborting...";
+                    hostFile.close();
+                    return false;
+                }
+
+                if (sendFilename(z88Filename) == true) {
+                    transmitting = true;
+
+                    while (!hostFile.atEnd()) {
+                        byte = hostFile.read(1);
+                        if ( byte.count() == 1) {
+                            if (byte[0] == (char) 27) {
+                                // send ESC ESC sequence
+                                if ( port.write(escEsc) != escEsc.length() ) {
+                                    // not all bytes were transferred...
+                                    qDebug() << "sendFile(): ESC ESC xx not transmitted properly to Z88!";
+                                    port.clearLastError();
+                                    hostFile.close();
+                                    transmitting = false;
+                                    return false;
+                                }
+                            } else {
+                                if ( port.write(byte) != byte.length() ) {
+                                    qDebug() << "sendFile(): Command not transmitted properly to Z88!";
+                                    port.clearLastError();
+                                    hostFile.close();
+                                    transmitting = false;
+                                    return false;
+                                }
+                            }
+                        } else
+                            break;
+                    }
+                }
+
+                hostFile.close();
+                port.write(escE);
+                port.write(escZ); // End Of Batch - this function only sends a single file..
+
+                // file transmitted to EazyLink popdown...
+                transmitting = false;
+
+                return true;
+            } else {
+                qDebug() << "sendFile(): Couldn't open File for reading - aborting...";
+            }
+        }
+
+    } else {
+        qDebug() << "sendFile(): File doesn't exist - aborting...";
     }
 
     return false;

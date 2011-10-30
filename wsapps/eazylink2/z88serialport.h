@@ -1,7 +1,7 @@
 /*********************************************************************************************
 
  EazyLink2 - Fast Client/Server Z88 File Management
- (C) Gunther Strube (gbs@users.sourceforge.net) 2011
+ (C) Gunther Strube (gstrube@gmail.com) 2011
 
  EazyLink2 is free software; you can redistribute it and/or modify it under the terms of the
  GNU General Public License as published by the Free Software Foundation;
@@ -49,7 +49,9 @@ public:
     bool setFileDateStamps(QByteArray fileName,
                            QByteArray createDate,
                            QByteArray updateDate);                  // set Create & Update date stamps of Z88 file
-    bool impExpSendFile(QString hostFilename);                      // send a file to Z88 using Imp/Export protocol
+    bool sendFile(QByteArray z88Filename, QString hostFilename);       // send a file to Z88 using EazyLink protocol
+
+    bool impExpSendFile(QByteArray z88Filename, QString hostFilename); // send a file to Z88 using Imp/Export protocol
 
     QByteArray getEazyLinkZ88Version();                             // receive string of EazyLink popdown version and protocol level
     QByteArray getZ88FreeMem();                                     // receive string of Z88 All Free Memory
@@ -67,6 +69,7 @@ private:
     bool        portOpenStatus;                             // status of opened port; true = opened, otherwise false for closed
     bool        transmitting;                               // a transmission is current ongoing
     QString     portName;                                   // the default platform serial port device name
+    QByteArray  escEsc;                                     // ESC ESC constant
     QByteArray  escB;                                       // ESC B constant
     QByteArray  escN;                                       // ESC N constant
     QByteArray  escE;                                       // ESC E constant
