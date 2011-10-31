@@ -57,7 +57,9 @@ int main(int argc, char *argv[])
         qDebug() << p.sendFile(":RAM.0/romupdate.bas", "/home/gbs/z88/z88apps/romupdate/romupdate.bas");
         qDebug() << p.sendFile(":RAM.0/romupdate.crc", "/home/gbs/z88/z88apps/romupdate/romupdate.crc");
 
-          // p.quitZ88();
+        // qDebug() << p.impExpReceiveFiles("/home/gbs");
+
+        // p.quitZ88();
 
         p.close();
     }

@@ -893,6 +893,89 @@ bool Z88SerialPort::impExpSendFile(QByteArray z88Filename, QString hostFilename)
 
 
 /*****************************************************************************
+ *      Receive one or more files from Z88 using Imp/Export protocol (Imp/Export popdown batch mode)
+ *      Received files will be stored at <hostPath>
+ *****************************************************************************/
+bool Z88SerialPort::impExpReceiveFiles(QString hostPath)
+{
+    unsigned char byte;
+    QByteArray z88Filename, remoteFile, hexBytes;
+
+    while(1) {
+        if (receiveFilename(z88Filename) == false)
+            // timeout or ESC Z received, exit waiting for files...
+            return false;
+
+        QString hostFilename = QString(hostPath).append((z88Filename.constData()+6));
+        QFile hostFile(hostFilename);
+
+        if (hostFile.exists() == true) {
+            // automatically replace existing host file
+            hostFile.remove();
+        }
+
+        if (transmitting == true) {
+            // qDebug() << "impExpReceiveFiles(): Transmission already ongoing with Z88 - aborting...";
+            return false;
+        } else {
+            if (hostFile.open(QIODevice::WriteOnly) == true) {
+                qDebug() << "impExpReceiveFiles(): Receiving '" << z88Filename << "' to '" << hostFilename << "' file...";
+
+                remoteFile.clear();
+                // file opened for writing..
+                bool recievingFile = true;
+                while (recievingFile) {
+                    if (getByte(byte) == true) {
+                        switch(byte) {
+                            case 27:
+                                getByte(byte);
+                                switch(byte) {
+                                    case 'E':
+                                        hostFile.write(remoteFile);     // write entire collected remote file contents to host file
+                                        hostFile.close();
+                                        recievingFile = false;
+                                        break;
+
+                                    case 'B':
+                                        hexBytes = port.read(2);
+                                        if ( hexBytes.count() == 2) {
+                                            byte = xtod(hexBytes[1])*16 + xtod(hexBytes[0]);
+                                        } else {
+                                            byte = 0;
+                                        }
+
+                                        remoteFile.append(byte);
+                                        break;
+
+                                    case 'Z':
+                                        return true;                    // end of receive files z88 - exit
+
+                                    default:
+                                        recievingFile = false;
+                                        break;                          // illegal escape command - skip data...
+                                }
+                                break;
+
+                            default:
+                                remoteFile.append(byte);
+                        }
+                    } else {
+                        // receiveing data stream has stopped...
+                        return false;
+                    }
+                }
+            } else {
+                qDebug() << "impExpReceiveFiles(): Couldn't open File '" << hostFilename << "' for writing - aborting...";
+            }
+        }
+
+    }
+
+    return false;
+}
+
+
+/*****************************************************************************
  *      EazyLink Server V4.4
  *      Send a file to Z88 using EazyLink protocol
  *      Caller must ensure that the filename applies to Z88 standard
@@ -1070,6 +1153,64 @@ bool Z88SerialPort::sendCommand(QByteArray cmd)
 
 
 /*****************************************************************************
+ *      Receive an ESC N <fileName> ESC F from the Z88
+ *      Built-in timeout of 30s if no filename is received
+ *****************************************************************************/
+bool Z88SerialPort::receiveFilename(QByteArray &fileName)
+{
+    unsigned char byte;
+
+    if (transmitting == true) {
+        qDebug() << "receiveFilename(): Transmission already ongoing with Z88 - aborting...";
+    } else {
+
+        while(1) {
+            QTime timeout = QTime::currentTime().addSecs(30);
+            while(QTime::currentTime() < timeout) {
+                // wait max 30 secs for incoming filename...
+                if (port.bytesAvailable() > 0)
+                    break;
+            }
+            if (QTime::currentTime() >= timeout)
+                return false; // timeout..
+
+            if (getByte(byte) == true) {
+                switch(byte) {
+                    case 27:
+                        getByte(byte);
+                        switch(byte) {
+                            case 'N':
+                                if (fileName.length() > 0) {
+                                    fileName.clear();               // get ready for a filename
+                                }
+                                break;
+
+                            case 'F':
+                                return true;                    // end of filename - exit
+
+                            case 'Z':
+                                return false;                   // Batch End signaled from Imp/Export - exit
+
+                            default:
+                                return false;                   // illegal escape command - abort
+                        }
+                        break;
+
+                    default:
+                        fileName.append(byte);   // new byte collected in current filename
+                }
+            } else {
+                // receiveing data stream has stopped...
+                return false;
+            }
+        }
+    }
+
+    return false;
+}
+
+
+/*****************************************************************************
  *      Send a ESC N <fileName> ESC F to the Z88
  *****************************************************************************/
 bool Z88SerialPort::sendFilename(QByteArray fileName)
@@ -1149,4 +1290,13 @@ void Z88SerialPort::receiveListItems(QList<QByteArray> &list)
             return;
         }
     }
+}
+
+
+char Z88SerialPort::xtod(char c)
+{
+    if (c>='0' && c<='9') return c-'0';
+    if (c>='A' && c<='F') return c-'A'+10;
+    if (c>='a' && c<='f') return c-'a'+10;
+    return c=0;        // not Hex digit
 }

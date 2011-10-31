@@ -52,6 +52,7 @@ public:
     bool sendFile(QByteArray z88Filename, QString hostFilename);       // send a file to Z88 using EazyLink protocol
 
     bool impExpSendFile(QByteArray z88Filename, QString hostFilename); // send a file to Z88 using Imp/Export protocol
+    bool impExpReceiveFiles(QString hostPath);                      // recieve Z88 files from Imp/Export popdown
 
     QByteArray getEazyLinkZ88Version();                             // receive string of EazyLink popdown version and protocol level
     QByteArray getZ88FreeMem();                                     // receive string of Z88 All Free Memory
@@ -76,12 +77,13 @@ private:
     QByteArray  escF;                                       // ESC F constant
     QByteArray  escZ;                                       // ESC Z constant
 
-
     bool        getByte(unsigned char  &byte);              // Receive a byte from the Z88
     bool        synchronize();                              // Synchronize with Z88 before sending command
     bool        sendCommand(QByteArray cmd);                // Transmit ESC command to Z88
     bool        sendFilename(QByteArray filename);          // Transmit ESC N <filename> ESC F sequence to Z88
+    bool        receiveFilename(QByteArray &fileName);      // Receive an ESC N <fileName> ESC F sequence from the Z88
     void        receiveListItems(QList<QByteArray> &list);  // Receive list of items (eg. devices, directories, filenames)
+    char        xtod(char c);                               // hex to integer nibble function
 };
 
 #endif // Z88SERIALPORT_H
