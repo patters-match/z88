@@ -1,7 +1,7 @@
 /*********************************************************************************************
 
  EazyLink2 - Fast Client/Server Z88 File Management
- (C) Gunther Strube (gbs@users.sourceforge.net) 2011
+ (C) Gunther Strube (gstrube@gmail.com) 2011
 
  EazyLink2 is free software; you can redistribute it and/or modify it under the terms of the
  GNU General Public License as published by the Free Software Foundation;
@@ -20,6 +20,7 @@
 #include <QtCore/QList>
 #include <QtCore/QDateTime>
 #include <QtCore/QTime>
+#include <QtCore/QFile>
 #include <QtCore/QByteArray>
 #include "z88serialport.h"
 
@@ -27,7 +28,11 @@
 Z88SerialPort::Z88SerialPort()
 {
     transmitting = portOpenStatus = false;
+    escEsc = QByteArray( (char []) { 27, 27}, 2);
+    escB = QByteArray( (char []) { 27, 'B'}, 2);
     escN = QByteArray( (char []) { 27, 'N'}, 2);
+    escE = QByteArray( (char []) { 27, 'E'}, 2);
+    escF = QByteArray( (char []) { 27, 'F'}, 2);
     escZ = QByteArray( (char []) { 27, 'Z'}, 2);
 
     // define some default serial port device names for the specific platform
@@ -52,6 +57,12 @@ bool Z88SerialPort::open()
 }
 
 
+bool Z88SerialPort::openXonXoff()
+{
+    return openXonXoff(portName); // use default serial port device name (or previously specified port name)
+}
+
+
 bool Z88SerialPort::open(QString pName)
 {
     if (portOpenStatus == true) {
@@ -63,7 +74,7 @@ bool Z88SerialPort::open(QString pName)
     portName = pName;
     port = SerialPort(portName);
 
-    if (!port.open(QIODevice::ReadWrite | QIODevice::Text)) {
+    if (!port.open(QIODevice::ReadWrite)) {
         qDebug() << "!!! Port" << port.portName() << "could not be opened!!!";
         qDebug() << "Error:" << port.lastError();
         portOpenStatus = false;
@@ -76,6 +87,48 @@ bool Z88SerialPort::open(QString pName)
         port.setParity(SerialPort::NoParity);
         port.setStopBits(SerialPort::OneStopBit);
         port.setFlowControl(SerialPort::HardwareFlowControl);
+        port.setAutoFlushOnWrite(true);
+/*
+        qDebug() << "SerialPort Settings:";
+        qDebug() << "  Port name          :" << port.portName();
+        qDebug() << "  Baud rate          :" << port.baudRate();
+        qDebug() << "  Data bits          :" << port.dataBits();
+        qDebug() << "  Parity             :" << port.parity();
+        qDebug() << "  Stop bits          :" << port.stopBits();
+        qDebug() << "  Flow control       :" << port.flowControl();
+        qDebug() << "  Auto flush on write:" << port.autoFlushOnWrite();
+        qDebug() << "  Status             :" << port.lineStatus();
+        qDebug();
+*/
+        return true;
+    }
+}
+
+
+bool Z88SerialPort::openXonXoff(QString pName)
+{
+    if (portOpenStatus == true) {
+        // close connection if currently open...
+        port.close();
+        portOpenStatus = false;
+    }
+
+    portName = pName;
+    port = SerialPort(portName);
+
+    if (!port.open(QIODevice::ReadWrite)) {
+        qDebug() << "!!! Port" << port.portName() << "could not be opened!!!";
+        qDebug() << "Error:" << port.lastError();
+        portOpenStatus = false;
+        return false;
+    } else {
+        portOpenStatus = true;
+
+        port.setBaudRateFromNumber(9600);
+        port.setDataBits(SerialPort::EightDataBits);
+        port.setParity(SerialPort::NoParity);
+        port.setStopBits(SerialPort::OneStopBit);
+        port.setFlowControl(SerialPort::XonXoffFlowControl);
         port.setAutoFlushOnWrite(true);
 /*
         qDebug() << "SerialPort Settings:";
@@ -769,6 +822,235 @@ QByteArray Z88SerialPort::getZ88DeviceFreeMem(QByteArray device)
 }
 
 
+/*****************************************************************************
+ *      Send a file to Z88 using Imp/Export protocol (Imp/Export popdown batch mode)
+ *      Caller must ensure that the filename applies to Z88 standard
+ *****************************************************************************/
+bool Z88SerialPort::impExpSendFile(QByteArray z88Filename, QString hostFilename)
+{
+    QFile hostFile(hostFilename);
+    QByteArray byte, escBSequence;
+
+    if (hostFile.exists() == true) {
+        if (transmitting == true) {
+            qDebug() << "impExpSendFile(): Transmission already ongoing with Z88 - aborting...";
+        } else {
+            if (hostFile.open(QIODevice::ReadOnly) == true) {
+                // qDebug() << "impExpSendFile(): Transmitting '" << hostFilename << "' file...";
+
+                // file opened for read-only...
+                if (sendFilename(z88Filename) == true) {
+                    transmitting = true;
+
+                    while (!hostFile.atEnd()) {
+                        byte = hostFile.read(1);
+                        if ( byte.count() == 1) {
+                            if (byte[0] < (char) 0x20 || byte[0] > (char) 0x7f) {
+                                // send ESC B HEX sequence
+                                escBSequence.clear();
+                                escBSequence.append(escB);
+                                escBSequence.append(byte.toHex());
+                                if ( port.write(escBSequence) != escBSequence.length() ) {
+                                    // not all bytes were transferred...
+                                    qDebug() << "impExpSendFile(): ESC B xx not transmitted properly to Z88!";
+                                    port.clearLastError();
+                                    hostFile.close();
+                                    transmitting = false;
+                                    return false;
+                                }
+                            } else {
+                                if ( port.write(byte) != byte.length() ) {
+                                    qDebug() << "impExpSendFile(): Command not transmitted properly to Z88!";
+                                    port.clearLastError();
+                                    hostFile.close();
+                                    transmitting = false;
+                                    return false;
+                                }
+                            }
+                        } else
+                            break;
+                    }
+                }
+
+                hostFile.close();
+                port.write(escE);
+
+                // file transmitted to Imp/Export popdown...
+                transmitting = false;
+
+                return true;
+            } else {
+                qDebug() << "impExpSendFile(): Couldn't open File for reading - aborting...";
+            }
+        }
+
+    } else {
+        qDebug() << "impExpSendFile(): File doesn't exist - aborting...";
+    }
+
+    return false;
+}
+
+
+/*****************************************************************************
+ *      Receive one or more files from Z88 using Imp/Export protocol (Imp/Export popdown batch mode)
+ *      Received files will be stored at <hostPath>
+ *****************************************************************************/
+bool Z88SerialPort::impExpReceiveFiles(QString hostPath)
+{
+    unsigned char byte;
+    QByteArray z88Filename, remoteFile, hexBytes;
+
+    while(1) {
+        if (receiveFilename(z88Filename) == false)
+            // timeout or ESC Z received, exit waiting for files...
+            return false;
+
+        QString hostFilename = QString(hostPath).append((z88Filename.constData()+6));
+        QFile hostFile(hostFilename);
+
+        if (hostFile.exists() == true) {
+            // automatically replace existing host file
+            hostFile.remove();
+        }
+
+        if (transmitting == true) {
+            // qDebug() << "impExpReceiveFiles(): Transmission already ongoing with Z88 - aborting...";
+            return false;
+        } else {
+            if (hostFile.open(QIODevice::WriteOnly) == true) {
+                qDebug() << "impExpReceiveFiles(): Receiving '" << z88Filename << "' to '" << hostFilename << "' file...";
+
+                remoteFile.clear();
+                // file opened for writing..
+                bool recievingFile = true;
+                while (recievingFile) {
+                    if (getByte(byte) == true) {
+                        switch(byte) {
+                            case 27:
+                                getByte(byte);
+                                switch(byte) {
+                                    case 'E':
+                                        hostFile.write(remoteFile);     // write entire collected remote file contents to host file
+                                        hostFile.close();
+                                        recievingFile = false;
+                                        break;
+
+                                    case 'B':
+                                        hexBytes = port.read(2);
+                                        if ( hexBytes.count() == 2) {
+                                            byte = xtod(hexBytes[1])*16 + xtod(hexBytes[0]);
+                                        } else {
+                                            byte = 0;
+                                        }
+
+                                        remoteFile.append(byte);
+                                        break;
+
+                                    case 'Z':
+                                        return true;                    // end of receive files z88 - exit
+
+                                    default:
+                                        recievingFile = false;
+                                        break;                          // illegal escape command - skip data...
+                                }
+                                break;
+
+                            default:
+                                remoteFile.append(byte);
+                        }
+                    } else {
+                        // receiveing data stream has stopped...
+                        return false;
+                    }
+                }
+            } else {
+                qDebug() << "impExpReceiveFiles(): Couldn't open File '" << hostFilename << "' for writing - aborting...";
+            }
+        }
+
+    }
+
+    return false;
+}
+
+
+/*****************************************************************************
+ *      EazyLink Server V4.4
+ *      Send a file to Z88 using EazyLink protocol
+ *      Caller must ensure that the filename applies to Z88 standard
+ *****************************************************************************/
+bool Z88SerialPort::sendFile(QByteArray z88Filename, QString hostFilename)
+{
+    QByteArray sendFilesCmd = QByteArray( (char []) { 27, 'b'}, 2);
+    QFile hostFile(hostFilename);
+    QByteArray byte;
+
+    if (hostFile.exists() == true) {
+        if (transmitting == true) {
+            qDebug() << "sendFile(): Transmission already ongoing with Z88 - aborting...";
+        } else {
+            if (hostFile.open(QIODevice::ReadOnly) == true) {
+                // file opened for read-only...
+                qDebug() << "sendFile(): Transmitting '" << hostFilename << "' file...";
+
+                if ( sendCommand(sendFilesCmd) == false) {
+                    qDebug() << "sendFile(): EazyLink send file command not acknowledged - aborting...";
+                    hostFile.close();
+                    return false;
+                }
+
+                if (sendFilename(z88Filename) == true) {
+                    transmitting = true;
+
+                    while (!hostFile.atEnd()) {
+                        byte = hostFile.read(1);
+                        if ( byte.count() == 1) {
+                            if (byte[0] == (char) 27) {
+                                // send ESC ESC sequence
+                                if ( port.write(escEsc) != escEsc.length() ) {
+                                    // not all bytes were transferred...
+                                    qDebug() << "sendFile(): ESC ESC xx not transmitted properly to Z88!";
+                                    port.clearLastError();
+                                    hostFile.close();
+                                    transmitting = false;
+                                    return false;
+                                }
+                            } else {
+                                if ( port.write(byte) != byte.length() ) {
+                                    qDebug() << "sendFile(): Command not transmitted properly to Z88!";
+                                    port.clearLastError();
+                                    hostFile.close();
+                                    transmitting = false;
+                                    return false;
+                                }
+                            }
+                        } else
+                            break;
+                    }
+                }
+
+                hostFile.close();
+                port.write(escE);
+                port.write(escZ); // End Of Batch - this function only sends a single file..
+
+                // file transmitted to EazyLink popdown...
+                transmitting = false;
+
+                return true;
+            } else {
+                qDebug() << "sendFile(): Couldn't open File for reading - aborting...";
+            }
+        }
+
+    } else {
+        qDebug() << "sendFile(): File doesn't exist - aborting...";
+    }
+
+    return false;
+}
+
+
 /*********************************************************************************************************
  *      Private class methods
  ********************************************************************************************************/
@@ -871,6 +1153,96 @@ bool Z88SerialPort::sendCommand(QByteArray cmd)
 
 
 /*****************************************************************************
+ *      Receive an ESC N <fileName> ESC F from the Z88
+ *      Built-in timeout of 30s if no filename is received
+ *****************************************************************************/
+bool Z88SerialPort::receiveFilename(QByteArray &fileName)
+{
+    unsigned char byte;
+
+    if (transmitting == true) {
+        qDebug() << "receiveFilename(): Transmission already ongoing with Z88 - aborting...";
+    } else {
+
+        while(1) {
+            QTime timeout = QTime::currentTime().addSecs(30);
+            while(QTime::currentTime() < timeout) {
+                // wait max 30 secs for incoming filename...
+                if (port.bytesAvailable() > 0)
+                    break;
+            }
+            if (QTime::currentTime() >= timeout)
+                return false; // timeout..
+
+            if (getByte(byte) == true) {
+                switch(byte) {
+                    case 27:
+                        getByte(byte);
+                        switch(byte) {
+                            case 'N':
+                                if (fileName.length() > 0) {
+                                    fileName.clear();               // get ready for a filename
+                                }
+                                break;
+
+                            case 'F':
+                                return true;                    // end of filename - exit
+
+                            case 'Z':
+                                return false;                   // Batch End signaled from Imp/Export - exit
+
+                            default:
+                                return false;                   // illegal escape command - abort
+                        }
+                        break;
+
+                    default:
+                        fileName.append(byte);   // new byte collected in current filename
+                }
+            } else {
+                // receiveing data stream has stopped...
+                return false;
+            }
+        }
+    }
+
+    return false;
+}
+
+
+/*****************************************************************************
+ *      Send a ESC N <fileName> ESC F to the Z88
+ *****************************************************************************/
+bool Z88SerialPort::sendFilename(QByteArray fileName)
+{
+    QByteArray filenameSequence;
+
+    if (transmitting == true) {
+        qDebug() << "sendFilename(): Transmission already ongoing with Z88 - aborting...";
+    } else {
+        transmitting = true;
+
+        filenameSequence.append(escN);
+        filenameSequence.append(fileName);
+        filenameSequence.append(escF);
+
+        if ( port.write(filenameSequence) != filenameSequence.length() ) {
+            qDebug() << "sendFilename(): Command not transmitted properly to Z88!";
+            port.clearLastError();
+
+            transmitting = false;
+        } else {
+            // command transmitted correctly to Z88
+            transmitting = false;
+            return true;
+        }
+    }
+
+    return false;
+}
+
+
+/*****************************************************************************
  *      Helper function to receive list items in the following format:
  *          ESC N ... [ESC N ...] ESC Z  {1 or more elements}
  *
@@ -918,4 +1290,13 @@ void Z88SerialPort::receiveListItems(QList<QByteArray> &list)
             return;
         }
     }
+}
+
+
+char Z88SerialPort::xtod(char c)
+{
+    if (c>='0' && c<='9') return c-'0';
+    if (c>='A' && c<='F') return c-'A'+10;
+    if (c>='a' && c<='f') return c-'a'+10;
+    return c=0;        // not Hex digit
 }
