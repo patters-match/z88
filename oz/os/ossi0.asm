@@ -143,7 +143,17 @@ ENDIF
         pop     af
         call    BfPbt                           ; put byte with timeout
         ret     c
-        jp      EI_TDRE                         ; enable TDRE if succesful
+
+;       ----
+
+.EI_TDRE										; enable TDRE if succesful
+        ld      a, (BLSC_UMK)
+        bit     BB_UMKTDRE, a
+        ret     nz                              ; TDRE int already enabled
+        or      BM_UMKTDRE                      ; enable TDRE int
+        ld      (BLSC_UMK), a
+        out     (BL_UMK), a
+        ret
 
 ;       ----
 
@@ -173,17 +183,6 @@ ENDIF
 .gb_1
         ld      a, h                            ; restore byte read from h
         or      a                               ; Fc=0
-        ret
-
-;       ----
-
-.EI_TDRE
-        ld      a, (BLSC_UMK)
-        bit     BB_UMKTDRE, a
-        ret     nz                              ; TDRE int already enabled
-        or      BM_UMKTDRE                      ; enable TDRE int
-        ld      (BLSC_UMK), a
-        out     (BL_UMK), a
         ret
 
 ;       ----
