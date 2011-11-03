@@ -33,7 +33,7 @@ int main(int argc, char *argv[])
 
         // Give EazyLink time to switch to hardware handshaking on the serial port..
         QTime timeout = QTime::currentTime().addSecs(2);
-        while(QTime::currentTime() < timeout);
+        while(QTime::currentTime() < timeout) {};
 
         qDebug() << "Z88 EazyLink version / protocol = " << p.getEazyLinkZ88Version();
         qDebug() << "Z88 current time = " << p.getZ88Time();
@@ -56,6 +56,7 @@ int main(int argc, char *argv[])
 
         qDebug() << p.sendFile(":RAM.0/romupdate.bas", "/home/gbs/z88/z88apps/romupdate/romupdate.bas");
         qDebug() << p.sendFile(":RAM.0/romupdate.crc", "/home/gbs/z88/z88apps/romupdate/romupdate.crc");
+        qDebug() << p.receiveFiles(":RAM.0/*", "/home/gbs");
 
         // qDebug() << p.impExpReceiveFiles("/home/gbs");
 

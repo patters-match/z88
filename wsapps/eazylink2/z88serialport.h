@@ -49,10 +49,11 @@ public:
     bool setFileDateStamps(QByteArray fileName,
                            QByteArray createDate,
                            QByteArray updateDate);                  // set Create & Update date stamps of Z88 file
-    bool sendFile(QByteArray z88Filename, QString hostFilename);       // send a file to Z88 using EazyLink protocol
+    bool sendFile(QByteArray z88Filename, QString hostFilename);    // send a file to Z88 using EazyLink protocol
 
     bool impExpSendFile(QByteArray z88Filename, QString hostFilename); // send a file to Z88 using Imp/Export protocol
-    bool impExpReceiveFiles(QString hostPath);                      // recieve Z88 files from Imp/Export popdown
+    bool impExpReceiveFiles(QString hostPath);                      // receive Z88 files from Imp/Export popdown
+    bool receiveFiles(QByteArray z88Filenames, QString hostpath);   // receive one or more files from Z88 to host using EazyLink protocol
 
     QByteArray getEazyLinkZ88Version();                             // receive string of EazyLink popdown version and protocol level
     QByteArray getZ88FreeMem();                                     // receive string of Z88 All Free Memory

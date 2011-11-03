@@ -567,7 +567,6 @@ bool Z88SerialPort::setZ88Time()
         } else {
             QTime timeout = QTime::currentTime().addSecs(5);
             while(QTime::currentTime() < timeout) {
-                QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
                 // wait max 5 secs for a response, because Z88 uses some seconds to set it's clock...
                 if (port.bytesAvailable() > 0)
                     break;
@@ -612,7 +611,6 @@ bool Z88SerialPort::setFileDateStamps(QByteArray filename, QByteArray createDate
         } else {
             QTime timeout = QTime::currentTime().addSecs(5);
             while(QTime::currentTime() < timeout) {
-                QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
                 // wait max 5 secs for a response, because Z88 uses a little time to set the time stamps on the file
                 if (port.bytesAvailable() > 0)
                     break;
@@ -886,6 +884,106 @@ bool Z88SerialPort::impExpSendFile(QByteArray z88Filename, QString hostFilename)
 
     } else {
         qDebug() << "impExpSendFile(): File doesn't exist - aborting...";
+    }
+
+    return false;
+}
+
+
+/*****************************************************************************
+ *      Receive one or more files from Z88 using EazyLink protocol
+ *      Received files will be stored at <hostPath>
+ *****************************************************************************/
+bool Z88SerialPort::receiveFiles(QByteArray z88Filenames, QString hostPath)
+{
+    QByteArray receiveFilesCmd = QByteArray( (char []) { 27, 's'}, 2);
+    QByteArray z88Filename, remoteFile;
+    unsigned char byte;
+
+    if (transmitting == true) {
+        qDebug() << "receiveFiles(): Transmission already ongoing with Z88 - aborting...";
+    } else {
+        receiveFilesCmd.append(z88Filenames);
+        receiveFilesCmd.append(escZ);
+
+        if ( sendCommand(receiveFilesCmd) == true) {
+            if (transmitting == true) {
+                qDebug() << "receiveFiles(): Transmission already ongoing with Z88 - aborting...";
+            } else {
+                // receive files from Z88...
+
+                // wait a little to give Z88 time to find files...
+                QTime timeout = QTime::currentTime().addSecs(5);
+                while(QTime::currentTime() < timeout) {
+                    if (port.bytesAvailable() > 0)
+                        break;
+                }
+
+                if (port.bytesAvailable() > 0) {
+                    while(1) {
+                        if (receiveFilename(z88Filename) == false)
+                            // timeout or ESC Z received, exit waiting for files...
+                            return false;
+
+                        QString hostFilename = QString(hostPath).append((z88Filename.constData()+6));
+                        QFile hostFile(hostFilename);
+
+                        if (hostFile.exists() == true) {
+                            // automatically replace existing host file
+                            hostFile.remove();
+                        }
+
+                        if (transmitting == true) {
+                            // qDebug() << "receiveFiles(): Transmission already ongoing with Z88 - aborting...";
+                            return false;
+                        } else {
+                            if (hostFile.open(QIODevice::WriteOnly) == true) {
+                                qDebug() << "receiveFiles(): Receiving '" << z88Filename << "' to '" << hostFilename << "' file...";
+
+                                remoteFile.clear();
+                                // file opened for writing..
+                                bool recievingFile = true;
+                                while (recievingFile) {
+                                    if (getByte(byte) == true) {
+                                        switch(byte) {
+                                            case 27:
+                                                getByte(byte);
+                                                switch(byte) {
+                                                    case 'E':
+                                                        hostFile.write(remoteFile);     // write entire collected remote file contents to host file
+                                                        hostFile.close();
+                                                        recievingFile = false;
+                                                        break;
+
+                                                    case 27:
+                                                        remoteFile.append( (char) 27);
+                                                        break;
+
+                                                    case 'Z':
+                                                        return true;                    // end of receive files z88 - exit
+
+                                                    default:
+                                                        recievingFile = false;
+                                                        break;                          // illegal escape command - skip data...
+                                                }
+                                                break;
+
+                                            default:
+                                                remoteFile.append(byte);
+                                        }
+                                    } else {
+                                        // receiveing data stream has stopped...
+                                        return false;
+                                    }
+                                }
+                            } else {
+                                qDebug() << "receiveFiles(): Couldn't open File '" << hostFilename << "' for writing - aborting...";
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
     return false;
