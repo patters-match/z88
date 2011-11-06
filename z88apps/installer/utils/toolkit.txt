@@ -1,0 +1,324 @@
+Installer v2.02 - Developers' Toolkit
+=====================================
+
+(c) Garry Lancaster, 2000
+
+
+Introduction
+------------
+This file explains how to create .APP files that can be used with your 
+own applications to load into Installer v1.07 and higher. It also gives
+more technical details on the new features provided with Installer v2.02.
+
+Files included in the Installer Toolkit are:
+
+toolkit.txt     This file
+appmaker.bas    BASIC program to create .APP files
+showtrace.bas   BASIC program to show results of the call-tracing facility
+
+
+
+PART ONE: Creating installable applications
+===========================================
+
+Application files
+-----------------
+There are three types of files used by Installer: the application 
+information file (extension .APP), the uninstall information file 
+(extension .APU) and the binary images of the application's banks 
+(extensions from .AP0 to .AP7).
+
+Full details of the structure of the .APP and .APU files are given 
+later; for now we will concentrate on how to create the files 
+themselves.
+
+The bank image files are the easiest to create. Each file contains a 
+binary image of the appropriate bank. Bank 63 ($3F) is held in the file 
+with extension .AP0, bank 62 in .AP1 etc, up to file .AP7 which 
+contains bank 56 ($38).
+
+At their simplest, these files are 16K images of the bank contents. 
+However, if you do not use the entire bank, then any contigious area 
+can be used, as the offset from the bank start and the length of the 
+area are specified in the .APP file. This saves space, and is also 
+extremely helpful during development work; you can simply re-assemble 
+your application and rename the .BIN file to .AP0 (or whatever), and 
+you're ready to re-install it!
+
+
+APPmaker
+--------
+This BASIC program provides a quick and easy way to create .APP files 
+for your applications. You simply run this program, enter the name of 
+your application (without an extension) and fill in the details 
+required.
+
+After entering the number of banks in your application, and entering 
+zero for the number of patches, you are asked for the first DOR address 
+and bank. If you have included a ROM Front DOR in your top bank image, 
+it is not necessary to specify this.
+
+The next question is "Even bank flags?". Enter through this unless any 
+of your application's banks will be bound to segment 0, thus requiring 
+to be located in an even bank. If any are, calculate the byte value by 
+setting a bit for each file requiring an even bank. For example, if the 
+.AP1 and .AP2 files need even banks, set bits 1 and 2, giving a value 
+of 2+4=6.
+
+Next you are asked for the offest and length of each bank image. Simply 
+press ENTER through these if you are using full 16K images.
+
+
+Patches
+-------
+A facility is also included for Installer to patch application files; 
+this is provided so that applications written to run in specific bank 
+configurations (and not using the generic $3F-based notation) can be 
+modified for installation in RAM. Naturally, you will not need to use 
+this for your own applications!
+
+For each patch, you enter the bank and offset of the byte to be 
+patched. The value to be patched in can be either an absolute value 
+(0-255), a bank value (converted on installation from a $3F based value 
+to an absolute bank number), or both (ie a bank value plus an absolute 
+value).
+
+
+Structure of .APP files
+-----------------------
+All .APP files are at least 40 bytes long, with patched files 
+containing an extra 6 bytes per patch.
+
+        Bytes   Use
+        -----   ---
+        0-1     File identifier ($5AA5)
+        2       Number of banks (1-8)
+        3       Number of patches (1-255)
+        4-6     Pointer to first DOR (if 0,0,0 then ROM Front DOR used)
+        7       Flags for required even banks
+        8-9     Offset of .AP0 file
+        10-11   Length of .AP0 file
+        12-13   Offset of .AP1 file
+        14-15   Length of .AP1 file
+        16-17   Offset of .AP2 file
+        18-19   Length of .AP2 file
+        20-21   Offset of .AP3 file
+        22-23   Length of .AP3 file
+        24-25   Offset of .AP4 file
+        26-27   Length of .AP4 file
+        28-29   Offset of .AP5 file
+        30-31   Length of .AP5 file
+        32-33   Offset of .AP6 file
+        34-35   Length of .AP6 file
+        36-37   Offset of .AP7 file
+        38-39   Length of .AP7 file
+
+Then, optionally for each patch:
+
+        0       Bank
+        1-2     Offset
+        3       Flags: bit 0=use absolute value, bit 1=use bank value
+        4       Absolute value
+        5       Bank value
+
+
+Structure of .APU files
+-----------------------
+All .APU files are 40 bytes long.
+
+        Bytes   Use
+        -----   ---
+        0-1     File identifier ($4BB4)
+        2       Slot application is installed in (1-3)
+        3       Number of banks used (1-8)
+        4-11    Absolute bank numbers, relative to slot start
+        12-39   unused
+
+
+Known Issues
+------------
+I have only come across one problem using Installer so far. This occurs 
+when uninstalling the Assembler Workbench application (a 128K image); 
+after doing this, attempting to enter an application like Diary or 
+PipeDream causes the menu to appear, but then the Z88 freezes. A soft 
+reset then seems to clear the current RAM slot of all files.
+
+This problem does not occur with any other applications I have tried 
+(none of them being 128K, though), nor if you install and uninstall the 
+Workbench in the same session of Installer. This leads me to believe 
+that the problem is not with Installer itself, but with OZ.
+
+Any further information on this problem (particularly under what other 
+circumstances it occurs) would be gratefully received. In the meantime, 
+please test all applications for this issue, before releasing them to 
+the outside world!
+
+
+
+PART TWO: Installer v2.02 Advanced Features
+===========================================
+
+
+Introduction
+------------
+With v2.02, many new features have been introduced into Installer (and its
+companion, Bootstrap), most of a rather technical nature and of little
+interest to the casual user. Therefore, descriptions of most of the new
+commands have been moved to this file.
+
+To fully understand this documentation, you will need a knowledge of the
+Packages system; full details of this can be found on the Z88 Forever!
+website.
+
+
+Package Handling
+----------------
+Three new menu options have been added to assist in the handling of
+packages: "List packages", "Deregister packages" and "Register all
+packages".
+
+
+List packages
+-------------
+This option does exactly what it says, showing details of all the
+packages that have been installed, in the following format, with the
+built-in Packages package as an example:
+
+ID  Name & version [slot]:  bytes / handles / package resources
+$0F Packages v1.11 [2]:     512   /    1    /   0
+
+In this example, the ID of the package (as specified in the programmers'
+documentation) is listed together with the name and version, followed by
+the slot number that the package is installed in (slot 2, in this case).
+
+After this are the resources used by the package: 512 bytes and 1 OZ
+handle in this case. The third value shows the resources allocated by this
+package to other applications & packages; the documentation for each
+package gives a more precise definition for this, and it may be unused (as
+in the case of "Packages").
+
+If a package was present on a card which has been removed from the Z88,
+the list will display only the ID number of the package, together with a
+message indicating which slot it was removed from.
+
+
+Deregister packages
+-------------------
+This option will uninstall any packages that it can. It's essential to do
+this before uninstalling RAM applications from the same slot, and also
+useful to determine whether a particular package is in use by any
+application or not. The built-in "Packages" package can never be
+deregistered.
+
+
+Register all packages
+---------------------
+Finally, this option will search the Z88 for all available packages and
+register them if possible. You can "deregister packages" and then use this
+option to ensure that the most up-to-date version of each package present
+in the Z88 is installed.
+
+
+Special Features
+----------------
+The "Feature info" option shows which of the special features provided by
+Installer and Bootstrap are currently enabled. It also indicates how many
+interrupts have been registered by packages and processes (a maximum of 5
+can be installed at any time).
+
+You can turn off or re-enable both OZ call substitution & interrupt chain
+handling by using the appropriate commands. This is not recommended for
+normal use, but is provided to make debugging applications using these
+features slightly less fraught...
+
+
+Call Tracing
+------------
+This feature allows you to determine exactly which calls are being
+processed by the Z88, by logging them to a file (:ram.-/oztrace.dat) which
+can later be interrogated by the showtrace.bas BASIC program.
+
+Several things should be noted here:
+
+* Only calls made with the CALL_OZ macro will be logged;
+  specifically, CALL_FP & CALL_PKG calls will *not* be traced, and neither
+  will the special calls OZ_DI, OZ_EI and OZ_BUFF
+
+* The :ram.-/oztrace.dat file will grow at an alarming rate, so don't
+  leave tracing enabled for very long
+
+* Only top-level calls (made by the application itself, not sub-calls
+  which might be used in the process of performing the main call) are
+  logged
+
+* The exception to the above is in the error-handling system, so you will
+  notice a lot of GN_ESP calls
+
+
+You can trace either the entire Z88 (regardless of application), or a
+single application process. Popdowns can't be traced as a single process,
+as its necessary to pre-empt the process to turn tracing on; however, you
+can do a global trace which will include activity from all popdowns you
+use.
+
+To trace all OZ call activity, enter Installer and use the <>TRALL
+command. Turn off tracing again later with the <>TROFF command.
+
+To trace a single application process, enter the application you want to
+trace, then enter Installer directly with the shortcut key (ie []ZI) and
+use the <>TRONE option. The name of the process being traced (the name
+from the "Your Ref" column in the Index) will be displayed. Turn off
+tracing again later with the <>TROFF command.
+
+
+The ShowTrace Program
+---------------------
+After tracing, you can display the results using the supplied
+showtrace.bas program. This is very simple to use, and displays each OZ
+call that was performed together with the address of the call within your
+application, and the entry parameters (all the main registers).
+
+The program is designed to output the details to a text file (captured
+with []+S) so it doesn't pause during display; you can do this by pressing
+any key to stop the display, and then press SPACE to continue again.
+
+
+History
+=======
+v2.02   Second public release, with Packages v1.11.
+        When installing rst8 code, also ensures handler code uptodate.
+v2.01   Uninstall can't produce huge ROM sizes anymore.
+        Purge now zeroises front DOR.
+        Uninstall/purge now don't occur if packages active in slot.
+v2.00   Version change
+v1.15   Added SlowMo facility.
+        Register all packages command added.
+v1.14   More minor alterations
+v1.13   Minor alterations
+v1.12   More bugfixes
+v1.11   Bugfixes
+v1.10   Added feature list to the menu.
+        Now displaying process reference for traced process.
+v1.09   Initial support for tracing, call substitution & interrupt chains.
+v1.08   Added package-handling facilities, with List & deregister options.
+        Automatically installs package-handling if required.
+        No longer exits on every error message.
+v1.07   First public release. Added reserved bank facility, and 
+        option to force selection of even banks.
+v1.06   Added check for active applications before uninstalling.
+v1.05   Menu front-end implemented. Protection after resets 
+        delegated to Bootstrap (v1.01)
+v1.04   Can now install applications up to 128K (from 32K).
+v1.03   Uninstall all & extra validation routines added.
+v1.02   Bugfix: protection after reset wasn't working.
+v1.01   Bugfixes. Patches & small images now catered for.
+v1.00   First version.
+
+
+
+Comments
+========
+If you need further information or have any other comments or 
+suggestions, please contact me via the Z88 Forever! website.
+
+Garry Lancaster, 13th March 2000
