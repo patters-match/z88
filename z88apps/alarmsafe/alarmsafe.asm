@@ -324,12 +324,12 @@ include "saverst.def"
 
 .msg_saved
         defm    13,10,13,10,"  ",1,"3+FR"
-        defm    "Alarm information saved - press a key to exit"
+        defm    "Alarms saved - press a key to exit"
         defm    1,"4-FRC",7,7,0
 
 .msg_loaded
         defm    13,10,13,10,"  ",1,"3+FR"
-        defm    "Alarm information loaded - press a key to exit"
+        defm    "Alarms loaded - press a key to exit"
         defm    1,"4-FRC",7,7,0
 
 .msg_filename
