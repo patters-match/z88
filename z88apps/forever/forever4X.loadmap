@@ -1,0 +1,66 @@
+; *******************************************************************************************************************
+; Z88 Forever compilation ROM loadmap for MakeApp.
+;
+; Z88 Forever is free software; you can redistribute it and/or modify it under the terms of the
+; GNU General Public License as published by the Free Software Foundation;
+; either version 2, or (at your option) any later version.
+; Z88 Forever is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+; See the GNU General Public License for more details.
+; You should have received a copy of the GNU General Public License along with Z88 Forever;
+; see the file COPYING. If not, write to the
+; Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+;
+; $Id$
+; *******************************************************************************************************************
+
+; This loadmap generates a special version for OZ v4.1+, omitting the
+; AlarmSafe, Bootstrap and Installer applications.
+
+; generate a 32K Eprom image
+outputfile forever4X.epr
+save16k
+size 32
+
+; Bank 63
+../pdrom/zhelp+zmacro.mth 3fc000        ; MTH structures for Z-Help & Z-Macro
+../zdis/zdis.bin 3fda92                 ; Z80Dis
+../zmonitor/zmonitor.bin 3fef00         ; ZMonitor
+../lockup/lockup.bin 3ffa00             ; Lockup
+romheader.bin 3f3fc0                    ; Card header
+
+; Bank 62
+../pdrom/zhelp+zmacro.bin 3ec000        ; Z-Help & Z-Macro
+../fview/fview.bin 3ec460               ; FileView
+../epfetch/epfetch2.bin 3ec600          ; EP-Fetch2
+../freeram/freeram.bin 3ed500           ; FreeRAM
+
+; The linked DOR list for this 32K application card is
+;   Z-Help
+;   Z-Macro
+;   Z80Dis
+;   ZMonitor
+;   Lockup
+;   FileView
+;   EP-Fetch2
+;   FreeRAM
+patch 3f3fc6 00 00 3f                   ; patch Rom header to point at Z-Help Dor ($0000, first DOR)
+; Z-Help links to Z-Macro, which links to a DOR immediately following its own DOR (which is Z80Dis)
+patch 3fda95 00 ef 3f                   ; patch Z80Dis DOR ($3F,$DA92) to point at ZMonitor $3F,$EF00)
+patch 3fef03 00 fa 3f                   ; patch ZMonitor DOR ($3F,$EF00) to point at Lockup ($3F,$FA00)
+patch 3ffa03 60 c4 3e                   ; patch Lockup DOR ($3F,$FA00) to point at FileView ($3E,$C460)
+patch 3ec47c 3e                         ; patch FileView to use bank $3e
+patch 3ec483 3e                         ; patch FileView to use bank $3e
+patch 3ec486 3e                         ; patch FileView to use bank $3e
+patch 3ec489 3e                         ; patch FileView to use bank $3e
+patch 3ec463 00 c6 3e                   ; patch FileView DOR ($3E,$C460) to point at EP-Fetch2 ($3E,$C600)
+patch 3ec61c 3e                         ; patch EP-Fetch2 to use bank $3e
+patch 3ec623 3e                         ; patch EP-Fetch2 to use bank $3e
+patch 3ec626 3e                         ; patch EP-Fetch2 to use bank $3e
+patch 3ec629 3e                         ; patch EP-Fetch2 to use bank $3e
+patch 3ec603 00 d5 3e                   ; patch EP-Fetch2 DOR ($3E,$C600) to point at FreeRAM ($3E,$D500)
+patch 3ed51c 3e                         ; patch FreeRAM to use bank $3e
+patch 3ed523 3e                         ; patch FreeRAM to use bank $3e
+patch 3ed526 3e                         ; patch FreeRAM to use bank $3e
+patch 3ed529 3e                         ; patch FreeRAM to use bank $3e
+
