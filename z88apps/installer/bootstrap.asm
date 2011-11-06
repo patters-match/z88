@@ -48,6 +48,7 @@ endif
 
         xref    slottype,slotprot,protsafe,in_tokens
         xref    instpcode,regsubs
+        xref    getozver
 
         xdef    bootstrap_dor
 
@@ -126,6 +127,11 @@ include "packages.def"
 ; First we re-protect any installed RAM applications
 
 .bootstart
+        call    getozver                        ; check for compatible OZ version
+        jr      nz,ozcompatible
+        xor     a                               ; exit silently if not
+        call_oz(os_bye)
+.ozcompatible
         ld      iy,workparams
         ld      (iy+3),3                        ; start with slot 3
 .psltlp

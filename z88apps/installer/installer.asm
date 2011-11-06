@@ -57,6 +57,7 @@
 
         xref    slottype,getdor,bindbank,protbank,matadd
         xref    checkbank,setbank,loopparms,protsafe,regsubs
+        xref    getozver
 
         defc    padlength=199
         defc    headerlength=40
@@ -499,6 +500,11 @@ ELSE
         scf
         ret
 .inststart
+        call    getozver                        ; check for compatible OZ version
+        jr      nz,ozcompatible
+        ld      a,rc_na                         ; else exit with "Not Applicable" error
+        call_oz(os_bye)
+.ozcompatible
         call    instpcode                       ; install package handler
         ld      b,@00000000
         ld      c,@00000000

@@ -28,11 +28,14 @@
 
         xdef    slottype,slotprot,getdor,bindbank,protbank,matadd
         xdef    checkbank,setbank,loopparms,protsafe,regsubs
+        xdef    getozver
 
         xref    workparams
 
 include "syspar.def"
 include "packages.def"
+include "fileio.def"
+
 
 ; Set up loop parameters for every bank in card
 ;       IN:     -
@@ -377,4 +380,37 @@ include "packages.def"
         ld      bc,pkg_nq
         call_pkg(pkg_ozcr)
         ret
+
+
+; Obtain OZ version and check compatibility
+;       IN:     -
+;       OUT:    Fz=1, incompatible version 4.1 to 4.3
+;               Fz=0, compatible version
+;               Fc=1, OZ <= v4.0
+;               Fc=0, OZ >= v4.4
+;               A=version
+; Registers changed:
+;       ......HL/..IY same
+;       AFBCDE../IX.. different
+
+.getozver
+        ld      ix,-1                           ; get system values
+        ld      a,fa_ptr                        ; want handles & version
+        ld      de,0                            ; results in DE & BC
+        call_oz(os_frm)
+        jr      nc,testozver
+.badozver
+        xor     a                               ; Fz=1, incompatible version if error
+        ret
+.testozver
+        ld      a,c                             ; A=version number
+        cp      $41
+        ret     c                               ; exit with Fz=0, Fc=1 if OZ <= v4.0
+        jr      badozver                        ; OZ v4.1+ all incompatible at the moment
+;        cp      $44
+;        ccf
+;        ret     nc                              ; exit with Fz=0, Fc=0 if OZ v4.1-v4.3
+;        cp      $43
+;        ccf
+;        ret                                     ; exit with Fz=0, Fc=1 for OZ >= v4.4
 
