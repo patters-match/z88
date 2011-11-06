@@ -1983,8 +1983,12 @@ include "pkg_int.def"
 
 ; pkg_nq
 ; Call substitution for OS_NQ
-; This is currently used only when BC=NQ_AIN and IX=2, and allows
-; for multiple Diary instances
+; This is currently used only when BC=NQ_AIN, and allows
+; for multiple Diary instances. It also prevents an annoying problem where
+; autobooting apps (ie Bootstrap) are invoked whenever the Index rebuilds its
+; application list (eg after a card insertion/removal). No autobooting is
+; allowed with this substitution in place; the upshot is that autobooting only
+; occurs after a reset, before the substitution has been installed.
 ; IN:   BC=reason code - only NQ_AIN handled, and other parameters refer to this
 ;       IX=application handle
 ; OUT(success):
@@ -2006,13 +2010,7 @@ include "pkg_int.def"
         jr      nz,std_nq
         ld      a,c
         cp      nq_ain&$ff
-        jr      nz,std_nq
-        ld      a,ixh                           ; check for IX=2
-        and     a
-        jr      nz,std_nq
-        ld      a,ixl
-        cp      2
-        jr      nz,std_nq
+        jr      nz,std_nq                       ; don't substitute other reasons
         push    bc
         ld      de,os_nq
         ld      bc,pkg_nq
@@ -2029,7 +2027,19 @@ include "pkg_int.def"
         pop     bc
         pop     af
         ret     c                               ; don't do anything if there was an error
-        res     4,a                             ; clear AT_ONES bit
+        push    af
+        ld      a,ixh                           ; check for IX=2 (Diary)
+        and     a
+        jr      nz,notdiary
+        ld      a,ixl
+        cp      2
+        jr      nz,notdiary
+        pop     af
+        res     4,a                             ; clear AT_ONES bit for Diary
+        push    af
+.notdiary
+        pop     af
+        and     $7f                             ; clear AT_BOOT bit for all apps
         ret
 .std_nq
         ld      a,rc_pnf

@@ -28,6 +28,11 @@
 ;   Added "P" key for bypassing package-code installation (for Dom!)
 ; v1.06 29/4/01 GWL
 ;   Added initialisation of call substitutions provided by Packages
+; v1.07 11/5/11 GWL
+;   Removed use of booted.yes file, since substitution of OS_NQ,AIn now
+;   prevents us being booted except at a reset (assuming OZPlus hasn't
+;   been turned off).
+
 
         module  bootstrap
 
@@ -102,7 +107,7 @@ include "packages.def"
 .in_help
         defb    $7f
         defm    "An autoboot",$86,$82,$7f
-        defm    "v1.06",$85,$7f
+        defm    "v1.07",$85,$7f
         defm    $84,$7f,$7f
         defm    "After reset, executes BOOTSTRAP.CLI file located",$7f
         defm    $87,"any RAM, EPROM, ROM/EPROM or FLASH device",$7f
@@ -115,22 +120,9 @@ include "packages.def"
         scf
         ret
 
-; First we check if this really is a reset
+; First we re-protect any installed RAM applications
 
 .bootstart
-        ld      b,0
-        ld      hl,msg_isbooted
-        ld      c,unsafe
-        ld      de,scratch
-        ld      a,op_out
-        call_oz(gn_opf)                         ; try to create a :ram.0/booted.yes file
-        jr      nc,reprotect                    ; if successful, leave open, so can't
-        xor     a                               ; recreate until after a reset
-        call_oz(os_bye)                         ; else exit
-
-; Next we re-protect any installed RAM applications
-
-.reprotect      
         ld      iy,workparams
         ld      (iy+3),3                        ; start with slot 3
 .psltlp
@@ -383,8 +375,6 @@ include "packages.def"
 
 ; CLI instructions and filenames
 
-.msg_isbooted
-        defm    ":ram.0/booted.yes",0
 .msg_doboot
         defm    ".*"
 .msg_bootfile

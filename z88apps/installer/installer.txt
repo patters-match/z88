@@ -1,7 +1,7 @@
-Installer v2.03
+Installer v2.04
 ===============
 
-(c) Garry Lancaster, 2001
+(c) Garry Lancaster, 2011
 
 
 Introduction
@@ -26,6 +26,9 @@ tricky games!
 With v2.03, there is a "fix" for the Z88 operating system which allows you
 to run multiple instances of the Diary application (one for work, one for
 home?) rather than being restricted to just one.
+
+With v2.04, there is a fix for Bootstrap occasionally being invoked when
+exiting an application/popdown back to the Index.
 
 
 Adding the card for the first time
@@ -259,4 +262,4 @@ If you encounter any problems using Installer, or have any other
 comments or suggestions to make, please contact me via the Z88 Forever!
 website.
 
-Garry Lancaster, 14th May 2001
+Garry Lancaster, 11th May 2011

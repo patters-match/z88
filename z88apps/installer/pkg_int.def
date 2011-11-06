@@ -18,7 +18,7 @@
 
 ; Internal definitions for package handling
 
-        defc    pversion=$0112                  ; Packages package version number
+        defc    pversion=$0114                  ; Packages package version number
         defc    dataver=$01                     ; Version of data area layout
         defc    pkg_pkgid=$0f                   ; our package ID
 

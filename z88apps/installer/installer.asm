@@ -47,6 +47,9 @@
 ;   Added Kill Package option for single package deregistration
 ;   Added fix to allow multiple diaries
 ;   Added code to regenerate keytables after application addition/removal
+; Changes for v2.04 (11/5/11)
+;   Fixed Bootstrap being invoked after card insertion/removal when Index
+;   rebuilds the application list
 
         module  installer
 
@@ -447,7 +450,7 @@ ELSE
 .in_help
         defm    "A",$86," for i",$81,"ing",$83,$87,"RAM,",$7f
         defm    "handling packages and enhancing OZ",$7f
-        defm    "v2.03",$85,$7f
+        defm    "v2.04",$85,$7f
         defm    $7f
         defm    "Designed & Programmed ",$82,$7f
         defm    "Additional Design: Dominic Morris & Thierry Peycru",$7f
@@ -2459,7 +2462,7 @@ ELSE
         defm    1,"7#1",32+18,32,32+50,32+8,131
         defm    1,"2I1"
         defm    1,"4+TUR",1,"2JC",1,"3@",32,32
-        defm    "Installer v2.03"
+        defm    "Installer v2.04"
         defm    1,"3@",32,32,1,"2A",32+50
         defm    1,"7#1",32+18,32+1,32+50,32+7,129
         defm    1,"2C1",1,"S",0
