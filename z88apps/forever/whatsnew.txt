@@ -1,0 +1,57 @@
+What's New - Z88 Forever! Compilation v2.00
+===========================================
+
+The following changes have been made since the previous release (v1.25):
+
+All the latest versions of the applications are now provided, compiled
+from source on the cambridge/z88 bitbucket repository. This includes
+updated versions of EP-Fetch, Installer, Bootstrap and Packages.
+
+
+Earlier Changes
+---------------
+v1.25 (from v1.20):
+
+* Installer v2.03
+        + Now automatically regenerates the application key list after
+          every command (no need to do change a card or do a reset)
+        + Extra "Kill Package" command to allow individual packages to be
+          deregistered
+        + Includes Packages v1.13
+
+* Packages v1.13
+        + Incorporates "fix" to allow multiple instances of the Diary
+          application to be run
+
+Garry Lancaster, 14th May 2001
+
+
+Earlier Changes
+---------------
+v1.20 (from v1.13):
+
+* Unzip and XYModem are no longer provided; these are now both on the "ZIP
+  Utilities" ROM, together with ZipUp
+
+* EP-Fetch:
+        + Support for partitioned Flash EPROMs added
+
+* Installer v2.02:
+        + No longer exits after each error
+        + Makes RAM slots "safe" from corruption after soft resets
+        + Fixed purge/uninstall bug that could give apparently huge ROMs
+        + Installs new features code into operating system
+        + Package-handling facilities added
+        + Includes "Packages v1.11" package
+        + SlowMo facility added
+        + Interrupt chain control added
+        + OZ call substitution control added
+        + Tracing facility added (global or single process)
+
+* Bootstrap v1.05:
+        + Installs new features code into operating system
+        + Support for partitioned Flash EPROMs added
+        + "P" key for bypassing features installation
+
+
+Garry Lancaster, 13th March 2000

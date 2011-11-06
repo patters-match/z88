@@ -36,25 +36,29 @@ cd ..\zdis
 cd ..\zmonitor
 ..\..\tools\mpm\mpm -b -I..\..\oz\def -rEF00 zmonitor.asm
 
-:: Assemble FileView
-cd ..\fview
-..\..\tools\mpm\mpm -b -I..\..\oz\def -rFA00 fview.asm
+:: Assemble Lockup
+cd ..\lockup
+..\..\tools\mpm\mpm -b -I..\..\oz\def -rFA00 lockup.asm
 
 :: Assemble AlarmSafe
 cd ..\alarmsafe
-..\..\tools\mpm\mpm -b -I..\..\oz\def -rFC00 alarmsafe.asm
+..\..\tools\mpm\mpm -b -I..\..\oz\def -rFCB8 alarmsafe.asm
 
-:: Assemble Lockup
-cd ..\lockup
-..\..\tools\mpm\mpm -b -I..\..\oz\def -rC480 lockup.asm
+:: Assemble FileView
+cd ..\fview
+..\..\tools\mpm\mpm -b -I..\..\oz\def -rC460 fview.asm
 
 :: Assemble EP-Fetch2
 cd ..\epfetch
-..\..\tools\mpm\mpm -b -I..\..\oz\def -rC780 epfetch2.asm
+..\..\tools\mpm\mpm -b -I..\..\oz\def -rC600 epfetch2.asm
 
 :: Assemble FreeRAM
 cd ..\freeram
-..\..\tools\mpm\mpm -b -I..\..\oz\def -rD680 -l..\..\stdlib\standard.lib freeram.asm
+..\..\tools\mpm\mpm -b -I..\..\oz\def -rD500 -l..\..\stdlib\standard.lib freeram.asm
+
+:: Assemble Installer, Bootstrap & Packages
+cd ..\installer
+..\..\tools\mpm\mpm -b -I..\..\oz\def -oibp3e.bin -DBANK3E -rDC00 @ibp.prj
 
 :: Assemble the card header
 cd ..\forever
