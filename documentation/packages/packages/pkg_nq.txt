@@ -1,0 +1,14 @@
+PKG_NQ, Call substitution for OS_NQ
+
+rst $08, defw $2e0f
+
+
+IN:     as for OS_NQ
+OUT:    as for OS_NQ
+
+Registers changed after return:
+        as for OS_NQ
+
+Notes:
+        For internal use only
+        Present from Packages v1.12

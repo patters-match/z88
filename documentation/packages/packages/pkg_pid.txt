@@ -1,0 +1,14 @@
+PKG_PID, Return currently running process ID
+
+rst $08, defw $1c0f
+
+
+IN:     -
+OUT:    Fc=0, success always
+        A=process ID currently running
+
+Registers changed after return:
+  ..BCDEHL/IXIY same
+  AF....../.... different
+
+Notes:

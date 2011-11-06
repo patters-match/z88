@@ -1,0 +1,16 @@
+PKG_REG, Register a package
+
+rst $08, defw $0a0f
+
+
+IN:     A=package ID
+OUT:    Fc=0, package successfully installed
+        Fc=1, unable to install package
+
+Registers changed after return:
+  A.BCDEHL/IXIY same
+  .F....../.... different
+
+
+Notes:
+        For use by Installer only

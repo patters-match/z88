@@ -1,0 +1,14 @@
+PKG_SLOW, SlowMo interrupt routine
+
+rst $08, defw $220f
+
+
+IN:     -
+OUT:    Fc=0
+
+Registers changed after return:
+  ..BCDEHL/..IY same
+  AF....../IX.. different
+
+Notes:
+        For use by Installer only

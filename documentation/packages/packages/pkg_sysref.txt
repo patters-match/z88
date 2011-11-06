@@ -1,0 +1,66 @@
+System Calls Reference - "Packages" package
+===========================================
+
+All calls listed below are available in the current release of the
+"Packages" package:
+
+
+Standard calls
+--------------
+
+        pkg_ayt,        check if package-handling code is installed
+        pkg_ayt_x,      are you there? (Packages)
+        pkg_inf,        static information on Packages
+        pkg_dat,        dynamic information on Packages
+
+
+Bank allocation
+---------------
+
+        pkg_bal,        allocate bank
+        pkg_bfr,        free bank
+
+
+Interrupt handling
+------------------
+
+        pkg_intr,       register an interrupt handler
+        pkg_intd,       deregister an interrupt handler
+
+
+OZ Call substitution
+--------------------
+
+        pkg_ozcr,       register an OZ call substitution
+        pkg_ozcd,       deregister an OZ call substitution
+
+
+Miscellaneous
+-------------
+
+        pkg_pid,        return currently running process ID
+
+
+Standard calls (internal use only)
+----------------------------------
+
+        pkg_bye,        uninstall
+        pkg_exp,        expansion call
+
+
+Internal calls
+--------------
+
+        pkg_reg,        register package
+        pkg_drg,        deregister package
+        pkg_nxt,        get next installed package ID
+        pkg_get,        installed package information
+        pkg_feat,       set special features
+        pkg_rst20_oz,   rst 20 handler (CALL_OZ substitution)
+        pkg_rst20_tr,   rst 20 handler (call tracing)
+        pkg_rst20_oztr, rst 20 handler (CALL_OZ subs & tracing)
+        pkg_intm1,      rst 38 handler
+        pkg_slow,       SlowMo feature
+        pkg_boot,       autoboot facility
+        pkg_nq,         call substitution for OS_NQ
+

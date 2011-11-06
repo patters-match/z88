@@ -1,0 +1,17 @@
+PKG_DAT, Return dynamic information on the "Packages" package
+
+rst $08, defw $060f
+
+
+IN:     -
+OUT:    Fc=0, success
+        CDE=bytes in use
+        B=OZ handles in use
+        A=resources in use by applications
+
+Registers changed after return:
+  ......HL/IXIY same
+  AFBCDE../.... different
+
+
+Notes:

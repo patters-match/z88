@@ -1,0 +1,14 @@
+PKG_BOOT, Internal autobooting facility
+
+rst $08, defw $280f
+
+
+IN:     -
+OUT:    -
+
+Registers changed after return:
+  ..BCDEHL/IXIY same
+  AF....../.... different
+
+Notes:
+        For internal use only

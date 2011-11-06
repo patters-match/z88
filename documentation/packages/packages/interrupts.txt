@@ -1,0 +1,135 @@
+Interrupts
+==========
+
+
+Interrupt handlers can be installed by any application or package using
+the PKG_INTR and PKG_INTD calls provided by "Packages".
+
+Under the first release of the package system, only five handler slots are
+available for use, and this is unlikely to increase in the future.
+Therefore, it is important to only use this facility if you really need
+it, to avoid overloading the system. You should also note that excessive
+time spent in interrupt routines will not only slow the whole system down,
+but could result in missed interrupts. This could result in corrupted or
+missed bytes being received by the serial port, or missed TICK interrupts.
+
+There are two distinct types of interrupt handlers that can be registered:
+package and process.
+
+
+Package Interrupts
+------------------
+As the name suggests, package interrupts are registered by packages, with
+each package permitted a single handler. These interrupt handlers are
+active at all times, no matter what application is currently in control of
+the Z88. Uses for these type of interrupts are limited; at present, the
+"SlowMo" facility of Installer uses them, and it is not expected that many
+more packages will require them.
+
+
+Process Interrupts
+------------------
+Process interrupts are tied to the single instance of the application that
+registered them, and are most likely to be of use in games or similar
+real-time applications. They are only active when the process that spawned
+them is in control of the Z88; additionally, they will not occur when an
+OZ or package call is in progress. Therefore, when using a process
+interrupt, it is not wise to spend your time in a loop with the OS_IN
+call!
+
+
+Registering an interrupt
+------------------------
+To register an interrupt, use the PKG_INTR call with A=INT_PKG or
+A=INT_PRC, depending upon which type of interrupt you are registering.
+HL must be loaded with the address of the interrupt routine (for process
+interrupts) or with a package call ID (for package interrupts).
+
+The C register is used to determine what type of interrupts will activate
+your handler, by adding together the following constants:
+        int_tick: to activate on TICKs (every 1/100s)
+        int_sec : to activate on SECs (every second)
+        int_min : to activate on MINs (every minute)
+        int_uart: to activate on UART (special usage; no information available)
+        int_none: never activate [use on its own]
+In conjunction with this, the B register specifies how many acceptable
+interrupts should occur before the handler is called.
+
+For example, to register a process interrupt that is to be called every
+tenth of a second (10 TICKs), use the following code:
+
+        ld      a,int_prc       ; process interrupt type
+        ld      hl,myhandler    ; address of handler
+        ld      c,int_tick      ; activate on TICKs only
+        ld      b,10            ; every 10 TICKs
+        call_pkg(pkg_intr)
+
+If at any stage you wish to change the frequency of the interrupt handler,
+or the routine/package call that is used, it is quite acceptable to use
+the above procedure again. This will simply update the interrupt handler
+entry for your process or package.
+
+In particular, after registering an interrupt handler when your
+application/package starts, you might not require it to be active all the
+time, but on the other hand deregistering it might risk not being able to
+re-register it later (because of a lack of handler slots). In this case,
+you could run the PKG_INTR call again with C=int_none and B=1;
+effectively, this would leave your routine registered but prevent it from
+ever being run. At a later time, you could re-run PKG_INTR with
+appropriate values of C and B.
+
+
+Interrupt handler routines
+--------------------------
+All interrupt handlers, whether process or package, must preserve the
+following registers: BC, DE, HL & IY.
+They may corrupt AF and any of the alternate registers (including AF'), so
+it is suggested that the alternate set is used where possible, for speed.
+Finally, before exiting they MUST set Fc=0.
+
+An example of a simple process interrupt routine that just increments a
+value might be:
+
+.myhandler
+        exx                     ; use alternate set
+        ld      hl,(mycounter)
+        inc     hl
+        ld      (mycounter),hl
+        exx                     ; back to normal set
+        and     a               ; Fc=0 [required]
+        ret                     ; exit handler
+
+
+Deregistering an interrupt
+--------------------------
+To deregister a handler, you use the PKG_INTD call, with A specifying the
+type of interrupt (INT_PKG or INT_PRC) as before. Additionally, if you are
+deregistering a package interrupt, you must supply the call ID that was
+previously registered.
+
+Some example code to deregister a package interrupt would be:
+
+        ld      a,int_pkg
+        ld      hl,exm_int      ; the call that was registered with PKG_INTR
+        call_pkg(pkg_intd)
+
+It is very important to deregister interrupts when you have finished with
+them; this is especially so with process interrupts, since the Z88 has a
+limited number of process IDs which it starts to recycle after a while; if
+you leave a process interrupt registered, and the Z88 eventually starts a
+new process with the same ID, the only result will be a horrific crash!
+
+Therefore, if there is any possibility of a process interrupt being
+registered by your application, you should ALWAYS attempt to deregister it
+before executing OS_BYE; this procedure is perfectly safe, since no action
+will be taken if your process didn't actually have an interrupt handler
+currently active.
+
+
+Example Code
+------------
+Fully worked examples of both process and package interrupts can be seen
+in the source code of the Tester application and the accompanying Example
+package. The Tester application also demonstrates the difference in
+effectiveness of process interrupts when more time is being spent running
+OZ calls than processing, and vice versa.

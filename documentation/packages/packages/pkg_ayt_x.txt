@@ -1,0 +1,17 @@
+PKG_AYT_X, Check that the "Packages" package is installed
+
+rst $08, defw $020f
+
+
+IN:     -
+OUT:    Fc=0, "Packages" is installed
+        Fc=1, "Packages" is not available
+
+Registers changed after return:
+  A.BCDEHL/IXIY same
+  .F....../.... different
+
+
+Notes:
+        This call is not useful as it cannot ever cause the "Packages"
+        package to be reinstalled

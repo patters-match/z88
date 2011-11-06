@@ -1,0 +1,30 @@
+PKG_FEAT, Set special features
+
+rst $08, defw $120f
+
+
+IN:     B=mask for features to change
+        C=feature settings
+        E=process number to trace, if setting single process trace
+OUT:
+        Fc=0, success
+        C=current feature settings
+        E=process number, if single process being traced
+        B=# installed package interrupts
+        D=# installed process interrupts
+
+Registers changed after return:
+  ......HL/IXIY same
+  AFBCDE../.... different
+
+Bit settings (for B & C) are:
+        0: Interrupt chain processing
+        1: CALL_OZ substitution
+        2: Call tracing
+        3: Single process tracing (1); global tracing (0)
+        (Bit 3 can only be set at the same time as bit 2)
+
+Notes:
+        For use by Installer only
+        Call tracing is not active on FP_CALL, CALL_PKG or
+        OZ_DI/OZ_EI/OZ_BUFF calls; only standard CALL_OZ calls

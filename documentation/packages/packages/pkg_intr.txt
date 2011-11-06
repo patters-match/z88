@@ -1,0 +1,34 @@
+PKG_INTR, Register interrupt handler
+
+rst $08, defw $180f
+
+
+IN:     A=reason code;
+                int_prc, register single process interrupt routine
+                int_pkg, register global package interrupt call
+        C=type of interrupts to accept (set bits required);
+                0: TICK (1/100s)
+                1: SEC (1s)
+                2: MIN (1m)
+                3: UART
+        B=# of acceptable interrupts required before running handler
+        (eg set C=1, B=5 to run every 5 TICKs)
+        HL=routine address (A=int_prc) or package call ID (A=int_pkg)
+OUT(success):
+        Fc=0
+OUT(failure):
+        Fc=1
+        A=rc_room, no room to install handler
+        A=rc_unk, unknown reason code
+
+Registers changed after return:
+  ......../IXIY same
+  AFBCDEHL/.... different
+
+Notes:
+        If a handler for the same process or package is already installed,
+        it will be replaced by the new handler specified.
+        Single process interrupts are only serviced when the process is
+        active *and* when no OZ or package call is in progress.
+        UART interrupts are included for completeness only; no information
+        is available on how to use them.

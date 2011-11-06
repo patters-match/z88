@@ -1,0 +1,26 @@
+Documentation for package-handling system
+=========================================
+
+This archive contains full documentation for using and writing packages
+provided by Installer v2.00 and above.
+
+In this directory, you will find the following files:
+
+README                  This file
+package_using.txt       How to use packages
+package_writing.txt     How to write packages
+packages.def            The DEF file for package-handling and Packages
+
+In the packages/ subdirectory is full documentation of the
+standard "Packages" package which is provided with Installer v2.00+:
+
+README                  Overview of Packages
+bankalloc.txt           Bank allocation
+interrupts.txt          Interrupts
+ozsubs.txt              OZ call substitution
+misc.txt                Miscellaneous calls
+pkg_sysref.txt          Systems call reference for Packages
+pkg_*                   Individual call descriptions
+
+
+13/3/00, Garry Lancaster

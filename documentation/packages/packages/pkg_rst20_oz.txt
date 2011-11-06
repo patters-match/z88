@@ -1,0 +1,15 @@
+PKG_RST20_OZ, Internal CALL_OZ substitution facility
+
+rst $08, defw $140f
+
+
+IN:     -
+OUT:    -
+
+Registers changed after return:
+  ........afbcdehl/IXIY same
+  AFBCDEHL......../.... different
+
+Notes:
+        Called directly; not a true package call
+        For internal use only

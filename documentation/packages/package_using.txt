@@ -1,0 +1,300 @@
+Using Z88 Packages
+==================
+
+Packages are a new extension to the Z88 operating system, introduced
+with Installer v2.02 (in conjunction with Bootstrap v1.05). They provide
+a mechanism for programmers to write sets of routines that can be
+accessed in a number of different applications, in a very similar way
+to the standard OZ calls.
+
+With the release of Installer v2.02, the only available package is
+"Packages", which is used by Installer and Bootstrap to manage the
+installation of other packages. It also provides some calls which will
+be useful to applications.
+
+Two further packages are currently under development: ZSock (by Dominic
+Morris), providing services for internet-enabled applications; and XFS (by
+Garry Lancaster), providing an extendable filesystem for the Z88.
+
+
+
+Using Package Calls In Applications
+===================================
+
+Starting with release 1.0.13, Interlogic's "z80asm" assembler supports a
+new macro named CALL_PKG which is used in a similar way to the CALL_OZ
+and CALL_FP macros. The macro expands in the following way:
+
+        call_pkg(callid)        -->     rst $08
+                                        defw callid
+
+An alternate method of making a package call is to load the call ID into
+IY and perform a rst $10. For clarity, however, the CALL_PKG macro is
+preferable:
+
+        ld iy,callid
+        rst $10
+
+To use package calls in a module, copy the "packages.def" file together
+with the .def files supplied for any packages you wish to use into the
+directory containing the standard OZ def files, and include them in your
+module:
+
+        include "#packages.def"
+        include "#example-package.def"
+
+As with the standard OZ calls, package calls corrupt all the alternate
+registers. Applications that move their stacks above $2000 should also
+ensure that they move them back below $2000 before making a call.
+
+
+Step 1: Test that package-handling facilities are available
+-----------------------------------------------------------
+
+Before using any facilities provided by a package, your application
+must first check that the package-handling code provided by Installer
+is present. This is done using the special package call, pkg_ayt (package
+are-you-there?):
+
+        call_pkg(pkg_ayt)
+
+If this call returns with Fc=1, then the package-handling code is *not*
+installed, and the application should terminate with a suitable message,
+requesting the user to upgrade to Installer v2.00 or above. Under no
+circumstances should any further CALL_PKG instructions be attempted, as
+these could cause a crash (or at best, unexpected results) on a Z88
+without the necessary code. Only the CALL_PKG(PKG_AYT) call is safe to
+use on all Z88s.
+
+If the call returns with Fc=0, package-handling code is present, and the
+application can safely assume that this will remain so, as it can only be
+removed at a reset. Note however, that a successful return from this call
+does not mean that any package calls will necessarily succeed (even those
+in the standard "Packages" package), only that it is safe to attempt
+to use them.
+
+
+Step 2: Test that packages that you require are available
+---------------------------------------------------------
+
+This step is in fact optional (as will be seen later), but it is a good
+idea to perform it, especially if your application won't be able to run
+fully without the correct packages.
+
+Every package has an "are-you-there?" call, which performs two functions.
+Firstly, if the package is already installed, the call simply returns
+with Fc=0 to indicate that it is available. If not, the package-handling
+code will search the Z88 and try to install the package if it finds it,
+returning Fc=0 if successful. If the package wasn't found, or it couldn't
+be installed because of insufficient resources, the call will return
+with Fc=1.
+
+Therefore, if your application relies on a particular package being
+available, it is a good idea to test for it on startup, and halt with an
+error requesting that the user installs the package (perhaps indicating
+which application it normally comes with).
+
+
+Step 3: Make the package call
+-----------------------------
+
+Making a package call is only slightly more complicated than making a
+standard OZ call. First, set up the correct entry parameters as specified
+in the documentation for the package, and issue the call. For example, to
+use a call named exm_call, do:
+
+        call_pkg(exm_call)
+
+Following every call, you *must* check for a "package not found" error
+(rc_pnf) which indicates that the package call was not actually made. If
+this is the case, you should run the package's "are-you-there?" call
+to try to re-install the package. If this succeeds, loop back to
+re-execute the original call; otherwise you must handle the error,
+probably with a message to the user.
+
+Since every "are-you-there?" affects only the carry flag, this whole
+procedure corrupts just the AF register pair, so only minimal setting up
+of the call is required.
+
+A suitable fragment of code might be as follows:
+
+        ld      bc,param1       ; set up required parameters
+        ld      de,param2
+.recall ld      a,param3
+        call_pkg(exm_call)      ; make the call
+        jr      nc,callok       ; move on if the call succeeded
+        cp      rc_pnf
+        jr      nz,othererr     ; move on to handle errors except rc_pnf
+        call_pkg(exm_ayt)       ; try to re-install the package
+        jr      nc,recall       ; re-try original call if successful
+                                ; deal with "package not found" error here
+
+
+Special Considerations for the built-in "Packages" package
+----------------------------------------------------------
+
+The mechanism that installs packages is located in the "Packages" package
+itself, so if this package becomes unavailable, the above procedure would
+be unable to reinstate it. Therefore, if you use one of the pkg_xxx calls
+and receive an rc_pnf error, the only course is to produce an error. A
+suitable message would suggest that the user runs Installer v2.00 or
+higher, as doing so will automatically reinstate the "Packages" package.
+
+
+
+Standard package calls
+======================
+
+Every package provides four standard calls; two of these (named xxx_bye
+and xxx_exp, where xxx=package name) are for internal use by Installer and
+the packages system only, and so are not useful to applications.
+
+Two other calls, however, provide information on the state of the package,
+and could be useful to applications.
+
+
+xxx_inf, Return static information on package
+---------------------------------------------
+
+IN:     -
+OUT(success):
+        Fc=0
+        BHL=pointer to null-terminated package name
+        DE=version of package (D=major version, E=minor version number)
+        C=version of package-handling code required (not useful to apps)
+OUT(failure):
+        Fc=1
+        A=rc_pnf, package not found
+Registers changed after return:
+  ......../IXIY same
+  AFBCDEHL/.... different
+
+The main use for this call is probably to determine which version of the
+package is installed, so that if your application can only run with a
+later version, it can terminate with an error. Note that you should *NOT*
+check for an exact version number; all packages will be
+backwards-compatible with earlier versions, so it is only necessary to
+check that the major (and, optionally, minor) version is AT LEAST the
+required value.
+
+
+xxx_dat, Return dynamic information on package
+----------------------------------------------
+
+IN:     -
+OUT(success):
+        Fc=0
+        CDE=package memory usage (in bytes)
+        B=number of OZ handles used by package
+        A=package-defined resources in use by applications
+OUT(failure):
+        Fc=1
+        A=rc_pnf, package not found
+Registers changed after return:
+  ......HL/IXIY same
+  AFBCDE../.... different
+
+This call is significantly less useful to applications, and probably of
+interest only. However, the A parameter may be useful to know under some
+circumstances; you should consult the documentation for the particular
+package to find out what this value represents.
+
+
+
+Updated Packages
+================
+
+In the future, new versions of existing packages may be released, possibly
+including additional calls that were not available in the previous
+versions. If your application needs to use any of the new calls, you
+therefore must ensure that the version of the package present is high
+enough to provide them.
+
+You should therefore write your startup code accordingly, so that not
+only do you check that the required package is present, but also that it
+is *at least* of the version that introduced the new calls. You can do
+this by checking the version number of the package with its standard
+xxx_inf call. For example, suppose version 1.20 of the Examples package
+introduces a call that we need to use. Our startup code could include the
+following:
+
+        call_pkg(exm_ayt)       ; first check if it's there
+        jr      c,nogood
+        call_pkg(exm_inf)       ; now get the version number
+        ld      hl,$0120
+        scf
+        sbc     hl,de           ; test package version
+        jr      c,hurrah        ; move on if it was >=1.20
+.nogood ld      hl,msg_badexm
+        call_oz(gn_sop)
+        ...
+
+Also, you will need to modify the code fragments attached to any of the
+newly-introduced calls, since if you have to use the xxx_ayt call to
+re-install the package, it's quite possible you'll end up with an earlier
+version than you were expecting. Note that you only need to do this on the
+new calls, not on any of the ones that were available in all versions of
+the package.
+
+Here's a suitable fragment:
+
+        ld      bc,param1       ; set up required parameters
+        ld      de,param2
+.recall ld      a,param3
+        call_pkg(exm_new)       ; make the call
+        jr      nc,callok       ; move on if the call succeeded
+        cp      rc_pnf
+        jr      nz,othererr     ; move on to handle errors except rc_pnf
+        call_pkg(exm_ayt)       ; try to re-install the package
+        jr      c,exmgone       ; move on if it's gone for good
+        push    hl
+        push    de
+        push    bc
+        call_pkg(exm_inf)
+        ld      hl,$0120
+        scf
+        sbc     hl,de           ; test version of re-installed package
+        pop     bc
+        pop     de
+        pop     hl
+        jr      c,recall        ; re-try if its high enough
+.exmgone
+        ...
+
+
+
+Other points of interest
+========================
+
+
+Resource usage
+--------------
+Some packages provide resources to applications (such as sockets in the
+case of ZSock). If your application receives such resources, it is very
+important that it attempts to return them to the package before
+terminating. If the package becomes unavailable, it is suggested that the
+user be prompted to restore access to it so that resources can be
+deallocated properly before terminating the application.
+
+
+Package not found error, rc_pnf
+-------------------------------
+The package-not-found error, rc_pnf, actually has the same value as the
+standard error code rc_pre. The reason for this is that any new error code
+would be treated by error-handlers as fatal, when this error is clearly
+often recoverable. The choice of rc_pre was made since this code is not
+returned by any known (useful) OZ call.
+
+The only consequence of this choice is that the text returned by the OZ
+call gn_esp for this error is "No room", which is not entirely helpful.
+However, it is expected that any application using packages would make
+special arrangements for reporting this error, and not rely on the gn_esp
+call in this case.
+
+
+Example code
+------------
+More examples of using package calls (in particular, the useful calls from
+the built-in "Packages" package) can be found in the source of the
+"Tester" application, tester.asm.
+

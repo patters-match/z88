@@ -1,0 +1,15 @@
+PKG_RST20_TR, Internal call-tracing facility
+
+rst $08, defw $2a0f
+
+
+IN:     -
+OUT:    -
+
+Registers changed after return:
+  ........afbcdehl/IXIY same
+  AFBCDEHL......../.... different
+
+Notes:
+        Called directly; not a true package call
+        For internal use only

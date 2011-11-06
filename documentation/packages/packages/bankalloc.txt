@@ -1,0 +1,47 @@
+Bank Allocation
+===============
+
+
+The "Packages" package provides a facility for other packages (or
+applications) to be allocated entire 16K banks of memory for their use,
+rather than being restricted to the 256-byte limit imposed by OZ.
+
+Since the number of free banks available in the average Z88 is rather
+limited, packages are expected to avoid using this facility where
+possible, instead making use of the standard OZ memory allocation
+facilities. Applications are expected to avoid using this facility in any
+circumstances; if they require access to large contigious memory areas it
+is preferable to write them as Bad applications.
+
+The calls provided are very simple to use. PKG_BAL allocates a bank,
+returning the number of the bank in A. Conversely, PKG_BFR accepts a
+previously allocated bank number in A and releases it back to the system.
+It is up to the package concerned to keep track of the banks that have
+been allocated to it, bind them to the desired memory segments, and
+release them to the system after use.
+
+Since it is sometimes useful to obtain a bank that can be bound to segment
+0, you can specify a reason code of A=BNK_EVEN when requesting a bank;
+this will only allocate even-numbered banks, unlike the normal reason code
+of A=BNK_ANY. When you obtain your even-numbered bank, you can use the
+number returned to bind the lower half to segment 0 (at address $2000), or
+set bit 0 to bind the upper half to segment 0 (again at address $2000).
+
+
+Installer "Reserved" Banks
+--------------------------
+Banks which have been reserved in Installer by the user are not available
+via these calls; this is to ensure that banks which have been set aside 
+for installing applications to RAM are not "stolen" without the user's
+knowledge.
+
+
+Example Code
+------------
+The Tester application gives example code showing how to obtain and
+deallocate banks correctly. Note that this code also demonstrates how you
+should avoid terminating your application/package if you're unable to
+return resources to the system because the "Packages" package has become
+unavailable.
+
+

@@ -1,0 +1,20 @@
+PKG_DRG, Deregister a package
+
+rst $08, defw $0c0f
+
+
+IN:     A=package ID
+OUT(success):
+        Fc=0
+OUT(failure):
+        Fc=1
+        A=rc_use, resources in use
+        A=rc_pnf, couldn't access package
+
+Registers changed after return:
+  ..BCDEHL/IXIY same
+  AF....../.... different
+
+
+Notes:
+        For use by Installer only

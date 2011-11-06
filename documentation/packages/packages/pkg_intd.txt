@@ -1,0 +1,23 @@
+PKG_INTD, Deregister interrupt handler
+
+rst $08, defw $1a0f
+
+
+IN:     A=reason code;
+                int_prc, deregister single process interrupt routine
+                int_pkg, deregister global package interrupt call
+        HL=package call ID that was previously registered (if A=int_pkg)
+OUT(success):
+        Fc=0
+OUT(failure):
+        Fc=1
+        A=rc_hand, no installed handler found
+        A=rc_unk, unknown reason code
+
+Registers changed after return:
+  ......../IXIY same
+  AFBCDEHL/.... different
+
+Notes:
+        Applications *must* always deregister any process interrupt before
+        terminating

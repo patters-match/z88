@@ -1,0 +1,22 @@
+PKG_BAL, Allocate whole bank
+
+rst $08, defw $240f
+
+
+IN:     A=reason code;
+                bnk_any, don't care which bank is allocated
+                bnk_even, even-numbered bank required (to bind to seg 0)
+
+OUT(success):
+        Fc=0
+        A=bank number allocated
+OUT(failure):
+        Fc=1
+        A=rc_room, no free banks available
+        A=rc_unk, unknown reason code
+
+Registers changed after return:
+  ..BCDEHL/IXIY same
+  AF....../.... different
+
+Notes:

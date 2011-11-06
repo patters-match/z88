@@ -1,0 +1,29 @@
+Packages v1.12
+==============
+
+What's New in v1.12
+-------------------
+* PKG_NQ substitution added (internal use only)
+* Bugfix for call substitutions: in v1.11, if a substitute call decided to
+  let OZ do the hard work after all (or if the package had gone missing)
+  the wrong register sets were selected and rather nasty crashes could occur.
+  Therefore, calls must only be substituted with v1.12 of Packages and higher.
+
+Original release notes
+----------------------
+The Packages package was initially intended to simply provide a mechanism
+for installing other (more useful) packages. However, thanks to a weekend
+spent drinking with the irrepressible Dominic Morris, it now has more
+features than you can shake a stick at...
+
+Facilities offered that will be useful to other packages and applications
+are:
+
+Bank Allocation         - Grab a whole 16K of memory in one go
+Interrupts              - Run your code at varying frequencies
+OZ Call Substitution    - Not for the faint-hearted!
+Miscellaneous calls     - Find which process is running
+
+Enjoy!
+
+12/5/01, Garry Lancaster

@@ -1,0 +1,16 @@
+PKG_EXP, Expansion call for the "Packages" package
+
+rst $08, defw $080f
+
+
+IN:     B=reason code
+OUT:    Fc=1, fail always
+        A=rc_unk, unknown request
+
+Registers changed after return:
+  ..BCDEHL/IXIY same
+  AF....../.... different
+
+
+Notes:
+        For use by Installer only

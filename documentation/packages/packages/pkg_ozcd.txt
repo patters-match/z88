@@ -1,0 +1,19 @@
+PKG_OZCD, De-register OZ call substitution
+
+rst $08, defw $200f
+
+
+IN:     DE=OZ call ID to be deregistered
+        BC=package call ID originally used
+OUT(success):
+        Fc=0
+OUT(failure):
+        Fc=1
+        A=rc_pnf, call substitution table not available
+        A=rc_bad, invalid OZ call ID, or not previously substituted
+
+Registers changed after return:
+  ..BC..HL/IXIY same
+  AF..DE../.... different
+
+Notes:

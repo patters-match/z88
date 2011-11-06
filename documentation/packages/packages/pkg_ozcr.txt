@@ -1,0 +1,30 @@
+PKG_OZCR, Register OZ call substitution
+
+rst $08, defw $1e0f
+
+
+IN:     DE=OZ call ID to be substituted
+        BC=package call ID to use
+OUT(success):
+        Fc=0
+OUT(failure):
+        Fc=1
+        A=rc_pnf, call substitution table not available
+        A=rc_room, substitution already in place for this call
+        A=rc_bad, invalid OZ call ID
+
+Registers changed after return:
+  ..BC..HL/IXIY same
+  AF..DE../.... different
+
+Bugs:
+        This call should only be used with Packages v1.12 and higher, due to
+        a bug in the call substitution system in v1.11.
+
+Notes:
+        This call does not test validity of package call; but substitution
+        will be ignored if invalid, or package not available
+        On entry to a substituted call, the original binding of segment 3
+        is only available at SP+11, *not* at SP+3
+        To force standard OZ call to be used, restore all registers and
+        exit with Fc=1 and A=rc_pnf

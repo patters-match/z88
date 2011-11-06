@@ -1,0 +1,18 @@
+PKG_AYT, Check that package-handling facilities are installed
+
+rst $08, defw $0000
+
+
+IN:     -
+OUT:    Fc=0, package-handling is installed
+        Fc=1, package-handling is not available
+
+Registers changed after return:
+  A.BCDEHL/IXIY same
+  .F....../.... different
+
+
+Notes:
+        This call must be made with success before attempting any other
+        package calls
+

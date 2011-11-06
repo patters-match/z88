@@ -1,0 +1,18 @@
+PKG_INF, Return static information on the "Packages" package
+
+rst $08, defw $000f
+
+
+IN:     -
+OUT:    Fc=0, success
+        BHL=pointer to null-terminated package name
+        C=version of package-handling required
+        DE=package version code
+
+Registers changed after return:
+  ......../IXIY same
+  AFBCDEHL/.... different
+
+
+Notes:
+

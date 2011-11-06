@@ -1,0 +1,19 @@
+PKG_NXT, Find next installed package ID
+
+rst $08, defw $0e0f
+
+
+IN:     A=last package ID, or 0
+OUT(success):
+        Fc=0
+        A=next installed package ID
+OUT(failure):
+        Fc=1, no more installed packages
+
+Registers changed after return:
+  ..BCDEHL/IXIY same
+  AF....../.... different
+
+
+Notes:
+        For use by Installer only

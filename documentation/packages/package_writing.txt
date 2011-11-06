@@ -1,0 +1,325 @@
+Writing Z88 Packages
+====================
+
+Writing a package for the Z88 means that you can provide reusable code for
+a variety of applications, that can be used by other programmers without
+requiring access to your source code. They provide an easy and effective
+way to extend the capabilities of the Z88 operating system.
+
+Each package is assigned a unique ID, which forms the low byte of the
+two-byte call ID associated with every package call. For example, the
+standard "Packages" package has a package ID of $0f, and its calls are
+numbered $xx0f. When writing a package, please contact Garry Lancaster
+via the Z88 Forever website to obtain a suitable package ID.
+
+
+How packages are detected and installed
+---------------------------------------
+
+Every package must be linked to one application or popdown using the DOR
+system in order for the system to automatically identify and install it.
+Although the application that the package is linked to does not need to
+use the package in any way, it is expected that in most cases there will
+be a logical choice of application. For example, the built-in "Packages"
+package is linked to Installer, and the ZSock package will be linked to the
+ZSock application.
+
+Every application DOR contains links to its "father" (always nulls),
+"brother" (the next application) and "son" (always nulls in a standard Z88
+setup); see "Application Static Structures" in the Developers' Notes for
+details. Packages are linked as the "son" of an application. In order to
+retain compatability with legacy applications, it is a requirement that
+the package must reside in the same bank as the application DOR.
+Currently, the bank listed in the son pointer is ignored by the package
+handling system, but it should be set to the correct bank anyway.
+
+
+The Package Information Block
+-----------------------------
+
+The son pointer of the application DOR points to the following structure
+which defines the package:
+
+        defb    ID              ; Package ID (as allocated by GWL)
+        defm    "P"             ; package structure identifier
+        defb    hirout          ; highest routine ID available
+        defw    rout00          ; address of routine 00
+        defw    rout02          ; address of routine 02
+        defw    rout04          ; address of routine 04
+        ....
+        defw    routnn          ; address of routine nn (nn=hirout)
+
+All routine addresses must be in segment 3, and the package routines
+themselves must also be written to run in segment 3.
+
+On entry to a package routine, the binding of segment 3 before the call was
+made is held at SP+3, so if you need to obtain a copy of it, use the
+following code (suitably adjusted if you have pushed anything onto the
+stack):
+
+        ld      hl,3
+        add     hl,sp
+        ld      a,(hl)          ; A=original segment 3 binding
+
+
+Memory and resource usage
+-------------------------
+
+Except for the most trivial cases, all packages will require at least some
+data storage. Since packages can be called at will by a variety of
+applications, it is necessary to provide a data area that can be accessed
+from any process. The only region that fits the bill is the lower half of
+segment 0, where memory is very tight, especially with the
+package-handling code installed.
+
+To allow for a large number of packages with varying memory requirements,
+the available space in segment 0 will be allocated in small amounts (up to
+3 bytes) by Garry Lancaster to anyone wishing to write a package. Three
+bytes is sufficient for any package, since it is enough to contain a bank
+and address of a region of memory allocated by the OZ call, os_mal (the
+memory pool handle should be stored in this region so that it can be
+deallocated when required).
+
+Packages should test their allocated segment 0 bytes whenever a call would
+need to access the data area; if they are set to zero, then this should be
+taken to mean that the data area is not set up, and the call should fail
+with an error of rc_pnf (package not available).
+
+When allocating pages of memory in your package code, it is ABSOLUTELY
+VITAL that you use the OS_MOP call specifying a memory source of MM_FIX.
+For example, to open a pool that is to be addressed in segment 1, use:
+
+        ld      a,mm_s1+mm_fix
+        ld      bc,0
+        call_oz(os_mop)
+
+If you fail to use MM_FIX, OZ may allocate pages within its swap region
+for bad applications; this means that if any calls to your package are
+made from a bad application (or interrupt calls when a bad application is
+active) then your memory will not be available to you; this will result in
+failed calls (at best) or crashes.
+
+
+Package versions
+----------------
+
+The package-handling system has been written so that an upgraded version
+of a particular package can be installed with a minimum of fuss. There are
+two possibilities when a card containing an existing package with a higher
+version number is installed:
+
+(i)     If the card containing the previous version has been removed,
+        the new version will be automatically installed when the next
+        call to the package is made.
+(ii)    If both versions are present at once, the user must "deregister
+        packages" in Installer. Then, the next time a package call is
+        made, the most recent version of the package will be installed.
+
+In order for this system to work smoothly, it is essential that all
+updated packages should be completely backwards-compatible with
+previous versions.
+
+In particular, if you have a data area associated with your package, make
+sure you place a version ID (associated with the layout of the data area)
+somewhere in the data area. This should be checked by your code and the
+appropriate action taken:
+
+(i)     If the layout version is the same as expected, continue as normal
+(ii)    If the layout version is lower than expected, update the layout to
+        the current version, and update the version ID held in the area;
+        then continue as normal
+(iii)   If the layout version is higher than expected, exit with an error
+        of rc_pnf
+
+Note that in case (ii), if you have released several versions of your
+package with different data layouts, it may be necessary to upgrade from a
+very early version to the current, as not all users will update to every
+new release of a package.
+
+
+Call numbering and naming conventions
+-------------------------------------
+
+Call routines in the packages are numbered from $00 upwards in steps of
+$02, with these numbers forming the high byte of the package call ID. 
+For example, call $04 in a package with ID $45 would have a package call
+ID of $0445.
+
+Routines should by named "xxx_rout", where "xxx" is a short mneumonic for
+the package name, and "rout" is a mneumonic for the call name. For
+example, the standard "Packages" package calls are all named beginning
+with pkg_ ; an example call name is 'pkg_intr' to register an interrupt
+handler.
+
+Together with the documentation you provide to programmers for using your
+package calls should be a definition file containing the names and call
+IDs of all the calls in your package, together with any new constants
+that you may require as reason codes etc.
+
+
+
+Standard Calls
+==============
+
+Every package must provide five standard routine calls, numbered from $00
+to $08. These calls are required by the package-handling system to install
+and uninstall your package on demand.
+
+In the following call descriptions, we use "xxx" to represent the package
+mneumonic, and "xx" to represent the package ID. Please note that the
+standard calls you provide *must* follow the register preservation rules
+noted here exactly. The alternate register set may be used freely.
+
+
+xxx_inf ($00xx)
+---------------
+This call returns static information about the package, and should work
+regardless of whether the package has been properly installed or not.
+
+IN:     -
+OUT:    Fc=0, success always
+        BHL=pointer to null-terminated package name (max 16 chars)
+        C=version of package-handling needed to install (always specify $01)
+        DE=version code of your package (eg $0213 is v2.13)
+Registers changed after return:
+  ......../IXIY same
+  AFBCDEHL/.... different
+
+
+xxx_ayt ($02xx)
+---------------
+This call verifies whether the package is present. For simple packages
+that don't require any data area or other OZ resources, it should simply
+return with Fc=0 to indicate success.
+
+For packages that require a data area, it should do the following:
+1. Check if the data area is valid, and return Fc=0 if so
+2. Attempt to set up the data area, and return Fc=0 if successful
+3. If unable to set up the data area (insufficient resources), return Fc=1
+
+IN:     -
+OUT:    Fc=0, package available
+        Fc=1, package not available
+Registers changed after return:
+  A.BCDEHL/IXIY same
+  .F....../.... different
+
+
+xxx_bye ($04xx)
+---------------
+This call is used by the package-handling system to uninstall a package.
+Simple packages without any data requirements should simply return with
+Fc=0 to indicate success.
+
+Packages using a data area internally only should deallocate the area,
+set their segment 0 bytes to zero (to indicate no data area set up), and
+return with Fc=0 to indicate success.
+
+Packages using a data area which allocate resources to applications should:
+1. Check if any resources it provides are still in use by an application,
+   returning Fc=1 and A=rc_use if so
+2. If not, deallocate their data area, set their segment 0 bytes to zero
+   and return with Fc=0
+
+IN:     -
+OUT(success):
+        Fc=0, package uninstallable
+OUT(failure):
+        Fc=1
+        A=rc_use, package in use
+Registers changed after return:
+  ..BCDEHL/IXIY same
+  AF....../.... different
+
+
+xxx_dat ($06xx)
+---------------
+This call is used to provide information about what resources are
+currently in use by the package. These are shown when packages are listed
+in Installer.
+
+It should return the memory usage of the package in bytes (excluding any
+bytes allocated in segment 0 by GWL) and the number of OZ handles in use
+(this includes file, memory and wildcard handles). An optional third
+parameter can be returned to indicate the number of resources your package
+is providing to applications. For example, the XFS package will use this
+to indicate how many XFS handles are currently in use.
+
+In common with other calls provided by your package (except the other
+standard calls listed here), if the data area for the package is not set
+up, this call should fail with an error of rc_pnf.
+
+IN:     -
+OUT(success):
+        Fc=0, success
+        CDE=number of bytes in use
+        B=number of OZ handles in use
+        A=resources in use by applications (or 0)
+OUT(failure):
+        Fc=1 and A=rc_pnf, package not available
+Registers changed after return:
+  ......HL/IXIY same
+  AFBCDE../.... different
+
+
+xxx_exp ($08xx)
+---------------
+This call provides the possibility of expanded package-handling
+capabilities. Currently, it is only made when Bootstrap is being run for
+the first time after a reset, and is entered with a reason code of
+B=exp_boot.
+
+Packages that wish to be installed immediately on reset (without waiting
+for an application to attempt to access them with xxx_ayt) should reply to
+this request with Fc=0, which will cause Bootstrap to automatically
+register them with their xxx_ayt call.
+
+The main uses for this call are to allow packages that install
+substitutions for OZ calls to register them, and for packages that require
+large amounts of resources (typically whole banks) to attempt to claim
+them after a reset, when there is the best chance of obtaining them.
+
+IMPORTANT NOTE: When this call is made, the package is not installed, and
+so should take no action except making a simple reply. All necessary
+initialisation should still be carried out by xxx_ayt, which will be
+called by Bootstrap if requested.
+
+Packages that don't need to be autobooted should reply with Fc=1 and
+A=rc_unk. Additionally, if the reason code is not B=exp_boot, the reply
+should be Fc=1 and A=rc_unk.
+
+IN:     B=reason code;
+                exp_boot, autoboot enquiry
+                other reason codes may be added in future
+OUT(success):   
+        Fc=0, package requires autobooting
+OUT(failure):
+        Fc=1
+        A=rc_unk, unknown request
+Registers changed after return:
+  ..BCDEHL/IXIY same
+  AF....../.... different
+
+
+
+Additional Calls
+================
+
+The additional calls you provide in your package can do just about
+anything you like. You should note however, that the package-handling
+system corrupts all the alternate registers, so none of these can be used
+for input. All registers (except the alternates) are of course properly
+preserved on exit from your calls.
+
+You can call any other OZ or package routines within your package call
+without any problem. If errors are received, you should deal with them
+appropriately, possibly simply passing them back to the calling
+application. Note that a package cannot install an error-handler to deal
+with errors!
+
+
+Example Source Code
+===================
+
+A simple example package is provided with fully-commented source, together
+with a short application that can be used to test its functionality.

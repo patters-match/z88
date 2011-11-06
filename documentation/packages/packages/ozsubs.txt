@@ -1,0 +1,85 @@
+OZ Call Substitution
+====================
+
+
+One of the most powerful features offered by "Packages" is the opportunity
+to take over any of the standard OZ calls (those run with the CALL_OZ
+macro) and substitute a suitable package call in its place.
+
+Possible uses for this include fixing bugs in the operating system and
+enhancing facilities offered by OZ without requiring applications to be
+rewritten to take advantage of them. For example, the forthcoming XFS
+(Extendable Filing System) package will take over many of the
+file-handling calls that OZ provides in order to give access to additional
+devices such as Eproms.
+
+Another possibility for the future may be to completely replace some of
+the inbuilt applications such as PrinterEd or Filer, by trapping occasions
+when these popdowns are launched.
+
+IMPORTANT NOTE:
+---------------
+The initial release of Packages (v1.11) contained a bug in the call
+substitution system which meant that the wrong register sets would be selected
+if a substitute call opted to allow OZ to carry out the call (or if the
+package became unavailable), causing crashes or other unexpected results.
+Therefore, before registering a call substitution you should check that the
+version of Packages installed is at least 1.12.
+
+
+Writing a substitute call
+-------------------------
+Every substitute call must be a package call, and hence these facilities
+can only be used by new packages. 
+
+In essence, your call should comply with the standard OZ call definition
+(including all input/output/register changes), providing its extra
+functionality without affecting the usage of the call as far as existing
+applications are concerned. There are a few important points to note:
+
+(i)     On entry to your call (which will be run in segment 3), the
+        original binding of segment 3 (when CALL_OZ was performed) is
+        found on the stack at SP+11, *not* at SP+3 as with normal
+        package calls
+
+(ii)    If your call only replaces certain functionality of the OZ call,
+        you can opt to force the original call to be used under
+        circumstances when you don't want your call to be used. To do
+        this, restore all registers to their entry state and exit
+        with an error of Fc=1 & A=rc_pnf
+
+
+Registering a substitute call
+-----------------------------
+It is suggested that most substitute calls should be registered when your
+package's xxx_ayt call is made, and also that your package is
+auto-booting.
+
+To register a substitution, use PKG_OZCR with DE holding the OZ call ID
+that you want to replace, and BC containing the package call ID to use:
+
+        ld      de,os_gb
+        ld      bc,exm_mygb
+        call_pkg(pkg_ozcr)
+
+This call might fail with rc_room if a call substitution for the OZ call
+you specify has already been made.
+
+
+Deregistering a substitute call
+-------------------------------
+If you wish to remove your substitution (before your package is
+uninstalled with xxx_bye, for example) simply run the PKG_OZCD call with
+the same parameters as used to perform the registration:
+
+        ld      de,os_gb
+        ld      bc,exm_mygb
+        call_pkg(pkg_ozcd)
+
+
+
+Example Code
+------------
+The Tester application and accompanying Example package show a simple call
+substitution for the OS_GB call, which can be tested from the Tester
+application itself or from BASIC.

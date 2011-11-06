@@ -1,0 +1,21 @@
+Miscellaneous "Packages" Calls
+==============================
+
+
+Find current process ID
+-----------------------
+The "Packages" package also provides the PKG_PID call, which returns the
+ID of the currently running process. This could be useful to packages to
+determine which application is currently calling them, if they need to
+identify which resources belong to it, for example.
+
+The call is very simple to use. It has no entry parameters, and exits with
+A containing the process ID:
+
+        call_pkg(pkg_pid)       ; A now contains current process ID
+
+
+Example Code
+------------
+The Tester application uses the PKG_PID to name each instantiation of
+itelf in the Index. Fully commented code can be seen in the sources.

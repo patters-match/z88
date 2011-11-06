@@ -1,0 +1,15 @@
+PKG_INTM1, Internal interrupt-chain processing facility
+
+rst $08, defw $160f
+
+
+IN:     -
+OUT:    -
+
+Registers changed after return:
+  ......../..IY same
+  AFBCDEHL/IX.. different
+
+Notes:
+        Called directly; not a true package call
+        For internal use only

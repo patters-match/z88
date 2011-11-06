@@ -1,0 +1,18 @@
+PKG_BFR, Free previously allocated bank
+
+rst $08, defw $260f
+
+
+IN:     A=bank number previously allocated
+
+OUT(success):
+        Fc=0
+OUT(failure):
+        Fc=1
+        A=rc_bad, bad bank number
+
+Registers changed after return:
+  ..BCDEHL/IXIY same
+  AF....../.... different
+
+Notes:

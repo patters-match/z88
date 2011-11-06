@@ -1,0 +1,26 @@
+PKG_GET, Get information on installed package
+
+rst $08, defw $100f
+
+
+IN:     A=package ID
+OUT(success):
+        Fc=0
+        IXh=OZ handles in use
+        IXlIY=bytes in use
+        A=package resources in use
+        BHL=pointer to null-terminated package name
+        DE=package version code
+        C=slot package installed in
+OUT(failure):
+        Fc=1
+        A=rc_pnf, package not found
+        C=slot package was installed in
+
+Registers changed after return:
+  ......../.... same
+  AFBCDEHL/IXIY different
+
+
+Notes:
+        For use by Installer only
