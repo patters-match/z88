@@ -1,0 +1,19 @@
+Example Files
+=============
+
+This archive contains a set of source files which demonstrate various
+features of the package system in general, and the Packages package in
+particular.
+
+The files are:
+
+README          This file
+exam_int.def    Internal definitions for the Example package
+exampkg.def     Public definitions for the Example package (copy to lib)
+exampkg.asm     Example package source
+tester.asm      Tester application source
+tester          Project file (build with z80asm -b @tester)
+tester.ap*      Pre-built installable Tester app & Example package
+basicints.bas   An example of using process interrupts from BASIC
+
+13/3/00, Garry Lancaster
