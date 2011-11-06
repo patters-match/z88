@@ -97,6 +97,18 @@ include "saverst.def"
         scf
         ret
 .asafemain
+        ld      ix,-1
+        ld      a,fa_ptr
+        ld      de,0
+        call_oz(os_frm)                         ; check OZ version (in C)
+        jr      nc,testozver
+.badozver
+        ld      a,rc_na                         ; exit with "Not Applicable" error
+        call_oz(os_bye)
+.testozver
+        ld      a,c
+        cp      $41                             ; Alarm layout changed from v4.1
+        jr      nc,badozver                     ; so exit with v4.1+
         ld      hl,msg_asafewindow
         call_oz(gn_sop)                         ; display window
         ld      de,mail_name
