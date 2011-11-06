@@ -750,10 +750,12 @@ DEFVARS (void)
   while (!feof (srcasmfile) && sym != name && (sym != rcurly &&
          SearchDirective (ident, directives, totaldirectives) != ENDDEFstat))
     {
-      SkipLine (srcasmfile);
+      if (EOL == ON)
+        {
+          ++CURRENTFILE->line;
+          EOL = OFF;
+        }
 
-      EOL = OFF;
-      ++CURRENTFILE->line;
       GetSym ();
     }
 
