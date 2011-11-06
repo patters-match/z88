@@ -84,6 +84,7 @@ will get the following directory structure with lots of files in it:
 
 /documentation
      /devnotes      Z88 Developers Notes, html files (V4.2 or later).
+     /packages      Packages system, txt files (up to and including V4.0)
      /servman       Z88 Service Manual, html files
      /userguide     Z88 User Guide (4th edition, in progress)
 
@@ -116,13 +117,15 @@ will get the following directory structure with lots of files in it:
      /debugapp      An empty popdown for OZvm debugging (load/run code)
      /eazylink      EazyLink popdown & PcLink II emulation
      /epfetch       File Eprom Management
+     /example_package An example package, with Tester application
      /flashstore    Rakewell Flash Card File Management
      /flashstest    Rakewell Flash Card testing popdown
      /forever       Compilation build of:
                     pdrom, zdis, zmonitor, fview, alarmsafe, lockup, 
-                    epfetch & freeram.
+                    epfetch, freeram, installer, bootstrap & packages.
      /freeram       Small utility to display free RAM graphically
      /fview         Simple Ascii File Viewer popdown.
+     /installer     Installer and Bootstrap popdowns, with Packages system.
      /intuition     Z88 Application Debugger/Disassembler
      /lockup        Password protection popdown utility
      /pdrom         4 applications by Richard Haw, released in 1989:
