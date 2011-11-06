@@ -97,6 +97,8 @@ IF BASINST
 
 ELSE
 
+        org     $c000
+
         xref    in_tokens
         xref    instpcode,pkg_structure
 
@@ -147,7 +149,7 @@ IF BASINST
 
 ELSE
 
-        xdef    installer_dor
+        xref    bootstrap_dor
 
 ; ************************************************************************
 ; *                         Application DOR                              *
@@ -155,7 +157,8 @@ ELSE
 
 .installer_dor
         defb    0,0,0                           ; links to parent, brother (app), son (package)
-        defb    0,0,0
+        defw    bootstrap_dor
+        defb    appl_bank
         defw    pkg_structure
         defb    appl_bank
         defb    $83                             ; DOR type - application

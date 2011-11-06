@@ -18,7 +18,12 @@
 
 ; Installer Application Definitions
 
+if BANK3E
+        defc    appl_bank=$3e
+else
         defc    appl_bank=$3f
+endif
+
         defc    safe=512
         defc    unsafe=0
         defc    scratch=$1ffe-safe

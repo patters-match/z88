@@ -17,8 +17,8 @@
 ;
 ; *************************************************************************************
 
-bootstrap
 installer
+bootstrap
 instsubs
 instpkgs
 packages

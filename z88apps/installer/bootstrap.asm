@@ -36,14 +36,20 @@
 
         module  bootstrap
 
+if BANK3E
+        defc    appl_bank=$3e
+else
         defc    appl_bank=$3f
+endif
+
         defc    unsafe=24
         defc    scratch=$1ffe-unsafe
         defc    workparams=$1ffe-unsafe
 
         xref    slottype,slotprot,protsafe,in_tokens
         xref    instpcode,regsubs
-        xref    installer_dor
+
+        xdef    bootstrap_dor
 
 include "director.def"
 include "dor.def"
@@ -53,14 +59,11 @@ include "error.def"
 include "stdio.def"
 include "packages.def"
 
-        org     $c000
-
 ; Application DOR
 
 .bootstrap_dor
         defb    0,0,0                           ; links to parent, brother, son
-        defw    installer_dor
-        defb    appl_bank
+        defb    0,0,0
         defb    0,0,0
         defb    $83                             ; DOR type - application
         defb    indorend-indorstart
