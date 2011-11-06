@@ -1,0 +1,71 @@
+; *************************************************************************************
+; Installer/Bootstrap/Packages (c) Garry Lancaster 1998-2011
+;
+; Installer/Bootstrap/Packages is free software; you can redistribute it and/or modify
+; it under the terms of the GNU General Public License as published by the Free Software
+; Foundation; either version 2, or (at your option) any later version.
+; Installer/Bootstrap/Packages is distributed in the hope that it will be useful, but
+; WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+; FOR A PARTICULAR PURPOSE.
+; See the GNU General Public License for more details.
+; You should have received a copy of the GNU General Public License along with
+; Installer/Bootstrap/Packages; see the file COPYING. If not, write to the
+; Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+;
+; $Id$
+;
+; *************************************************************************************
+
+Package ID and data assignments
+===============================
+
+ID      Package name    Maintainer              Data Usage
+--      ------------    ----------              ----------
+$0f     Packages        Garry Lancaster         Special - see below
+$12     XFS             Garry Lancaster         $0465-$0467 (3 bytes)
+$15     ZSock           Dominic Morris          $0468 (1 byte)
+$18     tftpd           Dominic Morris          -
+$1b     MIMEtypes       Garry Lancaster         -
+$1e     Forth           Garry Lancaster         $04e9,$04ea (2 bytes)
+$21
+$24
+$27
+$2a
+$2d
+$30
+$33
+$36
+$39
+$3c
+$3f
+$42
+$45     Example         Garry Lancaster         $04fd-$04ff (3 bytes)
+
+
+Space used by Package-Handling system & Packages package
+--------------------------------------------------------
+$0008-$0017     Package-handling code
+$002a-$002b     IM1 handler counters
+$002c-$002d     SlowMo timing constant
+$002e-$002f     Package-handling data
+$01a5-$01c2     IM1 code (B)
+$01c3-$01d4     RST 20 code (B)
+$01d7-$01f4     Table of IM1 routines
+$01f5-$01fa     Package features data
+$0400-$045f     Package-handling code & data
+$0475-$0476     Package-handling data
+$0477-$04af     Table of pointers to packages
+$04b7           Package-handling data
+$04b8-$04ce     RST 20 code (A)
+$04cf           Package-handling data
+$04eb-$04ec     Package-handling data
+$04ed-$04fc     IM1 code (C)
+
+Space available, to be assigned
+-------------------------------
+$0033-$0037     5 bytes
+$005a-$0065     12 bytes
+$01d5-$01d6     2 bytes
+$0468-$046f     8 bytes
+$04d5-$04df     11 bytes
+$04e7-$04e8     2 bytes

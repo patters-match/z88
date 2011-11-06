@@ -1,0 +1,37 @@
+; *************************************************************************************
+; Installer/Bootstrap/Packages (c) Garry Lancaster 1998-2011
+;
+; Installer/Bootstrap/Packages is free software; you can redistribute it and/or modify
+; it under the terms of the GNU General Public License as published by the Free Software
+; Foundation; either version 2, or (at your option) any later version.
+; Installer/Bootstrap/Packages is distributed in the hope that it will be useful, but
+; WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+; FOR A PARTICULAR PURPOSE.
+; See the GNU General Public License for more details.
+; You should have received a copy of the GNU General Public License along with
+; Installer/Bootstrap/Packages; see the file COPYING. If not, write to the
+; Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+;
+; $Id$
+;
+; *************************************************************************************
+
+; Installer Application Definitions
+
+        defc    appl_bank=$3f
+        defc    safe=512
+        defc    unsafe=0
+        defc    scratch=$1ffe-safe
+        defc    maxcommand=6
+
+
+defvars scratch {
+                singlego        ds.b    1
+                menucommand     ds.b    1
+                filebuffer      ds.b    headerlength
+                extension       ds.w    1
+                workparams      ds.b    13
+                pad             ds.b    padlength
+                explicitname    ds.b    255
+                }
+

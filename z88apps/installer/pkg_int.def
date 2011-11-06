@@ -1,0 +1,115 @@
+; *************************************************************************************
+; Installer/Bootstrap/Packages (c) Garry Lancaster 1998-2011
+;
+; Installer/Bootstrap/Packages is free software; you can redistribute it and/or modify
+; it under the terms of the GNU General Public License as published by the Free Software
+; Foundation; either version 2, or (at your option) any later version.
+; Installer/Bootstrap/Packages is distributed in the hope that it will be useful, but
+; WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+; FOR A PARTICULAR PURPOSE.
+; See the GNU General Public License for more details.
+; You should have received a copy of the GNU General Public License along with
+; Installer/Bootstrap/Packages; see the file COPYING. If not, write to the
+; Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+;
+; $Id$
+;
+; *************************************************************************************
+
+; Internal definitions for package handling
+
+        defc    pversion=$0112                  ; Packages package version number
+        defc    dataver=$01                     ; Version of data area layout
+        defc    pkg_pkgid=$0f                   ; our package ID
+
+        defc    pkg_base=$0477                  ; table of package pointers
+                                                ; Package $0f data is at $0477-$0479...
+                                                ; Package $45 data is at $04ad-$04af
+
+
+        defc    pkg_add=$0475                   ; address of package being registered (2 bytes)
+        defc    pkg_bnk=$04b7                   ; bank of package being registered (1 byte)
+        defc    pkg_ver=$002e                   ; version of package being registered (2 bytes)
+
+        defc    pkg_min=$0f                     ; minimum package ID
+        defc    pkg_max=$45                     ; maximum package ID
+
+        defc    code_A_dest=$0008
+        defc    code_B_dest=$0400
+        defc    code_IM1a_dest=$0038
+        defc    code_IM1b_dest=$01a5
+        defc    code_IM1c_dest=$04ed
+        defc    code_RST20a_dest=$04b8
+        defc    code_RST20b_dest=$01c3
+        defc    IM1_jumper=$0046
+        defc    rst20jp=$0021
+
+        defc    s1_copy=$04d1
+        defc    s1_port=$d1
+        defc    s2_copy=$04d2
+        defc    s2_port=$d2
+        defc    s3_copy=$04d3
+        defc    s3_port=$d3
+        defc    sta_port=$b1
+        defc    sta_copy=$04b1
+        defc    tim_port=$b5
+        defc    mask_copy=$04b5
+
+        defc    oz_nestlevel=$03cf              ; nesting depth of OZ/PKG calls
+        defc    oz_endcall=$00b0                ; end of call handler
+        defc    os_stack=$1ffe                  ; OZ stack pointer
+
+        defc    process_ptr=$0e2b               ; pointer to current process block
+        defc    pkg_features=$01f5              ; 4 bytes: +0 features
+                                                ;          +1 process to trace
+                                                ;          +2 (2) file handle
+        defc    im1table=$01d5
+        defc    maxhandlers=5                   ; maximum interrupt handlers
+        defc    numints=$002a                   ; 2bytes: +0 installed pkg handlers
+                                                ;         +1 installed prc handlers
+        defc    slowmo=$002c                    ; 2-byte timer constant
+
+        defc    subs_bank1=$045f                ; pointer to 1st page of memory
+        defc    subs_addr1=$01f9                ; reserved for call-subs tables
+        defc    subs_bank2=$04cf                ; and the 2nd
+        defc    subs_addr2=$04eb
+
+        defc    code_dc=$0c
+        defc    start_dc=$06
+        defc    end_dc=$24
+        defc    code_gn=$09
+        defc    start_gn=$06
+        defc    end_gn=$78
+        defc    code_os=$06
+        defc    start_os=$ca
+        defc    end_os=$fe
+        defc    start_oth=$21
+        defc    end_oth=$8d
+
+; The layout of the first 256-byte page allocated for use with the OZ
+; call substitution system
+
+defvars 0 
+{
+        db_pkgid        ds.b    1               ; our package ID
+        db_verid        ds.b    1               ; data area version ID
+        db_pools        ds.w    2               ; pool handles (for pages 1 & 2)
+        tbl_dcbase      ds.w    16              ; 2-byte DC calls
+        tbl_gnbase      ds.w    58              ; 2-byte GN calls
+        tbl_osbase      ds.w    27              ; 2-byte OS calls
+}
+
+defvars 0
+
+}
+
+
+; The layout of the second 256-byte page allocated for use with the OZ
+; call substitution system
+
+defvars 0
+{
+        tbl_othbase     ds.p    37              ; other (1-byte) calls
+                                                ; (1 spare byte after each)
+}
+
