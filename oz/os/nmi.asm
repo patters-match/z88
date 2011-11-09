@@ -65,9 +65,6 @@ xref    Halt                                    ; [Kernel0]/boot.asm
 xref    HW_INT,HW_NMI                           ; [Kernel0]/boot.asm
 
 
-defc    NMI_HALT        =1
-defc    NMI_B_HALT      =0
-
 ; out: Fc=0, A4=shift lock - if only both shifts (and maybe shift lock) down
 
 .BothShifts
@@ -131,7 +128,7 @@ defc    NMI_B_HALT      =0
 ;       ----
 
 .NMI_Off0
-        ld      h, BM_INTTIME|NMI_HALT
+        ld      h, BM_INTTIME|BM_INTGINT
 
 .noff0_1
         call    SnoozeTICK
@@ -141,21 +138,21 @@ defc    NMI_B_HALT      =0
 
 
 .NMI_Off
-        ld      hl, [BM_INTTIME|NMI_HALT]<<8|[BM_TACKTICK]
+        ld      hl, [BM_INTTIME|BM_INTGINT]<<8|[BM_TACKTICK]
 
 .noff_1
         call    DoSnooze
-        ld      h, BM_INTKWAIT|BM_INTKEY|NMI_HALT
+        ld      h, BM_INTKWAIT|BM_INTKEY|BM_INTGINT
         call    DoSnooze                        ; switch off until kbd
         call    BothShifts
-        ld      hl, [BM_INTTIME|NMI_HALT]<<8|[BM_TACKSEC]
+        ld      hl, [BM_INTTIME|BM_INTGINT]<<8|[BM_TACKSEC]
         jr      c, noff_1                       ; not both shifts? stay off
 
 .noff_2
         ld      h, BM_INTFLAP|BM_INTTIME
         call    SnoozeTICK
         ret     z                               ; no keys? exit
-        ld      hl, [BM_INTTIME|NMI_HALT]<<8|[BM_TACKSEC]
+        ld      hl, [BM_INTTIME|BM_INTGINT]<<8|[BM_TACKSEC]
         call    BothShifts
         jr      nc, noff_2                      ; both shifts? loop
         jr      z, noff_2                       ; one shift? loop
@@ -194,18 +191,18 @@ defc    NMI_B_HALT      =0
         ld      (BLSC_COM), a
         out     (BL_COM), a
 
-        ld      h, BM_INTFLAP|BM_INTTIME|NMI_HALT
+        ld      h, BM_INTFLAP|BM_INTTIME|BM_INTGINT
 
 .swoff_2
         call    SnoozeTICK
         jr      nz, swoff_2                     ; keys down
-        ld      hl, [BM_INTFLAP|BM_INTTIME|NMI_HALT]<<8|[BM_TACKTICK]
+        ld      hl, [BM_INTFLAP|BM_INTTIME|BM_INTGINT]<<8|[BM_TACKTICK]
 
 .swoff_3
         call    DoSnooze
 
 .swoff_4
-        ld      de, [BM_INTKWAIT|BM_INTFLAP|BM_INTKEY|BM_INTTIME|NMI_HALT]<<8|[BM_TACKMIN]
+        ld      de, [BM_INTKWAIT|BM_INTFLAP|BM_INTKEY|BM_INTTIME|BM_INTGINT]<<8|[BM_TACKMIN]
         ld      hl, ubIntStatus
         di
         bit     IST_B_ALARM, (hl)
@@ -238,7 +235,7 @@ defc    NMI_B_HALT      =0
         in      a, (BL_KBD)
         inc     a
         jr      z, swoff_4                      ; no keys? check alarms
-        ld      hl, [BM_INTFLAP|BM_INTTIME|NMI_HALT]<<8 | BM_TACKSEC
+        ld      hl, [BM_INTFLAP|BM_INTTIME|BM_INTGINT]<<8 | BM_TACKSEC
         call    BothShifts
         jr      c, swoff_3
 
@@ -261,7 +258,7 @@ defc    NMI_B_HALT      =0
         ld      h, BM_INTA19|BM_INTTIME
         call    SnoozeTICK
         jr      z, swoff_8
-        ld      hl, [BM_INTFLAP|BM_INTTIME|NMI_HALT]<<8 | BM_TACKSEC
+        ld      hl, [BM_INTFLAP|BM_INTTIME|BM_INTGINT]<<8 | BM_TACKSEC
         call    BothShifts
         jr      nc, swoff_6                     ; both shifts? loop
         jr      z, swoff_7                      ; one shift? loop
@@ -363,7 +360,7 @@ defc    NMI_B_HALT      =0
 .waitm_5
         ld      hl, (BLSC_COM)                  ; !! just H,(BLSC_INT)
         set     BB_INTKWAIT, h
-        res     NMI_B_HALT, h
+        res     BB_INTGINT, h
         ld      a, (BLSC_TMK)                   ; use whatever RTC int we have
         ld      l, a
 
@@ -378,7 +375,7 @@ defc    NMI_B_HALT      =0
 
 .NMIMain
         push    hl
-        ld      hl, [BM_INTTIME|NMI_HALT]<<8|[BM_TACKTICK]
+        ld      hl, [BM_INTTIME|BM_INTGINT]<<8|[BM_TACKTICK]
 
 .nmi_1
         push    af
@@ -410,7 +407,7 @@ defc    NMI_B_HALT      =0
         add     ix, sp
         exx
         ld      a, (BLSC_COM)
-        bit     NMI_B_HALT, h
+        bit     BB_INTGINT, h
         set     BB_INTGINT, h
         jr      z, nmi_3                        ; bit0 was zero? leave speaker alone
         res     BB_COMSRUN, a                   ; speaker=SBIT
@@ -424,7 +421,7 @@ defc    NMI_B_HALT      =0
         ld      bc, (ubTimecounterSoft-1)       ; ld b,(ubTimecounterSoft)
         ld      de, (uwTimecounter)
         ld      c, 0
-        jp      nz, nmi2_2                      ; NMI_B_HALT set? halt
+        jp      nz, nmi2_2                      ; BB_INTGINT set? halt
 
         ld      a, h
         out     (BL_INT), a
