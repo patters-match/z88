@@ -22,6 +22,9 @@ outputfile forever4X.epr
 save16k
 size 32
 
+; automatically generate a card ID based on the CRC32 of the images
+generateCardId
+
 ; Bank 63
 ../pdrom/zhelp+zmacro.mth 3fc000        ; MTH structures for Z-Help & Z-Macro
 ../zdis/zdis.bin 3fda92                 ; Z80Dis

@@ -31,6 +31,9 @@ outputfile z80asm.epr
 save16k
 size 64
 
+; automatically generate a card ID based on the CRC32 of the images
+generateCardId
+
 tokens.bin 3d0000                  ; Token table for Z80asm MTH
 mth.bin 3d0400                     ; MTH for Z80asm application
 

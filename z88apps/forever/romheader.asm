@@ -35,7 +35,7 @@
         defs    37
 
 .eprom_header
-        defw    $0052           ; card ID
+        defw    0               ; card ID, to be filled in by loadmap
         defb    @00000011       ; UK country code
         defb    $80             ; external application
         defb    $02             ; size of EPROM (32K)

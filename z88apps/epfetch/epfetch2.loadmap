@@ -19,6 +19,9 @@
 outputfile epfetch2.epr
 size 16
 
+; automatically generate a card ID based on the CRC32 of the images
+generateCardId
+
 ; auto-generate a 'romupdate.cfg' file for BBC BASIC RomUpdate program
 romupdate app
 

@@ -34,7 +34,7 @@ include "epfetch2.def"
                 defs    $3ff8-$3fc0-19
 
 ; $fff6
-                defw    $2003           ; app ID
+                defw    0               ; card ID, to be filled in by loadmap
                 defb    5               ; country (se)
                 defb    $80             ; app
                 defb    1               ; 16KB Popdown

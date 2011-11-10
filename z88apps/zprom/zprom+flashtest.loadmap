@@ -19,6 +19,9 @@ outputfile zprom.epr
 save16k
 size 32
 
+; automatically generate a card ID based on the CRC32 of the images
+generateCardId
+
 tokens.bin 3e0000                  ; Token table for Zprom MTH
 mthzprom.bin 3e0400                ; MTH for Zprom application
 

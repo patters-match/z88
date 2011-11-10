@@ -34,7 +34,7 @@ MODULE ROM_HEADER
 
                     DEFS 37                     ; blanks to fill-out space.
 
-.eprom_header       DEFW $0049                  ; $3FF8 Card ID for this application
+.eprom_header       DEFW $0000                  ; $3FF8 Card ID, to be filled in by loadmap
                     DEFB @00000100              ; $3FFA Country Code
                     DEFB $80                    ; $3FFB external application
                     DEFB $01                    ; $3FFC size of EPROM (16K bank)

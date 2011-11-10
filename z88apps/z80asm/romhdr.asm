@@ -49,7 +49,7 @@
 
                     DEFS 37                     ; blanks to fill-out space.
 
-.eprom_header       DEFW $0051                  ; $3FF8 Card ID for this application
+.eprom_header       DEFW $0000                  ; $3FF8 Card ID, to be filled in by loadmap
                     DEFB @00000100              ; $3FFA Denmark country code isfn
                     DEFB $80                    ; $3FFB external application
                     DEFB $03                    ; $3FFC size of EPROM (3 banks of 16K = 48K)

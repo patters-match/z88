@@ -19,6 +19,9 @@ outputfile ziputils.epr
 save16k
 size 16
 
+; automatically generate a card ID based on the CRC32 of the images
+generateCardId
+
 unzip/crctable.bin 3fc000               ; CRC Table used by Unzip & ZipUp
 unzip/application.bin 3f0400            ; Locate UnZip application right after CRC table (addressed for $C400)
 zipup/application.bin 3f1800            ; Locate ZiUp application at 1800 (addressed for $D800)

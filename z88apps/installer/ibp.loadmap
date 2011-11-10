@@ -21,6 +21,9 @@ outputfile ibp.epr
 save16k
 size 16
 
+; automatically generate a card ID based on the CRC32 of the images
+generateCardId
+
 ibp.bin 3f0000                          ; Locate applications at 0000 (addressed for $C000)
 
 romheader.bin 3f3fc0                    ; ROM Application header at top of card, first application DOR at $C000

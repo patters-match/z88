@@ -36,7 +36,7 @@
 
                     DEFS 37                     ; blanks to fill-out space.
 
-.eprom_header       DEFW $0052                  ; $3FF8 Card ID for this application ROM
+.eprom_header       DEFW $0000                  ; $3FF8 Card ID, to be filled in by loadmap
                     DEFB @00000100              ; $3FFA Denmark country code is 4
                     DEFB $80                    ; $3FFB external application
                     DEFB $01                    ; $3FFC size of EPROM (1 banks of 16K)
