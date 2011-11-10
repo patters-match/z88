@@ -124,6 +124,18 @@ public abstract class Bank {
 		
 		return crc.getValue();
 	}
+
+        /**
+         * Update input CRC32 for bank contents.
+         *
+         * @param crc
+         * @return updated CRC32 value
+         */
+        public CRC32 updateCRC32(CRC32 crc) {
+                crc.update(bankMem);
+
+                return crc;
+        }
 	
 	/**
 	 * Search for string pattern in bank.

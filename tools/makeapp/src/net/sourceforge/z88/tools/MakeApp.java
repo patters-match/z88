@@ -25,6 +25,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.util.zip.CRC32;
 
 
 /**
@@ -46,6 +47,7 @@ public class MakeApp {
 	private int appCardBanks = 1; // default output is 16K bank
 	private int appCardSize = 16;
 	private boolean splitBanks;
+        private boolean generateCardId;
 	private int lineNo;
 	private int romUpdateConfigFileType;
 
@@ -387,6 +389,8 @@ public class MakeApp {
 	        				romUpdateConfigFileType = 1;
 	        		} else if (directive[0].compareToIgnoreCase("save16k") == 0) {
 	        			splitBanks = true;
+                                } else if (directive[0].compareToIgnoreCase("generateCardId") == 0) {
+                                        generateCardId = true;
 	        		} else if (directive[0].compareToIgnoreCase("outputfile") == 0) {
 	        			outputFilename = directive[1];
 	        		} else if (directive[0].compareToIgnoreCase("size") == 0) {
@@ -632,6 +636,21 @@ public class MakeApp {
 					}
 				}
 
+                                if (generateCardId == true) {
+                                        // Generate cardId by calculating CRC32 of the image files, using
+                                        // bits 0..6 and 8..14 (bits 7 and 15 must be 0 in the card header).
+                                        CRC32 crc = new CRC32();
+                                        for (int b=0; b<appCardBanks; b++) {
+                                                crc = banks[b].updateCRC32(crc);
+                                        }
+
+                                        short cardId = (short)(crc.getValue() & 0x7f7f);
+		                        System.out.println("Generated card ID:" + addrToHex(cardId, false));
+
+			                banks[appCardBanks-1].setByte(0x3ff8, (cardId & 0xff));
+			                banks[appCardBanks-1].setByte(0x3ff9, ((cardId >>> 8) & 0xff));
+                                }
+		
 				// all binary fragments loaded, now dump the final code space as complete output file...
 				RandomAccessFile cardFile = new RandomAccessFile(outputFilename, "rw");
 				for (int b=0; b<appCardBanks; b++) {
