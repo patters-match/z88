@@ -38,7 +38,7 @@ import java.util.zip.CRC32;
  */
 public class MakeApp {
 
-	private static final String progVersion = "MakeApp V0.9";
+	private static final String progVersion = "MakeApp V1.0";
 
 	private static final char[] hexcodes = {'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
 	private static final String svnRevisionMacroSearchKey = "$Revision: ";
