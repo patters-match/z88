@@ -26,4 +26,4 @@ rm *.obj *.bin *.map freeram.63 freeram.epr
 ../../tools/mpm/mpm -b romhdr
 
 # Create a 16K Rom Card with FreeRam
-../../tools/makeapp/makeapp.bat -f freeram.loadmap
+../../tools/makeapp/makeapp.sh -f freeram.loadmap
