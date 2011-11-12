@@ -132,6 +132,7 @@ will get the following directory structure with lots of files in it:
                     Z-Help, Z-Macro, Utilities, Graphics
      /romcombiner   BBC BASIC utility to combine applications to card.
      /romupdate     BBC BASIC utility to update/add apps to Flash Cards
+     /uutools       UUtools utility with Mimetypes package (for uuencode/uudecode)
      /wavplay       Play polyphonic sounds on Z88 Loudspeaker
      /xymodem       Dennis Grönings XY-MODEM Z88 transfer client
      /z80asm        Z80 Module Assembler application
@@ -274,6 +275,10 @@ Each application script automatically builds the latest standard.lib file
 before compiling the Z88 application that also statically links with
 the standard library.
 
+Small-C based applications (eg UUtools) require z88dk to be installed
+on your system. This can be obtained for most platforms from www.z88dk.org.
+Ubuntu users will find it can be installed directly from their package
+manager.
 
 ----------------------------------------------------------------------
 Compiling Z88 Virtual Machine, OZvm
