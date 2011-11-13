@@ -22,4 +22,4 @@
 #
 # ***************************************************************************************************
 
-../../../tools/mpm/mpm -db -DOZ_SLOT$1 -I../../def @calculator.prj
+../../../tools/mpm/mpm -b -DOZ_SLOT$1 -I../../def @calculator.prj

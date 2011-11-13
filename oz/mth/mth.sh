@@ -22,28 +22,28 @@
 #
 # ***************************************************************************************************
 
-../../tools/mpm/mpm -dbg -DOZ_SLOT$1 -I../def keymaps.asm
+../../tools/mpm/mpm -bg -DOZ_SLOT$1 -I../def keymaps.asm
 if test `find . -name '*.err' | wc -l` != 0; then
   cat *.err
   echo Script aborted.
   exit 1
 fi
 
-../../tools/mpm/mpm -dbg -DOZ_SLOT$1 -I../def hires1.asm
+../../tools/mpm/mpm -bg -DOZ_SLOT$1 -I../def hires1.asm
 if test `find . -name '*.err' | wc -l` != 0; then
   cat *.err
   echo Script aborted.
   exit 1
 fi
 
-../../tools/mpm/mpm -dbg -DOZ_SLOT$1 -I../def lores1.asm
+../../tools/mpm/mpm -bg -DOZ_SLOT$1 -I../def lores1.asm
 if test `find . -name '*.err' | wc -l` != 0; then
   cat *.err
   echo Script aborted.
   exit 1
 fi
 
-../../tools/mpm/mpm -dbg -DOZ_SLOT$1 -I../def @mth.prj
+../../tools/mpm/mpm -bg -DOZ_SLOT$1 -I../def @mth.prj
 if test `find . -name '*.err' | wc -l` != 0; then
   cat *.err
   echo Script aborted.

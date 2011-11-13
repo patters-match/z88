@@ -23,4 +23,4 @@
 # ***************************************************************************************************
 
 rm -f dc.bin dc.map
-../../tools/mpm/mpm -db -DOZ_SLOT$1 -I../def @indexdc.prj
+../../tools/mpm/mpm -b -DOZ_SLOT$1 -I../def @indexdc.prj

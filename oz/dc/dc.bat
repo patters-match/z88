@@ -21,4 +21,4 @@
 :: ***************************************************************************************************
 
 del /S /Q dc.bin dc.map 2>nul >nul
-..\..\tools\mpm\mpm -db -DOZ_SLOT%1 -I..\def @indexdc.prj
+..\..\tools\mpm\mpm -b -DOZ_SLOT%1 -I..\def @indexdc.prj

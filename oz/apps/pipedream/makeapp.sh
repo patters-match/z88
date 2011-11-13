@@ -22,4 +22,4 @@
 #
 # ***************************************************************************************************
 
-../../../tools/mpm/mpm -dbc -DOZ_SLOT$1 -I../../def @pipedream.prj
+../../../tools/mpm/mpm -bc -DOZ_SLOT$1 -I../../def @pipedream.prj

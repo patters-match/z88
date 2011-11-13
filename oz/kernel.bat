@@ -25,7 +25,7 @@ cd os
 :: create lowram.def and keymap.def (address pre-compilation) for lower and upper kernel compilation
 :PRECOMPILE_LOWRAM
 cd lowram
-..\..\..\tools\mpm\mpm -dg -DOZ_SLOT%1 %2 -I..\..\def @lowram.prj
+..\..\..\tools\mpm\mpm -g -DOZ_SLOT%1 %2 -I..\..\def @lowram.prj
 if ERRORLEVEL 1 goto LOWRAM_COMPILE_ERROR
 cd ..
 
@@ -43,17 +43,17 @@ cd ..
 
 :: compile final (upper) kernel binary with correct lowram code and correct lower kernel references
 :COMPILE_KERNEL1
-..\..\tools\mpm\mpm -dbg -DCOMPILE_BINARY -DOZ_SLOT%1 %2 -I..\def -Ilowram -l..\..\stdlib\standard.lib @kernel1.prj
+..\..\tools\mpm\mpm -bg -DCOMPILE_BINARY -DOZ_SLOT%1 %2 -I..\def -Ilowram -l..\..\stdlib\standard.lib @kernel1.prj
 if ERRORLEVEL 1 goto COMPILE_ERROR
 
 :: compile final kernel 0 binary using correct kernel 1 references
 :COMPILE_KERNEL0
-..\..\tools\mpm\mpm -db -DCOMPILE_BINARY -DOZ_SLOT%1 %2 -I..\def -Ilowram @kernel0.prj
+..\..\tools\mpm\mpm -b -DCOMPILE_BINARY -DOZ_SLOT%1 %2 -I..\def -Ilowram @kernel0.prj
 if ERRORLEVEL 1 goto COMPILE_ERROR
 
 :: compile final OSTABLE
 :COMPILE_FINALOSTABLES
-..\..\tools\mpm\mpm -db -DOZ_SLOT%1 -I..\def @ostables.prj
+..\..\tools\mpm\mpm -b -DOZ_SLOT%1 -I..\def @ostables.prj
 if ERRORLEVEL 1 goto COMPILE_ERROR
 goto END
 

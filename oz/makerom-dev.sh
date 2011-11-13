@@ -228,7 +228,7 @@ fi
 # -------------------------------------------------------------------------------------------------
 echo compiling OZ ROM Header
 cd mth
-../../tools/mpm/mpm -db -DOZ_SLOT$ozslot -I../def @romhdr.prj
+../../tools/mpm/mpm -b -DOZ_SLOT$ozslot -I../def @romhdr.prj
 cd ..
 if test `find . -name '*.err' | wc -l` != 0; then
   cat mth/*.err

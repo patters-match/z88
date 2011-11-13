@@ -29,7 +29,7 @@ cd os
 # create lowram.def and keymap.def (address pre-compilation) for lower & upper kernel compilation
 # (argument $1 contains the country localisation)
 cd lowram
-../../../tools/mpm/mpm -dg -DOZ_SLOT$1 $2 -I../../def @lowram.prj
+../../../tools/mpm/mpm -g -DOZ_SLOT$1 $2 -I../../def @lowram.prj
 if test $? -gt 0; then
   COMPILE_ERROR=1
 fi
@@ -55,7 +55,7 @@ cd ..
 
 # compile final (upper) kernel binary with correct lowram code and correct lower kernel references
 if test "$COMPILE_ERROR" -eq 0; then
-  ../../tools/mpm/mpm -dbg -DCOMPILE_BINARY -DOZ_SLOT$1 $2 -I../def -Ilowram -l../../stdlib/standard.lib @kernel1.prj
+  ../../tools/mpm/mpm -bg -DCOMPILE_BINARY -DOZ_SLOT$1 $2 -I../def -Ilowram -l../../stdlib/standard.lib @kernel1.prj
   if test $? -gt 0; then
     COMPILE_ERROR=1
   fi
@@ -63,14 +63,14 @@ fi
 
 # compile final kernel binary with OS tables for bank 0 using correct upper kernel references
 if test "$COMPILE_ERROR" -eq 0; then
-  ../../tools/mpm/mpm -db -DCOMPILE_BINARY -DOZ_SLOT$1 $2 -I../def -Ilowram @kernel0.prj
+  ../../tools/mpm/mpm -b -DCOMPILE_BINARY -DOZ_SLOT$1 $2 -I../def -Ilowram @kernel0.prj
   if test $? -gt 0; then
     COMPILE_ERROR=1
   fi
 fi
 
 if test "$COMPILE_ERROR" -eq 0; then
-  ../../tools/mpm/mpm -db -DOZ_SLOT$1 -I../def @ostables.prj
+  ../../tools/mpm/mpm -b -DOZ_SLOT$1 -I../def @ostables.prj
   if test $? -gt 0; then
     COMPILE_ERROR=1
   fi

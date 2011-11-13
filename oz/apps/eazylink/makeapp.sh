@@ -18,4 +18,4 @@
 # *************************************************************************************
 
 # compile EazyLink application from scratch
-../../../tools/mpm/mpm -db -DOZ_SLOT$1 -I../../def -l../../../stdlib/standard.lib @eazylink.prj
+../../../tools/mpm/mpm -b -DOZ_SLOT$1 -I../../def -l../../../stdlib/standard.lib @eazylink.prj

@@ -17,4 +17,4 @@
 
 :: compile EazyLink application from scratch
 :: (this compile script is located in /z88apps/eazylink)
-..\..\..\tools\mpm\mpm -db -DOZ_SLOT%1 -I..\..\def -l..\..\..\stdlib\standard.lib @eazylink.prj
+..\..\..\tools\mpm\mpm -b -DOZ_SLOT%1 -I..\..\def -l..\..\..\stdlib\standard.lib @eazylink.prj
