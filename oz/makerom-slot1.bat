@@ -25,6 +25,7 @@
 
 call cleanup
 del /Q oz.bin
+del /Q ozs0*
 
 :MAKE_ROM_SLOT1
 call makerom 1
