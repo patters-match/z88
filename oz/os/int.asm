@@ -225,30 +225,24 @@ xref    ReadRTC                                 ; [Kernel0]/time.asm
         jr      int_x
 
 .int_8
-        rra                                     ; always handle UART ints
-        jr      nc, int_9
+        rra                                     ; UART int
+        jr      c, int_uart
 
-.int_uart
-        call    OSSIInt
-        jr      int_12
-
-.int_9
-        rra                                     ; flap
+        rra                                     ; flap int
         jr      nc, int_10
         call    IntFlap
         jr      int_x
 
 .int_10
-        rra                                     ; A19
+        rra                                     ; A19 int
         jr      nc, int_x
         ld      a, BM_ACKA19
         out     (BL_ACK), a                     ; (w) main int. mask
         jr      int_x
 
-;       uart exits thru this
-
-.int_12
-        ld      hl, 0
+.int_uart
+		call	OSSiInt							; handle Rx, Tx or DCD Int
+        ld      hl, 0							; reset OSWait
         ld      (ubWaitCount1), hl              ; ubWaitCount1, ubWaitCount2
         call    ResetTimeout
 
