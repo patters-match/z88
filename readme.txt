@@ -102,6 +102,7 @@ will get the following directory structure with lots of files in it:
 /tools              Developer tools for asm development, Z88 emulator
      /dzasm         Reverse engineer Z80 binaries into assembler source
      /fontbitmap    Generate asm source for ROM fonts & token table
+     /forth         Tools to generate CamelForth-based applications
      /jdk           Eclipse Java Compiler and the MakeJar utility
                     (these tools are used to compile executable Jar's
                     for OZvm, MakeApp and FontBitMap applications.
@@ -130,6 +131,7 @@ will get the following directory structure with lots of files in it:
      /lockup        Password protection popdown utility
      /pdrom         4 applications by Richard Haw, released in 1989:
                     Z-Help, Z-Macro, Utilities, Graphics
+     /pyramid       Puzzle Of The Pyramid game
      /romcombiner   BBC BASIC utility to combine applications to card.
      /romupdate     BBC BASIC utility to update/add apps to Flash Cards
      /uutools       UUtools utility with Mimetypes package (for uuencode/uudecode)
