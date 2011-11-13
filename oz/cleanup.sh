@@ -32,19 +32,23 @@ find . -name "*.bn?" | xargs rm -f
 find . -name "*.epr" | xargs rm -f
 find . -name "*.map" | xargs rm -f
 find . -name "*.err" | xargs rm -f
+find . -name "*.wrn" | xargs rm -f
 find . -name "*.obj" | xargs rm -f
 find . -name "*.lst" | xargs rm -f
 find . -name "*.err" | xargs rm -f
 find . -name "*.sym" | xargs rm -f
 
 # remove generated DEF files (they are part of the compile dependencies...)
-rm -f mth\hires1.def
-rm -f mth\keymaps.def
-rm -f mth\lores1.def
-rm -f mth\mth.def
-rm -f os\kernel0.def
-rm -f os\kernel1.def
-rm -f os\lowram\lowram.def
-rm -f apps\clcalalm.def
-rm -f apps\clock\clcalalm.def
-rm -f apps\impexport\impexp.def
+rm -f mth/keymaps.def
+rm -f mth/lores1.def
+rm -f mth/hires1.def
+rm -f mth/mth.def
+rm -f os/kernel0.def
+rm -f os/kernel1.def
+rm -f os/lowram/lowram.def
+rm -f apps/clcalalm.def
+rm -f apps/clock/clcalalm.def
+rm -f apps/impexport/impexp.def
+rm -f apps/intuition/debug0a.def
+rm -f apps/intuition/debug0b.def
+

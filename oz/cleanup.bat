@@ -28,9 +28,9 @@ del /Q oz-*.?? romupdate.cfg 2>nul >nul
 del /S /Q *.bn? *.bin *.epr *.map *.obj *.lst *.err *.wrn *.sym 2>nul >nul
 
 :: remove generated DEF files (they are part of the compile dependencies...)
-del /Q mth\hires1.def 2>nul >nul
 del /Q mth\keymaps.def 2>nul >nul
 del /Q mth\lores1.def 2>nul >nul
+del /Q mth\hires1.def 2>nul >nul
 del /Q mth\mth.def 2>nul >nul
 del /Q os\kernel0.def 2>nul >nul
 del /Q os\kernel1.def 2>nul >nul
@@ -38,3 +38,5 @@ del /Q os\lowram\lowram.def 2>nul >nul
 del /Q apps\clcalalm.def 2>nul >nul
 del /Q apps\clock\clcalalm.def 2>nul >nul
 del /Q apps\impexport\impexp.def 2>nul >nul
+del /Q apps\intuition\debug0a.def
+del /Q apps\intuition\debug0b.def
