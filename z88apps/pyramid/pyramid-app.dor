@@ -1,0 +1,45 @@
+\ *************************************************************************************
+\
+\ Puzzle Of The Pyramid (c) Garry Lancaster, 1998-1999
+\
+\ Puzzle Of The Pyramid is free software; you can redistribute it and/or modify it under
+\ the terms of the GNU General Public License as published by the Free Software Foundation;
+\ either version 2, or (at your option) any later version.
+\ Puzzle Of The Pyramid is distributed in the hope that it will be useful, but WITHOUT
+\ ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+\ PARTICULAR PURPOSE.
+\ See the GNU General Public License for more details.
+\ You should have received a copy of the GNU General Public License along with Puzzle
+\ Of The Pyramid; see the file COPYING. If not, write to the
+\ Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+\
+\
+\ *************************************************************************************
+
+\ A DOR for the application version of "Puzzle Of The Pyramid"
+
+CR .( Loading PUZZLE OF THE PYRAMID application DOR...)
+
+HEX
+4557 TO CARDID             \ Card ID
+DECIMAL
+
+1172 BYTES TO RAM-SIZE     \ Bad application size required
+                           \ Calculated as RAM HERE 8192 - U.
+                           \ and allowing for some interpretive space at HERE
+                           \ Other values can be left at the defaults
+
+
+CHAR P APPLICATION[ Pyramid]
+        N/L
+        HELP[ Puzzle Of The Pyramid]
+        HELP[ (c) 1988, 1999 Garry Lancaster]
+        N/L
+        HELP[ An example application created with Z88 CamelForth]
+
+TOPIC[ Commands]
+  SEQ[ R]  129  COMMAND[ Restart]             \ code 129 for Restart
+    N/L HELP[ Begin the adventure again]
+  SEQ[ Q]  128  COMMAND[ Quit]                \ code 128 for Quit
+    N/L HELP[ Terminate this application]
+
