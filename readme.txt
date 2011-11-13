@@ -134,7 +134,7 @@ will get the following directory structure with lots of files in it:
      /romupdate     BBC BASIC utility to update/add apps to Flash Cards
      /uutools       UUtools utility with Mimetypes package (for uuencode/uudecode)
      /wavplay       Play polyphonic sounds on Z88 Loudspeaker
-     /xymodem       Dennis Grönings XY-MODEM Z88 transfer client
+     /xymodem       Dennis GrÃ¶nings XY-MODEM Z88 transfer client
      /z80asm        Z80 Module Assembler application
      /zdis          Z80 disassembler
      /zetriz        Tetris game in map area.

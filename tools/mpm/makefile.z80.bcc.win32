@@ -36,7 +36,6 @@
 # (Borland C++Builder 4.0) in combination with
 # Borland MAKE versions 5.1 and 5.2
 #
-# $Id$
 # ------------------------------------------------------------------------------
 
 # If "BINDIR=C:\...." has not been defined on the command line

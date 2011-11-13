@@ -27,7 +27,6 @@
 ; Copyright of original (binary) implementation, V4.0:
 ; (C) 1987,88 by Trinity Concepts Limited, Protechnic Computers Limited & Operating Systems Limited.
 ;
-; $Id$
 ; ***************************************************************************************************
 
         Module ScrDrv1

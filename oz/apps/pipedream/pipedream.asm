@@ -26,7 +26,6 @@
 ; Copyright of original (binary) implementation, V3.21 (DK):
 ; (C) 1987,88 by Trinity Concepts Limited, Protechnic Computers Limited & Operating Systems Limited.
 ;
-; $Id$
 ; ***************************************************************************************************
 
         MODULE PipeDream

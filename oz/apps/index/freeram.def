@@ -21,7 +21,6 @@
 ; Development by
 ; (C) Gunther Strube (gbs@users.sf.net), 1998
 ;
-; $Id$
 ; ***************************************************************************************************
 
 DEFVARS INDEX_SAFE_WS_START

@@ -14,7 +14,6 @@
 Copyright (C) Gunther Strube, 1996-2008
 */
 
-/* $Id$ */
 
 /*
  * Z88 (Z80) Disassembler. All Z88 OZ manifests	are recognized.

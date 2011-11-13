@@ -14,7 +14,6 @@
 Copyright (C) Gunther Strube, 1996-2008
 */
 
-/* $Id$ */
 
 typedef struct opcode {                 	/* base structure for Z80 mnemonic */
         char                    *name;

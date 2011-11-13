@@ -18,7 +18,6 @@
 ;                                  59 Temple Place-Suite 330,
 ;                                  Boston, MA 02111-1307, USA.
 ;
-; $Id$
 ; ***************************************************************************************************
 
 filer.asm   : blink.def char.def director.def dor.def error.def fileio.def eprom.def flashepr.def eprom.def integer.def memory.def saverst.def stdio.def syspar.def time.def sysvar.def sysapps.def rtmvars.def

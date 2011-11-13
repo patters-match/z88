@@ -15,7 +15,6 @@ Copyright (C) Gunther Strube, 1996-2008
 
 */
 
-/* $Id$ */
 
 enum atype              {
 				vacuum, program, addrtable, defp, defw, defb, defs, string, nop,

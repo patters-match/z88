@@ -12,7 +12,6 @@ DDDDDDDDDDDDD     ZZZZZZZZZZZZZZZZZ      AAAA        AAAA  SSSSSSSSSSS     MMMM 
 
 Copyright (C) Gunther Strube, InterLogic 1996-99
 
-$Id$
 ------------------------------------------------------------------------------------------
 
                                                               Kopenhagen, 22nd August 1999

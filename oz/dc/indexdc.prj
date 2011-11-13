@@ -18,7 +18,6 @@
 ;                                  59 Temple Place-Suite 330,
 ;                                  Boston, MA 02111-1307, USA.
 ;
-; $Id$
 ; ***************************************************************************************************
 
 dc.asm : blink.def char.def director.def dor.def error.def fileio.def integer.def memory.def serintfc.def stdio.def syspar.def time.def printer.def z80.def keyboard.def handle.def sysapps.def oz.def sysvar.def ../os/lowram/lowram.def dc.def

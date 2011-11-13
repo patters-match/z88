@@ -13,7 +13,6 @@
  * Free	Software Foundation, Inc., 59 Temple Place - Suite 330,	Boston,	MA 02111-1307, USA.
  *
  * @author <A HREF="mailto:gbs@users.sourceforge.net">Gunther Strube</A>
- * $Id$
  *
  */
 package net.sourceforge.z88.datastructures;

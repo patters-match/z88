@@ -14,7 +14,6 @@
 Copyright (C) Gunther Strube, 1996-2008
 */
 
-/* $Id$ */
 
 #include <stdio.h>
 #include <string.h>

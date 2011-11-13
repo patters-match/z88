@@ -23,7 +23,6 @@
 ; (C) Thierry Peycru (pek@users.sf.net), 2005-2006
 ; (C) Gunther Strube (gbs@users.sf.net), 2005-2006
 ;
-; $Id$
 ;***************************************************************************************************
 
 MODULE  Keymaps

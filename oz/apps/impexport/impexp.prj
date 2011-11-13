@@ -18,7 +18,6 @@
 ;                                  59 Temple Place-Suite 330,
 ;                                  Boston, MA 02111-1307, USA.
 ;
-; $Id$
 ; ***************************************************************************************************
 
 impexp.asm  : director.def dor.def error.def fileio.def integer.def memory.def stdio.def syspar.def serintfc.def sysapps.def impexp.inc
