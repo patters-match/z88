@@ -1,0 +1,14 @@
+#J3
+|RF~EY~E
+.D 3000
+#ZC
+S" makeapp.fth" INCLUDED~E
+#J2
+|FS*.ap?~EY~E
+.D 3000
+#ZC
+COLD~E
+64 4 C!~E
+CODE OZVMBPT 195 C, 4 ,~E
+OZVMBPT~E
+
