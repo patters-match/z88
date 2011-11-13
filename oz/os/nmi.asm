@@ -46,7 +46,7 @@ xdef    ResetTimeout
 xdef    OSWait
 xdef    OSWaitMain
 xdef    NMIMain
-xdef    nmi_5
+xdef    NMIWakeup
 xdef    HW_NMI2
 xdef    NMIEntry
 
@@ -441,7 +441,7 @@ xref    HW_INT,HW_NMI                           ; [Kernel0]/boot.asm
 
 ;       entry point from wakeup int - Fc=1
 
-.nmi_5
+.NMIWakeup
         di
         ld      a, BM_COMRAMS|BM_COMLCDON
         out     (BL_COM), a                     ; LCD on, RAM bank $20 in lower 8K bound at $0000

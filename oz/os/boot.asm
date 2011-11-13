@@ -49,7 +49,7 @@ ELSE
 xdef    Bootstrap2
 ENDIF
 
-xref    nmi_5                                   ; [Kernel0]/nmi.asm
+xref    NMIWakeup                               ; [Kernel0]/nmi.asm
 xref    HW_NMI2                                 ; [Kernel0]/nmi.asm
 xref    VerifySlotType                          ; [Kernel0]/memory.asm
 
@@ -116,7 +116,7 @@ ENDIF
         ld      a, i
         jr      z, rint_0                       ; I=0? INT occured during reset
         scf                                     ; else it occured during coma
-        jp      nmi_5                           ; try to awake
+        jp      NMIWakeup                       ; try to awake
 .Reset1
         ld      de, 1<<8 | $3f                  ; check slot 1, max size 63 banks
         jp      VerifySlotType                  ; ret at ROMstack
