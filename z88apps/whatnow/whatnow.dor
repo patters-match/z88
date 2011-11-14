@@ -1,4 +1,6 @@
 \ Application DOR for WhatNow?
+CR .( WhatNow? - Z88 Application DOR)
+
 
 24320 BYTES TO RAM-SIZE		\ can't have 24576 cos of bug in OZ
 BAD TO APPTYPE			\ we can cope with redrawing ourselves!
@@ -9,7 +11,7 @@ CHAR W APPLICATION[ WhatNow?]
         N/L
         HELP[ An interpreter for playing adventure games created]
         HELP[ with Incentive's Graphic Adventure Creator]
-        HELP[ v1.12 (c) 12th August 2001, Garry Lancaster]
+        HELP[ v1.13 (c) 12th July 2003, Garry Lancaster]
 	N/L
         HELP-TEXT[ Made with ] 1 HELP-CHAR HELP-TEXT[ 2+BZ88 CamelForth]
         1 HELP-CHAR HELP-TEXT[ 2-B] N/L
