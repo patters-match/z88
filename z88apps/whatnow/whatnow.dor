@@ -1,0 +1,58 @@
+\ Application DOR for WhatNow?
+
+24320 BYTES TO RAM-SIZE		\ can't have 24576 cos of bug in OZ
+BAD TO APPTYPE			\ we can cope with redrawing ourselves!
+CAPS-OFF TO CAPSMODE
+HEX 4443 TO CARDID DECIMAL
+
+CHAR W APPLICATION[ WhatNow?]
+        N/L
+        HELP[ An interpreter for playing adventure games created]
+        HELP[ with Incentive's Graphic Adventure Creator]
+        HELP[ v1.12 (c) 12th August 2001, Garry Lancaster]
+	N/L
+        HELP-TEXT[ Made with ] 1 HELP-CHAR HELP-TEXT[ 2+BZ88 CamelForth]
+        1 HELP-CHAR HELP-TEXT[ 2-B] N/L
+        HELP[ Z88 Forever! Website: http://www.z88forever.org.uk]
+
+TOPIC[ File]
+  N/L HELP[ Operations on GAC files]
+  SEQ[ FL] 137 COMMAND[ Load file]
+    N/L HELP[ Load and play a GAC adventure file]
+        HELP[ (Not available from within a game)]
+  SEQ[ FC] 132 COMMAND[ Close file]
+    N/L HELP[ Close the current game file]
+  SEQ[ Q] 128  COMMAND[ Quit]
+    N/L HELP[ Exit "WhatNow?"]
+  SEQ[ FE] 138 COMMAND[ Extract file] NEW-COLUMN
+    N/L HELP[ Extract a GAC datafile from a snapshot/tape image]
+        HELP[ (Not available from within a game)]
+    N/L HELP[ Supported filetypes include:]
+        HELP[ SNA TAP TZX SP PRG ZX BLK RAW] 
+        HELP-TEXT[ Also supports Amstrad CPC snapshots] 
+
+TOPIC[ Game]
+  N/L HELP[ Commands used during gameplay]
+  SEQ[ GL] 135 COMMAND[ Load position]
+    N/L HELP[ Load a previously saved game position]
+  SEQ[ GS] 136 COMMAND[ Save position]
+    N/L HELP[ Save current game position]
+  SEQ[ R] 129  COMMAND[ Restart]
+    N/L HELP[ Restart the adventure]
+
+TOPIC[ Options]
+  N/L HELP[ Selectable options]
+  SEQ[ OG] 130 COMMAND[ Graphics on]
+    N/L HELP[ Use split-screen text and graphics]
+  SEQ[ OT] 131 COMMAND[ Text only]
+    N/L HELP[ Use wide text-only window]
+  SEQ[ OP] 133 COMMAND[ Pause mode] NEW-COLUMN
+    N/L HELP[ Pause when text fills screen]
+  SEQ[ OS] 134 COMMAND[ Scroll mode]
+    N/L HELP[ Continue scrolling when text fills screen]
+  SEQ[ OE] 139 COMMAND[ Trap errors] NEW-COLUMN
+    N/L HELP[ Stops the game if a programming error is found]
+        HELP[ Trapping is on by default]
+  SEQ[ OI] 140 COMMAND[ Ignore errors]
+    N/L HELP[ Ignore programming errors in GAC gamefiles]
+

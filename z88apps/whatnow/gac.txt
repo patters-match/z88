@@ -1,0 +1,357 @@
+Format used by GACed adventures on the Sinclair Spectrum & Amstrad CPC
+======================================================================
+
+GACed adventures use an almost identical format on the Spectrum and CPC
+ranges, since the Spectrum version was a straight conversion of the
+original CPC version, with only a few changes made for graphics.
+
+This document details both versions, and highlights any differences.
+
+
+THE GAC DATABASE
+================
+
+A suitable GAC signature to look for is the punctuation table. This is
+as follows: DB 00,20,2E,2C,2D,21,3F,3A
+
+On the Amstrad this is at $210C; on the Spectrum it is at $A1E5.
+
+If this is found then a table of addresses can be found:
+
+CPC	ZX	POINTS TO
+---	--	---------
+$4000	$A51F   Noun table
+$4002	$A521   Adverb table
+$4004	$A523   Object table
+$4006	$A525   Location table
+$4008	$A527   High priority conditions table
+$400A	$A529   Local conditions table
+$400C	$A52B   Low priority conditions table
+$400E	$A52D   Message table
+$4012	$A52F   Picture table
+$4014	$A531   Vocabulary table
+$4016	$A533   First free location
+
+The Verb table begins at a fixed location: $4100 on the Amstrad; $A54F on
+the Spectrum.
+
+The starting location number is held at $4018 on the Amstrad, and at
+$A54D on the Spectrum.
+
+Spectrum GAC saves its database as a bytes file containing everything from
+the start of the table of addresses to the end of the database (first free
+location-1). The last available location is $A2FB for the Amstrad, and
+$FFFF for the Spectrum. 
+
+
+THE TABLES
+==========
+
+
+1. Vocabulary table
+-------------------
+
+This table contains a list of words used by the other tables to build
+messages etc. Words are referenced as 0...2047 in other tables.
+Each word has an entry in the following format:
+
+Byte	Use
+----	---
+0	Length (0 indicates end of vocabulary but not always present)
+1+	ASCII text of word (capitalised), with bit 7 set on last character
+
+
+2. Verb, Noun and Adverb tables
+-------------------------------
+
+Each Verb/Noun/Adverb has an entry in the following format:
+
+Byte    Use
+----    ---
+0       Verb/Noun/Adverb number (1-255). Number 0 indicates end of table.
+1-2     Vocabulary word number (bit 15 is set to indicate all CAPS - see
+        section on messages).
+
+The tables are sorted alphabetically and terminated with 0,0.
+
+
+3. Message table
+----------------
+
+Each message has an entry in the following format:
+
+Byte    Use
+----    ---
+0       Message number (1-255). Message 0 indicates end of table.
+1       Length of message string
+2-x     Message string
+
+The table is terminated with 0,0.
+
+Each message string is a list of 16-bit "message words" (LSB first). These
+are interpreted as follows:
+        (i)   If both bits 15 & 14 are set, then bits 13->11 contain a
+              punctuation code, to be repeated bits 7->0 times.
+        (ii)  Otherwise:
+                bits 10->0 contain a word number in the vocabulary table
+                bits 13->11 contain a following punctuation code
+                bit 14 is set if the whole word should be lowercase
+                bit 15 is set if the whole word should be uppercase
+                otherwise, the first letter only should be uppercase
+
+Punctuation codes are as follows:
+
+Code    Meaning
+----    -------
+0       End of message string
+1       SPACE
+2       .
+3       ,
+4       -
+5       !
+6       ?
+7       :
+
+Any other punctuation is stored as part of a word in the vocabulary table.
+
+
+4. Location table 
+-----------------
+
+Each location has an entry in the following format:
+
+Byte    Use
+----    ---
+0-1     Location number (1-9999). Location 0 indicates end of table.
+2-3     Length of following information
+4-5     Picture number (1-9999). Picture 0 indicates no picture.
+6-x     List of connections in format:
+                VERB#,LOCATION#  (3 bytes per connection)
+x+1     0 (terminates list of connections).
+x+2-y   Message string of location description (see messages for format).
+
+The table is terminated with 0,0.
+
+
+5. Object table
+---------------
+
+Each object has an entry in the following format:
+
+Byte    Use
+----    ---
+0       Object number (1-255). Object 0 indicates end of table.
+1       Length of following information
+2       Weight (1-255)
+3-4     Starting location
+5-x     Message string of object description (see messages for format).
+x+1-y   Unknown data (may be rubbish).
+
+The table is terminated with 0,0.
+
+
+6. Picture table
+-----------------
+
+This is the only significant area of difference between the machine
+versions.
+
+Amstrad version
+---------------
+Each picture has an entry in the following format:
+
+Byte	Use
+----	---
+0-1	Picture number (1-999). Picture 0 indicates end of table.
+2-3	Length of following data.
+4-11	Colour information. For each "ink" 0-3 there are two values
+	corresponding to CPC colours (although black is $20, not 0).
+	Inks flash between the two values (usually they are the same).
+12+	List of drawing actions
+
+Each entry is terminated with drawing action 0, and the table is
+terminated with 0,0.
+
+Coordinates are x=0 (left) to x=255 (right), and y=128 (bottom) to y=255
+(top). Initial colour values are: INK0=$01,$01; INK1=$18,$18; INK2=$14,$14;
+INK3=$06,$06. The background is set to INK0, and initial ink is INK1.
+Initial shading colours are INK1,INK1.
+
+Action  Parameters      Function
+------  ----------      --------
+0	-		End of picture
+1       x1,y1,x2,y2	Draws line from (x1,y1) to (x2,y2)
+2       x1,y1,x2,y2     Draws ellipse with centre (x1,y1) and 'corner' (x2,y2)
+3	x,y		Shades area with current shade inks
+4	-		Selects INK0
+5	-		Selects INK1
+6	-		Selects INK2
+7	-		Selects INK3
+8	x1,y1,x2,y2	Draws rectangle with corners (x1,y1) and (x2,y2)
+9	i1,i2		Select colours to shade with. NB: Bit 7 of i2 is set
+10	nlow,nhigh	Merges picture n. NB: Bit 7 of nhigh is set
+11	x,y		Places dot at (x,y)
+
+
+Spectrum version
+----------------
+Each picture has an entry in the following format:
+
+Byte    Use
+----    ---
+0-1     Picture number (1-9999). Picture 0 indicates end of table.
+2-3     Length of following data + 4 (ie total entry length).
+4       Number of drawing actions.
+5-x     List of drawing actions.
+
+The table is terminated with 0,0.
+
+Coordinates are x=0 (left) to x=255 (right), and y=48 (bottom) to 175
+(top). Initially INK=0 and PAPER/BORDER=7, with FLASH/BRIGHT off.
+
+Action  Parameters      Function
+------  ----------      --------
+1       n               Sets BORDER & text background colour to n
+2       x,y             Places dot at (x,y)
+3       x1,y1,x2,y2     Draws ellipse with centre (x1,y1) and 'corner' (x2,y2)
+4       x,y             Fills area with ink at (x,y)
+5       x,y             Fills area with paper at (x,y)
+6       x,y             Shades area with paper/ink at (x,y)
+7       nlow,nhigh      Merges picture n
+8       x1,y1,x2,y2     Draws rectangle with corners (x1,y1) and (x2,y2)
+9       x1,y1,x2,y2     Draws line from (x1,y1) to (x2,y2)
+16      n               Sets INK n
+17      n               Sets PAPER n
+18      n               Sets FLASH n
+19      n               Sets BRIGHT n
+
+
+7. High priority conditions & low priority conditions tables
+------------------------------------------------------------
+
+These tables are simply lists of condition items and literal numbers.
+Literal numbers are 16-bit words with bit 15 set, and condition items
+are bytes in the range $00 to $3F ($28 and $29 are not used).
+
+When a literal number is encountered it is pushed onto the stack. Each
+condition item may take between 0 and 2 parameters from the stack and
+may optionally place a result on the stack.
+
+Some condition items (such as QUIT) cause processing to finish.
+The item IF ($3E) takes one parameter: if true it continues processing;
+if false, processing continues after the next END ($3F) item.
+
+The conditions typed in by the game designer are tokenised and then
+converted to Reverse Polish notation, so that processing can be as fast
+as possible. If you are familiar with FORTH, this will be rather an
+obvious way of doing things.
+
+As an example, consider the following condition:
+  IF ( VERB 3 AND NOUN 18 ) RESE 1 GOTO 2 WAIT END
+
+This would be rearranged as follows:
+  3 VERB 18 NOUN AND IF 1 RESE 2 GOTO WAIT END
+
+And processed in this manner:
+
+Stack Before       Action        Stack After
+------------       ------        -----------
+(empty)            3             3
+3                  VERB          f1=true if verb 3 was typed
+f1                 18            f1,18
+f1,18              NOUN          f1,f2=true if noun 18 was typed
+f1,f2              AND           f3=true if f1 and f2 were both true
+f3                 IF            (empty): if f3 not true, skip to END token
+(empty)            1             1
+1                  RESE          (empty): marker 1 is reset
+(empty)            2             2
+2                  GOTO          (empty): goto room 2 and describe it
+(empty)            END           (empty)
+
+Note that the stack should be balanced after each IF and at every END (and
+at the end of processing), but conditions can be entered which violate this.
+
+The table is terminated with 0,0.
+
+Item    Desc    #Pars   #Results
+----    ----    -----   --------
+00      (end of table)
+01      AND     2       1
+02      OR      2       1
+03      NOT     1       1
+04      XOR     2       1
+05      HOLD    1       0
+06      GET     1       0
+07      DROP    1       0
+08      SWAP    2       0
+09      TO      2       0
+0A      OBJ     1       0
+0B      SET     1       0
+0C      RESE    1       0
+0D      SET?    1       1
+0E      RES?    1       1
+0F      CSET    2       0
+10      CTR     1       1
+11      DECR    1       0
+12      INCR    1       0
+13      EQU?    2       1
+14      DESC    1       0
+15      LOOK    0       0
+16      MESS    1       0
+17      PRIN    1       0
+18      RAND    1       1
+19      <       2       1
+1A      >       2       1
+1B      =       2       1
+1C      SAVE    0       0
+1D      LOAD    0       0
+1E      HERE    1       1
+1F      AVAI    1       1
+20      CARR    1       1
+21      +       2       1
+22      -       2       1
+23      TURN    0       1
+24      AT      1       1
+25      BRIN    1       0
+26      FIND    1       0
+27      IN      2       1
+28      OP28    1?      ?       Should not be present in games
+29      OP29    0?      ?       Should not be present in games
+2A      OKAY    0       0
+2B      WAIT    0       0
+2C      QUIT    0       0
+2D      EXIT    0       0
+2E      ROOM    0       1
+2F      NOUN    1       1
+30      VERB    1       1
+31      ADVE    1       1
+32      GOTO    1       0
+33      NO1     0       1
+34      NO2     0       1
+35      VBNO    0       1
+36      LIST    1       0
+37      PICT    0       0
+38      TEXT    0       0
+39      CONN    1       1
+3A      WEIG    1       1
+3B      WITH    0       1
+3C      STRE    1       0
+3D      LF      0       0
+3E      IF      1       0
+3F      END     0       0
+
+
+8. Local conditions
+-------------------
+
+Each location may have an entry in the following format:
+
+Byte    Use
+----    ---
+0-1     Location number (1-9999). Location 0 indicates end of table.
+2-x     Condition list (as for high & low priority conditions).
+x+1     0 (terminator).
+
+The table is terminated with 0,0.
+
+
