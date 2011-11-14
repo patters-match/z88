@@ -26,7 +26,7 @@ CR .( Appgen...)
 S" :*//appgen.fth" INCLUDED
 S" whatnow.dor" INCLUDED
 
-S" wn-std" STANDALONE
-S" wn-cli" CLIENT
+S" whatnow-std" STANDALONE
+S" whatnow-cli" CLIENT
 
 CR .( WhatNow? successfully generated)
