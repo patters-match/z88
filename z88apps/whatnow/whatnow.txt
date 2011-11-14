@@ -266,4 +266,3 @@ v1.01	Bugfix: ellipses of zero height hung the system
 v1.00	Initial release
 
 Garry Lancaster, 17th July 2001
-Z88 Forever! Website: http://www.z88forever.org.uk

@@ -15,7 +15,6 @@ CHAR W APPLICATION[ WhatNow?]
 	N/L
         HELP-TEXT[ Made with ] 1 HELP-CHAR HELP-TEXT[ 2+BZ88 CamelForth]
         1 HELP-CHAR HELP-TEXT[ 2-B] N/L
-        HELP[ Z88 Forever! Website: http://www.z88forever.org.uk]
 
 TOPIC[ File]
   N/L HELP[ Operations on GAC files]
