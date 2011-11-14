@@ -1,10 +1,18 @@
 #J3
 |RF~EY~E
 .D 3000
+.D 3000
+.D 3000
+.D 3000
+.D 3000
 #ZC
 S" makeapp.fth" INCLUDED~E
 #J2
 |FS*.ap?~EY~E
+.D 3000
+.D 3000
+.D 3000
+.D 3000
 .D 3000
 #ZC
 COLD~E
