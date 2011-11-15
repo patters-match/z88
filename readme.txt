@@ -115,6 +115,7 @@ will get the following directory structure with lots of files in it:
 
 /z88apps            Z88 Applications & popdowns (Z80 source code)
      /alarmsafe     Alarm archiving popdown utility
+     /canvas        Art studio application
      /debugapp      An empty popdown for OZvm debugging (load/run code)
      /eazylink      EazyLink popdown & PcLink II emulation
      /epfetch       File Eprom Management

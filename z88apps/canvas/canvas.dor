@@ -1,0 +1,77 @@
+\ *************************************************************************************
+\
+\ Canvas (c) Garry Lancaster, 2001-2002
+\
+\ Canvas is free software; you can redistribute it and/or modify it under
+\ the terms of the GNU General Public License as published by the Free Software Foundation;
+\ either version 2, or (at your option) any later version.
+\ Canvas is distributed in the hope that it will be useful, but WITHOUT
+\ ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+\ PARTICULAR PURPOSE.
+\ See the GNU General Public License for more details.
+\ You should have received a copy of the GNU General Public License along with Canvas;
+\ see the file COPYING. If not, write to the Free Software Foundation, Inc.,
+\ 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+\
+\ *************************************************************************************
+
+CR .( Loading Canvas DOR...)
+\ Application DOR for Canvas
+
+8192 BYTES   TO RAM-SIZE
+BAD SCREEN + TO APPTYPE
+CAPS-OFF     TO CAPSMODE
+HEX 4113 DECIMAL TO CARDID
+
+CHAR C APPLICATION[ Canvas]
+  N/L
+  HELP[ The Z88 art studio]
+  HELP[ v0.09 (c) 9th February 2002, Garry Lancaster]
+  N/L
+  N/L
+  HELP-TEXT[ Made with ] 1 HELP-CHAR HELP-TEXT[ BZ88 CamelForth]
+  1 HELP-CHAR HELP-TEXT[ B] N/L
+
+TOPIC[ File]
+  N/L HELP[ Operations on files]
+  SEQ[ FS] 132 COMMAND[ Save]
+    N/L HELP[ Save canvas to file]
+  SEQ[ FL] 131 COMMAND[ Load]
+    N/L HELP[ Load canvas from file]
+  SEQ[ FI] 130 COMMAND[ Import ZX]
+    N/L HELP[ Import a ZXSpectrum SCREEN$]
+  SEQ[ FNEW] 143 COMMAND[ New canvas]
+    N/L HELP[ Start a clean canvas]
+  SEQ[ Q] 136 COMMAND[ Quit]
+    N/L HELP[ Exit "Canvas"]
+  SEQ[ FRS] 133 COMMAND[ RAMSave] NEW-COLUMN
+    N/L HELP[ Save canvas to memory]
+  SEQ[ FRL] 134 COMMAND[ RAMLoad]
+    N/L HELP[ Restore canvas from memory]
+  SEQ[ U] 135 COMMAND[ Undo]
+    N/L HELP[ Undo last drawing action]
+
+TOPIC[ Draw]
+  N/L HELP[ Drawing operations]
+  SEQ[ O] 138 COMMAND[ Point]
+  SEQ[ L] 139 COMMAND[ Line]
+  SEQ[ R] 140 COMMAND[ Rectangle]
+  SEQ[ C] 141 COMMAND[ Circle]
+  SEQ[ E] 142 COMMAND[ Ellipse]
+  SEQ[ P] 150 COMMAND[ Pen] NEW-COLUMN
+  SEQ[ B] 151 COMMAND[ Brush]
+  SEQ[ S] 152 COMMAND[ Spraycan]
+  MU_TAB  137 COMMAND[ Join cursors] NEW-COLUMN
+
+TOPIC[ DrawMode]
+  N/L HELP[ Set mode for drawing operations]
+  SEQ[ DS] 144 COMMAND[ Set]
+  SEQ[ DR] 145 COMMAND[ Reset]
+  SEQ[ DI] 146 COMMAND[ Invert]
+
+TOPIC[ Texture]
+  N/L HELP[ Texture operations]
+  SEQ[ TF] 147 COMMAND[ Solid fill]
+  SEQ[ TS] 148 COMMAND[ Shade]
+  SEQ[ TP] 149 COMMAND[ Pattern fill]
+
