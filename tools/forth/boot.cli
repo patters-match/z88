@@ -18,5 +18,7 @@ S" makeapp.fth" INCLUDED~E
 COLD~E
 64 4 C!~E
 CODE OZVMBPT 195 C, 4 ,~E
-OZVMBPT~E
-
+: ENDOZVM PAGE [CHAR] R ESET ."  Application Generated! " [CHAR] R ECLR~E
+CR CR ." Type  " [CHAR] R ESET ."  fcd2 xpc . " [CHAR] R ECLR~E
+."  in the debugger window, and then exit the emulator." OZVMBPT ;~E
+ENDOZVM~E
