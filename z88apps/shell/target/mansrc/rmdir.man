@@ -1,0 +1,9 @@
+NORMAL N/L
+TEXT[ Usage:  ]
+BOLD TEXT[ rmdir ] BOLD
+ULINE TEXT[ directory] ULINE
+N/L
+N/L
+LINE[ Removes an empty directory.]
+TEXT[ A synonym is ] BOLD TEXT[ rd] BOLD LINE[ .]
+ENDPAGE

@@ -1,0 +1,7 @@
+!forth 32 cmdsize
+\ An example external FORTH command for Shell
+\ The total space required to load the command is quoted above (this is
+\ an overestimate!!); it can be determined by compiling the command.
+
+:NONAME  end CR ." Hiya!!" ; IS extern
+

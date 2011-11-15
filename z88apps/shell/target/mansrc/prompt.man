@@ -1,0 +1,9 @@
+NORMAL N/L
+TEXT[ Usage:  ]
+BOLD TEXT[ prompt ] BOLD
+ULINE TEXT[ length] ULINE
+N/L
+N/L
+LINE[ Changes the maximum length available for displaying]
+LINE[ the command prompt.]
+ENDPAGE

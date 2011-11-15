@@ -1,0 +1,11 @@
+NORMAL N/L
+TEXT[ Usage:  ]
+BOLD TEXT[ mark ] BOLD
+ULINE TEXT[ filename] ULINE
+N/L
+N/L
+LINE[ Marks a file. The filename is then available to applications]
+TEXT[ which normally accept filenames from ] BOLD TEXT[ Filer] BOLD LINE[ .]
+TEXT[ It can also be pasted into the input by pressing ]
+TINY TEXT[ TAB] TINY N/L
+ENDPAGE

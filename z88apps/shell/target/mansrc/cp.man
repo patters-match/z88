@@ -1,0 +1,9 @@
+NORMAL N/L
+TEXT[ Usage:  ]
+BOLD TEXT[ cp ] BOLD
+ULINE TEXT[ sourcefile] ULINE 32 ASCII
+ULINE TEXT[ destfile] ULINE
+N/L
+N/L
+LINE[ Copies a file.]
+ENDPAGE

@@ -1,0 +1,12 @@
+NORMAL N/L
+TEXT[ Usage:  ]
+BOLD TEXT[ compile ] BOLD
+ULINE TEXT[ sourcefile] ULINE 32 ASCII
+ULINE TEXT[ destfile] ULINE
+N/L
+N/L
+LINE[ Compiles an external FORTH command into a binary command.]
+TEXT[ Binary commands must be recompiled for new releases of ]
+BOLD TEXT[ Shell] BOLD
+N/L
+ENDPAGE

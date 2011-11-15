@@ -1,0 +1,10 @@
+NORMAL N/L
+TEXT[ Usage:  ]
+BOLD TEXT[ man ] BOLD
+ULINE TEXT{ [commandname]} ULINE
+N/L
+N/L
+LINE[ Installs a manual page for the specified command, which can]
+TEXT[ be accessed by pressing the ] TINY TEXT[ HELP] TINY LINE[  key.]
+LINE[ If no command name is given, the current manpage is removed.]
+ENDPAGE

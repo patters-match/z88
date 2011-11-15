@@ -1,0 +1,8 @@
+NORMAL N/L
+TEXT[ Usage:  ]
+BOLD TEXT[ mrm ] BOLD
+ULINE TEXT[ wildcard] ULINE
+N/L
+N/L
+LINE[ Removes all files matching the wildcard.]
+ENDPAGE

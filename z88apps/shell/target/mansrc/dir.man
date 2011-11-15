@@ -1,0 +1,10 @@
+NORMAL N/L
+TEXT[ Usage:  ]
+BOLD TEXT[ dir ] BOLD
+ULINE TEXT{ [wildcard]} ULINE
+N/L
+N/L
+LINE[ Lists files matching the wildcard. If no wildcard is given,]
+LINE[ then the contents of the current directory are listed.]
+TEXT[ A synonym is ] BOLD TEXT[ ls] BOLD LINE[ .]
+ENDPAGE

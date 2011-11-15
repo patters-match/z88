@@ -1,0 +1,7 @@
+NORMAL N/L
+TEXT[ Usage:  ]
+BOLD TEXT[ exit ] BOLD
+N/L
+N/L
+LINE[ Terminates the Shell application.]
+ENDPAGE

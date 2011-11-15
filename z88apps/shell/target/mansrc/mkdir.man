@@ -1,0 +1,9 @@
+NORMAL N/L
+TEXT[ Usage:  ]
+BOLD TEXT[ mkdir ] BOLD
+ULINE TEXT[ directory] ULINE
+N/L
+N/L
+LINE[ Creates a directory.]
+TEXT[ A synonym is ] BOLD TEXT[ md] BOLD LINE[ .]
+ENDPAGE

@@ -1,0 +1,7 @@
+NORMAL N/L
+TEXT[ Usage:  ]
+BOLD TEXT[ pwd ] BOLD
+N/L
+N/L
+LINE[ Displays the current working directory.]
+ENDPAGE

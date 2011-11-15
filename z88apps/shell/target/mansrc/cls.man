@@ -1,0 +1,7 @@
+NORMAL N/L
+TEXT[ Usage:  ]
+BOLD TEXT[ cls ] BOLD
+N/L
+N/L
+LINE[ Clears the input window.]
+ENDPAGE

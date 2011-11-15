@@ -1,0 +1,9 @@
+NORMAL N/L
+TEXT[ Usage:  ]
+BOLD TEXT[ ren ] BOLD
+ULINE TEXT[ sourcefile] ULINE 32 ASCII
+ULINE TEXT[ destfile] ULINE
+N/L
+N/L
+LINE[ Renames a file.]
+ENDPAGE

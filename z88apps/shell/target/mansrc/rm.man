@@ -1,0 +1,8 @@
+NORMAL N/L
+TEXT[ Usage:  ]
+BOLD TEXT[ rm ] BOLD
+ULINE TEXT[ file] ULINE
+N/L
+N/L
+LINE[ Removes a file.]
+ENDPAGE

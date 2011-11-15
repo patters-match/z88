@@ -1,0 +1,7 @@
+NORMAL N/L
+TEXT[ Usage:  ]
+BOLD TEXT[ cmds ] BOLD
+N/L
+N/L
+LINE[ Lists the available internal commands.]
+ENDPAGE

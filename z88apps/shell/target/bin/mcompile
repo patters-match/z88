@@ -1,0 +1,54 @@
+!forth 768 cmdsize
+\ Man page compiler
+
+0 VALUE ohdl
+VARIABLE size
+CREATE vocabs 11 CELLS ALLOT
+
+: STRING! ( a u -- )
+   DUP size +!  ohdl WRITE-FILE !err! ;
+
+: warnsize
+   size @ 1023 U>
+   IF  CR ." Warning: page exceeds 1023 bytes; truncation will occur"
+   THEN ;
+
+VOCABULARY manpages
+ALSO manpages DEFINITIONS
+
+: ASCII ( char -- )
+   HERE C! HERE 1 STRING! ;
+
+: N/L     127 ASCII ;
+: CTRL    1 ASCII ;
+: ENDPAGE 0 ASCII  warnsize  0 size ! ;
+
+: BOLD    CTRL [CHAR] B ASCII ;
+: ULINE   CTRL [CHAR] U ASCII ;
+: TINY    CTRL [CHAR] T ASCII ;
+: REVERSE CTRL [CHAR] R ASCII ;
+: GREY    CTRL [CHAR] G ASCII ;
+: FLASH   CTRL [CHAR] F ASCII ;
+
+: NORMAL  CTRL S" 2JN" STRING! ;
+: CENTRE  CTRL S" 2JC" STRING! ; 
+
+: TEXT[  [CHAR] ] PARSE STRING! ;
+: TEXT{  [CHAR] } PARSE STRING! ;
+: LINE[  TEXT[ N/L ;
+: LINE{  TEXT{ N/L ;
+
+PREVIOUS DEFINITIONS
+
+: .err ( ior -- )
+   CR -274 = IF  ." File not found"  ELSE  ." Compilation error"  THEN ;
+
+:NONAME
+  vocabs vload  0 size !
+  param param end
+  CR ." Compiling " 2OVER TYPE ." ..."
+  W/O CREATE-FILE !err! TO ohdl
+  ONLY manpages DECIMAL include ?DUP IF  .err   THEN
+  ohdl CLOSE-FILE !err! ;  IS extern
+
+vocabs vsave

@@ -1,0 +1,8 @@
+rem Example batch file for Shell
+echo Batchy: changing device
+chdev :ram.0
+echo Batchy: creating directories
+mkdir poo
+cd poo
+md goo
+echo Batchy: finished!

@@ -1,0 +1,9 @@
+NORMAL N/L
+TEXT[ Usage:  ]
+BOLD TEXT[ cd ] BOLD
+ULINE TEXT[ directory] ULINE
+N/L
+N/L
+LINE[ Sets the current working directory.]
+TEXT[ A synonym is ] BOLD TEXT[ chdir] BOLD LINE[ .]
+ENDPAGE

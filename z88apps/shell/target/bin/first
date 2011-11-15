@@ -1,0 +1,9 @@
+!forth 128 cmdsize
+\ Example external FORTH command taking a single optional parameter
+
+:NONAME
+  oparam end CR
+  DUP 0= IF  2DROP ." Oi! You never gave me a parameter!"
+         ELSE  ." Your parameter was: " TYPE
+         THEN ;  IS extern
+

@@ -1,0 +1,9 @@
+NORMAL N/L
+TEXT[ Usage:  ]
+BOLD TEXT[ mcompile ] BOLD
+ULINE TEXT[ sourcefile] ULINE 32 ASCII
+ULINE TEXT[ destfile] ULINE
+N/L
+N/L
+LINE[ Compiles a manpage from a source file.]
+ENDPAGE

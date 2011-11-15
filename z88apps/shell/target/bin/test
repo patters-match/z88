@@ -1,0 +1,8 @@
+echo Test batch file
+call wc tcpip.fth
+cd /mansrc
+call ./makeman1
+up
+call wc mime.fth
+man compile
+

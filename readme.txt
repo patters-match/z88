@@ -135,6 +135,7 @@ will get the following directory structure with lots of files in it:
      /pyramid       Puzzle Of The Pyramid game
      /romcombiner   BBC BASIC utility to combine applications to card.
      /romupdate     BBC BASIC utility to update/add apps to Flash Cards
+     /shell         A Unix-like shell
      /uutools       UUtools utility with Mimetypes package (for uuencode/uudecode)
      /wavplay       Play polyphonic sounds on Z88 Loudspeaker
      /webby         A very simple text web browser

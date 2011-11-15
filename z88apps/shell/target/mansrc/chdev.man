@@ -1,0 +1,8 @@
+NORMAL N/L
+TEXT[ Usage:  ]
+BOLD TEXT[ chdev ] BOLD
+ULINE TEXT[ device] ULINE
+N/L
+N/L
+LINE[ Sets the current working device.]
+ENDPAGE

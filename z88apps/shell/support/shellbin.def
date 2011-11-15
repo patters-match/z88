@@ -1,0 +1,54 @@
+; *************************************************************************************
+;
+; Shell (c) Garry Lancaster, 2001-2002
+;
+; Shell is free software; you can redistribute it and/or modify it under
+; the terms of the GNU General Public License as published by the Free Software Foundation;
+; either version 2, or (at your option) any later version.
+; Shell is distributed in the hope that it will be useful, but WITHOUT
+; ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+; PARTICULAR PURPOSE.
+; See the GNU General Public License for more details.
+; You should have received a copy of the GNU General Public License along with Shell;
+; see the file COPYING. If not, write to the Free Software Foundation, Inc.,
+; 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+;
+; *************************************************************************************
+
+; Definitions file for Shell Binaries v0.25
+;
+; Include this at the top of your assembly file, and define labels:
+;  .entry     : your code entry point
+;  .end       : follows the end of the binary (used to calculate length)
+;
+; Registers BC, DE, IX and IY must be preserved.
+; Exit your code with:   jp next
+;
+; The following variables hold values defining the command tail
+; (see  binecho.asm for example usage):
+;  cmdaddr    : holds address of command line
+;  cmdlen     : holds length of command line
+;  cmdptr     : holds offset of tail within command line
+; Note that there is no point in examining the command name, as this
+; is always replaced with "extern" when evaluating external commands.
+; External commands may modify the area of memory containing the
+; command line if they wish, including the following byte (this allows
+; null-termination of the line if desired). They *must* "use up" the
+; command line before returning to Shell; this is done by setting cmdptr
+; equal to cmdlen.
+
+        module  shellbin
+
+        defc    cmdaddr = $20F5
+        defc    cmdlen = $20F3
+        defc    cmdptr = $20F7
+        defc    next = $F886
+
+        org     $2FB1-12
+
+        defm    "!bin025",13
+        defw    end-start
+        defw    entry
+
+.start
+

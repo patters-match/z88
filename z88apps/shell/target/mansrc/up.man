@@ -1,0 +1,7 @@
+NORMAL N/L
+TEXT[ Usage:  ]
+BOLD TEXT[ up ] BOLD
+N/L
+N/L
+LINE[ Sets the current working directory to the parent directory.]
+ENDPAGE

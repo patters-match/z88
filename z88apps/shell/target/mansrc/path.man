@@ -1,0 +1,8 @@
+NORMAL N/L
+TEXT[ Usage:  ]
+BOLD TEXT[ path ] BOLD
+N/L
+N/L
+LINE[ Displays the directories searched for external commands]
+LINE[ and manual pages.]
+ENDPAGE

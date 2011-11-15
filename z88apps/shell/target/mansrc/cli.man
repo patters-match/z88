@@ -1,0 +1,12 @@
+NORMAL N/L
+TEXT[ Usage:  ]
+BOLD TEXT[ cli ] BOLD
+ULINE TEXT[ clicommands...] ULINE
+N/L
+N/L
+LINE[ Sends the rest of the command line to the Z88's CLI.]
+TEXT[ A CLI file can be executed with: ]
+BOLD TEXT[ cli .*] BOLD
+ULINE TEXT[ filename] ULINE
+N/L
+ENDPAGE
