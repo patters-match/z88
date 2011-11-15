@@ -1,0 +1,54 @@
+\ *************************************************************************************
+\
+\ Webby (c) Garry Lancaster, 2001-2002
+\
+\ Webby is free software; you can redistribute it and/or modify it under
+\ the terms of the GNU General Public License as published by the Free Software Foundation;
+\ either version 2, or (at your option) any later version.
+\ Webby is distributed in the hope that it will be useful, but WITHOUT
+\ ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+\ PARTICULAR PURPOSE.
+\ See the GNU General Public License for more details.
+\ You should have received a copy of the GNU General Public License along with Webby;
+\ see the file COPYING. If not, write to the Free Software Foundation, Inc.,
+\ 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+\
+\ *************************************************************************************
+
+CR .( Loading Webby DOR...)
+\ Application DOR for Webby
+
+24320 BYTES  TO RAM-SIZE		\ can't have 24576 cos of bug in OZ
+256          TO SAFE-SIZE
+BAD SCREEN + TO APPTYPE
+CAPS-OFF     TO CAPSMODE
+HEX 4333 DECIMAL TO CARDID
+
+CHAR W APPLICATION[ Webby]
+  N/L
+  HELP[ A text-only web browser]
+  HELP[ v0.15 (c) 9th February 2002, Garry Lancaster]
+  N/L N/L
+  HELP-TEXT[ Made with ] 1 HELP-CHAR HELP-TEXT[ BZ88 CamelForth]
+  1 HELP-CHAR HELP-TEXT[ B] N/L
+
+TOPIC[ File]
+  N/L HELP[ Operations on files]
+  SEQ[ FL] 129 COMMAND[ Load file]
+    N/L HELP[ Load a local copy of a web page]
+  SEQ[ FR] 131 COMMAND[ Reload config]
+    N/L
+    HELP[ Change settings to defaults and]
+    HELP[ reload :ram.0/webby.cfg]
+  SEQ[ Q] 130 COMMAND[ Quit]
+    N/L HELP[ Exit "Webby"]
+
+TOPIC[ Page]
+  N/L HELP[ Operations on web pages]
+  SEQ[ O]  128 COMMAND[ Open page]
+    N/L HELP[ Open a web page]
+  SEQ[ H]  133 COMMAND[ Home]
+    N/L HELP[ Open your home page]
+  SEQ[ A]  132 COMMAND[ Abort]
+    N/L HELP[ Abort current HTTP transfer]
+
