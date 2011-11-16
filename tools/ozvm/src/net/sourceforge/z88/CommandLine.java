@@ -272,6 +272,10 @@ public class CommandLine implements KeyListener {
 		if (cmdLineTokens[0].compareToIgnoreCase("stop") == 0) {
 			Z88.getInstance().getProcessor().stopZ80Execution();
 		}
+        
+		if (cmdLineTokens[0].compareToIgnoreCase("quitvm") == 0) {
+			System.exit(0);
+		}
 
 		if (cmdLineTokens[0].compareToIgnoreCase("di") == 0) {
 			if (Z88.getInstance().getProcessorThread() != null) {
