@@ -1,24 +1,245 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
  <class>MainWindow</class>
- <widget class="QMainWindow" name="MainWindow" >
-  <property name="geometry" >
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
-    <height>300</height>
+    <width>720</width>
+    <height>556</height>
    </rect>
   </property>
-  <property name="windowTitle" >
-   <string>MainWindow</string>
+  <property name="windowTitle">
+   <string>EazyLink</string>
   </property>
-  <widget class="QMenuBar" name="menuBar" />
-  <widget class="QToolBar" name="mainToolBar" />
-  <widget class="QWidget" name="centralWidget" />
-  <widget class="QStatusBar" name="statusBar" />
+  <widget class="QWidget" name="centralWidget">
+   <widget class="QWidget" name="horizontalLayoutWidget">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>20</y>
+      <width>701</width>
+      <height>481</height>
+     </rect>
+    </property>
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <widget class="QFrame" name="Z88Panel">
+       <property name="frameShape">
+        <enum>QFrame::StyledPanel</enum>
+       </property>
+       <property name="frameShadow">
+        <enum>QFrame::Raised</enum>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QFrame" name="DesktopPanel">
+       <property name="frameShape">
+        <enum>QFrame::StyledPanel</enum>
+       </property>
+       <property name="frameShadow">
+        <enum>QFrame::Raised</enum>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+  </widget>
+  <widget class="QMenuBar" name="menuBar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>720</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuFile">
+    <property name="title">
+     <string>&amp;File</string>
+    </property>
+    <addaction name="separator"/>
+    <addaction name="actionExit"/>
+   </widget>
+   <widget class="QMenu" name="menuSettings">
+    <property name="title">
+     <string>&amp;Settings</string>
+    </property>
+    <addaction name="actionSerialPort"/>
+    <addaction name="actionOptions"/>
+   </widget>
+   <widget class="QMenu" name="menuHelp">
+    <property name="title">
+     <string>&amp;Help</string>
+    </property>
+    <addaction name="actionHelpContents"/>
+    <addaction name="separator"/>
+    <addaction name="actionAbout"/>
+   </widget>
+   <widget class="QMenu" name="menuZ88">
+    <property name="title">
+     <string>&amp;Z88</string>
+    </property>
+    <addaction name="actionEazyLink_Hello"/>
+    <addaction name="actionQuitEazyLink"/>
+    <addaction name="separator"/>
+    <addaction name="actionSend_files_to_Z88_Imp_Export_popdown"/>
+    <addaction name="actionReceive_files_from_Z88_Imp_Export_popdown"/>
+   </widget>
+   <addaction name="menuFile"/>
+   <addaction name="menuZ88"/>
+   <addaction name="menuSettings"/>
+   <addaction name="menuHelp"/>
+  </widget>
+  <widget class="QToolBar" name="toolBar">
+   <property name="windowTitle">
+    <string>toolBar</string>
+   </property>
+   <property name="toolButtonStyle">
+    <enum>Qt::ToolButtonIconOnly</enum>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="actionHello"/>
+   <addaction name="actionZ88Refresh"/>
+   <addaction name="actionTransfer"/>
+   <addaction name="separator"/>
+   <addaction name="actionRename"/>
+   <addaction name="actionDelete"/>
+   <addaction name="actionMkDir"/>
+   <addaction name="separator"/>
+   <addaction name="actionDisplayFileSize"/>
+   <addaction name="actionDisplayFileDate"/>
+  </widget>
+  <action name="actionHelpContents">
+   <property name="text">
+    <string>Contents</string>
+   </property>
+  </action>
+  <action name="actionAbout">
+   <property name="text">
+    <string>About</string>
+   </property>
+  </action>
+  <action name="actionHello">
+   <property name="text">
+    <string>EazyLink Hello</string>
+   </property>
+  </action>
+  <action name="actionQuitEazyLink">
+   <property name="text">
+    <string>EazyLink Quit</string>
+   </property>
+  </action>
+  <action name="actionExit">
+   <property name="text">
+    <string>&amp;Exit</string>
+   </property>
+   <property name="toolTip">
+    <string>Quit application and terminate EazyLink popdown on Z88</string>
+   </property>
+  </action>
+  <action name="actionEazyLink_Hello">
+   <property name="text">
+    <string>EazyLink Hello</string>
+   </property>
+   <property name="toolTip">
+    <string>Send a 'Hello' command to EazyLink popdown on the Z88</string>
+   </property>
+  </action>
+  <action name="actionTransfer">
+   <property name="text">
+    <string>Transfer</string>
+   </property>
+   <property name="toolTip">
+    <string>Transfer selected files from active panel to opposite panel</string>
+   </property>
+   <property name="shortcut">
+    <string>T</string>
+   </property>
+  </action>
+  <action name="actionZ88Refresh">
+   <property name="text">
+    <string>Z88 Refresh</string>
+   </property>
+   <property name="toolTip">
+    <string>Ask EazyLink popdown on Z88 to re-send file information in current device / path</string>
+   </property>
+  </action>
+  <action name="actionRename">
+   <property name="text">
+    <string>Rename</string>
+   </property>
+   <property name="toolTip">
+    <string>Rename selected file in active panel</string>
+   </property>
+  </action>
+  <action name="actionDelete">
+   <property name="text">
+    <string>Delete</string>
+   </property>
+   <property name="toolTip">
+    <string>Delete selected file in active panel</string>
+   </property>
+  </action>
+  <action name="actionMkDir">
+   <property name="text">
+    <string>MkDir</string>
+   </property>
+   <property name="toolTip">
+    <string>Create a directory in current path of active panel</string>
+   </property>
+  </action>
+  <action name="actionSerialPort">
+   <property name="text">
+    <string>Serial &amp;Port</string>
+   </property>
+  </action>
+  <action name="actionOptions">
+   <property name="text">
+    <string>&amp;Options..</string>
+   </property>
+  </action>
+  <action name="actionDisplayFileSize">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Display File Size</string>
+   </property>
+   <property name="toolTip">
+    <string>Display file sizes in active panel</string>
+   </property>
+  </action>
+  <action name="actionDisplayFileDate">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Display File Date</string>
+   </property>
+   <property name="toolTip">
+    <string>Display File Date</string>
+   </property>
+  </action>
+  <action name="actionSend_files_to_Z88_Imp_Export_popdown">
+   <property name="text">
+    <string>Send files to Z88 Imp-Export popdown</string>
+   </property>
+  </action>
+  <action name="actionReceive_files_from_Z88_Imp_Export_popdown">
+   <property name="text">
+    <string>Receive files from Z88 Imp-Export popdown</string>
+   </property>
+  </action>
  </widget>
- <layoutDefault spacing="6" margin="11" />
- <pixmapfunction></pixmapfunction>
+ <layoutdefault spacing="6" margin="11"/>
  <resources/>
  <connections/>
 </ui>
