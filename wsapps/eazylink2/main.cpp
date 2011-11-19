@@ -65,8 +65,7 @@ int main(int argc, char *argv[])
         p.close();
     }
 
-    // TO DO: Implement GUI!
-    // w.show();
-    // return a.exec();
+    w.show();
+    return a.exec();
     return 1;
 }
