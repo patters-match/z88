@@ -373,9 +373,9 @@ public class OZvm {
 			}
 
 			if (loadedSnapshot == false & loadedRom == false) {
-				displayRtmMessage("No external ROM image specified,	using default Z88.rom (V4.0 UK)");
-				JarURLConnection jarConnection = (JarURLConnection) blink.getClass().getResource("/Z88.rom").openConnection();
-				memory.loadRomBinary((int) jarConnection.getJarEntry().getSize(), jarConnection.getInputStream());
+				displayRtmMessage("No external ROM image specified,	using default Z88.rom (V4.0 UK)");				
+                File rf = new File(getAppPath() + "roms/Z88UK400.rom");
+				memory.loadRomBinary(rf);
 				blink.setRAMS(memory.getBank(0));	// point at ROM bank 0
 			}
 

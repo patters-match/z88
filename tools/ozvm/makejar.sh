@@ -2,7 +2,7 @@
 
 # *************************************************************************************
 # Unix compile script for OZvm - the Z88 emulator.
-# (C) Gunther Strube (gbs@users.sf.net) 2003-2005
+# (C) Gunther Strube (gbs@users.sf.net) 2003-2011
 #
 # OZvm is free software; you can redistribute it and/or modify it under the terms of the
 # GNU General Public License as published by the Free Software Foundation;
@@ -13,7 +13,6 @@
 # You should have received a copy of the GNU General Public License along with OZvm;
 # see the file COPYING. If not, write to the
 # Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
-#
 #
 # ------------------------------------------------------------------------------------
 # Before executing this script, a Java 1.4 Runtime Environment or later must have been
@@ -36,7 +35,6 @@ java -jar ../jdk/ecj.jar -d ../ozvm-builddir -nowarn -g:none -source 1.4 -target
 echo building executable jar
 cp -fR src/pixel ../ozvm-builddir
 cp -f src/ozvm-manual.html ../ozvm-builddir
-cp -f src/Z88.rom ../ozvm-builddir
 
 # JAR file only needs (compiled) class files and other embedded resources
 find ../ozvm-builddir -name '.svn' | xargs rm -fR
