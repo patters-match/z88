@@ -52,7 +52,7 @@ public class OZvm {
 	public static final String defaultVmFile = System.getProperty("user.dir")+ File.separator + "boot.z88";
 
 	/** current release version string */
-	public static final String VERSION = "1.0.2";
+	public static final String VERSION = "1.1 DEV";
 
 	/** (default) boot the virtual machine, once it has been loaded */
 	private boolean autoRun;
@@ -410,7 +410,7 @@ public class OZvm {
 		return true;
 	}
 
-  	private String getAppPath() {
+  	public String getAppPath() {
         String appPath = getClass().getProtectionDomain().getCodeSource().getLocation().getPath();
         return appPath.replaceFirst("z88.jar", "");        
     }

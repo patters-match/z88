@@ -12,7 +12,7 @@
  * see the file COPYING. If not, write to the
  * Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  *
- * @author <A HREF="mailto:gbs@users.sourceforge.net">Gunther Strube</A>
+ * @author <A HREF="mailto:gstrube@gmail.com">Gunther Strube</A>
  *
  */
 
@@ -58,8 +58,8 @@ public class Gui extends JFrame {
 		"<h2>OZvm " + OZvm.VERSION + "</h2>" +
 		"<h3>The Z88 emulator & debugging environment</h3>" +
 		"Open Source (GPL) software by Gunther Strube<br>" + 
-		"<tt>gbs@users.sourceforge.net</tt><br><br>" +
-		"<tt>http://z88.sf.net</tt>" +
+		"<tt>gstrube@gmail.com</tt><br><br>" +
+		"<tt>http://cambridgez88.jira.com</tt>" +
 		"</center></html>";
 
 
@@ -86,6 +86,7 @@ public class Gui extends JFrame {
 	private JMenu screenMenu;
 	private JMenu keyboardMenu;
 	private JMenu screenRefrashRateMenu;
+	private JMenu installRomMenuItem;
 	private JMenuItem fileExitMenuItem;
 	private JMenuItem fileDebugMenuItem;
 	private JMenuItem aboutOZvmMenuItem;
@@ -93,6 +94,21 @@ public class Gui extends JFrame {
 	private JMenuItem loadSnapshotMenuItem;
 	private JMenuItem softResetMenuItem;
 	private JMenuItem hardResetMenuItem;
+    private JMenuItem installOz43RomMenuItem;  // International OZ V4.3 ROM menu
+    private JMenuItem installUk400RomMenuItem; // British V4.0 ROM menu
+    private JMenuItem installUk300RomMenuItem; // British V3.0 ROM menu
+    private JMenuItem installUk220RomMenuItem; // British V2.2 ROM menu
+    private JMenuItem installFr326RomMenuItem; // French V3.26 ROM menu
+    private JMenuItem installEs319RomMenuItem; // Spanish V3.19 ROM menu
+    private JMenuItem installDe318RomMenuItem; // German V3.18 ROM menu
+    private JMenuItem installIt323RomMenuItem; // Italian V3.23 ROM menu
+    private JMenuItem installDk321RomMenuItem; // Danish V3.21 ROM menu
+    private JMenuItem installSe250RomMenuItem; // Swedish V2.50 ROM menu
+    private JMenuItem installNo260RomMenuItem; // Norwegian V2.60 ROM menu
+    private JMenuItem installFi401RomMenuItem; // Finnish V4.01 ROM menu
+    private JMenuItem installHe313RomMenuItem; // Swizz V3.13 ROM menu
+    private JMenuItem installTk317RomMenuItem; // Turkish V3.17 ROM menu
+    
 	private JMenuItem userManualMenuItem;
 	private JMenuItem gifMovieMenuItem;
 	private JMenuItem screenSnapshotMenuItem;
@@ -538,7 +554,7 @@ public class Gui extends JFrame {
 	public JCheckBoxMenuItem getDkLayoutMenuItem() {
 		if (dkLayoutMenuItem == null) {
 			dkLayoutMenuItem = new JCheckBoxMenuItem();
-			dkLayoutMenuItem.setText("Danish Layout");
+			dkLayoutMenuItem.setText("Danish/Norwegian Layout");
 			dkLayoutMenuItem.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					Z88.getInstance().getKeyboard().setKeyboardLayout(Z88Keyboard.COUNTRY_DK);
@@ -781,6 +797,7 @@ public class Gui extends JFrame {
 			z88Menu.setText("Z88");
 			z88Menu.add(getSoftResetMenuItem());
 			z88Menu.add(getHardResetMenuItem());
+			z88Menu.add(getInstallRomMenuItem());
 			z88Menu.addSeparator();
 			z88Menu.add(getScreenRefreshRateMenu());
 		}
@@ -827,6 +844,435 @@ public class Gui extends JFrame {
 		return hardResetMenuItem;
 	}
 
+	private JMenuItem getInstallRomMenuItem() {		
+		if (installRomMenuItem == null) {
+			installRomMenuItem = new JMenu();
+			installRomMenuItem.setText("Install ROM in Slot 0");
+            installRomMenuItem.add(getInstallOz43Rom());
+            installRomMenuItem.add(getInstallUk400Rom());
+            installRomMenuItem.add(getInstallUk300Rom());
+            installRomMenuItem.add(getInstallUk220Rom());
+            installRomMenuItem.add(getInstallFr326Rom());
+            installRomMenuItem.add(getInstallEs319Rom());
+            installRomMenuItem.add(getInstallDe318Rom());
+            installRomMenuItem.add(getInstallIt323Rom());
+            installRomMenuItem.add(getInstallDk321Rom());
+            installRomMenuItem.add(getInstallSe250Rom());
+            installRomMenuItem.add(getInstallNo260Rom());
+            installRomMenuItem.add(getInstallFi401Rom());
+            installRomMenuItem.add(getInstallHe313Rom());
+            installRomMenuItem.add(getInstallTk317Rom());
+		}
+        
+		return installRomMenuItem;
+	}
+
+	private JMenuItem getInstallOz43Rom() {
+		if (installOz43RomMenuItem == null) {
+			installOz43RomMenuItem = new JMenuItem();
+			installOz43RomMenuItem.setText("OZ V4.3 ROM");
+			installOz43RomMenuItem.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					if (Z88.getInstance().getProcessorThread() != null) {						
+						if (JOptionPane.showConfirmDialog(Gui.this, "Install OZ V4.3 ROM in slot 0?") == JOptionPane.YES_OPTION) {
+                            File romFileOz43 = new File(OZvm.getInstance().getAppPath() + "roms/Z88OZ43.rom");
+                            try {
+                                Z88.getInstance().getMemory().loadRomBinary(romFileOz43);
+                            } catch (IOException ex) {                              
+                            } catch (IllegalArgumentException ex) {}
+                            
+                            getUkLayoutMenuItem().setSelected(true);
+                            Z88.getInstance().getKeyboard().setKeyboardLayout(Z88Keyboard.COUNTRY_UK);
+                            getSlotsPanel().refreshSlotInfo();
+							Z88.getInstance().pressHardReset();
+						}
+					} else {
+						JOptionPane.showMessageDialog(Gui.this, "Z88 is not running");
+					}					
+				}
+			});
+		}
+        
+		return installOz43RomMenuItem;
+	}
+
+	private JMenuItem getInstallUk400Rom() {
+		if (installUk400RomMenuItem == null) {
+			installUk400RomMenuItem = new JMenuItem();
+			installUk400RomMenuItem.setText("British OZ V4.0 ROM");
+			installUk400RomMenuItem.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					if (Z88.getInstance().getProcessorThread() != null) {						
+						if (JOptionPane.showConfirmDialog(Gui.this, "Install British OZ V4.0 ROM in slot 0?") == JOptionPane.YES_OPTION) {
+                            File romFileOz40uk = new File(OZvm.getInstance().getAppPath() + "roms/Z88UK400.rom");
+                            try {
+                                Z88.getInstance().getMemory().loadRomBinary(romFileOz40uk);
+                            } catch (IOException ex) {                              
+                            } catch (IllegalArgumentException ex) {}
+                            
+                            getUkLayoutMenuItem().setSelected(true);
+                            Z88.getInstance().getKeyboard().setKeyboardLayout(Z88Keyboard.COUNTRY_UK);
+                            getSlotsPanel().refreshSlotInfo();
+							Z88.getInstance().pressHardReset();
+						}
+					} else {
+						JOptionPane.showMessageDialog(Gui.this, "Z88 is not running");
+					}					
+				}
+			});
+		}
+        
+		return installUk400RomMenuItem;
+	}
+
+   	private JMenuItem getInstallUk300Rom() {
+		if (installUk300RomMenuItem == null) {
+			installUk300RomMenuItem = new JMenuItem();
+			installUk300RomMenuItem.setText("British OZ V3.0 ROM");
+			installUk300RomMenuItem.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					if (Z88.getInstance().getProcessorThread() != null) {						
+						if (JOptionPane.showConfirmDialog(Gui.this, "Install British OZ V3.0 ROM in slot 0?") == JOptionPane.YES_OPTION) {
+                            File romFileOz30uk = new File(OZvm.getInstance().getAppPath() + "roms/Z88UK300.rom");
+                            try {
+                                Z88.getInstance().getMemory().loadRomBinary(romFileOz30uk);
+                            } catch (IOException ex) {                              
+                            } catch (IllegalArgumentException ex) {}
+                            
+                            getUkLayoutMenuItem().setSelected(true);
+                            Z88.getInstance().getKeyboard().setKeyboardLayout(Z88Keyboard.COUNTRY_UK);                            
+                            getSlotsPanel().refreshSlotInfo();
+							Z88.getInstance().pressHardReset();
+						}
+					} else {
+						JOptionPane.showMessageDialog(Gui.this, "Z88 is not running");
+					}					
+				}
+			});
+		}
+        
+		return installUk300RomMenuItem;
+	}
+    
+   	private JMenuItem getInstallUk220Rom() {
+		if (installUk220RomMenuItem == null) {
+			installUk220RomMenuItem = new JMenuItem();
+			installUk220RomMenuItem.setText("British OZ V2.2 ROM");
+			installUk220RomMenuItem.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					if (Z88.getInstance().getProcessorThread() != null) {						
+						if (JOptionPane.showConfirmDialog(Gui.this, "Install British OZ V2.2 ROM in slot 0?") == JOptionPane.YES_OPTION) {
+                            File romFileOz22uk = new File(OZvm.getInstance().getAppPath() + "roms/Z88UK220.rom");
+                            try {
+                                Z88.getInstance().getMemory().loadRomBinary(romFileOz22uk);
+                            } catch (IOException ex) {                              
+                            } catch (IllegalArgumentException ex) {}
+                            
+                            getUkLayoutMenuItem().setSelected(true);
+                            Z88.getInstance().getKeyboard().setKeyboardLayout(Z88Keyboard.COUNTRY_UK);                            
+                            getSlotsPanel().refreshSlotInfo();
+							Z88.getInstance().pressHardReset();
+						}
+					} else {
+						JOptionPane.showMessageDialog(Gui.this, "Z88 is not running");
+					}					
+				}
+			});
+		}
+        
+		return installUk220RomMenuItem;
+	}
+
+   	private JMenuItem getInstallFr326Rom() {
+		if (installFr326RomMenuItem == null) {
+			installFr326RomMenuItem = new JMenuItem();
+			installFr326RomMenuItem.setText("French OZ V3.26 ROM");
+			installFr326RomMenuItem.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					if (Z88.getInstance().getProcessorThread() != null) {						
+						if (JOptionPane.showConfirmDialog(Gui.this, "Install French OZ V3.26 ROM in slot 0?") == JOptionPane.YES_OPTION) {
+                            File romFileOz = new File(OZvm.getInstance().getAppPath() + "roms/Z88FR326.rom");
+                            try {
+                                Z88.getInstance().getMemory().loadRomBinary(romFileOz);
+                            } catch (IOException ex) {                              
+                            } catch (IllegalArgumentException ex) {}
+                            
+                            getFrLayoutMenuItem().setSelected(true);
+                            Z88.getInstance().getKeyboard().setKeyboardLayout(Z88Keyboard.COUNTRY_FR);
+                            getSlotsPanel().refreshSlotInfo();
+							Z88.getInstance().pressHardReset();
+						}
+					} else {
+						JOptionPane.showMessageDialog(Gui.this, "Z88 is not running");
+					}					
+				}
+			});
+		}
+        
+		return installFr326RomMenuItem;
+	}
+
+   	private JMenuItem getInstallEs319Rom() {
+		if (installEs319RomMenuItem == null) {
+			installEs319RomMenuItem = new JMenuItem();
+			installEs319RomMenuItem.setText("Spanish OZ V3.19 ROM");
+			installEs319RomMenuItem.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					if (Z88.getInstance().getProcessorThread() != null) {						
+						if (JOptionPane.showConfirmDialog(Gui.this, "Install Spanish OZ V3.19 ROM in slot 0?") == JOptionPane.YES_OPTION) {
+                            File romFileOz = new File(OZvm.getInstance().getAppPath() + "roms/Z88ES319.rom");
+                            try {
+                                Z88.getInstance().getMemory().loadRomBinary(romFileOz);
+                            } catch (IOException ex) {                              
+                            } catch (IllegalArgumentException ex) {}
+                            
+                            getUkLayoutMenuItem().setSelected(true);
+                            Z88.getInstance().getKeyboard().setKeyboardLayout(Z88Keyboard.COUNTRY_UK);
+                            getSlotsPanel().refreshSlotInfo();
+							Z88.getInstance().pressHardReset();
+						}
+					} else {
+						JOptionPane.showMessageDialog(Gui.this, "Z88 is not running");
+					}					
+				}
+			});
+		}
+        
+		return installEs319RomMenuItem;
+	}
+
+   	private JMenuItem getInstallDe318Rom() {
+		if (installDe318RomMenuItem == null) {
+			installDe318RomMenuItem = new JMenuItem();
+			installDe318RomMenuItem.setText("German OZ V3.18 ROM");
+			installDe318RomMenuItem.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					if (Z88.getInstance().getProcessorThread() != null) {
+						if (JOptionPane.showConfirmDialog(Gui.this, "Install German OZ V3.18 ROM in slot 0?") == JOptionPane.YES_OPTION) {
+                            File romFileOz = new File(OZvm.getInstance().getAppPath() + "roms/Z88DE318.rom");
+                            try {
+                                Z88.getInstance().getMemory().loadRomBinary(romFileOz);
+                            } catch (IOException ex) {                              
+                            } catch (IllegalArgumentException ex) {}
+                            
+                            getUkLayoutMenuItem().setSelected(true);
+                            Z88.getInstance().getKeyboard().setKeyboardLayout(Z88Keyboard.COUNTRY_UK);
+                            getSlotsPanel().refreshSlotInfo();
+							Z88.getInstance().pressHardReset();
+						}
+					} else {
+						JOptionPane.showMessageDialog(Gui.this, "Z88 is not running");
+					}					
+				}
+			});
+		}
+        
+		return installDe318RomMenuItem;
+	}
+
+   	private JMenuItem getInstallIt323Rom() {
+		if (installIt323RomMenuItem == null) {
+			installIt323RomMenuItem = new JMenuItem();
+			installIt323RomMenuItem.setText("Italian OZ V3.23 ROM");
+			installIt323RomMenuItem.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					if (Z88.getInstance().getProcessorThread() != null) {
+						if (JOptionPane.showConfirmDialog(Gui.this, "Install Italian OZ V3.23 ROM in slot 0?") == JOptionPane.YES_OPTION) {
+                            File romFileOz = new File(OZvm.getInstance().getAppPath() + "roms/Z88IT323.rom");
+                            try {
+                                Z88.getInstance().getMemory().loadRomBinary(romFileOz);
+                            } catch (IOException ex) {
+                            } catch (IllegalArgumentException ex) {}
+
+                            getUkLayoutMenuItem().setSelected(true);
+                            Z88.getInstance().getKeyboard().setKeyboardLayout(Z88Keyboard.COUNTRY_UK);
+                            getSlotsPanel().refreshSlotInfo();
+							Z88.getInstance().pressHardReset();
+						}
+					} else {
+						JOptionPane.showMessageDialog(Gui.this, "Z88 is not running");
+					}					
+				}
+			});
+		}
+        
+		return installIt323RomMenuItem;
+	}
+
+   	private JMenuItem getInstallDk321Rom() {
+		if (installDk321RomMenuItem == null) {
+			installDk321RomMenuItem = new JMenuItem();
+			installDk321RomMenuItem.setText("Danish OZ V3.21 ROM");
+			installDk321RomMenuItem.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					if (Z88.getInstance().getProcessorThread() != null) {
+						if (JOptionPane.showConfirmDialog(Gui.this, "Install Danish OZ V3.21 ROM in slot 0?") == JOptionPane.YES_OPTION) {
+                            File romFileOz = new File(OZvm.getInstance().getAppPath() + "roms/Z88DK321.rom");
+                            try {
+                                Z88.getInstance().getMemory().loadRomBinary(romFileOz);
+                            } catch (IOException ex) {
+                            } catch (IllegalArgumentException ex) {}
+
+                            getDkLayoutMenuItem().setSelected(true);
+                            Z88.getInstance().getKeyboard().setKeyboardLayout(Z88Keyboard.COUNTRY_DK);
+                            getSlotsPanel().refreshSlotInfo();
+							Z88.getInstance().pressHardReset();
+						}
+					} else {
+						JOptionPane.showMessageDialog(Gui.this, "Z88 is not running");
+					}					
+				}
+			});
+		}
+        
+		return installDk321RomMenuItem;
+	}
+
+   	private JMenuItem getInstallSe250Rom() {
+		if (installSe250RomMenuItem == null) {
+			installSe250RomMenuItem = new JMenuItem();
+			installSe250RomMenuItem.setText("Swedish OZ V2.50 ROM");
+			installSe250RomMenuItem.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					if (Z88.getInstance().getProcessorThread() != null) {
+						if (JOptionPane.showConfirmDialog(Gui.this, "Install Swedish OZ V2.50 ROM in slot 0?") == JOptionPane.YES_OPTION) {
+                            File romFileOz = new File(OZvm.getInstance().getAppPath() + "roms/Z88SE250.rom");
+                            try {
+                                Z88.getInstance().getMemory().loadRomBinary(romFileOz);
+                            } catch (IOException ex) {
+                            } catch (IllegalArgumentException ex) {}
+
+                            getSeLayoutMenuItem().setSelected(true);
+                            Z88.getInstance().getKeyboard().setKeyboardLayout(Z88Keyboard.COUNTRY_SE);
+                            getSlotsPanel().refreshSlotInfo();
+							Z88.getInstance().pressHardReset();
+						}
+					} else {
+						JOptionPane.showMessageDialog(Gui.this, "Z88 is not running");
+					}					
+				}
+			});
+		}
+        
+		return installSe250RomMenuItem;
+	}
+
+   	private JMenuItem getInstallNo260Rom() {
+		if (installNo260RomMenuItem == null) {
+			installNo260RomMenuItem = new JMenuItem();
+			installNo260RomMenuItem.setText("Norwegian OZ V2.60 ROM");
+			installNo260RomMenuItem.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					if (Z88.getInstance().getProcessorThread() != null) {
+						if (JOptionPane.showConfirmDialog(Gui.this, "Install Norwegian OZ V2.60 ROM in slot 0?") == JOptionPane.YES_OPTION) {
+                            File romFileOz = new File(OZvm.getInstance().getAppPath() + "roms/Z88NO260.rom");
+                            try {
+                                Z88.getInstance().getMemory().loadRomBinary(romFileOz);
+                            } catch (IOException ex) {
+                            } catch (IllegalArgumentException ex) {}
+
+                            getDkLayoutMenuItem().setSelected(true);
+                            Z88.getInstance().getKeyboard().setKeyboardLayout(Z88Keyboard.COUNTRY_DK);
+                            getSlotsPanel().refreshSlotInfo();
+							Z88.getInstance().pressHardReset();
+						}
+					} else {
+						JOptionPane.showMessageDialog(Gui.this, "Z88 is not running");
+					}					
+				}
+			});
+		}
+        
+		return installNo260RomMenuItem;
+	}
+
+   	private JMenuItem getInstallFi401Rom() {
+		if (installFi401RomMenuItem == null) {
+			installFi401RomMenuItem = new JMenuItem();
+			installFi401RomMenuItem.setText("Finnish OZ V4.01 ROM");
+			installFi401RomMenuItem.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					if (Z88.getInstance().getProcessorThread() != null) {
+						if (JOptionPane.showConfirmDialog(Gui.this, "Install Finnish OZ V4.01 ROM in slot 0?") == JOptionPane.YES_OPTION) {
+                            File romFileOz = new File(OZvm.getInstance().getAppPath() + "roms/Z88FI401.rom");
+                            try {
+                                Z88.getInstance().getMemory().loadRomBinary(romFileOz);
+                            } catch (IOException ex) {
+                            } catch (IllegalArgumentException ex) {}
+
+                            getSeLayoutMenuItem().setSelected(true);
+                            Z88.getInstance().getKeyboard().setKeyboardLayout(Z88Keyboard.COUNTRY_SE);
+                            getSlotsPanel().refreshSlotInfo();
+							Z88.getInstance().pressHardReset();
+						}
+					} else {
+						JOptionPane.showMessageDialog(Gui.this, "Z88 is not running");
+					}					
+				}
+			});
+		}
+        
+		return installFi401RomMenuItem;
+	}
+
+   	private JMenuItem getInstallHe313Rom() {
+		if (installHe313RomMenuItem == null) {
+			installHe313RomMenuItem = new JMenuItem();
+			installHe313RomMenuItem.setText("Swiss OZ V3.13 ROM");
+			installHe313RomMenuItem.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					if (Z88.getInstance().getProcessorThread() != null) {
+						if (JOptionPane.showConfirmDialog(Gui.this, "Install Swiss OZ V3.13 ROM in slot 0?") == JOptionPane.YES_OPTION) {
+                            File romFileOz = new File(OZvm.getInstance().getAppPath() + "roms/Z88HE313.rom");
+                            try {
+                                Z88.getInstance().getMemory().loadRomBinary(romFileOz);
+                            } catch (IOException ex) {
+                            } catch (IllegalArgumentException ex) {}
+
+                            getUkLayoutMenuItem().setSelected(true);
+                            Z88.getInstance().getKeyboard().setKeyboardLayout(Z88Keyboard.COUNTRY_UK);
+                            getSlotsPanel().refreshSlotInfo();
+							Z88.getInstance().pressHardReset();
+						}
+					} else {
+						JOptionPane.showMessageDialog(Gui.this, "Z88 is not running");
+					}					
+				}
+			});
+		}
+        
+		return installHe313RomMenuItem;
+	}
+
+   	private JMenuItem getInstallTk317Rom() {
+		if (installTk317RomMenuItem == null) {
+			installTk317RomMenuItem = new JMenuItem();
+			installTk317RomMenuItem.setText("Turkish OZ V3.17 ROM");
+			installTk317RomMenuItem.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					if (Z88.getInstance().getProcessorThread() != null) {
+						if (JOptionPane.showConfirmDialog(Gui.this, "Install Turkish OZ V3.17 ROM in slot 0?") == JOptionPane.YES_OPTION) {
+                            File romFileOz = new File(OZvm.getInstance().getAppPath() + "roms/Z88TK317.rom");
+                            try {
+                                Z88.getInstance().getMemory().loadRomBinary(romFileOz);
+                            } catch (IOException ex) {
+                            } catch (IllegalArgumentException ex) {}
+
+                            getUkLayoutMenuItem().setSelected(true);
+                            Z88.getInstance().getKeyboard().setKeyboardLayout(Z88Keyboard.COUNTRY_UK);
+                            getSlotsPanel().refreshSlotInfo();
+							Z88.getInstance().pressHardReset();
+						}
+					} else {
+						JOptionPane.showMessageDialog(Gui.this, "Z88 is not running");
+					}					
+				}
+			});
+		}
+        
+		return installTk317RomMenuItem;
+	}
+    
 	private JMenu getScreenRefreshRateMenu() {
 		if (screenRefrashRateMenu == null) {
 			screenRefrashRateMenu = new JMenu();
