@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.net.JarURLConnection;
 
+import java.net.URL;
 import javax.swing.UIManager;
 
 import net.sourceforge.z88.datastructures.SlotInfo;
@@ -408,6 +409,11 @@ public class OZvm {
 
 		return true;
 	}
+
+  	private String getAppPath() {
+        String appPath = getClass().getProtectionDomain().getCodeSource().getLocation().getPath();
+        return appPath.replaceFirst("z88.jar", "");        
+    }
 
 	private void displayDefaultGui() {
 		// default display; show Z88 Keyboard and Card Slots. Invisible runtime message window.
