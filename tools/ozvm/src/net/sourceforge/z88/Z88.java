@@ -12,7 +12,7 @@
  * see the file COPYING. If not, write to the
  * Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  *
- * @author <A HREF="mailto:gbs@users.sourceforge.net">Gunther Strube</A>
+ * @author <A HREF="mailto:gstrube@gmail.com">Gunther Strube</A>
  */
 
 package net.sourceforge.z88;

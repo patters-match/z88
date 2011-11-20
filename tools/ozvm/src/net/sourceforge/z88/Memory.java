@@ -12,7 +12,7 @@
  * see the file COPYING. If not, write to the
  * Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  *
- * @author <A HREF="mailto:gbs@users.sourceforge.net">Gunther Strube</A>
+ * @author <A HREF="mailto:gstrube@gmail.com">Gunther Strube</A>
  *
  */
 
@@ -983,7 +983,7 @@ public final class Memory {
 
 
 	/**
-	 * Load ROM image from Jar/Zip ressource into Z88 memory system, slot 0
+	 * Load ROM image from an InputStream into Z88 memory system, slot 0
 	 * (lower 512K of address space).
 	 *
 	 * For all sizes, except 512K, a normal ROM type will be used.

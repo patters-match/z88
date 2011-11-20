@@ -329,7 +329,7 @@ public class Gif89Encoder {
      *	out.write((int) ';'); // write GIF TRAILER
      * </pre>
      * 
-     * @author <A HREF="mailto:gbs@users.sourceforge.net">Gunther Strube</A>
+     * @author <A HREF="mailto:gstrube@gmail.com">Gunther Strube</A>
 	 * @param out output stream to a file (or other destination)
 	 * @param gifFrame
 	 * @throws IOException
