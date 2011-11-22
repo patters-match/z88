@@ -1,5 +1,5 @@
 /*
- * CommandHistory.java
+ * Breakpoints.java
  * This file is part of OZvm.
  * 
  * OZvm is free software; you can redistribute it and/or modify it under the terms of the 
@@ -101,7 +101,7 @@ public class Breakpoints {
 	
 	
 	/**
-	 * Return <true> if breakpoint will stop Z80 exection.
+	 * Return <true> if breakpoint will stop Z80 execution.
 	 * (<false> means that it is a display breakpoint) 
 	 *
 	 * @param bpAddress 24bit extended address
