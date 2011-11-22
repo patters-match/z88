@@ -16,7 +16,7 @@
  *
  */
 
-package net.sourceforge.z88;
+package com.jira.cambridgez88.ozvm;
 
 /** 
  * This class represents the 16Kb RAM Bank. The characteristics of a RAM bank is

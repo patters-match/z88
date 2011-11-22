@@ -16,7 +16,7 @@
  *
  */
 
-package	net.sourceforge.z88;
+package	com.jira.cambridgez88.ozvm;
 
 import java.awt.DisplayMode;
 import java.awt.GraphicsDevice;
@@ -30,10 +30,10 @@ import java.net.JarURLConnection;
 import java.net.URL;
 import javax.swing.UIManager;
 
-import net.sourceforge.z88.datastructures.SlotInfo;
-import net.sourceforge.z88.filecard.FileArea;
-import net.sourceforge.z88.filecard.FileAreaExhaustedException;
-import net.sourceforge.z88.filecard.FileAreaNotFoundException;
+import com.jira.cambridgez88.ozvm.datastructures.SlotInfo;
+import com.jira.cambridgez88.ozvm.filecard.FileArea;
+import com.jira.cambridgez88.ozvm.filecard.FileAreaExhaustedException;
+import com.jira.cambridgez88.ozvm.filecard.FileAreaNotFoundException;
 
 /**
  * Main	entry of the Z88 virtual machine.

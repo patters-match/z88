@@ -15,7 +15,7 @@
  * @author <A HREF="mailto:gstrube@gmail.com">Gunther Strube</A>
  *
  */
-package net.sourceforge.z88;
+package com.jira.cambridgez88.ozvm;
 
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
@@ -28,12 +28,12 @@ import java.util.ListIterator;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
-import net.sourceforge.z88.datastructures.ApplicationDor;
-import net.sourceforge.z88.datastructures.ApplicationInfo;
-import net.sourceforge.z88.filecard.FileArea;
-import net.sourceforge.z88.filecard.FileAreaExhaustedException;
-import net.sourceforge.z88.filecard.FileAreaNotFoundException;
-import net.sourceforge.z88.filecard.FileEntry;
+import com.jira.cambridgez88.ozvm.datastructures.ApplicationDor;
+import com.jira.cambridgez88.ozvm.datastructures.ApplicationInfo;
+import com.jira.cambridgez88.ozvm.filecard.FileArea;
+import com.jira.cambridgez88.ozvm.filecard.FileAreaExhaustedException;
+import com.jira.cambridgez88.ozvm.filecard.FileAreaNotFoundException;
+import com.jira.cambridgez88.ozvm.filecard.FileEntry;
 
 
 /**

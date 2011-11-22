@@ -16,7 +16,7 @@
  *
  */
 
-package net.sourceforge.z88;
+package com.jira.cambridgez88.ozvm;
 
 /** 
  * This class represents the 16Kb EPROM Bank. The characteristics of a EPROM bank is

@@ -1,4 +1,4 @@
-package net.sourceforge.z88.screen;
+package com.jira.cambridgez88.ozvm.screen;
 
 //==============================================================================
 /** Instances of this Gif89Frame subclass are constructed from bitmaps in the 

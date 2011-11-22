@@ -16,7 +16,7 @@
  *
  */
  
-package net.sourceforge.z88;
+package com.jira.cambridgez88.ozvm;
 
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
@@ -331,7 +331,7 @@ public class Z88Keyboard {
 	 *	-------------------------------------------------------------------------
 	 *			 | D7     D6      D5      D4      D3      D2      D1      D0
 	 *	-------------------------------------------------------------------------
-	 *	A15 (#7) | RSH    SQR     ESC     INDEX   CAPS    .       /       £
+	 *	A15 (#7) | RSH    SQR     ESC     INDEX   CAPS    .       /       ï¿½
 	 *	A14 (#6) | HELP   LSH     TAB     DIA     MENU    ,       ;       '
 	 *	A13 (#5) | [      SPACE   1       Q       A       Z       L       0
 	 *	A12 (#4) | ]      LFT     2       W       S       X       M       P
@@ -351,15 +351,15 @@ public class Z88Keyboard {
 		// Row 01111111:
 		//			| D7     D6      D5      D4      D3      D2      D1      D0
 		// -------------------------------------------------------------------------
-		// A15 (#7) | RSH    SQR     ESC     INDEX   CAPS    .       /       £
+		// A15 (#7) | RSH    SQR     ESC     INDEX   CAPS    .       /       ï¿½
 		// Single key:
 		addKey(keyboardLayout, KeyEvent.VK_PERIOD, 0x07FB);
 		addKey(keyboardLayout, KeyEvent.VK_SLASH, 0x07FD);
 	
-		// The '£' key is not available as a single letter on Brittish (UK) PC keyboards
+		// The 'ï¿½' key is not available as a single letter on Brittish (UK) PC keyboards
 		// and is therefore handled specially 
-		// ('£' is accessed using SHIFT 3 on a PC keyboard)
-		addKey(keyboardLayout, '£', 0x07FE);
+		// ('ï¿½' is accessed using SHIFT 3 on a PC keyboard)
+		addKey(keyboardLayout, 'ï¿½', 0x07FE);
 		// --------------------------------------------------------------------------------------------------------------------------
 	
 		// --------------------------------------------------------------------------------------------------------------------------
@@ -511,7 +511,7 @@ public class Z88Keyboard {
 	 *	-------------------------------------------------------------------------
 	 *			 | D7     D6      D5      D4      D3      D2      D1      D0
 	 *	-------------------------------------------------------------------------
-	 *	A15 (#7) | RSH    SQR     ESC     INDEX   CAPS    .       /       £
+	 *	A15 (#7) | RSH    SQR     ESC     INDEX   CAPS    .       /       ï¿½
 	 *	A14 (#6) | HELP   LSH     TAB     DIA     MENU    ,       ;       '
 	 *	A13 (#5) | [      SPACE   1       Q       A       Z       L       0
 	 *	A12 (#4) | ]      LFT     2       W       S       X       M       P
@@ -531,12 +531,12 @@ public class Z88Keyboard {
 		// Row 01111111:
 		//			| D7     D6      D5      D4      D3      D2      D1      D0
 		// -------------------------------------------------------------------------
-		// A15 (#7) | RSH    SQR     ESC     INDEX   CAPS    .       /       £
+		// A15 (#7) | RSH    SQR     ESC     INDEX   CAPS    .       /       ï¿½
 		// Single key:
 		addKey(keyboardLayout, KeyEvent.VK_PERIOD, 0x07FB);
 		addKey(keyboardLayout, KeyEvent.VK_SLASH, 0x07FD);
 
-		// The '£' key is not available as a single letter on US International PC keyboards
+		// The 'ï¿½' key is not available as a single letter on US International PC keyboards
 		// and is therefore handled specially
 		// --------------------------------------------------------------------------------------------------------------------------
 
@@ -691,13 +691,13 @@ public class Z88Keyboard {
 	 *			 | D7     D6      D5      D4      D3      D2      D1      D0
 	 *	-------------------------------------------------------------------------
 	 *	A15 (#7) | RSH    SQR     ESC     INDEX   CAPS    :       $       ^
-	 *	A14 (#6) | HELP   LSH     TAB     DIA     MENU    ;       M       ù
-	 *	A13 (#5) | *      SPACE   &       A       Q       W       L       à
-	 *	A12 (#4) | =      LFT     é       Z       S       X       ,       P
-	 *	A11 (#3) | )      RGT     "       E       D       C       K       ç
+	 *	A14 (#6) | HELP   LSH     TAB     DIA     MENU    ;       M       ï¿½
+	 *	A13 (#5) | *      SPACE   &       A       Q       W       L       ï¿½
+	 *	A12 (#4) | =      LFT     ï¿½       Z       S       X       ,       P
+	 *	A11 (#3) | )      RGT     "       E       D       C       K       ï¿½
 	 *	A10 (#2) | -      DWN     '       R       F       V       J       O
 	 *	A9  (#1) | <      UP      (       T       G       B       U       I
-	 *	A8  (#0) | DEL    ENTER   §       Y       H       N       è       !
+	 *	A8  (#0) | DEL    ENTER   ï¿½       Y       H       N       ï¿½       !
 	 *	-------------------------------------------------------------------------
 	 * </PRE>
 	 *
@@ -722,19 +722,19 @@ public class Z88Keyboard {
 		// Row 10111111
 		//			| D7     D6      D5      D4      D3      D2      D1      D0
 		// -------------------------------------------------------------------------
-		// A14 (#6) | HELP   LSH     TAB     DIA     MENU    ;       M       ù
+		// A14 (#6) | HELP   LSH     TAB     DIA     MENU    ;       M       ï¿½
 		// Single key:
 		addKey(keyboardLayout, KeyEvent.VK_SEMICOLON, 0x06FB);		
 		addKey(keyboardLayout, KeyEvent.VK_M, 0x06FD);		
-		addKey(keyboardLayout, (0x10000 | 0xF9), 0x06FE);	// 'ù'		
-		addKey(keyboardLayout, (0x10000 | '%'), 0x06FE);	// SHIFT 'ù' = '%'
+		addKey(keyboardLayout, (0x10000 | 0xF9), 0x06FE);	// 'ï¿½'		
+		addKey(keyboardLayout, (0x10000 | '%'), 0x06FE);	// SHIFT 'ï¿½' = '%'
 		// --------------------------------------------------------------------------------------------------------------------------
 
 		// --------------------------------------------------------------------------------------------------------------------------
 		// Row 11011111
 		//			| D7     D6      D5      D4      D3      D2      D1      D0
 		// -------------------------------------------------------------------------
-		// A13 (#5) | *      SPACE   &       A       Q       W       L       à
+		// A13 (#5) | *      SPACE   &       A       Q       W       L       ï¿½
 		// Single key:
 		addKey(keyboardLayout, KeyEvent.VK_ASTERISK, 0x057F);		
 
@@ -754,7 +754,7 @@ public class Z88Keyboard {
 		// Row 11101111
 		//			| D7     D6      D5      D4      D3      D2      D1      D0
 		// -------------------------------------------------------------------------
-		// A12 (#4) | =      LFT     é       Z       S       X       ,       P
+		// A12 (#4) | =      LFT     ï¿½       Z       S       X       ,       P
 		// Single key:
 		addKey(keyboardLayout, KeyEvent.VK_EQUALS, 0x047F);
 		
@@ -772,7 +772,7 @@ public class Z88Keyboard {
 		// Row 11110111
 		//			| D7     D6      D5      D4      D3      D2      D1      D0
 		// -------------------------------------------------------------------------
-		// A11 (#3) | )      RGT     "       E       D       C       K       ç
+		// A11 (#3) | )      RGT     "       E       D       C       K       ï¿½
 		// Single key:
 		addKey(keyboardLayout, KeyEvent.VK_RIGHT_PARENTHESIS, 0x037F);
 
@@ -828,7 +828,7 @@ public class Z88Keyboard {
 		// Row 11111110
 		//			| D7     D6      D5      D4      D3      D2      D1      D0
 		// -------------------------------------------------------------------------
-		// A8  (#0) | DEL    ENTER   §       Y       H       N       è       !
+		// A8  (#0) | DEL    ENTER   ï¿½       Y       H       N       ï¿½       !
 		// Single key:
 		addKey(keyboardLayout, KeyEvent.VK_6, 0x00DF);
 		addKey(keyboardLayout, KeyEvent.VK_NUMPAD6, 0x00DF);
@@ -869,9 +869,9 @@ public class Z88Keyboard {
 	 *	-------------------------------------------------------------------------
 	 *			 | D7     D6      D5      D4      D3      D2      D1      D0
 	 *	-------------------------------------------------------------------------
-	 *	A15 (#7) | RSH    SQR     ESC     INDEX   CAPS    .       -       £
-	 *	A14 (#6) | HELP   LSH     TAB     DIA     MENU    ,       Æ       Ø
-	 *	A13 (#5) | Å      SPACE   1       Q       A       Z       L       0
+	 *	A15 (#7) | RSH    SQR     ESC     INDEX   CAPS    .       -       ï¿½
+	 *	A14 (#6) | HELP   LSH     TAB     DIA     MENU    ,       ï¿½       ï¿½
+	 *	A13 (#5) | ï¿½      SPACE   1       Q       A       Z       L       0
 	 *	A12 (#4) | '      LFT     2       W       S       X       M       P
 	 *	A11 (#3) | =      RGT     3       E       D       C       K       9
 	 *	A10 (#2) | +      DWN     4       R       F       V       J       O
@@ -889,12 +889,12 @@ public class Z88Keyboard {
 		// Row 01111111:
 		//			| D7     D6      D5      D4      D3      D2      D1      D0
 		// -------------------------------------------------------------------------
-		// A15 (#7) | RSH    SQR     ESC     INDEX   CAPS    .       -       £
+		// A15 (#7) | RSH    SQR     ESC     INDEX   CAPS    .       -       ï¿½
 		// Single key:
 		addKey(keyboardLayout, KeyEvent.VK_PERIOD, 0x07FB);
 		addKey(keyboardLayout, KeyEvent.VK_MINUS, 0x07FD);
 
-		// The '£' key is not available as a single letter on DK International PC keyboards, so we steel the '<' key next to 'Z'
+		// The 'ï¿½' key is not available as a single letter on DK International PC keyboards, so we steel the '<' key next to 'Z'
 		addKey(keyboardLayout, KeyEvent.VK_LESS, 0x07FE);
 		// --------------------------------------------------------------------------------------------------------------------------
 
@@ -902,26 +902,26 @@ public class Z88Keyboard {
 		// Row 10111111
 		//			| D7     D6      D5      D4      D3      D2      D1      D0
 		// -------------------------------------------------------------------------
-		// A14 (#6) | HELP   LSH     TAB     DIA     MENU    ,       Æ       Ø
+		// A14 (#6) | HELP   LSH     TAB     DIA     MENU    ,       ï¿½       ï¿½
 		// Single key:
 		addKey(keyboardLayout, KeyEvent.VK_COMMA, 0x06FB);
-		addKey(keyboardLayout, (0x10000 | 0xE6), 0x06FD); // 'æ'
-		addKey(keyboardLayout, (0x10000 | 0xC6), 0x06FD); // 'Æ'
-		addKey(keyboardLayout, (0x10000 | 134), 0x06FD); // CTRL æ
-		addKey(keyboardLayout, (0x10000 | 0xF8), 0x06FE); // 'ø'
-		addKey(keyboardLayout, (0x10000 | 0xD8), 0x06FE); // 'Ø'
-		addKey(keyboardLayout, (0x10000 | 152), 0x06FE); // CTRL ø
+		addKey(keyboardLayout, (0x10000 | 0xE6), 0x06FD); // 'ï¿½'
+		addKey(keyboardLayout, (0x10000 | 0xC6), 0x06FD); // 'ï¿½'
+		addKey(keyboardLayout, (0x10000 | 134), 0x06FD); // CTRL ï¿½
+		addKey(keyboardLayout, (0x10000 | 0xF8), 0x06FE); // 'ï¿½'
+		addKey(keyboardLayout, (0x10000 | 0xD8), 0x06FE); // 'ï¿½'
+		addKey(keyboardLayout, (0x10000 | 152), 0x06FE); // CTRL ï¿½
 		// --------------------------------------------------------------------------------------------------------------------------
 
 		// --------------------------------------------------------------------------------------------------------------------------
 		// Row 11011111
 		//			| D7     D6      D5      D4      D3      D2      D1      D0
 		// -------------------------------------------------------------------------
-		// A13 (#5) | Å      SPACE   1       Q       A       Z       L       0
+		// A13 (#5) | ï¿½      SPACE   1       Q       A       Z       L       0
 		// Single key:
-		addKey(keyboardLayout, (0x10000 | 0xE5), 0x057F); // 'å'
-		addKey(keyboardLayout, (0x10000 | 0xC5), 0x057F); // 'Å'
-		addKey(keyboardLayout, (0x10000 | 133), 0x057F); // CTRL å
+		addKey(keyboardLayout, (0x10000 | 0xE5), 0x057F); // 'ï¿½'
+		addKey(keyboardLayout, (0x10000 | 0xC5), 0x057F); // 'ï¿½'
+		addKey(keyboardLayout, (0x10000 | 133), 0x057F); // CTRL ï¿½
 		
 		addKey(keyboardLayout, KeyEvent.VK_1, 0x05DF);
 		addKey(keyboardLayout, KeyEvent.VK_NUMPAD1, 0x05DF);
@@ -998,7 +998,7 @@ public class Z88Keyboard {
 		// -------------------------------------------------------------------------
 		// A9  (#1) | /      UP      5       T       G       B       U       I
 		// Single key:
-		// '/' does not exist as a single key press, so we steel the '^' key next to 'Å' key.
+		// '/' does not exist as a single key press, so we steel the '^' key next to 'ï¿½' key.
 		addKey(keyboardLayout, KeyEvent.VK_DEAD_DIAERESIS, 0x017F);
 
 		addKey(keyboardLayout, KeyEvent.VK_5, 0x01DF);
@@ -1057,9 +1057,9 @@ public class Z88Keyboard {
 	 *	-------------------------------------------------------------------------
 	 *			 | D7     D6      D5      D4      D3      D2      D1      D0
 	 *	-------------------------------------------------------------------------
-	 *	A15 (#7) | RSH    SQR     ESC     INDEX   CAPS    .       -       £
-	 *	A14 (#6) | HELP   LSH     TAB     DIA     MENU    ,       Ö       Ä
-	 *	A13 (#5) | Å      SPACE   1       Q       A       Z       L       0
+	 *	A15 (#7) | RSH    SQR     ESC     INDEX   CAPS    .       -       ï¿½
+	 *	A14 (#6) | HELP   LSH     TAB     DIA     MENU    ,       ï¿½       ï¿½
+	 *	A13 (#5) | ï¿½      SPACE   1       Q       A       Z       L       0
 	 *	A12 (#4) | '      LFT     2       W       S       X       M       P
 	 *	A11 (#3) | =      RGT     3       E       D       C       K       9
 	 *	A10 (#2) | +      DWN     4       R       F       V       J       O
@@ -1077,12 +1077,12 @@ public class Z88Keyboard {
 		// Row 01111111:
 		//			| D7     D6      D5      D4      D3      D2      D1      D0
 		// -------------------------------------------------------------------------
-		// A15 (#7) | RSH    SQR     ESC     INDEX   CAPS    .       -       £
+		// A15 (#7) | RSH    SQR     ESC     INDEX   CAPS    .       -       ï¿½
 		// Single key:
 		addKey(keyboardLayout, KeyEvent.VK_PERIOD, 0x07FB);		
 		addKey(keyboardLayout, KeyEvent.VK_MINUS, 0x07FD);		
 
-		// The '£' key is not available as a single letter on DK International PC keyboards, so we steel the '<' key next to 'Z'
+		// The 'ï¿½' key is not available as a single letter on DK International PC keyboards, so we steel the '<' key next to 'Z'
 		addKey(keyboardLayout, KeyEvent.VK_LESS, 0x07FE);		
 		// --------------------------------------------------------------------------------------------------------------------------
 
@@ -1090,26 +1090,26 @@ public class Z88Keyboard {
 		// Row 10111111
 		//			| D7     D6      D5      D4      D3      D2      D1      D0
 		// -------------------------------------------------------------------------
-		// A14 (#6) | HELP   LSH     TAB     DIA     MENU    ,       Æ       Ø
+		// A14 (#6) | HELP   LSH     TAB     DIA     MENU    ,       ï¿½       ï¿½
 		// Single key:
 		addKey(keyboardLayout, KeyEvent.VK_COMMA, 0x06FB);
-		addKey(keyboardLayout, (0x10000 | 0xF6), 0x06FD); // 'ö'
-		addKey(keyboardLayout, (0x10000 | 0xD6), 0x06FD); // 'Ö'
-		addKey(keyboardLayout, (0x10000 | 150), 0x06FD); // CTRL ö
-		addKey(keyboardLayout, (0x10000 | 0xE4), 0x06FE); // 'ä'
-		addKey(keyboardLayout, (0x10000 | 0xC4), 0x06FE); // 'Ä'
-		addKey(keyboardLayout, (0x10000 | 132), 0x06FE); // CTRL ä
+		addKey(keyboardLayout, (0x10000 | 0xF6), 0x06FD); // 'ï¿½'
+		addKey(keyboardLayout, (0x10000 | 0xD6), 0x06FD); // 'ï¿½'
+		addKey(keyboardLayout, (0x10000 | 150), 0x06FD); // CTRL ï¿½
+		addKey(keyboardLayout, (0x10000 | 0xE4), 0x06FE); // 'ï¿½'
+		addKey(keyboardLayout, (0x10000 | 0xC4), 0x06FE); // 'ï¿½'
+		addKey(keyboardLayout, (0x10000 | 132), 0x06FE); // CTRL ï¿½
 		// --------------------------------------------------------------------------------------------------------------------------
 
 		// --------------------------------------------------------------------------------------------------------------------------
 		// Row 11011111
 		//			| D7     D6      D5      D4      D3      D2      D1      D0
 		// -------------------------------------------------------------------------
-		// A13 (#5) | Å      SPACE   1       Q       A       Z       L       0
+		// A13 (#5) | ï¿½      SPACE   1       Q       A       Z       L       0
 		// Single key:
-		addKey(keyboardLayout, (0x10000 | 0xE5), 0x057F); // 'å'
-		addKey(keyboardLayout, (0x10000 | 0xC5), 0x057F); // 'Å'
-		addKey(keyboardLayout, (0x10000 | 133), 0x057F); // CTRL å
+		addKey(keyboardLayout, (0x10000 | 0xE5), 0x057F); // 'ï¿½'
+		addKey(keyboardLayout, (0x10000 | 0xC5), 0x057F); // 'ï¿½'
+		addKey(keyboardLayout, (0x10000 | 133), 0x057F); // CTRL ï¿½
 
 		addKey(keyboardLayout, KeyEvent.VK_1, 0x05DF);
 		addKey(keyboardLayout, KeyEvent.VK_NUMPAD1, 0x05DF);
@@ -1186,7 +1186,7 @@ public class Z88Keyboard {
 		// -------------------------------------------------------------------------
 		// A9  (#1) | /      UP      5       T       G       B       U       I
 		// Single key:
-		// '/' does not exist as a single key press, so we steel the '^' key next to 'Å' key.
+		// '/' does not exist as a single key press, so we steel the '^' key next to 'ï¿½' key.
 		addKey(keyboardLayout, KeyEvent.VK_DEAD_DIAERESIS, 0x017F);
 
 		addKey(keyboardLayout, KeyEvent.VK_5, 0x01DF);
@@ -1534,7 +1534,7 @@ public class Z88Keyboard {
 						}
 
 						if ((e.getModifiers() == java.awt.Event.SHIFT_MASK) | (e.getModifiers() == java.awt.Event.CTRL_MASK)) {
-							// French PC SHIFT - is mapped to Z88 SHIFT § which gives an 6.
+							// French PC SHIFT - is mapped to Z88 SHIFT ï¿½ which gives an 6.
 							kp = getZ88Key(KeyEvent.VK_6);
 						}
 						
@@ -1580,7 +1580,7 @@ public class Z88Keyboard {
 				case KeyEvent.VK_EXCLAMATION_MARK:
 					if (currentKbLayout == z88Keyboards[COUNTRY_FR]) {
 						if ((e.getModifiers() == java.awt.Event.SHIFT_MASK)) {
-							// French PC SHIFT ! is mapped to Z88 single key § (6).
+							// French PC SHIFT ! is mapped to Z88 single key ï¿½ (6).
 							releaseZ88key(z88RshKey); // SHIFT (is already) pressed...
 							kp = getZ88Key(KeyEvent.VK_6);
 						} else {
@@ -1654,7 +1654,7 @@ public class Z88Keyboard {
 					}
 					if (e.getKeyChar() == '~') {
 						pressZ88key(z88RshKey);
-						pressZ88key(getZ88Key('£'));
+						pressZ88key(getZ88Key('ï¿½'));
 					}
 					break;
 									
@@ -1689,11 +1689,11 @@ public class Z88Keyboard {
 									releaseZ88key(z88SquareKey); // only DIAMOND (is already) pressed...
 									kp = getZ88Key(KeyEvent.VK_3);
 									break;
-								case KeyEvent.VK_4:  // PC [ALT Gr '4'] = '{' converts to Z88 <>è = {
+								case KeyEvent.VK_4:  // PC [ALT Gr '4'] = '{' converts to Z88 <>ï¿½ = {
 									releaseZ88key(z88SquareKey); // only DIAMOND (is already) pressed...
 									kp = getZ88Key(KeyEvent.VK_7);
 									break;
-								case KeyEvent.VK_5:  // PC [ALT Gr '5'] = '[' converts to Z88 <>ç = [
+								case KeyEvent.VK_5:  // PC [ALT Gr '5'] = '[' converts to Z88 <>ï¿½ = [
 									releaseZ88key(z88SquareKey); // only DIAMOND (is already) pressed...
 									kp = getZ88Key(KeyEvent.VK_9);
 									break;
@@ -1701,15 +1701,15 @@ public class Z88Keyboard {
 									releaseZ88key(z88SquareKey); // only DIAMOND (is already) pressed...
 									kp = getZ88Key(KeyEvent.VK_RIGHT_PARENTHESIS);
 									break;
-								case KeyEvent.VK_9:  // PC [ALT Gr '9'] = '^' converts to Z88 <>§ = ^
+								case KeyEvent.VK_9:  // PC [ALT Gr '9'] = '^' converts to Z88 <>ï¿½ = ^
 									releaseZ88key(z88SquareKey); // only DIAMOND (is already) pressed...
 									kp = getZ88Key(KeyEvent.VK_6);
 									break;
-								case KeyEvent.VK_0:  // PC [ALT Gr '0'] = '@' converts to Z88 <>é = @
+								case KeyEvent.VK_0:  // PC [ALT Gr '0'] = '@' converts to Z88 <>ï¿½ = @
 									releaseZ88key(z88SquareKey); // only DIAMOND (is already) pressed...
 									kp = getZ88Key(KeyEvent.VK_2);
 									break;
-								case KeyEvent.VK_RIGHT_PARENTHESIS:  // PC [ALT Gr ')'] = ']' converts to Z88 <>à = ]
+								case KeyEvent.VK_RIGHT_PARENTHESIS:  // PC [ALT Gr ')'] = ']' converts to Z88 <>ï¿½ = ]
 									releaseZ88key(z88SquareKey); // only DIAMOND (is already) pressed...
 									kp = getZ88Key(KeyEvent.VK_0);
 									break;
@@ -1720,9 +1720,9 @@ public class Z88Keyboard {
 							}
 						}						
 					} else {
-						if (e.getKeyChar() == '£' & currentKbLayout == z88Keyboards[COUNTRY_UK]) {							
+						if (e.getKeyChar() == 'ï¿½' & currentKbLayout == z88Keyboards[COUNTRY_UK]) {							
 							releaseZ88key(z88LshKey); releaseZ88key(z88RshKey);
-							kp = getZ88Key('£');
+							kp = getZ88Key('ï¿½');
 						} else if(e.getKeyChar() == '"') {
 							// for PC UK/DK/SE, SHIFT has been pressed on 2
 							kp = getZ88Key(KeyEvent.VK_QUOTE);
@@ -1827,7 +1827,7 @@ public class Z88Keyboard {
 						}
 
 						if ((e.getModifiers() == java.awt.Event.SHIFT_MASK) | (e.getModifiers() == java.awt.Event.CTRL_MASK)) {
-							// French PC SHIFT - is mapped to Z88 SHIFT § which gives an 6.
+							// French PC SHIFT - is mapped to Z88 SHIFT ï¿½ which gives an 6.
 							kp = getZ88Key(KeyEvent.VK_6);
 						}
 						
@@ -1872,7 +1872,7 @@ public class Z88Keyboard {
 				case KeyEvent.VK_EXCLAMATION_MARK:
 					if (currentKbLayout == z88Keyboards[COUNTRY_FR]) {
 						if ((e.getModifiers() == java.awt.Event.SHIFT_MASK)) {
-							// French PC SHIFT ! is mapped to Z88 single key § (6).
+							// French PC SHIFT ! is mapped to Z88 single key ï¿½ (6).
 							kp = getZ88Key(KeyEvent.VK_6);
 						} else {
 							kp = getZ88Key(e.getKeyCode());
@@ -1945,7 +1945,7 @@ public class Z88Keyboard {
 					}
 					if (e.getKeyChar() == '~') {
 						releaseZ88key(z88RshKey);
-						releaseZ88key(getZ88Key('£'));
+						releaseZ88key(getZ88Key('ï¿½'));
 					}
 					break;
 
@@ -1978,22 +1978,22 @@ public class Z88Keyboard {
 								case KeyEvent.VK_3:  // PC [ALT Gr '3'] = '#' converts to Z88 <>" = #
 									kp = getZ88Key(KeyEvent.VK_3);
 									break;
-								case KeyEvent.VK_4:  // PC [ALT Gr '4'] = '{' converts to Z88 <>è = {
+								case KeyEvent.VK_4:  // PC [ALT Gr '4'] = '{' converts to Z88 <>ï¿½ = {
 									kp = getZ88Key(KeyEvent.VK_7);
 								    break;
-								case KeyEvent.VK_5:  // PC [ALT Gr '5'] = '[' converts to Z88 <>ç = [
+								case KeyEvent.VK_5:  // PC [ALT Gr '5'] = '[' converts to Z88 <>ï¿½ = [
 									kp = getZ88Key(KeyEvent.VK_9);
 									break;							    
 								case KeyEvent.VK_7:  // PC [ALT Gr '7'] = '`' converts to Z88 <>) = `
 									kp = getZ88Key(KeyEvent.VK_RIGHT_PARENTHESIS);									
 									break;
-								case KeyEvent.VK_9:  // PC [ALT Gr '9'] = '^' converts to Z88 <>§ = ^
+								case KeyEvent.VK_9:  // PC [ALT Gr '9'] = '^' converts to Z88 <>ï¿½ = ^
 									kp = getZ88Key(KeyEvent.VK_6);
 									break;
-								case KeyEvent.VK_0:  // PC [ALT Gr '0'] = '@' converts to Z88 <>é = @
+								case KeyEvent.VK_0:  // PC [ALT Gr '0'] = '@' converts to Z88 <>ï¿½ = @
 									kp = getZ88Key(KeyEvent.VK_2);
 									break;
-								case KeyEvent.VK_RIGHT_PARENTHESIS:  // PC [ALT Gr ')'] = ']' converts to Z88 <>à = ]
+								case KeyEvent.VK_RIGHT_PARENTHESIS:  // PC [ALT Gr ')'] = ']' converts to Z88 <>ï¿½ = ]
 									kp = getZ88Key(KeyEvent.VK_0);
 									break;
 								case KeyEvent.VK_EQUALS:  // PC [ALT Gr '='] = '}' converts to Z88 <>! = }
@@ -2002,8 +2002,8 @@ public class Z88Keyboard {
 							}
 						}
 					} else {
-						if (e.getKeyChar() == '£' & currentKbLayout == z88Keyboards[COUNTRY_UK]) {
-							kp = getZ88Key('£');
+						if (e.getKeyChar() == 'ï¿½' & currentKbLayout == z88Keyboards[COUNTRY_UK]) {
+							kp = getZ88Key('ï¿½');
 						} else if(e.getKeyChar() == '"') {
 							// for PC UK/DK, SHIFT has been released on 2
 							kp = getZ88Key(KeyEvent.VK_QUOTE);

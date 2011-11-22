@@ -16,7 +16,7 @@
  *
  */
 
-package net.sourceforge.z88;
+package com.jira.cambridgez88.ozvm;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;

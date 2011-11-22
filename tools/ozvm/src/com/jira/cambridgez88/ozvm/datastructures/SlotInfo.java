@@ -16,20 +16,20 @@
  *
  */
 
-package net.sourceforge.z88.datastructures;
+package com.jira.cambridgez88.ozvm.datastructures;
 
-import net.sourceforge.z88.AmdFlashBank;
-import net.sourceforge.z88.AmicFlashBank;
-import net.sourceforge.z88.GenericAmdFlashBank;
-import net.sourceforge.z88.Bank;
-import net.sourceforge.z88.EpromBank;
-import net.sourceforge.z88.IntelFlashBank;
-import net.sourceforge.z88.Memory;
-import net.sourceforge.z88.RamBank;
-import net.sourceforge.z88.RomBank;
-import net.sourceforge.z88.StmFlashBank;
-import net.sourceforge.z88.VoidBank;
-import net.sourceforge.z88.Z88;
+import com.jira.cambridgez88.ozvm.AmdFlashBank;
+import com.jira.cambridgez88.ozvm.AmicFlashBank;
+import com.jira.cambridgez88.ozvm.GenericAmdFlashBank;
+import com.jira.cambridgez88.ozvm.Bank;
+import com.jira.cambridgez88.ozvm.EpromBank;
+import com.jira.cambridgez88.ozvm.IntelFlashBank;
+import com.jira.cambridgez88.ozvm.Memory;
+import com.jira.cambridgez88.ozvm.RamBank;
+import com.jira.cambridgez88.ozvm.RomBank;
+import com.jira.cambridgez88.ozvm.StmFlashBank;
+import com.jira.cambridgez88.ozvm.VoidBank;
+import com.jira.cambridgez88.ozvm.Z88;
 
 /**
  * Information about what is available in a specified slot;

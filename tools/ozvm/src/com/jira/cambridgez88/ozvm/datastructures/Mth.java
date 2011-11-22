@@ -15,10 +15,10 @@
  * @author <A HREF="mailto:gstrube@gmail.com">Gunther Strube</A>
  *
  */
-package net.sourceforge.z88.datastructures;
+package com.jira.cambridgez88.ozvm.datastructures;
 
-import net.sourceforge.z88.Memory;
-import net.sourceforge.z88.Z88;
+import com.jira.cambridgez88.ozvm.Memory;
+import com.jira.cambridgez88.ozvm.Z88;
 
 /**
  * This class represents a collection of data that is part of an

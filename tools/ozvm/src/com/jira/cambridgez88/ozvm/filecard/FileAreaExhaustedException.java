@@ -15,7 +15,7 @@
  * @author <A HREF="mailto:gstrube@gmail.com">Gunther Strube</A>
  *
  */
-package net.sourceforge.z88.filecard;
+package com.jira.cambridgez88.ozvm.filecard;
 
 /**
  * File Area has not sufficient room. 

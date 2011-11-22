@@ -1,4 +1,4 @@
-package net.sourceforge.z88.screen;
+package com.jira.cambridgez88.ozvm.screen;
 
 import java.awt.*;
 import java.io.*;

@@ -16,7 +16,7 @@
  *
  */
 
-package net.sourceforge.z88;
+package com.jira.cambridgez88.ozvm;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -28,8 +28,8 @@ import java.io.InputStream;
 import java.io.RandomAccessFile;
 import java.net.JarURLConnection;
 
-import net.sourceforge.z88.datastructures.SlotInfo;
-import net.sourceforge.z88.filecard.FileArea;
+import com.jira.cambridgez88.ozvm.datastructures.SlotInfo;
+import com.jira.cambridgez88.ozvm.filecard.FileArea;
 
 
 /**

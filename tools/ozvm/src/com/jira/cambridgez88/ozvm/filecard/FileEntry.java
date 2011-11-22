@@ -15,10 +15,10 @@
  * @author <A HREF="mailto:gstrube@gmail.com">Gunther Strube</A>
  *
  */
-package net.sourceforge.z88.filecard;
+package com.jira.cambridgez88.ozvm.filecard;
 
-import net.sourceforge.z88.Memory;
-import net.sourceforge.z88.Z88;
+import com.jira.cambridgez88.ozvm.Memory;
+import com.jira.cambridgez88.ozvm.Z88;
 
 /**
  * Information about File Entry in a File Area 

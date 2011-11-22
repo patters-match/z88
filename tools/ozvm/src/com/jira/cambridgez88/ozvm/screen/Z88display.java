@@ -16,7 +16,7 @@
  *
  */
 
-package net.sourceforge.z88.screen;
+package com.jira.cambridgez88.ozvm.screen;
 
 import java.awt.Dimension;
 import java.awt.event.MouseEvent;
@@ -37,11 +37,11 @@ import javax.swing.JLabel;
 
 import com.imagero.util.ThreadManager;
 
-import net.sourceforge.z88.Blink;
-import net.sourceforge.z88.Memory;
-import net.sourceforge.z88.OZvm;
-import net.sourceforge.z88.Z80Processor;
-import net.sourceforge.z88.Z88;
+import com.jira.cambridgez88.ozvm.Blink;
+import com.jira.cambridgez88.ozvm.Memory;
+import com.jira.cambridgez88.ozvm.OZvm;
+import com.jira.cambridgez88.ozvm.Z80Processor;
+import com.jira.cambridgez88.ozvm.Z88;
 
 /**
  * The display renderer of the Z88 virtual machine, updating

@@ -16,7 +16,7 @@
  *
  */
 
-package net.sourceforge.z88;
+package com.jira.cambridgez88.ozvm;
 
 import com.jhe.hexed.JHexEditor;
 import java.awt.event.WindowAdapter;

@@ -15,7 +15,7 @@
  * @author <A HREF="mailto:gstrube@gmail.com">Gunther Strube</A>
  *
  */
-package net.sourceforge.z88.filecard;
+package com.jira.cambridgez88.ozvm.filecard;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -25,16 +25,16 @@ import java.util.LinkedList;
 import java.util.ListIterator;
 import java.util.Random;
 
-import net.sourceforge.z88.AmdFlashBank;
-import net.sourceforge.z88.GenericAmdFlashBank;
-import net.sourceforge.z88.Bank;
-import net.sourceforge.z88.EpromBank;
-import net.sourceforge.z88.IntelFlashBank;
-import net.sourceforge.z88.Memory;
-import net.sourceforge.z88.Z88;
-import net.sourceforge.z88.datastructures.ApplicationCardHeader;
-import net.sourceforge.z88.datastructures.FileAreaHeader;
-import net.sourceforge.z88.datastructures.SlotInfo;
+import com.jira.cambridgez88.ozvm.AmdFlashBank;
+import com.jira.cambridgez88.ozvm.GenericAmdFlashBank;
+import com.jira.cambridgez88.ozvm.Bank;
+import com.jira.cambridgez88.ozvm.EpromBank;
+import com.jira.cambridgez88.ozvm.IntelFlashBank;
+import com.jira.cambridgez88.ozvm.Memory;
+import com.jira.cambridgez88.ozvm.Z88;
+import com.jira.cambridgez88.ozvm.datastructures.ApplicationCardHeader;
+import com.jira.cambridgez88.ozvm.datastructures.FileAreaHeader;
+import com.jira.cambridgez88.ozvm.datastructures.SlotInfo;
 
 /**
  * Management of files in File Area of inserted card in specified slot (1-3).

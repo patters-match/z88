@@ -15,7 +15,7 @@
  * @author <A HREF="mailto:gstrube@gmail.com">Gunther Strube</A>
  *
  */
-package net.sourceforge.z88.datastructures;
+package com.jira.cambridgez88.ozvm.datastructures;
 
 import java.io.File;
 import java.io.FileNotFoundException;

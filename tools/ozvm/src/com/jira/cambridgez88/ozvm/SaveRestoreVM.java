@@ -16,7 +16,7 @@
  *
  */
 
-package net.sourceforge.z88;
+package com.jira.cambridgez88.ozvm;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -30,7 +30,7 @@ import java.util.zip.ZipOutputStream;
 import javax.imageio.ImageIO;
 import javax.swing.filechooser.FileFilter;
 
-import net.sourceforge.z88.datastructures.SlotInfo;
+import com.jira.cambridgez88.ozvm.datastructures.SlotInfo;
 
 
 /**

@@ -15,7 +15,7 @@
  * @author <A HREF="mailto:gstrube@gmail.com">Gunther Strube</A>
  *
  */
-package net.sourceforge.z88;
+package com.jira.cambridgez88.ozvm;
 
 import java.awt.Color;
 import java.awt.Component;
@@ -55,11 +55,11 @@ import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.filechooser.FileFilter;
 
-import net.sourceforge.z88.datastructures.SlotInfo;
-import net.sourceforge.z88.filecard.FileArea;
-import net.sourceforge.z88.filecard.FileAreaExhaustedException;
-import net.sourceforge.z88.filecard.FileAreaNotFoundException;
-import net.sourceforge.z88.filecard.FileEntry;
+import com.jira.cambridgez88.ozvm.datastructures.SlotInfo;
+import com.jira.cambridgez88.ozvm.filecard.FileArea;
+import com.jira.cambridgez88.ozvm.filecard.FileAreaExhaustedException;
+import com.jira.cambridgez88.ozvm.filecard.FileAreaNotFoundException;
+import com.jira.cambridgez88.ozvm.filecard.FileEntry;
 
 /**
  * Gui management of insertion and removal of cards in internal and external Z88

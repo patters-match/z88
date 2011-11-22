@@ -1,4 +1,4 @@
-package net.sourceforge.z88.screen;
+package com.jira.cambridgez88.ozvm.screen;
 
 import java.awt.Point;
 import java.io.OutputStream;

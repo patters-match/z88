@@ -15,7 +15,7 @@
  * @author <A HREF="mailto:gstrube@gmail.com">Gunther Strube</A>
  *
  */
-package net.sourceforge.z88;
+package com.jira.cambridgez88.ozvm;
 
 /**
  * String evaluation utility.

@@ -15,9 +15,9 @@
  * @author <A HREF="mailto:gstrube@gmail.com">Gunther Strube</A>
  */
 
-package net.sourceforge.z88;
+package com.jira.cambridgez88.ozvm;
 
-import net.sourceforge.z88.screen.Z88display;
+import com.jira.cambridgez88.ozvm.screen.Z88display;
 
 /**
  * The Z88 class defines the Z88 virtual machine
