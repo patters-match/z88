@@ -15,7 +15,7 @@
 # Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 #
 # ------------------------------------------------------------------------------------
-# Before executing this script, a Java 1.4 Runtime Environment or later must have been
+# Before executing this script, a Java 1.6 Runtime Environment or later must have been
 # installed.
 #
 # To test the availablity of command line java interpreter, just type "java -version".
@@ -29,12 +29,11 @@ mkdir ../ozvm-builddir
 
 # compile the java classes of the project
 echo compiling java classes
-java -jar ../jdk/ecj.jar -d ../ozvm-builddir -nowarn -g:none -source 1.4 -target 1.4 src/com
+java -jar ../jdk/ecj.jar -d ../ozvm-builddir -nowarn -g:none -source 1.6 -target 1.6 src/com
 
 # copy the remaining application files 
 echo building executable jar
 cp -fR src/pixel ../ozvm-builddir
-cp -f src/ozvm-manual.html ../ozvm-builddir
 
 # JAR file only needs (compiled) class files and other embedded resources
 find ../ozvm-builddir -name '.svn' | xargs rm -fR
