@@ -57,11 +57,10 @@ public class Gui extends JFrame {
 		"<html><center>" + 
 		"<h2>OZvm " + OZvm.VERSION + "</h2>" +
 		"<h3>The Z88 emulator & debugging environment</h3>" +
-		"Open Source (GPL) software by Gunther Strube<br>" + 
+		"GPL v2 licensed software by Gunther Strube<br>" + 
 		"<tt>gstrube@gmail.com</tt><br><br>" +
 		"<tt>http://cambridgez88.jira.com</tt>" +
 		"</center></html>";
-
 
 	private Blink blink; 
 	private boolean fullScreenMode;
@@ -209,18 +208,29 @@ public class Gui extends JFrame {
 	}
 
 	private JMenuItem getUserManualMenuItem() {
+        final String errMsg = "Could not launch user guide in Desktop Browser.";
+        
 		if (userManualMenuItem == null) {
 			userManualMenuItem = new JMenuItem();
 			userManualMenuItem.setMnemonic(KeyEvent.VK_U);
-			userManualMenuItem.setText("User Manual");
+			userManualMenuItem.setText("User Guide");
 
 			userManualMenuItem.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					try {
-						new HelpViewer(blink.getClass().getResource("/ozvm-manual.html"));
-					} catch (IOException e1) {
-						e1.printStackTrace();
-					}
+                    java.awt.Desktop desktop = java.awt.Desktop.getDesktop();
+
+                    if( !desktop.isSupported( java.awt.Desktop.Action.OPEN ) ) {
+                        JOptionPane.showMessageDialog(  Gui.this, errMsg, "OZvm Help", JOptionPane.ERROR_MESSAGE);
+                    } else {
+                        try {
+                            String localHelpFilePath = OZvm.getInstance().getAppPath() + "help/index.html";
+                            desktop.open( new File(localHelpFilePath) );
+                        } catch (IOException ex) {
+                            JOptionPane.showMessageDialog(  Gui.this, errMsg, "OZvm Help", JOptionPane.ERROR_MESSAGE);
+                        } catch (IllegalArgumentException ex2) {
+                            JOptionPane.showMessageDialog(  Gui.this, errMsg, "OZvm Help", JOptionPane.ERROR_MESSAGE);
+                        }
+                    }
 				}
 			});
 		}
