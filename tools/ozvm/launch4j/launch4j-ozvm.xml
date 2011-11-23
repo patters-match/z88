@@ -15,7 +15,7 @@
   <icon>.\z88.ico</icon>
   <jre>
     <path></path>
-    <minVersion>1.4.0</minVersion>
+    <minVersion>1.6.0</minVersion>
     <maxVersion></maxVersion>
     <jdkPreference>preferJre</jdkPreference>
   </jre>
@@ -26,12 +26,12 @@
     <timeoutErr>false</timeoutErr>
   </splash>
   <versionInfo>
-    <fileVersion>0.5.0.0</fileVersion>
-    <txtFileVersion>V0.5</txtFileVersion>
+    <fileVersion>1.1.0.0</fileVersion>
+    <txtFileVersion>V1.1</txtFileVersion>
     <fileDescription>OZvm - The Z88 emulator &amp; debugger</fileDescription>
-    <copyright>Gunther Strube (gbs@users.sf.net), 2004-2009</copyright>
-    <productVersion>0.5.0.0</productVersion>
-    <txtProductVersion>V0.5</txtProductVersion>
+    <copyright>Gunther Strube (gstrube@gmail.com), 2004-2011</copyright>
+    <productVersion>1.1.0.0</productVersion>
+    <txtProductVersion>V1.1</txtProductVersion>
     <productName>OZvm</productName>
     <companyName>Free Software Foundation, Europe</companyName>
     <internalName>z88</internalName>
