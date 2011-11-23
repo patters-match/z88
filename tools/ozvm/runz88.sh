@@ -2,7 +2,7 @@
 
 # *************************************************************************************
 # Unix execute script for OZvm - the Z88 emulator.
-# (C) Gunther Strube (gbs@users.sf.net) 2003-2005
+# (C) Gunther Strube (gstrube@gmail.com) 2003-2011
 #
 # OZvm is free software; you can redistribute it and/or modify it under the terms of the
 # GNU General Public License as published by the Free Software Foundation;
@@ -14,9 +14,8 @@
 # see the file COPYING. If not, write to the
 # Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 #
-#
 # ------------------------------------------------------------------------------------
-# Before executing this script, a Java Runtime environment 1.4 or later must have been
+# Before executing this script, a Java Runtime environment 1.6 or later must have been
 # installed and the PATH environment variable set to the <jre install>/bin folder.
 #
 # To test the availablity of command line java execution engine, just type "java -version".

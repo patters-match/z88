@@ -1,7 +1,7 @@
 :: *************************************************************************************
 :: Launch4J compile script to make a Windows EXE-cutable of the z88.jar (OZvm) file.
 ::
-:: (C) Gunther Strube (gbs@users.sf.net) 2005-2006
+:: (C) Gunther Strube (gstrube@gmail.com) 2005-2011
 ::
 :: OZvm is free software; you can redistribute it and/or modify it under the terms of the
 :: GNU General Public License as published by the Free Software Foundation;
@@ -12,7 +12,6 @@
 :: You should have received a copy of the GNU General Public License along with OZvm;
 :: see the file COPYING. If not, write to the
 :: Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
-::
 ::
 :: ------------------------------------------------------------------------------------
 :: This BAT file automatically creates the EXE wrapper of the z88.jar file,
