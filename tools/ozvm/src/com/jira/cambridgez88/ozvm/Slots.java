@@ -380,8 +380,8 @@ public class Slots extends JPanel {
 			rom0Button.setMaximumSize(new Dimension(87, 20));
 			rom0Button.setHorizontalAlignment(SwingConstants.LEFT);
 			rom0Button.setFont(buttonFont);
-			rom0Button.setForeground(Color.BLACK);
-			rom0Button.setBackground(Color.LIGHT_GRAY);
+			rom0Button.setForeground(Color.LIGHT_GRAY);
+			rom0Button.setBackground(Color.BLACK);
 			rom0Button.setMargin(new Insets(2, 2, 2, 2));
 
 			rom0Button.addActionListener(new ActionListener() {
@@ -440,8 +440,8 @@ public class Slots extends JPanel {
 			ram0Button.setMaximumSize(new Dimension(87, 20));
 			ram0Button.setHorizontalAlignment(SwingConstants.LEFT);
 			ram0Button.setFont(buttonFont);
-			ram0Button.setForeground(Color.BLACK);
-			ram0Button.setBackground(Color.LIGHT_GRAY);
+			ram0Button.setForeground(Color.LIGHT_GRAY);
+			ram0Button.setBackground(Color.BLACK);
 			ram0Button.setMargin(new Insets(2, 2, 2, 2));
 
 			ram0Button.addActionListener(new ActionListener() {
@@ -487,8 +487,8 @@ public class Slots extends JPanel {
 			slot1Button.setMaximumSize(new Dimension(139, 20));
 			slot1Button.setFont(buttonFont);
 			slot1Button.setMargin(new Insets(2, 2, 2, 2));
-			slot1Button.setForeground(Color.BLACK);
-			slot1Button.setBackground(Color.LIGHT_GRAY);
+			slot1Button.setForeground(Color.LIGHT_GRAY);
+			slot1Button.setBackground(Color.BLACK);
 
 			// add a right-click popup for file area management
 			externSlotPopupMenuListener[1] = addPopup(slot1Button, new CardPopupMenu(1));
@@ -520,8 +520,8 @@ public class Slots extends JPanel {
 			slot2Button.setMaximumSize(new Dimension(139, 20));
 			slot2Button.setFont(buttonFont);
 			slot2Button.setMargin(new Insets(2, 2, 2, 2));
-			slot2Button.setForeground(Color.BLACK);
-			slot2Button.setBackground(Color.LIGHT_GRAY);
+			slot2Button.setForeground(Color.LIGHT_GRAY);
+			slot2Button.setBackground(Color.BLACK);
 
 			// add a right-click popup for file area management
 			externSlotPopupMenuListener[2] = addPopup(slot2Button, new CardPopupMenu(2));
@@ -552,8 +552,8 @@ public class Slots extends JPanel {
 			slot3Button.setMaximumSize(new Dimension(139, 20));
 			slot3Button.setFont(buttonFont);
 			slot3Button.setMargin(new Insets(2, 2, 2, 2));
-			slot3Button.setForeground(Color.BLACK);
-			slot3Button.setBackground(Color.LIGHT_GRAY);
+			slot3Button.setForeground(Color.LIGHT_GRAY);
+			slot3Button.setBackground(Color.BLACK);
 
 			// add a right-click popup for file area management
 			externSlotPopupMenuListener[3] = addPopup(slot3Button, new CardPopupMenu(3));
