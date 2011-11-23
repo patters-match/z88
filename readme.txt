@@ -41,10 +41,10 @@ Alternatively, you can use Borlands CPP V5.5 (requires free registration)
 from http://www.borland.com/downloads/download_cbuilder.html .
 
 The third requirement on your operating system is Sun's Java Runtime
-Environment V1.4 or newer. Several command line tools (which is
+Environment V1.6 or newer. Several command line tools (which is
 part of the tool chain to develop Z88 applications) and the Z88 emulator
 (virtual Z88 hardware and debugging environment) are implemented in
-Java. Get your JRE from http://java.sun.com. Java V1.4 JRE (or newer) is 
+Java. Get your JRE from http://java.sun.com. Java V1.6 JRE (or newer) is 
 bundled by default on Mac OS X.
 
 There's an extra feature for Windows users which enables you to create

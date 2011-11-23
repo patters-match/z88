@@ -25,9 +25,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
-import java.net.JarURLConnection;
 
-import java.net.URL;
 import javax.swing.UIManager;
 
 import com.jira.cambridgez88.ozvm.datastructures.SlotInfo;
@@ -473,6 +471,14 @@ public class OZvm {
 	 * @param args shell command line arguments
 	 */
 	public static void main(String[] args) {
+        int javaVersion = Integer.parseInt(System.getProperty("java.version").substring(0, 1)) * 10 + 
+                          Integer.parseInt(System.getProperty("java.version").substring(2, 3));
+        
+        if ( javaVersion < 16) {
+            System.err.println("Java Runtime must be 1.6 or higher. OZvm terminated.");
+			System.exit(0);
+        }
+        
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		} catch(Exception e1) {
