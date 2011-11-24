@@ -18,9 +18,6 @@
 
 package	com.jira.cambridgez88.ozvm;
 
-import java.awt.DisplayMode;
-import java.awt.GraphicsDevice;
-import java.awt.GraphicsEnvironment;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -57,12 +54,6 @@ public class OZvm {
 
 	private RtmMessageGui rtmMsgGui;
 
-	/** Graphics device used for full screen mode */
-	private GraphicsDevice device;
-
-	/** Display mode for full screen (640x480) */
-	private DisplayMode displayModeFullScreen;
-
 	private String guiKbLayout;
 
 	private	Blink blink;
@@ -73,12 +64,6 @@ public class OZvm {
 	private boolean debugMode;
 
 	private OZvm() {
-		GraphicsEnvironment environment = GraphicsEnvironment.getLocalGraphicsEnvironment();
-        device = environment.getDefaultScreenDevice();
-
-        // get a display mode for 640x480, 16bit colour depth, used for full screen display
-        displayModeFullScreen = new DisplayMode(640, 480, 16, DisplayMode.REFRESH_RATE_UNKNOWN);
-
         autoRun = true; // default autorun...
 
         // default keyboard layout is UK (for english 4.0 ROM)
@@ -102,37 +87,6 @@ public class OZvm {
 	 */
 	public Gui getGui() {
 		return gui;
-	}
-
-	public boolean isFullScreenSupported() {
-		return device.isFullScreenSupported();
-	}
-
-    /**
-     * Enters full screen mode (if system allows it) and change the
-     * display mode to 640x480 in 16bit colour depth. OZvm stays in
-     * full screen mode until aborted (operating system returns
-     * to window mode automatically when OZvm exits).
-     */
-	public void setFullScreenMode() {
-		if (gui != null) {
-			// get rid of current window mode main Gui window...
-			gui.removeAll(); // release all widgets inside...
-			gui.dispose(); // then remove it from the operating system view
-		}
-
-		gui = new Gui(true); // new main gui for full screen mode (old object garbage collected)
-	    device.setFullScreenWindow(gui);
-
-	    try {
-            device.setDisplayMode(displayModeFullScreen);
-        }
-        catch (IllegalArgumentException ex) {
-            // ignore - illegal mode for this device
-        }
-
-        // finally, let's see the new stuff
-	    gui.repaint();
 	}
 
 	/**
@@ -327,7 +281,6 @@ public class OZvm {
 					String cmd = null;
 					while (	(cmd = file.readLine())	!= null) {
 						cmdLine.parseCommandLine(cmd);
-						Thread.yield();
 					}
 					cmdLine.getDebugGui().getCmdLineInputArea().setEnabled(true); // ready for commands from the keyboard...
 					file.close();
@@ -381,11 +334,6 @@ public class OZvm {
 				displayRtmMessage("RAM0 set	to default 128K.");
 				memory.insertRamCard(128, 0);	// no RAM specified for	slot 0,	set to default 128K RAM...
 			}
-/*
-			if (loadedSnapshot == false && memory.isSlotEmpty(1) == true) {
-				memory.insertRamAmdCard(1);
-			}
- */
 		} catch	(FileNotFoundException e) {
 			System.out.println("Couldn't load ROM/EPROM image:\n" +	e.getMessage());
 			return false;
