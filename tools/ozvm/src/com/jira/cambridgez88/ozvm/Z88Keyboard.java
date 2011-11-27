@@ -359,7 +359,7 @@ public class Z88Keyboard {
         // The '£' key is not available as a single letter on Brittish (UK) PC keyboards
         // and is therefore handled specially
         // ('£' is accessed using SHIFT 3 on a PC keyboard)
-        addKey(keyboardLayout, '£', 0x07FE);
+        addKey(keyboardLayout, 163, 0x07FE); // '£'
         // --------------------------------------------------------------------------------------------------------------------------
 
         // --------------------------------------------------------------------------------------------------------------------------
@@ -535,10 +535,6 @@ public class Z88Keyboard {
         // Single key:
         addKey(keyboardLayout, KeyEvent.VK_PERIOD, 0x07FB);
         addKey(keyboardLayout, KeyEvent.VK_SLASH, 0x07FD);
-
-        // The '£' key is not available as a single letter on US International PC keyboards
-        // and is therefore handled specially
-        // --------------------------------------------------------------------------------------------------------------------------
 
         // --------------------------------------------------------------------------------------------------------------------------
         // Row 10111111
@@ -1654,7 +1650,7 @@ public class Z88Keyboard {
                     }
                     if (e.getKeyChar() == '~') {
                         pressZ88key(z88RshKey);
-                        pressZ88key(getZ88Key('£'));
+                        pressZ88key(getZ88Key(163)); // '£'
                     }
                     break;
 
@@ -1720,9 +1716,9 @@ public class Z88Keyboard {
                             }
                         }
                     } else {
-                        if (e.getKeyChar() == '£' & currentKbLayout == z88Keyboards[COUNTRY_UK]) {
+                        if (e.getKeyChar() == 163 & currentKbLayout == z88Keyboards[COUNTRY_UK]) {
                             releaseZ88key(z88LshKey); releaseZ88key(z88RshKey);
-                            kp = getZ88Key('£');
+                            kp = getZ88Key(163); // '£'
                         } else if(e.getKeyChar() == '"') {
                             // for PC UK/DK/SE, SHIFT has been pressed on 2
                             kp = getZ88Key(KeyEvent.VK_QUOTE);
@@ -1945,7 +1941,7 @@ public class Z88Keyboard {
                     }
                     if (e.getKeyChar() == '~') {
                         releaseZ88key(z88RshKey);
-                        releaseZ88key(getZ88Key('£'));
+                        releaseZ88key(getZ88Key(163)); // '£'
                     }
                     break;
 
@@ -2002,8 +1998,8 @@ public class Z88Keyboard {
                             }
                         }
                     } else {
-                        if (e.getKeyChar() == '£' & currentKbLayout == z88Keyboards[COUNTRY_UK]) {
-                            kp = getZ88Key('£');
+                        if (e.getKeyChar() == 163 & currentKbLayout == z88Keyboards[COUNTRY_UK]) {
+                            kp = getZ88Key(163); // '£'
                         } else if(e.getKeyChar() == '"') {
                             // for PC UK/DK, SHIFT has been released on 2
                             kp = getZ88Key(KeyEvent.VK_QUOTE);
