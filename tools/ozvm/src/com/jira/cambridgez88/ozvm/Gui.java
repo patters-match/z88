@@ -875,19 +875,27 @@ public class Gui extends JFrame {
 
                 public void actionPerformed(ActionEvent e) {
                     if (Z88.getInstance().getProcessorThread() != null) {
-                        if (JOptionPane.showConfirmDialog(Gui.this, "Install OZ V4.3 ROM in slot 0?") == JOptionPane.YES_OPTION) {
-                            File romFileOz43 = new File(OZvm.getInstance().getAppPath() + "roms/Z88OZ43.rom");
-                            try {
-                                Z88.getInstance().getMemory().loadRomBinary(romFileOz43);
-                            } catch (IOException ex) {
-                            } catch (IllegalArgumentException ex) {
-                            }
+                        blink.signalFlapOpened();
 
-                            getUkLayoutMenuItem().setSelected(true);
-                            Z88.getInstance().getKeyboard().setKeyboardLayout(Z88Keyboard.COUNTRY_UK);
-                            getSlotsPanel().refreshSlotInfo();
-                            Z88.getInstance().pressHardReset();
+                        if (JOptionPane.showConfirmDialog(Gui.this, "Install OZ V4.3 ROM in slot 0?") == JOptionPane.YES_OPTION) {
+                            try {
+                                File romFileOz43 = new File(OZvm.getInstance().getAppPath() + "roms/Z88OZ43.rom");
+                                Z88.getInstance().getMemory().loadRomBinary(romFileOz43);
+                                OZvm.getInstance().getGui().setWindowTitle("[" + (romFileOz43.getName()) + "]");
+
+                                getUkLayoutMenuItem().setSelected(true);
+                                Z88.getInstance().pressHardReset();
+                                Z88.getInstance().getKeyboard().setKeyboardLayout(Z88Keyboard.COUNTRY_UK);
+                                getSlotsPanel().refreshSlotInfo();
+
+                            } catch (IOException ex) {
+                                JOptionPane.showMessageDialog(Gui.this, "Selected file couldn't be opened!");
+                            } catch (IllegalArgumentException ex) {
+                                JOptionPane.showMessageDialog(Gui.this, "Selected file was not a Z88 ROM!");
+                            }
                         }
+
+                        blink.signalFlapClosed();
                     } else {
                         JOptionPane.showMessageDialog(Gui.this, "Z88 is not running");
                     }
@@ -906,19 +914,27 @@ public class Gui extends JFrame {
 
                 public void actionPerformed(ActionEvent e) {
                     if (Z88.getInstance().getProcessorThread() != null) {
-                        if (JOptionPane.showConfirmDialog(Gui.this, "Install British OZ V4.0 ROM in slot 0?") == JOptionPane.YES_OPTION) {
-                            File romFileOz40uk = new File(OZvm.getInstance().getAppPath() + "roms/Z88UK400.rom");
-                            try {
-                                Z88.getInstance().getMemory().loadRomBinary(romFileOz40uk);
-                            } catch (IOException ex) {
-                            } catch (IllegalArgumentException ex) {
-                            }
+                        blink.signalFlapOpened();
 
-                            getUkLayoutMenuItem().setSelected(true);
-                            Z88.getInstance().getKeyboard().setKeyboardLayout(Z88Keyboard.COUNTRY_UK);
-                            getSlotsPanel().refreshSlotInfo();
-                            Z88.getInstance().pressHardReset();
+                        if (JOptionPane.showConfirmDialog(Gui.this, "Install British OZ V4.0 in slot 0?") == JOptionPane.YES_OPTION) {
+                            try {
+                                File romFileOz40uk = new File(OZvm.getInstance().getAppPath() + "roms/Z88UK400.rom");
+                                Z88.getInstance().getMemory().loadRomBinary(romFileOz40uk);
+                                OZvm.getInstance().getGui().setWindowTitle("[" + (romFileOz40uk.getName()) + "]");
+
+                                getUkLayoutMenuItem().setSelected(true);
+                                Z88.getInstance().pressHardReset();
+                                Z88.getInstance().getKeyboard().setKeyboardLayout(Z88Keyboard.COUNTRY_UK);
+                                getSlotsPanel().refreshSlotInfo();
+
+                            } catch (IOException ex) {
+                                JOptionPane.showMessageDialog(Gui.this, "Selected file couldn't be opened!");
+                            } catch (IllegalArgumentException ex) {
+                                JOptionPane.showMessageDialog(Gui.this, "Selected file was not a Z88 ROM!");
+                            }
                         }
+
+                        blink.signalFlapClosed();
                     } else {
                         JOptionPane.showMessageDialog(Gui.this, "Z88 is not running");
                     }
@@ -937,19 +953,27 @@ public class Gui extends JFrame {
 
                 public void actionPerformed(ActionEvent e) {
                     if (Z88.getInstance().getProcessorThread() != null) {
-                        if (JOptionPane.showConfirmDialog(Gui.this, "Install British OZ V3.0 ROM in slot 0?") == JOptionPane.YES_OPTION) {
-                            File romFileOz30uk = new File(OZvm.getInstance().getAppPath() + "roms/Z88UK300.rom");
-                            try {
-                                Z88.getInstance().getMemory().loadRomBinary(romFileOz30uk);
-                            } catch (IOException ex) {
-                            } catch (IllegalArgumentException ex) {
-                            }
+                        blink.signalFlapOpened();
 
-                            getUkLayoutMenuItem().setSelected(true);
-                            Z88.getInstance().getKeyboard().setKeyboardLayout(Z88Keyboard.COUNTRY_UK);
-                            getSlotsPanel().refreshSlotInfo();
-                            Z88.getInstance().pressHardReset();
+                        if (JOptionPane.showConfirmDialog(Gui.this, "Install British OZ V3.0 in slot 0?") == JOptionPane.YES_OPTION) {
+                            try {
+                                File romFileOz30uk = new File(OZvm.getInstance().getAppPath() + "roms/Z88UK300.rom");
+                                Z88.getInstance().getMemory().loadRomBinary(romFileOz30uk);
+                                OZvm.getInstance().getGui().setWindowTitle("[" + (romFileOz30uk.getName()) + "]");
+
+                                getUkLayoutMenuItem().setSelected(true);
+                                Z88.getInstance().pressHardReset();
+                                Z88.getInstance().getKeyboard().setKeyboardLayout(Z88Keyboard.COUNTRY_UK);
+                                getSlotsPanel().refreshSlotInfo();
+
+                            } catch (IOException ex) {
+                                JOptionPane.showMessageDialog(Gui.this, "Selected file couldn't be opened!");
+                            } catch (IllegalArgumentException ex) {
+                                JOptionPane.showMessageDialog(Gui.this, "Selected file was not a Z88 ROM!");
+                            }
                         }
+
+                        blink.signalFlapClosed();
                     } else {
                         JOptionPane.showMessageDialog(Gui.this, "Z88 is not running");
                     }
@@ -968,19 +992,27 @@ public class Gui extends JFrame {
 
                 public void actionPerformed(ActionEvent e) {
                     if (Z88.getInstance().getProcessorThread() != null) {
-                        if (JOptionPane.showConfirmDialog(Gui.this, "Install British OZ V2.2 ROM in slot 0?") == JOptionPane.YES_OPTION) {
-                            File romFileOz22uk = new File(OZvm.getInstance().getAppPath() + "roms/Z88UK220.rom");
-                            try {
-                                Z88.getInstance().getMemory().loadRomBinary(romFileOz22uk);
-                            } catch (IOException ex) {
-                            } catch (IllegalArgumentException ex) {
-                            }
+                        blink.signalFlapOpened();
 
-                            getUkLayoutMenuItem().setSelected(true);
-                            Z88.getInstance().getKeyboard().setKeyboardLayout(Z88Keyboard.COUNTRY_UK);
-                            getSlotsPanel().refreshSlotInfo();
-                            Z88.getInstance().pressHardReset();
+                        if (JOptionPane.showConfirmDialog(Gui.this, "Install British OZ V2.2 in slot 0?") == JOptionPane.YES_OPTION) {
+                            try {
+                                File romFileOz22uk = new File(OZvm.getInstance().getAppPath() + "roms/Z88UK220.rom");
+                                Z88.getInstance().getMemory().loadRomBinary(romFileOz22uk);
+                                OZvm.getInstance().getGui().setWindowTitle("[" + (romFileOz22uk.getName()) + "]");
+
+                                getUkLayoutMenuItem().setSelected(true);
+                                Z88.getInstance().pressHardReset();
+                                Z88.getInstance().getKeyboard().setKeyboardLayout(Z88Keyboard.COUNTRY_UK);
+                                getSlotsPanel().refreshSlotInfo();
+
+                            } catch (IOException ex) {
+                                JOptionPane.showMessageDialog(Gui.this, "Selected file couldn't be opened!");
+                            } catch (IllegalArgumentException ex) {
+                                JOptionPane.showMessageDialog(Gui.this, "Selected file was not a Z88 ROM!");
+                            }
                         }
+
+                        blink.signalFlapClosed();
                     } else {
                         JOptionPane.showMessageDialog(Gui.this, "Z88 is not running");
                     }
@@ -999,19 +1031,27 @@ public class Gui extends JFrame {
 
                 public void actionPerformed(ActionEvent e) {
                     if (Z88.getInstance().getProcessorThread() != null) {
-                        if (JOptionPane.showConfirmDialog(Gui.this, "Install French OZ V3.26 ROM in slot 0?") == JOptionPane.YES_OPTION) {
-                            File romFileOz = new File(OZvm.getInstance().getAppPath() + "roms/Z88FR326.rom");
-                            try {
-                                Z88.getInstance().getMemory().loadRomBinary(romFileOz);
-                            } catch (IOException ex) {
-                            } catch (IllegalArgumentException ex) {
-                            }
+                        blink.signalFlapOpened();
 
-                            getFrLayoutMenuItem().setSelected(true);
-                            Z88.getInstance().getKeyboard().setKeyboardLayout(Z88Keyboard.COUNTRY_FR);
-                            getSlotsPanel().refreshSlotInfo();
-                            Z88.getInstance().pressHardReset();
+                        if (JOptionPane.showConfirmDialog(Gui.this, "Install French OZ V3.26 in slot 0?") == JOptionPane.YES_OPTION) {
+                            try {
+                                File romFileOz = new File(OZvm.getInstance().getAppPath() + "roms/Z88FR326.rom");
+                                Z88.getInstance().getMemory().loadRomBinary(romFileOz);
+                                OZvm.getInstance().getGui().setWindowTitle("[" + (romFileOz.getName()) + "]");
+
+                                getUkLayoutMenuItem().setSelected(true);
+                                Z88.getInstance().pressHardReset();
+                                Z88.getInstance().getKeyboard().setKeyboardLayout(Z88Keyboard.COUNTRY_FR);
+                                getSlotsPanel().refreshSlotInfo();
+
+                            } catch (IOException ex) {
+                                JOptionPane.showMessageDialog(Gui.this, "Selected file couldn't be opened!");
+                            } catch (IllegalArgumentException ex) {
+                                JOptionPane.showMessageDialog(Gui.this, "Selected file was not a Z88 ROM!");
+                            }
                         }
+
+                        blink.signalFlapClosed();
                     } else {
                         JOptionPane.showMessageDialog(Gui.this, "Z88 is not running");
                     }
@@ -1030,19 +1070,27 @@ public class Gui extends JFrame {
 
                 public void actionPerformed(ActionEvent e) {
                     if (Z88.getInstance().getProcessorThread() != null) {
-                        if (JOptionPane.showConfirmDialog(Gui.this, "Install Spanish OZ V3.19 ROM in slot 0?") == JOptionPane.YES_OPTION) {
-                            File romFileOz = new File(OZvm.getInstance().getAppPath() + "roms/Z88ES319.rom");
-                            try {
-                                Z88.getInstance().getMemory().loadRomBinary(romFileOz);
-                            } catch (IOException ex) {
-                            } catch (IllegalArgumentException ex) {
-                            }
+                        blink.signalFlapOpened();
 
-                            getUkLayoutMenuItem().setSelected(true);
-                            Z88.getInstance().getKeyboard().setKeyboardLayout(Z88Keyboard.COUNTRY_UK);
-                            getSlotsPanel().refreshSlotInfo();
-                            Z88.getInstance().pressHardReset();
+                        if (JOptionPane.showConfirmDialog(Gui.this, "Install Spanish OZ V3.19 in slot 0?") == JOptionPane.YES_OPTION) {
+                            try {
+                                File romFileOz = new File(OZvm.getInstance().getAppPath() + "roms/Z88ES319.rom");
+                                Z88.getInstance().getMemory().loadRomBinary(romFileOz);
+                                OZvm.getInstance().getGui().setWindowTitle("[" + (romFileOz.getName()) + "]");
+
+                                getUkLayoutMenuItem().setSelected(true);
+                                Z88.getInstance().pressHardReset();
+                                Z88.getInstance().getKeyboard().setKeyboardLayout(Z88Keyboard.COUNTRY_UK);
+                                getSlotsPanel().refreshSlotInfo();
+
+                            } catch (IOException ex) {
+                                JOptionPane.showMessageDialog(Gui.this, "Selected file couldn't be opened!");
+                            } catch (IllegalArgumentException ex) {
+                                JOptionPane.showMessageDialog(Gui.this, "Selected file was not a Z88 ROM!");
+                            }
                         }
+
+                        blink.signalFlapClosed();
                     } else {
                         JOptionPane.showMessageDialog(Gui.this, "Z88 is not running");
                     }
@@ -1061,19 +1109,27 @@ public class Gui extends JFrame {
 
                 public void actionPerformed(ActionEvent e) {
                     if (Z88.getInstance().getProcessorThread() != null) {
-                        if (JOptionPane.showConfirmDialog(Gui.this, "Install German OZ V3.18 ROM in slot 0?") == JOptionPane.YES_OPTION) {
-                            File romFileOz = new File(OZvm.getInstance().getAppPath() + "roms/Z88DE318.rom");
-                            try {
-                                Z88.getInstance().getMemory().loadRomBinary(romFileOz);
-                            } catch (IOException ex) {
-                            } catch (IllegalArgumentException ex) {
-                            }
+                        blink.signalFlapOpened();
 
-                            getUkLayoutMenuItem().setSelected(true);
-                            Z88.getInstance().getKeyboard().setKeyboardLayout(Z88Keyboard.COUNTRY_UK);
-                            getSlotsPanel().refreshSlotInfo();
-                            Z88.getInstance().pressHardReset();
+                        if (JOptionPane.showConfirmDialog(Gui.this, "Install German OZ V3.18 in slot 0?") == JOptionPane.YES_OPTION) {
+                            try {
+                                File romFileOz = new File(OZvm.getInstance().getAppPath() + "roms/Z88DE318.rom");
+                                Z88.getInstance().getMemory().loadRomBinary(romFileOz);
+                                OZvm.getInstance().getGui().setWindowTitle("[" + (romFileOz.getName()) + "]");
+
+                                getUkLayoutMenuItem().setSelected(true);
+                                Z88.getInstance().pressHardReset();
+                                Z88.getInstance().getKeyboard().setKeyboardLayout(Z88Keyboard.COUNTRY_UK);
+                                getSlotsPanel().refreshSlotInfo();
+
+                            } catch (IOException ex) {
+                                JOptionPane.showMessageDialog(Gui.this, "Selected file couldn't be opened!");
+                            } catch (IllegalArgumentException ex) {
+                                JOptionPane.showMessageDialog(Gui.this, "Selected file was not a Z88 ROM!");
+                            }
                         }
+
+                        blink.signalFlapClosed();
                     } else {
                         JOptionPane.showMessageDialog(Gui.this, "Z88 is not running");
                     }
@@ -1092,19 +1148,27 @@ public class Gui extends JFrame {
 
                 public void actionPerformed(ActionEvent e) {
                     if (Z88.getInstance().getProcessorThread() != null) {
-                        if (JOptionPane.showConfirmDialog(Gui.this, "Install Italian OZ V3.23 ROM in slot 0?") == JOptionPane.YES_OPTION) {
-                            File romFileOz = new File(OZvm.getInstance().getAppPath() + "roms/Z88IT323.rom");
-                            try {
-                                Z88.getInstance().getMemory().loadRomBinary(romFileOz);
-                            } catch (IOException ex) {
-                            } catch (IllegalArgumentException ex) {
-                            }
+                        blink.signalFlapOpened();
 
-                            getUkLayoutMenuItem().setSelected(true);
-                            Z88.getInstance().getKeyboard().setKeyboardLayout(Z88Keyboard.COUNTRY_UK);
-                            getSlotsPanel().refreshSlotInfo();
-                            Z88.getInstance().pressHardReset();
+                        if (JOptionPane.showConfirmDialog(Gui.this, "Install Italian OZ V3.23 in slot 0?") == JOptionPane.YES_OPTION) {
+                            try {
+                                File romFileOz = new File(OZvm.getInstance().getAppPath() + "roms/Z88IT323.rom");
+                                Z88.getInstance().getMemory().loadRomBinary(romFileOz);
+                                OZvm.getInstance().getGui().setWindowTitle("[" + (romFileOz.getName()) + "]");
+
+                                getUkLayoutMenuItem().setSelected(true);
+                                Z88.getInstance().pressHardReset();
+                                Z88.getInstance().getKeyboard().setKeyboardLayout(Z88Keyboard.COUNTRY_UK);
+                                getSlotsPanel().refreshSlotInfo();
+
+                            } catch (IOException ex) {
+                                JOptionPane.showMessageDialog(Gui.this, "Selected file couldn't be opened!");
+                            } catch (IllegalArgumentException ex) {
+                                JOptionPane.showMessageDialog(Gui.this, "Selected file was not a Z88 ROM!");
+                            }
                         }
+
+                        blink.signalFlapClosed();
                     } else {
                         JOptionPane.showMessageDialog(Gui.this, "Z88 is not running");
                     }
@@ -1123,19 +1187,27 @@ public class Gui extends JFrame {
 
                 public void actionPerformed(ActionEvent e) {
                     if (Z88.getInstance().getProcessorThread() != null) {
-                        if (JOptionPane.showConfirmDialog(Gui.this, "Install Danish OZ V3.21 ROM in slot 0?") == JOptionPane.YES_OPTION) {
-                            File romFileOz = new File(OZvm.getInstance().getAppPath() + "roms/Z88DK321.rom");
-                            try {
-                                Z88.getInstance().getMemory().loadRomBinary(romFileOz);
-                            } catch (IOException ex) {
-                            } catch (IllegalArgumentException ex) {
-                            }
+                        blink.signalFlapOpened();
 
-                            getDkLayoutMenuItem().setSelected(true);
-                            Z88.getInstance().getKeyboard().setKeyboardLayout(Z88Keyboard.COUNTRY_DK);
-                            getSlotsPanel().refreshSlotInfo();
-                            Z88.getInstance().pressHardReset();
+                        if (JOptionPane.showConfirmDialog(Gui.this, "Install Danish OZ V3.21 in slot 0?") == JOptionPane.YES_OPTION) {
+                            try {
+                                File romFileOz = new File(OZvm.getInstance().getAppPath() + "roms/Z88DK321.rom");
+                                Z88.getInstance().getMemory().loadRomBinary(romFileOz);
+                                OZvm.getInstance().getGui().setWindowTitle("[" + (romFileOz.getName()) + "]");
+
+                                getUkLayoutMenuItem().setSelected(true);
+                                Z88.getInstance().pressHardReset();
+                                Z88.getInstance().getKeyboard().setKeyboardLayout(Z88Keyboard.COUNTRY_DK);
+                                getSlotsPanel().refreshSlotInfo();
+
+                            } catch (IOException ex) {
+                                JOptionPane.showMessageDialog(Gui.this, "Selected file couldn't be opened!");
+                            } catch (IllegalArgumentException ex) {
+                                JOptionPane.showMessageDialog(Gui.this, "Selected file was not a Z88 ROM!");
+                            }
                         }
+
+                        blink.signalFlapClosed();
                     } else {
                         JOptionPane.showMessageDialog(Gui.this, "Z88 is not running");
                     }
@@ -1154,23 +1226,32 @@ public class Gui extends JFrame {
 
                 public void actionPerformed(ActionEvent e) {
                     if (Z88.getInstance().getProcessorThread() != null) {
-                        if (JOptionPane.showConfirmDialog(Gui.this, "Install Swedish OZ V2.50 ROM in slot 0?") == JOptionPane.YES_OPTION) {
-                            File romFileOz = new File(OZvm.getInstance().getAppPath() + "roms/Z88SE250.rom");
-                            try {
-                                Z88.getInstance().getMemory().loadRomBinary(romFileOz);
-                            } catch (IOException ex) {
-                            } catch (IllegalArgumentException ex) {
-                            }
+                        blink.signalFlapOpened();
 
-                            getSeLayoutMenuItem().setSelected(true);
-                            Z88.getInstance().getKeyboard().setKeyboardLayout(Z88Keyboard.COUNTRY_SE);
-                            getSlotsPanel().refreshSlotInfo();
-                            Z88.getInstance().pressHardReset();
+                        if (JOptionPane.showConfirmDialog(Gui.this, "Install Swedish OZ V2.50 in slot 0?") == JOptionPane.YES_OPTION) {
+                            try {
+                                File romFileOz = new File(OZvm.getInstance().getAppPath() + "roms/Z88SE250.rom");
+                                Z88.getInstance().getMemory().loadRomBinary(romFileOz);
+                                OZvm.getInstance().getGui().setWindowTitle("[" + (romFileOz.getName()) + "]");
+
+                                getUkLayoutMenuItem().setSelected(true);
+                                Z88.getInstance().pressHardReset();
+                                Z88.getInstance().getKeyboard().setKeyboardLayout(Z88Keyboard.COUNTRY_SE);
+                                getSlotsPanel().refreshSlotInfo();
+
+                            } catch (IOException ex) {
+                                JOptionPane.showMessageDialog(Gui.this, "Selected file couldn't be opened!");
+                            } catch (IllegalArgumentException ex) {
+                                JOptionPane.showMessageDialog(Gui.this, "Selected file was not a Z88 ROM!");
+                            }
                         }
+
+                        blink.signalFlapClosed();
                     } else {
                         JOptionPane.showMessageDialog(Gui.this, "Z88 is not running");
                     }
                 }
+
             });
         }
 
@@ -1185,23 +1266,32 @@ public class Gui extends JFrame {
 
                 public void actionPerformed(ActionEvent e) {
                     if (Z88.getInstance().getProcessorThread() != null) {
-                        if (JOptionPane.showConfirmDialog(Gui.this, "Install Norwegian OZ V2.60 ROM in slot 0?") == JOptionPane.YES_OPTION) {
-                            File romFileOz = new File(OZvm.getInstance().getAppPath() + "roms/Z88NO260.rom");
-                            try {
-                                Z88.getInstance().getMemory().loadRomBinary(romFileOz);
-                            } catch (IOException ex) {
-                            } catch (IllegalArgumentException ex) {
-                            }
+                        blink.signalFlapOpened();
 
-                            getDkLayoutMenuItem().setSelected(true);
-                            Z88.getInstance().getKeyboard().setKeyboardLayout(Z88Keyboard.COUNTRY_DK);
-                            getSlotsPanel().refreshSlotInfo();
-                            Z88.getInstance().pressHardReset();
+                        if (JOptionPane.showConfirmDialog(Gui.this, "Install Norwegian OZ V2.60 in slot 0?") == JOptionPane.YES_OPTION) {
+                            try {
+                                File romFileOz = new File(OZvm.getInstance().getAppPath() + "roms/Z88NO260.rom");
+                                Z88.getInstance().getMemory().loadRomBinary(romFileOz);
+                                OZvm.getInstance().getGui().setWindowTitle("[" + (romFileOz.getName()) + "]");
+
+                                getUkLayoutMenuItem().setSelected(true);
+                                Z88.getInstance().pressHardReset();
+                                Z88.getInstance().getKeyboard().setKeyboardLayout(Z88Keyboard.COUNTRY_DK);
+                                getSlotsPanel().refreshSlotInfo();
+
+                            } catch (IOException ex) {
+                                JOptionPane.showMessageDialog(Gui.this, "Selected file couldn't be opened!");
+                            } catch (IllegalArgumentException ex) {
+                                JOptionPane.showMessageDialog(Gui.this, "Selected file was not a Z88 ROM!");
+                            }
                         }
+
+                        blink.signalFlapClosed();
                     } else {
                         JOptionPane.showMessageDialog(Gui.this, "Z88 is not running");
                     }
                 }
+
             });
         }
 
@@ -1216,23 +1306,32 @@ public class Gui extends JFrame {
 
                 public void actionPerformed(ActionEvent e) {
                     if (Z88.getInstance().getProcessorThread() != null) {
-                        if (JOptionPane.showConfirmDialog(Gui.this, "Install Finnish OZ V4.01 ROM in slot 0?") == JOptionPane.YES_OPTION) {
-                            File romFileOz = new File(OZvm.getInstance().getAppPath() + "roms/Z88FI401.rom");
-                            try {
-                                Z88.getInstance().getMemory().loadRomBinary(romFileOz);
-                            } catch (IOException ex) {
-                            } catch (IllegalArgumentException ex) {
-                            }
+                        blink.signalFlapOpened();
 
-                            getSeLayoutMenuItem().setSelected(true);
-                            Z88.getInstance().getKeyboard().setKeyboardLayout(Z88Keyboard.COUNTRY_SE);
-                            getSlotsPanel().refreshSlotInfo();
-                            Z88.getInstance().pressHardReset();
+                        if (JOptionPane.showConfirmDialog(Gui.this, "Install Finnish OZ V4.01 in slot 0?") == JOptionPane.YES_OPTION) {
+                            try {
+                                File romFileOz = new File(OZvm.getInstance().getAppPath() + "roms/Z88FI401.rom");
+                                Z88.getInstance().getMemory().loadRomBinary(romFileOz);
+                                OZvm.getInstance().getGui().setWindowTitle("[" + (romFileOz.getName()) + "]");
+
+                                getUkLayoutMenuItem().setSelected(true);
+                                Z88.getInstance().pressHardReset();
+                                Z88.getInstance().getKeyboard().setKeyboardLayout(Z88Keyboard.COUNTRY_SE);
+                                getSlotsPanel().refreshSlotInfo();
+
+                            } catch (IOException ex) {
+                                JOptionPane.showMessageDialog(Gui.this, "Selected file couldn't be opened!");
+                            } catch (IllegalArgumentException ex) {
+                                JOptionPane.showMessageDialog(Gui.this, "Selected file was not a Z88 ROM!");
+                            }
                         }
+
+                        blink.signalFlapClosed();
                     } else {
                         JOptionPane.showMessageDialog(Gui.this, "Z88 is not running");
                     }
                 }
+
             });
         }
 
@@ -1247,23 +1346,32 @@ public class Gui extends JFrame {
 
                 public void actionPerformed(ActionEvent e) {
                     if (Z88.getInstance().getProcessorThread() != null) {
-                        if (JOptionPane.showConfirmDialog(Gui.this, "Install Swiss OZ V3.13 ROM in slot 0?") == JOptionPane.YES_OPTION) {
-                            File romFileOz = new File(OZvm.getInstance().getAppPath() + "roms/Z88HE313.rom");
-                            try {
-                                Z88.getInstance().getMemory().loadRomBinary(romFileOz);
-                            } catch (IOException ex) {
-                            } catch (IllegalArgumentException ex) {
-                            }
+                        blink.signalFlapOpened();
 
-                            getUkLayoutMenuItem().setSelected(true);
-                            Z88.getInstance().getKeyboard().setKeyboardLayout(Z88Keyboard.COUNTRY_UK);
-                            getSlotsPanel().refreshSlotInfo();
-                            Z88.getInstance().pressHardReset();
+                        if (JOptionPane.showConfirmDialog(Gui.this, "Install Swiss OZ V3.13 in slot 0?") == JOptionPane.YES_OPTION) {
+                            try {
+                                File romFileOz = new File(OZvm.getInstance().getAppPath() + "roms/Z88HE313.rom");
+                                Z88.getInstance().getMemory().loadRomBinary(romFileOz);
+                                OZvm.getInstance().getGui().setWindowTitle("[" + (romFileOz.getName()) + "]");
+
+                                getUkLayoutMenuItem().setSelected(true);
+                                Z88.getInstance().pressHardReset();
+                                Z88.getInstance().getKeyboard().setKeyboardLayout(Z88Keyboard.COUNTRY_UK);
+                                getSlotsPanel().refreshSlotInfo();
+
+                            } catch (IOException ex) {
+                                JOptionPane.showMessageDialog(Gui.this, "Selected file couldn't be opened!");
+                            } catch (IllegalArgumentException ex) {
+                                JOptionPane.showMessageDialog(Gui.this, "Selected file was not a Z88 ROM!");
+                            }
                         }
+
+                        blink.signalFlapClosed();
                     } else {
                         JOptionPane.showMessageDialog(Gui.this, "Z88 is not running");
                     }
                 }
+
             });
         }
 
@@ -1278,23 +1386,32 @@ public class Gui extends JFrame {
 
                 public void actionPerformed(ActionEvent e) {
                     if (Z88.getInstance().getProcessorThread() != null) {
-                        if (JOptionPane.showConfirmDialog(Gui.this, "Install Turkish OZ V3.17 ROM in slot 0?") == JOptionPane.YES_OPTION) {
-                            File romFileOz = new File(OZvm.getInstance().getAppPath() + "roms/Z88TK317.rom");
-                            try {
-                                Z88.getInstance().getMemory().loadRomBinary(romFileOz);
-                            } catch (IOException ex) {
-                            } catch (IllegalArgumentException ex) {
-                            }
+                        blink.signalFlapOpened();
 
-                            getUkLayoutMenuItem().setSelected(true);
-                            Z88.getInstance().getKeyboard().setKeyboardLayout(Z88Keyboard.COUNTRY_UK);
-                            getSlotsPanel().refreshSlotInfo();
-                            Z88.getInstance().pressHardReset();
+                        if (JOptionPane.showConfirmDialog(Gui.this, "Install Turkish OZ V3.17 in slot 0?") == JOptionPane.YES_OPTION) {
+                            try {
+                                File romFileOz = new File(OZvm.getInstance().getAppPath() + "roms/Z88TK317.rom");
+                                Z88.getInstance().getMemory().loadRomBinary(romFileOz);
+                                OZvm.getInstance().getGui().setWindowTitle("[" + (romFileOz.getName()) + "]");
+
+                                getUkLayoutMenuItem().setSelected(true);
+                                Z88.getInstance().pressHardReset();
+                                Z88.getInstance().getKeyboard().setKeyboardLayout(Z88Keyboard.COUNTRY_UK);
+                                getSlotsPanel().refreshSlotInfo();
+
+                            } catch (IOException ex) {
+                                JOptionPane.showMessageDialog(Gui.this, "Selected file couldn't be opened!");
+                            } catch (IllegalArgumentException ex) {
+                                JOptionPane.showMessageDialog(Gui.this, "Selected file was not a Z88 ROM!");
+                            }
                         }
+
+                        blink.signalFlapClosed();
                     } else {
                         JOptionPane.showMessageDialog(Gui.this, "Z88 is not running");
                     }
                 }
+
             });
         }
 
