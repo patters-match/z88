@@ -1,3 +1,11 @@
+ROMCombiner v2.09 - What's New?
+===============================
+
+Fix syntax error in line 4380
+
+Gunther Strube, 7th Dec 2011
+
+
 ROMCombiner v2.08 - What's New?
 ===============================
 
