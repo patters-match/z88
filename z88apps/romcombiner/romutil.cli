@@ -151,7 +151,7 @@ NEW
  4350 INPUT "Last bank (0-63)";BK2%
  4360 IF BK2%<0 OR BK2%>63 OR BK2%<BK% THEN PROCErrMsg("Invalid bank!"):ENDPROC
  4370 FOR I%=BK% TO BK2%
- 4380   IF FNmissing(FNbankfile$(N$,I%) THEN PROCErrMsg("Image for bank "+STR$(I%)+" not found!"):I%=100:GOTO 4410
+ 4380   IF FNmissing(FNbankfile$(N$,I%)) THEN PROCErrMsg("Image for bank "+STR$(I%)+" not found!"):I%=100:GOTO 4410
  4390   X%=FNBlowBank(N$,I%+(SL%*64))
  4400   IF X% THEN PROCErrMsg("Error blowing bank "+STR$(I%)+" at byte "+STR$(X%-49152)):I%=100
  4410 NEXT I%
