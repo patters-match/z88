@@ -1,6 +1,6 @@
 /*
  * MakeApp.java
- * (C) Copyright Gunther Strube (gbs@users.sf.net), 2005
+ * (C) Copyright Gunther Strube (gbs@users.sf.net), 2005-2011
  *
  * MakeApp is free software; you can redistribute it and/or modify it under the terms of the
  * GNU General Public License as published by the Free Software Foundation;
@@ -37,7 +37,7 @@ import java.util.zip.CRC32;
  */
 public class MakeApp {
 
-	private static final String progVersion = "MakeApp V1.0";
+	private static final String progVersion = "MakeApp V1.0.1";
 
 	private static final char[] hexcodes = {'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
 	private static final String svnRevisionMacroSearchKey = "$Revision: ";
@@ -228,10 +228,10 @@ public class MakeApp {
 
 		try {
 			RandomAccessFile cardFile = new RandomAccessFile(romUpdateConfigFilename, "rw");
-			cardFile.writeBytes("CFG.V3\n");
+			cardFile.writeBytes("CFG.V4\n");
 			cardFile.writeBytes("; OZ ROM, and total amount of banks to update.\n");
 
-			cardFile.writeBytes("OZ." + slotNo + "," + totalBanks + "\n");
+			cardFile.writeBytes("CD," + totalBanks + ","+'"'+"OZ V4.3 for slot "+slotNo+'"'+"\n");
 			cardFile.writeBytes("; Bank file, CRC, destination bank to update (in slot " + slotNo + ").\n");
 
 			for (int b=0; b<appCardBanks; b++) {
