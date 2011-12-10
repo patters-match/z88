@@ -1,6 +1,6 @@
 ; *************************************************************************************
 ; RomUpdate
-; (C) Gunther Strube (gbs@users.sf.net) 2005-2009
+; (C) Gunther Strube (gstrube@gmail.com) 2005-2011
 ;
 ; RomUpdate is free software; you can redistribute it and/or modify it under the terms of the
 ; GNU General Public License as published by the Free Software Foundation;
@@ -11,7 +11,6 @@
 ; You should have received a copy of the GNU General Public License along with RomUpdate;
 ; see the file COPYING. If not, write to the
 ; Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
-;
 ;
 ; *************************************************************************************
 
@@ -29,17 +28,20 @@
      ; RomUpdate runtime variables
      include "romupdate.def"
 
-     xdef SopNln, YesNo
+     xdef SopNln, YesNo, rdch
      xdef bbcbas_progversion, progversion_banner
-     xdef MsgUpdateCompleted, MsgAddCompleted, MsgAddBankFile, MsgUpdOzRom
-     xdef ReportStdError, DispErrMsg, MsgOZUpdated
-     xdef ErrMsgNoFlash, ErrMsgIntelFlash, ErrMsgAppDorNotFound, ErrMsgActiveApps
+     xdef MsgUpdateCompleted, MsgAddCompleted, MsgAddBankFile, MsgUpdOzRom, MsgUpdCard
+     xdef ReportStdError, DispErrMsg, MsgOZUpdated, MsgCardUpdated
+     xdef ErrMsgNoFlash, ErrMsgIntelFlash, ErrMsgAppDorNotFound, ErrMsgActiveApps, ErrMsgSlotActive
      xdef ErrMsgBankFile, ErrMsgCrcFailBankFile, ErrMsgPresvBanks, ErrMsgCrcCheckPresvBanks
-     xdef ErrMsgSectorErase, ErrMsgBlowBank, ErrMsgNoRoom, ErrMsgNoCfgfile, ErrMsgCfgSyntax
-     xdef ErrMsgNoFlashSupport, ErrMsgNewBankNotEmpty, ErrMsgReduceFileArea, ErrMsgOzRom
+     xdef ErrMsgSectorErase, ErrMsgBlowBank, ErrMsgBlowBankNo, ErrMsgNoRoom, ErrMsgNoCfgfile
+     xdef ErrMsgCfgSyntax, ErrMsgEraseCardFiles
+     xdef ErrMsgNoFlashSupport, ErrMsgNewBankNotEmpty, ErrMsgReduceFileArea, ErrMsgOzRom, ErrMsgCard
      xdef MsgCrcCheckBankFile, MsgUpdateBankFile
      xdef hrdreset_msg, removecrd_msg
+     xdef Loading_msg, Loading2_msg
      xdef yes_msg, no_msg
+     xdef selectslot_prompt
 
      xref suicide, GetSlotNo, GetSectorNo, GetOZSlotNo, CheckConfigLocation
 
@@ -72,12 +74,29 @@
 
 
 ; *************************************************************************************
-; Display "<AppName> was successfully updated in slot X",
+; Display "Insert flash Card with OZ in slot 1 and hard reset Z88.",
 ; prompt for key press, then exit program by KILL request.
 ;
 .MsgOZUpdated
                     call VduEnableCentreJustify
                     ld   hl,removecrd_msg               ; "Insert flash Card with OZ in slot 1 and hard reset Z88."
+                    oz   GN_Sop
+                    oz   GN_nln
+                    call ResKey                         ; "Press any key to exit RomUpdate" ...
+                    jp   suicide                        ; perform suicide with application KILL request
+; *************************************************************************************
+
+
+; *************************************************************************************
+; Display "<AppName> was successfully updated in slot X",
+; prompt for key press, then exit program by KILL request.
+;
+.MsgCardUpdated
+                    ld   a,12
+                    oz   OS_Out
+
+                    call VduEnableCentreJustify
+                    ld   hl,reset2_msg                  ; "Insert flash Card with OZ in slot 1 and hard reset Z88."
                     oz   GN_Sop
                     oz   GN_nln
                     call ResKey                         ; "Press any key to exit RomUpdate" ...
@@ -233,6 +252,94 @@
                     jp   DispErrMsg
 ; *************************************************************************************
 
+
+; *************************************************************************************
+; Slot containing flash card is in use by OZ or applications. This card cannot be
+; erased and loaded with bank images.
+;
+.ErrMsgSlotActive
+                    call VduToggleBoldTypeface
+                    ld   hl,slotactive_msg
+                    oz   GN_Sop
+                    ld   hl,inslot_msg                  ; " in slot "
+                    oz   GN_Sop
+                    ld   b,0
+                    call GetOZSlotNo                    ; slot no in C
+                    call DispNumber
+                    ld   hl,leftjustify
+                    oz   GN_Sop
+                    call VduToggleBoldTypeface
+                    oz   GN_nln
+                    call ResKey                         ; "Press any key to exit RomUpdate" ...
+                    jp   suicide                        ; perform suicide with application KILL request
+; *************************************************************************************
+
+
+; *************************************************************************************
+; Slot containing flash card is in use by OZ or applications. This card cannot be
+; erased and loaded with bank images.
+;
+.ErrMsgEraseCardFiles
+                    call VduToggleBoldTypeface
+                    ld   hl,samecard_msg
+                    oz   GN_Sop
+                    ld   hl,inslot_msg                  ; " in slot "
+                    oz   GN_Sop
+                    ld   b,0
+                    call GetOZSlotNo                    ; slot no in C
+                    call DispNumber
+                    ld   hl,samecard2_msg
+                    oz   GN_Sop
+                    call VduToggleBoldTypeface
+                    oz   GN_nln
+                    call ResKey                         ; "Press any key to exit RomUpdate" ...
+                    jp   suicide                        ; perform suicide with application KILL request
+; *************************************************************************************
+
+
+; *************************************************************************************
+; 'Card could not be installed. No Flash chip was recognised in slot X'
+; slot number is supplied in BC register.
+;
+.ErrMsgCard
+                    ld   hl,noflashforcard_msg
+                    oz   GN_Sop
+                    ld   hl,inslot_msg                  ; "in slot "
+                    oz   GN_Sop
+                    ld   b,0
+                    call GetOZSlotNo                    ; slot no in C
+                    call DispNumber
+                    oz   GN_nln
+                    call ResKey                         ; "Press any key to exit RomUpdate" ...
+                    jp   suicide                        ; perform suicide with application KILL request
+; *************************************************************************************
+
+
+; *************************************************************************************
+; 'Updating Card banks in slot X - please wait'
+;
+.MsgUpdCard
+                    ld   hl,updcard_msg
+                    oz   GN_Sop
+                    ld   a,(dorcpy)
+                    or   a
+                    jr   z, disp_to_slot_msg
+                    ld   hl,upd2card_msg
+                    oz   GN_Sop
+                    ld   hl,dorcpy
+                    oz   GN_Sop
+                    ld   hl,upd3card_msg
+                    oz   GN_Sop
+.disp_to_slot_msg
+                    ld   hl,toslot_msg                  ; "to slot "
+                    oz   GN_Sop
+                    ld   b,0
+                    call GetOZSlotNo                    ; slot no in C
+                    call DispNumber
+
+                    ld   hl,updoz2_msg
+                    oz   GN_Sop
+                    ret
 
 ; *************************************************************************************
 ; 'OZ ROM could not be installed. No Flash chip was recognised in slot X'
@@ -505,6 +612,29 @@
 
 
 ; *************************************************************************************
+; Display an error message when updated application bank chip programming
+; (of passive banks) fails on Flash Card.
+;
+; IN:
+;    BC = bank number
+;
+.ErrMsgBlowBankNo
+                    ld   hl,fatal_err_msg
+                    oz   GN_Sop
+                    ld   hl,updbnk1_err_msg
+                    oz   GN_Sop
+                    call VduToggleBoldTypeface
+                    call DispNumber                     ; display number of bank 
+                    call VduToggleBoldTypeface
+                    ld   hl,updbnk2_err_msg
+                    oz   GN_Sop
+                    call DispSectorNo
+                    ld   hl,flash_err_msg
+                    jr   disp_error_msg
+; *************************************************************************************
+
+
+; *************************************************************************************
 ; Display error message when a fatal error occurred during shrinking of file area.
 ;
 .ErrMsgReduceFileArea
@@ -521,7 +651,7 @@
                     ld   hl,reduce_fa2_msg
                     oz   GN_Sop
                     ld   hl,flash_err_msg
-                    jr   disp_error_msg
+                    jp   disp_error_msg
 ; *************************************************************************************
 
 
@@ -776,12 +906,18 @@
 ; *************************************************************************************
 ; constants
 .bbcbas_progversion defm 12                   ; clear window before displaying program version (BBC BASIC only)
-.progversion_banner defm 1, "BRomUpdate V0.8.5 beta", 1,"B", 0
+.progversion_banner defm 1, "BRomUpdate V0.9 beta", 1,"B", 0
 
 .centerjustify      defm 1, "2JC", 0
 .leftjustify        defm 1, "2JN", 0
 .vdubold            defm 1,"B",0
 
+.samecard_msg       defm 1,"2JC","Bank file binaries reside",0
+.samecard2_msg      defm " to be erased",1,"2JN",0
+.slotactive_msg     defm 1,"2JC","Active applications exists",0
+.selectslot_prompt  defm "Select slot to write bank binaries (", 1, SD_ENT, " to start writing): ",0
+.Loading_msg        defm "Loading ",'"',0
+.Loading2_msg       defm '"'," compilation",0
 .ResKey_msg         defm $0D,$0A,1,"2JC",1,"3+FTPRESS ANY KEY TO EXIT ROMUPDATE",1,"4-FTC",1,"2JN",0
 .inslot_msg         defm " in slot ",0
 .toslot_msg         defm " to slot ",0
@@ -793,6 +929,7 @@
 .cfgsyntax2_msg     defm " in 'romupdate.cfg' file.",0
 .noflashcard_msg    defm "No Flash Card found",0
 .noflashforoz_msg   defm "OZ ROM cannot be updated. Flash device was not found",0
+.noflashforcard_msg defm "Card banks cannot be updated. Flash device was not found",0
 .noflsupp_msg       defm  ", or card not updateable in found slots.", 0
 .noadd_msg          defm " cannot be added to card.",0
 .noapp_found_msg    defm " was not found in any slot.",0
@@ -832,6 +969,10 @@
 .reset2_msg         defm $0D, $0A, $0D, $0A, "Go to Index, remove card, close flap and re-insert card to install application", 0
 .yes_msg            DEFM 13,1,"2+C Yes",8,8,8,0
 .no_msg             DEFM 13,1,"2+C No ",8,8,8,0
+
+.updcard_msg        defm 1, "FWriting Card banks ",0
+.upd2card_msg       defm "for ", '"',0
+.upd3card_msg       defm '" ',0
 
 .updoz1_msg         defm 1, "FUpdating OZ ROM", 0
 .updoz2_msg         defm " - please wait...", 1, "F", 13, 10, 0

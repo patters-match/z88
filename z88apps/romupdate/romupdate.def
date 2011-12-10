@@ -61,14 +61,22 @@ DEFVARS vararea
      longint            ds.l 1                  ; long integer variable (config file usage)
      cfgfilelineno      ds.w 1                  ; line number reference for syntax errors during file parsing
 
-     oz_slot            ds.b 1                  ; which slot OZ is going to be updated to (0 or 1)
+     oz_slot            
+     crd_slot           ds.b 1                  ; which slot is going to be updated / loaded
      flash_algorithm    ds.b 1                  ; algorithm to be used to blow banks
-     total_ozbanks      ds.b 1                  ; no. of OZ ROM banks to update to slot
-     parsed_ozbanks     ds.b 1                  ; no of oz bank entries parsed from config file
+
+     total_ozbanks
+     total_banks        ds.b 1                  ; no. of banks to update to slot
+     parsed_ozbanks
+     parsed_banks       ds.b 1                  ; no of bank entries parsed from config file
+
      actionflags        ds.b 1                  ; bit flags to identify various actions determined by user
+
+     crdbanks
      ozbanks            ds.l 32                 ; reserve space for max. 32 OZ ROM banks (512K). Each entry has the following format:
                                                 ; [three byte source file data] [destination bank in slot X for data]
-     ozbank_loader      ds.w 1                  ; address of routine, responsible for loading "OZ" bank file into buffer
+     bank_loader
+     ozbank_loader      ds.w 1                  ; address of routine, responsible for loading bank file into buffer
      slotozfiles        ds.b 1                  ; slot number of found OZ bank files, when loading from EPR.x file device
      end_vararea
 ENDDEF
@@ -95,5 +103,5 @@ ENDDEF
 
 ; Config file configuration types
 DEFGROUP
-    upd_16kapp, upd_ozrom
+    upd_16kapp, upd_ozrom, load_card
 ENDDEF

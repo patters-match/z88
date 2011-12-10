@@ -1,6 +1,6 @@
 ; *************************************************************************************
 ; RomUpdate
-; (C) Gunther Strube (gbs@users.sf.net) 2005-2009
+; (C) Gunther Strube (gstrube@gmail.com) 2005-2011
 ;
 ; RomUpdate is free software; you can redistribute it and/or modify it under the terms of the
 ; GNU General Public License as published by the Free Software Foundation;
@@ -11,7 +11,6 @@
 ; You should have received a copy of the GNU General Public License along with RomUpdate;
 ; see the file COPYING. If not, write to the
 ; Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
-;
 ;
 ; *************************************************************************************
 
@@ -26,6 +25,9 @@
      xref ValidateRamBankFile, OpenRamBankFile
      xref MsgCrcCheckBankFile, LoadRamBankFile, CrcBuffer, CheckBankFileCrc
      xref EprFetchToRAM, CopyRamFile2Buffer, CopyEprFile2Buffer
+     xref SopNln
+     xref Loading_msg, Loading2_msg
+
 
      include "sysvar.def"
      include "handle.def"
@@ -46,7 +48,6 @@
 
                     call LoadConfigFile
                     ld   (ozbank_loader),ix             ; the address of the bank loader routine
-
 
                     ld   (nextline),hl                  ; init pointer to beginning of first line
                     ld   hl,0
@@ -74,9 +75,14 @@
                     sbc  hl,de
                     pop  hl
                     jp   z,parse_cfgfile_lines          ; Allow "V2" config file format
+                    push hl
                     ld   d,'3'
                     sbc  hl,de
-                    jp   nz,ErrMsgCfgSyntax             ; Allow "V3" config file format
+                    pop  hl
+                    jp   z,parse_cfgfile_lines          ; Allow "V3" config file format
+                    ld   d,'4'
+                    sbc  hl,de
+                    jp   nz,ErrMsgCfgSyntax             ; Allow "V4" config file format
 
 .parse_cfgfile_lines
                     call FetchLine                      ; fetch line containing command specification
@@ -89,8 +95,15 @@
 
                     ld   de,'Z'<<8 | 'O'
                     ld   hl,(ident+1)
+                    cp   a
                     sbc  hl,de                          ; 'OZ' identifier?
-                    jr   z,parse_ozrom_info
+                    jp   z,parse_ozrom_info
+                    
+                    ld   de,'D'<<8 | 'C'
+                    ld   hl,(ident+1)
+                    cp   a
+                    sbc  hl,de                          ; 'CD' (for generic 'CARD') identifier?
+                    jr   z,parse_card_info
                     jp   ErrMsgCfgSyntax                ; 'OZ' configuration task not found...
 
 
@@ -104,6 +117,84 @@
                     ld   a,upd_16kapp                   ; signal to execute Update 16K application: "<filename>",<crc>,<offset>
                     ret
 ; *************************************************************************************
+
+
+; *************************************************************************************
+; V4 config file format
+;
+; Erase & Blow card image to user specified slot, default slot 2. 
+; Parse entries in the configuration file:
+;
+; 'CD',<total banks> 
+; "<bank file>",<crc>,<destination bank, slot relative>
+; ...
+;
+.parse_card_info
+                    ld   a,2                            ; blow card bank files to slot 2 (default)
+                    ld   (crd_slot),a
+
+                    call GetSym
+                    cp   sym_comma                      ; fetch comma...
+                    jp   nz,ErrMsgCfgSyntax             ; not found - signal syntax error...
+                    call GetSym
+                    call GetConstant                    ; a constant after comma identifies total no of ROM banks to load ..
+                    jp   nz,ErrMsgCfgSyntax             ; specified destination bank value was illegal...
+
+                    exx
+                    ld   a,c
+                    ld   (total_banks),a
+                    xor  a
+                    ld   (parsed_banks),a
+
+                    ld   (dorcpy),a                     ; preset to empty compilation string
+
+                    call GetSym
+                    cp   sym_comma                      ; fetch comma for optional compilation name
+                    jp   nz,init_parse_crd_banks        ; not found - start parse bank file lines
+                    call GetSym
+                    cp   sym_dquote                     ; ,"<compilation name>"
+                    jp   nz,ErrMsgCfgSyntax             ; syntax error, compilation name is embraced in quotes..
+
+                    ld   de,dorcpy
+                    ld   b,64
+                    call GetString                      ; collect compilation name, truncated to 63 + null-terminator
+
+                    ld   hl,Loading_msg                 ; "Loading "
+                    oz   GN_Sop
+                    ld   hl,dorcpy                      ; "<compilation name>"
+                    oz   GN_Sop
+                    ld   hl,Loading2_msg
+                    call SopNln
+
+.init_parse_crd_banks
+                    ld   iy,crdbanks                    ; get ready for first bank entry of [total_banks]
+.parse_crd_banks
+                    call FetchLine                      ; fetch line containing oz bank specification
+                    jp   z,ErrMsgCfgSyntax              ; premature EOF!
+                    call GetSym
+                    cp   sym_dquote
+                    jr   nz,parse_crd_banks              ; skip comments and empty lines...
+
+                    call ParseBankFileData              ; found a line with a bank entry, collect bank data into variables...
+                    call ValidateBankFile               ; check CRC of bank file data just collected...
+
+                    inc  iy
+                    inc  iy
+                    inc  iy
+                    inc  iy                             ; prepare for next bank data entry
+
+                    ld   hl,total_banks
+                    ld   a,(hl)                         ; total of card banks to register
+                    inc  hl
+                    inc  (hl)                           ; just registered another card bank
+                    cp   (hl)                           ; all registered?
+                    jr   z,end_parse_card_info          ; yes, all successfully registered and CRC checked
+
+                    call LoadConfigFile                 ; reload configuration file (into buffer), and parse another bank from config file...
+                    jr   parse_crd_banks
+.end_parse_card_info
+                    ld   a,load_card                    ; signal to execute "Load Card" task...
+                    ret
 
 
 ; *************************************************************************************
@@ -148,7 +239,7 @@
                     jr   nz,parse_oz_banks              ; skip comments and empty lines...
 
                     call ParseBankFileData              ; found a line with an oz bank entry, collect oz bank data into variables...
-                    call ValidateOzBankFile             ; check CRC of oz bank file data just collected...
+                    call ValidateBankFile               ; check CRC of oz bank file data just collected...
 
                     inc  iy
                     inc  iy
@@ -171,13 +262,13 @@
 
 
 ; *************************************************************************************
-; CRC check OZ bank file, defined by filename in [bankfilename], by loading file into
+; CRC check bank file, defined by filename in [bankfilename], by loading file into
 ; a buffer and issue a CRC32 calculation, then compare the CRC fetched from the
 ; configuration file in [bankfilecrc].
 ;
 ; Return to caller if the CRC matched, otherwise jump to error routine and exit program
 ;
-.ValidateOzBankFile
+.ValidateBankFile
                     call MsgCrcCheckBankFile            ; display progress message for CRC check of bank file
                     call CheckConfigLocation
                     jr   nz, try_load_epr_file          ; bank files must be located in File Area (with config file)
@@ -222,7 +313,9 @@
 ; parsed data are stored in [bankfilename], [bankfilecrc] and [bankfiledor] variables.
 ;
 .ParseBankFileData
-                    call GetBankFilename                ; read "filename" ...
+                    ld   de,bankfilename
+                    ld   b,127
+                    call GetString                      ; read "filename" ...
 
                     call GetSym
                     cp   sym_comma                      ; skip comma...
@@ -252,13 +345,11 @@
 
 
 ; *************************************************************************************
-; Read bank filename from current position in config file into (bankfilename) var.
-; Max. 127 chars is read. Filename is null-terminated in variable.
+; Read string from current position in config file into DE pointer memory
+; Max. B chars is read. String is null-terminated in variable.
 ;
-.GetBankFilename
+.GetString
                     ld   hl,(lineptr)                   ; point at first char of bank image filename
-                    ld   de,bankfilename
-                    ld   b,127
 .bnkflnm_loop
                     dec  b
                     jr   z, fetched_flnm                ; read max 127 chars of filename...

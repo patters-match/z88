@@ -23,5 +23,6 @@ dorscan
 configfile
 updtapp
 updtoz
+loadcard
 eprfetchram
 messages

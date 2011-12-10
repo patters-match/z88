@@ -1,6 +1,6 @@
 ; *************************************************************************************
 ; RomUpdate
-; (C) Gunther Strube (gbs@users.sf.net) 2005-2009
+; (C) Gunther Strube (gstrube@gmail.com) 2005-2011
 ;
 ; RomUpdate is free software; you can redistribute it and/or modify it under the terms of the
 ; GNU General Public License as published by the Free Software Foundation;
@@ -11,7 +11,6 @@
 ; You should have received a copy of the GNU General Public License along with RomUpdate;
 ; see the file COPYING. If not, write to the
 ; Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
-;
 ;
 ; *************************************************************************************
 
@@ -41,6 +40,7 @@
      lib FileEprRequest                                 ; poll slot for file area
 
      xdef Update_OzRom
+     xdef EraseFlashCard
      xref suicide, FlashWriteSupport, ErrMsgOzRom
      xref BlowBufferToBank, MsgUpdOzRom
      xref LoadEprFile
@@ -72,7 +72,7 @@
                     jr   z, upd_slot01                  ; when updating slot 0 or 1, the complete machine needs to be hard reset after update
 
                     call MsgUpdOzRom                    ; "Updating OZ ROM in slot X - please wait..." (flashing)
-                    call EraseOzFlashCard               ; erase card
+                    call EraseFlashCard                 ; erase card
                     call InstallOZ                      ; then blow OZ banks on it.
                     jp   MsgOZUpdated                   ; OZ done, instruct user to insert card in slot 1 and hard reset..
 
@@ -151,7 +151,7 @@
 
                     ld   sp,ozstack                     ; move system stack just below segment 2 (moved from $1FFE area)
 
-                    call EraseOzFlashCard               ; Prepare FlashCard for OZ
+                    call EraseFlashCard                 ; Prepare FlashCard for OZ
                     call InstallOZ
 
 ; ----------------------------------------------------------------------------------------------------------------------
@@ -174,7 +174,7 @@
 ; File area conflict will be automatically resolved when a new OZ area overlaps the existing 64K sector
 ; of the top of the file area; shrink it to give space for OZ installation in top of card.
 ;
-.EraseOzFlashCard
+.EraseFlashCard
                     call GetOZSlotNo                    ; slot no in C
                     jp   FlashEprCardErase
 

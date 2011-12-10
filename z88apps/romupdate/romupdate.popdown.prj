@@ -23,5 +23,6 @@ crc32
 configfile
 updtapp
 updtoz
+loadcard
 eprfetchram
 messages
