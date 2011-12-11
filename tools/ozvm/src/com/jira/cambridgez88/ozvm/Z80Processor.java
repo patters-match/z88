@@ -234,6 +234,9 @@ public class Z80Processor extends Z80 implements Runnable {
                 stopZ80Execution();
                 OZvm.displayRtmMessage("Z88 virtual machine was stopped at breakpoint.");
                 OZvm.getInstance().commandLine(true); // Activate Debug Command Line Window...
+                if (breakpoints.hasCommands(bpAddress) == true) {
+                    breakpoints.runCommands(bpAddress);
+                }
             }
         }
 	}
@@ -411,8 +414,8 @@ public class Z80Processor extends Z80 implements Runnable {
 			// step	past the break point at	current	instruction
 			singleStepZ80();
 		}
-		// restore (patch) breakpoints into code
-		breakPointManager.installBreakpoints();
+
+        breakPointManager.installBreakpoints();
 		if (interrupts == true) blink.startInterrupts(); // enable Z80/Z88 core interrupts
 		execZ80();
 		// execute Z80 code at full speed until	breakpoint is encountered...

@@ -72,8 +72,27 @@ public class Breakpoints {
             Z88.getInstance().getMemory().clearBreakpoint(bpAddress);
         }
 	}
+    
 
-	
+    public boolean hasCommands(int bpAddress) {
+		bpSearchKey.setBpAddress(bpAddress);
+		Breakpoint bpv = (Breakpoint) breakPoints.get(bpSearchKey);
+		if (bpv != null) {
+            return bpv.hasCommands();
+        } else        
+            return false;
+    }
+
+    
+    public void runCommands(int bpAddress) {
+		bpSearchKey.setBpAddress(bpAddress);
+		Breakpoint bpv = (Breakpoint) breakPoints.get(bpSearchKey);
+		if (bpv != null & bpv.hasCommands()) {
+            bpv.runCommands();
+        }
+    }
+    
+    
 	/**
 	 * Check if this breakpoint has been created.
 	 *
@@ -262,6 +281,7 @@ public class Breakpoints {
         private int addressKey;			// the 24bit address of the breakpoint
         private boolean stop;			// true = stoppable breakpoint, false = display breakpoint
         private boolean active;			// true = breakpoint is active, false = breakpoint is suspended
+        private String[] commands;      // array of commands to be executed at breakpoint.
 
 		/**
 		 * Create a breakpoint object.
@@ -274,8 +294,24 @@ public class Breakpoints {
 
 			// the encoded key for the SortedSet...
 			addressKey = bpAddress;
+            commands = null;
 		}
 
+		/**
+		 * Create a breakpoint object that has debug mode commands
+		 *
+		 * @param bpAddress 24bit extended address
+         * @param one or more debug commands to be executed (separated by ;)
+		 */
+		Breakpoint(int bpAddress, String cmds) {
+			stop = true;	// default behaviour is to stop execution at breakpoint
+			active = true; 	// when a breakpoint is created it is active by default
+
+			// the encoded key for the SortedSet...
+			addressKey = bpAddress;
+            commands = cmds.split(";");
+		}
+        
 		Breakpoint(int bpAddress, boolean stopAtAddress) {
 			// use <false> to display register status, then continue, <true> to stop execution.
 			stop = stopAtAddress;
@@ -283,6 +319,7 @@ public class Breakpoints {
 
 			// the encoded key for the SortedSet...
 			addressKey = bpAddress;
+            commands = null;
 		}
 
         private void setBpAddress(int bpAddress) {
@@ -298,6 +335,25 @@ public class Breakpoints {
             return addressKey;	// the unique key is a perfect hash code
         }
 
+        private boolean hasCommands() {
+            if (commands != null)
+                return true;
+            else
+                return false;
+        }
+
+        private void runCommands() {
+            if (commands != null) {
+                CommandLine cmdLine = OZvm.getInstance().getCommandLine();
+                
+                cmdLine.getDebugGui().getCmdLineInputArea().setEnabled(false);	// don't allow command input while parsing file...
+                for (int i=0; i<commands.length; i++) {
+                    cmdLine.parseCommandLine(commands[i]);
+                }
+                cmdLine.getDebugGui().getCmdLineInputArea().setEnabled(true); // ready for commands from the keyboard again...
+            }
+        }
+        
         // override interface with the actual implementation for this object.
         public boolean equals(Object bp) {
             if (!(bp instanceof Breakpoint)) {

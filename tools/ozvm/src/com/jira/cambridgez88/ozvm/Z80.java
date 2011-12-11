@@ -612,7 +612,7 @@ public abstract class Z80 {
 
 			REFRESH(1);
             opcode = pcReadByte(_PC);
-			if (debugMode == false && isZ80Stopped() == true) {
+			if (debugMode == false & isZ80Stopped() == true) {
 				z80Stopped = true;
 				return;
 			}
