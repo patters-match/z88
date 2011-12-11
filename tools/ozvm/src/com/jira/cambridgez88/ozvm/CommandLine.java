@@ -1457,23 +1457,18 @@ public class CommandLine implements KeyListener {
 		int bpAddress;
 
 		if (cmdLineTokens.length == 2) {
-			if (Z88.getInstance().getProcessorThread() != null) {
-				displayCmdOutput("Breakpoints cannot be	edited while Z88 is running.");
-				return;
-			} else {
-				bpAddress = Integer.parseInt(cmdLineTokens[1], 16);
+            bpAddress = Integer.parseInt(cmdLineTokens[1], 16);
 
-				if (bpAddress >	65535) {
-					bpAddress &= 0xFF3FFF;	// strip segment mask
-				} else {
-					if (cmdLineTokens[1].length() == 6) {
-						// bank	defined	as '00'
-						bpAddress &= 0x3FFF;	// strip segment mask
-					} else {
-						bpAddress = blink.decodeLocalAddress(bpAddress); // local	address	-> ext.address
-					}
-				}
-			}
+            if (bpAddress >	65535) {
+                bpAddress &= 0xFF3FFF;	// strip segment mask
+            } else {
+                if (cmdLineTokens[1].length() == 6) {
+                    // bank	defined	as '00'
+                    bpAddress &= 0x3FFF;	// strip segment mask
+                } else {
+                    bpAddress = blink.decodeLocalAddress(bpAddress); // local address	-> ext.address
+                }
+            }
 
 			breakPointManager.toggleBreakpoint(bpAddress, true);
 			displayCmdOutput(breakPointManager.displayBreakpoints());
@@ -1489,23 +1484,18 @@ public class CommandLine implements KeyListener {
 		int bpAddress;
 
 		if (cmdLineTokens.length == 2) {
-			if (Z88.getInstance().getProcessorThread() != null) {
-				displayCmdOutput("Display Breakpoints cannot be	edited while Z88 is running.");
-				return;
-			} else {
-				bpAddress = Integer.parseInt(cmdLineTokens[1], 16);
+            bpAddress = Integer.parseInt(cmdLineTokens[1], 16);
 
-				if (bpAddress >	65535) {
-					bpAddress &= 0xFF3FFF;	// strip segment mask
-				} else {
-					if (cmdLineTokens[1].length() == 6) {
-						// bank	defined	as '00'
-						bpAddress &= 0x3FFF;	// strip segment mask
-					} else {
-						bpAddress = blink.decodeLocalAddress(bpAddress); // local	address	-> ext.address
-					}
-				}
-			}
+            if (bpAddress >	65535) {
+                bpAddress &= 0xFF3FFF;	// strip segment mask
+            } else {
+                if (cmdLineTokens[1].length() == 6) {
+                    // bank	defined	as '00'
+                    bpAddress &= 0x3FFF;	// strip segment mask
+                } else {
+                    bpAddress = blink.decodeLocalAddress(bpAddress); // local address	-> ext.address
+                }
+            }
 
 			breakPointManager.toggleBreakpoint(bpAddress, false);
 			displayCmdOutput(breakPointManager.displayBreakpoints());

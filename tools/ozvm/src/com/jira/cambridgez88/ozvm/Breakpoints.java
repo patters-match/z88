@@ -69,22 +69,6 @@ public class Breakpoints {
 
 	
 	/**
-	 * Get the original Z80 opcode, located at this breakpoint.
-	 *
-	 * @param address 24bit extended (breakpoint) address
-	 * @return Z80 opcode of breakpoint, or -1 if breakpoint wasn't found
-	 */
-	public int getOrigZ80Opcode(int bpAddress) {
-		bpSearchKey.setBpAddress(bpAddress);
-		Breakpoint bpv = (Breakpoint) breakPoints.get(bpSearchKey);
-		if (bpv != null) {
-			return bpv.getCopyOfOpcode();
-		} else
-			return -1;
-	}
-
-	
-	/**
 	 * Check if this breakpoint has been created.
 	 *
 	 * @param address 24bit extended (breakpoint) address
@@ -233,18 +217,14 @@ public class Breakpoints {
                 Map.Entry e = (Map.Entry) keyIterator.next();
                 Breakpoint bp = (Breakpoint) e.getKey();
 
-                if ((bp.active == true) && (bp.stop == true)) {
-                	Z88.getInstance().getMemory().setByte(bp.getBpAddress(), 0x40);	// use "LD B,B" as stop breakpoint
-                } else {
-                	Z88.getInstance().getMemory().setByte(bp.getBpAddress(), 0x49);	// use "LD C,C" as display breakpoint
-                }
+              	Z88.getInstance().getMemory().setBreakpoint(bp.getBpAddress());
             }
         }
     }
 
     
     /**
-     * Clear the "breakpoint" instruction; ie. restore original bitpattern
+     * Clear the "breakpoint" instruction; ie. restore original bit-pattern
      * that was overwritten by the "breakpoint" instruction in Z88 memory.
      */
     public void clearBreakpoints() {
@@ -258,15 +238,14 @@ public class Breakpoints {
                 Map.Entry e = (Map.Entry) keyIterator.next();
                 Breakpoint bp = (Breakpoint) e.getKey();
 
-                // restore the original opcode bit pattern...
-                Z88.getInstance().getMemory().setByte(bp.getBpAddress(), bp.getCopyOfOpcode() & 0xFF);
+              	Z88.getInstance().getMemory().clearBreakpoint(bp.getBpAddress());
             }
         }
     }
 
     
     /**
-     * Remove all registered breakpoints withing this container 
+     * Remove all registered breakpoints within this container 
      * (using the displayBreakpoints() method afterwards will 
      * return a "No Breakpoints defined." string).<p>
      * 
@@ -282,7 +261,6 @@ public class Breakpoints {
     // The breakpoint container.
     private class Breakpoint {
         private int addressKey;			// the 24bit address of the breakpoint
-        private int instr;				// the original 8bit opcode at breakpoint
         private boolean stop;			// true = stoppable breakpoint, false = display breakpoint
         private boolean active;			// true = breakpoint is active, false = breakpoint is suspended
 
@@ -297,9 +275,6 @@ public class Breakpoints {
 
 			// the encoded key for the SortedSet...
 			addressKey = bpAddress;
-
-			// the original 1 byte opcode bit pattern in Z88 memory.
-			setCopyOfOpcode(Z88.getInstance().getMemory().getByte(bpAddress));
 		}
 
 		Breakpoint(int bpAddress, boolean stopAtAddress) {
@@ -309,9 +284,6 @@ public class Breakpoints {
 
 			// the encoded key for the SortedSet...
 			addressKey = bpAddress;
-
-			// the original 1 byte opcode bit pattern in Z88 memory.
-			setCopyOfOpcode(Z88.getInstance().getMemory().getByte(bpAddress));
 		}
 
         private void setBpAddress(int bpAddress) {
@@ -320,14 +292,6 @@ public class Breakpoints {
 
         private int getBpAddress() {
             return addressKey;
-        }
-
-        private void setCopyOfOpcode(int z80instr) {
-            instr = z80instr;
-        }
-
-        private int getCopyOfOpcode() {
-            return instr;
         }
 
         // override interface with the actual implementation for this object.

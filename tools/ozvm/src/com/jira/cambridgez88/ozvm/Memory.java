@@ -127,6 +127,26 @@ public final class Memory {
 	}
 
 
+    /**
+	 * Set breakpoint for specified address
+	 *
+	 * @param extAddress 24bit extended address
+	 */
+	public void setBreakpoint(final int extAddress) {
+        getBank(extAddress >>> 16).setBreakpoint(extAddress & 0x3FFF);
+	}
+
+    
+    /**
+	 * Clear breakpoint for specified address
+	 *
+	 * @param extAddress 24bit extended address
+	 */
+	public void clearBreakpoint(final int extAddress) {
+        getBank(extAddress >>> 16).clearBreakpoint(extAddress & 0x3FFF);
+	}
+    
+
 	/**
 	 * The "internal" read byte method to be used in the OZvm
 	 * debugging environment.

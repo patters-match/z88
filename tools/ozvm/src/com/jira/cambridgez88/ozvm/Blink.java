@@ -834,6 +834,40 @@ public final class Blink {
 	}
 
 	/**
+	 * Read breakpoint status from Z80 virtual memory model. <addr> is a 16bit word
+	 * that points into the Z80 64K address space.
+	 *
+	 * On the Z88, the 64K is split into 4 sections of 16K segments.
+	 * Any of the 256 16K banks can be bound into the address space
+	 * on the Z88. Bank 0 is special, however.
+	 *
+	 * Please refer to hardware section of the Developer's Notes.
+	 *
+	 * @param addr 16bit word that points into Z80 64K Address Space
+	 * @return byte at bank, mapped into segment for specified address
+	 */
+	public final boolean isBreakpoint(final int addr) {
+		if (addr > 0x3FFF) {
+			return memory.getBank(sR[addr >>> 14]).isBreakpoint(addr);
+		} else {
+			if (addr < 0x2000)
+				// return lower 8K Bank binding
+				// Lower 8K is System Bank 0x00 (ROM on hard reset)
+				// or 0x20 (RAM for Z80 stack and system variables)
+				return RAMS.isBreakpoint(addr);
+			else {
+				if ((sR[0] & 1) == 0)
+					// lower 8K of even bank bound into upper 8K of segment 0
+					return memory.getBank(sR[0] & 0xFE).isBreakpoint(addr & 0x1FFF);
+				else
+					// upper 8K of even bank bound into upper 8K of segment 0
+					// addr <= 0x3FFF...
+					return memory.getBank(sR[0] & 0xFE).isBreakpoint(addr);
+			}
+		}
+	}
+    
+	/**
 	 * Write byte to Z80 virtual memory model. <addr> is a 16bit word
 	 * that points into the Z80 64K address space.
 	 *

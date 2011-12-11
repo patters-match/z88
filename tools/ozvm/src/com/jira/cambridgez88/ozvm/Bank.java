@@ -42,7 +42,8 @@ public abstract class Bank extends WindowAdapter {
 
 	private int bankNo;
 	private int bankMem[];
-        private JFrame win;
+    private boolean breakPoints[];
+    private JFrame win;
 
 	public Bank() {
 		this.bankNo = -1; // This bank is not assigned to the 4Mb memory model
@@ -55,20 +56,21 @@ public abstract class Bank extends WindowAdapter {
 	 */
 	public Bank(int bankNo) {
 		this.bankNo = bankNo;
-		this.bankMem = new int[Bank.SIZE];  // contents are default 0
+		this.bankMem = new int[Bank.SIZE];  // contents are default 0        
+        this.breakPoints = new boolean[Bank.SIZE]; // by default, no breakpoints are defined (false)
 	}
 
 	/**
 	 * Read byte from bank. <addr> is a 16bit word that points into
 	 * the 16K address space of the bank.<p>
-	 * Behaviour is dependent on hardware characteristics (RAM, EPROM, FLASH).
+	 * Behavior is dependent on hardware characteristics (RAM, EPROM, FLASH).
 	 */
 	public abstract int readByte(final int addr);
 
 	/**
 	 * Write byte to bank. <addr> is a 16bit word
 	 * that points into the 16K address space of the bank.<p>
-	 * Behaviour is dependent on hardware characteristics (RAM, EPROM, FLASH).
+	 * Behavior is dependent on hardware characteristics (RAM, EPROM, FLASH).
 	 */
 	public abstract void writeByte(final int addr, final int b);
 
@@ -92,6 +94,34 @@ public abstract class Bank extends WindowAdapter {
 	 */
 	public int getByte(final int addr) {
 		return bankMem[addr & (Bank.SIZE-1)];
+	}
+
+	/**
+	 * Check if breakpoint is defined for specified address
+	 *
+	 * @param addr is a 16bit word that points into the 16K address space of the bank.
+	 * @return true if breakpoint is defined, otherwise false
+	 */
+	public boolean isBreakpoint(final int addr) {
+		return breakPoints[addr & (Bank.SIZE-1)];
+	}
+
+	/**
+	 * Set breakpoint for specified address
+	 *
+	 * @param addr is a 16bit word that points into the 16K address space of the bank.
+	 */
+	public void setBreakpoint(final int addr) {
+		breakPoints[addr & (Bank.SIZE-1)] = true;
+	}
+
+	/**
+	 * Clear breakpoint for specified address
+	 *
+	 * @param addr is a 16bit word that points into the 16K address space of the bank.
+	 */
+    public void clearBreakpoint(final int addr) {
+		breakPoints[addr & (Bank.SIZE-1)] = false;
 	}
 
 	/**

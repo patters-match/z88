@@ -18,10 +18,6 @@
 
 package com.jira.cambridgez88.ozvm;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.IOException;
-
 /**
  * The Z80 class emulates the Zilog Z80 microprocessor. Optimized and added with
  * new features for Z88 virtual machine.
@@ -110,33 +106,24 @@ public abstract class Z80 {
 	 */
 	public abstract boolean isZ80Stopped();
 
-	/** External implemenation of Read Byte from the Z80 virtual memory model */
+	/** External implementation of Read Byte from the Z80 virtual memory model */
 	public abstract int readByte(int addr);
 
-	/** External implemenation of Write byte to the Z80 virtual memory model */
+  	/** External implementation of Z80 PC Read Byte from the Z80 virtual memory model */
+	public abstract int pcReadByte(int addr);
+
+	/** External implementation of Write byte to the Z80 virtual memory model */
 	public abstract void writeByte(int addr, int b);
 
-	/** External implemenation of Read Word from the Z80 virtual memory model */
+	/** External implementation of Read Word from the Z80 virtual memory model */
 	public abstract int readWord(final int addr);
 
-	/** External implemenation of Write Word to the Z80 virtual memory model */
+	/** External implementation of Write Word to the Z80 virtual memory model */
 	public abstract void writeWord(final int addr, final int w);
 
-	/** External implemenation getting current physical PC address
+	/** External implementation getting current physical PC address
 	 * @return extended PC address */
 	public abstract int getPcAddress();
-
-	/**
-	 * External implemenation of action to be taken when a breakpoint is
-	 * encountered
-	 */
-	public abstract boolean breakPointAction();
-
-	/**
-	 * External implemenation of action to be taken when a display breakpoint is
-	 * encountered
-	 */
-	public abstract void breakPointInfo();
 
 	/** IO ports */
 	public abstract void outByte(int addrA8, int addrA15, int bits);
@@ -608,15 +595,11 @@ public abstract class Z80 {
 
 	/** Z80 fetch/execute loop, engine full throttle ahead.. */
 	public void decode(boolean debugMode) {
+        int opcode;
 		z80Stopped = false;
 
 		do {
 			instrPC = _PC; // define origin PC of current instruction
-
-			if (isZ80Stopped() == true) {
-				z80Stopped = true;
-				return;
-			}
 
 			if ((debugMode == false) & IFF1() == true && interruptTriggered() == true) {
 				// a maskable interrupt want's to be executed...
@@ -628,8 +611,14 @@ public abstract class Z80 {
 			}
 
 			REFRESH(1);
+            opcode = pcReadByte(_PC);
+			if (isZ80Stopped() == true) {
+				z80Stopped = true;
+				return;
+			}
+            _PC++;
 
-			switch (readByte(_PC++)) { // decode first byte from Z80 instruction
+			switch (opcode) { // decode first byte from Z80 instruction
 				case 0: /* NOP */{
 					tstatesCounter += 4;
 					break;
@@ -1004,8 +993,6 @@ public abstract class Z80 {
 
 				/* LD B,? */
 				case 64: /* LD B,B */{
-					// Stop at encountered breakpoint, if found...
-					z80Stopped = breakPointAction();
 					tstatesCounter += 4;
 					break;
 				}
@@ -1053,8 +1040,6 @@ public abstract class Z80 {
 					break;
 				}
 				case 73: /* LD C,C */{
-					// Dump Z80 register info at breakpoint, then continue execution
-					breakPointInfo();
 					tstatesCounter += 4;
 
 					break;

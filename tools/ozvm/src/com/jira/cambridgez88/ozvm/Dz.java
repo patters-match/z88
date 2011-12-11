@@ -4388,7 +4388,6 @@ public class Dz {
 	 */
 	public int getInstrOpcode(int offset, int bank) {
 		offset &= 0x3FFF;
-		Breakpoints bp = Z88.getInstance().getProcessor().getBreakpoints();
 		Memory mem = Z88.getInstance().getMemory();
 
 		int opcode3 = 	mem.getByte(offset+3,bank) << 24 |
@@ -4396,20 +4395,11 @@ public class Dz {
 						mem.getByte(offset+1,bank) << 8;
 		int opcode = mem.getByte(offset,bank);
 
-		if (opcode == 64 | opcode == 73) {
-			// The opcode at specifified address might be a runtime breakpoint:
-			// LD B,B or LD C,C
-			if (bp.getOrigZ80Opcode((bank << 16) | offset) != -1) {
-				// there was indeed a breakpoint, use original instruction opcode
-				opcode = bp.getOrigZ80Opcode((bank << 16) | offset);
-			}
-		}
-
 		return opcode3 | opcode;
 	}
 
 	/**
-	 * Get a complete 4-byte instruction opcode sequense, packed into MSB order
+	 * Get a complete 4-byte instruction opcode sequence, packed into MSB order
 	 * at specified local (16bit) address in the current 64K address space
 	 * (defined by Blink). The current breakpoints are examined, so that the
 	 * instruction opcode sequence contains the true opcode and not a mix of
@@ -4461,17 +4451,8 @@ public class Dz {
 	 */
 	public static String getNextStepCommand() {
 		Z80Processor z80 = Z88.getInstance().getProcessor();
-		Breakpoints bp = Z88.getInstance().getProcessor().getBreakpoints();
 
 		int instrOpcode	= z80.readByte(z80.PC());	// get current instruction opcode (to be executed)
-		if (instrOpcode == 64 | instrOpcode == 73) {
-			// The opcode at specifified address might be a runtime breakpoint:
-			// LD B,B or LD C,C
-			if (bp.getOrigZ80Opcode(Z88.getInstance().getBlink().decodeLocalAddress(z80.PC())) != -1) {
-				// there was indeed a breakpoint, use original instruction opcode
-				instrOpcode = bp.getOrigZ80Opcode(Z88.getInstance().getBlink().decodeLocalAddress(z80.PC()));
-			}
-		}
 
 		switch(instrOpcode) {
 			case 0xDC: // CALL C,addr
@@ -4507,10 +4488,10 @@ public class Dz {
 
 	/**
 	 * Decode Z80 instruction and return size of instruction opcode.
-	 * The instrOpcode contains a 4 byte sequense (MSB format) which contains
+	 * The instrOpcode contains a 4 byte sequence (MSB format) which contains
 	 * the opcode of 1 or up to 4 byte length.
 	 *
-	 * @param instrOpcode 4 byte instruction opcode sequense in MSB format
+	 * @param instrOpcode 4 byte instruction opcode sequence in MSB format
 	 * @return int actual size of instruction opcode
 	 */
 	public static final int calcInstrOpcodeSize(int instrOpcode) {

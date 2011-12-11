@@ -139,6 +139,35 @@ public class Z80Processor extends Z80 implements Runnable {
 	}
 
 	/**
+	 * Z80 Program Counter read from Z80 virtual memory model. 
+     * <addr> is a 16bit word that points into the Z80 64K address space.
+	 *
+     * If a breakpoint is enabled for the current address, the Breakpoint
+     * Manager takes appropriate action for the specified address; 
+     * typically stopping the Z80 virtual machine from executing.
+     * 
+     * This method is called only when the Z80 processor is decoding the 
+     * first instruction opcode.
+     * 
+	 * On the Z88, the 64K is split into 4 sections of 16K segments.
+	 * Any of the 256 16K banks can be bound into the address space
+	 * on the Z88. Bank 0 is special, however.
+	 *
+	 * Please refer to hardware section of the Developer's Notes.
+	 *
+	 * @param addr 16bit word that points into Z80 64K Address Space
+	 * @return byte at bank, mapped into segment for specified address
+	 */
+	public int pcReadByte(int addr) {        
+        if (blink.isBreakpoint(addr) == false)
+            return blink.readByte(addr);
+        else {
+            breakPointAction();
+            return blink.readByte(addr);
+        }
+	}
+    
+	/**
 	 * Write byte to Z80 virtual memory model. <addr> is a 16bit word
 	 * that points into the Z80 64K address space.
 	 *
@@ -194,50 +223,19 @@ public class Z80Processor extends Z80 implements Runnable {
 
 	/**
 	 * Handle action on encountered breakpoint.<p>
-	 * (But ignore it, if the processor is just executing a LD B,B without a registered breakpoint
-	 * for that address (T-Touch on the Z88 does it)!
-	 *
-	 * @return true, if Z80 engine is to be stopped (a real breakpoint were found).
 	 */
-	public boolean breakPointAction() {
+	public void breakPointAction() {
 		int bpAddress = blink.decodeLocalAddress(getInstrPC());
 
-		if (breakpoints.getOrigZ80Opcode(bpAddress) != -1) {
-			// a breakpoint was defined for that address;
-			OZvm.displayRtmMessage(Z88Info.dzPcStatus(getInstrPC())); 	// dissassemble original instruction, with Z80 main reg dump
+        if (breakpoints.isActive(bpAddress) == true) {
+            OZvm.displayRtmMessage(Z88Info.dzPcStatus(getInstrPC())); 	// dissassemble original instruction, with Z80 main reg dump
 
-			if (breakpoints.isActive(bpAddress) == true && breakpoints.isStoppable(bpAddress) == true) {
-				PC(getInstrPC()); // PC is reset to breakpoint (currently, it points at the instruction AFTER the breakpoint)
-				OZvm.displayRtmMessage("Z88 virtual machine was stopped at breakpoint.");
-
-				OZvm.getInstance().commandLine(true); // Activate Debug Command Line Window...
-				return true; // signal to stop the Z80 processor...
-			}
-		}
-
-		return false; // don't stop; either no breakpoint were found, or it's just a display breakpoint..
-	}
-
-	/**
-	 * Display information on encountered 'breakpoint'.<p>
-	 * (But ignore it, if the processor is just executing a LD C,C without a registered breakpoint
-	 * for that address!
-	 *
-	 * @return true, if Z80 engine is to be stopped (a real breakpoint were found).
-	 */
-	public void breakPointInfo() {
-		breakPointAction();
-
-		Memory memory = Z88.getInstance().getMemory();
-
-		PC(PC() - 1); // reset Program Counter to Display Breakpoint Opcode
-		int bpAddress = blink.decodeLocalAddress(PC());
-		int bpOpcode = memory.getByte(bpAddress);	// remember the breakpoint instruction opcode
-
-		int z80Opcode = getBreakpoints().getOrigZ80Opcode(bpAddress); 	// get the original Z80 opcode at breakpoint address
-		memory.setByte(bpAddress, z80Opcode); // patch the original opcode back into memory (temporarily)
-		decode(true); // execute the original instruction at display breakpoint
-		memory.setByte(bpAddress, bpOpcode);  // re-patch the breakpoint opcode, for future encounter
+            if (breakpoints.isStoppable(bpAddress) == true) {            
+                stopZ80Execution();
+                OZvm.displayRtmMessage("Z88 virtual machine was stopped at breakpoint.");
+                OZvm.getInstance().commandLine(true); // Activate Debug Command Line Window...
+            }
+        }
 	}
 
 	/**
