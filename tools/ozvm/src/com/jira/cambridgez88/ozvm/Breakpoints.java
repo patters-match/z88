@@ -46,10 +46,13 @@ public class Breakpoints {
 	 */
 	public void toggleBreakpoint(int bpAddress) {
         Breakpoint bp = new Breakpoint(bpAddress);
-        if (breakPoints.containsKey( bp) == false)
+        if (breakPoints.containsKey( bp) == false) {
             breakPoints.put( bp, bp);
-        else
+            Z88.getInstance().getMemory().setBreakpoint(bpAddress);
+        } else {
             breakPoints.remove( bp);
+            Z88.getInstance().getMemory().clearBreakpoint(bpAddress);
+        }
 	}
 
 	
@@ -61,10 +64,13 @@ public class Breakpoints {
 	 */
 	public void toggleBreakpoint(int bpAddress, boolean stopStatus ) {
 		Breakpoint bp = new Breakpoint(bpAddress, stopStatus);
-		if (breakPoints.containsKey( bp) == false)
+		if (breakPoints.containsKey( bp) == false) {
 			breakPoints.put( bp, bp);
-		else
+            Z88.getInstance().getMemory().setBreakpoint(bpAddress);
+        } else {
 			breakPoints.remove(bp);
+            Z88.getInstance().getMemory().clearBreakpoint(bpAddress);
+        }
 	}
 
 	
@@ -203,13 +209,10 @@ public class Breakpoints {
     
     
     /**
-     * Install the "breakpoint" instruction in Z88 memory for all
+     * Set the breakpoint flags in Z88 memory for all
      * currently defined (and active) breakpoints.
      */
     public void installBreakpoints() {
-        // now, set the breakpoint at the extended address;
-        // the instruction opcode 40 ("LD B,B"; quite useless!).
-        // which this virtual machine identifies as a "suspend" Z80 exection.
         if (breakPoints.isEmpty() == false) {
             Iterator keyIterator = breakPoints.entrySet().iterator();
 
@@ -224,13 +227,9 @@ public class Breakpoints {
 
     
     /**
-     * Clear the "breakpoint" instruction; ie. restore original bit-pattern
-     * that was overwritten by the "breakpoint" instruction in Z88 memory.
+     * Clear the breakpoint flags in Z88 memory.
      */
     public void clearBreakpoints() {
-        // restore at the extended address;
-        // the original instruction opcode that is preserved inside
-        // the BreakPoint object
         if (breakPoints.isEmpty() == false) {
             Iterator keyIterator = breakPoints.entrySet().iterator();
 
