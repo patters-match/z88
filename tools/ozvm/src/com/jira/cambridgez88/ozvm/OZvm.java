@@ -18,17 +18,15 @@
 
 package	com.jira.cambridgez88.ozvm;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.RandomAccessFile;
-
-import javax.swing.UIManager;
-
 import com.jira.cambridgez88.ozvm.datastructures.SlotInfo;
 import com.jira.cambridgez88.ozvm.filecard.FileArea;
 import com.jira.cambridgez88.ozvm.filecard.FileAreaExhaustedException;
 import com.jira.cambridgez88.ozvm.filecard.FileAreaNotFoundException;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.RandomAccessFile;
+import javax.swing.UIManager;
 
 /**
  * Main	entry of the Z88 virtual machine.
@@ -278,7 +276,7 @@ public class OZvm {
 
 					file = new RandomAccessFile(args[arg+1], "r");
 					cmdLine.getDebugGui().getCmdLineInputArea().setEnabled(false);	// don't allow command input while parsing file...
-					String cmd = null;
+					String cmd;
 					while (	(cmd = file.readLine())	!= null) {
 						cmdLine.parseCommandLine(cmd);
 					}
