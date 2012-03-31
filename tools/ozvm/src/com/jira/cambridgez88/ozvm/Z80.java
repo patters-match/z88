@@ -84,7 +84,7 @@ public abstract class Z80 {
 	private int _IX = 0, _IY = 0, _ID = 0;
 
 	/** Stack Pointer and Program Counter */
-	private char _SP = 0, _PC = 0;
+	private int _SP = 0, _PC = 0;
 
 	/** PC of current instruction (used for warning and error reporting */
 	private int instrPC = 0;
@@ -216,7 +216,7 @@ public abstract class Z80 {
 	}
 
 	public final void PC(int word) {
-		_PC = (char) word;
+		_PC = word;
 	}
 
 	public final int SP() {
@@ -224,7 +224,7 @@ public abstract class Z80 {
 	}
 
 	public final void SP(int word) {
-		_SP = (char) word;
+		_SP = word;
 	}
 
 	private final int ID() {
