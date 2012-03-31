@@ -25,9 +25,9 @@
 
 if [ -f "oz.bin" ]; then
     # The emulator chooses AMD Flash as hardware type for 512K OZ ROM image for slot 0
-    java -jar ../tools/ozvm/z88.jar rom oz.bin
+    java -client -jar ../tools/ozvm/z88.jar rom oz.bin
 fi
 
 if [ -f "oz.epr" ]; then
-    java -jar ../tools/ozvm/z88.jar crd1 1024 29f oz.epr
+    java -client -jar ../tools/ozvm/z88.jar crd1 1024 29f oz.epr
 fi
