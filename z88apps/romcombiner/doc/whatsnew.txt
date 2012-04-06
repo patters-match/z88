@@ -1,3 +1,12 @@
+ROMCombiner v2.10 - What's New?
+===============================
+
+Fixed blowing to UV Eproms. Reported by Rakewell. 
+Bug introduced in V2.09
+
+Gunther Strube, 6th Apr 2012
+
+
 ROMCombiner v2.09 - What's New?
 ===============================
 

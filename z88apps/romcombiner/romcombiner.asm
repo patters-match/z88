@@ -1,6 +1,6 @@
 ; *************************************************************************************
 ; RomCombiner
-; (c) Garry Lancaster, 2000-2011 (yahoogroups@zxplus3e.plus.com)
+; (c) Garry Lancaster, 2000-2012 (yahoogroups@zxplus3e.plus.com)
 ;
 ; RomCombiner is free software; you can redistribute it and/or modify it under the terms of the
 ; GNU General Public License as published by the Free Software Foundation;
@@ -48,6 +48,7 @@
      xor  a
      cp   c              ; is it a FLASH eprom?
      jr   z,blowflash    ; move on if so
+     di
      ld   hl,$c000
      ld   a,($4D3)
      push af
@@ -94,6 +95,7 @@
      pop  af
      ld   ($4D3),a
      out  ($D3),a
+     ei
      ret
 
 .blowflash               ; DE points at buffer to blow

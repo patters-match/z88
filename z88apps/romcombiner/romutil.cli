@@ -1,6 +1,6 @@
 .; *************************************************************************************
 .; RomCombiner - utilities
-.; (c) Garry Lancaster, 2000-2011 (yahoogroups@zxplus3e.plus.com)
+.; (c) Garry Lancaster, 2000-2012 (yahoogroups@zxplus3e.plus.com)
 .;
 .; RomCombiner is free software; you can redistribute it and/or modify it under the terms of the
 .; GNU General Public License as published by the Free Software Foundation;
@@ -39,7 +39,7 @@ NEW
 
  1100 DEF PROCDispTitle
  1110 CLS
- 1120 PRINT r1$;"  RomCombiner v2.09 (c) Garry Lancaster, 2000-2011  ";r0$;
+ 1120 PRINT r1$;"  RomCombiner v2.10 (c) Garry Lancaster, 2000-2012  ";r0$;
  1130 PRINT "  Pause mode ";
  1140 IF WaitLS% THEN PRINT "ON "; ELSE PRINT "OFF";
  1150 PRINT "  Display mode ";
