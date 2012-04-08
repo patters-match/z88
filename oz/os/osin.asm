@@ -243,7 +243,7 @@ xref    Key2Chr_tbl                             ; [Kernel1]/key2chrt.asm
 IF OZ_INTUITION
     include "../apps/intuition/defs.h"
 
-        cp      IN_AIDX                         ; []+INDEX keys pressed?
+        cp      IN_SIDX                         ; SHIFT+INDEX keys pressed?
         jr      nz, ostin_1                     ; No, return to caller as normal
         ld      hl, SV_INTUITION_RAM + flagstat3
         bit     Flg_DbgRunning,(hl)             ; is Intuition running?
