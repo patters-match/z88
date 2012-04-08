@@ -21,10 +21,14 @@
     XREF SV_INT_window, REL_INT_window
     XREF Use_IntErrhandler, RST_ApplErrhandler, Int_Errhandler
 
+     ; subroutine in lower 8K (through Extcall)
+     XREF WaitKey 
+    
     ; Routines defined in this module:
     XDEF GetKey, Toggle_CLI
 
     INCLUDE "defs.h"
+    INCLUDE "oz.def"     
     INCLUDE "stdio.def"
     INCLUDE "fileio.def"
     INCLUDE "director.def"
@@ -33,9 +37,7 @@
 
 ; **************************************************************************************
 ;
-; Get keypress from keyboard. The routine preserve the Intuition Screen before
-; reading the keyboard due to pre-emption. The Intuition error handler automatically
-; releases any screens saved by Intuition if pre-emption or a KILL request is issued.
+; Get keypress from Intuition keyboard. 
 ;
 ; Register status after return:
 ;
@@ -54,13 +56,8 @@
                   PUSH HL                   ;
                   EXX
 
-.read_keyboard    CALL Use_IntErrhandler
-                  CALL SV_INT_window        ; save Intuition window before reading keyboard
-                  CALL_OZ (Os_In)
-                  CALL REL_INT_window       ; release Intuition window...
-                  CALL RST_ApplErrhandler
-                  OR   A
-                  JR   Z, read_keyboard
+.read_keyboard    
+                  EXTCALL WaitKey, OZBANK_INTUITION | 0
                   CP   27
                   JR   Z, exit_getkey
                   CP   $1F                  ; <DIAMOND>- pressed...

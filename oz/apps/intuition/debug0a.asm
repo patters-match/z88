@@ -43,4 +43,6 @@
      XDEF Command_line, Disp_RTM_Error
      XDEF SV_appl_window, RST_appl_window, Disp_monitor_win
 
+IF GET_UPPER_8K_REFS
      INCLUDE "debug0b.def"
+ENDIF     

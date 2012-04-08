@@ -19,9 +19,10 @@
 
 :: compile Intuition code from scratch
 :: Intuition uses segment 3 for bank switching (Intuition is located at $2000 - upper 8K of segment 0)
-del *.err *.def *.lst *.obj *.bin *.map
+del *.err *.sym *.def *.lst *.obj *.bin *.map
+..\..\..\tools\mpm\mpm -g -DOZ_SLOT%1 -I..\..\def @debug0a
 ..\..\..\tools\mpm\mpm -bg -DOZ_SLOT%1  -I..\..\def  @debug0b
-..\..\..\tools\mpm\mpm -b -DOZ_SLOT%1 -I..\..\def @debug0a
+..\..\..\tools\mpm\mpm -b -DOZ_SLOT%1 -DGET_UPPER_8K_REFS -I..\..\def @debug0a
 
 :: combine the two images as a single 16K executable, to be executed at $2000 in upper 8K segment 0
 :: 'debug0a.bin' is the bootstrap and the core instruction debugger

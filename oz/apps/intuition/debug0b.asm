@@ -16,6 +16,10 @@
 
         MODULE Intuition_8Kupper
 
+        XDEF InputLine, WaitKey
+
+        INCLUDE "debug0a.def"
+
         ORG $2000
 
         ; Empty module  - used only for ORIGIN and name purposes...

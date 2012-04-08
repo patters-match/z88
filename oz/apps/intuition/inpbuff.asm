@@ -21,10 +21,13 @@
 
      XREF Toggle_CLI
      XREF Use_IntErrhandler, RST_ApplErrhandler
+     
+     ; subroutine in lower 8K (through Extcall)
+     XREF InputLine 
 
      XDEF InputCommand, Input_buffer, Prompt
 
-
+     INCLUDE "oz.def"     
      INCLUDE "defs.h"
      INCLUDE "stdio.def"
 
@@ -65,7 +68,6 @@
 ;       AFBCDEHL/....     different
 ;
 .Input_Buffer     DEC  A                    ; use 1 byte as max. length id.
-                  LD   C,A                  ; place cursor at end of command...
                   LD   (DE),A               ; max length of buffer
                   INC  DE
 
@@ -77,13 +79,12 @@
                   LD   A,(DE)
                   LD   B,A                  ; max. length of buffer...
                   INC  DE                   ; point at first char
-                  LD   A,@00001001          ; return unexp. characters, info in buffer
                   CALL Use_IntErrhandler    ; Use Intuition error handler
                   CALL SV_INT_window        ; save Intuition screen before keyboard input
-                  CALL_OZ (Gn_Sip)
+                  EXTCALL InputLine, OZBANK_INTUITION | 0
                   CALL REL_INT_window       ; release Intuition window
                   CALL RST_ApplErrhandler   ; restore application error handler
-                  CP   $1F                  ; <DIAMOND>- ?
+                  CP   $1F                  ; <SHIFT><TAB> ?
                   JR   Z, CLI_facility
                   CP   IN_ENT               ; <ENTER>?
                   JR   Z, enter_key
@@ -110,7 +111,6 @@
                   CALL  DisplayPrompt       ;                                           ** V0.19c
                   XOR   A
                   LD    (DE),A              ; null-terminate input line
-                  LD    C,A                 ; cursor position at beginning of line
                   JR    input_loop
 
 

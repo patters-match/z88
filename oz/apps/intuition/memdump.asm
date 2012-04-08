@@ -33,6 +33,7 @@
 
     INCLUDE "defs.h"
     INCLUDE "memory.def"
+    INCLUDE "stdio.def"
 
 
 ; ***********************************************************************************************
@@ -87,21 +88,21 @@
                   POP  HL                   ; BOTTOM dump address
 .mem_view_loop    CALL DisplayCurPos        ;                                           ** V0.24d
                   CALL GetKey
-                  CP   9                    ; TAB pressed?                              ** V0.24d
+                  CP   IN_TAB               ; TAB pressed?
                   JP   Z, HexAscii_Cursor   ; toggle between Hex & ASCII cursor         ** V0.24d
-                  CP   27
+                  CP   IN_ESC
                   JP   Z, exit_mem_view     ; ESC pressed - abort...
-                  CP   $FC                  ; <Left Cursor>?                            ** V0.24d
+                  CP   IN_LFT               ; <Left Cursor>?
                   JP   Z, mv_cursor_left    ;                                           ** V0.24d
-                  CP   $FD                  ; <Right Cursor>?                           ** V0.24d
+                  CP   IN_RGT               ; <Right Cursor>?
                   JP   Z, mv_cursor_right   ;                                           ** V0.24d
-                  CP   $FE                  ; <Down Cursor> ?
+                  CP   IN_DWN               ; <Down Cursor> ?
                   JR   Z, next_12_bytes
-                  CP   $FF                  ; <Up Cursor>   ?
+                  CP   IN_UP                ; <Up Cursor>   ?
                   JP   Z, prev_12_bytes
-                  CP   $FA                  ; <SHIFT> <Down Cursor> ?
+                  CP   IN_SDWN              ; <SHIFT> <Down Cursor> ?
                   JP   Z, next_96_bytes
-                  CP   $FB                  ; <SHIFT> <Up Cursor> ?
+                  CP   IN_SUP               ; <SHIFT> <Up Cursor> ?
                   JP   Z, prev_96_bytes
 
                   CP   126                  ;                                           ** V1.03
