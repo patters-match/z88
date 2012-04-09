@@ -71,7 +71,7 @@
                   LD   (DE),A               ; max length of buffer
                   INC  DE
 
-.input_loop       OZ   OS_Pout              ; place cursor at beginning of line
+.input_loop       OZ   OS_Pout              ; place cursor at beginning of command line
                   DEFM 1,"2X",32,0
 
                   CALL DisplayPrompt        ; display Intuition prompt
@@ -79,12 +79,8 @@
                   LD   A,(DE)
                   LD   B,A                  ; max. length of buffer...
                   INC  DE                   ; point at first char
-                  CALL Use_IntErrhandler    ; Use Intuition error handler
-                  CALL SV_INT_window        ; save Intuition screen before keyboard input
                   EXTCALL InputLine, OZBANK_INTUITION | 0
-                  CALL REL_INT_window       ; release Intuition window
-                  CALL RST_ApplErrhandler   ; restore application error handler
-                  CP   $1F                  ; <SHIFT><TAB> ?
+                  CP   IN_STAB              ; <SHIFT><TAB> ?
                   JR   Z, CLI_facility
                   CP   IN_ENT               ; <ENTER>?
                   JR   Z, enter_key

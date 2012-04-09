@@ -58,10 +58,8 @@
 
 .read_keyboard    
                   EXTCALL WaitKey, OZBANK_INTUITION | 0
-                  CP   27
-                  JR   Z, exit_getkey
-                  CP   $1F                  ; <DIAMOND>- pressed...
-                  JR   Z, CLI_facility
+                  CP   IN_STAB              ; <SHIFT><TAB> ?
+                  CALL Z, Toggle_CLI
 
 .exit_getkey      EXX
                   POP  HL                   ;
@@ -79,25 +77,18 @@
 
 ; *********************************************************************************
 ;
-.CLI_facility     CALL Toggle_CLI
-                  JR   read_keyboard        ; back to main keyboard routine
-
-
 ; execute CLI routines
 .Toggle_CLI       PUSH IX
                   BIT  Flg_CLI,(IY + FlagStat1)
                   JR   Z, Create_logfile
-
-.Close_logfile    LD   IX,0                       ; close file and quit CLI.
-                  LD   A,4                        ; T-output code
-                  CALL_OZ(Dc_Rbd)
-                  RES  Flg_CLI,(IY + FlagStat1)   ; indicate no CLI running
+.Close_logfile    
+                  LD   IX,0                       ; close file and quit CLI.
+                  CALL DCRebind
+                  RES  Flg_CLI,(IY + FlagStat1)   ; indicate no CLI running                 
                   CP   A                          ; signal success
                   POP  IX
                   RET
-
-.Create_logfile   CALL Use_IntErrhandler
-                  CALL SV_INT_window              ; save Intuition window before reading keyboard
+.Create_logfile   
                   LD   HL,0
                   ADD  HL,SP
                   LD   D,H
@@ -116,7 +107,7 @@
                   LD   A, @00000001               ; to ASCII
                   INC  (IY + LogfileNr)           ; Update log file number
                   LD   C,(IY + LogfileNr)         ; BC = log file number
-                  CALL_OZ(Gn_Pdn)                 ; convert log number into ASCII representation
+                  OZ   Gn_Pdn                     ; convert log number into ASCII representation
                   XOR  A
                   LD   (DE),A                     ; then null terminate file name
 
@@ -126,7 +117,7 @@
                   LD   D,H
                   LD   E,L                        ; also scratch buffer...
                   LD   BC,5
-                  CALL_OZ(Gn_Opf)                 ; log file 'log.xxx' & 0
+                  OZ   Gn_Opf                     ; log file 'log.xxx' & 0
                   POP  DE
                   JR   C, exit_logfile            ; Ups - open error, return immediately
 
@@ -136,19 +127,23 @@
                   LDIR                            ; copy CLI command to buffer
                   POP  HL                         ; point at CLI command
                   LD   C,2
-                  CALL_OZ(Dc_Icl)                 ; activate '.S' CLI redirection
+                  OZ   Dc_Icl                     ; activate '.S' CLI redirection
                   JR   C, exit_logfile
-                  LD   BC,1                       ; dummy key read to allow execute CLI
-                  CALL_OZ(Os_Tin)
-                  LD   A,4
-                  CALL_OZ(DC_Rbd)                 ; rebind stream to T-output screen, file
+                  CALL DCRebind
                   JR   C, exit_logfile
                   SET  Flg_CLI,(IY + FlagStat1)   ; indicate CLI running...
 .exit_logfile     POP  HL                         ; get old SP
                   LD   SP,HL                      ; install old SP
                   POP  IX
-                  CALL REL_INT_window             ; release Intuition window...
-                  JP   RST_ApplErrhandler
+                  RET
+.DCRebind
+                  CALL Use_IntErrhandler
+                  LD   BC,1                       ; dummy key read to allow execute CLI
+                  OZ   Os_Tin
+                  LD   A,4
+                  OZ   DC_Rbd                     ; rebind stream to T-output screen, file
+                  CALL RST_ApplErrhandler
+                  RET
 
 .CLI_file         DEFM "/log."                    ; standard CLI logfile 1, 5 bytes long
 .CLI_command      DEFM ".S",0

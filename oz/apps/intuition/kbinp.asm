@@ -22,7 +22,15 @@
 
 
 ; *************************************************************************
-; Intuition Input line (basic API compatible with GN_Sip).
+; Intuition Input line (API compatible with GN_Sip, except no functionality flags in A).
+; Cursor always reside at end of line.
+;
+; The routine exits when following 'special' keys are pressed:
+;       IN_SQU, IN_DIA
+;       IN_CAPS, IN_MEN, IN_IDX, IN_HLP
+;       IN_ENT, IN_ESC, IN_TAB, IN_STAB
+;       IN_LFT, IN_RGT, IN_DWN, IN_UP
+;       IN_SDWN, IN_SUP
 ;
 ; IN:
 ;     B = max length of buffer
@@ -31,7 +39,7 @@
 ;
 ; OUT:
 ;     B = length of line entered, including terminating null
-;     C = cursor position on exit
+;     C = cursor position on exit (= B)
 ;     A = character which caused end of input
 
 ; Register status after return:
@@ -48,7 +56,7 @@
         
         push    de
         ex      de,hl
-        oz      GN_Sop                           ; display contents, cursor at end 
+        oz      GN_Sop                           ; display contents, cursor at end of line
         pop     de
         push    hl
         sbc     hl,de
@@ -64,13 +72,13 @@
         ret
 .inpline_loop
         call    WaitKey
-        cp      $1F                              ; <SHIFT><TAB> ?
+        cp      IN_STAB                          ; <SHIFT><TAB> ?
         ret     z
         cp      IN_SQU                           ; <SQUARE>?
         ret     z
         cp      IN_DIA                           ; <DIAMOND>?
         ret     z
-        cp      IN_CAPS                           ; <CAPS LOCK>?
+        cp      IN_CAPS                          ; <CAPS LOCK>?
         ret     z
         cp      IN_MEN                           ; <MENU>?
         ret     z
@@ -307,7 +315,7 @@
         defb    $28,$4B,$43,$44,$45,$23,$F9,$5F ; A11 (#3) | (  K  C  D  E  #  *R _
         defb    $50,$4D,$58,$53,$57,$40,$F8,$7D ; A12 (#4) | P  M  X  S  W  2  *L }
         defb    $29,$4C,$5A,$41,$51,$21,$20,$7B ; A13 (#5) | )  L  Z  A  Q  !  *S {
-        defb    $22,$3A,$3C,$E5,$C8,$1F,$A9,$E7 ; A14 (#6) | "  :  <  #M !D ^T !L #H
+        defb    $22,$3A,$3C,$E5,$C8,$D2,$A9,$E7 ; A14 (#6) | "  :  <  #M !D ^T !L #H
         defb    $7E,$3F,$3E,$E8,$E6,$1B,$B8,$A9 ; A15 (#7) | ~  ?  >  !C #I ^E !S !R
 
 .end
