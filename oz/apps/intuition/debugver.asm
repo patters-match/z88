@@ -39,5 +39,5 @@
                   JP   Write_CRLF
 
 .OZ_version       DEFM "OZ: V",0
-.Version          DEFM "V1.2.dev",0         ; see 'history.txt' for development history
+.Version          DEFM "V1.2",0
 .Oldbnk_msg       DEFM "Old S0 binding: ",0
