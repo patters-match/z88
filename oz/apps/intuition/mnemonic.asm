@@ -11,7 +11,6 @@
 ; see the file COPYING. If not, write to the
 ; Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 ;
-;
 ;***************************************************************************************************
 
     MODULE Disasm_mnemonics
@@ -105,7 +104,7 @@
                   DEFW DC_END_Mnemonic
 
 
-.GN_lookup        DEFB 2,$06,$78
+.GN_lookup        DEFB 2,$06,$7A
 
 .GN_Mnemonics     DEFW GN_GDT_Mnemonic
                   DEFW GN_PDT_Mnemonic
@@ -165,6 +164,7 @@
                   DEFW GN_D16_Mnemonic
                   DEFW GN_M24_Mnemonic
                   DEFW GN_D24_Mnemonic
+                  DEFW GN_WIN_Mnemonic                  
                   DEFW GN_END_Mnemonic
 
 
@@ -213,9 +213,10 @@
                   DEFW OS_1byte_END
 
 
-.OS_2byte_lookup  DEFB 2,$C8,$FE
+.OS_2byte_lookup  DEFB 2,$C6,$FE
 
 .OS_2byte_Mnemonics
+                  DEFW OS_PLOZ_Mnemonic             ; C6
                   DEFW OS_FEP_Mnemonic              ; C8
                   DEFW OS_WTB_Mnemonic              ; CA
                   DEFW OS_WRT_Mnemonic              ; CC
@@ -525,6 +526,7 @@
 .GN_D16_Mnemonic  DEFM "D16"
 .GN_M24_Mnemonic  DEFM "M24"
 .GN_D24_Mnemonic  DEFM "D24"
+.GN_WIN_Mnemonic  DEFM "WIN"
 .GN_END_Mnemonic
 
 .OS_BYE_Mnemonic  DEFM "BYE"
@@ -568,6 +570,7 @@
 .OS_POUT_Mnemonic DEFM "POUT"
 .OS_1byte_END
 
+.OS_PLOZ_Mnemonic DEFM "PLOZ"
 .OS_FEP_Mnemonic  DEFM "FEP"
 .OS_WTB_Mnemonic  DEFM "WTB"
 .OS_WRT_Mnemonic  DEFM "WRT"
