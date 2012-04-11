@@ -1,7 +1,7 @@
 /*********************************************************************************************
  EazyLink2 - Fast Client/Server Z88 File Management
- (C) Gunther Strube (gstrube@gmail.com) 2011
- & Oscar Ernohazy 2012
+ (C) Gunther Strube (gstrube@gmail.com) & Oscar Ernohazy 2012
+
  EazyLink2 is free software; you can redistribute it and/or modify it under the terms of the
  GNU General Public License as published by the Free Software Foundation;
  either version 2, or (at your option) any later version.
@@ -17,7 +17,13 @@
 #include "serialportsavail.h"
 
 static const char *DEV_DIR_FSPEC("/dev/");
+#ifdef Q_OS_MAC
 static const QString SER_DEV_MASK("tty.");
+#endif
+#ifdef Q_OS_LINUX
+static const QString SER_DEV_MASK("ttyS");
+static const QString SER_DEV_MASK_USB("ttyUSB");
+#endif
 
 /**
   * Default constructor.
@@ -56,7 +62,7 @@ SerialPortsAvail::get_portList()
     struct dirent *dp;
 
     while ((dp = readdir(dirp)) != NULL){
-#ifdef __linux__
+#ifdef Q_OS_LINUX
         if (dp->d_reclen){
 #else
         if (dp->d_namlen){
@@ -65,7 +71,11 @@ SerialPortsAvail::get_portList()
              * Append the portname found
              */
             QString st(dp->d_name);
+#ifdef Q_OS_LINUX
+            if(st.contains(SER_DEV_MASK) || st.contains(SER_DEV_MASK_USB)){
+#else
             if(st.contains(SER_DEV_MASK)){
+#endif
                 m_portlist << dp->d_name;
             }
         }
