@@ -38,5 +38,5 @@ del /Q os\lowram\lowram.def 2>nul >nul
 del /Q apps\clcalalm.def 2>nul >nul
 del /Q apps\clock\clcalalm.def 2>nul >nul
 del /Q apps\impexport\impexp.def 2>nul >nul
-del /Q apps\intuition\debug0a.def
-del /Q apps\intuition\debug0b.def
+del /Q apps\intuition\debug0a.def 2>nul >nul
+del /Q apps\intuition\debug0b.def 2>nul >nul

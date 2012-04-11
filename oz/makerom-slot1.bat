@@ -24,8 +24,8 @@
 @echo off
 
 call cleanup
-del /Q oz.bin
-del /Q ozs0*
+del /Q oz.bin 2>nul >nul
+del /Q ozs0* 2>nul >nul
 
 :MAKE_ROM_SLOT1
 call makerom 1
