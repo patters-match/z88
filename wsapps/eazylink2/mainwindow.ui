@@ -6,54 +6,134 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>720</width>
-    <height>556</height>
+    <width>900</width>
+    <height>600</height>
    </rect>
   </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
   <property name="windowTitle">
-   <string>EazyLink</string>
+   <string>EazyLink2</string>
+  </property>
+  <property name="unifiedTitleAndToolBarOnMac">
+   <bool>true</bool>
   </property>
   <widget class="QWidget" name="centralWidget">
-   <widget class="QWidget" name="horizontalLayoutWidget">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>20</y>
-      <width>701</width>
-      <height>481</height>
-     </rect>
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
+   <property name="sizeIncrement">
+    <size>
+     <width>0</width>
+     <height>0</height>
+    </size>
+   </property>
+   <layout class="QGridLayout" name="gridLayout">
+    <property name="topMargin">
+     <number>12</number>
     </property>
-    <layout class="QHBoxLayout" name="horizontalLayout">
-     <item>
-      <widget class="QFrame" name="Z88Panel">
-       <property name="frameShape">
-        <enum>QFrame::StyledPanel</enum>
+    <item row="0" column="0">
+     <widget class="QFrame" name="Z88Panel">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="baseSize">
+       <size>
+        <width>0</width>
+        <height>0</height>
+       </size>
+      </property>
+      <property name="frameShape">
+       <enum>QFrame::NoFrame</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Sunken</enum>
+      </property>
+      <property name="lineWidth">
+       <number>1</number>
+      </property>
+      <layout class="QHBoxLayout" name="Z88Layout">
+       <property name="margin">
+        <number>2</number>
        </property>
-       <property name="frameShadow">
-        <enum>QFrame::Raised</enum>
+      </layout>
+     </widget>
+    </item>
+    <item row="1" column="0" colspan="2">
+     <layout class="QHBoxLayout" name="horizontalLayout_2">
+      <property name="sizeConstraint">
+       <enum>QLayout::SetFixedSize</enum>
+      </property>
+      <item>
+       <widget class="QPushButton" name="CancelCmdBtn">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="text">
+         <string>Abort</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item row="0" column="1">
+     <widget class="QFrame" name="DesktopPanel">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="sizeIncrement">
+       <size>
+        <width>0</width>
+        <height>0</height>
+       </size>
+      </property>
+      <property name="baseSize">
+       <size>
+        <width>0</width>
+        <height>0</height>
+       </size>
+      </property>
+      <property name="frameShape">
+       <enum>QFrame::NoFrame</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Raised</enum>
+      </property>
+      <layout class="QHBoxLayout" name="DeskTopLayout">
+       <property name="margin">
+        <number>2</number>
        </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QFrame" name="DesktopPanel">
-       <property name="frameShape">
-        <enum>QFrame::StyledPanel</enum>
-       </property>
-       <property name="frameShadow">
-        <enum>QFrame::Raised</enum>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </widget>
+      </layout>
+     </widget>
+    </item>
+   </layout>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>720</width>
-     <height>21</height>
+     <width>900</width>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -67,8 +147,25 @@
     <property name="title">
      <string>&amp;Settings</string>
     </property>
+    <widget class="QMenu" name="menu_Options">
+     <property name="title">
+      <string>&amp;Options..</string>
+     </property>
+     <widget class="QMenu" name="menuTranslations">
+      <property name="enabled">
+       <bool>false</bool>
+      </property>
+      <property name="title">
+       <string>Translations</string>
+      </property>
+      <addaction name="actionTranslateByte"/>
+      <addaction name="actionTranslateCRLF"/>
+      <addaction name="actionReload_Table"/>
+     </widget>
+     <addaction name="menuTranslations"/>
+    </widget>
     <addaction name="actionSerialPort"/>
-    <addaction name="actionOptions"/>
+    <addaction name="menu_Options"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
@@ -79,14 +176,22 @@
     <addaction name="actionAbout"/>
    </widget>
    <widget class="QMenu" name="menuZ88">
+    <property name="enabled">
+     <bool>true</bool>
+    </property>
     <property name="title">
      <string>&amp;Z88</string>
     </property>
     <addaction name="actionEazyLink_Hello"/>
     <addaction name="actionQuitEazyLink"/>
     <addaction name="separator"/>
-    <addaction name="actionSend_files_to_Z88_Imp_Export_popdown"/>
+    <addaction name="actionSend_files_to_Z88ImpExport"/>
     <addaction name="actionReceive_files_from_Z88_Imp_Export_popdown"/>
+    <addaction name="separator"/>
+    <addaction name="actionSet_Z88_Clock"/>
+    <addaction name="actionReadZ88_Clock"/>
+    <addaction name="separator"/>
+    <addaction name="actionGet_Info"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuZ88"/>
@@ -94,6 +199,9 @@
    <addaction name="menuHelp"/>
   </widget>
   <widget class="QToolBar" name="toolBar">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="windowTitle">
     <string>toolBar</string>
    </property>
@@ -133,6 +241,9 @@
    </property>
   </action>
   <action name="actionQuitEazyLink">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="text">
     <string>EazyLink Quit</string>
    </property>
@@ -146,6 +257,9 @@
    </property>
   </action>
   <action name="actionEazyLink_Hello">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="text">
     <string>EazyLink Hello</string>
    </property>
@@ -154,8 +268,11 @@
    </property>
   </action>
   <action name="actionTransfer">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="text">
-    <string>Transfer</string>
+    <string>Transfer Z88 &lt;- Desk</string>
    </property>
    <property name="toolTip">
     <string>Transfer selected files from active panel to opposite panel</string>
@@ -197,13 +314,11 @@
    </property>
   </action>
   <action name="actionSerialPort">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
    <property name="text">
     <string>Serial &amp;Port</string>
-   </property>
-  </action>
-  <action name="actionOptions">
-   <property name="text">
-    <string>&amp;Options..</string>
    </property>
   </action>
   <action name="actionDisplayFileSize">
@@ -228,14 +343,80 @@
     <string>Display File Date</string>
    </property>
   </action>
-  <action name="actionSend_files_to_Z88_Imp_Export_popdown">
+  <action name="actionSend_files_to_Z88ImpExport">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="text">
     <string>Send files to Z88 Imp-Export popdown</string>
    </property>
   </action>
   <action name="actionReceive_files_from_Z88_Imp_Export_popdown">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="text">
     <string>Receive files from Z88 Imp-Export popdown</string>
+   </property>
+  </action>
+  <action name="actionTranslateByte">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Byte</string>
+   </property>
+  </action>
+  <action name="actionTranslateCRLF">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>LineFeed</string>
+   </property>
+  </action>
+  <action name="actionReload_Table">
+   <property name="text">
+    <string>Reload Table</string>
+   </property>
+  </action>
+  <action name="actionSet_Z88_Clock">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Set Z88 Clock</string>
+   </property>
+   <property name="toolTip">
+    <string>Sync Z88 Time with Computer</string>
+   </property>
+  </action>
+  <action name="actionReadZ88_Clock">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>ReadZ88 Clock</string>
+   </property>
+   <property name="toolTip">
+    <string>ReadZ88 Time &amp; Date</string>
+   </property>
+  </action>
+  <action name="actionGet_Info">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Get Info</string>
+   </property>
+   <property name="toolTip">
+    <string>Read Z88 Version and free memory etc.</string>
    </property>
   </action>
  </widget>
