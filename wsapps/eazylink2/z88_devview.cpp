@@ -1,8 +1,7 @@
 /*********************************************************************************************
 
  EazyLink2 - Fast Client/Server Z88 File Management
- (C) Gunther Strube (gstrube@gmail.com) 2011
-  & Oscar Ernohazy 2012
+ (C) Gunther Strube (gstrube@gmail.com) & Oscar Ernohazy 2012
 
  EazyLink2 is free software; you can redistribute it and/or modify it under the terms of the
  GNU General Public License as published by the Free Software Foundation;
