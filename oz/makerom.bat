@@ -60,7 +60,7 @@ set oz_bin="oz.bin"
 ECHO Compiling OZ ROM for slot %ozslot%
 
 :: delete previous binary outut, error and warning files... but NOT obj files!
-del /Q oz-*.?? romupdate.cfg
+del /Q oz-*.?? romupdate.cfg 2>nul >nul
 del /S /Q *.err *.wrn 2>nul >nul
 
 :: -------------------------------------------------------------------------------------------------
