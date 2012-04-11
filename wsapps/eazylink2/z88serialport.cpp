@@ -1,5 +1,4 @@
 /*********************************************************************************************
-
  EazyLink2 - Fast Client/Server Z88 File Management
  (C) Gunther Strube (gstrube@gmail.com) 2011
 
@@ -14,7 +13,7 @@
  Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
 **********************************************************************************************/
-
+#include <errno.h>
 #include <QtCore/QCoreApplication>
 #include <QtCore/QEventLoop>
 #include <QtCore/QList>
@@ -41,13 +40,21 @@ Z88SerialPort::Z88SerialPort()
 #else
 #ifdef Q_OS_MAC
     //QString portName = "/dev/tty.Bluetooth-Modem";
-    portName = "/dev/cu.Bluetooth-Modem";
+    //portName = "/dev/cu.Bluetooth-Modem";
+    portName = "/dev/tty.USA19Hfa13P1.1"; ///dev/tty.USA19Hfd12P1.1";
 #else
     portName = "/dev/ttyUSB0";
 #endif
 #endif
 
     qDebug() << "Defining default device: " << portName;
+//AbortTransfer
+
+}
+
+Z88SerialPort::~Z88SerialPort()
+{
+
 }
 
 
@@ -81,7 +88,6 @@ bool Z88SerialPort::open(QString pName)
         return false;
     } else {
         portOpenStatus = true;
-
         port.setBaudRateFromNumber(9600);
         port.setDataBits(SerialPort::EightDataBits);
         port.setParity(SerialPort::NoParity);
@@ -104,6 +110,28 @@ bool Z88SerialPort::open(QString pName)
     }
 }
 
+QString Z88SerialPort::getLastErrorString()const
+{
+    return port.errorString();
+}
+
+int Z88SerialPort::getOpenErrno() const {
+    return port.m_errno;
+}
+
+QString Z88SerialPort::getOpenErrorString() const {
+    switch(port.m_errno){
+    case EACCES:
+        return "Access Denied";
+        break;
+    case EBUSY:
+        return "Port in use";
+    case ENODEV:
+        return "Unsupported Device";
+    default:
+        return "Unknown Error";
+    }
+}
 
 bool Z88SerialPort::openXonXoff(QString pName)
 {
@@ -152,6 +180,10 @@ void Z88SerialPort::setPortName(QString pName)
     portName = pName;
 }
 
+bool Z88SerialPort::isOpen()
+{
+    return port.isOpen();
+}
 
 void Z88SerialPort::close()
 {
@@ -252,7 +284,7 @@ QList<QByteArray> Z88SerialPort::getDevices()
  *      EazyLink Server V4.4
  *      Get directories in defined path, directories are returned in list
  *****************************************************************************/
-QList<QByteArray> Z88SerialPort::getDirectories(QByteArray path)
+QList<QByteArray> Z88SerialPort::getDirectories(const QString &path)
 {
     QList<QByteArray> directoriesList;
     QByteArray directoriesCmd = QByteArray( (char []) { 27, 'd'}, 2);
@@ -278,7 +310,7 @@ QList<QByteArray> Z88SerialPort::getDirectories(QByteArray path)
  *      EazyLink Server V4.4
  *      Get filename in defined path, filenames are returned in list
  *****************************************************************************/
-QList<QByteArray> Z88SerialPort::getFilenames(QByteArray path)
+QList<QByteArray> Z88SerialPort::getFilenames(const QString &path)
 {
     QByteArray filesCmd = QByteArray( (char []) { 27, 'n'}, 2);
     QByteArray escZ = QByteArray( (char []) { 27, 'Z'}, 2);
@@ -471,7 +503,7 @@ bool Z88SerialPort::isFileAvailable(QByteArray filename)
  *      EazyLink Server V4.5
  *      Get create and update date stamp of Z88 file
  *****************************************************************************/
-QList<QByteArray> Z88SerialPort::getFileDateStamps(QByteArray filename)
+QList<QByteArray> Z88SerialPort::getFileDateStamps(const QString &filename)
 {
     QByteArray fileDateStampCmd = QByteArray( (char []) { 27, 'u'}, 2);
     QByteArray escZ = QByteArray( (char []) { 27, 'Z'}, 2);
@@ -497,7 +529,7 @@ QList<QByteArray> Z88SerialPort::getFileDateStamps(QByteArray filename)
  *      EazyLink Server V4.5
  *      Get size of Z88 file (in bytes)
  *****************************************************************************/
-QByteArray Z88SerialPort::getFileSize(QByteArray filename)
+QByteArray Z88SerialPort::getFileSize(const QString &filename)
 {
     QByteArray fileDateStampCmd = QByteArray( (char []) { 27, 'x'}, 2);
     QList<QByteArray> fileSizeList;
@@ -843,7 +875,8 @@ bool Z88SerialPort::impExpSendFile(QByteArray z88Filename, QString hostFilename)
                     while (!hostFile.atEnd()) {
                         byte = hostFile.read(1);
                         if ( byte.count() == 1) {
-                            if (byte[0] < (char) 0x20 || byte[0] > (char) 0x7f) {
+                            // 7e not 7f
+                            if (byte[0] < (char) 0x20 || byte[0] > (char) 0x7e) {
                                 // send ESC B HEX sequence
                                 escBSequence.clear();
                                 escBSequence.append(escB);
@@ -894,7 +927,7 @@ bool Z88SerialPort::impExpSendFile(QByteArray z88Filename, QString hostFilename)
  *      Receive one or more files from Z88 using EazyLink protocol
  *      Received files will be stored at <hostPath>
  *****************************************************************************/
-bool Z88SerialPort::receiveFiles(QByteArray z88Filenames, QString hostPath)
+Z88SerialPort::retcode Z88SerialPort::receiveFiles(const QString &z88Filenames, QString hostPath)
 {
     QByteArray receiveFilesCmd = QByteArray( (char []) { 27, 's'}, 2);
     QByteArray z88Filename, remoteFile;
@@ -921,9 +954,22 @@ bool Z88SerialPort::receiveFiles(QByteArray z88Filenames, QString hostPath)
 
                 if (port.bytesAvailable() > 0) {
                     while(1) {
-                        if (receiveFilename(z88Filename) == false)
-                            // timeout or ESC Z received, exit waiting for files...
-                            return false;
+
+                        /**
+                          * Get the Filename from the Z88
+                          */
+                        retcode rc = receiveFilename(z88Filename);
+                        switch(rc){
+                            case rc_ok:
+                                break;
+                            case rc_done: //ESC Z
+                                return rc_done;
+                            case rc_timeout:
+                            case rc_inv:
+                            case rc_eof:
+                            case rc_busy:
+                                return rc;
+                        }
 
                         QString hostFilename = QString(hostPath).append((z88Filename.constData()+6));
                         QFile hostFile(hostFilename);
@@ -935,7 +981,7 @@ bool Z88SerialPort::receiveFiles(QByteArray z88Filenames, QString hostPath)
 
                         if (transmitting == true) {
                             // qDebug() << "receiveFiles(): Transmission already ongoing with Z88 - aborting...";
-                            return false;
+                            return rc_busy;
                         } else {
                             if (hostFile.open(QIODevice::WriteOnly) == true) {
                                 qDebug() << "receiveFiles(): Receiving '" << z88Filename << "' to '" << hostFilename << "' file...";
@@ -943,11 +989,12 @@ bool Z88SerialPort::receiveFiles(QByteArray z88Filenames, QString hostPath)
                                 remoteFile.clear();
                                 // file opened for writing..
                                 bool recievingFile = true;
-                                while (recievingFile) {
+                                while (recievingFile) {                                   
                                     if (getByte(byte) == true) {
                                         switch(byte) {
                                             case 27:
                                                 getByte(byte);
+
                                                 switch(byte) {
                                                     case 'E':
                                                         hostFile.write(remoteFile);     // write entire collected remote file contents to host file
@@ -960,7 +1007,7 @@ bool Z88SerialPort::receiveFiles(QByteArray z88Filenames, QString hostPath)
                                                         break;
 
                                                     case 'Z':
-                                                        return true;                    // end of receive files z88 - exit
+                                                        return rc_done;                    // end of receive files z88 - exit
 
                                                     default:
                                                         recievingFile = false;
@@ -972,8 +1019,9 @@ bool Z88SerialPort::receiveFiles(QByteArray z88Filenames, QString hostPath)
                                                 remoteFile.append(byte);
                                         }
                                     } else {
+                                        qDebug() << "get byte failed";
                                         // receiveing data stream has stopped...
-                                        return false;
+                                        return rc_inv;
                                     }
                                 }
                             } else {
@@ -986,7 +1034,7 @@ bool Z88SerialPort::receiveFiles(QByteArray z88Filenames, QString hostPath)
         }
     }
 
-    return false;
+    return rc_inv;
 }
 
 
@@ -1000,9 +1048,20 @@ bool Z88SerialPort::impExpReceiveFiles(QString hostPath)
     QByteArray z88Filename, remoteFile, hexBytes;
 
     while(1) {
-        if (receiveFilename(z88Filename) == false)
-            // timeout or ESC Z received, exit waiting for files...
-            return false;
+        switch(receiveFilename(z88Filename)){
+            case rc_ok:
+                break;
+            case rc_done: //ESC Z
+                return true;
+            case rc_timeout:
+            case rc_inv:
+            case rc_eof:
+            case rc_busy:
+                return false;
+        }
+        //if (receiveFilename(z88Filename) == false)
+        //    // timeout or ESC Z received, exit waiting for files...
+        //    return false;
 
         QString hostFilename = QString(hostPath).append((z88Filename.constData()+6));
         QFile hostFile(hostFilename);
@@ -1254,7 +1313,7 @@ bool Z88SerialPort::sendCommand(QByteArray cmd)
  *      Receive an ESC N <fileName> ESC F from the Z88
  *      Built-in timeout of 30s if no filename is received
  *****************************************************************************/
-bool Z88SerialPort::receiveFilename(QByteArray &fileName)
+Z88SerialPort::retcode Z88SerialPort::receiveFilename(QByteArray &fileName)
 {
     unsigned char byte;
 
@@ -1267,10 +1326,11 @@ bool Z88SerialPort::receiveFilename(QByteArray &fileName)
             while(QTime::currentTime() < timeout) {
                 // wait max 30 secs for incoming filename...
                 if (port.bytesAvailable() > 0)
-                    break;
+                    break;                
             }
+
             if (QTime::currentTime() >= timeout)
-                return false; // timeout..
+                return rc_timeout; // timeout..
 
             if (getByte(byte) == true) {
                 switch(byte) {
@@ -1284,13 +1344,13 @@ bool Z88SerialPort::receiveFilename(QByteArray &fileName)
                                 break;
 
                             case 'F':
-                                return true;                    // end of filename - exit
+                                return rc_ok;                    // end of filename - exit
 
                             case 'Z':
-                                return false;                   // Batch End signaled from Imp/Export - exit
+                                return rc_done;                   // Batch End signaled from Imp/Export - exit
 
                             default:
-                                return false;                   // illegal escape command - abort
+                                return rc_inv;                   // illegal escape command - abort
                         }
                         break;
 
@@ -1299,12 +1359,12 @@ bool Z88SerialPort::receiveFilename(QByteArray &fileName)
                 }
             } else {
                 // receiveing data stream has stopped...
-                return false;
+                return rc_eof;
             }
         }
     }
 
-    return false;
+    return rc_busy;
 }
 
 

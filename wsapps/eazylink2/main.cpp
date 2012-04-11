@@ -18,22 +18,54 @@
 #include <QtGui/QApplication>
 #include <QtCore/QTime>
 #include <QtCore/QTextStream>
+#include <QSplashScreen>
+
 #include "mainwindow.h"
 #include "z88serialport.h"
 
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
-    MainWindow w;
     Z88SerialPort p;
+    MainWindow w(p);
 
+#if 0
     if ( p.open() == true ) {
+        QTime timeout;
+        bool rc;
+        bool connected = false;
 
-        p.helloZ88();
+        while(!connected){
+            for(int retry_cnt=1; retry_cnt < 3; retry_cnt++){
+                qDebug() << "Trying to Connect to Z88..." << endl;
 
-        // Give EazyLink time to switch to hardware handshaking on the serial port..
-        QTime timeout = QTime::currentTime().addSecs(2);
-        while(QTime::currentTime() < timeout) {};
+                rc = p.helloZ88();
+
+                // Give EazyLink time to switch to hardware handshaking on the serial port..
+                timeout = QTime::currentTime().addSecs(2);
+                while(QTime::currentTime() < timeout) {};
+
+                if(rc){
+                    connected = true;
+                    break;
+                }
+                qDebug() << "Connection attempt:" << retry_cnt << "Failed!" << endl;
+            }
+
+            if(!rc){
+                p.close();
+                QMessageBox::StandardButton reply;
+                reply = QMessageBox::critical(NULL, QString("Communication Error."),
+                                                    "Failed to Communicate with the Z88. "
+                                                    "Please check connection, and make sure "
+                                                    "you are running the EazyLink Client on the Z88.",
+                                                    QMessageBox::Abort | QMessageBox::Retry);
+                if(reply == QMessageBox::Abort){
+                    exit(-1);
+                }
+                p.open();
+            }
+        }
 
         qDebug() << "Z88 EazyLink version / protocol = " << p.getEazyLinkZ88Version();
         qDebug() << "Z88 current time = " << p.getZ88Time();
@@ -44,28 +76,42 @@ int main(int argc, char *argv[])
         qDebug() << "Z88 Devices = " << p.getDevices();
         qDebug() << "Z88 RAM Defaults = " << p.getRamDefaults();
         qDebug() << "Z88 RAM Directories for :RAM.1 = " << p.getDirectories(":RAM.1//*");
+        qDebug() << "Z88 Files in RAM.1/dir1 = " << p.getFilenames(":RAM.1/dir1/*");
+        qDebug() << "Z88 Files in RAM.1 = " << p.getFilenames(":RAM.1//*");
+
         qDebug() << "Z88 Files in EPR.3 = " << p.getFilenames(":EPR.3");
+
         qDebug() << "Date stamps of ':RAM.1/Readme.txt' = " << p.getFileDateStamps(":RAM.1/Readme.txt");
-        qDebug() << "Set timestamps of ':RAM.1/Readme.txt' = 01/09/1999 09:05:01 01/10/2011 18:05:17: " <<
-                  p.setFileDateStamps(":RAM.1/Readme.txt", "01/09/1999 09:05:01", "01/10/2011 18:05:17");
+        qDebug() << "Set timestamps of ':RAM.1/Readme.txt' = 01/09/1999 09:05:01 01/10/2011 18:05:17: "
+                 << p.setFileDateStamps(":RAM.1/Readme.txt", "01/09/1999 09:05:01", "01/10/2011 18:05:17");
         qDebug() << "File size of ':RAM.1/Readme.txt' = " << p.getFileSize(":RAM.1/Readme.txt");
+
         qDebug() << "Creating directory ':RAM.1/tempdir1/tempdir2': " << p.createDir(":RAM.1/tempdir1/tempdir2");
         qDebug() << "Rename directory ':RAM.1/tempdir1/tempdir2' to 'tempdir3': " << p.renameFileDir(":RAM.1/tempdir1/tempdir2", "tempdir3");
         qDebug() << "Deleting directory ':RAM.1/tempdir1/tempdir3': " << p.deleteFileDir(":RAM.1/tempdir1/tempdir3");
-        qDebug() << "Deleting directory ':RAM.1/tempdir1': " << p.deleteFileDir(":RAM.1/tempdir");
 
-        qDebug() << p.sendFile(":RAM.0/romupdate.bas", "/home/gbs/z88/z88apps/romupdate/romupdate.bas");
-        qDebug() << p.sendFile(":RAM.0/romupdate.crc", "/home/gbs/z88/z88apps/romupdate/romupdate.crc");
-        qDebug() << p.receiveFiles(":RAM.0/*", "/home/gbs");
+        qDebug() << "Deleting directory ':RAM.1/tempdir1': " << p.deleteFileDir(":RAM.1/tempdir1");
 
+//        qDebug() << p.sendFile(":RAM.0/romupdate.bas", "/home/gbs/z88/z88apps/romupdate/romupdate.bas");
+//        qDebug() << p.sendFile(":RAM.0/romupdate.crc", "/home/gbs/z88/z88apps/romupdate/romupdate.crc");
+//        qDebug() << p.receiveFiles(":RAM.0/*", "/home/gbs");
+
+      //  /Users/oernohaz/files/z88/forever-201
+  //      qDebug() << p.sendFile(":RAM.1/forever.62", "/Users/oernohaz/files/z88/forever-201/forever.62");
+  //      qDebug() << p.sendFile(":RAM.1/forever.63", "/Users/oernohaz/files/z88/forever-201/forever.63");
+  //      qDebug() << p.sendFile(":RAM.1/zetriz.63", "/Users/oernohaz/files/z88/bitbucket/z88/z88apps/zetriz/zetriz.63");
+
+        //qDebug() << p.sendFile(":RAM.1/romupdate.cfg", "/Users/oernohaz/files/z88/bitbucket/z88/z88apps/romupdate/romupdate.cfg");
+       // qDebug() << p.receiveFiles(":RAM.1/*", "/Users/oernohaz/files/z88/bitbucket/z88/rx_dir");
+      //  qDebug() << p.impExpSendFile(":RAM.1/romupdate.txt", "/Users/oernohaz/files/z88/bitbucket/z88/z88apps/romupdate/readme.txt");
         // qDebug() << p.impExpReceiveFiles("/home/gbs");
 
-        // p.quitZ88();
+       // p.quitZ88();
 
         p.close();
     }
+#endif
 
     w.show();
     return a.exec();
-    return 1;
 }

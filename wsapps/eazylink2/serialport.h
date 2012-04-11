@@ -26,6 +26,10 @@
 
 class SerialPortPrivate;
 
+/**
+  * The Serial Port Communications Class.
+  * Inherits from QIODevice to Abstract the Host OS Differences.
+  */
 class SerialPort : public QIODevice
 {
     Q_OBJECT
@@ -178,6 +182,8 @@ public:
         StopBits stopBits;
         ulong timeout;
     };
+
+    int m_errno;
 
 public:
     SerialPort(QObject *parent = 0);

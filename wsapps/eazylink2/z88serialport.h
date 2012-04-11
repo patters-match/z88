@@ -21,18 +21,36 @@
 #include <QtCore/QTextStream>
 #include <QtCore/QDebug>
 #include "serialport.h"
+#include <QThread>
 
-class Z88SerialPort
+/**
+  * The Z88 Serial port Communication Class.
+  * Implements the various file transfer, and information set/get operations.
+  */
+class Z88SerialPort : public QObject
 {
+    Q_OBJECT
 
 public:
     Z88SerialPort();
+    ~Z88SerialPort();
+
+    enum retcode{
+        rc_ok,
+        rc_done,
+        rc_timeout,
+        rc_inv,
+        rc_eof,
+        rc_busy
+    };
+
     bool open();
     bool open(QString pName);
     bool openXonXoff();
     bool openXonXoff(QString pName);
     void close();
     void setPortName(QString pName);                                // define the serial port device name
+    bool isOpen();                                                  // Return Port Open state.
 
     bool helloZ88();                                                // poll for "hello" to Z88
     bool quitZ88();                                                 // quit EazyLink popdown on Z88
@@ -53,20 +71,28 @@ public:
 
     bool impExpSendFile(QByteArray z88Filename, QString hostFilename); // send a file to Z88 using Imp/Export protocol
     bool impExpReceiveFiles(QString hostPath);                      // receive Z88 files from Imp/Export popdown
-    bool receiveFiles(QByteArray z88Filenames, QString hostpath);   // receive one or more files from Z88 to host using EazyLink protocol
+    retcode receiveFiles(const QString &z88Filenames, QString hostpath);   // receive one or more files from Z88 to host using EazyLink protocol
 
     QByteArray getEazyLinkZ88Version();                             // receive string of EazyLink popdown version and protocol level
     QByteArray getZ88FreeMem();                                     // receive string of Z88 All Free Memory
     QByteArray getZ88DeviceFreeMem(QByteArray device);              // receive string of Free Memory from specific device
-    QByteArray getFileSize(QByteArray fileName);                    // receive string of Z88 File size
+    QByteArray getFileSize(const QString &fileName);                    // receive string of Z88 File size
     QList<QByteArray> getDevices();                                 // receive a list of Z88 Storage Devices
     QList<QByteArray> getZ88Time();                                 // receive string of current Z88 date & time
     QList<QByteArray> getRamDefaults();                             // receive default RAM & default Directory from Z88 Panel popdown
-    QList<QByteArray> getDirectories(QByteArray path);              // receive a list of Z88 Directories in <path>
-    QList<QByteArray> getFilenames(QByteArray path);                // receive a list of Z88 Filenames in <path>
-    QList<QByteArray> getFileDateStamps(QByteArray fileName);       // receive Create & Update date stamps of Z88 file
+    QList<QByteArray> getDirectories(const QString &path);              // receive a list of Z88 Directories in <path>
+    QList<QByteArray> getFilenames(const QString &path);                // receive a list of Z88 Filenames in <path>
+    QList<QByteArray> getFileDateStamps(const QString &fileName);       // receive Create & Update date stamps of Z88 file
+
+    QString getLastErrorString()const;                              // Get the Last Port Error string.
+    int     getOpenErrno() const;                                   // Get the port Open Error number.
+    QString getOpenErrorString() const;                             // Get the port Open Error String.
+
+private slots:
 
 private:
+
+
     SerialPort  port;                                       // the device handle
     bool        portOpenStatus;                             // status of opened port; true = opened, otherwise false for closed
     bool        transmitting;                               // a transmission is current ongoing
@@ -82,7 +108,7 @@ private:
     bool        synchronize();                              // Synchronize with Z88 before sending command
     bool        sendCommand(QByteArray cmd);                // Transmit ESC command to Z88
     bool        sendFilename(QByteArray filename);          // Transmit ESC N <filename> ESC F sequence to Z88
-    bool        receiveFilename(QByteArray &fileName);      // Receive an ESC N <fileName> ESC F sequence from the Z88
+    retcode     receiveFilename(QByteArray &fileName);      // Receive an ESC N <fileName> ESC F sequence from the Z88
     void        receiveListItems(QList<QByteArray> &list);  // Receive list of items (eg. devices, directories, filenames)
     char        xtod(char c);                               // hex to integer nibble function
 };

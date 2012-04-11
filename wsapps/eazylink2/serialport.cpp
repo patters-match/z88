@@ -26,6 +26,8 @@
 #include <QtCore/QStringList>
 #include <QtCore/QThread>
 
+#include <qdebug.h>
+
 #include <stdio.h>
 
 #ifndef Q_OS_WIN32
@@ -307,7 +309,7 @@ void SerialPort::setDataBits(DataBits dataBits)
         d->commConfig.c_cflag |= CS8;
         break;
     }
-    d->commConfig.c_cflag &= ~CSIZE;
+    //Oscar d->commConfig.c_cflag &= ~CSIZE;
     tcsetattr(d->portHandle, TCSAFLUSH, &d->commConfig);
 #endif // Q_OS_WIN32
 }
@@ -785,11 +787,24 @@ bool SerialPort::open(OpenMode mode)
 
     SetCommConfig(d->portHandle, &d->commConfig, sizeof(COMMCONFIG));
 #else // Q_OS_WIN32
-    d->portHandle = ::open(d->portName.toLocal8Bit(), O_RDWR | O_SYNC);
+
+    /**
+     * Open the Serial Device In Non-Blocking, unbuffered mode, Otherwise the Program hangs forever
+     * If the port doesnt see a CTS Signal
+     */
+    //d->portHandle = ::open(d->portName.toLocal8Bit(), O_RDWR | O_SYNC);
+    d->portHandle = ::open(d->portName.toLocal8Bit(), O_RDWR | O_NOCTTY | O_NONBLOCK |O_SYNC);
     if (d->portHandle == INVALID_HANDLE_VALUE) {
         d->lastError = OpenFailedError;
+        m_errno = errno;
         return false;
     }
+
+    /**
+     * Close and Re-open the Port. This Seems to Wake up the Z88
+     */
+    ::close(d->portHandle);
+    d->portHandle = ::open(d->portName.toLocal8Bit(), O_RDWR | O_NOCTTY | O_NONBLOCK |O_SYNC);
 
     QIODevice::open(mode | QIODevice::Unbuffered);
 
@@ -818,7 +833,6 @@ bool SerialPort::open(OpenMode mode)
     setParity(d->settings.parity);
     setStopBits(d->settings.stopBits);
     setTimeout(d->settings.timeout);
-
     return isOpen();
 }
 
@@ -1119,4 +1133,7 @@ uint SerialPortPrivate::baudRate_EnumToNumber(SerialPort::BaudRate baudRate)
 {
     return static_cast<uint>(baudRate);
 }
+
+
+
 
