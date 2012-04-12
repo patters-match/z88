@@ -14,6 +14,7 @@
 
 **********************************************************************************************/
 #include <dirent.h>
+#include "serialport.h"
 #include "serialportsavail.h"
 
 static const char *DEV_DIR_FSPEC("/dev/");
@@ -45,6 +46,9 @@ SerialPortsAvail::~SerialPortsAvail(){}
 const QStringList&
 SerialPortsAvail::get_portList()
 {
+    SerialPort port = SerialPort();
+    QString devStr;
+
     /**
      * Fill the List with Serial port filenames
      */
@@ -76,7 +80,14 @@ SerialPortsAvail::get_portList()
 #else
             if(st.contains(SER_DEV_MASK)){
 #endif
-                m_portlist << dp->d_name;
+                devStr.append(DEV_DIR_FSPEC);
+                devStr.append(dp->d_name);
+                port.setPortName(devStr);
+                if (port.open(QIODevice::ReadWrite)) {
+                    m_portlist << dp->d_name;
+                    port.close();
+                }
+                devStr.clear();
             }
         }
     }
