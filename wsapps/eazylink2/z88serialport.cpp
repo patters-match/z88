@@ -1268,7 +1268,7 @@ bool Z88SerialPort::synchronize()
             transmitting = false;
 
             if ( synchresponse.count() != 3) {
-                qDebug() << "synchronize(): Bad synchronize response from Z88!";
+                qDebug() << "synchronize(): Bad synchronize response from Z88: [" << synchresponse << "] " << synchresponse.count() << " bytes";
                 port.clearLastError();
             } else {
                 if (synchresponse.at(2) == 2)
