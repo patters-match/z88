@@ -64,8 +64,8 @@ cd ..\forever
 ..\..\tools\mpm\mpm -b -I..\..\oz\def romheader.asm
 
 :: Create a 32K Rom Card
-..\..\tools\makeapp\makeapp.sh -f forever.loadmap
+..\..\tools\makeapp\makeapp.bat -f forever.loadmap
 
 :: Create a 32K Rom Card for OZ v4.1+, omitting incompatible applications
-..\..\tools\makeapp\makeapp.sh -f forever4X.loadmap
+..\..\tools\makeapp\makeapp.bat -f forever4X.loadmap
 
