@@ -1,4 +1,4 @@
-**********************************************************************************
+:: **********************************************************************************
 ::
 :: Z88 Forever compile script for Linux/Unix/MAC OSX
 :: Z88 Forever compilation ROM, (c) Garry Lancaster, 1998-2011
@@ -16,7 +16,7 @@
 ::
 :: *************************************************************************************
 
-del *.obj *.sym *.bin *.map *.6? forever.epr
+del /Q *.obj *.sym *.bin *.map *.6? forever.epr 2>nul >nul
 
 :: Ensure that we have an up-to-date standard library (needed for FreeRAM)
 cd ..\..\stdlib
