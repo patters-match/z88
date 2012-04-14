@@ -1,4 +1,4 @@
-:: *************************************************************************************
+**********************************************************************************
 ::
 :: Z88 Forever compile script for Linux/Unix/MAC OSX
 :: Z88 Forever compilation ROM, (c) Garry Lancaster, 1998-2011
@@ -64,8 +64,7 @@ cd ..\forever
 ..\..\tools\mpm\mpm -b -I..\..\oz\def romheader.asm
 
 :: Create a 32K Rom Card
-..\..\tools\makeapp\makeapp.bat -f forever.loadmap
+java -jar ..\..\tools\makeapp\makeapp.jar -f forever.loadmap
 
 :: Create a 32K Rom Card for OZ v4.1+, omitting incompatible applications
-..\..\tools\makeapp\makeapp.bat -f forever4X.loadmap
-
+java -jar ..\..\tools\makeapp\makeapp.jar -f forever4X.loadmap
