@@ -47,5 +47,12 @@ if [ ! -f "$MAKEAPP_JAR" ]; then
   cd $RETURN_PATH
 fi
 
+# generate revision description string
+git describe --long > revision.tmp
+
 # execute the makeapp executable and supply the arguments that was assigned this script
 java -jar $MAKEAPP_JAR "$@"
+
+# delete revision description string
+rm revision.tmp
+

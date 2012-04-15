@@ -27,6 +27,9 @@ development or HEAD in CVS terms) you need to have a Git client
 installed on your preferred operating system. We recomment SmartGit
 for cross-platform use, tortoisegit for Window or SourceTree for Mac.
 
+Note that the standard git command-line client must be available in
+order for build revision information to be generated for OZ builds.
+
 The second requirement on your operating system is an ANSI C compiler
 installed and accessible from the command line shell. This is needed to
 compile the Z80 Cross Assembler & linker, Mpm, which is needed for

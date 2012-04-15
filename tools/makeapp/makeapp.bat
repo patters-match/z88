@@ -58,6 +58,14 @@ call makejar.bat >nul
 cd %RETURN_PATH%
 
 :EXECUTE_MAKEJAR
+
+:: generate revision description string
+git describe --long > revision.tmp
+
 @ECHO on
 :: execute the makeapp executable and supply the arguments that was assigned this script
 java -jar %MAKEAPP_JAR% %*
+
+:: delete revision description string
+@del /Q revision.tmp 2>nul >nul
+

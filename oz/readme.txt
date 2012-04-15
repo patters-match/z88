@@ -33,6 +33,10 @@ directories must have been checked out from SVN:
         /oz
         /tools
 
+The standard git command-line client must also be available in order for build revision
+information to be generated. If this is not present, then placeholder text will be left where
+the build revision information should be.
+
 These contain all the necessary sources and tools to get your Z88 ROM compiled.
 
 Begin with compiling the Mpm assembler, which is located in the /tools/mpm directory. Use your
