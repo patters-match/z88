@@ -30,11 +30,11 @@
 
 #include <stdio.h>
 
-#ifndef Q_OS_WIN32
+#ifndef Q_OS_WINDOWS
     #include <fcntl.h> // File control definitions
     #include <errno.h> // Error number definitions
     #include <sys/ioctl.h>
-#endif // Q_OS_WIN32
+#endif // Q_OS_WINDOWS
 
 /*******************************************************************************
     SerialPort - public methods
@@ -100,11 +100,11 @@ SerialPort::SerialPort(const SerialPort &serialPort)
 
     d->lastError = serialPort.lastError();
 
-#ifdef Q_OS_WIN32
+#ifdef Q_OS_WINDOWS
     memcpy(&d->commConfig, &serialPort.d_ptr->commConfig, sizeof(COMMCONFIG));
-#else // Q_OS_WIN32
+#else // Q_OS_WINDOWS
     memcpy(&d->commConfig, &serialPort.d_ptr->commConfig, sizeof(struct termios));
-#endif // Q_OS_WIN32
+#endif // Q_OS_WINDOWS
 }
 
 SerialPort &SerialPort::operator=(const SerialPort &serialPort)
@@ -124,11 +124,11 @@ SerialPort &SerialPort::operator=(const SerialPort &serialPort)
 
     d->lastError = serialPort.lastError();
 
-#ifdef Q_OS_WIN32
+#ifdef Q_OS_WINDOWS
     memcpy(&d->commConfig, &serialPort.d_ptr->commConfig, sizeof(COMMCONFIG));
-#else // Q_OS_WIN32
+#else // Q_OS_WINDOWS
     memcpy(&d->commConfig, &serialPort.d_ptr->commConfig, sizeof(struct termios));
-#endif // Q_OS_WIN32
+#endif // Q_OS_WINDOWS
 
     return *this;
 }
@@ -149,9 +149,9 @@ void SerialPort::setPortName(const QString &portName)
         Q_EMIT portNameChanged(portName);
     }
 
-#ifdef Q_OS_WIN32
+#ifdef Q_OS_WINDOWS
     d->portName.prepend("\\\\.\\");
-#endif // Q_OS_WIN32
+#endif // Q_OS_WINDOWS
 }
 
 QString SerialPort::portName() const
@@ -160,9 +160,9 @@ QString SerialPort::portName() const
     QMutexLocker(d->mutex);
 
     QString portName = d->portName;
-#ifdef Q_OS_WIN32
+#ifdef Q_OS_WINDOWS
     portName.remove(QRegExp("\\\\.\\"));
-#endif // Q_OS_WIN32
+#endif // Q_OS_WINDOWS
     return portName;
 }
 
@@ -181,10 +181,10 @@ void SerialPort::setBaudRate(BaudRate baudRate)
 
     const uint platformBaudRate = d->platformBaudRateHash[baudRate];
 
-#ifdef Q_OS_WIN32
+#ifdef Q_OS_WINDOWS
     d->commConfig.dcb.BaudRate = platformBaudRate;
     SetCommConfig(d->portHandle, &d->commConfig, sizeof(COMMCONFIG));
-#else // Q_OS_WIN32
+#else // Q_OS_WINDOWS
 #ifdef CBAUD
     d->commConfig.c_cflag &= ~CBAUD;
     d->commConfig.c_cflag |= platformBaudRate;
@@ -193,7 +193,7 @@ void SerialPort::setBaudRate(BaudRate baudRate)
     cfsetospeed(&d->commConfig, platformBaudRate);
 #endif // CBAUD
     tcsetattr(d->portHandle, TCSAFLUSH, &d->commConfig);
-#endif // Q_OS_WIN32
+#endif // Q_OS_WINDOWS
 }
 
 SerialPort::BaudRate SerialPort::baudRate() const
@@ -262,13 +262,13 @@ void SerialPort::setDataBits(DataBits dataBits)
         // d->warning("5 data bits cannot be used with 2 stop bits");
         return;
     }
-#ifndef Q_OS_WIN32
+#ifndef Q_OS_WINDOWS
     else if (d->settings.parity == SpaceParity
             && dataBits == EightDataBits) {
         // d->warning("8 data bits cannot be used with space parity");
         return;
     }
-#endif // Q_OS_WIN32
+#endif // Q_OS_WINDOWS
 
     if (d->settings.dataBits != dataBits) {
         d->settings.dataBits = dataBits;
@@ -278,7 +278,7 @@ void SerialPort::setDataBits(DataBits dataBits)
     if (!isOpen())
         return;
 
-#ifdef Q_OS_WIN32
+#ifdef Q_OS_WINDOWS
     switch (d->settings.dataBits) {
     case FiveDataBits:
         d->commConfig.dcb.ByteSize = 5;
@@ -294,7 +294,7 @@ void SerialPort::setDataBits(DataBits dataBits)
         break;
     }
     SetCommConfig(d->portHandle, &d->commConfig, sizeof(COMMCONFIG));
-#else // Q_OS_WIN32
+#else // Q_OS_WINDOWS
     switch (d->settings.dataBits) {
     case FiveDataBits:
         d->commConfig.c_cflag |= CS5;
@@ -311,7 +311,7 @@ void SerialPort::setDataBits(DataBits dataBits)
     }
     //Oscar d->commConfig.c_cflag &= ~CSIZE;
     tcsetattr(d->portHandle, TCSAFLUSH, &d->commConfig);
-#endif // Q_OS_WIN32
+#endif // Q_OS_WINDOWS
 }
 
 SerialPort::DataBits SerialPort::dataBits() const
@@ -333,12 +333,12 @@ void SerialPort::setParity(Parity parity)
         return;
     }
     else if (parity == MarkParity) {
-#ifdef Q_OS_WIN32
+#ifdef Q_OS_WINDOWS
         // d->portabilityWarning("POSIX does not support mark parity");
-#else // Q_OS_WIN32
+#else // Q_OS_WINDOWS
         // d->warning("POSIX does not support mark parity");
         return;
-#endif // Q_OS_WIN32
+#endif // Q_OS_WINDOWS
     }
 
     if (d->settings.parity != parity) {
@@ -349,7 +349,7 @@ void SerialPort::setParity(Parity parity)
     if (!isOpen())
         return;
 
-#ifdef Q_OS_WIN32
+#ifdef Q_OS_WINDOWS
     switch (d->settings.parity) {
     case NoParity:
         d->commConfig.dcb.fParity = FALSE;
@@ -373,7 +373,7 @@ void SerialPort::setParity(Parity parity)
         break;
     }
     SetCommConfig(d->portHandle, &d->commConfig, sizeof(COMMCONFIG));
-#else // Q_OS_WIN32
+#else // Q_OS_WINDOWS
     switch (d->settings.parity) {
     case NoParity:
         d->commConfig.c_cflag &= ~PARENB;
@@ -413,7 +413,7 @@ void SerialPort::setParity(Parity parity)
         break;
     }
     tcsetattr(d->portHandle, TCSAFLUSH, &d->commConfig);
-#endif // Q_OS_WIN32
+#endif // Q_OS_WINDOWS
 }
 
 SerialPort::Parity SerialPort::parity() const
@@ -432,16 +432,16 @@ void SerialPort::setStopBits(StopBits stopBits)
         return;
     }
     else if (stopBits == OneAndHalfStopBits) {
-#ifdef Q_OS_WIN32
+#ifdef Q_OS_WINDOWS
         // d->portabilityWarning("POSIX does not support 1.5 stop bits");
         if (d->settings.dataBits != FiveDataBits) {
             // d->warning("1.5 stop bits can only be used with 5 data bits");
             return;
         }
-#else // Q_OS_WIN32
+#else // Q_OS_WINDOWS
         // d->warning("POSIX does not support 1.5 stop bits");
         return;
-#endif // Q_OS_WIN32
+#endif // Q_OS_WINDOWS
     }
 
     if (d->settings.stopBits != stopBits) {
@@ -452,7 +452,7 @@ void SerialPort::setStopBits(StopBits stopBits)
     if (!isOpen())
         return;
 
-#ifdef Q_OS_WIN32
+#ifdef Q_OS_WINDOWS
     switch (d->settings.stopBits) {
     case OneStopBit:
         d->commConfig.dcb.StopBits = ONESTOPBIT;
@@ -465,7 +465,7 @@ void SerialPort::setStopBits(StopBits stopBits)
         break;
     }
     SetCommConfig(d->portHandle, &d->commConfig, sizeof(COMMCONFIG));
-#else // Q_OS_WIN32
+#else // Q_OS_WINDOWS
     switch (d->settings.stopBits) {
     case OneStopBit:
         d->commConfig.c_cflag &= ~CSTOPB;
@@ -477,7 +477,7 @@ void SerialPort::setStopBits(StopBits stopBits)
         break;
     }
     tcsetattr(d->portHandle, TCSAFLUSH, &d->commConfig);
-#endif // Q_OS_WIN32
+#endif // Q_OS_WINDOWS
 }
 
 SerialPort::StopBits SerialPort::stopBits() const
@@ -499,7 +499,7 @@ void SerialPort::setFlowControl(FlowControl flowControl)
     if (!isOpen())
         return;
 
-#ifdef Q_OS_WIN32
+#ifdef Q_OS_WINDOWS
     switch (d->settings.flowControl) {
     case NoFlowControl:
         d->commConfig.dcb.fOutxCtsFlow = FALSE;
@@ -521,7 +521,7 @@ void SerialPort::setFlowControl(FlowControl flowControl)
         break;
     }
     SetCommConfig(d->portHandle, &d->commConfig, sizeof(COMMCONFIG));
-#else // Q_OS_WIN32
+#else // Q_OS_WINDOWS
     switch (d->settings.flowControl) {
     case NoFlowControl:
         d->commConfig.c_cflag &= ~CRTSCTS;
@@ -537,7 +537,7 @@ void SerialPort::setFlowControl(FlowControl flowControl)
         break;
     }
     tcsetattr(d->portHandle, TCSAFLUSH, &d->commConfig);
-#endif // Q_OS_WIN32
+#endif // Q_OS_WINDOWS
 }
 
 SerialPort::FlowControl SerialPort::flowControl() const
@@ -556,20 +556,20 @@ void SerialPort::setTimeout(ulong ms)
     if (!isOpen())
         return;
 
-#ifdef Q_OS_WIN32
+#ifdef Q_OS_WINDOWS
     d->timeout.ReadIntervalTimeout = MAXDWORD;
     d->timeout.ReadTotalTimeoutMultiplier = ms;
     d->timeout.ReadTotalTimeoutConstant = 0;
     d->timeout.WriteTotalTimeoutMultiplier = ms;
     d->timeout.WriteTotalTimeoutConstant = 0;
     SetCommTimeouts(d->portHandle, &d->timeout);
-#else // Q_OS_WIN32
+#else // Q_OS_WINDOWS
     d->timeout.tv_sec  = ms / 1000;
     d->timeout.tv_usec = ms % 1000;
     tcgetattr(d->portHandle, &d->commConfig);
     d->commConfig.c_cc[VTIME] = ms / 100;
     tcsetattr(d->portHandle, TCSAFLUSH, &d->commConfig);
-#endif // Q_OS_WIN32
+#endif // Q_OS_WINDOWS
 }
 
 ulong SerialPort::timeout() const
@@ -612,14 +612,14 @@ SerialPort::LineStatus SerialPort::lineStatus() const
         return status;
 
     ulong tmp = 0;
-#ifdef Q_OS_WIN32
+#ifdef Q_OS_WINDOWS
     if (GetCommModemStatus(d->portHandle, &tmp)) {
         if (tmp & MS_CTS_ON) status |= CtsLineState;
         if (tmp & MS_DSR_ON) status |= DsrLineState;
         if (tmp & MS_RING_ON) status |= RiLineState;
         if (tmp & MS_RLSD_ON) status |= DcdLineState;
     }
-#else // Q_OS_WIN32
+#else // Q_OS_WINDOWS
     if (0 == ioctl(d->portHandle, TIOCMGET, &tmp)) {
         if (tmp & TIOCM_CTS) status |= CtsLineState;
         if (tmp & TIOCM_DSR) status |= DsrLineState;
@@ -630,7 +630,7 @@ SerialPort::LineStatus SerialPort::lineStatus() const
         if (tmp & TIOCM_ST) status |= StLineState;
         if (tmp & TIOCM_SR) status |= SrLineState;
     }
-#endif // Q_OS_WIN32
+#endif // Q_OS_WINDOWS
 
     return status;
 }
@@ -652,9 +652,9 @@ void SerialPort::setDTR(bool value)
     if (!isOpen())
         return;
 
-#ifdef Q_OS_WIN32
+#ifdef Q_OS_WINDOWS
     EscapeCommFunction(d->portHandle, (value) ? SETDTR : CLRDTR);
-#else // Q_OS_WIN32
+#else // Q_OS_WINDOWS
     int status;
     ioctl(d->portHandle, TIOCMGET, &status);
     if (value)
@@ -662,7 +662,7 @@ void SerialPort::setDTR(bool value)
     else
         status &= ~TIOCM_DTR;
     ioctl(d->portHandle, TIOCMSET, &status);
-#endif // Q_OS_WIN32
+#endif // Q_OS_WINDOWS
 }
 
 bool SerialPort::CTS() const
@@ -682,9 +682,9 @@ void SerialPort::setRTS(bool value)
     if (!isOpen())
         return;
 
-#ifdef Q_OS_WIN32
+#ifdef Q_OS_WINDOWS
     EscapeCommFunction(d->portHandle, (value) ? SETRTS : CLRRTS);
-#else // Q_OS_WIN32
+#else // Q_OS_WINDOWS
     int status;
     ioctl(d->portHandle, TIOCMGET, &status);
     if (value)
@@ -692,7 +692,7 @@ void SerialPort::setRTS(bool value)
     else
         status &= ~TIOCM_RTS;
     ioctl(d->portHandle, TIOCMSET, &status);
-#endif // Q_OS_WIN32
+#endif // Q_OS_WINDOWS
 }
 
 void SerialPort::flush()
@@ -703,11 +703,11 @@ void SerialPort::flush()
     if (!isOpen())
         return;
 
-#ifdef Q_OS_WIN32
+#ifdef Q_OS_WINDOWS
     FlushFileBuffers(d->portHandle);
-#else // Q_OS_WIN32
+#else // Q_OS_WINDOWS
     tcdrain(d->portHandle);
-#endif // Q_OS_WIN32
+#endif // Q_OS_WINDOWS
 }
 
 void SerialPort::purge()
@@ -718,13 +718,13 @@ void SerialPort::purge()
     if (!isOpen())
         return;
 
-#ifdef Q_OS_WIN32
+#ifdef Q_OS_WINDOWS
     const int flags =
         PURGE_TXABORT | PURGE_TXCLEAR | PURGE_RXABORT | PURGE_RXCLEAR;
     PurgeComm(d->portHandle, flags);
-#else // Q_OS_WIN32
+#else // Q_OS_WINDOWS
     tcflush(d->portHandle, TCIOFLUSH);
-#endif // Q_OS_WIN32
+#endif // Q_OS_WINDOWS
 }
 
 SerialPort::Error SerialPort::lastError() const
@@ -762,7 +762,7 @@ bool SerialPort::open(OpenMode mode)
     if (portName().isEmpty())
         return false;
 
-#ifdef Q_OS_WIN32
+#ifdef Q_OS_WINDOWS
     d->portHandle = CreateFileA(d->portName.toLocal8Bit(), GENERIC_READ
             | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL,
             OPEN_EXISTING, 0, NULL);
@@ -786,7 +786,7 @@ bool SerialPort::open(OpenMode mode)
     d->commConfig.dcb.fNull = FALSE;
 
     SetCommConfig(d->portHandle, &d->commConfig, sizeof(COMMCONFIG));
-#else // Q_OS_WIN32
+#else // Q_OS_WINDOWS
 
     /**
      * Open the Serial Device In Non-Blocking, unbuffered mode, Otherwise the Program hangs forever
@@ -853,11 +853,11 @@ void SerialPort::close()
 
     purge();
 
-#ifdef Q_OS_WIN32
+#ifdef Q_OS_WINDOWS
     CloseHandle(d->portHandle);
-#else // Q_OS_WIN32
+#else // Q_OS_WINDOWS
     ::close(d->portHandle);
-#endif // Q_OS_WIN32
+#endif // Q_OS_WINDOWS
 
     d->portHandle = INVALID_HANDLE_VALUE;
     QIODevice::close();
@@ -873,15 +873,15 @@ qint64 SerialPort::size() const
 
     qint64 size = 0;
 
-#ifdef Q_OS_WIN32
+#ifdef Q_OS_WINDOWS
     COMSTAT stat;
     if (ClearCommError(d->portHandle, NULL, &stat))
         size = stat.cbInQue;
-#else // Q_OS_WIN32
+#else // Q_OS_WINDOWS
     int bytesQueued;
     if (ioctl(d->portHandle, FIONREAD, &bytesQueued) >= 0)
         size = bytesQueued;
-#endif // Q_OS_WIN32
+#endif // Q_OS_WINDOWS
 
     return size;
 }
@@ -896,12 +896,12 @@ qint64 SerialPort::bytesAvailable()
 
     qint64 bytesAvailable;
 
-#ifdef Q_OS_WIN32
+#ifdef Q_OS_WINDOWS
     COMSTAT status;
     if (!ClearCommError(d->portHandle, NULL, &status))
         return 0;
     bytesAvailable = status.cbInQue;
-#else // Q_OS_WIN32
+#else // Q_OS_WINDOWS
     fd_set fileSet;
     FD_ZERO(&fileSet);
     FD_SET(d->portHandle, &fileSet);
@@ -917,7 +917,7 @@ qint64 SerialPort::bytesAvailable()
     if (n == -1 || ioctl(d->portHandle, FIONREAD, &bytesRead) == -1)
         return 0;
     bytesAvailable = bytesRead;
-#endif // Q_OS_WIN32
+#endif // Q_OS_WINDOWS
 
 //    d->lastError = NoError;
     bytesAvailable += QIODevice::bytesAvailable();
@@ -949,7 +949,7 @@ qint64 SerialPort::readData(char *data, qint64 maxSize)
 
     qint64 retVal = 0;
 
-#ifdef Q_OS_WIN32
+#ifdef Q_OS_WINDOWS
     int timeout = d->settings.timeout;
     while (bytesAvailable() < maxSize && timeout > 0) {
         Sleep(1);
@@ -970,7 +970,7 @@ qint64 SerialPort::readData(char *data, qint64 maxSize)
         return -1;
     }
     retVal = static_cast<qint64>(bytesRead);
-#else // Q_OS_WIN32
+#else // Q_OS_WINDOWS
     int timeout = d->settings.timeout;
     while (bytesAvailable() < maxSize && timeout > 0) {
         usleep(1000);
@@ -983,7 +983,7 @@ qint64 SerialPort::readData(char *data, qint64 maxSize)
     retVal = ::read(d->portHandle, (void*)data, (size_t)maxSize);
     if (retVal == -1)
         d->lastError = ReadFailedError;
-#endif // Q_OS_WIN32
+#endif // Q_OS_WINDOWS
 
     return retVal;
 }
@@ -995,18 +995,18 @@ qint64 SerialPort::writeData(const char *data, qint64 maxSize)
 
     qint64 retVal = 0;
 
-#ifdef Q_OS_WIN32
+#ifdef Q_OS_WINDOWS
     DWORD bytesWritten;
     const BOOL success = WriteFile(d->portHandle, (void *)data, (DWORD)maxSize,
             &bytesWritten, NULL);
     if (!success)
         d->lastError = WriteFailedError;
     retVal = (success) ? static_cast<qint64>(bytesWritten) : -1;
-#else // Q_OS_WIN32
+#else // Q_OS_WINDOWS
     retVal = ::write(d->portHandle, (void *)data, static_cast<size_t>(maxSize));
     if (retVal == -1)
         d->lastError = WriteFailedError;
-#endif // Q_OS_WIN32
+#endif // Q_OS_WINDOWS
 
     if (d->autoFlushOnWrite)
         flush();
@@ -1023,7 +1023,7 @@ SerialPortPrivate::SerialPortPrivate(SerialPort *q)
     autoFlushOnWrite(false),
     portHandle(INVALID_HANDLE_VALUE)
 {
-#ifdef Q_OS_WIN32
+#ifdef Q_OS_WINDOWS
     platformBaudRateHash[SerialPort::BaudRate_110] = CBR_110;
     platformBaudRateHash[SerialPort::BaudRate_300] = CBR_300;
     platformBaudRateHash[SerialPort::BaudRate_600] = CBR_600;
@@ -1048,7 +1048,7 @@ SerialPortPrivate::SerialPortPrivate(SerialPort *q)
     platformBaudRateHash[SerialPort::BaudRate_128000] = CBR_128000;
     platformBaudRateHash[SerialPort::BaudRate_256000] = CBR_256000;
 #endif // QTCOMMUNICATION_SERIALPORT_MULTIPLATFORM_BAUD_RATES_ONLY
-#else // Q_OS_WIN32
+#else // Q_OS_WINDOWS
     platformBaudRateHash[SerialPort::BaudRate_110] = B110;
     platformBaudRateHash[SerialPort::BaudRate_300] = B300;
     platformBaudRateHash[SerialPort::BaudRate_600] = B600;
@@ -1095,14 +1095,14 @@ SerialPortPrivate::SerialPortPrivate(SerialPort *q)
 #endif // Q_OS_MAC
 #endif // QTCOMMUNICATION_SERIALPORT_BAUD_RATES_UP_TO_256KBPS_ONLY
 #endif // QTCOMMUNICATION_SERIALPORT_MULTIPLATFORM_BAUD_RATES_ONLY
-#endif // Q_OS_WIN32
+#endif // Q_OS_WINDOWS
 
-#ifdef Q_OS_WIN32
+#ifdef Q_OS_WINDOWS
     memset(&commConfig, 0, sizeof(COMMCONFIG));
     memset(&(commConfig.dcb), 0, sizeof(DCB));
     commConfig.dwSize = sizeof(COMMCONFIG);
     commConfig.dcb.DCBlength = sizeof(DCB);
-#endif // Q_OS_WIN32
+#endif // Q_OS_WINDOWS
 
     portName.clear();
     settings.baudRate = SerialPort::BaudRate_19200;

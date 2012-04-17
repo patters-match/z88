@@ -73,7 +73,7 @@ public:
         BaudRate_57600 = 57600,
         BaudRate_115200 = 115200,
 #ifndef QTCOMMUNICATION_SERIALPORT_MULTIPLATFORM_BAUD_RATES_ONLY
-#ifdef Q_OS_WIN32
+#ifdef Q_OS_WINDOWS
         BaudRate_50 = BaudRate_110,
         BaudRate_75 = BaudRate_110,
         BaudRate_134 = BaudRate_110,
@@ -86,7 +86,7 @@ public:
         BaudRate_128000 = 128000,
         BaudRate_230400 = BaudRate_128000,
         BaudRate_256000 = 256000,
-#else // Q_OS_WIN32
+#else // Q_OS_WINDOWS
         BaudRate_0 = 0, // Hang up
         BaudRate_50 = 50,
         BaudRate_75 = 75,
@@ -120,7 +120,7 @@ public:
         BaudRate_4000000 = 4000000,
 #endif // Q_OS_MAC
 #endif // QTCOMMUNICATION_SERIALPORT_BAUD_RATES_UP_TO_256KBPS_ONLY
-#endif // Q_OS_WIN32
+#endif // Q_OS_WINDOWS
 #endif // QTCOMMUNICATION_SERIALPORT_MULTIPLATFORM_BAUD_RATES_ONLY
     };
 

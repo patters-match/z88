@@ -96,7 +96,7 @@ Z88SerialPort::Z88SerialPort()
     transmitting = portOpenStatus = false;
 
     // define some default serial port device names for the specific platform
-#ifdef Q_OS_WIN32
+#ifdef Q_OS_WINDOWS
     portName = "COM6";
 #else
 #ifdef Q_OS_MAC
