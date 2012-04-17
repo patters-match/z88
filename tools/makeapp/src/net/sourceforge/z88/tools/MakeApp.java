@@ -1,6 +1,7 @@
 /*
  * MakeApp.java
- * (C) Copyright Gunther Strube (gbs@users.sf.net), 2005-2011
+ * (C) Copyright Gunther Strube (gstrube@gmail.com), 2005-2012
+ * (C) Copyright Garry Lancaster 2012
  *
  * MakeApp is free software; you can redistribute it and/or modify it under the terms of the
  * GNU General Public License as published by the Free Software Foundation;
@@ -12,7 +13,7 @@
  * see the file COPYING. If not, write to the
  * Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  *
- * @author <A HREF="mailto:gbs@users.sourceforge.net">Gunther Strube</A>
+ * @author <A HREF="mailto:gstrube@gmail.com">Gunther Strube</A>
  *
  */
 
@@ -22,6 +23,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.InputStreamReader;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.zip.CRC32;
@@ -37,7 +39,7 @@ import java.util.zip.CRC32;
  */
 public class MakeApp {
 
-	private static final String progVersion = "MakeApp V1.0.1";
+	private static final String progVersion = "MakeApp V1.0.2";
 
 	private static final char[] hexcodes = {'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
 	private static final String revisionMacroSearchKey = "$RevisionDescriptionString$";
@@ -291,6 +293,8 @@ public class MakeApp {
 	private void adjustRevisionKeywordMacro() {
 		int offsetStart = -1;
 		int bankNo=0;
+		Process p = null;
+		String revisionStr = null;
 
 		while (bankNo<banks.length) {
 			if ( (offsetStart = banks[bankNo].findString(revisionMacroSearchKey)) != -1)
@@ -300,19 +304,23 @@ public class MakeApp {
 		}
 
 		if (offsetStart != -1) {
-			BufferedReader in = null;
-			String revisionStr = null;
-
-			try {
-				in = new BufferedReader(new FileReader(revisionFilename));
-				revisionStr = in.readLine();
-				in.close();
-			} catch (IOException e) {
-				if (in != null) try { in.close(); } catch (IOException e1) {}
-			}
+			// fetch Git revision text
+			try 
+			{ 
+				if (System.getProperty("os.name").indexOf("Windows") != -1)
+					p=Runtime.getRuntime().exec("cmd /c git describe --long"); 
+				else
+					p=Runtime.getRuntime().exec("git describe --long"); 
+				
+				p.waitFor(); 
+				BufferedReader reader=new BufferedReader(new InputStreamReader(p.getInputStream())); 
+				revisionStr=reader.readLine();
+			} 
+			catch(IOException e1) {} 
+			catch(InterruptedException e2) {} 
 
 			if (revisionStr == null) {
-				System.err.println("Build description not found in " + revisionFilename + ", at line " + lineNo);
+				System.err.println("Build description not found, at line " + lineNo);
 				return;
 			}
 

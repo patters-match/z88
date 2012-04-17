@@ -1,6 +1,6 @@
 :: *************************************************************************************
 :: DOS execute script and auto-compiler for MakeApp - the Z88 Application Card Generator.
-:: (C) Gunther Strube (gbs@users.sf.net) 2006
+:: (C) Gunther Strube (gbs@users.sf.net) 2006-2012
 ::
 :: MakeApp is free software; you can redistribute it and/or modify it under the terms of the
 :: GNU General Public License as published by the Free Software Foundation;
@@ -59,13 +59,6 @@ cd %RETURN_PATH%
 
 :EXECUTE_MAKEJAR
 
-:: generate revision description string
-git describe --long > revision.tmp
-
 @ECHO on
 :: execute the makeapp executable and supply the arguments that was assigned this script
 java -jar %MAKEAPP_JAR% %*
-
-:: delete revision description string
-@del /Q revision.tmp 2>nul >nul
-
