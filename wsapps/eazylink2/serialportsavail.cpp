@@ -39,7 +39,6 @@ static const QString SER_DEV_MASK_USB("ttyUSB");
   */
 SerialPortsAvail::SerialPortsAvail()
 {
-    get_portList();
 }
 
 /**
@@ -122,6 +121,7 @@ SerialPortsAvail::get_portList()
     QString devStr;
 
     m_portlist.clear();
+    m_portName.clear();
 
     for(int p=49; p<(49+8); p++){
 
