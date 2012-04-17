@@ -24,7 +24,7 @@
 @echo off
 
 :: delete all compile output files, if available..
-del /Q oz-*.?? romupdate.cfg 2>nul >nul
+del /Q ozs?.?? romupdate.cfg 2>nul >nul
 del /S /Q *.bn? *.bin *.epr *.map *.obj *.lst *.err *.wrn *.sym 2>nul >nul
 
 :: remove generated DEF files (they are part of the compile dependencies...)

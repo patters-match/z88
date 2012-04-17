@@ -24,7 +24,7 @@
 # ***************************************************************************************************
 
 # delete all compile output files, if available..
-rm -f oz-*.?? romupdate.cfg
+rm -f ozs?.?? romupdate.cfg
 
 # delete all compile output files
 find . -name "*.bin" | xargs rm -f
