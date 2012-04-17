@@ -13,14 +13,14 @@
  Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
 **********************************************************************************************/
-#ifndef Q_OS_WINDOWS
+#ifndef Q_OS_WIN32
 #include <dirent.h>
 #endif
 
 #include "serialport.h"
 #include "serialportsavail.h"
 
-#ifdef Q_OS_WINDOWS
+#ifdef Q_OS_WIN32
 static const char *DEV_DIR_FSPEC("COM");
 #else
 static const char *DEV_DIR_FSPEC("/dev/");
@@ -46,7 +46,7 @@ SerialPortsAvail::SerialPortsAvail()
   */
 SerialPortsAvail::~SerialPortsAvail(){}
 
-#ifndef Q_OS_WINDOWS
+#ifndef Q_OS_WIN32
 /**
  * Obtain a list of available Serial ports on Unix
  * @return a list of serial port filenames.
@@ -164,7 +164,7 @@ SerialPortsAvail::getfirst_portName() const
 const QString &
 SerialPortsAvail::get_fullportName(const QString &devname)
 {
-#ifndef Q_OS_WINDOWS
+#ifndef Q_OS_WIN32
     m_portName = DEV_DIR_FSPEC + devname;
 #else
     m_portName = devname;

@@ -26,9 +26,9 @@
 #include <QtCore/QHash>
 #include <QtCore/QString>
 
-#ifdef Q_OS_WINDOWS
+#ifdef Q_OS_WIN32
     #include <windows.h>
-#else // Q_OS_WINDOWS
+#else // Q_OS_WIN32
     #include <termios.h> // POSIX terminal control definitions
     #include <sys/time.h>
     typedef quint8 BYTE; // 8 bits
@@ -36,7 +36,7 @@
     typedef quint32 DWORD; // 32 bits
     typedef int HANDLE; // File handler
     #define INVALID_HANDLE_VALUE (HANDLE)(-1)
-#endif // Q_OS_WINDOWS
+#endif // Q_OS_WIN32
 
 QT_BEGIN_NAMESPACE
 class QFile;
@@ -69,13 +69,13 @@ private:
     HANDLE portHandle;
     SerialPort::Error lastError;
 
-#ifdef Q_OS_WINDOWS
+#ifdef Q_OS_WIN32
     COMMCONFIG commConfig;
     COMMTIMEOUTS timeout;
-#else // Q_OS_WINDOWS
+#else // Q_OS_WIN32
     struct termios commConfig;
     struct timeval timeout;
-#endif // Q_OS_WINDOWS
+#endif // Q_OS_WIN32
 };
 
 #endif // QTCOMMUNICATION_SERIALPORT_P_H
