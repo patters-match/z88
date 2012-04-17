@@ -92,9 +92,9 @@ int main(int argc, char *argv[])
 
         qDebug() << "Deleting directory ':RAM.1/tempdir1': " << p.deleteFileDir(":RAM.1/tempdir1");
 
-        qDebug() << p.sendFile(":RAM.0/romupdate.bas", "/home/gbs/z88/z88apps/romupdate/romupdate.bas");
-        qDebug() << p.sendFile(":RAM.0/romupdate.crc", "/home/gbs/z88/z88apps/romupdate/romupdate.crc");
-        qDebug() << p.receiveFiles(":RAM.0/*", "/home/gbs");
+//        qDebug() << p.sendFile(":RAM.0/romupdate.bas", "/home/gbs/z88/z88apps/romupdate/romupdate.bas");
+//        qDebug() << p.sendFile(":RAM.0/romupdate.crc", "/home/gbs/z88/z88apps/romupdate/romupdate.crc");
+//        qDebug() << p.receiveFiles(":RAM.0/*", "/home/gbs");
 
       //  /Users/oernohaz/files/z88/forever-201
   //      qDebug() << p.sendFile(":RAM.1/forever.62", "/Users/oernohaz/files/z88/forever-201/forever.62");

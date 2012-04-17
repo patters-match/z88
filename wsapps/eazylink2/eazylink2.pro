@@ -9,31 +9,16 @@ QT       += core gui
 TARGET = eazylink2
 TEMPLATE = app
 
-win32 {
-    SOURCES += main.cpp\
-    mainwindow.cpp\
-    serialport.cpp \
-    z88serialport.cpp \
-    commthread.cpp \
-    z88_devview.cpp \
-    z88storageviewer.cpp \
-    z88filespec.cpp \
-    desktop_view.cpp \
-    winserialportsavail.cpp
-}
-
-unix {
-    SOURCES += main.cpp\
-    mainwindow.cpp\
-    serialport.cpp \
-    z88serialport.cpp \
-    serialportsavail.cpp \
-    commthread.cpp \
-    z88_devview.cpp \
-    z88storageviewer.cpp \
-    z88filespec.cpp \
-    desktop_view.cpp
-}
+SOURCES += main.cpp\
+mainwindow.cpp\
+serialport.cpp \
+z88serialport.cpp \
+commthread.cpp \
+z88_devview.cpp \
+z88storageviewer.cpp \
+z88filespec.cpp \
+desktop_view.cpp \
+serialportsavail.cpp
 
 HEADERS += mainwindow.h\
 serialport.h\
