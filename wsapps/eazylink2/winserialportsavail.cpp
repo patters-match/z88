@@ -16,6 +16,7 @@
 #include "serialport.h"
 #include "serialportsavail.h"
 
+static const char *DEV_DIR_FSPEC("COM");
 
 /**
   * Default constructor.
@@ -37,6 +38,28 @@ SerialPortsAvail::~SerialPortsAvail(){}
 const QStringList&
 SerialPortsAvail::get_portList()
 {
+    SerialPort port = SerialPort();
+    QString devStr;
+
+    for(int p=1; p<16; p++){
+
+            /**
+             * Append the portname found
+             */
+                devStr.append(DEV_DIR_FSPEC);
+                devStr.append(p);
+                port.setPortName(devStr);
+                if (port.open(QIODevice::ReadWrite)) {
+                    m_portlist << devStr;
+                    port.close();
+                }
+                devStr.clear();
+            }
+
+    if(!m_portlist.isEmpty()){
+        m_portName = DEV_DIR_FSPEC + 1;
+    }
+
     return m_portlist;
 }
 
@@ -52,10 +75,11 @@ SerialPortsAvail::getfirst_portName() const
 
 /**
   * get the Fully qualified port name of the First available port.
-  * @return the filename of the first port, or the path /dev/ if none.
+  * @return the filename of the first port, or the path if none.
   */
 const QString &
 SerialPortsAvail::get_fullportName(const QString &devname)
 {
+    m_portName = DEV_DIR_FSPEC + devname;
     return m_portName;
 }
