@@ -74,7 +74,12 @@ public:
         OP_initreceiveFiles,    // Init a new Receive file request from ther Z88.
         OP_receiveFiles,        // Start the Receive file(s) process.
         OP_receiveFile,         // Receive the specified file from the Z88.
-        OP_receiveNext          // Skip the current file, and receive the next one. (user prompt to skip)
+        OP_receiveNext,         // Skip the current file, and receive the next one. (user prompt to skip)
+        OP_dirLoadDone,         // Recursive Desktop Dir load complete
+        OP_initsendFiles,       // Init a New Send  file request to the Z88
+        OP_sendFiles,           // Start the Send file(s) Process
+        OP_sendFile,            // Start the Specifed file to the Z88
+        OP_sendNext             // Skip the current file, and send the next one. (user prompt to skip)
     };
 
     /**
@@ -98,8 +103,11 @@ public:
     bool getDirectories(const QString &devname);
     bool getFileNames(const QString &devname);
     bool getZ88FileSystemTree(bool ena_size = false, bool ena_date = false);
-    bool receiveFiles(QList<Z88_Selection> *z88Selections, const QString &hostpath, bool prompt_usr = false);
+    bool receiveFiles(QList<Z88_Selection> *z88Selections, const QString &destpath, bool prompt_usr = false);
     bool receiveFile(bool skip);
+    bool dirLoadComplete();
+    bool sendFiles(QList<DeskTop_Selection> *deskSelections, const QString &destpath, bool prompt_usr = false);
+    bool sendFile(bool skip);
 
 private slots:
     void CancelSignal();
@@ -115,6 +123,8 @@ signals:
     void Z88Dir_result(const QString &devname, QList<QByteArray> *dirlist);
     void Z88FileSpeclist_result(const QString &devname, QList<Z88FileSpec> *filespeclist);
     void PromptReceiveSpec(const QString &src_name, const QString &dst_name, bool *Continue);
+    void PromptSendSpec(const QString &src_name, const QString &dst_name, bool *Continue);
+    void DirLoadComplete(const bool &);
 
 protected:
     void startCmd(const comOpcodes_t &op, bool ena_resume = true);

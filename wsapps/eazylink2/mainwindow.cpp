@@ -187,6 +187,16 @@ void MainWindow::createActions()
             this,
             SLOT(PromptReceiveSpec(const QString &, const QString &,bool *)));
 
+    connect(&m_cthread,
+            SIGNAL(PromptSendSpec(const QString &, const QString &,bool *)),
+            this,
+            SLOT(PromptSendSpec(const QString &, const QString &,bool *)));
+
+    connect(&m_cthread,
+            SIGNAL(DirLoadComplete(const bool &)),
+            this,
+            SLOT(LoadingDeskList(const bool &)));
+
 }
 
 /**
@@ -194,7 +204,7 @@ void MainWindow::createActions()
   */
 void MainWindow::setupDeskView()
 {
-    m_DeskTopTreeView = new Desktop_View();
+    m_DeskTopTreeView = new Desktop_View(m_cthread, this);
 
     m_DeskTopTreeView->setAnimated(true);
     m_DeskTopTreeView->setIndentation(20);
@@ -285,92 +295,6 @@ void MainWindow::ReloadZ88View()
     m_Z88StorageView->getFileTree(ena_filesizes, ena_timeddate);
 }
 
-/**
-  * Transfer Files Tool-bar command
-  * Starts the file transfer process.
-  */
-void MainWindow::TransferFiles()
-{
-    /**
-      * Read the User Selections from the Z88
-      */
-    QList<Z88_Selection> *z88selections;
-    z88selections = m_Z88StorageView->getSelection(true);
-
-    int filecnt = 0;
-    if(z88selections){
-        m_z88Selections = (*z88selections);
-        QListIterator<Z88_Selection> i(m_z88Selections);
-        while(i.hasNext()){
-            if(i.next().getType() == Z88_DevView::type_File){
-                filecnt++;
-            }
-        }
-    }
-    else{
-        return;
-    }
-
-    /**
-      * Get the Selected items from the Desktop Frame
-      */
-    QList<DeskTop_Selection> &deskSelList(m_DeskTopTreeView->getSelection());
-
-    /**
-      * Source is Z88, Destination Desktop
-     */
-    bool prompt4each = false;
-
-    if(isTransferFromZ88() && !deskSelList.isEmpty()) {
-        QMessageBox msgBox;
-        QString msg = "Transfer ";
-        msg += QString("%1").arg(filecnt);
-        msg += " file";
-        if(filecnt > 1){
-            msg += 's';
-        }
-        msg += " From Z88";
-
-        msgBox.setText(msg);
-        msgBox.setIcon(QMessageBox::Question);
-        if(filecnt > 1){
-            msgBox.setInformativeText("Prompt for each file?");
-            msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel);
-        }
-        else{
-            msgBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
-        }
-        msgBox.setDefaultButton(QMessageBox::Yes);
-
-        switch(msgBox.exec()){
-            case QMessageBox::Yes:
-                prompt4each = true;
-                break;
-            case  QMessageBox::No:
-                break;
-            case QMessageBox::Cancel:
-                return;
-        }
-
-        /**
-          * Create the Local Directory Structure for the files to be recieved
-          */
-        m_DeskTopTreeView->mkDirectoryTree(m_z88Selections);
-
-        QMutableListIterator<Z88_Selection> i(m_z88Selections);
-
-        /**
-          * Clean up all the Directory Entries
-          */
-        while(i.hasNext()){
-            if(i.next().getType()==Z88_DevView::type_Dir){
-                i.remove();
-            }
-        }
-
-        m_cthread.receiveFiles(&m_z88Selections, deskSelList[0].getFspec(), prompt4each);
-    }
-}
 
 /**
   * The User requested Abort of Command.
@@ -380,6 +304,7 @@ void MainWindow::AbortCmd()
     m_cthread.AbortCmd();
 }
 
+
 /**
   * Send a file to the Z88 using the Imp-Exp pulldown app protocol.
   */
@@ -387,6 +312,7 @@ void MainWindow::ImpExp_sendfile()
 {
 
     // qDebug() << m_sport.impExpSendFile(":RAM.1/romupdate.txt", "/Users/oernohaz/files/z88/bitbucket/z88/z88apps/romupdate/readme.txt");
+    //qDebug() << m_sport.sendFile(":RAM.1/DIRX/hello2.txt", "/Users/oernohaz/files/hello2.txt");
 
 }
 
@@ -468,13 +394,14 @@ bool MainWindow::openSelSerialDialog()
     return ok;
 }
 
+
 /**
   * The Open Cummunications port result call-back event handler.
   * @param dev_name is the full Path and name of the Serial device opened.
   * @param short_name is the User alias to the Comm device, ie tty.keyspan1 etc.
   * @param success is the Result code from the Open request, true on success.
   */
-void MainWindow::commOpen_result(const QString &dev_name, const QString &short_name, bool success)
+void MainWindow::commOpen_result(const QString &, const QString &short_name, bool success)
 {
     if(success){
         /**
@@ -530,6 +457,7 @@ void MainWindow::cmdProgress(const QString &title, int curVal, int total)
 
     if(total){
         if(curVal == 0){
+            delete m_cmdProgress;
             m_cmdProgress = new QProgressDialog(title, "Abort", 0, total+1, NULL);
             /**
               * Setup the Comm thread Abort Signal handler
@@ -692,8 +620,39 @@ void MainWindow::PromptReceiveSpec(const QString &src_name, const QString &dst_n
             m_cthread.receiveFile(true);
             break;
         case QMessageBox::Cancel:
-            m_cmdProgress->reset();
+            if(m_cmdProgress) m_cmdProgress->reset();
         //cmdProgress("Cancelled", m_z88Selections.count()-1,m_z88Selections.count())
+            return;
+    }
+}
+
+void MainWindow::PromptSendSpec(const QString &src_name, const QString &dst_name, bool *prompt_again)
+{
+    QMessageBox msgBox;
+    QString msg = "Copy ";
+    msg += src_name;
+    msg += " to ";
+    msg += dst_name;
+
+    msgBox.setText(msg);
+    msgBox.setIcon(QMessageBox::Question);
+    msgBox.setInformativeText("Transfer this file from Desktop to Z88 ?");
+    msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No |
+                              QMessageBox::YesToAll | QMessageBox::Cancel);
+    msgBox.setDefaultButton(QMessageBox::YesToAll);
+
+    switch(msgBox.exec()){
+        case QMessageBox::YesToAll:
+            *prompt_again = false;
+            // drop through
+        case QMessageBox::Yes:
+            m_cthread.sendFile(false);
+            break;
+        case  QMessageBox::No:
+            m_cthread.sendFile(true);
+            break;
+        case QMessageBox::Cancel:
+            if(m_cmdProgress) m_cmdProgress->reset();
             return;
     }
 }
@@ -705,7 +664,15 @@ void MainWindow::PromptReceiveSpec(const QString &src_name, const QString &dst_n
   */
 bool MainWindow::enaTransferButton()
 {
-    QList<DeskTop_Selection> &DeskSelList(m_DeskTopTreeView->getSelection());
+    QList<DeskTop_Selection> *dl;
+    QList<DeskTop_Selection> DeskSelList;
+    dl = m_DeskTopTreeView->getSelection(false);
+
+    if(!dl){
+        return false;
+    }
+    DeskSelList = *dl;
+
     QList<Z88_Selection> *z88SelList(m_Z88StorageView->getSelection(false));
 
     /**
@@ -747,6 +714,227 @@ bool MainWindow::enaTransferButton()
     }
     return true;
 }
+/**
+  * Transfer Files Tool-bar command
+  * Starts the file transfer process.
+  */
+void MainWindow::TransferFiles()
+{
+    /**
+      * Read the User Selections from the Z88
+      */
+    QList<Z88_Selection> *z88selections;
 
+    /**
+      * Source is Z88, Destination Desktop
+     */
+    if(isTransferFromZ88()) {
+        z88selections = m_Z88StorageView->getSelection(true);
 
+        if(!z88selections){
+            return;
+        }
+
+        m_z88Selections = *z88selections;
+
+        /**
+          * Get the Selected Destination from the Desktop Frame
+          */
+        QList<DeskTop_Selection> *deskSelList;
+        deskSelList = m_DeskTopTreeView->getSelection(false);
+
+        if(deskSelList){
+            StartReceiving(m_z88Selections, *deskSelList);
+        }
+    }
+    else{
+        /**
+          * Source is Desktop, Destination is Z88
+          */
+        z88selections = m_Z88StorageView->getSelection(false);
+
+        if(!z88selections){
+            return;
+        }
+
+        m_z88Selections = *z88selections;
+
+        enableCmds(false, m_sport.isOpen());
+        cmdStatus("Reading Source Files...");
+
+        /**
+          * Get the Selected Source File(s) from the Desktop
+          */
+        QList<DeskTop_Selection> *deskSelList;
+        deskSelList = m_DeskTopTreeView->getSelection(true);
+
+        if(deskSelList){
+            StartSending(*deskSelList, m_z88Selections);
+        }
+    }
+}
+
+void MainWindow::LoadingDeskList(const bool &aborted)
+{
+    if(aborted){
+        m_DeskTopTreeView->DirLoadAborted();
+        return;
+    }
+
+    QList<DeskTop_Selection> *deskSelList;
+    deskSelList = m_DeskTopTreeView->getSelection(true, true);
+
+    if(deskSelList){
+        StartSending(*deskSelList, m_z88Selections);
+    }
+}
+
+void MainWindow::StartSending(QList<DeskTop_Selection> &desk_selections, QList<Z88_Selection> &z88_selections)
+{
+    bool prompt4each = false;
+
+    /**
+      * Count the Number of Files to Send, ignore Directories
+      */
+    int filecnt = 0;
+    if(!desk_selections.isEmpty()){
+        QListIterator<DeskTop_Selection> i(desk_selections);
+        while(i.hasNext()){
+            if(i.next().getType() == DeskTop_Selection::type_File){
+                filecnt++;
+            }
+        }
+    }
+    else{
+        return;
+    }
+
+    QMessageBox msgBox;
+    QString msg = "Transfer ";
+    msg += QString("%1").arg(filecnt);
+    msg += " file";
+    if(filecnt > 1){
+        msg += 's';
+    }
+    msg += " To Z88";
+
+    msgBox.setText(msg);
+    msgBox.setIcon(QMessageBox::Question);
+    if(filecnt > 1){
+        msgBox.setInformativeText("Prompt for each file?");
+        msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel);
+    }
+    else{
+        msgBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
+    }
+    msgBox.setDefaultButton(QMessageBox::Yes);
+
+    switch(msgBox.exec()){
+        case QMessageBox::Yes:
+            prompt4each = true;
+            break;
+        case  QMessageBox::No:
+            break;
+        case QMessageBox::Cancel:
+            cmdStatus("Transfer Cancelled.");
+            enableCmds(true, m_sport.isOpen());
+            return;
+    }
+
+    m_DeskTopTreeView->prependSubdirNames(desk_selections);
+
+    QMutableListIterator<DeskTop_Selection> di(desk_selections);
+    /**
+      * Remove all the Directory Entries
+      */
+    while(di.hasNext()){
+        qDebug() << "files=" << di.peekNext().getFspec() << "name=" << di.peekNext().getFname() << "type = " << di.peekNext().getType();
+        if(di.next().getType()==DeskTop_Selection::type_Dir){
+          //  di.remove();
+        }
+    }
+
+    QListIterator<DeskTop_Selection> i(desk_selections);
+
+    while(i.hasNext()){
+        qDebug() << "desk files=" << i.next().getFspec();
+    }
+
+    qDebug() << "desk file count =" << desk_selections.count();
+
+    boolCmd_result("File Transfer", true);
+
+    enableCmds(true, m_sport.isOpen());
+
+    m_cthread.sendFiles(&desk_selections, z88_selections[0].getFspec(), prompt4each);
+}
+
+void MainWindow::StartReceiving(QList<Z88_Selection> &z88_selections, QList<DeskTop_Selection> &deskSelList)
+{
+    bool prompt4each = false;
+
+    /**
+      * Count the Number of Files to Receive, ignore Directories
+      */
+    int filecnt = 0;
+    if(!z88_selections.isEmpty()){
+        QListIterator<Z88_Selection> i(z88_selections);
+        while(i.hasNext()){
+            if(i.next().getType() == Z88_DevView::type_File){
+                filecnt++;
+            }
+        }
+    }
+    else{
+        return;
+    }
+
+    QMessageBox msgBox;
+    QString msg = "Transfer ";
+    msg += QString("%1").arg(filecnt);
+    msg += " file";
+    if(filecnt > 1){
+        msg += 's';
+    }
+    msg += " From Z88";
+
+    msgBox.setText(msg);
+    msgBox.setIcon(QMessageBox::Question);
+    if(filecnt > 1){
+        msgBox.setInformativeText("Prompt for each file?");
+        msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel);
+    }
+    else{
+        msgBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
+    }
+    msgBox.setDefaultButton(QMessageBox::Yes);
+
+    switch(msgBox.exec()){
+        case QMessageBox::Yes:
+            prompt4each = true;
+            break;
+        case  QMessageBox::No:
+            break;
+        case QMessageBox::Cancel:
+            return;
+    }
+
+    /**
+      * Create the Local Directory Structure for the files to be received
+      */
+    m_DeskTopTreeView->mkDirectoryTree(z88_selections);
+
+    QMutableListIterator<Z88_Selection> i(z88_selections);
+
+    /**
+      * Remove all the Directory Entries
+      */
+    while(i.hasNext()){
+        if(i.next().getType()==Z88_DevView::type_Dir){
+            i.remove();
+        }
+    }
+
+    m_cthread.receiveFiles(&z88_selections, deskSelList[0].getFspec(), prompt4each);
+}
 

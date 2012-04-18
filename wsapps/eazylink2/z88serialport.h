@@ -61,13 +61,13 @@ public:
     bool reloadTranslationTable();                                  // remote reload translation table on Z88 EazyLink popdown
     bool setZ88Time();                                              // set Z88 date/time using PC local time
     bool isFileAvailable(QByteArray fileName);                      // ask if file exists on Z88 filing system
-    bool createDir(QByteArray pathName);                            // create directory on the Z88 filing system
+    bool createDir(const QString &pathName);                            // create directory on the Z88 filing system
     bool deleteFileDir(QByteArray fileName);                        // delete a file / directory on the Z88 filing system
     bool renameFileDir(QByteArray pathName, QByteArray fileName);   // rename a file / directory on the Z88 filing system
     bool setFileDateStamps(QByteArray fileName,
                            QByteArray createDate,
                            QByteArray updateDate);                  // set Create & Update date stamps of Z88 file
-    bool sendFile(QByteArray z88Filename, QString hostFilename);    // send a file to Z88 using EazyLink protocol
+    bool sendFile(const QString &z88Filename, QString hostFilename);    // send a file to Z88 using EazyLink protocol
 
     bool impExpSendFile(QByteArray z88Filename, QString hostFilename); // send a file to Z88 using Imp/Export protocol
     bool impExpReceiveFiles(QString hostPath);                      // receive Z88 files from Imp/Export popdown
@@ -76,13 +76,13 @@ public:
     QByteArray getEazyLinkZ88Version();                             // receive string of EazyLink popdown version and protocol level
     QByteArray getZ88FreeMem();                                     // receive string of Z88 All Free Memory
     QByteArray getZ88DeviceFreeMem(QByteArray device);              // receive string of Free Memory from specific device
-    QByteArray getFileSize(const QString &fileName);                    // receive string of Z88 File size
+    QByteArray getFileSize(const QString &fileName);                // receive string of Z88 File size
     QList<QByteArray> getDevices();                                 // receive a list of Z88 Storage Devices
     QList<QByteArray> getZ88Time();                                 // receive string of current Z88 date & time
     QList<QByteArray> getRamDefaults();                             // receive default RAM & default Directory from Z88 Panel popdown
-    QList<QByteArray> getDirectories(const QString &path);              // receive a list of Z88 Directories in <path>
-    QList<QByteArray> getFilenames(const QString &path);                // receive a list of Z88 Filenames in <path>
-    QList<QByteArray> getFileDateStamps(const QString &fileName);       // receive Create & Update date stamps of Z88 file
+    QList<QByteArray> getDirectories(const QString &path);          // receive a list of Z88 Directories in <path>
+    QList<QByteArray> getFilenames(const QString &path);            // receive a list of Z88 Filenames in <path>
+    QList<QByteArray> getFileDateStamps(const QString &fileName);   // receive Create & Update date stamps of Z88 file
 
     QString getLastErrorString()const;                              // Get the Last Port Error string.
     int     getOpenErrno() const;                                   // Get the port Open Error number.
@@ -107,7 +107,7 @@ private:
     bool        getByte(unsigned char  &byte);              // Receive a byte from the Z88
     bool        synchronize();                              // Synchronize with Z88 before sending command
     bool        sendCommand(QByteArray cmd);                // Transmit ESC command to Z88
-    bool        sendFilename(QByteArray filename);          // Transmit ESC N <filename> ESC F sequence to Z88
+    bool        sendFilename(const QString &filename);          // Transmit ESC N <filename> ESC F sequence to Z88
     retcode     receiveFilename(QByteArray &fileName);      // Receive an ESC N <fileName> ESC F sequence from the Z88
     void        receiveListItems(QList<QByteArray> &list);  // Receive list of items (eg. devices, directories, filenames)
     char        xtod(char c);                               // hex to integer nibble function

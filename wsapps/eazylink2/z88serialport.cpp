@@ -670,7 +670,7 @@ bool Z88SerialPort::setFileDateStamps(QByteArray filename, QByteArray createDate
  *      EazyLink Server V4.7
  *      Create directory path on Z88.
  *****************************************************************************/
-bool Z88SerialPort::createDir(QByteArray pathName)
+bool Z88SerialPort::createDir(const QString &pathName)
 {
     QByteArray createDirCmd = QByteArray( (char []) { 27, 'y'}, 2);
 
@@ -1137,7 +1137,7 @@ bool Z88SerialPort::impExpReceiveFiles(QString hostPath)
  *      Send a file to Z88 using EazyLink protocol
  *      Caller must ensure that the filename applies to Z88 standard
  *****************************************************************************/
-bool Z88SerialPort::sendFile(QByteArray z88Filename, QString hostFilename)
+bool Z88SerialPort::sendFile(const QString &z88Filename, QString hostFilename)
 {
     QByteArray sendFilesCmd = QByteArray( (char []) { 27, 'b'}, 2);
     QFile hostFile(hostFilename);
@@ -1371,7 +1371,7 @@ Z88SerialPort::retcode Z88SerialPort::receiveFilename(QByteArray &fileName)
 /*****************************************************************************
  *      Send a ESC N <fileName> ESC F to the Z88
  *****************************************************************************/
-bool Z88SerialPort::sendFilename(QByteArray fileName)
+bool Z88SerialPort::sendFilename(const QString &fileName)
 {
     QByteArray filenameSequence;
 

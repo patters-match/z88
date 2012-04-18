@@ -281,7 +281,7 @@ void Z88StorageViewer::Z88FileSpeclist_result(const QString &, QList<Z88FileSpec
   * The Selected Device tab changed call-back.
   * @param index is the Tab index of the newly selected tab.
   */
-void Z88StorageViewer::changedSelected_device(int index)
+void Z88StorageViewer::changedSelected_device(int)
 {
     QList<Z88_Selection> *selections(getSelection(false));
 
@@ -309,7 +309,7 @@ void Z88StorageViewer::changedSelected_file()
   * @param ev is the event that occured.
   * @return false.
   */
-bool Z88StorageViewer::eventFilter(QObject *obj, QEvent *ev)
+bool Z88StorageViewer::eventFilter(QObject *, QEvent *ev)
 {
     if(ev->type() == QEvent::KeyRelease || ev->type() == QEvent::Leave){
         QList<Z88_Selection> *selections(getSelection(false));

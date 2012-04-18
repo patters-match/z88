@@ -417,7 +417,6 @@ void CommThread::run()
         }
         case OP_receiveNext:
         {
-
             /**
               * Skip the current file
               */
@@ -437,9 +436,139 @@ void CommThread::run()
 
             break;
         }
+        case OP_dirLoadDone:
+            if(!m_abort){
+                m_mutex.lock();
+                m_curOP = OP_idle;
+                m_mutex.unlock();
+                emit DirLoadComplete(false);
+                return;  // Don't re-enable commands here
+            }
+            break;
+        case OP_initsendFiles:
+        {
+            delete m_deskSel_itr;
+            m_deskSel_itr = new QListIterator<DeskTop_Selection> (*m_deskSelections);
+            m_deskSel_itr->toFront();
+            m_xferFileprogress = 0;
+            // drop through
+        }
+        case OP_sendFiles:
+        {
+            if(m_deskSel_itr->hasNext()){
+
+                const DeskTop_Selection &desksel(m_deskSel_itr->peekNext());
+                QString srcname(desksel.getFspec());
+
+                if(m_enaPromtUser && (desksel.getType() == DeskTop_Selection::type_File)){
+                    QString destFspec = m_destPath + desksel.getFname();
+                    emit PromptSendSpec(srcname, destFspec, &m_enaPromtUser);
+                    break;
+                }
+
+                m_curOP = OP_sendFile;
+                run();
+            }
+            emit cmdProgress("Done", -1, -1); // reset the progress dialog
+            break;
+        }
+        case OP_sendFile:
+        {
+            do{
+                if(m_abort){
+                    cmdStatus("Transfer Aborted..");
+                    break;
+                }
+
+                const DeskTop_Selection &desksel(m_deskSel_itr->next());
+                QString srcname(desksel.getFspec());
+
+                QString msg = "Sending ";
+                msg += srcname;
+
+                /**
+                  * Update the Progress Bar
+                  */
+                emit cmdProgress(msg, m_xferFileprogress, m_deskSelections->count());
+
+                msg += " to ";
+                msg += m_destPath;
+                cmdStatus(msg);
+
+                /**
+                  * Send the file to Z88
+                  */
+                bool rc;
+                QString destFspec = m_destPath + desksel.getFname();
+                if(desksel.getType() == DeskTop_Selection::type_Dir){
+                    rc = m_sport.createDir(destFspec);
+                }
+                else{
+                    rc = m_sport.sendFile(destFspec, srcname);
+                }
+
+                m_xferFileprogress++;
+
+                if(m_abort){
+                    cmdStatus("Transfer Cancelled.");
+                    break;
+                }
+
+                boolCmd_result("Transfer", rc);
+
+                if(!rc){
+                    break;
+                }
+
+                if(m_deskSel_itr->hasNext()){
+                    const DeskTop_Selection &deskselnxt(m_deskSel_itr->peekNext());
+
+                    if(m_enaPromtUser && (deskselnxt.getType() == DeskTop_Selection::type_File)){
+
+                        srcname = deskselnxt.getFspec();
+                        QString destFspec = m_destPath + deskselnxt.getFname();
+
+                        emit PromptSendSpec(srcname, destFspec, &m_enaPromtUser);
+                        break;
+                    }
+                }
+                else{
+                    boolCmd_result("File Transfer", true);
+                }
+
+            } while(m_deskSel_itr->hasNext());
+
+            emit cmdProgress("Done", -1, -1); // reset the progress dialog
+            break;
+        }
+        case OP_sendNext:
+        {
+            /**
+              * Skip the current file
+              */
+            if(m_deskSel_itr->hasNext()){
+                m_deskSel_itr->next();
+                m_xferFileprogress++;
+            }
+
+            /**
+              * Send the next file
+              */
+            if(m_deskSel_itr->hasNext()){
+                m_curOP = OP_sendFiles;
+                run();
+            }
+            emit cmdProgress("Done", -1, -1); // reset the progress dialog
+
+            break;
+        }
     }
 abort:
     m_mutex.lock();
+    if(m_curOP == OP_dirLoadDone){
+        emit DirLoadComplete(true);
+        m_abort = false;
+    }
     m_curOP = OP_idle;
     m_mutex.unlock();
 
@@ -863,7 +992,7 @@ bool CommThread::getZ88FileSystemTree(bool ena_size, bool ena_date)
   * @parm prompt_usr set to true, to poll user for each file.
   * @return true if communication thread was idle.
   */
-bool CommThread::receiveFiles(QList<Z88_Selection> *z88Selections, const QString &hostpath, bool prompt_usr)
+bool CommThread::receiveFiles(QList<Z88_Selection> *z88Selections, const QString &destpath, bool prompt_usr)
 {
     QMutexLocker locker(&m_mutex);
 
@@ -876,7 +1005,7 @@ bool CommThread::receiveFiles(QList<Z88_Selection> *z88Selections, const QString
 
     m_z88Selections = z88Selections;
     m_enaPromtUser = prompt_usr;
-    m_destPath = hostpath;
+    m_destPath = destpath;
 
     startCmd(OP_initreceiveFiles);
 
@@ -904,6 +1033,62 @@ bool CommThread::receiveFile(bool skip)
     }
     else{
         startCmd(OP_receiveFile,false);
+    }
+    return true;
+}
+
+bool CommThread::dirLoadComplete()
+{
+    QMutexLocker locker(&m_mutex);
+
+    /**
+      * Make sure we are not running another command
+      */
+    if(m_curOP != OP_idle){
+        return false;
+    }
+
+    startCmd(OP_dirLoadDone, false);
+
+    return true;
+}
+
+bool CommThread::sendFiles(QList<DeskTop_Selection> *deskSelections, const QString &destpath, bool prompt_usr)
+{
+    QMutexLocker locker(&m_mutex);
+
+    /**
+      * Make sure we are not running another command
+      */
+    if(m_curOP != OP_idle){
+        return false;
+    }
+
+    m_deskSelections = deskSelections;
+    m_enaPromtUser = prompt_usr;
+    m_destPath = destpath;
+
+    startCmd(OP_initsendFiles);
+
+    return true;
+}
+
+bool CommThread::sendFile(bool skip)
+{
+    QMutexLocker locker(&m_mutex);
+
+    /**
+      * Make sure we are not running another command
+      */
+    if(m_curOP != OP_idle){
+        return false;
+    }
+
+    if(skip){
+        startCmd(OP_sendNext,false);
+    }
+    else{
+        startCmd(OP_sendFile,false);
     }
     return true;
 }

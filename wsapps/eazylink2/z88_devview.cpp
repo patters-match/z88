@@ -245,10 +245,13 @@ const Z88_Selection &Z88_DevView::getItemFspec(QTreeWidgetItem *item, Z88_Select
     QString fname;
     fspec.m_fspec = m_devname + "/";
 
+    bool rootdev = false;
+
     if(item){
         fspec.m_type = (item->type() == type_File) ? type_File : type_Dir;
     }
     else{
+        rootdev = true;
         fspec.m_type = Z88_DevView::type_Dir;
     }
 
@@ -263,6 +266,13 @@ const Z88_Selection &Z88_DevView::getItemFspec(QTreeWidgetItem *item, Z88_Select
     }
     fspec.m_fspec += fname;
 
+    /**
+      * If the Selection is just the Z88 Storage device root,
+      * Don't append a trailing '/'
+      */
+    if(!rootdev && fspec.m_type == Z88_DevView::type_Dir ){
+        fspec.m_fspec += "/";
+    }
     return fspec;
 }
 

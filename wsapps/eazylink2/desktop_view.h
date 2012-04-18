@@ -20,6 +20,9 @@
 
 #include <QTreeView>
 #include <QFileSystemModel>
+#include <QSystemSemaphore>
+#include <QMutex>
+#include "commthread.h"
 
 /* Forward decl */
 class DeskTop_Selection;
@@ -32,28 +35,36 @@ class Desktop_View : public QTreeView
 {
     Q_OBJECT
 public:
-    explicit Desktop_View(QWidget *parent = 0);
-    
-    QList<DeskTop_Selection> &getSelection();
+    explicit Desktop_View(CommThread &cthread, QWidget *parent = 0);
+
+    QList<DeskTop_Selection> *getSelection(bool recurse, bool cont = false);
 
     bool mkDirectoryTree(const QList<Z88_Selection> &z88Selections );
+    void prependSubdirNames(QList<DeskTop_Selection> &desk_selections);
+    void DirLoadAborted();
 
 signals:
     void ItemSelectionChanged(int);
 
-public slots:
+private slots:
     void ItemSelectionChanged(const QModelIndex &);
+    void DirLoaded(const QString &);
+
 
 protected:
     /**
       * The GUI Event handler. handles mouse in/out etc.
       */
-    bool eventFilter(QObject *obj, QEvent *ev);
+    bool eventFilter(QObject *, QEvent *ev);
 
     /**
       * Internal, create a sub-directory on Desktop method.
       */
     bool mkSubdir(QListIterator<Z88_Selection> &i, QModelIndex dst_root);
+    void prependSubdirNames(QMutableListIterator<DeskTop_Selection> &i);
+
+
+    bool getSubdirFiles(const QModelIndex & idx);
 
 private:
     /**
@@ -65,6 +76,15 @@ private:
       * The list of selected Files on the Desktop View, once transfer operation is selected.
       */
     QList<DeskTop_Selection> m_Selections;
+
+    /**
+      * The Communications thread
+      */
+    CommThread &m_cthread;
+
+    QModelIndexList m_ModelSelections;
+
+    bool m_recurse;
 };
 
 /**
@@ -86,25 +106,32 @@ public:
     /**
       * Constructor
       */
-    DeskTop_Selection(QString fspec="", entryType type = type_Dir);
+    DeskTop_Selection(const QString &fspec, const QString &fname, entryType type = type_Dir);
 
     const QString &getFspec()const {return m_fspec;}
-    const entryType &getType() const{return m_type;}
+    const QString &getFname()const {return m_fname;}
+    const entryType &getType()const{return m_type;}
+
+    void setSubdir(const QString &subdir){m_fname.prepend(subdir);}
 
     friend class Desktop_View;
 
 protected:
 
     /**
-      * Selection file spec
+      * Selection full path and name
       */
     QString m_fspec;
+
+    /**
+      * Selection file name
+      */
+    QString m_fname;
 
     /**
       * Selection type (dir or file)
       */
     entryType m_type;
-
 
 };
 #endif // DESKTOP_VIEW_H
