@@ -1,4 +1,4 @@
-:: *************************************************************************************
+:: **********************************************************************************
 ::
 :: Z88 Forever compile script for Linux/Unix/MAC OSX
 :: Z88 Forever compilation ROM, (c) Garry Lancaster, 1998-2011
@@ -16,7 +16,7 @@
 ::
 :: *************************************************************************************
 
-del *.obj *.sym *.bin *.map *.6? forever.epr
+del /Q *.obj *.sym *.bin *.map *.6? forever.epr 2>nul >nul
 
 :: Ensure that we have an up-to-date standard library (needed for FreeRAM)
 cd ..\..\stdlib
@@ -64,8 +64,7 @@ cd ..\forever
 ..\..\tools\mpm\mpm -b -I..\..\oz\def romheader.asm
 
 :: Create a 32K Rom Card
-..\..\tools\makeapp\makeapp.sh -f forever.loadmap
+java -jar ..\..\tools\makeapp\makeapp.jar -f forever.loadmap
 
 :: Create a 32K Rom Card for OZ v4.1+, omitting incompatible applications
-..\..\tools\makeapp\makeapp.sh -f forever4X.loadmap
-
+java -jar ..\..\tools\makeapp\makeapp.jar -f forever4X.loadmap

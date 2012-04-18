@@ -43,28 +43,31 @@ $45     Example         Garry Lancaster         $04fd-$04ff (3 bytes)
 
 Space used by Package-Handling system & Packages package
 --------------------------------------------------------
-$0008-$0017     Package-handling code
+$0008-$0017     Package-handling code ("codeA" - rst8 & rst10 routines)
 $002a-$002b     IM1 handler counters
 $002c-$002d     SlowMo timing constant
-$002e-$002f     Package-handling data
-$01a5-$01c2     IM1 code (B)
-$01c3-$01d4     RST 20 code (B)
-$01d7-$01f4     Table of IM1 routines
-$01f5-$01fa     Package features data
-$0400-$045f     Package-handling code & data
-$0475-$0476     Package-handling data
+$002e-$002f     Package-handling data (ver of pkg being registered)
+$0038-$0047     IM1 handler ("IM1a")
+$01a5-$01c2     IM1 code (part 2 - "IM1b")
+$01c3-$01d4     RST 20 code (part 2 - "RST20b")
+$01d7-$01f4 (or $01d5-$01f2?)     Table of IM1 routines 
+$01f5-$01f8     Package features data
+$01f9-$01fa     Base address of call subs 1st page
+$0400-$045e     Package-handling code ("codeB")
+$045f           Bank of call subs 1st page
+$0475-$0476     Package-handling data (addr of pkg being registered)
 $0477-$04af     Table of pointers to packages
-$04b7           Package-handling data
-$04b8-$04ce     RST 20 code (A)
-$04cf           Package-handling data
-$04eb-$04ec     Package-handling data
-$04ed-$04fc     IM1 code (C)
+$04b7           Package-handling data (bank of pkg being registered)
+$04b8-$04ce     RST 20 code (part 1 - "RST20a")
+$04cf           Bank of call subs 2nd page
+$04eb-$04ec     Base address of call subs 2nd page
+$04ed-$04fc     IM1 code (part 3 - "IM1c")
 
 Space available, to be assigned
 -------------------------------
 $0033-$0037     5 bytes
 $005a-$0065     12 bytes
 $01d5-$01d6     2 bytes
-$0468-$046f     8 bytes
+$0469-$046f     7 bytes
 $04d5-$04df     11 bytes
 $04e7-$04e8     2 bytes

@@ -42,7 +42,7 @@ int main(int argc, char *argv[])
                 rc = p.helloZ88();
 
                 // Give EazyLink time to switch to hardware handshaking on the serial port..
-                timeout = QTime::currentTime().addSecs(2);
+                timeout = QTime::currentTime().addSecs(1);
                 while(QTime::currentTime() < timeout) {};
 
                 if(rc){
@@ -75,16 +75,16 @@ int main(int argc, char *argv[])
         qDebug() << "Z88 Free Memory for :RAM.1 = " << p.getZ88DeviceFreeMem("1");
         qDebug() << "Z88 Devices = " << p.getDevices();
         qDebug() << "Z88 RAM Defaults = " << p.getRamDefaults();
-        qDebug() << "Z88 RAM Directories for :RAM.1 = " << p.getDirectories(":RAM.1//*");
-        qDebug() << "Z88 Files in RAM.1/dir1 = " << p.getFilenames(":RAM.1/dir1/*");
-        qDebug() << "Z88 Files in RAM.1 = " << p.getFilenames(":RAM.1//*");
+        qDebug() << "Z88 RAM Directories for :RAM.1 = " << p.getDirectories(":RAM.0//*");
+        //qDebug() << "Z88 Files in RAM.1/dir1 = " << p.getFilenames(":RAM.0/dir1/*");
+        qDebug() << "Z88 Files in RAM.1 = " << p.getFilenames(":RAM.0//*");
 
-        qDebug() << "Z88 Files in EPR.3 = " << p.getFilenames(":EPR.3");
+        //qDebug() << "Z88 Files in EPR.3 = " << p.getFilenames(":EPR.3");
 
-        qDebug() << "Date stamps of ':RAM.1/Readme.txt' = " << p.getFileDateStamps(":RAM.1/Readme.txt");
-        qDebug() << "Set timestamps of ':RAM.1/Readme.txt' = 01/09/1999 09:05:01 01/10/2011 18:05:17: "
-                 << p.setFileDateStamps(":RAM.1/Readme.txt", "01/09/1999 09:05:01", "01/10/2011 18:05:17");
-        qDebug() << "File size of ':RAM.1/Readme.txt' = " << p.getFileSize(":RAM.1/Readme.txt");
+        qDebug() << "Date stamps of ':RAM.0/Readme.txt' = " << p.getFileDateStamps(":RAM.0/Readme.txt");
+        qDebug() << "Set timestamps of ':RAM.0/Readme.txt' = 01/09/1999 09:05:01 01/10/2011 18:05:17: "
+                 << p.setFileDateStamps(":RAM.0/Readme.txt", "01/09/1999 09:05:01", "01/10/2011 18:05:17");
+        qDebug() << "File size of ':RAM.0/Readme.txt' = " << p.getFileSize(":RAM.0/Readme.txt");
 
         qDebug() << "Creating directory ':RAM.1/tempdir1/tempdir2': " << p.createDir(":RAM.1/tempdir1/tempdir2");
         qDebug() << "Rename directory ':RAM.1/tempdir1/tempdir2' to 'tempdir3': " << p.renameFileDir(":RAM.1/tempdir1/tempdir2", "tempdir3");

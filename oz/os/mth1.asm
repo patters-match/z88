@@ -1247,9 +1247,9 @@ xref    sub_EFBB                                ; [Kernel0]/osin.asm
         defm    $EF,"Z88 P",$8F,"t"
         defm    "abl",$82,"V",$86,"si"
 IF OZ_INTUITION
-        defm    $BC," ", (OZVERSION>>4)+48, '.', (OZVERSION&$0f)+48," DEV"
+        defm    $BC," ", (OZVERSION>>4)+48, '.', (OZVERSION&$0f)+48," DEV $RevisionDescriptionString$"
 ELSE
-        defm    $BC," ", (OZVERSION>>4)+48, '.', (OZVERSION&$0f)+48
+        defm    $BC," ", (OZVERSION>>4)+48, '.', (OZVERSION&$0f)+48," $RevisionDescriptionString$"
 ENDIF
         defm    $7F,$7F,$DE,"r"
         defm    $CC,$84,"(C) Tr"

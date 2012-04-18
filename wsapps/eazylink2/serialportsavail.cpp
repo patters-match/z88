@@ -13,10 +13,19 @@
  Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
 **********************************************************************************************/
+#ifndef Q_OS_WIN32
 #include <dirent.h>
+#endif
+
+#include "serialport.h"
 #include "serialportsavail.h"
 
+#ifdef Q_OS_WIN32
+static const char *DEV_DIR_FSPEC("COM");
+#else
 static const char *DEV_DIR_FSPEC("/dev/");
+#endif
+
 #ifdef Q_OS_MAC
 static const QString SER_DEV_MASK("tty.");
 #endif
@@ -30,7 +39,6 @@ static const QString SER_DEV_MASK_USB("ttyUSB");
   */
 SerialPortsAvail::SerialPortsAvail()
 {
-    get_portList();
 }
 
 /**
@@ -38,13 +46,17 @@ SerialPortsAvail::SerialPortsAvail()
   */
 SerialPortsAvail::~SerialPortsAvail(){}
 
+#ifndef Q_OS_WIN32
 /**
- * Obtain a list of available Serial ports
+ * Obtain a list of available Serial ports on Unix
  * @return a list of serial port filenames.
  */
 const QStringList&
 SerialPortsAvail::get_portList()
 {
+    SerialPort port = SerialPort();
+    QString devStr;
+
     /**
      * Fill the List with Serial port filenames
      */
@@ -76,7 +88,14 @@ SerialPortsAvail::get_portList()
 #else
             if(st.contains(SER_DEV_MASK)){
 #endif
-                m_portlist << dp->d_name;
+                devStr.append(DEV_DIR_FSPEC);
+                devStr.append(dp->d_name);
+                port.setPortName(devStr);
+                if (port.open(QIODevice::ReadWrite)) {
+                    m_portlist << dp->d_name;
+                    port.close();
+                }
+                devStr.clear();
             }
         }
     }
@@ -88,6 +107,45 @@ SerialPortsAvail::get_portList()
     }
     return m_portlist;
 }
+
+#else
+
+/**
+ * Obtain a list of first 9 (COM1 to COM9) available Serial ports in Windows
+ * @return a list of serial port filenames.
+ */
+const QStringList&
+SerialPortsAvail::get_portList()
+{
+    SerialPort port = SerialPort();
+    QString devStr;
+
+    m_portlist.clear();
+    m_portName.clear();
+
+    for(int p=49; p<(49+8); p++){
+
+            /**
+             * Append the portname found
+             */
+                devStr.append(DEV_DIR_FSPEC);
+                devStr.append(p);
+                port.setPortName(devStr);
+                if (port.open(QIODevice::ReadWrite)) {
+                    if(!m_portlist.isEmpty()){
+                        m_portName = devStr;
+                    }
+
+                    m_portlist << devStr;
+                    port.close();
+                }
+                devStr.clear();
+            }
+
+    return m_portlist;
+}
+#endif
+
 
 /**
   * The the name of the first port available in the list.
@@ -106,6 +164,11 @@ SerialPortsAvail::getfirst_portName() const
 const QString &
 SerialPortsAvail::get_fullportName(const QString &devname)
 {
+#ifndef Q_OS_WIN32
     m_portName = DEV_DIR_FSPEC + devname;
+#else
+    m_portName = devname;
+#endif
+
     return m_portName;
 }

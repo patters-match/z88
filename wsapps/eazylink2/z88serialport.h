@@ -20,8 +20,8 @@
 
 #include <QtCore/QTextStream>
 #include <QtCore/QDebug>
-#include "serialport.h"
 #include <QThread>
+#include "serialport.h"
 
 /**
   * The Z88 Serial port Communication Class.
@@ -92,17 +92,42 @@ private slots:
 
 private:
 
-
-    SerialPort  port;                                       // the device handle
-    bool        portOpenStatus;                             // status of opened port; true = opened, otherwise false for closed
-    bool        transmitting;                               // a transmission is current ongoing
-    QString     portName;                                   // the default platform serial port device name
-    QByteArray  escEsc;                                     // ESC ESC constant
-    QByteArray  escB;                                       // ESC B constant
-    QByteArray  escN;                                       // ESC N constant
-    QByteArray  escE;                                       // ESC E constant
-    QByteArray  escF;                                       // ESC F constant
-    QByteArray  escZ;                                       // ESC Z constant
+    SerialPort port;                                        // the device handle
+    bool       portOpenStatus;                              // status of opened port; true = opened, otherwise false for closed
+    bool       transmitting;                                // a transmission is current ongoing
+    QString    portName;                                    // the default platform serial port device name
+    QByteArray synchEazyLinkProtocol;                       // 1,1,2    constant
+    QByteArray escEsc;                                      // ESC ESC  constant
+    QByteArray escB;                                        // ESC B    constant
+    QByteArray escN;                                        // ESC N    constant
+    QByteArray escE;                                        // ESC E    constant
+    QByteArray escF;                                        // ESC F    constant
+    QByteArray escZ;                                        // ESC Z    constant
+    QByteArray helloCmd;                                    // ESC a    EazyLink V4.4 Hello
+    QByteArray quitCmd;                                     // ESC q    EazyLink V4.4 Quit
+    QByteArray devicesCmd;                                  // ESC h    EazyLink V4.4 Device
+    QByteArray directoriesCmd;                              // ESC d    EazyLink V4.4 Directory
+    QByteArray filesCmd;                                    // ESC n    EazyLink V4.4 Files
+    QByteArray transOnCmd;                                  // ESC t    EazyLink V4.4 Translation ON
+    QByteArray transOffCmd;                                 // ESC T    EazyLink V4.4 Translation OFF
+    QByteArray lfConvOnCmd;                                 // ESC c    EazyLink V4.4 Linefeed Conversion ON
+    QByteArray lfConvOffCmd;                                // ESC C    EazyLink V4.4 Linefeed Conversion OFF
+    QByteArray receiveFilesCmd;                             // ESC s    EazyLink V4.4 Receive one or more files from Z88
+    QByteArray sendFilesCmd;                                // ESC b    EazyLink V4.4 Send one or more files from Z88
+    QByteArray fileExistCmd;                                // ESC f    EazyLink V4.5 File exists
+    QByteArray fileSizeCmd;                                 // ESC x    EazyLink V4.5 Get file size
+    QByteArray versionCmd;                                  // ESC v    EazyLink V4.5 EazyLink Server Version and protocol level
+    QByteArray fileDateStampCmd;                            // ESC u    EazyLink V4.5 Get create and update date stamp of Z88 file
+    QByteArray setFileTimeStampCmd;                         // ESC U    EazyLink V4.5 Set create and update date stamp of Z88 file
+    QByteArray deleteFileDirCmd;                            // ESC r    EazyLink V4.6 Delete file/dir on Z88.
+    QByteArray reloadTraTableCmd;                           // ESC z    EazyLink V4.6 Reload Translation Table
+    QByteArray ramDefaultCmd;                               // ESC g    EazyLink V4.7 Get Z88 RAM defaults
+    QByteArray renameFileDirCmd;                            // ESC w    EazyLink V4.7 Rename file/directory on Z88
+    QByteArray createDirCmd;                                // ESC y    EazyLink V4.7 Create directory path on Z88
+    QByteArray getZ88TimeCmd;                               // ESC e    EazyLink V4.8 Get Z88 system Date/Time
+    QByteArray setZ88TimeCmd;                               // ESC p    EazyLink V4.8 Set Z88 System Clock using PC system time
+    QByteArray freeMemoryCmd;                               // ESC m    EazyLink V4.8 Get free memory for all RAM cards
+    QByteArray freeMemDevCmd;                               // ESC M    EazyLink V4.8 Get free memory for specific device
 
     bool        getByte(unsigned char  &byte);              // Receive a byte from the Z88
     bool        synchronize();                              // Synchronize with Z88 before sending command
