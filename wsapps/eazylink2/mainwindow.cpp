@@ -457,7 +457,6 @@ void MainWindow::cmdProgress(const QString &title, int curVal, int total)
 
     if(total){
         if(curVal == 0){
-            delete m_cmdProgress;
             m_cmdProgress = new QProgressDialog(title, "Abort", 0, total+1, NULL);
             /**
               * Setup the Comm thread Abort Signal handler
