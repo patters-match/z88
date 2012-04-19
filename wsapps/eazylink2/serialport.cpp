@@ -792,26 +792,23 @@ bool SerialPort::open(OpenMode mode)
      * Open the Serial Device In Non-Blocking, unbuffered mode, Otherwise the Program hangs forever
      * If the port doesnt see a CTS Signal
      */
-#ifdef Q_OS_LINUX
-    d->portHandle = ::open(d->portName.toLocal8Bit(), O_RDWR | O_SYNC);
-#else
     d->portHandle = ::open(d->portName.toLocal8Bit(), O_RDWR | O_NOCTTY | O_NONBLOCK |O_SYNC);
-#endif
     if (d->portHandle == INVALID_HANDLE_VALUE) {
         d->lastError = OpenFailedError;
         m_errno = errno;
         return false;
     }
+    /**
+      * Send a dummy message to work DTR
+      */
+    ::write(d->portHandle,"hello",5);
 
     /**
      * Close and Re-open the Port. This Seems to Wake up the Z88
      */
     ::close(d->portHandle);
-#ifdef Q_OS_LINUX
-    d->portHandle = ::open(d->portName.toLocal8Bit(), O_RDWR | O_SYNC);
-#else
+
     d->portHandle = ::open(d->portName.toLocal8Bit(), O_RDWR | O_NOCTTY | O_NONBLOCK |O_SYNC);
-#endif
 
     QIODevice::open(mode | QIODevice::Unbuffered);
 

@@ -366,7 +366,7 @@ QList<QByteArray> Z88SerialPort::getDirectories(const QString &path)
  *      EazyLink Server V4.4
  *      Get filename in defined path, filenames are returned in list
  *****************************************************************************/
-QList<QByteArray> Z88SerialPort::getFilenames(const QString &path)
+QList<QByteArray> Z88SerialPort::getFilenames(const QString &path, bool &retc)
 {
     QList<QByteArray> filenamesList;
 
@@ -376,9 +376,10 @@ QList<QByteArray> Z88SerialPort::getFilenames(const QString &path)
     if ( sendCommand(filesCmdPath) == true) {
         if (transmitting == true) {
             qDebug() << "getFilenames(): Transmission already ongoing with Z88 - aborting...";
+            retc = false;
         } else {
             // receive device elements into list
-            receiveListItems(filenamesList);
+            retc = receiveListItems(filenamesList);
             transmitting = false;
         }
     }
@@ -1435,7 +1436,7 @@ bool Z88SerialPort::sendFilename(const QString &fileName)
  *          Get Z88 Directories
  *          ...
  *****************************************************************************/
-void Z88SerialPort::receiveListItems(QList<QByteArray> &list)
+bool Z88SerialPort::receiveListItems(QList<QByteArray> &list)
 {
     unsigned char byte;
     QByteArray item;
@@ -1459,10 +1460,10 @@ void Z88SerialPort::receiveListItems(QList<QByteArray> &list)
                             if (item.length() > 0) {
                                 list.append(item);
                             }
-                            return;                     // end of items - exit
+                            return true;                     // end of items - exit
 
                         default:
-                            return;                     // illegal escape command - abort
+                            return false;                     // illegal escape command - abort
                     }
                     break;
 
@@ -1472,7 +1473,7 @@ void Z88SerialPort::receiveListItems(QList<QByteArray> &list)
 
         } else {
             // receiveing data stream has stopped...
-            return;
+            return false;
         }
     }
 }

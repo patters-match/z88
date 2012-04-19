@@ -204,13 +204,14 @@ void CommThread::run()
         }
         case OP_getFilenames:
         {
+            bool retc = false;
             QList<QByteArray> *filelist = new QList<QByteArray>;
             cmdStatus("Reading Z88 Files...");
 
             /**
               * Read All Files Recursively
               */
-            filelist->append(m_sport.getFilenames(m_z88devname));
+            filelist->append(m_sport.getFilenames(m_z88devname, retc));
 
             QList<Z88FileSpec> *fileSpeclist = new QList<Z88FileSpec>;
 
@@ -281,7 +282,7 @@ void CommThread::run()
 
             emit Z88FileSpeclist_result(m_z88devspec, fileSpeclist);
 
-            boolCmd_result("Reading Z88 Files", !filelist->isEmpty());
+            boolCmd_result("Reading Z88 Files", retc);
             break;
         }
         case OP_getZ88FileTree:

@@ -81,7 +81,7 @@ public:
     QList<QByteArray> getZ88Time();                                 // receive string of current Z88 date & time
     QList<QByteArray> getRamDefaults();                             // receive default RAM & default Directory from Z88 Panel popdown
     QList<QByteArray> getDirectories(const QString &path);          // receive a list of Z88 Directories in <path>
-    QList<QByteArray> getFilenames(const QString &path);            // receive a list of Z88 Filenames in <path>
+    QList<QByteArray> getFilenames(const QString &path, bool &retc);            // receive a list of Z88 Filenames in <path>
     QList<QByteArray> getFileDateStamps(const QString &fileName);   // receive Create & Update date stamps of Z88 file
 
     QString getLastErrorString()const;                              // Get the Last Port Error string.
@@ -134,7 +134,7 @@ private:
     bool        sendCommand(QByteArray cmd);                // Transmit ESC command to Z88
     bool        sendFilename(const QString &filename);          // Transmit ESC N <filename> ESC F sequence to Z88
     retcode     receiveFilename(QByteArray &fileName);      // Receive an ESC N <fileName> ESC F sequence from the Z88
-    void        receiveListItems(QList<QByteArray> &list);  // Receive list of items (eg. devices, directories, filenames)
+    bool receiveListItems(QList<QByteArray> &list);  // Receive list of items (eg. devices, directories, filenames)
     char        xtod(char c);                               // hex to integer nibble function
 };
 

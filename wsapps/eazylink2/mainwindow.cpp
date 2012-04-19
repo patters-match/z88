@@ -37,6 +37,11 @@
 MainWindow::MainWindow(Z88SerialPort &sport, QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
+    m_StatusLabel(NULL),
+    m_cmdProgress(NULL),
+    m_Z88StorageView(NULL),
+    m_DeskFileSystem(NULL),
+    m_DeskTopTreeView(NULL),
     m_sport(sport),
     m_cthread(sport,this),
     m_cmdSuccessCount(0),
@@ -526,7 +531,6 @@ void MainWindow::boolCmd_result(const QString &cmdName, bool success)
   */
 void MainWindow::Z88Info_result(QList<QByteArray> *infolist)
 {
-    QMessageBox::StandardButton reply;
     QString msg;
 
     int cnt = infolist->count();
@@ -558,7 +562,7 @@ void MainWindow::Z88Info_result(QList<QByteArray> *infolist)
         idx++;
     }
 
-    reply = QMessageBox::information(this, "Z88 Info",
+    QMessageBox::information(this, "Z88 Info",
                                      msg,
                                      QMessageBox::Ok );
 }
