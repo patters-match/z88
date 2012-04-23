@@ -456,7 +456,7 @@ void MainWindow::cmdStatus(const QString &msg)
 void MainWindow::cmdProgress(const QString &title, int curVal, int total)
 {
     if(total < 0){
-        m_cmdProgress->reset();
+        if(m_cmdProgress) m_cmdProgress->reset();
         return;
     }
 

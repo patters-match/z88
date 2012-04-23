@@ -51,6 +51,7 @@ public slots:
     void Z88FileSpeclist_result(const QString &devname, QList<Z88FileSpec> *filespeclist);
     void changedSelected_device(int index);
     void changedSelected_file();
+    void itemClicked ( QTreeWidgetItem * item, int column );
 
 protected:
 

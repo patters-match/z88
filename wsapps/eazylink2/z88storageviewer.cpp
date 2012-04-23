@@ -222,6 +222,8 @@ void Z88StorageViewer::Z88Devices_result(QList<QByteArray> *devlist)
             }
             if(dview){
                 connect(dview,SIGNAL(itemSelectionChanged()),this,SLOT(changedSelected_file()));
+                connect(dview,SIGNAL(itemClicked( QTreeWidgetItem *, int )),
+                        this,SLOT(	itemClicked ( QTreeWidgetItem *, int )));
             }
         }
     }
@@ -301,6 +303,11 @@ void Z88StorageViewer::changedSelected_file()
     if(selections){
         emit ItemSelectionChanged(selections->count());
     }
+}
+
+void Z88StorageViewer::itemClicked(QTreeWidgetItem *item, int column)
+{
+    changedSelected_file();
 }
 
 /**
