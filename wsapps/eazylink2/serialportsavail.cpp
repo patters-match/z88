@@ -88,14 +88,23 @@ SerialPortsAvail::get_portList()
 #else
             if(st.contains(SER_DEV_MASK)){
 #endif
+
+                /**
+                  * Mac's don't have built in serial ports, do any found are real
+                  */
+#ifndef Q_OS_MAC
                 devStr.append(DEV_DIR_FSPEC);
                 devStr.append(dp->d_name);
+
                 port.setPortName(devStr);
                 if (port.open(QIODevice::ReadWrite)) {
                     m_portlist << dp->d_name;
                     port.close();
                 }
                 devStr.clear();
+#else
+                m_portlist << dp->d_name;
+#endif
             }
         }
     }
