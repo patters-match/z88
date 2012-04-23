@@ -42,6 +42,7 @@ CommThread::CommThread(Z88SerialPort &port, QObject *parent)
    m_deskSelections(NULL),
    m_z88Sel_itr(NULL),
    m_deskSel_itr(NULL),
+   m_dest_isDir(false),
    m_abort(false)
 {
 
@@ -280,6 +281,7 @@ void CommThread::run()
                 fileSpeclist->append(Z88FileSpec(fname, fsize, fcdate, fmdate));
             }
 
+            emit cmdProgress("Done", -1, -1); // reset the progress dialog
             emit Z88FileSpeclist_result(m_z88devspec, fileSpeclist);
 
             boolCmd_result("Reading Z88 Files", retc);
@@ -385,7 +387,7 @@ void CommThread::run()
                 /**
                   * Receive the file from Z88
                   */
-                Z88SerialPort::retcode rc = m_sport.receiveFiles(srcname, m_destPath);
+                Z88SerialPort::retcode rc = m_sport.receiveFiles(srcname, m_destPath, m_dest_isDir);
                 m_xferFileprogress++;
 
                 if(m_abort){
@@ -993,7 +995,7 @@ bool CommThread::getZ88FileSystemTree(bool ena_size, bool ena_date)
   * @parm prompt_usr set to true, to poll user for each file.
   * @return true if communication thread was idle.
   */
-bool CommThread::receiveFiles(QList<Z88_Selection> *z88Selections, const QString &destpath, bool prompt_usr)
+bool CommThread::receiveFiles(QList<Z88_Selection> *z88Selections, const QString &destpath, bool dest_isDir, bool prompt_usr)
 {
     QMutexLocker locker(&m_mutex);
 
@@ -1007,6 +1009,7 @@ bool CommThread::receiveFiles(QList<Z88_Selection> *z88Selections, const QString
     m_z88Selections = z88Selections;
     m_enaPromtUser = prompt_usr;
     m_destPath = destpath;
+    m_dest_isDir = dest_isDir;
 
     startCmd(OP_initreceiveFiles);
 
