@@ -961,7 +961,7 @@ bool Z88SerialPort::impExpSendFile(QByteArray z88Filename, QString hostFilename)
  *      Receive one or more files from Z88 using EazyLink protocol
  *      Received files will be stored at <hostPath>
  *****************************************************************************/
-Z88SerialPort::retcode Z88SerialPort::receiveFiles(const QString &z88Filenames, const QString &hostPath, const QString &destFspec)
+Z88SerialPort::retcode Z88SerialPort::receiveFiles(const QString &z88Filenames, const QString &hostPath, const QString &destFspec, bool destisDir)
 {
     QByteArray receiveFilesCmdRequest = receiveFilesCmd;
     QByteArray z88Filename, remoteFile;
@@ -1007,9 +1007,11 @@ Z88SerialPort::retcode Z88SerialPort::receiveFiles(const QString &z88Filenames, 
 
                         QString hostFilename = hostPath;
 
+                        if(destisDir){
 //                            hostFilename.append((z88Filename.constData()+6));
-                        hostFilename.append('/');
-                        hostFilename.append(destFspec);
+                            hostFilename.append('/');
+                            hostFilename.append(destFspec);
+                        }
 
                         QFile hostFile(hostFilename);
                         QString tfile = hostFilename + ".xfer";

@@ -103,7 +103,7 @@ public:
     bool getDirectories(const QString &devname);
     bool getFileNames(const QString &devname);
     bool getZ88FileSystemTree(bool ena_size = false, bool ena_date = false);
-    bool receiveFiles(QList<Z88_Selection> *z88Selections, const QString &destpath, bool prompt_usr);
+    bool receiveFiles(QList<Z88_Selection> *z88Selections, const QString &destpath, bool dest_isDir, bool prompt_usr = false);
     bool receiveFile(bool skip);
     bool dirLoadComplete();
     bool sendFiles(QList<DeskTop_Selection> *deskSelections, const QString &destpath, bool prompt_usr = false);
@@ -209,6 +209,8 @@ protected:
       * The Destination Path for a transfer
       */
     QString                             m_destPath;
+
+    bool                                m_dest_isDir;
 
     /**
       * The Abort Flag, set to true, if user clicked abort

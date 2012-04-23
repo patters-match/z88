@@ -71,7 +71,7 @@ public:
 
     bool impExpSendFile(QByteArray z88Filename, QString hostFilename); // send a file to Z88 using Imp/Export protocol
     bool impExpReceiveFiles(QString hostPath);                      // receive Z88 files from Imp/Export popdown
-    retcode receiveFiles(const QString &z88Filenames, const QString &hostpath, const QString &destFspec);   // receive one or more files from Z88 to host using EazyLink protocol
+    retcode receiveFiles(const QString &z88Filenames, const QString &hostpath, const QString &destFspec, bool destisDir);   // receive one or more files from Z88 to host using EazyLink protocol
 
     QByteArray getEazyLinkZ88Version();                             // receive string of EazyLink popdown version and protocol level
     QByteArray getZ88FreeMem();                                     // receive string of Z88 All Free Memory
