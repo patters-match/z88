@@ -937,7 +937,6 @@ void MainWindow::StartReceiving(QList<Z88_Selection> &z88_selections, QList<Desk
             i.remove();
         }
     }
-    bool dest_isDir = (deskSelList[0].getType() == DeskTop_Selection::type_Dir);
-    m_cthread.receiveFiles(&z88_selections, deskSelList[0].getFspec(), dest_isDir, prompt4each);
+    m_cthread.receiveFiles(&z88_selections, deskSelList[0].getFspec(), prompt4each);
 }
 

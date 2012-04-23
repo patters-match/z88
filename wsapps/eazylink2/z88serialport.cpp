@@ -961,7 +961,7 @@ bool Z88SerialPort::impExpSendFile(QByteArray z88Filename, QString hostFilename)
  *      Receive one or more files from Z88 using EazyLink protocol
  *      Received files will be stored at <hostPath>
  *****************************************************************************/
-Z88SerialPort::retcode Z88SerialPort::receiveFiles(const QString &z88Filenames, QString hostPath, bool hostPath_isdir)
+Z88SerialPort::retcode Z88SerialPort::receiveFiles(const QString &z88Filenames, const QString &hostPath, const QString &destFspec)
 {
     QByteArray receiveFilesCmdRequest = receiveFilesCmd;
     QByteArray z88Filename, remoteFile;
@@ -1005,18 +1005,17 @@ Z88SerialPort::retcode Z88SerialPort::receiveFiles(const QString &z88Filenames, 
                                 return rc;
                         }
 
-                        QString hostFilename = hostPath;//.append((z88Filename.constData()+6));
+                        QString hostFilename = hostPath;
 
-                        /**
-                          * If the destination is a directory then append the filename
-                          */
-                        if(hostPath_isdir){
-                            hostFilename.append((z88Filename.constData()+6));
-                        }
+//                            hostFilename.append((z88Filename.constData()+6));
+                        hostFilename.append('/');
+                        hostFilename.append(destFspec);
 
                         QFile hostFile(hostFilename);
+                        QString tfile = hostFilename + ".xfer";
 
-                        if (!hostPath_isdir && hostFile.exists() == true) {
+
+                        if (hostFile.exists() == true) {
                             // automatically replace existing host file
                             hostFile.remove();
                         }
@@ -1041,6 +1040,8 @@ Z88SerialPort::retcode Z88SerialPort::receiveFiles(const QString &z88Filenames, 
                                                     case 'E':
                                                         hostFile.write(remoteFile);     // write entire collected remote file contents to host file
                                                         hostFile.close();
+                                                        hostFile.rename(tfile);
+                                                        hostFile.rename(hostFilename);
                                                         recievingFile = false;
                                                         break;
 

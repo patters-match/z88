@@ -282,21 +282,27 @@ const Z88_Selection &Z88_DevView::getItemFspec(QTreeWidgetItem *item, Z88_Select
   * @param selections is the list to be filled in.
   * @return the list of selections.
   */
-const QList<Z88_Selection> &Z88_DevView::getItemChildren(QTreeWidgetItem *item, QList<Z88_Selection> &selections) const
+const QList<Z88_Selection> &Z88_DevView::getItemChildren(QTreeWidgetItem *item, QString &parent, QList<Z88_Selection> &selections) const
 {
     QTreeWidgetItem *child;
     int childcount = item->childCount();
 
+
     for(int x=0; x < childcount; x++){
         child = item->child(x);
 
+        QString par = parent + "/";
+        par += child->text(0);
+
         Z88_Selection z88Selection;
+
+        z88Selection.setRelFspec(par);
 
         getItemFspec(child, z88Selection);
         selections.append(z88Selection);
 
         if(child->childCount()){
-            getItemChildren(child, selections);
+            getItemChildren(child, par, selections);
         }
     }
     return selections;
@@ -330,13 +336,15 @@ QList<Z88_Selection> *Z88_DevView::getSelection(bool recurse)
     if(selections.count()){
         while(i.hasNext()){
             qti_p item(i.next());
+            QString parent = item->text(0);
+            z88Selection.setRelFspec(parent);
             getItemFspec(item, z88Selection);
             m_Selections.append(z88Selection);
             if(recurse){
                 /**
                   * Recurse the Directory tree if any
                   */
-                getItemChildren(item, m_Selections);
+                getItemChildren(item, parent, m_Selections);
             }
         }
     }

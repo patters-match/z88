@@ -68,7 +68,7 @@ protected:
     const Z88_Selection &getItemFspec(QTreeWidgetItem *item, Z88_Selection &fspec) const;
 
     const QList<Z88_Selection> &getItemChildren(QTreeWidgetItem *item,
-                                                QList<Z88_Selection> &selections)const;
+                                                QString &parent, QList<Z88_Selection> &selections)const;
 
     /**
       * The Communications Thread.
@@ -98,12 +98,20 @@ public:
     const QString &getFspec()const {return m_fspec;}
     const Z88_DevView::entryType &getType() const{return m_type;}
 
+    void setRelFspec(const QString &relfspec){m_relFspec = relfspec;}
+    const QString &getRelFspec()const {return m_relFspec;}
+
     friend class Z88_DevView;
 protected:
     /**
       * Selection file spec
       */
     QString m_fspec;
+
+    /**
+      * The Relative File Spec
+      */
+    QString m_relFspec;
 
     /**
       * Selection type (dir or file)

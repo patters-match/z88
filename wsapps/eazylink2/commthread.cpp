@@ -42,7 +42,6 @@ CommThread::CommThread(Z88SerialPort &port, QObject *parent)
    m_deskSelections(NULL),
    m_z88Sel_itr(NULL),
    m_deskSel_itr(NULL),
-   m_dest_isDir(false),
    m_abort(false)
 {
 
@@ -350,7 +349,8 @@ void CommThread::run()
                 QString srcname(z88sel.getFspec());
 
                 if(m_enaPromtUser){
-                    emit PromptReceiveSpec(srcname, m_destPath, &m_enaPromtUser);
+                    QString dest = m_destPath + "/" + z88sel.getRelFspec();
+                    emit PromptReceiveSpec(srcname, dest, &m_enaPromtUser);
                     break;
                 }
 
@@ -387,7 +387,7 @@ void CommThread::run()
                 /**
                   * Receive the file from Z88
                   */
-                Z88SerialPort::retcode rc = m_sport.receiveFiles(srcname, m_destPath, m_dest_isDir);
+                Z88SerialPort::retcode rc = m_sport.receiveFiles(srcname, m_destPath, z88sel.getRelFspec());
                 m_xferFileprogress++;
 
                 if(m_abort){
@@ -405,8 +405,9 @@ void CommThread::run()
                     const Z88_Selection &z88selnxt(m_z88Sel_itr->peekNext());
 
                     srcname = z88selnxt.getFspec();
+                    QString dest = m_destPath + "/" + z88selnxt.getRelFspec();
 
-                    emit PromptReceiveSpec(srcname, m_destPath, &m_enaPromtUser);
+                    emit PromptReceiveSpec(srcname, dest, &m_enaPromtUser);
                     break;
                 }
                 else{
@@ -995,7 +996,7 @@ bool CommThread::getZ88FileSystemTree(bool ena_size, bool ena_date)
   * @parm prompt_usr set to true, to poll user for each file.
   * @return true if communication thread was idle.
   */
-bool CommThread::receiveFiles(QList<Z88_Selection> *z88Selections, const QString &destpath, bool dest_isDir, bool prompt_usr)
+bool CommThread::receiveFiles(QList<Z88_Selection> *z88Selections, const QString &destpath, bool prompt_usr)
 {
     QMutexLocker locker(&m_mutex);
 
@@ -1009,7 +1010,6 @@ bool CommThread::receiveFiles(QList<Z88_Selection> *z88Selections, const QString
     m_z88Selections = z88Selections;
     m_enaPromtUser = prompt_usr;
     m_destPath = destpath;
-    m_dest_isDir = dest_isDir;
 
     startCmd(OP_initreceiveFiles);
 

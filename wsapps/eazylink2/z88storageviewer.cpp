@@ -305,7 +305,13 @@ void Z88StorageViewer::changedSelected_file()
     }
 }
 
-void Z88StorageViewer::itemClicked(QTreeWidgetItem *item, int column)
+/**
+  * The Z88 File or Directory was selected or re-selected, so Process the enable/disable
+  * Transfer button as if a new Selection was made.
+  * @param item is the entry that was selected.
+  * @param column is the selected column
+  */
+void Z88StorageViewer::itemClicked(QTreeWidgetItem *, int )
 {
     changedSelected_file();
 }
