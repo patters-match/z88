@@ -87,6 +87,7 @@ public:
      */
     void SetupAbortHandler(QProgressDialog *pd);
     void AbortCmd();
+    bool isBusy();
     bool close();
     bool reopen(bool redo_lastcmd);
     bool open(const QString &devname, const QString &short_name);

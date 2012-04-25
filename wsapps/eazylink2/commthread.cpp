@@ -607,6 +607,22 @@ void CommThread::AbortCmd()
 }
 
 /**
+  * @return true if communication thread is busy, else false.
+  */
+bool CommThread::isBusy()
+{
+    QMutexLocker locker(&m_mutex);
+
+    /**
+      * Make sure we are not running another command
+      */
+    if(m_curOP == OP_idle)
+        return false;
+    else
+        return true;
+}
+
+/**
   * Close the Communications port.
   * @return true if communication thread was idle.
   */
