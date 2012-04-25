@@ -869,20 +869,6 @@ void MainWindow::StartSending(QList<DeskTop_Selection> &desk_selections, QList<Z
 
     enableCmds(true, m_sport.isOpen());
 
-    if (m_cthread.isBusy() == false) {
-        /** ensure that current translation mode is set on Z88 before actual transfer begins.. */
-        if (ui->Ui::MainWindow::actionTranslateByte->isChecked())
-            m_sport.translationOn();
-        else
-            m_sport.translationOff();
-
-        /** ensure that current CRLF mode is also set ... */
-        if (ui->Ui::MainWindow::actionTranslateCRLF->isChecked())
-            m_sport.linefeedConvOn();
-        else
-            m_sport.linefeedConvOff();
-    }
-
     m_cthread.sendFiles(&desk_selections, z88_selections[0].getFspec(), prompt4each);
 }
 

@@ -105,22 +105,6 @@ void CommThread::run()
             }
         }
             break;
-        case OP_byteTransON:
-            cmdStatus("Sending Enable Byte Translation");
-            boolCmd_result("Byte Translation ON", m_sport.translationOn());
-            break;
-        case OP_byteTransOFF:
-            cmdStatus("Sending Disable Byte Translation");
-            boolCmd_result("Byte Translation OFF", m_sport.translationOff());
-            break;
-        case OP_crlfTransON:
-            cmdStatus("Sending Enable CRLF Translation");
-            boolCmd_result("CRLF Translation ON", m_sport.linefeedConvOn());
-            break;
-        case OP_crlfTransOFF:
-            cmdStatus("Sending Disable CRLF Translation");
-            boolCmd_result("CRLF Translation OFF", m_sport.linefeedConvOff());
-            break;
         case OP_reloadTransTable:
             cmdStatus("Sending Reload Translation Table");
             boolCmd_result("Reload Translation Table", m_sport.reloadTranslationTable());
@@ -343,6 +327,24 @@ void CommThread::run()
         }
         case OP_receiveFiles:
         {
+            /** ensure that current translation mode is set on Z88 before actual transfer begins.. */
+            if (m_byteTranslation == true) {
+                cmdStatus("Sending Enable Byte Translation");
+                boolCmd_result("Byte Translation ON", m_sport.translationOn());
+            } else {
+                cmdStatus("Sending Disable Byte Translation");
+                boolCmd_result("Byte Translation OFF", m_sport.translationOff());
+            }
+
+            /** ensure that current CRLF mode is also set ... */
+            if (m_linefeedConversion == true) {
+                cmdStatus("Sending Enable CRLF Translation");
+                boolCmd_result("CRLF Translation ON", m_sport.linefeedConvOn());
+            } else {
+                cmdStatus("Sending Disable CRLF Translation");
+                boolCmd_result("CRLF Translation OFF", m_sport.linefeedConvOff());
+            }
+
             if(m_z88Sel_itr->hasNext()){
 
                 const Z88_Selection &z88sel(m_z88Sel_itr->peekNext());
@@ -459,6 +461,24 @@ void CommThread::run()
         }
         case OP_sendFiles:
         {
+            /** ensure that current translation mode is set on Z88 before actual transfer begins.. */
+            if (m_byteTranslation == true) {
+                cmdStatus("Sending Enable Byte Translation");
+                boolCmd_result("Byte Translation ON", m_sport.translationOn());
+            } else {
+                cmdStatus("Sending Disable Byte Translation");
+                boolCmd_result("Byte Translation OFF", m_sport.translationOff());
+            }
+
+            /** ensure that current CRLF mode is also set ... */
+            if (m_linefeedConversion == true) {
+                cmdStatus("Sending Enable CRLF Translation");
+                boolCmd_result("CRLF Translation ON", m_sport.linefeedConvOn());
+            } else {
+                cmdStatus("Sending Disable CRLF Translation");
+                boolCmd_result("CRLF Translation OFF", m_sport.linefeedConvOff());
+            }
+
             if(m_deskSel_itr->hasNext()){
 
                 const DeskTop_Selection &desksel(m_deskSel_itr->peekNext());
@@ -774,43 +794,19 @@ bool CommThread::quitZ88()
 /**
   * Enable / Disable Byte Translation.
   * @param ena set to true to enable byte translation.
-  * @return true if communication thread was idle.
   */
-bool CommThread::ByteTrans(bool ena)
+void CommThread::ByteTrans(bool ena)
 {
-    QMutexLocker locker(&m_mutex);
-
-    /**
-      * Make sure we are not running another command
-      */
-    if(m_curOP != OP_idle){
-        return false;
-    }
-
-    startCmd(ena ? OP_byteTransON : OP_byteTransOFF);
-
-    return true;
+    m_byteTranslation = ena;
 }
 
 /**
   * Enable CR / LF translation
   * @param ena set to true to enable.
-  * @return true if communication thread was idle.
   */
-bool CommThread::CRLFTrans(bool ena)
+void CommThread::CRLFTrans(bool ena)
 {
-    QMutexLocker locker(&m_mutex);
-
-    /**
-      * Make sure we are not running another command
-      */
-    if(m_curOP != OP_idle){
-        return false;
-    }
-
-    startCmd(ena ? OP_crlfTransON : OP_crlfTransOFF);
-
-    return true;
+    m_linefeedConversion = ena;
 }
 
 /**

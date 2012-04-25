@@ -59,10 +59,6 @@ public:
         OP_reopen,              // Re-init the Serial port, and optionally re-run the last command.
         OP_helloZ88,            // Send a Hello Message to the Z88.
         OP_quitZ88,             // Request the Z88 Should exit the Ez-link pulldown app.
-        OP_byteTransON,         // Request the Z88 should enable Byte translation.
-        OP_byteTransOFF,        // Request the Z88 Should disable the Byte Translation.
-        OP_crlfTransON,         // Request the Z88 should enable auto cr/lf translation.
-        OP_crlfTransOFF,        // Request the Z88 should turn off the auto cr/lf translation.
         OP_reloadTransTable,    // Request the Z88 reload its translation table.
         OP_setZ88Clock,         // Set the Z88 real time clock.
         OP_getZ88Clock,         // Read the Z88 real time clock.
@@ -87,6 +83,8 @@ public:
      */
     void SetupAbortHandler(QProgressDialog *pd);
     void AbortCmd();
+    void ByteTrans(bool ena);
+    void CRLFTrans(bool ena);
     bool isBusy();
     bool close();
     bool reopen(bool redo_lastcmd);
@@ -94,8 +92,6 @@ public:
     bool openXonXoff(const QString &devname, const QString &short_name);
     bool helloZ88();
     bool quitZ88();
-    bool ByteTrans(bool ena);
-    bool CRLFTrans(bool ena);
     bool ReloadTranslation();
     bool setZ88Time();
     bool getZ88Time();
@@ -184,6 +180,12 @@ protected:
     bool m_enaFilesize;
     bool m_enaTimeDate;
     bool m_enaPromtUser;
+
+    /**
+      * Translation / Conversion flags
+      */
+    bool m_byteTranslation;
+    bool m_linefeedConversion;
 
     /**
       * The Current File transfer index in the list of files to transfer.
