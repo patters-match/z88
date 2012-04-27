@@ -43,6 +43,7 @@ public:
 
     QList<Z88_Selection> *getSelection(bool recurse);
     const QString &getSelectedDeviceName();
+    bool refreshSelectedDeviceView();
 
 signals:
     void ItemSelectionChanged(int);

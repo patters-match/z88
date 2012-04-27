@@ -60,7 +60,7 @@ public:
     bool linefeedConvOff();                                         // disable linefeed conversions during transfer
     bool reloadTranslationTable();                                  // remote reload translation table on Z88 EazyLink popdown
     bool setZ88Time();                                              // set Z88 date/time using PC local time
-    bool isFileAvailable(QByteArray fileName);                      // ask if file exists on Z88 filing system
+    bool isFileAvailable(const QString &fileName);                      // ask if file exists on Z88 filing system
     bool createDir(const QString &pathName);                            // create directory on the Z88 filing system
     bool deleteFileDir(QByteArray fileName);                        // delete a file / directory on the Z88 filing system
     bool renameFileDir(QByteArray pathName, QByteArray fileName);   // rename a file / directory on the Z88 filing system

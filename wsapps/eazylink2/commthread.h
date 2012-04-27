@@ -30,6 +30,7 @@
 
 class Z88_Selection;
 class DeskTop_Selection;
+class MainWindow;
 
 /**
   * The Communicatons Thread class to allow background I/O with the Z88.
@@ -40,7 +41,7 @@ class CommThread : public QThread
     Q_OBJECT
 
 public:
-    CommThread(Z88SerialPort &port, QObject *parent = 0);
+    CommThread(Z88SerialPort &port, MainWindow *parent = 0);
 
     ~CommThread();
 
@@ -105,6 +106,7 @@ public:
     bool dirLoadComplete();
     bool sendFiles(QList<DeskTop_Selection> *deskSelections, const QString &destpath, bool prompt_usr = false);
     bool sendFile(bool skip);
+    void RefreshZ88DeviceView(const QString &devname);
 
 private slots:
     void CancelSignal();
@@ -122,6 +124,8 @@ signals:
     void PromptReceiveSpec(const QString &src_name, const QString &dst_name, bool *Continue);
     void PromptSendSpec(const QString &src_name, const QString &dst_name, bool *Continue);
     void DirLoadComplete(const bool &);
+    void refreshSelectedZ88DeviceView();
+
 
 protected:
     void startCmd(const comOpcodes_t &op, bool ena_resume = true);
@@ -214,11 +218,20 @@ protected:
       */
     QString                             m_destPath;
 
+    MainWindow                          *m_mainWindow;
+
+
     /**
       * Flag to indicate current desktop transfer destination is
       * A Dir or a file.
       */
     bool                                m_dest_isDir;
+
+    /**
+      * Recursive thread Run count
+      * Used to disable the Menu
+      */
+    int                                 m_runCnt;
 
     /**
       * The Abort Flag, set to true, if user clicked abort

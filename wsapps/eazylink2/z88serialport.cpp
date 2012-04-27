@@ -514,7 +514,7 @@ QList<QByteArray> Z88SerialPort::getRamDefaults()
  *      EazyLink Server V4.5
  *      Respond ESC 'Y' if file exists on Z88 (return true)
  *****************************************************************************/
-bool Z88SerialPort::isFileAvailable(QByteArray filename)
+bool Z88SerialPort::isFileAvailable(const QString &filename)
 {
     QByteArray fileExistCmdRequest = fileExistCmd;
     fileExistCmdRequest.append(filename);

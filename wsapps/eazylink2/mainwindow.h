@@ -61,6 +61,7 @@ public:
     void setDesktopDirLabel(const QString &path);
     void setZ88DirLabel(const QString &path);
 
+
 private slots:
     void AboutEazylink();
     void selSerialPort();
@@ -76,6 +77,7 @@ private slots:
     void TransferFiles();
     void AbortCmd();
     void LoadingDeskList(const bool &aborted);
+    void refreshSelectedZ88DeviceView();
 
     void ImpExp_sendfile();
 

@@ -174,6 +174,20 @@ const QString &Z88StorageViewer::getSelectedDeviceName()
 }
 
 /**
+  * Refresh the Currently selected Z88 Device View
+  */
+bool Z88StorageViewer::refreshSelectedDeviceView()
+{
+     Z88_DevView *dv = getSelectedDevice();
+     if(dv){
+        dv->clear();
+        m_cthread.RefreshZ88DeviceView(dv->getDevname());
+        return true;
+     }
+     return false;
+}
+
+/**
   * the Result call-back for retreiving available Z88 Storage Devices.
   * Gets called by the Comms Thread.
   * @param devlist is the list of devices available.

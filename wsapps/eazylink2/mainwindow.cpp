@@ -118,6 +118,14 @@ void MainWindow::setZ88DirLabel(const QString &path)
 }
 
 /**
+  * Refresh the Currently selected Z88 Device View
+  */
+void MainWindow::refreshSelectedZ88DeviceView()
+{
+    m_Z88StorageView->refreshSelectedDeviceView();
+}
+
+/**
  * Create Menu Action and Signal Handlers for the main form
  */
 void MainWindow::createActions()
@@ -212,6 +220,10 @@ void MainWindow::createActions()
             this,
             SLOT(LoadingDeskList(const bool &)));
 
+    connect(&m_cthread,
+            SIGNAL(refreshSelectedZ88DeviceView()),
+            this,
+            SLOT(refreshSelectedZ88DeviceView()));
 }
 
 /**
@@ -666,6 +678,7 @@ void MainWindow::PromptSendSpec(const QString &src_name, const QString &dst_name
             break;
         case QMessageBox::Cancel:
             if(m_cmdProgress) m_cmdProgress->reset();
+            refreshSelectedZ88DeviceView();
             return;
     }
 }
@@ -772,7 +785,6 @@ void MainWindow::TransferFiles()
 
         m_z88Selections = *z88selections;
 
-        enableCmds(false, m_sport.isOpen());
         cmdStatus("Reading Source Files...");
 
         /**
@@ -855,29 +867,6 @@ void MainWindow::StartSending(QList<DeskTop_Selection> &desk_selections, QList<Z
     }
 
     m_DeskTopTreeView->prependSubdirNames(desk_selections);
-
-    QMutableListIterator<DeskTop_Selection> di(desk_selections);
-    /**
-      * Remove all the Directory Entries
-      */
-    while(di.hasNext()){
-        qDebug() << "files=" << di.peekNext().getFspec() << "name=" << di.peekNext().getFname() << "type = " << di.peekNext().getType();
-        if(di.next().getType()==DeskTop_Selection::type_Dir){
-          //  di.remove();
-        }
-    }
-
-    QListIterator<DeskTop_Selection> i(desk_selections);
-
-    while(i.hasNext()){
-        qDebug() << "desk files=" << i.next().getFspec();
-    }
-
-    qDebug() << "desk file count =" << desk_selections.count();
-
-    boolCmd_result("File Transfer", true);
-
-    enableCmds(true, m_sport.isOpen());
 
     m_cthread.sendFiles(&desk_selections, z88_selections[0].getFspec(), prompt4each);
 }

@@ -18,6 +18,7 @@
 #include <qdebug.h>
 #include <QListIterator>
 
+#include "mainwindow.h"
 #include "commthread.h"
 #include "z88filespec.h"
 #include "desktop_view.h"
@@ -28,7 +29,7 @@
   * @param port is a reference to the Z88 Serial port class to use for I/O.
   * @param parent is the owner QT Object.
   */
-CommThread::CommThread(Z88SerialPort &port, QObject *parent)
+CommThread::CommThread(Z88SerialPort &port, MainWindow *parent)
   :QThread(parent),
    m_sport(port),
    m_curOP(OP_idle),
@@ -44,7 +45,9 @@ CommThread::CommThread(Z88SerialPort &port, QObject *parent)
    m_deskSelections(NULL),
    m_z88Sel_itr(NULL),
    m_deskSel_itr(NULL),
+   m_mainWindow(parent),
    m_dest_isDir(false),
+   m_runCnt(0),
    m_abort(false)
 {
 
@@ -63,7 +66,9 @@ CommThread::~CommThread()
 void CommThread::run()
 {
     QString msg;
-    enableCmds(false, m_sport.isOpen());
+
+    m_runCnt++;
+    emit enableCmds(false, m_sport.isOpen());
 
     if(m_abort){
         cmdStatus("Command Aborted!");
@@ -145,7 +150,7 @@ void CommThread::run()
                 break;
             }
             /**
-              * Read Z88 Freememory
+              * Read Z88 Free memory
               */
             infolist->append(m_sport.getZ88FreeMem());
 
@@ -404,6 +409,7 @@ void CommThread::run()
                 boolCmd_result("Transfer", (rc == Z88SerialPort::rc_done));
 
                 if(rc != Z88SerialPort::rc_done){
+                    qDebug() << "Transfer rc=" << rc;
                     break;
                 }
 
@@ -452,6 +458,7 @@ void CommThread::run()
                 m_curOP = OP_idle;
                 m_mutex.unlock();
                 emit DirLoadComplete(false);
+                m_runCnt--;
                 return;  // Don't re-enable commands here
             }
             break;
@@ -530,6 +537,9 @@ void CommThread::run()
                 QString destFspec = m_destPath + desksel.getFname();
                 if(desksel.getType() == DeskTop_Selection::type_Dir){
                     rc = m_sport.createDir(destFspec);
+                    if(!rc){
+                        rc = !m_sport.isFileAvailable(destFspec);
+                    }
                 }
                 else{
                     rc = m_sport.sendFile(destFspec, srcname);
@@ -561,6 +571,13 @@ void CommThread::run()
                     }
                 }
                 else{
+                    emit cmdProgress("Done", -1, -1); // reset the progress dialog
+
+                    /**
+                     * Refresh the Device view
+                     */
+                    emit refreshSelectedZ88DeviceView();
+
                     boolCmd_result("File Transfer", true);
                 }
 
@@ -586,7 +603,14 @@ void CommThread::run()
                 m_curOP = OP_sendFiles;
                 run();
             }
-            emit cmdProgress("Done", -1, -1); // reset the progress dialog
+            else{
+                emit cmdProgress("Done", -1, -1); // reset the progress dialog
+
+                /**
+                 * Refresh the Device view
+                 */
+                 emit refreshSelectedZ88DeviceView();
+            }
 
             break;
         }
@@ -597,10 +621,14 @@ abort:
         emit DirLoadComplete(true);
         m_abort = false;
     }
+
     m_curOP = OP_idle;
     m_mutex.unlock();
 
-    emit enableCmds(true, m_sport.isOpen());
+    if(--m_runCnt <=0){
+        m_runCnt = 0;
+        emit enableCmds(true, m_sport.isOpen());
+    }
 
     return;
 }
@@ -914,6 +942,18 @@ bool CommThread::getDevices()
 }
 
 /**
+  * Refresh the Specified Z88 Device View.
+  * @param devname is the name of the Z88 Sotrage device.
+  */
+void CommThread::RefreshZ88DeviceView(const QString &devname)
+{
+    _getDirectories(devname);
+    run();
+    _getFileNames(devname);
+    run();
+}
+
+/**
   * private get Z88 Directories Method.
   * @param devname is the Z88 Storage device to read.
   * @return the OP code to get directories.
@@ -1113,6 +1153,7 @@ bool CommThread::sendFile(bool skip)
     }
     return true;
 }
+
 
 /**
   * Start a Command thread
