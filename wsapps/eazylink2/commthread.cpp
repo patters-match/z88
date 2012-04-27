@@ -67,6 +67,14 @@ void CommThread::run()
 {
     QString msg;
 
+    if(m_curOP == OP_getZ88FileTree_dly){
+        cmdStatus("Prepairing to Read Z88 File System");
+        sleep(2);
+        m_mutex.lock();
+        m_curOP = OP_getZ88FileTree;
+        m_mutex.unlock();
+    }
+
     m_runCnt++;
     emit enableCmds(false, m_sport.isOpen());
 
@@ -278,6 +286,8 @@ void CommThread::run()
             boolCmd_result("Reading Z88 Files", retc);
             break;
         }
+        case OP_getZ88FileTree_dly:
+            break;  // This should never happen
         case OP_getZ88FileTree:
         {
             QList<QByteArray> *devlist = new QList<QByteArray>;
@@ -1033,14 +1043,21 @@ bool CommThread::getZ88FileSystemTree(bool ena_size, bool ena_date)
     /**
       * Make sure we are not running another command
       */
-    if(m_curOP != OP_idle){
+    if(m_curOP != OP_idle && m_curOP != OP_getZ88FileTree_dly){
         return false;
     }
 
-    m_enaFilesize = ena_size;
-    m_enaTimeDate = ena_date;
+    comOpcodes_t op = OP_getZ88FileTree;
 
-    startCmd(OP_getZ88FileTree);
+    if(m_enaFilesize != ena_size || m_enaTimeDate != ena_date){
+        op = OP_getZ88FileTree_dly;
+        m_enaFilesize = ena_size;
+        m_enaTimeDate = ena_date;
+    }
+
+    if(m_curOP == OP_idle){
+        startCmd(op);
+    }
 
     return true;
 }

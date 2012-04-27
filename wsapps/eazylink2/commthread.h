@@ -68,6 +68,7 @@ public:
         OP_getDirectories,      // Read the Dierectories on the selected device.
         OP_getFilenames,        // Read the File names from the selected device.
         OP_getZ88FileTree,      // Read the Entire File tree names from the z88.
+        OP_getZ88FileTree_dly,  // Read the Entire File tree after a delay.
         OP_initreceiveFiles,    // Init a new Receive file request from ther Z88.
         OP_receiveFiles,        // Start the Receive file(s) process.
         OP_receiveFile,         // Receive the specified file from the Z88.
