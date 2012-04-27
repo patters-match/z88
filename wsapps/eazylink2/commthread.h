@@ -210,6 +210,10 @@ protected:
       */
     QString                             m_destPath;
 
+    /**
+      * Flag to indicate current desktop transfer destination is
+      * A Dir or a file.
+      */
     bool                                m_dest_isDir;
 
     /**

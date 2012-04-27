@@ -58,6 +58,9 @@ public:
 
     bool isTransferFromZ88();
 
+    void setDesktopDirLabel(const QString &path);
+    void setZ88DirLabel(const QString &path);
+
 private slots:
     void AboutEazylink();
     void selSerialPort();

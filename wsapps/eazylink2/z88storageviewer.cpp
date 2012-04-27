@@ -18,6 +18,7 @@
 #include <qdebug.h>
 #include<QEvent>
 
+#include "mainwindow.h"
 #include "z88storageviewer.h"
 
 /**
@@ -25,9 +26,10 @@
   * @parm com_thread is the communications thread to use for I/O
   * @param parent is the owning QWidget class.
   */
-Z88StorageViewer::Z88StorageViewer(CommThread &com_thread, QWidget *parent) :
+Z88StorageViewer::Z88StorageViewer(CommThread &com_thread, MainWindow *parent) :
     QTabWidget(parent),
-    m_cthread(com_thread)
+    m_cthread(com_thread),
+    m_mainWindow(parent)
 {
     memset(&m_Ramdevices[0], 0, sizeof(m_Ramdevices));
     memset(&m_Eprdevices[0], 0, sizeof(m_Eprdevices));

@@ -22,6 +22,8 @@
 #include <QTabWidget>
 #include "z88_devview.h"
 
+class MainWindow;
+
 static const int DEVCNT = 5;
 
 /**
@@ -34,7 +36,7 @@ class Z88StorageViewer : public QTabWidget
     Q_OBJECT
 public:
 
-    explicit Z88StorageViewer(CommThread &com_thread, QWidget *parent = 0);
+    explicit Z88StorageViewer(CommThread &com_thread, MainWindow *parent = 0);
     
     bool getFileTree(bool ena_fs = false, bool ena_ts = false);
     int appendUniqueFile(const Z88FileSpec &filespec, Z88_DevView::entryType d_type);
@@ -79,6 +81,9 @@ protected:
       * The Communications Thread.
       */
     CommThread  &m_cthread;
+
+    MainWindow *m_mainWindow;
+
 };
 
 #endif // Z88STORAGEVIEWER_H

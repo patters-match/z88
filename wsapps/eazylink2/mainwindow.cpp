@@ -69,7 +69,7 @@ MainWindow::MainWindow(Z88SerialPort &sport, QWidget *parent) :
     /**
       * Create the Z88 Storage Device Tab View Object
       */
-    m_Z88StorageView = new Z88StorageViewer(m_cthread);
+    m_Z88StorageView = new Z88StorageViewer(m_cthread, this);
     ui->Ui::MainWindow::Z88Layout->addWidget(m_Z88StorageView);
 
     /**
@@ -104,7 +104,17 @@ MainWindow::~MainWindow()
   */
 bool MainWindow::isTransferFromZ88()
 {
-     return (ui->Ui::MainWindow::centralWidget->focusWidget()->objectName() == "Z88Tree");
+    return (ui->Ui::MainWindow::centralWidget->focusWidget()->objectName() == "Z88Tree");
+}
+
+void MainWindow::setDesktopDirLabel(const QString &path)
+{
+    ui->Ui::MainWindow::DeskDir_label->setText(path);
+}
+
+void MainWindow::setZ88DirLabel(const QString &path)
+{
+    ui->Ui::MainWindow::Z88Dir_label->setText(path);
 }
 
 /**

@@ -27,6 +27,7 @@
 /* Forward decl */
 class DeskTop_Selection;
 class Z88_Selection;
+class MainWindow;
 
 /**
   * The Desktop Viewer Class. Inherits from the QTreeView class.
@@ -35,7 +36,7 @@ class Desktop_View : public QTreeView
 {
     Q_OBJECT
 public:
-    explicit Desktop_View(CommThread &cthread, QWidget *parent = 0);
+    explicit Desktop_View(CommThread &cthread, MainWindow *parent = 0);
 
     QList<DeskTop_Selection> *getSelection(bool recurse, bool cont = false);
 
@@ -85,6 +86,8 @@ private:
     QModelIndexList m_ModelSelections;
 
     bool m_recurse;
+
+    MainWindow *m_mainWindow;
 };
 
 /**

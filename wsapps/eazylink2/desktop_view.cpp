@@ -19,6 +19,7 @@
 #include<QEvent>
 #include <QFileSystemWatcher>
 
+#include "mainwindow.h"
 #include "desktop_view.h"
 #include "z88_devview.h"
 
@@ -38,10 +39,11 @@ DeskTop_Selection::DeskTop_Selection(const QString &fspec, const QString &fname,
   * Destop View Contstructor.
   * @parm parent is the Owner Qwidget
   */
-Desktop_View::Desktop_View(CommThread &cthread, QWidget *parent) :
+Desktop_View::Desktop_View(CommThread &cthread, MainWindow *parent) :
     QTreeView(parent),
     m_cthread(cthread),
-    m_recurse(false)
+    m_recurse(false),
+    m_mainWindow(parent)
 {
     m_DeskFileSystem = new QFileSystemModel();
 
@@ -58,6 +60,8 @@ Desktop_View::Desktop_View(CommThread &cthread, QWidget *parent) :
     connect(m_DeskFileSystem, SIGNAL(directoryLoaded(QString)), this, SLOT(DirLoaded(QString)));
 
     installEventFilter(this);
+
+    m_mainWindow->setDesktopDirLabel(m_DeskFileSystem->rootPath());
 }
 
 /**
@@ -264,9 +268,18 @@ bool Desktop_View::getSubdirFiles(const QModelIndex &idx)
 /**
   * Items selected have changed call-back handler.
   */
-void Desktop_View::ItemSelectionChanged(const QModelIndex &)
+void Desktop_View::ItemSelectionChanged(const QModelIndex &idx)
 {
     const QModelIndexList &Selections(selectedIndexes());
+
+    if(Selections.isEmpty()){
+        m_mainWindow->setDesktopDirLabel(m_DeskFileSystem->rootPath());
+    }
+    else{
+       // if(m_DeskFileSystem->isDir(idx)){
+            m_mainWindow->setDesktopDirLabel(m_DeskFileSystem->filePath(idx));
+        //}
+    }
     emit ItemSelectionChanged(Selections.count() / 3);
 }
 
@@ -303,6 +316,9 @@ bool Desktop_View::eventFilter(QObject *, QEvent *ev)
     if(ev->type() == QEvent::KeyRelease || ev->type() == QEvent::Leave){
         const QModelIndexList &Selections(selectedIndexes());
         emit ItemSelectionChanged(Selections.count() / 3);
+        if(Selections.isEmpty()){
+            m_mainWindow->setDesktopDirLabel(m_DeskFileSystem->rootPath());
+        }
     }
     return false;
 }

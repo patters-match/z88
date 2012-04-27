@@ -42,6 +42,7 @@ CommThread::CommThread(Z88SerialPort &port, QObject *parent)
    m_deskSelections(NULL),
    m_z88Sel_itr(NULL),
    m_deskSel_itr(NULL),
+   m_dest_isDir(false),
    m_abort(false)
 {
 
