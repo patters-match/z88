@@ -187,6 +187,57 @@ bool Z88StorageViewer::refreshSelectedDeviceView()
      return false;
 }
 
+bool Z88StorageViewer::isValidFilename(const QString &fname, QString &sug_fname)
+{
+    QStringList fspec;
+
+    fspec = fname.split(QChar('.'));
+
+    /**
+      * No file name
+      */
+    if(fspec.isEmpty()){
+        return false;
+    }
+
+    /*
+     * too many extensions
+     */
+    if(fspec.count() > 2){
+        sug_fname = fspec[0].mid(0,12) + "." + fspec[1].mid(0,3);
+        return false;
+    }
+
+    /**
+      * Filename too long
+      */
+    if(fspec[0].size() > 12){
+        sug_fname = fspec[0].mid(0,12);
+        return false;
+    }
+
+    /**
+      * File extension is too long
+      */
+    if(fspec.count() > 1 && fspec[1].size() > 3){
+        sug_fname = fspec[0].mid(0,12) + "." + fspec[1].mid(0,3);
+        return false;
+    }
+
+    /**
+      * Name contains white spaces
+      */
+    if(fspec[0].simplified() != fspec[0] || fspec[0].contains(" ")){
+        sug_fname = fspec[0].simplified().mid(0,12).replace(" ","_");
+        if(fspec.count() > 1){
+            sug_fname += "." + fspec[0].simplified().mid(0,3).replace(" ","_");
+        }
+        return false;
+    }
+
+    return true;
+}
+
 /**
   * the Result call-back for retreiving available Z88 Storage Devices.
   * Gets called by the Comms Thread.

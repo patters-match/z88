@@ -819,12 +819,17 @@ void MainWindow::StartSending(QList<DeskTop_Selection> &desk_selections, QList<Z
     bool prompt4each = false;
 
     /**
-      * Count the Number of Files to Send, ignore Directories
+      * Count the Number of Files to Send, ignore Directories,
+      * Validate the file names.
       */
     int filecnt = 0;
     if(!desk_selections.isEmpty()){
         QListIterator<DeskTop_Selection> i(desk_selections);
         while(i.hasNext()){
+            QString alt_name;
+            if(!m_Z88StorageView->isValidFilename(i.peekNext().getFname(), alt_name)){
+                qDebug() << "Invalid file=" << i.peekNext().getFname() << " alt=" << alt_name;
+            }
             if(i.next().getType() == DeskTop_Selection::type_File){
                 filecnt++;
             }

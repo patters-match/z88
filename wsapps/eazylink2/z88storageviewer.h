@@ -45,6 +45,8 @@ public:
     const QString &getSelectedDeviceName();
     bool refreshSelectedDeviceView();
 
+    bool isValidFilename(const QString &fname, QString &sug_fname);
+
 signals:
     void ItemSelectionChanged(int);
     
