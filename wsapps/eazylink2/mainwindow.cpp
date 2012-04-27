@@ -165,6 +165,8 @@ void MainWindow::createActions()
 
     ui->Ui::MainWindow::actionZ88Refresh->setStatusTip(tr("Refresh Z88 View"));
     connect(ui->Ui::MainWindow::actionZ88Refresh, SIGNAL(triggered()), this, SLOT(ReloadZ88View()));
+    connect(ui->Ui::MainWindow::actionDisplayFileDate, SIGNAL(triggered()), this, SLOT(ReloadZ88View()));
+    connect(ui->Ui::MainWindow::actionDisplayFileSize, SIGNAL(triggered()), this, SLOT(ReloadZ88View()));
     connect(ui->Ui::MainWindow::actionAbout, SIGNAL(triggered()), this, SLOT(AboutEazylink()));
 
     connect(ui->Ui::MainWindow::CancelCmdBtn, SIGNAL(pressed()), this, SLOT(AbortCmd()));
