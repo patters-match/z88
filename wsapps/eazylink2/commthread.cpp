@@ -326,10 +326,7 @@ void CommThread::run()
             m_z88Sel_itr = new QListIterator<Z88_Selection> (*m_z88Selections);
             m_z88Sel_itr->toFront();
             m_xferFileprogress = 0;
-            // drop through
-        }
-        case OP_receiveFiles:
-        {
+
             /** ensure that current translation mode is set on Z88 before actual transfer begins.. */
             if (m_byteTranslation == true) {
                 cmdStatus("Sending Enable Byte Translation");
@@ -347,7 +344,11 @@ void CommThread::run()
                 cmdStatus("Sending Disable CRLF Translation");
                 boolCmd_result("CRLF Translation OFF", m_sport.linefeedConvOff());
             }
+            // drop through
+        }
 
+        case OP_receiveFiles:
+        {
             if(m_z88Sel_itr->hasNext()){
 
                 const Z88_Selection &z88sel(m_z88Sel_itr->peekNext());
@@ -460,10 +461,7 @@ void CommThread::run()
             m_deskSel_itr = new QListIterator<DeskTop_Selection> (*m_deskSelections);
             m_deskSel_itr->toFront();
             m_xferFileprogress = 0;
-            // drop through
-        }
-        case OP_sendFiles:
-        {
+
             /** ensure that current translation mode is set on Z88 before actual transfer begins.. */
             if (m_byteTranslation == true) {
                 cmdStatus("Sending Enable Byte Translation");
@@ -481,7 +479,10 @@ void CommThread::run()
                 cmdStatus("Sending Disable CRLF Translation");
                 boolCmd_result("CRLF Translation OFF", m_sport.linefeedConvOff());
             }
-
+            // drop through
+        }
+        case OP_sendFiles:
+        {
             if(m_deskSel_itr->hasNext()){
 
                 const DeskTop_Selection &desksel(m_deskSel_itr->peekNext());
@@ -1139,6 +1140,7 @@ void CommThread::startCmd(const CommThread::comOpcodes_t &op, bool ena_resume)
         m_cond.wakeOne();
 
 }
+
 
 
 
