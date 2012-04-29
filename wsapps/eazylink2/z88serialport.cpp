@@ -93,7 +93,7 @@ Z88SerialPort::Z88SerialPort()
     freeMemoryCmd = QByteArray( _freeMemoryCmd, 2);             // EazyLink V4.8 Get free memory for all RAM cards
     freeMemDevCmd = QByteArray( _freeMemDevCmd, 2);             // EazyLink V4.8 Get free memory for specific device
 
-    transmitting = portOpenStatus = false;
+    transmitting = portOpenStatus = z88AvailableStatus = false;
 
     // define some default serial port device names for the specific platform
 #ifdef Q_OS_WIN32
@@ -245,6 +245,11 @@ bool Z88SerialPort::isOpen()
     return port.isOpen();
 }
 
+bool Z88SerialPort::isZ88Available()
+{
+    return z88AvailableStatus;
+}
+
 void Z88SerialPort::close()
 {
     if (portOpenStatus == true) {
@@ -252,6 +257,8 @@ void Z88SerialPort::close()
         port.close();
         portOpenStatus = false;
     }
+
+    z88AvailableStatus = false;
 }
 
 
@@ -1316,7 +1323,9 @@ bool Z88SerialPort::synchronize()
         }
     }
 
-    return false;       // synch from Z88 didn't arrive
+    // synch from Z88 didn't arrive
+    z88AvailableStatus = false;
+    return false;
 }
 
 
@@ -1339,6 +1348,8 @@ bool Z88SerialPort::sendCommand(QByteArray cmd)
             } else {
                 // command transmitted correctly to Z88
                 transmitting = false;
+                z88AvailableStatus = true;
+
                 return true;
             }
         }

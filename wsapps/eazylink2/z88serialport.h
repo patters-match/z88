@@ -51,6 +51,7 @@ public:
     void close();
     void setPortName(QString pName);                                // define the serial port device name
     bool isOpen();                                                  // Return Port Open state.
+    bool isZ88Available();                                          // Has communication been established with the Z88?
 
     bool helloZ88();                                                // poll for "hello" to Z88
     bool quitZ88();                                                 // quit EazyLink popdown on Z88
@@ -94,6 +95,7 @@ private:
 
     SerialPort port;                                        // the device handle
     bool       portOpenStatus;                              // status of opened port; true = opened, otherwise false for closed
+    bool       z88AvailableStatus;                          // status of Z88 availability; true = accessed successfully, otherwise false
     bool       transmitting;                                // a transmission is current ongoing
     QString    portName;                                    // the default platform serial port device name
     QByteArray synchEazyLinkProtocol;                       // 1,1,2    constant
