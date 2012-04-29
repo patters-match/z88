@@ -48,6 +48,7 @@ public:
 
     bool renameSelections();
     bool deleteSelections();
+    bool mkDir();
 
 signals:
     void ItemSelectionChanged(int);

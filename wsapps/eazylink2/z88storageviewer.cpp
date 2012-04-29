@@ -447,7 +447,7 @@ bool Z88StorageViewer::eventFilter(QObject *, QEvent *ev)
             m_actionRename->setEnabled(false);
             m_actionDelete->setEnabled(false);
         }
-        m_qmenu->show();
+        m_qmenu->exec(QCursor::pos());
     }
 
     /**

@@ -380,12 +380,10 @@ void Desktop_View::DirLoaded(const QString &path)
 
 void Desktop_View::ActionsMenuSel(QAction *act)
 {
-    qDebug() << "desktop action:" << act->text();
-
     QList<DeskTop_Selection> *selections;
 
     if(act == m_actionMkdir){
-        qDebug() << "Desk mkdir action";
+        mkDir();
     }
 
     if(act == m_actionRename){
@@ -601,8 +599,6 @@ bool Desktop_View::deleteSelections()
                 continue;
             }
 
-            qDebug() << "delfile:" << m_DeskFileSystem->filePath(idx);
-
             if(m_DeskFileSystem->isDir(idx)){
                 deleteSubdirFiles(idx, ret);
                 if(ret == QMessageBox::Cancel){
@@ -619,6 +615,65 @@ bool Desktop_View::deleteSelections()
         }
     }
 
+    return true;
+}
+
+bool Desktop_View::mkDir()
+{
+    const QModelIndexList &Selections(selectedIndexes());
+
+    if(Selections.count() <= 3){
+        bool ok;
+        QString location;
+
+        QModelIndex idx;
+
+        if(Selections.isEmpty()){
+            idx = rootIndex();
+            if(!idx.isValid()){
+                return false;
+            }
+        }
+        else{
+            idx = Selections.first();
+        }
+
+        if(m_DeskFileSystem->isDir(idx)){
+            location = m_DeskFileSystem->filePath(idx);
+#ifdef Q_OS_WIN32
+            location +="\\";
+#else
+            location +="/";
+#endif
+        }
+        else{
+            location = m_DeskFileSystem->filePath(idx).remove(m_DeskFileSystem->fileName(idx));
+            /**
+              * If in the root
+              */
+            if(location.isEmpty()){
+                location = m_DeskFileSystem->rootPath();
+            }
+        }
+
+        QString newdir = QInputDialog::getText(this,
+                                               "Make Directory",
+                                               QString("In " + location),
+                                               QLineEdit::Normal,
+                                               "",
+                                               &ok);
+
+        if(ok && !newdir.isEmpty()){
+            location += newdir;
+            if(!m_DeskFileSystem->mkdir(idx, location).isValid()){
+                QString msg = "Failed to create Dir:" + location;
+                QMessageBox::critical(this,
+                                      tr("Eazylink2"),
+                                      msg,
+                                      QMessageBox::Ok);
+            }
+        }
+    }
     return true;
 }
 
@@ -647,7 +702,7 @@ bool Desktop_View::eventFilter(QObject *, QEvent *ev)
             m_actionRename->setEnabled(false);
             m_actionDelete->setEnabled(false);
         }
-        m_qmenu->show();
+        m_qmenu->exec(QCursor::pos());
     }
 
     /**
