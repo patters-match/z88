@@ -95,7 +95,14 @@ MainWindow::~MainWindow()
       * request abort from the Current Comm Thread operation,
       * And wait for the thread to complete.
       */
-    m_cthread.AbortCmd();
+
+    if (m_cthread.isBusy()) {
+        m_cthread.AbortCmd();
+    } else {
+        // send a "quit" to Z88 EazyLink popdown, if Z88 communication exists..
+        m_cthread.quitZ88();
+    }
+
     m_cthread.wait();
 }
 

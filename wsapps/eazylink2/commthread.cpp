@@ -113,14 +113,16 @@ void CommThread::run()
             break;
         case OP_quitZ88:
         {
-            cmdStatus("Sending Z88 Quit EasyLink");
-            bool rc = m_sport.quitZ88();
-            boolCmd_result("Z88 Quit EazyLink", rc);
-            if(rc){
-                m_sport.close();
+            if (m_sport.isZ88Available() == true) {
+                cmdStatus("Sending Z88 Quit EasyLink");
+                bool rc = m_sport.quitZ88();
+                boolCmd_result("Z88 Quit EazyLink", rc);
+                if(rc){
+                    m_sport.close();
+                }
             }
         }
-            break;
+        break;
         case OP_reloadTransTable:
             cmdStatus("Sending Reload Translation Table");
             boolCmd_result("Reload Translation Table", m_sport.reloadTranslationTable());
