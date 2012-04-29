@@ -283,10 +283,6 @@
    <addaction name="actionZ88Refresh"/>
    <addaction name="actionTransfer"/>
    <addaction name="separator"/>
-   <addaction name="actionRename"/>
-   <addaction name="actionDelete"/>
-   <addaction name="actionMkDir"/>
-   <addaction name="separator"/>
    <addaction name="actionDisplayFileSize"/>
    <addaction name="actionDisplayFileDate"/>
   </widget>
@@ -352,30 +348,6 @@
    </property>
    <property name="toolTip">
     <string>Ask EazyLink popdown on Z88 to re-send file information in current device / path</string>
-   </property>
-  </action>
-  <action name="actionRename">
-   <property name="text">
-    <string>Rename</string>
-   </property>
-   <property name="toolTip">
-    <string>Rename selected file in active panel</string>
-   </property>
-  </action>
-  <action name="actionDelete">
-   <property name="text">
-    <string>Delete</string>
-   </property>
-   <property name="toolTip">
-    <string>Delete selected file in active panel</string>
-   </property>
-  </action>
-  <action name="actionMkDir">
-   <property name="text">
-    <string>MkDir</string>
-   </property>
-   <property name="toolTip">
-    <string>Create a directory in current path of active panel</string>
    </property>
   </action>
   <action name="actionSerialPort">
