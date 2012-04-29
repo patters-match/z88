@@ -18,6 +18,7 @@
 #include<QDebug>
 #include<QEvent>
 #include <QFileSystemWatcher>
+#include <QInputDialog>
 
 #include "mainwindow.h"
 #include "desktop_view.h"
@@ -43,8 +44,13 @@ Desktop_View::Desktop_View(CommThread &cthread, MainWindow *parent) :
     QTreeView(parent),
     m_cthread(cthread),
     m_recurse(false),
-    m_mainWindow(parent)
+    m_mainWindow(parent),
+    m_qmenu(new QMenu(parent))
 {
+    m_actionMkdir = m_qmenu->addAction("MakeDir");
+    m_actionRename = m_qmenu->addAction("Rename");
+    m_actionDelete = m_qmenu->addAction("Delete");
+
     m_DeskFileSystem = new QFileSystemModel();
 
     m_DeskFileSystem->setRootPath(QDir::homePath());
@@ -58,6 +64,8 @@ Desktop_View::Desktop_View(CommThread &cthread, MainWindow *parent) :
     connect(this, SIGNAL(clicked(const QModelIndex &)), this, SLOT(ItemSelectionChanged(const QModelIndex &)));
 
     connect(m_DeskFileSystem, SIGNAL(directoryLoaded(QString)), this, SLOT(DirLoaded(QString)));
+
+    connect(m_qmenu,SIGNAL(triggered(QAction *)), this, SLOT(ActionsMenuSel(QAction *)));
 
     installEventFilter(this);
 
@@ -90,8 +98,11 @@ QList<DeskTop_Selection> *Desktop_View::getSelection(bool recurse, bool cont)
 
         m_recurse = recurse;
 
-        for(int count=0; count < Selections.count(); count+=3){
+        for(int count=0; count < Selections.count(); count++){
             const QModelIndex &idx(Selections[count]);
+
+            /* only want column 0 */
+            if(idx.column()) continue;
 
             DeskTop_Selection::entryType type = (m_DeskFileSystem->isDir(idx)) ?
                         DeskTop_Selection::type_Dir : DeskTop_Selection::type_File;
@@ -265,6 +276,73 @@ bool Desktop_View::getSubdirFiles(const QModelIndex &idx)
     return true;
 }
 
+bool Desktop_View::delSubdirFiles(QListIterator<DeskTop_Selection> &i, int &ret)
+{
+    return false;
+    while(i.hasNext()){
+
+        QString srcfspec(i.next().getFspec());
+        QString msg = "Delete:" + srcfspec;
+
+        if(ret != QMessageBox::YesToAll){
+            QMessageBox msgBox;
+            msgBox.setWindowTitle("Eazylink2");
+            msgBox.setIcon(QMessageBox::Question);
+            msgBox.setText(msg);
+            msgBox.setInformativeText("Delete Dir and all its files?");
+            msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::YesToAll | QMessageBox::No | QMessageBox::NoToAll | QMessageBox::Cancel);
+            msgBox.setDefaultButton(QMessageBox::No);
+            ret = msgBox.exec();
+        }
+
+        if(i.hasNext()){
+            if(i.peekNext().getType() == DeskTop_Selection::type_Dir){
+                delSubdirFiles(i, ret);
+                if(ret == QMessageBox::Cancel){
+                    return false;
+                }
+                continue;
+            }
+            delFile(i, ret);
+            continue;
+        }
+
+        i.next();
+    }
+    return false;
+}
+
+bool Desktop_View::delFile(QListIterator<DeskTop_Selection> &i, int &ret)
+{
+    QString srcfspec(i.peekNext().getFspec());
+    QString msg = "Delete:" + srcfspec;
+
+    if(ret != QMessageBox::YesToAll){
+        QMessageBox msgBox;
+        msgBox.setWindowTitle("Eazylink2");
+        msgBox.setIcon(QMessageBox::Question);
+        msgBox.setText(msg);
+        msgBox.setInformativeText("Permanently erase desktop file?");
+        msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::YesToAll | QMessageBox::No | QMessageBox::Cancel);
+        msgBox.setDefaultButton(QMessageBox::No);
+        ret = msgBox.exec();
+    }
+
+    switch(ret){
+        case QMessageBox::YesToAll:
+        case QMessageBox::Yes:
+            qDebug() << "delete:" << srcfspec;
+            return true;
+        case QMessageBox::No:
+            break;
+        case QMessageBox::Cancel:
+            return false;
+    }
+    return false;
+}
+
+
+
 /**
   * Items selected have changed call-back handler.
   */
@@ -300,9 +378,248 @@ void Desktop_View::DirLoaded(const QString &path)
     }
 }
 
+void Desktop_View::ActionsMenuSel(QAction *act)
+{
+    qDebug() << "desktop action:" << act->text();
+
+    QList<DeskTop_Selection> *selections;
+
+    if(act == m_actionMkdir){
+        qDebug() << "Desk mkdir action";
+    }
+
+    if(act == m_actionRename){
+        renameSelections();
+    }
+
+    if(act == m_actionDelete){
+        selections = getSelection(true);
+        if(selections){
+            deleteSelections();
+        }
+    }
+}
+
 void Desktop_View::DirLoadAborted()
 {
     m_recurse = false;
+}
+
+/**
+  * Rename the Selected Items
+  */
+bool Desktop_View::renameSelections()
+{
+    QList<DeskTop_Selection> *selections;
+    selections = getSelection(false);
+
+    if(!selections){
+        return false;
+    }
+
+    QListIterator<DeskTop_Selection> i(*selections);
+
+    while(i.hasNext()){
+        bool ok;
+        const QString &ftype((i.peekNext().getType() == DeskTop_Selection::type_Dir) ?
+                    "Rename Dir" : "Rename File");
+
+        const QString &srcname(i.peekNext().getFname());
+        QString srcfspec(i.peekNext().getFspec());
+        QString newname = QInputDialog::getText(this,
+                                                ftype,
+                                                srcfspec,
+                                                QLineEdit::Normal,
+                                                srcname,
+                                                &ok);
+
+        if(ok && !newname.isEmpty() && newname != srcname){
+            int idx = srcfspec.lastIndexOf(srcname);
+            if(idx > -1){
+                QFile hostFile(srcfspec);
+                srcfspec.remove(idx, srcname.size());
+                newname.prepend(srcfspec);
+                hostFile.rename(newname);
+            }
+        }
+        i.next();
+    }
+
+    return true;
+}
+
+/**
+  * Remove a Directory and all of its contents
+  * @param dirName the name of the directory to remove
+  * @return true on success
+  */
+static bool removeDir(const QString &dirName)
+{
+    bool result = true;
+    QDir dir(dirName);
+
+    if (dir.exists(dirName)) {
+        Q_FOREACH(QFileInfo info, dir.entryInfoList(QDir::NoDotAndDotDot |
+                                                    QDir::System  |
+                                                    QDir::Hidden  |
+                                                    QDir::AllDirs |
+                                                    QDir::Files,
+                                                    QDir::DirsFirst)) {
+            if (info.isDir()) {
+                result = removeDir(info.absoluteFilePath());
+            }
+            else {
+                result = QFile::remove(info.absoluteFilePath());
+            }
+
+            if (!result) {
+                return result;
+            }
+        }
+        result = dir.rmdir(dirName);
+    }
+
+    return result;
+}
+
+/**
+  * Delete the Subdirectory and all its contents
+  * @param idx is the selected subdirectory item
+  * @param ret is the result code from user prompts
+  */
+void Desktop_View::deleteSubdirFiles(const QModelIndex &idx, int &ret)
+{
+    QString srcfspec(m_DeskFileSystem->filePath(idx));
+    QString msg = "Delete:" + srcfspec;
+
+    if(ret != QMessageBox::YesToAll){
+        QMessageBox msgBox;
+        msgBox.setWindowTitle("Eazylink2");
+        msgBox.setIcon(QMessageBox::Question);
+        msgBox.setText(msg);
+        msgBox.setInformativeText("Delete Directory and its contents?");
+
+        msgBox.setStandardButtons(QMessageBox::Yes |
+                                  QMessageBox::YesToAll |
+                                  QMessageBox::No |
+                                  QMessageBox::NoToAll |
+                                  QMessageBox::Cancel);
+
+        msgBox.setDefaultButton(QMessageBox::NoToAll);
+        ret = msgBox.exec();
+    }
+
+    switch(ret){
+        case QMessageBox::YesToAll:
+        case QMessageBox::Yes:
+        {
+            if(!removeDir(srcfspec)){
+                msg = "Failed to remove " + srcfspec;
+                QMessageBox::critical(this,
+                                      tr("Eazylink2"),
+                                      msg,
+                                      QMessageBox::Ok);
+            }
+            return;
+        }
+        case QMessageBox::No:
+            break;
+        case QMessageBox::NoToAll:
+            ret = 0;
+        case QMessageBox::Cancel:
+            return;
+    }
+
+    /**
+      * Recurse the children
+      */
+    for(int x = 0; x < m_DeskFileSystem->rowCount(idx); x++){
+        if(m_DeskFileSystem->isDir(idx.child(x,0))){
+            deleteSubdirFiles(idx.child(x,0), ret);
+        }
+        else{
+            deleteFile(idx.child(x,0), ret);
+        }
+
+        if(ret == QMessageBox::NoToAll || ret == QMessageBox::Cancel){
+            return;
+        }
+    }
+}
+
+void Desktop_View::deleteFile(const QModelIndex &idx, int &ret)
+{
+    QString srcfspec(m_DeskFileSystem->filePath(idx));
+    QString msg = "Delete:" + srcfspec;
+
+    if(ret != QMessageBox::YesToAll){
+        QMessageBox msgBox;
+        msgBox.setWindowTitle("Eazylink2");
+        msgBox.setIcon(QMessageBox::Question);
+        msgBox.setText(msg);
+        msgBox.setInformativeText("Delete file in this directory?");
+        msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::YesToAll | QMessageBox::No | QMessageBox::NoToAll | QMessageBox::Cancel);
+        msgBox.setDefaultButton(QMessageBox::No);
+        ret = msgBox.exec();
+    }
+
+    switch(ret){
+        case QMessageBox::YesToAll:
+        case QMessageBox::Yes:
+        {
+            qDebug() << "delete file:" << srcfspec;
+            m_DeskFileSystem->remove(idx);
+            //QFile delfile(srcfspec);
+            //delfile.remove();
+            //qDebug() << delfile.errorString();
+            return;
+        }
+        case QMessageBox::No:
+            break;
+        case QMessageBox::NoToAll:
+            ret = 0;
+        case QMessageBox::Cancel:
+            return;
+    }
+}
+
+bool Desktop_View::deleteSelections()
+{
+    const QModelIndexList &Selections(selectedIndexes());
+
+    if(!Selections.isEmpty()){
+
+        QListIterator<QModelIndex> i(Selections);
+        int ret = 0;
+
+        while(i.hasNext()){
+            const QModelIndex &idx(i.peekNext());
+
+            /* only want column 0 */
+            if(idx.column()) {
+                i.next();
+                continue;
+            }
+
+            qDebug() << "delfile:" << m_DeskFileSystem->filePath(idx);
+
+            if(m_DeskFileSystem->isDir(idx)){
+                deleteSubdirFiles(idx, ret);
+                if(ret == QMessageBox::Cancel){
+                    return false;
+                }
+            }
+            else{
+                deleteFile(idx, ret);
+                if(ret == QMessageBox::Cancel){
+                    return false;
+                }
+            }
+            i.next();
+        }
+    }
+
+    return true;
 }
 
 /**
@@ -313,6 +630,29 @@ void Desktop_View::DirLoadAborted()
   */
 bool Desktop_View::eventFilter(QObject *, QEvent *ev)
 {
+    /**
+      * Handle Right Click Context Menu
+      */
+    if(ev->type() == QEvent::ContextMenu){
+        const QModelIndexList &Selections(selectedIndexes());
+        int sel_count = Selections.count() / 3; /* 3 items per entry */
+
+        if(sel_count){
+            m_actionMkdir->setEnabled(sel_count < 2);
+            m_actionRename->setEnabled(true);
+            m_actionDelete->setEnabled(true);
+        }
+        else{
+            m_actionMkdir->setEnabled(true);
+            m_actionRename->setEnabled(false);
+            m_actionDelete->setEnabled(false);
+        }
+        m_qmenu->show();
+    }
+
+    /**
+      * Handle Enable / Disable transfer menu
+      */
     if(ev->type() == QEvent::KeyRelease || ev->type() == QEvent::Leave){
         const QModelIndexList &Selections(selectedIndexes());
         emit ItemSelectionChanged(Selections.count() / 3);

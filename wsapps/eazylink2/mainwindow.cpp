@@ -46,7 +46,8 @@ MainWindow::MainWindow(Z88SerialPort &sport, QWidget *parent) :
     m_cthread(sport,this),
     m_cmdSuccessCount(0),
     m_Z88SelectionCount(-1),
-    m_DeskSelectionCount(0)
+    m_DeskSelectionCount(0),
+    m_isTransfer(false)
 {
     /**
       * Set up the Ui created by the QT Designer.
@@ -742,6 +743,8 @@ bool MainWindow::enaTransferButton()
     }
     return true;
 }
+
+
 /**
   * Transfer Files Tool-bar command
   * Starts the file transfer process.
@@ -792,6 +795,7 @@ void MainWindow::TransferFiles()
         /**
           * Get the Selected Source File(s) from the Desktop
           */
+        m_isTransfer = true;
         QList<DeskTop_Selection> *deskSelList;
         deskSelList = m_DeskTopTreeView->getSelection(true);
 
@@ -812,7 +816,16 @@ void MainWindow::LoadingDeskList(const bool &aborted)
     deskSelList = m_DeskTopTreeView->getSelection(true, true);
 
     if(deskSelList){
-        StartSending(*deskSelList, m_z88Selections);
+        /**
+          * If the reason for dirlist is a transfer vs a delete
+          */
+        if(m_isTransfer){
+            m_isTransfer = false;
+            StartSending(*deskSelList, m_z88Selections);
+        }
+        else{
+            m_DeskTopTreeView->deleteSelections();
+        }
     }
 }
 

@@ -147,6 +147,8 @@ private:
     int m_Z88SelectionCount;
     int m_DeskSelectionCount;
 
+    bool m_isTransfer;
+
     /**
       * private method to set up connections for Signals.
       */

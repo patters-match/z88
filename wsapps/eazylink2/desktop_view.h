@@ -22,6 +22,8 @@
 #include <QFileSystemModel>
 #include <QSystemSemaphore>
 #include <QMutex>
+#include<QMenu>
+
 #include "commthread.h"
 
 /* Forward decl */
@@ -44,13 +46,16 @@ public:
     void prependSubdirNames(QList<DeskTop_Selection> &desk_selections);
     void DirLoadAborted();
 
+    bool renameSelections();
+    bool deleteSelections();
+
 signals:
     void ItemSelectionChanged(int);
 
 private slots:
     void ItemSelectionChanged(const QModelIndex &);
     void DirLoaded(const QString &);
-
+    void ActionsMenuSel(QAction * act);
 
 protected:
     /**
@@ -64,8 +69,12 @@ protected:
     bool mkSubdir(QListIterator<Z88_Selection> &i, QModelIndex dst_root);
     void prependSubdirNames(QMutableListIterator<DeskTop_Selection> &i);
 
+    bool getSubdirFiles(const QModelIndex &idx);
+    bool delSubdirFiles(QListIterator<DeskTop_Selection> &i, int &ret);
+    bool delFile(QListIterator<DeskTop_Selection> &i, int &ret);
 
-    bool getSubdirFiles(const QModelIndex & idx);
+    void deleteSubdirFiles(const QModelIndex &idx, int &ret);
+    void deleteFile(const QModelIndex &idx, int &ret);
 
 private:
     /**
@@ -88,6 +97,12 @@ private:
     bool m_recurse;
 
     MainWindow *m_mainWindow;
+
+    QMenu      *m_qmenu;
+    QAction    *m_actionRename;
+    QAction    *m_actionDelete;
+    QAction    *m_actionMkdir;
+
 };
 
 /**

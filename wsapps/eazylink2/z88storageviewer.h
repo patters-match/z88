@@ -20,6 +20,8 @@
 #define Z88STORAGEVIEWER_H
 
 #include <QTabWidget>
+#include<QMenu>
+
 #include "z88_devview.h"
 
 class MainWindow;
@@ -57,6 +59,7 @@ public slots:
     void changedSelected_device(int index);
     void changedSelected_file();
     void itemClicked ( QTreeWidgetItem * item, int column );
+    void ActionsMenuSel(QAction * act);
 
 protected:
 
@@ -68,7 +71,7 @@ protected:
     /**
       * User interface event Handler, ie mouse in, out, etc.
       */
-    bool eventFilter(QObject *, QEvent *ev);
+    bool eventFilter(QObject * , QEvent *ev);
 
     /**
       * Ram Storage Devices
@@ -86,6 +89,12 @@ protected:
     CommThread  &m_cthread;
 
     MainWindow *m_mainWindow;
+
+    QMenu      *m_qmenu;
+    QAction    *m_actionRename;
+    QAction    *m_actionDelete;
+    QAction    *m_actionMkdir;
+
 
 };
 

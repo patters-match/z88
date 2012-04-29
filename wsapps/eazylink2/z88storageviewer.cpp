@@ -29,10 +29,15 @@
 Z88StorageViewer::Z88StorageViewer(CommThread &com_thread, MainWindow *parent) :
     QTabWidget(parent),
     m_cthread(com_thread),
-    m_mainWindow(parent)
+    m_mainWindow(parent),
+    m_qmenu(new QMenu(parent))
 {
     memset(&m_Ramdevices[0], 0, sizeof(m_Ramdevices));
     memset(&m_Eprdevices[0], 0, sizeof(m_Eprdevices));
+
+    m_actionMkdir = m_qmenu->addAction("MakeDir");
+    m_actionRename = m_qmenu->addAction("Rename");
+    m_actionDelete = m_qmenu->addAction("Delete");
 
     connect(&m_cthread,
             SIGNAL(Z88Devices_result(QList<QByteArray> *)),
@@ -51,7 +56,11 @@ Z88StorageViewer::Z88StorageViewer(CommThread &com_thread, MainWindow *parent) :
 
     connect(this,SIGNAL(currentChanged(int)),this,SLOT(changedSelected_device(int)));
 
-    installEventFilter(this);
+    connect(m_qmenu,SIGNAL(triggered(QAction *)), this, SLOT(ActionsMenuSel(QAction *)));
+
+    installEventFilter(this);    
+
+
 }
 
 /**
@@ -383,6 +392,27 @@ void Z88StorageViewer::itemClicked(QTreeWidgetItem *, int )
     changedSelected_file();
 }
 
+void Z88StorageViewer::ActionsMenuSel(QAction *act)
+{
+    QList<Z88_Selection> *selections;
+
+    if(act == m_actionMkdir){
+        qDebug() << "z88 mkdir action";
+    }
+    if(act == m_actionRename){
+        selections = getSelection(false);
+
+        qDebug() << "z88 Rename action " << selections->count();
+    }
+    if(act == m_actionDelete){
+        selections = getSelection(true);
+
+        qDebug() << "z88 Delete action " << selections->count();
+    }
+
+
+}
+
 /**
   * The GUI Event Handler.
   * @param obj is the object that caused the event call-back.
@@ -391,6 +421,38 @@ void Z88StorageViewer::itemClicked(QTreeWidgetItem *, int )
   */
 bool Z88StorageViewer::eventFilter(QObject *, QEvent *ev)
 {
+    /**
+      * Handle the Context the Menu
+      */
+    if(ev->type() == QEvent::ContextMenu){
+
+        QList<Z88_Selection> *selections(getSelection(false));
+
+        int sel_count = 0;
+
+        if(selections){
+            sel_count = selections->count();
+        }
+
+        /**
+          * Make sure there is a selcton and it not the root device only
+          */
+        if(sel_count && selections->first().getFspec().size()>7){
+            m_actionMkdir->setEnabled(sel_count < 2);
+            m_actionRename->setEnabled(true);
+            m_actionDelete->setEnabled(true);
+        }
+        else{
+            m_actionMkdir->setEnabled(true);
+            m_actionRename->setEnabled(false);
+            m_actionDelete->setEnabled(false);
+        }
+        m_qmenu->show();
+    }
+
+    /**
+     * Handle the Enable transmit Button Events
+     */
     if(ev->type() == QEvent::KeyRelease || ev->type() == QEvent::Leave){
         QList<Z88_Selection> *selections(getSelection(false));
 
