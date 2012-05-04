@@ -68,7 +68,7 @@ protected:
     const Z88_Selection &getItemFspec(QTreeWidgetItem *item, Z88_Selection &fspec) const;
 
     const QList<Z88_Selection> &getItemChildren(QTreeWidgetItem *item,
-                                                QString &parent, QList<Z88_Selection> &selections)const;
+                                                QString &parent, QList<Z88_Selection> &selections, bool depth_first)const;
 
     /**
       * The Communications Thread.

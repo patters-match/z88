@@ -61,7 +61,6 @@ public:
     void setDesktopDirLabel(const QString &path);
     void setZ88DirLabel(const QString &path);
 
-
 private slots:
     void AboutEazylink();
     void selSerialPort();
@@ -90,16 +89,21 @@ private slots:
     void cmdStatus(const QString &msg);
     void cmdProgress(const QString &title, int curVal, int total);
     void boolCmd_result(const QString &cmdName, bool success);
+    void displayCritError(const QString &errmsg);
     void Z88Info_result(QList<QByteArray> *infolist);
     void Z88SelectionChanged(int count);
     void DeskTopSelectionChanged(int count);
     void PromptReceiveSpec(const QString &src_name, const QString &dst_name, bool *prompt_again);
     void PromptSendSpec(const QString &src_name, const QString &dst_name, bool *prompt_again);
+    void PromptRename(QMutableListIterator<Z88_Selection> *i);
+    void PromptDeleteSpec(const QString &src_name, bool isDir, bool *prompt_again);
+    void PromptDeleteRetry(const QString &fspec, bool isDir);
+    void renameCmd_result(const QString &msg, bool success);
 
 protected:
     bool openSelSerialDialog();
 
-    void StartSending(QList<DeskTop_Selection> &desk_selections, QList<Z88_Selection> &z88_selections);
+    void StartSending(QList<DeskTop_Selection> *desk_selections, QList<Z88_Selection> &z88_selections);
     void StartReceiving(QList<Z88_Selection> &z88_selections, QList<DeskTop_Selection> &deskSelList);
 
 private:

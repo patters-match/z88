@@ -133,6 +133,8 @@ public:
 
     void setSubdir(const QString &subdir){m_fname.prepend(subdir);}
 
+    void setFname(const QString &newname){m_fname = newname;}
+
     friend class Desktop_View;
 
 protected:

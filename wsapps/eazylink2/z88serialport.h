@@ -61,18 +61,21 @@ public:
     bool linefeedConvOff();                                         // disable linefeed conversions during transfer
     bool reloadTranslationTable();                                  // remote reload translation table on Z88 EazyLink popdown
     bool setZ88Time();                                              // set Z88 date/time using PC local time
-    bool isFileAvailable(const QString &fileName);                      // ask if file exists on Z88 filing system
-    bool createDir(const QString &pathName);                            // create directory on the Z88 filing system
-    bool deleteFileDir(QByteArray fileName);                        // delete a file / directory on the Z88 filing system
-    bool renameFileDir(QByteArray pathName, QByteArray fileName);   // rename a file / directory on the Z88 filing system
+    bool isFileAvailable(const QString &fileName);                  // ask if file exists on Z88 filing system
+    bool createDir(const QString &pathName);                        // create directory on the Z88 filing system
+    bool deleteFileDir(const QString &fileName);                        // delete a file / directory on the Z88 filing system
+    bool renameFileDir(const QString &pathName, const QString &fileName);   // rename a file / directory on the Z88 filing system
     bool setFileDateStamps(QByteArray fileName,
                            QByteArray createDate,
                            QByteArray updateDate);                  // set Create & Update date stamps of Z88 file
-    bool sendFile(const QString &z88Filename, QString hostFilename);    // send a file to Z88 using EazyLink protocol
+    bool sendFile(const QString &z88Filename, QString hostFilename);// send a file to Z88 using EazyLink protocol
 
     bool impExpSendFile(QByteArray z88Filename, QString hostFilename); // send a file to Z88 using Imp/Export protocol
     bool impExpReceiveFiles(QString hostPath);                      // receive Z88 files from Imp/Export popdown
-    retcode receiveFiles(const QString &z88Filenames, const QString &hostpath, const QString &destFspec, bool destisDir);   // receive one or more files from Z88 to host using EazyLink protocol
+    retcode receiveFiles(const QString &z88Filenames,
+                         const QString &hostpath,
+                         const QString &destFspec,
+                         bool destisDir);                           // receive one or more files from Z88 to host using EazyLink protocol
 
     QByteArray getEazyLinkZ88Version();                             // receive string of EazyLink popdown version and protocol level
     QByteArray getZ88FreeMem();                                     // receive string of Z88 All Free Memory
@@ -82,7 +85,7 @@ public:
     QList<QByteArray> getZ88Time();                                 // receive string of current Z88 date & time
     QList<QByteArray> getRamDefaults();                             // receive default RAM & default Directory from Z88 Panel popdown
     QList<QByteArray> getDirectories(const QString &path);          // receive a list of Z88 Directories in <path>
-    QList<QByteArray> getFilenames(const QString &path, bool &retc);            // receive a list of Z88 Filenames in <path>
+    QList<QByteArray> getFilenames(const QString &path, bool &retc);// receive a list of Z88 Filenames in <path>
     QList<QByteArray> getFileDateStamps(const QString &fileName);   // receive Create & Update date stamps of Z88 file
 
     QString getLastErrorString()const;                              // Get the Last Port Error string.

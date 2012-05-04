@@ -68,6 +68,10 @@ protected:
       */
     Z88_DevView *getSelectedDevice();
 
+    bool renameSelections();
+    bool deleteSelections();
+    bool mkDir();
+
     /**
       * User interface event Handler, ie mouse in, out, etc.
       */

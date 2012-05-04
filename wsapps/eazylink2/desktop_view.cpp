@@ -210,12 +210,15 @@ bool Desktop_View::mkSubdir(QListIterator<Z88_Selection> &i, QModelIndex dst_roo
     return rc;
 }
 
+/**
+  * Build the Subdirectory names to the list of selections,
+  * @param desk_selections the list of directories to process.
+  */
 void Desktop_View::prependSubdirNames(QList<DeskTop_Selection> &desk_selections)
 {
     QMutableListIterator<DeskTop_Selection> i(desk_selections);
 
     while(i.hasNext()){
-       // qDebug() << "files=" << i.peekNext().getFspec() << "name=" << i.peekNext().getFname() << "type = " << i.peekNext().getType();
         if(i.peekNext().getType() == DeskTop_Selection::type_Dir){
             prependSubdirNames(i);
             continue;
@@ -224,6 +227,10 @@ void Desktop_View::prependSubdirNames(QList<DeskTop_Selection> &desk_selections)
     }
 }
 
+/**
+  * Recurse the subdirctory and build the relative path names.
+  * @param i is the strating iterator od the list to recurse.
+  */
 void Desktop_View::prependSubdirNames(QMutableListIterator<DeskTop_Selection> &i)
 {
     const DeskTop_Selection &desksel(i.next());
@@ -231,13 +238,18 @@ void Desktop_View::prependSubdirNames(QMutableListIterator<DeskTop_Selection> &i
 
     QString curpath(desksel.getFspec());
 
+
     while(i.hasNext()){
+       // qDebug() << "cur path=" << curpath << " curdir = " << curdir << "peek fspec=" << i.peekNext().getFspec() << "type = "<< i.peekNext().getType() ;
+
         if(i.peekNext().getType() == DeskTop_Selection::type_Dir){
-            if(i.peekNext().getFspec().contains(curpath)){
+            QString subdir(i.peekNext().getFspec() + '/');
+            if(subdir.contains(curpath+'/')){
                 i.peekNext().setSubdir(curdir);
                 prependSubdirNames(i);
                 continue;
             }
+
             break;
         }
         if(i.peekNext().getFspec().contains(curpath)){
@@ -250,6 +262,11 @@ void Desktop_View::prependSubdirNames(QMutableListIterator<DeskTop_Selection> &i
     }
 }
 
+/**
+  * Recurse and read Subdirectories already loaded from the disk.
+  * @param idx is the selected directory to recurse.
+  * @return false if the directory is still being read, true on success.
+  */
 bool Desktop_View::getSubdirFiles(const QModelIndex &idx)
 {
     if(m_DeskFileSystem->isDir(idx)){
@@ -276,6 +293,11 @@ bool Desktop_View::getSubdirFiles(const QModelIndex &idx)
     return true;
 }
 
+/**
+  * Delete a subdirectory and it contents, user interractive handler.
+  * @param i is the iterator to the list of files to be deleted.
+  * @param ret is the user return code.
+  */
 bool Desktop_View::delSubdirFiles(QListIterator<DeskTop_Selection> &i, int &ret)
 {
     return false;
@@ -312,6 +334,12 @@ bool Desktop_View::delSubdirFiles(QListIterator<DeskTop_Selection> &i, int &ret)
     return false;
 }
 
+/**
+  * The User Delete file list, Command Handler.
+  * @param i is an iterator to the list of files and dirs.
+  * @param ret is the User selected menu return code.
+  * @return true if deleted, false in cancel or done.
+  */
 bool Desktop_View::delFile(QListIterator<DeskTop_Selection> &i, int &ret)
 {
     QString srcfspec(i.peekNext().getFspec());
@@ -331,7 +359,6 @@ bool Desktop_View::delFile(QListIterator<DeskTop_Selection> &i, int &ret)
     switch(ret){
         case QMessageBox::YesToAll:
         case QMessageBox::Yes:
-            qDebug() << "delete:" << srcfspec;
             return true;
         case QMessageBox::No:
             break;
@@ -341,10 +368,9 @@ bool Desktop_View::delFile(QListIterator<DeskTop_Selection> &i, int &ret)
     return false;
 }
 
-
-
 /**
-  * Items selected have changed call-back handler.
+  * Items selected have changed, call-back handler.
+  * @param idx is the index of the selected item
   */
 void Desktop_View::ItemSelectionChanged(const QModelIndex &idx)
 {
@@ -361,6 +387,11 @@ void Desktop_View::ItemSelectionChanged(const QModelIndex &idx)
     emit ItemSelectionChanged(Selections.count() / 3);
 }
 
+/**
+  * The Directory Load Thread, task handler. Continues to
+  * Recurse a directory tree.
+  * @param path is the current path to recurse.
+  */
 void Desktop_View::DirLoaded(const QString &path)
 {
     if(m_recurse){
@@ -378,16 +409,22 @@ void Desktop_View::DirLoaded(const QString &path)
     }
 }
 
+/**
+  * The Context menu Handler (right Click).
+  * @param act is the action that was performed.
+  */
 void Desktop_View::ActionsMenuSel(QAction *act)
 {
     QList<DeskTop_Selection> *selections;
 
     if(act == m_actionMkdir){
         mkDir();
+        return;
     }
 
     if(act == m_actionRename){
         renameSelections();
+        return;
     }
 
     if(act == m_actionDelete){
@@ -398,6 +435,9 @@ void Desktop_View::ActionsMenuSel(QAction *act)
     }
 }
 
+/**
+  * Directory read aborted handler.
+  */
 void Desktop_View::DirLoadAborted()
 {
     m_recurse = false;
@@ -565,11 +605,7 @@ void Desktop_View::deleteFile(const QModelIndex &idx, int &ret)
         case QMessageBox::YesToAll:
         case QMessageBox::Yes:
         {
-            qDebug() << "delete file:" << srcfspec;
             m_DeskFileSystem->remove(idx);
-            //QFile delfile(srcfspec);
-            //delfile.remove();
-            //qDebug() << delfile.errorString();
             return;
         }
         case QMessageBox::No:
@@ -581,6 +617,9 @@ void Desktop_View::deleteFile(const QModelIndex &idx, int &ret)
     }
 }
 
+/**
+  * Delete all the currently selected Items from Disk.
+  */
 bool Desktop_View::deleteSelections()
 {
     const QModelIndexList &Selections(selectedIndexes());
@@ -618,6 +657,10 @@ bool Desktop_View::deleteSelections()
     return true;
 }
 
+/**
+  * Make Directory on the Desktop File system.
+  * @return true on success.
+  */
 bool Desktop_View::mkDir()
 {
     const QModelIndexList &Selections(selectedIndexes());
@@ -673,8 +716,9 @@ bool Desktop_View::mkDir()
                                       QMessageBox::Ok);
             }
         }
+        return true;
     }
-    return true;
+    return false;
 }
 
 /**

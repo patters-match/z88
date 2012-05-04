@@ -757,7 +757,7 @@ bool Z88SerialPort::createDir(const QString &pathName)
  *      EazyLink Server V4.6
  *      Delete file/dir on Z88.
  *****************************************************************************/
-bool Z88SerialPort::deleteFileDir(QByteArray filename)
+bool Z88SerialPort::deleteFileDir(const QString &filename)
 {
     QByteArray deleteFileDirCmdRequest = deleteFileDirCmd;
     deleteFileDirCmdRequest.append(filename);
@@ -797,7 +797,7 @@ bool Z88SerialPort::deleteFileDir(QByteArray filename)
  *      EazyLink Server V4.7
  *      Rename file/directory on Z88.
  *****************************************************************************/
-bool Z88SerialPort::renameFileDir(QByteArray pathName, QByteArray fileName)
+bool Z88SerialPort::renameFileDir(const QString &pathName, const QString &fileName)
 {
     QByteArray renameFileDirCmdRequest = renameFileDirCmd;
     renameFileDirCmdRequest.append(pathName);  // filename (with explicit path)

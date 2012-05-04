@@ -282,7 +282,7 @@ const Z88_Selection &Z88_DevView::getItemFspec(QTreeWidgetItem *item, Z88_Select
   * @param selections is the list to be filled in.
   * @return the list of selections.
   */
-const QList<Z88_Selection> &Z88_DevView::getItemChildren(QTreeWidgetItem *item, QString &parent, QList<Z88_Selection> &selections) const
+const QList<Z88_Selection> &Z88_DevView::getItemChildren(QTreeWidgetItem *item, QString &parent, QList<Z88_Selection> &selections, bool depth_first = false) const
 {
     QTreeWidgetItem *child;
     int childcount = item->childCount();
@@ -299,11 +299,19 @@ const QList<Z88_Selection> &Z88_DevView::getItemChildren(QTreeWidgetItem *item, 
         z88Selection.setRelFspec(par);
 
         getItemFspec(child, z88Selection);
-        selections.append(z88Selection);
+
+        if(!depth_first) {
+            selections.append(z88Selection);
+        }
 
         if(child->childCount()){
             getItemChildren(child, par, selections);
         }
+
+        if(depth_first) {
+            selections.append(z88Selection);
+        }
+
     }
     return selections;
 }
@@ -333,7 +341,7 @@ QList<Z88_Selection> *Z88_DevView::getSelection(bool recurse)
 
     m_Selections.clear();
 
-    if(selections.count()){
+    if(!selections.isEmpty()){
         while(i.hasNext()){
             qti_p item(i.next());
             QString parent = item->text(0);

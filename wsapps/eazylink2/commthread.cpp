@@ -42,6 +42,7 @@ CommThread::CommThread(Z88SerialPort &port, MainWindow *parent)
    m_linefeedConversion(false),
    m_xferFileprogress(0),
    m_z88Selections(NULL),
+   m_z88RenDelSelections(NULL),
    m_deskSelections(NULL),
    m_z88Sel_itr(NULL),
    m_deskSel_itr(NULL),
@@ -109,14 +110,14 @@ void CommThread::run()
             break;
         case OP_helloZ88:
             cmdStatus("Sending Hello Z88");
-            boolCmd_result("HelloZ88", m_sport.helloZ88());
+            emit boolCmd_result("HelloZ88", m_sport.helloZ88());
             break;
         case OP_quitZ88:
         {
             if (m_sport.isZ88Available() == true) {
                 cmdStatus("Sending Z88 Quit EasyLink");
                 bool rc = m_sport.quitZ88();
-                boolCmd_result("Z88 Quit EazyLink", rc);
+                emit boolCmd_result("Z88 Quit EazyLink", rc);
                 if(rc){
                     m_sport.close();
                 }
@@ -125,11 +126,11 @@ void CommThread::run()
         break;
         case OP_reloadTransTable:
             cmdStatus("Sending Reload Translation Table");
-            boolCmd_result("Reload Translation Table", m_sport.reloadTranslationTable());
+            emit boolCmd_result("Reload Translation Table", m_sport.reloadTranslationTable());
             break;
         case OP_setZ88Clock:
             cmdStatus("Syncing Z88 Clock to host Time");
-            boolCmd_result("Z88 Clock Sync", m_sport.setZ88Time());
+            emit boolCmd_result("Z88 Clock Sync", m_sport.setZ88Time());
             break;
         case OP_getZ88Clock:
         {
@@ -145,7 +146,7 @@ void CommThread::run()
                 cmdStatus(msg);
             }
             else{
-                boolCmd_result("Reading Z88 Clock", false);
+                emit boolCmd_result("Reading Z88 Clock", false);
             }
         }
             break;
@@ -156,7 +157,7 @@ void CommThread::run()
 
             infolist->append(m_sport.getEazyLinkZ88Version());
             if(infolist->count()!=1){
-                boolCmd_result("Reading Z88 Version", false);
+                emit boolCmd_result("Reading Z88 Version", false);
                 break;
             }
             /**
@@ -165,10 +166,10 @@ void CommThread::run()
             infolist->append(m_sport.getZ88FreeMem());
 
             if(infolist->count()!=2){
-                boolCmd_result("Reading Z88 Free Memory", false);
+                emit boolCmd_result("Reading Z88 Free Memory", false);
                 break;
             }
-            boolCmd_result("Reading Z88 Info", true);
+            emit boolCmd_result("Reading Z88 Info", true);
 
             infolist->append(m_sport.getDevices());
             emit Z88Info_result(infolist);
@@ -186,7 +187,7 @@ void CommThread::run()
             devlist->append(m_sport.getDevices());
             emit Z88Devices_result(devlist);
 
-            boolCmd_result("Reading Z88 Devices", !devlist->isEmpty());
+            emit boolCmd_result("Reading Z88 Devices", !devlist->isEmpty());
 
             break;
         }
@@ -201,7 +202,7 @@ void CommThread::run()
             dirlist->append(m_sport.getDirectories(m_z88devname));
             emit Z88Dir_result(m_z88devspec, dirlist);
 
-            boolCmd_result("Reading Z88 Directories", !dirlist->isEmpty());
+            emit boolCmd_result("Reading Z88 Directories", !dirlist->isEmpty());
             break;
         }
         case OP_getFilenames:
@@ -285,7 +286,7 @@ void CommThread::run()
             emit cmdProgress("Done", -1, -1); // reset the progress dialog
             emit Z88FileSpeclist_result(m_z88devspec, fileSpeclist);
 
-            boolCmd_result("Reading Z88 Files", retc);
+            emit boolCmd_result("Reading Z88 Files", retc);
             break;
         }
         case OP_getZ88FileTree_dly:
@@ -302,7 +303,7 @@ void CommThread::run()
             emit Z88Devices_result(devlist);
 
             if(devlist->isEmpty()){
-                boolCmd_result("Reading Z88 Devices", false);
+                emit boolCmd_result("Reading Z88 Devices", false);
                 break;
             }
 
@@ -333,7 +334,7 @@ void CommThread::run()
                 _getFileNames(i.next());
                 run();
             }
-            boolCmd_result("Z88 Refresh", true);
+            emit boolCmd_result("Z88 Refresh", true);
 
             break;
         }
@@ -347,19 +348,19 @@ void CommThread::run()
             /** ensure that current translation mode is set on Z88 before actual transfer begins.. */
             if (m_byteTranslation == true) {
                 cmdStatus("Sending Enable Byte Translation");
-                boolCmd_result("Byte Translation ON", m_sport.translationOn());
+                emit boolCmd_result("Byte Translation ON", m_sport.translationOn());
             } else {
                 cmdStatus("Sending Disable Byte Translation");
-                boolCmd_result("Byte Translation OFF", m_sport.translationOff());
+                emit boolCmd_result("Byte Translation OFF", m_sport.translationOff());
             }
 
             /** ensure that current CRLF mode is also set ... */
             if (m_linefeedConversion == true) {
                 cmdStatus("Sending Enable CRLF Translation");
-                boolCmd_result("CRLF Translation ON", m_sport.linefeedConvOn());
+                emit boolCmd_result("CRLF Translation ON", m_sport.linefeedConvOn());
             } else {
                 cmdStatus("Sending Disable CRLF Translation");
-                boolCmd_result("CRLF Translation OFF", m_sport.linefeedConvOff());
+                emit boolCmd_result("CRLF Translation OFF", m_sport.linefeedConvOff());
             }
             // drop through
         }
@@ -418,7 +419,7 @@ void CommThread::run()
                     break;
                 }
 
-                boolCmd_result("Transfer", (rc == Z88SerialPort::rc_done));
+                emit boolCmd_result("Transfer", (rc == Z88SerialPort::rc_done));
 
                 if(rc != Z88SerialPort::rc_done){
                     qDebug() << "Transfer rc=" << rc;
@@ -435,7 +436,7 @@ void CommThread::run()
                     break;
                 }
                 else{
-                    boolCmd_result("File Transfer", true);
+                    emit boolCmd_result("File Transfer", true);
                 }
 
             } while(m_z88Sel_itr->hasNext());
@@ -484,19 +485,19 @@ void CommThread::run()
             /** ensure that current translation mode is set on Z88 before actual transfer begins.. */
             if (m_byteTranslation == true) {
                 cmdStatus("Sending Enable Byte Translation");
-                boolCmd_result("Byte Translation ON", m_sport.translationOn());
+                emit boolCmd_result("Byte Translation ON", m_sport.translationOn());
             } else {
                 cmdStatus("Sending Disable Byte Translation");
-                boolCmd_result("Byte Translation OFF", m_sport.translationOff());
+                emit boolCmd_result("Byte Translation OFF", m_sport.translationOff());
             }
 
             /** ensure that current CRLF mode is also set ... */
             if (m_linefeedConversion == true) {
                 cmdStatus("Sending Enable CRLF Translation");
-                boolCmd_result("CRLF Translation ON", m_sport.linefeedConvOn());
+                emit boolCmd_result("CRLF Translation ON", m_sport.linefeedConvOn());
             } else {
                 cmdStatus("Sending Disable CRLF Translation");
-                boolCmd_result("CRLF Translation OFF", m_sport.linefeedConvOff());
+                emit boolCmd_result("CRLF Translation OFF", m_sport.linefeedConvOff());
             }
             // drop through
         }
@@ -547,6 +548,7 @@ void CommThread::run()
                   */
                 bool rc;
                 QString destFspec = m_destPath + desksel.getFname();
+
                 if(desksel.getType() == DeskTop_Selection::type_Dir){
                     rc = m_sport.createDir(destFspec);
                     if(!rc){
@@ -564,7 +566,7 @@ void CommThread::run()
                     break;
                 }
 
-                boolCmd_result("Transfer", rc);
+                emit boolCmd_result("Transfer", rc);
 
                 if(!rc){
                     break;
@@ -590,7 +592,7 @@ void CommThread::run()
                      */
                     emit refreshSelectedZ88DeviceView();
 
-                    boolCmd_result("File Transfer", true);
+                    emit boolCmd_result("File Transfer", true);
                 }
 
             } while(m_deskSel_itr->hasNext());
@@ -625,6 +627,253 @@ void CommThread::run()
             }
 
             break;
+        }
+        case OP_createDir:
+        {
+            emit cmdStatus("Creating Directory " + m_z88devspec);
+
+            bool rc;
+
+            rc = m_sport.createDir(m_z88devspec);
+
+            if(rc){
+                /**
+                 * Refresh the Device view
+                 */
+                emit refreshSelectedZ88DeviceView();
+            }
+            else{
+                QList<QByteArray> dirs(m_sport.getDirectories(m_z88devspec));
+                QListIterator<QByteArray> i(dirs);
+
+                while(i.hasNext()){
+                    if(QString(i.next()) == m_z88devspec){
+                        QString msg("Directory " + m_z88devspec + " Already exists!");
+
+                        emit cmdStatus(msg);
+                        emit displayCritError("Cannot Create Directory.\n" + msg);
+                        goto done;
+                    }
+                }
+            }
+
+            emit boolCmd_result("Make Directory", rc);
+done:
+            break;
+        }
+        case OP_initrenameDirFiles:
+        {
+            delete m_z88rendel_itr;
+            m_z88rendel_itr = new QMutableListIterator<Z88_Selection> (*m_z88RenDelSelections);
+
+            m_z88rendel_itr->toFront();
+            // Drop Through
+        }
+        case OP_renameDirFiles:
+        {
+            if(m_z88rendel_itr->hasNext()){
+                emit PromptRename(m_z88rendel_itr);
+            }
+            else{
+                /**
+                 * Refresh the Device view
+                 */
+                emit refreshSelectedZ88DeviceView();
+            }
+            break;
+        }
+        case OP_renameDirFile:
+        {
+            bool rc = true;
+
+            if(!m_destPath.isEmpty()){
+                rc = m_sport.renameFileDir(m_z88devspec, m_destPath);
+
+                if(rc){
+                    emit boolCmd_result("Rename", rc);
+                }
+                else{
+                    int idx = m_z88devspec.lastIndexOf('/');
+                    if(idx > -1){
+                        m_destPath = m_z88devspec.mid(0, idx) + '/' + m_destPath;
+                    }
+
+                    if(m_z88rendel_itr->peekNext().getType() == Z88_DevView::type_Dir){
+
+                        QList<QByteArray> dirs(m_sport.getDirectories(m_destPath));
+                        QListIterator<QByteArray> i(dirs);
+
+                        while(i.hasNext()){
+                            if(QString(i.next()) == m_destPath){
+                                QString msg("Cannot Rename Directory.\n" + m_destPath + " Already exists!");
+                                emit renameCmd_result(msg, rc);
+                                break;
+                            }
+                        }
+                    }
+                    else{
+                        /* Rename of File Failed */
+                        if(m_sport.isFileAvailable(m_destPath)){
+                            QString msg("Cannot Rename File.\n" + m_destPath + " Already exists!");
+                            emit renameCmd_result(msg, rc);
+                        }
+                    }
+                }
+            }
+
+            if(rc){
+                m_z88rendel_itr->next();
+                /**
+                  * Do the Next one
+                  */
+                m_curOP = OP_renameDirFiles;
+                run();
+            }
+
+            break;
+        }
+        case OP_initdelDirFiles:
+        {
+            delete m_z88rendel_itr;
+            m_z88rendel_itr = new QMutableListIterator<Z88_Selection> (*m_z88RenDelSelections);
+            m_xferFileprogress = 0;
+            m_z88rendel_itr->toFront();
+
+            // Drop Through
+        }
+        case OP_delDirFiles:
+        {
+            if(m_z88rendel_itr->hasNext()){
+
+                const Z88_Selection &z88sel(m_z88rendel_itr->peekNext());
+                QString srcname(z88sel.getFspec());
+
+                if(m_enaPromtUser){
+                    emit PromptDeleteSpec(srcname, (z88sel.getType() == Z88_DevView::type_Dir), &m_enaPromtUser);
+                    break;
+                }
+
+                m_curOP = OP_delDirFile;
+                run();
+            }
+            emit cmdProgress("Done", -1, -1); // reset the progress dialog
+
+            break;
+        }
+        case OP_delDirFile:
+        {
+            if(!m_z88RenDelSelections){
+                break;
+            }
+
+            do{
+                if(m_abort){
+                    cmdStatus("Delete Aborted..");
+                    break;
+                }
+
+                const Z88_Selection &z88sel(m_z88rendel_itr->next());
+                QString srcname(z88sel.getFspec());
+
+                QString msg = "Erasing ";
+                msg += srcname;
+
+                /**
+                  * Update the Progress Bar
+                  */
+                emit cmdProgress(msg, m_xferFileprogress, m_z88RenDelSelections->count());
+
+                qDebug() << "z88 erase:" << srcname;
+
+                /**
+                  * Request the delete of the file / dir
+                  */
+                bool rc = m_sport.deleteFileDir(srcname);
+
+                m_xferFileprogress++;
+
+                if(!rc){
+                    bool retc;
+                    /**
+                      * See if the dir is empty
+                      */
+                    if(z88sel.getType() == Z88_DevView::type_Dir){
+                        int cnt = m_sport.getFilenames(srcname + '*', retc).count();
+                        if(!retc){
+                            emit boolCmd_result("Delete " + srcname, false);
+                            goto done2;
+                        }
+                        if(cnt > 0){
+                            rc = true;
+                        }
+                    }
+                    else{
+                        int cnt = m_sport.getFilenames(srcname , retc).count();
+                        if(!cnt || !retc){
+                            emit boolCmd_result("Delete " + srcname, false);
+                            goto done2;
+                        }
+                    }
+                }
+
+                if(!rc){
+                    m_z88rendel_itr->previous();
+                    emit PromptDeleteRetry(srcname, (z88sel.getType() == Z88_DevView::type_Dir));
+                    goto done2;
+                    break;
+                }
+
+                if(m_enaPromtUser && m_z88rendel_itr->hasNext()){
+                    const Z88_Selection &z88selnxt(m_z88rendel_itr->peekNext());
+
+                    srcname = z88selnxt.getFspec();
+                    emit PromptDeleteSpec(srcname, (z88sel.getType() == Z88_DevView::type_Dir), &m_enaPromtUser);
+                    goto done2;
+                }
+
+            }while(m_z88rendel_itr->hasNext());
+
+            emit cmdProgress("Done", -1, -1); // reset the progress dialog
+
+            /**
+             * Refresh the Device view
+             */
+            emit refreshSelectedZ88DeviceView();
+done2:
+            break;
+        }
+        case OP_delDirFileNext:
+        {
+            /**
+              * Skip the current file
+              */
+            if(m_z88rendel_itr->hasNext()){
+                m_z88rendel_itr->next();
+                m_xferFileprogress++;
+            }
+
+            /**
+              * Delete the next file
+              */
+            if(m_z88rendel_itr->hasNext()){
+                m_curOP = OP_delDirFiles;
+                run();
+            }
+            else{
+                /**
+                 * Refresh the Device view
+                 */
+                 emit refreshSelectedZ88DeviceView();
+            }
+            break;
+        }
+        case OP_refreshZ88View:
+        {
+            emit cmdProgress("Done", -1, -1);
+            _getDirectories(m_devname);
+            run();
+            _getFileNames(m_devname);
+            run();
         }
     }
 abort:
@@ -957,12 +1206,139 @@ bool CommThread::getDevices()
   * Refresh the Specified Z88 Device View.
   * @param devname is the name of the Z88 Sotrage device.
   */
-void CommThread::RefreshZ88DeviceView(const QString &devname)
+bool CommThread::RefreshZ88DeviceView(const QString &devname)
 {
-    _getDirectories(devname);
-    run();
-    _getFileNames(devname);
-    run();
+    QMutexLocker locker(&m_mutex);
+
+    /**
+      * Make sure we are not running another command
+      */
+    if(m_curOP != OP_idle){
+        return false;
+    }
+
+    m_devname = devname;
+
+    startCmd(OP_refreshZ88View);
+
+    return true;
+}
+
+bool CommThread::mkDir(const QString &dirname)
+{
+        QMutexLocker locker(&m_mutex);
+
+        /**
+          * Make sure we are not running another command
+          */
+        if(m_curOP != OP_idle){
+            return false;
+        }
+
+        m_z88devspec = dirname;
+
+        startCmd(OP_createDir);
+
+        return true;
+}
+
+bool CommThread::renameFileDir(const QString &oldname, const QString &newname)
+{
+    QMutexLocker locker(&m_mutex);
+
+    /**
+      * Make sure we are not running another command
+      */
+    if(m_curOP != OP_idle){
+        return false;
+    }
+
+    m_z88devspec = oldname;
+    m_destPath = newname;
+
+    startCmd(OP_renameDirFile);
+
+    return true;
+}
+
+bool CommThread::renameFileDirectories(QList<Z88_Selection> *z88Selections)
+{
+    QMutexLocker locker(&m_mutex);
+
+    /**
+      * Make sure we are not running another command
+      */
+    if(m_curOP != OP_idle){
+        return false;
+    }
+
+    m_z88RenDelSelections = z88Selections;
+
+    startCmd(OP_initrenameDirFiles);
+
+    return true;
+}
+
+bool CommThread::renameFileDirRety(bool next)
+{
+    QMutexLocker locker(&m_mutex);
+
+    /**
+      * Make sure we are not running another command
+      */
+    if(m_curOP != OP_idle){
+        return false;
+    }
+
+    if(m_z88rendel_itr && m_z88rendel_itr->hasNext()){
+        if(next){
+            m_z88rendel_itr->next();
+        }
+
+        startCmd(OP_renameDirFiles);
+    }
+    return true;
+}
+
+bool CommThread::deleteFileDirectories(QList<Z88_Selection> *z88Selections, bool prompt_usr)
+{
+    QMutexLocker locker(&m_mutex);
+
+    /**
+      * Make sure we are not running another command
+      */
+    if(m_curOP != OP_idle){
+        return false;
+    }
+
+    m_enaPromtUser = prompt_usr;
+    m_z88RenDelSelections = z88Selections;
+
+    startCmd(OP_initdelDirFiles);
+
+    return true;
+}
+
+bool CommThread::deleteFileDirectory(bool next)
+{
+
+    QMutexLocker locker(&m_mutex);
+
+    /**
+      * Make sure we are not running another command
+      */
+    if(m_curOP != OP_idle){
+        return false;
+    }
+
+    if(next){
+        startCmd(OP_delDirFileNext,false);
+    }
+    else{
+        startCmd(OP_delDirFile,false);
+    }
+
+    return true;
 }
 
 /**
@@ -1144,7 +1520,9 @@ bool CommThread::sendFiles(QList<DeskTop_Selection> *deskSelections, const QStri
         return false;
     }
 
-    m_deskSelections = deskSelections;
+    delete m_deskSelections;
+
+    m_deskSelections = deskSelections;// new QList<DeskTop_Selection> (*deskSelections);
     m_enaPromtUser = prompt_usr;
     m_destPath = destpath;
 
