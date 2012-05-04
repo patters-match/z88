@@ -892,9 +892,10 @@ done2:
         case OP_refreshZ88View:
         {
             emit cmdProgress("Done", -1, -1);
-            _getDirectories(m_devname);
+            qDebug() << "refresh dev=" << m_z88devspec;
+            _getDirectories(m_z88devspec);
             run();
-            _getFileNames(m_devname);
+            _getFileNames(m_z88devspec);
             run();
         }
     }
@@ -1239,7 +1240,7 @@ bool CommThread::RefreshZ88DeviceView(const QString &devname)
         return false;
     }
 
-    m_devname = devname;
+    m_z88devspec = devname;
 
     startCmd(OP_refreshZ88View);
 
