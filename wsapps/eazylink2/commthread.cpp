@@ -90,7 +90,7 @@ void CommThread::run()
         case OP_reopen:
             m_curOP = OP_openDevName;
             run();
-            if(m_redo_lastCmd){
+            if(m_redo_lastCmd && m_sport.isOpen()){
                 m_curOP = m_prevOP;
                 m_redo_lastCmd = false;
                 run();
@@ -348,19 +348,31 @@ void CommThread::run()
             /** ensure that current translation mode is set on Z88 before actual transfer begins.. */
             if (m_byteTranslation == true) {
                 cmdStatus("Sending Enable Byte Translation");
-                emit boolCmd_result("Byte Translation ON", m_sport.translationOn());
+                if(!m_sport.translationOn()){
+                    emit boolCmd_result("Byte Translation ON", false);
+                    break;
+                }
             } else {
                 cmdStatus("Sending Disable Byte Translation");
-                emit boolCmd_result("Byte Translation OFF", m_sport.translationOff());
+                if(!m_sport.translationOff()){
+                    emit boolCmd_result("Byte Translation OFF", false);
+                    break;
+                }
             }
 
             /** ensure that current CRLF mode is also set ... */
             if (m_linefeedConversion == true) {
                 cmdStatus("Sending Enable CRLF Translation");
-                emit boolCmd_result("CRLF Translation ON", m_sport.linefeedConvOn());
+                if(!m_sport.linefeedConvOn()){
+                    emit boolCmd_result("CRLF Translation ON", false);
+                    break;
+                }
             } else {
                 cmdStatus("Sending Disable CRLF Translation");
-                emit boolCmd_result("CRLF Translation OFF", m_sport.linefeedConvOff());
+                if(!m_sport.linefeedConvOff()){
+                    emit boolCmd_result("CRLF Translation OFF", false);
+                    break;
+                }
             }
             // drop through
         }
@@ -485,19 +497,29 @@ void CommThread::run()
             /** ensure that current translation mode is set on Z88 before actual transfer begins.. */
             if (m_byteTranslation == true) {
                 cmdStatus("Sending Enable Byte Translation");
-                emit boolCmd_result("Byte Translation ON", m_sport.translationOn());
+                if(!m_sport.translationOn()){
+                    emit boolCmd_result("Byte Translation ON", false);
+                    break;
+                }
             } else {
                 cmdStatus("Sending Disable Byte Translation");
-                emit boolCmd_result("Byte Translation OFF", m_sport.translationOff());
+                if(!m_sport.translationOff()){
+                    emit boolCmd_result("Byte Translation OFF", false);
+                    break;
+                }
             }
 
             /** ensure that current CRLF mode is also set ... */
             if (m_linefeedConversion == true) {
                 cmdStatus("Sending Enable CRLF Translation");
-                emit boolCmd_result("CRLF Translation ON", m_sport.linefeedConvOn());
+                if(!m_sport.linefeedConvOn()){
+                    emit boolCmd_result("CRLF Translation ON", false);
+                }
             } else {
                 cmdStatus("Sending Disable CRLF Translation");
-                emit boolCmd_result("CRLF Translation OFF", m_sport.linefeedConvOff());
+                if(!m_sport.linefeedConvOff()){
+                    emit boolCmd_result("CRLF Translation OFF", false);
+                }
             }
             // drop through
         }

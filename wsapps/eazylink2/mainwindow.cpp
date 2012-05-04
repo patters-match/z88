@@ -513,8 +513,6 @@ void MainWindow::cmdStatus(const QString &msg)
   */
 void MainWindow::cmdProgress(const QString &title, int curVal, int total)
 {
-    qDebug() << "cv=" << curVal << " tot=" << total;
-
     if(total < 0){
         if(m_cmdProgress) m_cmdProgress->reset();
         return;
