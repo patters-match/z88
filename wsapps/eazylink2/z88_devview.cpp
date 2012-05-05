@@ -348,30 +348,30 @@ void Z88_DevView::set_EntryIcon(QTreeWidgetItem *qt, const QString &fname, entry
       * Set the Icon for the file type
       */
     if(d_type == type_Dir){
-        qt->setIcon(0,QIcon(":/images/images/folder.png"));
+        qt->setIcon(0,QIcon(":/images/folder_icon"));
     }
     else{
         if(!QString::compare(ext, "bin",Qt::CaseInsensitive )){
-            qt->setIcon(0,QIcon(":/images/images/binary.png"));
+            qt->setIcon(0,QIcon(":/images/bin_icon"));
             return;
         }
         if(!QString::compare(ext, "bas",Qt::CaseInsensitive )){
-            qt->setIcon(0,QIcon(":/images/images/text_x_source.png"));
+            qt->setIcon(0,QIcon(":/images/bas_icon"));
             return;
         }
         if(!QString::compare(ext, "txt",Qt::CaseInsensitive )){
-            qt->setIcon(0,QIcon(":/images/images/z_file_txt.png"));
+            qt->setIcon(0,QIcon(":/images/txt_icon"));
             return;
         }
         if(!QString::compare(ext, "zip",Qt::CaseInsensitive )){
-            qt->setIcon(0,QIcon(":/images/images/filetype_zip.png"));
+            qt->setIcon(0,QIcon(":/images/zip_icon"));
             return;
         }
         if(!QString::compare(ext, "cli",Qt::CaseInsensitive )){
-            qt->setIcon(0,QIcon(":/images/images/text_x_script.png"));
+            qt->setIcon(0,QIcon(":/images/cli_icon"));
             return;
         }
-        qt->setIcon(0,QIcon(":/images/images/file.png"));
+        qt->setIcon(0,QIcon(":/images/file_icon"));
     }
 }
 
