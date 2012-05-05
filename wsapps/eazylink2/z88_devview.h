@@ -70,6 +70,8 @@ protected:
     const QList<Z88_Selection> &getItemChildren(QTreeWidgetItem *item,
                                                 QString &parent, QList<Z88_Selection> &selections, bool depth_first)const;
 
+    void set_EntryIcon(QTreeWidgetItem *qt, const QString &fname, entryType d_type);
+
     /**
       * The Communications Thread.
       */

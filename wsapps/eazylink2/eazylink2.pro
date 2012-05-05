@@ -32,3 +32,6 @@ z88filespec.h \
 desktop_view.h
 
 FORMS    += mainwindow.ui
+
+RESOURCES += \
+    images.qrc

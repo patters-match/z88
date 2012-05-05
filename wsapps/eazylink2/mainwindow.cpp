@@ -1157,8 +1157,15 @@ void MainWindow::StartSending(QList<DeskTop_Selection> *desk_selections, QList<Z
         msg += " and ";
     }
 
-    msg += QString("%1 Directories").arg(ds->count() - filecnt);
-    msg += " To Z88";
+    int dir_cnt(ds->count() - filecnt);
+
+    if(dir_cnt == 1){
+        msg += QString("1 Directory").arg(dir_cnt);
+    }
+    else{
+        msg += QString("%1 Directories").arg(dir_cnt);
+    }
+    msg += " to the Z88";
 
     msgBox.setText(msg);
     msgBox.setIcon(QMessageBox::Question);
@@ -1219,10 +1226,15 @@ void MainWindow::StartReceiving(QList<Z88_Selection> &z88_selections, QList<Desk
         msg += " and ";
     }
 
-    msg += QString("%1 Directories").arg(z88_selections.count() - filecnt);
+    int dir_cnt(z88_selections.count() - filecnt);
 
-
-    msg += " From Z88";
+    if(dir_cnt == 1){
+        msg += QString("1 Directory").arg(dir_cnt);
+    }
+    else{
+        msg += QString("%1 Directories").arg(dir_cnt);
+    }
+    msg += " From the Z88";
 
     msgBox.setText(msg);
     msgBox.setIcon(QMessageBox::Question);

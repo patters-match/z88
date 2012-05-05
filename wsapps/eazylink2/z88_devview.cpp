@@ -16,6 +16,7 @@
 **********************************************************************************************/
 
 #include <QListIterator>
+#include<QIcon>
 #include "z88_devview.h"
 
 /**
@@ -134,6 +135,12 @@ bool Z88_DevView::insertUniqueFspec(QStringList &fspec_list, entryType d_type,
                     }
                 }
                 QTreeWidgetItem *qt = new QTreeWidgetItem(entry, d_type);
+
+                /**
+                  * Set the Icon for the file type
+                  */
+                set_EntryIcon(qt, fspec_list[0], d_type);
+
                 addTopLevelItem(qt);
 
                 fspec_list.removeFirst();
@@ -221,6 +228,11 @@ bool Z88_DevView::insertFspecList(QTreeWidgetItem *parent, QStringList &fspec_li
         }
 
         qt = new QTreeWidgetItem(entry, d_type);
+
+        /**
+          * Set the Icon for the file type
+          */
+        set_EntryIcon(qt, fspec_list[0], d_type);
 
         parent->addChild(qt);
 
@@ -314,6 +326,53 @@ const QList<Z88_Selection> &Z88_DevView::getItemChildren(QTreeWidgetItem *item, 
 
     }
     return selections;
+}
+
+/**
+  * Add an Icon based on the file type.
+  * @param qt is the q tree widget item.
+  * @param fname is the file name
+  * @param d_type is the type of entry, dir or file
+  */
+void Z88_DevView::set_EntryIcon(QTreeWidgetItem *qt, const QString &fname, entryType d_type)
+{
+    QString ext;
+
+    int idx = fname.lastIndexOf('.');
+
+    if(idx > -1){
+        ext= fname.mid(idx + 1,3);
+    }
+
+    /**
+      * Set the Icon for the file type
+      */
+    if(d_type == type_Dir){
+        qt->setIcon(0,QIcon(":/images/images/folder.png"));
+    }
+    else{
+        if(!QString::compare(ext, "bin",Qt::CaseInsensitive )){
+            qt->setIcon(0,QIcon(":/images/images/binary.png"));
+            return;
+        }
+        if(!QString::compare(ext, "bas",Qt::CaseInsensitive )){
+            qt->setIcon(0,QIcon(":/images/images/text_x_source.png"));
+            return;
+        }
+        if(!QString::compare(ext, "txt",Qt::CaseInsensitive )){
+            qt->setIcon(0,QIcon(":/images/images/z_file_txt.png"));
+            return;
+        }
+        if(!QString::compare(ext, "zip",Qt::CaseInsensitive )){
+            qt->setIcon(0,QIcon(":/images/images/filetype_zip.png"));
+            return;
+        }
+        if(!QString::compare(ext, "cli",Qt::CaseInsensitive )){
+            qt->setIcon(0,QIcon(":/images/images/text_x_script.png"));
+            return;
+        }
+        qt->setIcon(0,QIcon(":/images/images/file.png"));
+    }
 }
 
 /**
