@@ -355,6 +355,14 @@ void Z88_DevView::set_EntryIcon(QTreeWidgetItem *qt, const QString &fname, entry
             qt->setIcon(0,QIcon(":/images/bin_icon"));
             return;
         }
+        if(!QString::compare(ext, "epr",Qt::CaseInsensitive )){
+            qt->setIcon(0,QIcon(":/images/bin_icon"));
+            return;
+        }
+        if(ext >= "0" && ext <= "63"){
+            qt->setIcon(0,QIcon(":/images/bin_icon"));
+            return;
+        }
         if(!QString::compare(ext, "bas",Qt::CaseInsensitive )){
             qt->setIcon(0,QIcon(":/images/bas_icon"));
             return;
