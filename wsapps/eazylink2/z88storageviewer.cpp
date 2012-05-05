@@ -366,6 +366,8 @@ bool Z88StorageViewer::mkDir()
   */
 void Z88StorageViewer::Z88Devices_result(QList<QByteArray> *devlist)
 {
+    int idx = currentIndex();
+
     /**
       * Clean Up Previous Entries if any
       */
@@ -433,6 +435,8 @@ void Z88StorageViewer::Z88Devices_result(QList<QByteArray> *devlist)
             addTab(m_Eprdevices[x], m_Eprdevices[x]->getDevname());
         }
     }
+
+    setCurrentIndex(idx);
 }
 
 /**

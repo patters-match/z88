@@ -26,7 +26,7 @@
 
 class MainWindow;
 
-static const int DEVCNT = 5;
+static const int DEVCNT = 8;
 
 /**
   * The Z88 Tabbed Storage Viewer.
