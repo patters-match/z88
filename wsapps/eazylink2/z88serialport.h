@@ -65,6 +65,7 @@ public:
     bool createDir(const QString &pathName);                        // create directory on the Z88 filing system
     bool deleteFileDir(const QString &fileName);                        // delete a file / directory on the Z88 filing system
     bool renameFileDir(const QString &pathName, const QString &fileName);   // rename a file / directory on the Z88 filing system
+    bool syncZ88Time();                                             // synchronize Z88 time with Desktop time, if necessary
     bool setFileDateStamps(QByteArray fileName,
                            QByteArray createDate,
                            QByteArray updateDate);                  // set Create & Update date stamps of Z88 file

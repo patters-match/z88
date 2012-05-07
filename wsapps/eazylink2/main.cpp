@@ -69,7 +69,7 @@ int main(int argc, char *argv[])
 
         qDebug() << "Z88 EazyLink version / protocol = " << p.getEazyLinkZ88Version();
         qDebug() << "Z88 current time = " << p.getZ88Time();
-        qDebug() << "Set Z88 time using PC time = " << p.setZ88Time();
+        qDebug() << "Synch Z88 time using PC time (if necessary): " << p.syncZ88Time();
         qDebug() << "Z88 current time = " << p.getZ88Time();
         qDebug() << "Z88 Free Memory = " << p.getZ88FreeMem();
         qDebug() << "Z88 Free Memory for :RAM.1 = " << p.getZ88DeviceFreeMem("1");
@@ -77,8 +77,7 @@ int main(int argc, char *argv[])
         qDebug() << "Z88 RAM Defaults = " << p.getRamDefaults();
         qDebug() << "Z88 RAM Directories for :RAM.1 = " << p.getDirectories(":RAM.0//*");
         //qDebug() << "Z88 Files in RAM.1/dir1 = " << p.getFilenames(":RAM.0/dir1/*");
-        qDebug() << "Z88 Files in RAM.1 = " << p.getFilenames(":RAM.0//*");
-
+        //qDebug() << "Z88 Files in RAM.1 = " << p.getFilenames(":RAM.0//*");
         //qDebug() << "Z88 Files in EPR.3 = " << p.getFilenames(":EPR.3");
 
         qDebug() << "Date stamps of ':RAM.0/Readme.txt' = " << p.getFileDateStamps(":RAM.0/Readme.txt");

@@ -494,6 +494,10 @@ void CommThread::run()
             m_deskSel_itr->toFront();
             m_xferFileprogress = 0;
 
+            /** ensure that Z88 time is equal to desktop time, before transfering file to Z88 */
+            if (m_sport.syncZ88Time() == true)
+                cmdStatus("Z88 Time has been synchronised with desktop time");
+
             /** ensure that current translation mode is set on Z88 before actual transfer begins.. */
             if (m_byteTranslation == true) {
                 cmdStatus("Sending Enable Byte Translation");
