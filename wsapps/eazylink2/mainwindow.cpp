@@ -26,8 +26,16 @@
 
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include "prefrences_dlg.h"
+
 #include "z88serialport.h"
 #include "serialportsavail.h"
+
+#ifdef Q_OS_WIN32
+static const char *CONF_FILENAME = "\\eazylink2.cfg";
+#else
+    static const char *CONF_FILENAME = "/eazylink2.cfg";
+#endif
 
 /**
   * The mainWindow Constructor
@@ -47,7 +55,8 @@ MainWindow::MainWindow(Z88SerialPort &sport, QWidget *parent) :
     m_cmdSuccessCount(0),
     m_Z88SelectionCount(-1),
     m_DeskSelectionCount(0),
-    m_isTransfer(false)
+    m_isTransfer(false),
+    m_prefsDialog(new Prefrences_dlg(QDir::homePath() + CONF_FILENAME, this, &m_cthread, this))
 {
     /**
       * Set up the Ui created by the QT Designer.
@@ -83,6 +92,17 @@ MainWindow::MainWindow(Z88SerialPort &sport, QWidget *parent) :
       */
     createActions();
 
+    QString serialPortname;
+    QString port_shortname;
+
+    if(!m_prefsDialog->getSerialPort_Name(serialPortname, port_shortname)){
+        m_prefsDialog->Activate(Prefrences_dlg::Comms);
+    }
+
+    if(m_prefsDialog->get_PortOpenOnStart() &&
+            m_prefsDialog->getSerialPort_Name(serialPortname, port_shortname)){
+        m_cthread.open(serialPortname, port_shortname);
+    }
 }
 
 /**
@@ -90,7 +110,6 @@ MainWindow::MainWindow(Z88SerialPort &sport, QWidget *parent) :
   */
 MainWindow::~MainWindow()
 {
-    delete ui;
     /**
       * request abort from the Current Comm Thread operation,
       * And wait for the thread to complete.
@@ -99,11 +118,17 @@ MainWindow::~MainWindow()
     if (m_cthread.isBusy()) {
         m_cthread.AbortCmd();
     } else {
-        // send a "quit" to Z88 EazyLink popdown, if Z88 communication exists..
-        m_cthread.quitZ88();
+        if(m_prefsDialog->get_ShutdownEZ_OnExit()){
+            // send a "quit" to Z88 EazyLink popdown, if Z88 communication exists..
+            m_cthread.quitZ88();
+        }
     }
 
     m_cthread.wait();
+
+    delete ui;
+
+    delete m_prefsDialog;
 }
 
 /**
@@ -131,6 +156,11 @@ void MainWindow::setZ88DirLabel(const QString &path)
 void MainWindow::refreshSelectedZ88DeviceView()
 {
     m_Z88StorageView->refreshSelectedDeviceView();
+}
+
+void MainWindow::displayPrefs()
+{
+    m_prefsDialog->Activate(Prefrences_dlg::Default);
 }
 
 /**
@@ -164,9 +194,7 @@ void MainWindow::createActions()
     ui->Ui::MainWindow::actionHello->setStatusTip(tr("Send HelloZ88"));
     connect(ui->Ui::MainWindow::actionHello, SIGNAL(triggered()), this, SLOT(helloZ88()));
 
-    connect(ui->Ui::MainWindow::actionTranslateByte, SIGNAL(triggered()), this, SLOT(ByteTrans()));
-    connect(ui->Ui::MainWindow::actionTranslateCRLF, SIGNAL(triggered()), this, SLOT(CRLFTrans()));
-    connect(ui->Ui::MainWindow::actionReload_Table, SIGNAL(triggered()), this, SLOT(ReloadTranslation()));
+    connect(ui->Ui::MainWindow::actionReload_TransTable, SIGNAL(triggered()), this, SLOT(ReloadTranslation()));
     connect(ui->Ui::MainWindow::actionSet_Z88_Clock, SIGNAL(triggered()), this, SLOT(SetZ88Clock()));
     connect(ui->Ui::MainWindow::actionReadZ88_Clock, SIGNAL(triggered()), this, SLOT(getZ88Clock()));
     connect(ui->Ui::MainWindow::actionGet_Info, SIGNAL(triggered()), this, SLOT(getZ88Info()));
@@ -178,9 +206,11 @@ void MainWindow::createActions()
     connect(ui->Ui::MainWindow::actionAbout, SIGNAL(triggered()), this, SLOT(AboutEazylink()));
 
     connect(ui->Ui::MainWindow::CancelCmdBtn, SIGNAL(pressed()), this, SLOT(AbortCmd()));
+    connect(ui->Ui::MainWindow::actionPreferences, SIGNAL(triggered()), this, SLOT(displayPrefs()));
 
     connect(m_Z88StorageView,  SIGNAL(ItemSelectionChanged(int)), this, SLOT(Z88SelectionChanged(int)));
     connect(m_DeskTopTreeView, SIGNAL(ItemSelectionChanged(int)), this, SLOT(DeskTopSelectionChanged(int)));
+
 
     /**
       * Configure Communication Thread Events
@@ -260,6 +290,13 @@ void MainWindow::createActions()
             this,
             SLOT(PromptDeleteRetry(const QString &, bool)));
 
+    /**
+      * Pref panel events
+      */
+    connect(m_prefsDialog,
+            SIGNAL(SerialPortSelChanged()),
+            this,
+            SLOT(SerialPortSelChanged()));
 }
 
 /**
@@ -312,22 +349,13 @@ bool MainWindow::DisplayCommError(const QString &title, const QString &msg)
  */
 void MainWindow::selSerialPort()
 {
+
     openSelSerialDialog();
 }
 
 void MainWindow::helloZ88()
 {
     get_comThread().helloZ88();
-}
-
-void MainWindow::ByteTrans()
-{
-    get_comThread().ByteTrans(ui->Ui::MainWindow::actionTranslateByte->isChecked());
-}
-
-void MainWindow::CRLFTrans()
-{
-    get_comThread().CRLFTrans(ui->Ui::MainWindow::actionTranslateCRLF->isChecked());
 }
 
 void MainWindow::ReloadTranslation()
@@ -413,7 +441,6 @@ void MainWindow::enableCmds(bool ena, bool com_isOpen)
       */
     ui->Ui::MainWindow::menuSettings->setEnabled(ena);
     ui->Ui::MainWindow::menuFile->setEnabled(ena);
-    ui->Ui::MainWindow::menu_Options->setEnabled(ena);
     ui->Ui::MainWindow::actionSerialPort->setEnabled(ena);
 
     /**
@@ -422,9 +449,10 @@ void MainWindow::enableCmds(bool ena, bool com_isOpen)
     if(!com_isOpen){
         ena = false;
     }
+
     ui->Ui::MainWindow::menuZ88->setEnabled(ena);
     ui->Ui::MainWindow::toolBar->setEnabled(ena);
-    ui->Ui::MainWindow::menuTranslations->setEnabled(ena);
+    ui->Ui::MainWindow::actionReload_TransTable->setEnabled(ena);
     ui->Ui::MainWindow::actionQuitEazyLink->setEnabled(ena);
     ui->Ui::MainWindow::actionEazyLink_Hello->setEnabled(ena);
     ui->Ui::MainWindow::actionReceive_files_from_Z88_Imp_Export_popdown->setEnabled(ena);
@@ -440,6 +468,8 @@ void MainWindow::enableCmds(bool ena, bool com_isOpen)
   */
 bool MainWindow::openSelSerialDialog()
 {
+    m_prefsDialog->Activate(Prefrences_dlg::Comms);
+#if 0
     SerialPortsAvail SportsAvail;
     bool ok;
 
@@ -452,9 +482,10 @@ bool MainWindow::openSelSerialDialog()
         /**
           * Try to opend the Serial Device Specified
           */
-        ok = get_comThread().open(SportsAvail.get_fullportName(item), item);
+        ok = m_cthread.open(SportsAvail.get_fullportName(item), item);
     }
-    return ok;
+#endif
+    return true;
 }
 
 
@@ -475,6 +506,10 @@ void MainWindow::commOpen_result(const QString &, const QString &short_name, boo
         msg += short_name;
 
         m_StatusLabel->setText(msg);
+
+        if(m_prefsDialog->get_RefreshZ88OnStart()){
+            ReloadZ88View();
+        }
     }
     else{
         QString msg;
@@ -893,6 +928,16 @@ void MainWindow::renameCmd_result(const QString &msg, bool success)
         default:
             break;
         }
+    }
+}
+
+void MainWindow::SerialPortSelChanged()
+{
+    QString serialPortname;
+    QString port_shortname;
+
+    if(m_prefsDialog->getSerialPort_Name(serialPortname, port_shortname)){
+        m_cthread.open(serialPortname, port_shortname);
     }
 }
 

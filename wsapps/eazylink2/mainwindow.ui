@@ -212,25 +212,8 @@
     <property name="title">
      <string>&amp;Settings</string>
     </property>
-    <widget class="QMenu" name="menu_Options">
-     <property name="title">
-      <string>&amp;Options..</string>
-     </property>
-     <widget class="QMenu" name="menuTranslations">
-      <property name="enabled">
-       <bool>false</bool>
-      </property>
-      <property name="title">
-       <string>Translations</string>
-      </property>
-      <addaction name="actionTranslateByte"/>
-      <addaction name="actionTranslateCRLF"/>
-      <addaction name="actionReload_Table"/>
-     </widget>
-     <addaction name="menuTranslations"/>
-    </widget>
     <addaction name="actionSerialPort"/>
-    <addaction name="menu_Options"/>
+    <addaction name="actionPreferences"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
@@ -255,6 +238,8 @@
     <addaction name="separator"/>
     <addaction name="actionSet_Z88_Clock"/>
     <addaction name="actionReadZ88_Clock"/>
+    <addaction name="separator"/>
+    <addaction name="actionReload_TransTable"/>
     <addaction name="separator"/>
     <addaction name="actionGet_Info"/>
    </widget>
@@ -307,6 +292,9 @@
    </property>
    <property name="text">
     <string>EazyLink Quit</string>
+   </property>
+   <property name="toolTip">
+    <string>Request the EazyLink Pull-down to quit</string>
    </property>
   </action>
   <action name="actionExit">
@@ -454,6 +442,19 @@
    </property>
    <property name="toolTip">
     <string>Read Z88 Version and free memory etc.</string>
+   </property>
+  </action>
+  <action name="actionPreferences">
+   <property name="text">
+    <string>Preferences</string>
+   </property>
+  </action>
+  <action name="actionReload_TransTable">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Reload Translation Table</string>
    </property>
   </action>
  </widget>

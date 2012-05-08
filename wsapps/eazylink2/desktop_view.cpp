@@ -29,9 +29,9 @@
   * @param fspec is the Fully qualified file path and name.
   * @param type is the type of entry. ie Dir or File.
   */
-DeskTop_Selection::DeskTop_Selection(const QString &fspec, const QString &fname, entryType type)
-  :m_fspec(fspec),
-   m_fname(fname),
+DeskTop_Selection::DeskTop_Selection(const QString &fspec, const QString &fname, entryType type) :
+  m_fspec(fspec),
+  m_fname(fname),
   m_type(type)
 {
 }

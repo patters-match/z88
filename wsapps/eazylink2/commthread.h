@@ -94,9 +94,8 @@ public:
      */
     void SetupAbortHandler(QProgressDialog *pd);
     void AbortCmd();
-    void ByteTrans(bool ena);
-    void CRLFTrans(bool ena);
     bool isBusy();
+    bool isOpen();
     bool close();
     bool reopen(bool redo_lastcmd);
     bool open(const QString &devname, const QString &short_name);

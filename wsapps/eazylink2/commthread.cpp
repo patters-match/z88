@@ -23,6 +23,7 @@
 #include "z88filespec.h"
 #include "desktop_view.h"
 #include "z88_devview.h"
+#include "prefrences_dlg.h"
 
 /**
   * The Communications Thread Constructor.
@@ -346,7 +347,7 @@ void CommThread::run()
             m_xferFileprogress = 0;
 
             /** ensure that current translation mode is set on Z88 before actual transfer begins.. */
-            if (m_byteTranslation == true) {
+            if (m_mainWindow->get_Prefs().get_Byte_Trans()) {
                 cmdStatus("Sending Enable Byte Translation");
                 if(!m_sport.translationOn()){
                     emit boolCmd_result("Byte Translation ON", false);
@@ -361,7 +362,7 @@ void CommThread::run()
             }
 
             /** ensure that current CRLF mode is also set ... */
-            if (m_linefeedConversion == true) {
+            if (m_mainWindow->get_Prefs().get_CRLF_Trans()) {
                 cmdStatus("Sending Enable CRLF Translation");
                 if(!m_sport.linefeedConvOn()){
                     emit boolCmd_result("CRLF Translation ON", false);
@@ -495,11 +496,12 @@ void CommThread::run()
             m_xferFileprogress = 0;
 
             /** ensure that Z88 time is equal to desktop time, before transfering file to Z88 */
-            if (m_sport.syncZ88Time() == true)
+            if (m_mainWindow->get_Prefs().get_AutoSyncClock() && m_sport.syncZ88Time() == true){
                 cmdStatus("Z88 Time has been synchronised with desktop time");
+            }
 
             /** ensure that current translation mode is set on Z88 before actual transfer begins.. */
-            if (m_byteTranslation == true) {
+            if (m_mainWindow->get_Prefs().get_Byte_Trans()) {
                 cmdStatus("Sending Enable Byte Translation");
                 if(!m_sport.translationOn()){
                     emit boolCmd_result("Byte Translation ON", false);
@@ -514,7 +516,7 @@ void CommThread::run()
             }
 
             /** ensure that current CRLF mode is also set ... */
-            if (m_linefeedConversion == true) {
+            if (m_mainWindow->get_Prefs().get_CRLF_Trans()) {
                 cmdStatus("Sending Enable CRLF Translation");
                 if(!m_sport.linefeedConvOn()){
                     emit boolCmd_result("CRLF Translation ON", false);
@@ -961,6 +963,13 @@ bool CommThread::isBusy()
         return true;
 }
 
+bool CommThread::isOpen()
+{
+    QMutexLocker locker(&m_mutex);
+
+    return m_sport.isOpen();
+}
+
 /**
   * Close the Communications port.
   * @return true if communication thread was idle.
@@ -1108,24 +1117,6 @@ bool CommThread::quitZ88()
     startCmd(OP_quitZ88);
 
     return true;
-}
-
-/**
-  * Enable / Disable Byte Translation.
-  * @param ena set to true to enable byte translation.
-  */
-void CommThread::ByteTrans(bool ena)
-{
-    m_byteTranslation = ena;
-}
-
-/**
-  * Enable CR / LF translation
-  * @param ena set to true to enable.
-  */
-void CommThread::CRLFTrans(bool ena)
-{
-    m_linefeedConversion = ena;
 }
 
 /**
