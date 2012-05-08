@@ -53,7 +53,7 @@
        <item row="2" column="0">
         <widget class="QCheckBox" name="ezQuit_cbox">
          <property name="toolTip">
-          <string>Quit the Eazylink pull-down when quitting the Eazylink Client.</string>
+          <string>Quit the Z88 Eazylink pull-down when quitting the Eazylink Client.</string>
          </property>
          <property name="text">
           <string>Shutdown Z88 Eazylink pull-down on exit.</string>
@@ -65,6 +65,9 @@
        </item>
        <item row="1" column="0">
         <widget class="QCheckBox" name="ldZ88TreeOnStart">
+         <property name="toolTip">
+          <string>Load the Z88 File Tree On Startup, and Serial port Change.</string>
+         </property>
          <property name="text">
           <string>Load Z88 FileTree on Serial Port Open.</string>
          </property>
