@@ -15,6 +15,7 @@
  Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
 **********************************************************************************************/
+#include <QSettings>
 #include<QFile>
 #include<QDebug>
 
@@ -22,11 +23,10 @@
 #include "ui_prefrences_dlg.h"
 #include "commthread.h"
 
-Prefrences_dlg::Prefrences_dlg(const QString &fspec, MainWindow *mw, CommThread *ct, QWidget *parent) :
+Prefrences_dlg::Prefrences_dlg(MainWindow *mw, CommThread *ct, QWidget *parent) :
     QDialog(parent),
     ui(new Ui::Prefrences_dlg),
     m_mainwinow(mw),
-    m_cfgFileName(fspec),
     m_cthread(ct)
 {
     ui->setupUi(this);
@@ -39,8 +39,7 @@ Prefrences_dlg::Prefrences_dlg(const QString &fspec, MainWindow *mw, CommThread 
 
     RefreshComsList();
 
-    ReadCfg(fspec);
-
+    ReadCfg();
 }
 /**
   * Destructor
@@ -102,89 +101,46 @@ bool Prefrences_dlg::select_SerDevice(const QString &TabName)
     return false;
 }
 
-bool Prefrences_dlg::ReadCfg(const QString &fspec)
+void Prefrences_dlg::ReadCfg()
 {
-    QFile cfgFile(fspec);
-    char port_fspec[300];
+    QSettings settings(QSettings::UserScope, "z88", "EazyLink2");
 
-    char val[2];
-    if(cfgFile.open(QIODevice::ReadOnly)){
-        cfgFile.read(val, 1);
-        if(cfgFile.error()) goto done;
-        m_autoSyncClock = (*val == '1');
+    m_autoSyncClock = settings.value("AutoSynchronizeClock", true).toBool();
+    m_Shutdown_exit = settings.value("ShutdownEazyLinkOnExit", true).toBool();
+    m_crlfTrans = settings.value("DefaultLinefeedConversion", true).toBool();
+    m_byteTrans = settings.value("DefaultByteTranslation", true).toBool();
+    m_openPortonStart = settings.value("OpenSerialportOnStart", true).toBool();
+    m_Z88RefreshonStart = settings.value("RefreshZ88panelOnStart", true).toBool();
 
-        cfgFile.read(val, 1);
-        if(cfgFile.error()) goto done;
-        m_Shutdown_exit = (*val == '1');
+    QString pname(settings.value("Serialport").toString());
 
-        cfgFile.read(val, 1);
-        if(cfgFile.error()) goto done;
-        m_crlfTrans = (*val == '1');
-
-        cfgFile.read(val, 1);
-        if(cfgFile.error()) goto done;
-        m_byteTrans = (*val == '1');
-
-        cfgFile.read(val, 1);
-        if(cfgFile.error()) goto done;
-        m_openPortonStart = (*val == '1');
-
-        cfgFile.read(val, 1);
-        if(cfgFile.error()) goto done;
-        m_Z88RefreshonStart = (*val == '1');
-
-        cfgFile.readLine(port_fspec, sizeof(port_fspec));
-        if(cfgFile.error()) goto done;
-
-        QString pname(port_fspec);
-
-        if(!pname.isEmpty()){
-            select_SerDevice(pname.mid(0, pname.size()-1));
+    if(!pname.isEmpty()){
+        select_SerDevice(pname.mid(0, pname.size()-1));
 #if 0
-            int idx = ui->Ui::Prefrences_dlg::SerialPortList->findText(pname.mid(0, pname.size()-1));
-            if(idx > -1){
-                ui->Ui::Prefrences_dlg::SerialPortList->setCurrentIndex(idx);
-                m_PortName = ui->Ui::Prefrences_dlg::SerialPortList->currentText();
-            }
-#endif
+        int idx = ui->Ui::Prefrences_dlg::SerialPortList->findText(pname.mid(0, pname.size()-1));
+        if(idx > -1){
+            ui->Ui::Prefrences_dlg::SerialPortList->setCurrentIndex(idx);
+            m_PortName = ui->Ui::Prefrences_dlg::SerialPortList->currentText();
         }
-
-        restoreChecked();
-    }
-    else{
-done:
-        cfgFile.close();
-        return false;
+#endif
     }
 
-    cfgFile.close();
-    return true;
-
+    restoreChecked();
 }
 
-bool Prefrences_dlg::WriteCfg(const QString &fspec)
+void Prefrences_dlg::WriteCfg()
 {
-    QFile cfgFile(fspec);
+    QSettings settings(QSettings::UserScope, "z88", "EazyLink2");
 
-    qDebug() << "writing cfg:" << fspec;
+    settings.setValue("AutoSynchronizeClock", m_autoSyncClock);
+    settings.setValue("ShutdownEazyLinkOnExit", m_Shutdown_exit);
+    settings.setValue("DefaultLinefeedConversion", m_crlfTrans);
+    settings.setValue("DefaultByteTranslation", m_byteTrans);
+    settings.setValue("OpenSerialportOnStart", m_openPortonStart);
+    settings.setValue("RefreshZ88panelOnStart", m_Z88RefreshonStart);
+    settings.setValue("Serialport", ui->Ui::Prefrences_dlg::SerialPortList->currentText());
 
-    if(cfgFile.open(QIODevice::WriteOnly)){
-        cfgFile.write(m_autoSyncClock ? "1" : "0");
-        cfgFile.write(m_Shutdown_exit ? "1" : "0");
-        cfgFile.write(m_crlfTrans ? "1" : "0");
-        cfgFile.write(m_byteTrans ? "1" : "0");
-        cfgFile.write(m_openPortonStart ? "1" : "0");
-        cfgFile.write(m_Z88RefreshonStart ? "1" : "0");
-
-        cfgFile.write(ui->Ui::Prefrences_dlg::SerialPortList->currentText().toAscii());
-        cfgFile.write("\n");
-    }
-    else{
-        return false;
-    }
-    cfgFile.close();
-
-    return true;
+    // settings are stored on disk by QSettings destructor..
 }
 
 bool Prefrences_dlg::getSerialPort_Name(QString &portname, QString &shortname)
@@ -260,9 +216,7 @@ void Prefrences_dlg::accepted()
         emit SerialPortSelChanged();
     }
 
-    if(!m_cfgFileName.isEmpty()){
-        WriteCfg(m_cfgFileName);
-    }
+    WriteCfg();
 }
 
 void Prefrences_dlg::RefreshComsList()

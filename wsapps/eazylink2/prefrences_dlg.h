@@ -35,7 +35,7 @@ class Prefrences_dlg : public QDialog
     Q_OBJECT
     
 public:
-    explicit Prefrences_dlg(const QString &fspec, MainWindow *mw, CommThread *ct,  QWidget *parent = 0);
+    explicit Prefrences_dlg(MainWindow *mw, CommThread *ct,  QWidget *parent = 0);
     ~Prefrences_dlg();
     
     enum TabName{
@@ -46,10 +46,10 @@ public:
     };
 
     void Activate(TabName tab = Default);
+    void ReadCfg();
+    void WriteCfg();
     bool select_SerDevice(const QString & TabName);
 
-    bool ReadCfg(const QString &fspec);
-    bool WriteCfg(const QString &fspec);
     bool getSerialPort_Name(QString &portname, QString &shortname);
 
     bool get_AutoSyncClock() const;
@@ -75,8 +75,6 @@ private:
     Ui::Prefrences_dlg *ui;
 
     MainWindow *m_mainwinow;
-
-    QString m_cfgFileName;
 
     SerialPortsAvail m_SportsAvail;
 

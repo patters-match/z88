@@ -31,12 +31,6 @@
 #include "z88serialport.h"
 #include "serialportsavail.h"
 
-#ifdef Q_OS_WIN32
-static const char *CONF_FILENAME = "\\eazylink2.cfg";
-#else
-    static const char *CONF_FILENAME = "/eazylink2.cfg";
-#endif
-
 /**
   * The mainWindow Constructor
   * @param sport is a reference to the Z88 Serial Port Class.
@@ -56,7 +50,7 @@ MainWindow::MainWindow(Z88SerialPort &sport, QWidget *parent) :
     m_Z88SelectionCount(-1),
     m_DeskSelectionCount(0),
     m_isTransfer(false),
-    m_prefsDialog(new Prefrences_dlg(QDir::homePath() + CONF_FILENAME, this, &m_cthread, this))
+    m_prefsDialog(new Prefrences_dlg(this, &m_cthread, this))
 {
     /**
       * Set up the Ui created by the QT Designer.

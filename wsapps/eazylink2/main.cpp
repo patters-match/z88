@@ -15,6 +15,7 @@
 
 **********************************************************************************************/
 
+#include <QCoreApplication>
 #include <QtGui/QApplication>
 #include <QtCore/QTime>
 #include <QtCore/QTextStream>
@@ -25,6 +26,9 @@
 
 int main(int argc, char *argv[])
 {
+    QCoreApplication::setApplicationVersion("1.0 alpha1");
+    QCoreApplication::setOrganizationDomain("cambridgez88.jira.com");
+
     QApplication a(argc, argv);
     Z88SerialPort p;
     MainWindow w(p);
