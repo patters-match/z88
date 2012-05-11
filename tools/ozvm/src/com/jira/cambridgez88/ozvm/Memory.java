@@ -222,7 +222,7 @@ public final class Memory {
 	 * @param card[] bank container
 	 * @param slot (00 - FFh)
 	 */
-	public void insertCard(Bank card[], int slot) {
+	public void insertCard(Bank card[], int slot) {                
 		int totalSlotBanks, slotBank, curBank;
 
 		if (slot == 0) {
@@ -275,6 +275,9 @@ public final class Memory {
 				OZvm.displayRtmMessage("File Card was inserted into slot " + slot);
 			}
 		}
+                
+                // (re)-install current breakpoints in current Z88 memory (all slots)
+                Z88.getInstance().getProcessor().getBreakpoints().installBreakpoints();
 	}
 
 
