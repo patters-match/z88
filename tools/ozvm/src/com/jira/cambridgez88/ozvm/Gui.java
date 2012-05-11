@@ -58,7 +58,7 @@ public class Gui extends JFrame {
             + "<h3>The Z88 emulator & debugging environment</h3>"
             + "GPL v2 licensed software by Gunther Strube<br>"
             + "<tt>gstrube@gmail.com</tt><br><br>"
-            + "<tt>http://cambridgez88.jira.com</tt>"
+            + "<tt>https://cambridgez88.jira.com/wiki/display/OZVM</tt>"
             + "</center></html>";
     private Blink blink;
     private boolean fullScreenMode;
@@ -207,17 +207,17 @@ public class Gui extends JFrame {
                 public void actionPerformed(ActionEvent e) {
                     String os = System.getProperty("os.name").toLowerCase();
                     Runtime rt = Runtime.getRuntime();
-                    String localHelpFilePath = OZvm.getInstance().getAppPath() + "help/index.html";
+                    String userGuideURL = "https://cambridgez88.jira.com/wiki/x/zIB5";
 
                     try {
                         if (os.indexOf("win") >= 0) {
 
                             // this doesn't support showing urls in the form of "page.html#nameLink" 
-                            rt.exec("rundll32 url.dll,FileProtocolHandler " + localHelpFilePath);
+                            rt.exec("rundll32 url.dll,FileProtocolHandler " + userGuideURL);
 
                         } else if (os.indexOf("mac") >= 0) {
 
-                            rt.exec("open " + localHelpFilePath);
+                            rt.exec("open " + userGuideURL);
 
                         } else if (os.indexOf("nix") >= 0 || os.indexOf("nux") >= 0) {
 
@@ -229,7 +229,7 @@ public class Gui extends JFrame {
                             // Build a command string which looks like "browser1 "url" || browser2 "url" ||..."
                             StringBuffer cmd = new StringBuffer();
                             for (int i = 0; i < browsers.length; i++) {
-                                cmd.append((i == 0 ? "" : " || ") + browsers[i] + " \"" + localHelpFilePath + "\" ");
+                                cmd.append((i == 0 ? "" : " || ") + browsers[i] + " \"" + userGuideURL + "\" ");
                             }
 
                             rt.exec(new String[]{"sh", "-c", cmd.toString()});
