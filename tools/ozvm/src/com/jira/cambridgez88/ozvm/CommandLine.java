@@ -34,6 +34,7 @@ import com.jira.cambridgez88.ozvm.filecard.FileArea;
 import com.jira.cambridgez88.ozvm.filecard.FileAreaExhaustedException;
 import com.jira.cambridgez88.ozvm.filecard.FileAreaNotFoundException;
 import com.jira.cambridgez88.ozvm.filecard.FileEntry;
+import java.util.ArrayList;
 
 
 /**
@@ -160,6 +161,10 @@ public class CommandLine implements KeyListener {
 	}
 
 	public void parseCommandLine(String cmdLineText) {
+                cmdLineText = cmdLineText.replaceAll("[(]", " ( ");
+                cmdLineText = cmdLineText.replaceAll("[)]", " ) ");
+                cmdLineText = cmdLineText.replaceAll("[;]", " ; ");
+                
 		String[] cmdLineTokens = cmdLineText.split(" ");
 		int arg;
 
@@ -1453,13 +1458,13 @@ public class CommandLine implements KeyListener {
 		}
 	}
 
-	private	void bpCommandline(String[] cmdLineTokens) throws IOException {
-		int bpAddress;
+    private void bpCommandline(String[] cmdLineTokens) throws IOException {
+        int bpAddress;
 
-		if (cmdLineTokens.length == 2) {
+        if (cmdLineTokens.length >= 2) {
             bpAddress = Integer.parseInt(cmdLineTokens[1], 16);
 
-            if (bpAddress >	65535) {
+            if (bpAddress > 65535) {
                 bpAddress &= 0xFF3FFF;	// strip segment mask
             } else {
                 if (cmdLineTokens[1].length() == 6) {
@@ -1470,15 +1475,45 @@ public class CommandLine implements KeyListener {
                 }
             }
 
-			breakPointManager.toggleBreakpoint(bpAddress, true);
-			displayCmdOutput(breakPointManager.displayBreakpoints());
-		}
+            if (cmdLineTokens.length == 2) {
+                breakPointManager.toggleBreakpoint(bpAddress, true);
+            } else {
+                // parse rest of command line for commands to execute at break point
+                ArrayList<String> brkpCmds = new ArrayList<String>();
+                String brkpCmd = "";
+                int tokenIdx = 2;
 
-		if (cmdLineTokens.length == 1) {
-			// no arguments, use PC	in current bank	binding
-			displayCmdOutput(breakPointManager.displayBreakpoints());
-		}
-	}
+                while (tokenIdx < cmdLineTokens.length & cmdLineTokens[tokenIdx].compareTo("(") != 0) {
+                    tokenIdx++;
+                }
+
+                tokenIdx++; // point at first token of commands
+                while (tokenIdx < cmdLineTokens.length) {
+
+                    if (cmdLineTokens[tokenIdx].length() > 0) {
+                        if ((cmdLineTokens[tokenIdx].compareTo(";") == 0 | cmdLineTokens[tokenIdx].compareTo(")") == 0) & brkpCmd.length() > 0) {
+                            // command separator or end of commands found, add current command string to list of commands
+                            brkpCmd = brkpCmd.trim();
+                            brkpCmds.add(brkpCmd);
+                            brkpCmd = "";
+                        } else {
+                            brkpCmd += cmdLineTokens[tokenIdx] + " ";
+                        }
+                    }
+
+                    tokenIdx++;
+                }
+
+                breakPointManager.setBreakpoint(bpAddress, brkpCmds);
+            }
+            displayCmdOutput(breakPointManager.displayBreakpoints());
+        }
+
+        if (cmdLineTokens.length == 1) {
+            // no arguments, use PC	in current bank	binding
+            displayCmdOutput(breakPointManager.displayBreakpoints());
+        }
+    }
 
 	private	void bpdCommandline(String[] cmdLineTokens) throws IOException {
 		int bpAddress;
