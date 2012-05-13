@@ -53,11 +53,13 @@ Desktop_View::Desktop_View(CommThread &cthread, MainWindow *parent) :
 
     m_DeskFileSystem = new QFileSystemModel();
 
-    m_DeskFileSystem->setRootPath(QDir::homePath());
+    m_DeskFileSystem->setRootPath(QDir::rootPath());
 
     setModel(m_DeskFileSystem);
+    setRootIndex(m_DeskFileSystem->index(QDir::rootPath()));
 
-    setRootIndex(m_DeskFileSystem->index(QDir::homePath()));
+    setCurrentIndex(m_DeskFileSystem->index(QDir::homePath()));
+    setExpanded(currentIndex(),true);
 
     m_DeskFileSystem->setResolveSymlinks(true);
 
@@ -69,7 +71,7 @@ Desktop_View::Desktop_View(CommThread &cthread, MainWindow *parent) :
 
     installEventFilter(this);
 
-    m_mainWindow->setDesktopDirLabel(m_DeskFileSystem->rootPath());
+    m_mainWindow->setDesktopDirLabel(QDir::homePath());
 }
 
 /**
