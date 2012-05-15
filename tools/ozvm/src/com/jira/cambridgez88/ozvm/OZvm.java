@@ -26,6 +26,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.net.URI;
 import javax.swing.UIManager;
 
 /**
@@ -323,7 +324,7 @@ public class OZvm {
 
 			if (loadedSnapshot == false & loadedRom == false) {
 				displayRtmMessage("No external ROM image specified,	using default Z88.rom (V4.0 UK)");				
-                File rf = new File(getAppPath() + "roms/Z88UK400.rom");
+                File rf = new File(URI.create("file:" + getAppPath() + "roms/Z88UK400.rom"));
 				memory.loadRomBinary(rf);
 				blink.setRAMS(memory.getBank(0));	// point at ROM bank 0
 			}
@@ -354,11 +355,10 @@ public class OZvm {
 		return true;
 	}
 
-  	public String getAppPath() {
-        String appPath = getClass().getProtectionDomain().getCodeSource().getLocation().getPath();
-        return appPath.replaceFirst("z88.jar", "");        
+    public String getAppPath() {
+        return getClass().getProtectionDomain().getCodeSource().getLocation().getPath().replaceFirst("z88.jar", "");
     }
-
+    
 	private void displayDefaultGui() {
 		// default display; show Z88 Keyboard and Card Slots. Invisible runtime message window.
 		gui.displayRunTimeMessagesPane(false);

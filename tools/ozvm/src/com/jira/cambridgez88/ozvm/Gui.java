@@ -46,6 +46,7 @@ import javax.swing.JCheckBoxMenuItem;
 import javax.swing.ButtonGroup;
 
 import com.jira.cambridgez88.ozvm.screen.Z88display;
+import java.net.URI;
 
 /**
  * The end user Gui (Main menu, screen, runtime messages, keyboard & slot management)
@@ -901,7 +902,7 @@ public class Gui extends JFrame {
 
                         if (JOptionPane.showConfirmDialog(Gui.this, "Install OZ V4.3 ROM in slot 0?") == JOptionPane.YES_OPTION) {
                             try {
-                                File romFileOz43 = new File(OZvm.getInstance().getAppPath() + "roms/Z88OZ43.rom");
+                                File romFileOz43 = new File(URI.create("file:" + OZvm.getInstance().getAppPath() + "roms/Z88OZ43.rom"));
                                 Z88.getInstance().getMemory().loadRomBinary(romFileOz43);
                                 OZvm.getInstance().getGui().setWindowTitle("[" + (romFileOz43.getName()) + "]");
 
@@ -940,7 +941,7 @@ public class Gui extends JFrame {
 
                         if (JOptionPane.showConfirmDialog(Gui.this, "Install British OZ V4.0 in slot 0?") == JOptionPane.YES_OPTION) {
                             try {
-                                File romFileOz40uk = new File(OZvm.getInstance().getAppPath() + "roms/Z88UK400.rom");
+                                File romFileOz40uk = new File(URI.create("file:" + OZvm.getInstance().getAppPath() + "roms/Z88UK400.rom"));
                                 Z88.getInstance().getMemory().loadRomBinary(romFileOz40uk);
                                 OZvm.getInstance().getGui().setWindowTitle("[" + (romFileOz40uk.getName()) + "]");
 
@@ -979,7 +980,7 @@ public class Gui extends JFrame {
 
                         if (JOptionPane.showConfirmDialog(Gui.this, "Install British OZ V3.0 in slot 0?") == JOptionPane.YES_OPTION) {
                             try {
-                                File romFileOz30uk = new File(OZvm.getInstance().getAppPath() + "roms/Z88UK300.rom");
+                                File romFileOz30uk = new File(URI.create("file:" + OZvm.getInstance().getAppPath() + "roms/Z88UK300.rom"));
                                 Z88.getInstance().getMemory().loadRomBinary(romFileOz30uk);
                                 OZvm.getInstance().getGui().setWindowTitle("[" + (romFileOz30uk.getName()) + "]");
 
@@ -1018,7 +1019,7 @@ public class Gui extends JFrame {
 
                         if (JOptionPane.showConfirmDialog(Gui.this, "Install British OZ V2.2 in slot 0?") == JOptionPane.YES_OPTION) {
                             try {
-                                File romFileOz22uk = new File(OZvm.getInstance().getAppPath() + "roms/Z88UK220.rom");
+                                File romFileOz22uk = new File(URI.create("file:" + OZvm.getInstance().getAppPath() + "roms/Z88UK220.rom"));
                                 Z88.getInstance().getMemory().loadRomBinary(romFileOz22uk);
                                 OZvm.getInstance().getGui().setWindowTitle("[" + (romFileOz22uk.getName()) + "]");
 
@@ -1057,7 +1058,7 @@ public class Gui extends JFrame {
 
                         if (JOptionPane.showConfirmDialog(Gui.this, "Install French OZ V3.26 in slot 0?") == JOptionPane.YES_OPTION) {
                             try {
-                                File romFileOz = new File(OZvm.getInstance().getAppPath() + "roms/Z88FR326.rom");
+                                File romFileOz = new File(URI.create("file:" + OZvm.getInstance().getAppPath() + "roms/Z88FR326.rom"));
                                 Z88.getInstance().getMemory().loadRomBinary(romFileOz);
                                 OZvm.getInstance().getGui().setWindowTitle("[" + (romFileOz.getName()) + "]");
 
@@ -1096,7 +1097,7 @@ public class Gui extends JFrame {
 
                         if (JOptionPane.showConfirmDialog(Gui.this, "Install Spanish OZ V3.19 in slot 0?") == JOptionPane.YES_OPTION) {
                             try {
-                                File romFileOz = new File(OZvm.getInstance().getAppPath() + "roms/Z88ES319.rom");
+                                File romFileOz = new File(URI.create("file:" + OZvm.getInstance().getAppPath() + "roms/Z88ES319.rom"));
                                 Z88.getInstance().getMemory().loadRomBinary(romFileOz);
                                 OZvm.getInstance().getGui().setWindowTitle("[" + (romFileOz.getName()) + "]");
 
@@ -1135,7 +1136,7 @@ public class Gui extends JFrame {
 
                         if (JOptionPane.showConfirmDialog(Gui.this, "Install German OZ V3.18 in slot 0?") == JOptionPane.YES_OPTION) {
                             try {
-                                File romFileOz = new File(OZvm.getInstance().getAppPath() + "roms/Z88DE318.rom");
+                                File romFileOz = new File(URI.create("file:" + OZvm.getInstance().getAppPath() + "roms/Z88DE318.rom"));
                                 Z88.getInstance().getMemory().loadRomBinary(romFileOz);
                                 OZvm.getInstance().getGui().setWindowTitle("[" + (romFileOz.getName()) + "]");
 
@@ -1174,7 +1175,7 @@ public class Gui extends JFrame {
 
                         if (JOptionPane.showConfirmDialog(Gui.this, "Install Italian OZ V3.23 in slot 0?") == JOptionPane.YES_OPTION) {
                             try {
-                                File romFileOz = new File(OZvm.getInstance().getAppPath() + "roms/Z88IT323.rom");
+                                File romFileOz = new File(URI.create("file:" + OZvm.getInstance().getAppPath() + "roms/Z88IT323.rom"));
                                 Z88.getInstance().getMemory().loadRomBinary(romFileOz);
                                 OZvm.getInstance().getGui().setWindowTitle("[" + (romFileOz.getName()) + "]");
 
@@ -1213,7 +1214,7 @@ public class Gui extends JFrame {
 
                         if (JOptionPane.showConfirmDialog(Gui.this, "Install Danish OZ V3.21 in slot 0?") == JOptionPane.YES_OPTION) {
                             try {
-                                File romFileOz = new File(OZvm.getInstance().getAppPath() + "roms/Z88DK321.rom");
+                                File romFileOz = new File(URI.create("file:" + OZvm.getInstance().getAppPath() + "roms/Z88DK321.rom"));
                                 Z88.getInstance().getMemory().loadRomBinary(romFileOz);
                                 OZvm.getInstance().getGui().setWindowTitle("[" + (romFileOz.getName()) + "]");
 
@@ -1252,7 +1253,7 @@ public class Gui extends JFrame {
 
                         if (JOptionPane.showConfirmDialog(Gui.this, "Install Swedish OZ V2.50 in slot 0?") == JOptionPane.YES_OPTION) {
                             try {
-                                File romFileOz = new File(OZvm.getInstance().getAppPath() + "roms/Z88SE250.rom");
+                                File romFileOz = new File(URI.create("file:" + OZvm.getInstance().getAppPath() + "roms/Z88SE250.rom"));
                                 Z88.getInstance().getMemory().loadRomBinary(romFileOz);
                                 OZvm.getInstance().getGui().setWindowTitle("[" + (romFileOz.getName()) + "]");
 
@@ -1292,7 +1293,7 @@ public class Gui extends JFrame {
 
                         if (JOptionPane.showConfirmDialog(Gui.this, "Install Norwegian OZ V2.60 in slot 0?") == JOptionPane.YES_OPTION) {
                             try {
-                                File romFileOz = new File(OZvm.getInstance().getAppPath() + "roms/Z88NO260.rom");
+                                File romFileOz = new File(URI.create("file:" + OZvm.getInstance().getAppPath() + "roms/Z88NO260.rom"));
                                 Z88.getInstance().getMemory().loadRomBinary(romFileOz);
                                 OZvm.getInstance().getGui().setWindowTitle("[" + (romFileOz.getName()) + "]");
 
@@ -1332,7 +1333,7 @@ public class Gui extends JFrame {
 
                         if (JOptionPane.showConfirmDialog(Gui.this, "Install Finnish OZ V4.01 in slot 0?") == JOptionPane.YES_OPTION) {
                             try {
-                                File romFileOz = new File(OZvm.getInstance().getAppPath() + "roms/Z88FI401.rom");
+                                File romFileOz = new File(URI.create("file:" + OZvm.getInstance().getAppPath() + "roms/Z88FI401.rom"));
                                 Z88.getInstance().getMemory().loadRomBinary(romFileOz);
                                 OZvm.getInstance().getGui().setWindowTitle("[" + (romFileOz.getName()) + "]");
 
@@ -1372,7 +1373,7 @@ public class Gui extends JFrame {
 
                         if (JOptionPane.showConfirmDialog(Gui.this, "Install Swiss OZ V3.13 in slot 0?") == JOptionPane.YES_OPTION) {
                             try {
-                                File romFileOz = new File(OZvm.getInstance().getAppPath() + "roms/Z88HE313.rom");
+                                File romFileOz = new File(URI.create("file:" + OZvm.getInstance().getAppPath() + "roms/Z88HE313.rom"));
                                 Z88.getInstance().getMemory().loadRomBinary(romFileOz);
                                 OZvm.getInstance().getGui().setWindowTitle("[" + (romFileOz.getName()) + "]");
 
@@ -1412,7 +1413,7 @@ public class Gui extends JFrame {
 
                         if (JOptionPane.showConfirmDialog(Gui.this, "Install Turkish OZ V3.17 in slot 0?") == JOptionPane.YES_OPTION) {
                             try {
-                                File romFileOz = new File(OZvm.getInstance().getAppPath() + "roms/Z88TK317.rom");
+                                File romFileOz = new File(URI.create("file:" + OZvm.getInstance().getAppPath() + "roms/Z88TK317.rom"));
                                 Z88.getInstance().getMemory().loadRomBinary(romFileOz);
                                 OZvm.getInstance().getGui().setWindowTitle("[" + (romFileOz.getName()) + "]");
 
