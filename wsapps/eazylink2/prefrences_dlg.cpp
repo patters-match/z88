@@ -115,14 +115,7 @@ void Prefrences_dlg::ReadCfg()
     QString pname(settings.value("Serialport").toString());
 
     if(!pname.isEmpty()){
-        select_SerDevice(pname.mid(0, pname.size()-1));
-#if 0
-        int idx = ui->Ui::Prefrences_dlg::SerialPortList->findText(pname.mid(0, pname.size()-1));
-        if(idx > -1){
-            ui->Ui::Prefrences_dlg::SerialPortList->setCurrentIndex(idx);
-            m_PortName = ui->Ui::Prefrences_dlg::SerialPortList->currentText();
-        }
-#endif
+        select_SerDevice(pname);
     }
 
     restoreChecked();
