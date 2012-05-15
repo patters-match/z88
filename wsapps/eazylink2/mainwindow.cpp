@@ -39,6 +39,7 @@
 MainWindow::MainWindow(Z88SerialPort &sport, QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
+    m_prefsDialog(new Prefrences_dlg(this, &m_cthread, this)),
     m_StatusLabel(NULL),
     m_cmdProgress(new QProgressDialog("prog", "Abort", 0, 1, NULL)),
     m_Z88StorageView(NULL),
@@ -49,8 +50,7 @@ MainWindow::MainWindow(Z88SerialPort &sport, QWidget *parent) :
     m_cmdSuccessCount(0),
     m_Z88SelectionCount(-1),
     m_DeskSelectionCount(0),
-    m_isTransfer(false),
-    m_prefsDialog(new Prefrences_dlg(this, &m_cthread, this))
+    m_isTransfer(false)
 {
     /**
       * Set up the Ui created by the QT Designer.
@@ -298,7 +298,7 @@ void MainWindow::createActions()
   */
 void MainWindow::setupDeskView()
 {
-    m_DeskTopTreeView = new Desktop_View(m_cthread, this);
+    m_DeskTopTreeView = new Desktop_View(m_cthread, m_prefsDialog, this);
 
     m_DeskTopTreeView->setAnimated(true);
     m_DeskTopTreeView->setIndentation(20);

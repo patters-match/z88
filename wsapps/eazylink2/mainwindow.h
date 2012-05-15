@@ -120,6 +120,10 @@ private:
      */
     Ui::MainWindow *ui;
 
+    /**
+      * Preferences Dialog
+      */
+    Prefrences_dlg *m_prefsDialog;
 
     /**
       * The Command Status label on the Bottom of the main Form
@@ -161,12 +165,12 @@ private:
     int m_DeskSelectionCount;
 
     bool m_isTransfer;
-
+#if 0
     /**
       * Preferences Dialog
       */
     Prefrences_dlg *m_prefsDialog;
-
+#endif
     QString m_conf_Fspec;
 
     /**

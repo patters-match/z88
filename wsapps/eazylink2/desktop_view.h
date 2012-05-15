@@ -25,11 +25,13 @@
 #include<QMenu>
 
 #include "commthread.h"
+#include "prefrences_dlg.h"
 
 /* Forward decl */
 class DeskTop_Selection;
 class Z88_Selection;
 class MainWindow;
+class Prefrences_dlg;
 
 /**
   * The Desktop Viewer Class. Inherits from the QTreeView class.
@@ -38,7 +40,7 @@ class Desktop_View : public QTreeView
 {
     Q_OBJECT
 public:
-    explicit Desktop_View(CommThread &cthread, MainWindow *parent = 0);
+    explicit Desktop_View(CommThread &cthread, Prefrences_dlg *pref_dlg, MainWindow *parent = 0);
 
     QList<DeskTop_Selection> *getSelection(bool recurse, bool cont = false);
 
@@ -48,6 +50,7 @@ public:
 
     bool renameSelections();
     bool deleteSelections();
+    void selectInitDir();
     bool mkDir();
 
 signals:
@@ -77,6 +80,8 @@ protected:
     void deleteSubdirFiles(const QModelIndex &idx, int &ret);
     void deleteFile(const QModelIndex &idx, int &ret);
 
+    void setInitViewPath(const QString &rootPath, const QString &directory);
+
 private:
     /**
       * The QT File Model. Represents the Host Filesystem
@@ -98,11 +103,13 @@ private:
     bool m_recurse;
 
     MainWindow *m_mainWindow;
+    Prefrences_dlg *m_pref_dlg;
 
     QMenu      *m_qmenu;
     QAction    *m_actionRename;
     QAction    *m_actionDelete;
     QAction    *m_actionMkdir;
+    QAction    *m_actionSetInitDir;
 
 };
 

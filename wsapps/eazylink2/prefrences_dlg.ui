@@ -50,7 +50,7 @@
          </property>
         </widget>
        </item>
-       <item row="2" column="0">
+       <item row="3" column="0">
         <widget class="QCheckBox" name="ezQuit_cbox">
          <property name="toolTip">
           <string>Quit the Z88 Eazylink pull-down when quitting the Eazylink Client.</string>
@@ -73,6 +73,16 @@
          </property>
          <property name="checked">
           <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="0">
+        <widget class="QCheckBox" name="InitDir_isRoot">
+         <property name="toolTip">
+          <string>Set the Initial Desktop Dir as the Root of the Tree View</string>
+         </property>
+         <property name="text">
+          <string>Set Desktop Startup Directory as Root.</string>
          </property>
         </widget>
        </item>

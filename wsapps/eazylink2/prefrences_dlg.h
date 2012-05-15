@@ -51,6 +51,8 @@ public:
     bool select_SerDevice(const QString & TabName);
 
     bool getSerialPort_Name(QString &portname, QString &shortname);
+    bool getInitDeskView(QString &rootPath, QString &initDir);
+    void setInitDeskView(const QString &rootPath, const QString &initDir);
 
     bool get_AutoSyncClock() const;
     bool get_ShutdownEZ_OnExit() const;
@@ -58,6 +60,7 @@ public:
     bool get_Byte_Trans() const;
     bool get_PortOpenOnStart() const;
     bool get_RefreshZ88OnStart() const;
+    bool get_initDir_IsRoot() const;
 
 private slots:
     void rejected();
@@ -80,6 +83,8 @@ private:
 
     QString m_PortName;
     QString m_origPortName;
+    QString m_rootPath;
+    QString m_initDir;
 
     CommThread *m_cthread;
 
@@ -91,6 +96,7 @@ private:
     bool m_byteTrans;
     bool m_openPortonStart;
     bool m_Z88RefreshonStart;
+    bool m_initDir_isRoot;
 
 };
 

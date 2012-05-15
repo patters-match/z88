@@ -17,6 +17,7 @@
 **********************************************************************************************/
 #include <QSettings>
 #include<QFile>
+#include<QDir>
 #include<QDebug>
 
 #include "prefrences_dlg.h"
@@ -63,6 +64,7 @@ void Prefrences_dlg::Activate(TabName tab)
     m_byteTrans = get_Byte_Trans();
     m_openPortonStart = get_PortOpenOnStart();
     m_Z88RefreshonStart = get_RefreshZ88OnStart();
+    m_initDir_isRoot = get_initDir_IsRoot();
 
     if(m_cthread->isOpen()){
         m_origPortName = ui->Ui::Prefrences_dlg::SerialPortList->currentText();
@@ -75,8 +77,6 @@ void Prefrences_dlg::Activate(TabName tab)
       * Don't allow serial port change is coms are busy
       */
     Poll_inuse();
-
-//    ui->Ui::Prefrences_dlg::SelSerialGrp->setEnabled(!m_cthread->isBusy());
 
     setModal(true);
 
@@ -112,6 +112,10 @@ void Prefrences_dlg::ReadCfg()
     m_openPortonStart = settings.value("OpenSerialportOnStart", true).toBool();
     m_Z88RefreshonStart = settings.value("RefreshZ88panelOnStart", true).toBool();
 
+    m_rootPath = settings.value("initDeskRoot", QDir::rootPath()).toString();
+    m_initDir = settings.value("initDeskDir", QDir::homePath()).toString();
+    m_initDir_isRoot = settings.value("InitDeskIsRoot", false).toBool();
+
     QString pname(settings.value("Serialport").toString());
 
     if(!pname.isEmpty()){
@@ -132,6 +136,7 @@ void Prefrences_dlg::WriteCfg()
     settings.setValue("OpenSerialportOnStart", m_openPortonStart);
     settings.setValue("RefreshZ88panelOnStart", m_Z88RefreshonStart);
     settings.setValue("Serialport", ui->Ui::Prefrences_dlg::SerialPortList->currentText());
+    settings.setValue("InitDeskIsRoot", m_initDir_isRoot);
 
     // settings are stored on disk by QSettings destructor..
 }
@@ -144,6 +149,31 @@ bool Prefrences_dlg::getSerialPort_Name(QString &portname, QString &shortname)
         return true;
     }
     return false;
+}
+
+bool Prefrences_dlg::getInitDeskView(QString &rootPath, QString &initDir)
+{
+    if(m_rootPath.isEmpty() || m_initDir.isEmpty()){
+        return false;
+    }
+    if(m_initDir_isRoot){
+        rootPath = m_initDir;
+    }
+    else{
+        rootPath = m_rootPath;
+    }
+    initDir = m_initDir;
+    return true;
+}
+
+void Prefrences_dlg::setInitDeskView(const QString &rootPath, const QString &initDir)
+{
+    QSettings settings(QSettings::UserScope, "z88", "EazyLink2");
+
+    m_rootPath = rootPath;
+    m_initDir = initDir;
+    settings.setValue("initDeskRoot", m_rootPath);
+    settings.setValue("initDeskDir", m_initDir);
 }
 
 /**
@@ -182,6 +212,11 @@ bool Prefrences_dlg::get_RefreshZ88OnStart() const
     return ui->Ui::Prefrences_dlg::ldZ88TreeOnStart->isChecked();
 }
 
+bool Prefrences_dlg::get_initDir_IsRoot() const
+{
+    return ui->Ui::Prefrences_dlg::InitDir_isRoot->isChecked();
+}
+
 /**
   * Reset the Previous Values.
   */
@@ -202,6 +237,7 @@ void Prefrences_dlg::accepted()
     m_byteTrans = get_Byte_Trans();
     m_openPortonStart = get_PortOpenOnStart();
     m_Z88RefreshonStart = get_RefreshZ88OnStart();
+    m_initDir_isRoot = get_initDir_IsRoot();
 
     m_PortName = ui->Ui::Prefrences_dlg::SerialPortList->currentText();
 
@@ -228,7 +264,6 @@ void Prefrences_dlg::RefreshComsList()
 void Prefrences_dlg::TabChanged(int idx)
 {
     if(idx == Comms){
-
         /**
           * Don't allow com port change, if its busy
           */
@@ -244,6 +279,8 @@ void Prefrences_dlg::restoreChecked()
     ui->Ui::Prefrences_dlg::byteMode_trans->setChecked(m_byteTrans);
     ui->Ui::Prefrences_dlg::OpenPortOnStartup->setChecked(m_openPortonStart);
     ui->Ui::Prefrences_dlg::ldZ88TreeOnStart->setChecked(m_Z88RefreshonStart);
+    ui->Ui::Prefrences_dlg::InitDir_isRoot->setChecked(m_initDir_isRoot);
+
 }
 
 void Prefrences_dlg::Poll_inuse()

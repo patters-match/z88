@@ -40,26 +40,32 @@ DeskTop_Selection::DeskTop_Selection(const QString &fspec, const QString &fname,
   * Destop View Contstructor.
   * @parm parent is the Owner Qwidget
   */
-Desktop_View::Desktop_View(CommThread &cthread, MainWindow *parent) :
+Desktop_View::Desktop_View(CommThread &cthread, Prefrences_dlg *pref_dlg, MainWindow *parent) :
     QTreeView(parent),
     m_cthread(cthread),
     m_recurse(false),
     m_mainWindow(parent),
+    m_pref_dlg(pref_dlg),
     m_qmenu(new QMenu(parent))
 {
     m_actionMkdir = m_qmenu->addAction("MakeDir");
+    m_actionSetInitDir = m_qmenu->addAction("Startup Dir");
     m_actionRename = m_qmenu->addAction("Rename");
     m_actionDelete = m_qmenu->addAction("Delete");
 
     m_DeskFileSystem = new QFileSystemModel();
 
-    m_DeskFileSystem->setRootPath(QDir::rootPath());
-
     setModel(m_DeskFileSystem);
-    setRootIndex(m_DeskFileSystem->index(QDir::rootPath()));
 
-    setCurrentIndex(m_DeskFileSystem->index(QDir::homePath()));
-    setExpanded(currentIndex(),true);
+    /**
+      * Set the Initial View drive and Path
+      */
+    QString rootPath;
+    QString initDir;
+
+    m_pref_dlg->getInitDeskView(rootPath, initDir);
+
+    setInitViewPath(rootPath, initDir);
 
     m_DeskFileSystem->setResolveSymlinks(true);
 
@@ -70,8 +76,6 @@ Desktop_View::Desktop_View(CommThread &cthread, MainWindow *parent) :
     connect(m_qmenu,SIGNAL(triggered(QAction *)), this, SLOT(ActionsMenuSel(QAction *)));
 
     installEventFilter(this);
-
-    m_mainWindow->setDesktopDirLabel(QDir::homePath());
 }
 
 /**
@@ -377,14 +381,11 @@ bool Desktop_View::delFile(QListIterator<DeskTop_Selection> &i, int &ret)
 void Desktop_View::ItemSelectionChanged(const QModelIndex &idx)
 {
     const QModelIndexList &Selections(selectedIndexes());
-
     if(Selections.isEmpty()){
         m_mainWindow->setDesktopDirLabel(m_DeskFileSystem->rootPath());
     }
     else{
-       // if(m_DeskFileSystem->isDir(idx)){
-            m_mainWindow->setDesktopDirLabel(m_DeskFileSystem->filePath(idx));
-        //}
+        m_mainWindow->setDesktopDirLabel(m_DeskFileSystem->filePath(idx));
     }
     emit ItemSelectionChanged(Selections.count() / 3);
 }
@@ -434,6 +435,12 @@ void Desktop_View::ActionsMenuSel(QAction *act)
         if(selections){
             deleteSelections();
         }
+        return;
+    }
+
+    if(act == m_actionSetInitDir){
+        selectInitDir();
+        return;
     }
 }
 
@@ -619,6 +626,18 @@ void Desktop_View::deleteFile(const QModelIndex &idx, int &ret)
     }
 }
 
+void Desktop_View::setInitViewPath(const QString &rootPath, const QString &directory)
+{
+    m_DeskFileSystem->setRootPath(rootPath);
+
+    setRootIndex(m_DeskFileSystem->index(rootPath));
+
+    setCurrentIndex(m_DeskFileSystem->index(directory));
+    setExpanded(currentIndex(),true);
+
+    m_mainWindow->setDesktopDirLabel(directory);
+}
+
 /**
   * Delete all the currently selected Items from Disk.
   */
@@ -659,6 +678,29 @@ bool Desktop_View::deleteSelections()
     return true;
 }
 
+void Desktop_View::selectInitDir()
+{
+    bool ok;
+    const QModelIndexList &Selections(selectedIndexes());
+
+    QStringList stlist;
+
+    if(!Selections.isEmpty()){
+        const QModelIndex &idx(Selections.first());
+        stlist.append(m_DeskFileSystem->filePath(idx));
+    }
+
+    Q_FOREACH(QFileInfo root, QDir::drives()) {
+        stlist.append(root.path());
+    }
+
+    QString item = QInputDialog::getItem(this, "Eazylink2",
+                                          tr("Select Startup Dir:"), stlist, 0, false, &ok);
+    if (ok && !item.isEmpty()){
+        m_pref_dlg->setInitDeskView(m_DeskFileSystem->rootPath(), item);
+    }
+}
+
 /**
   * Make Directory on the Desktop File system.
   * @return true on success.
@@ -685,11 +727,7 @@ bool Desktop_View::mkDir()
 
         if(m_DeskFileSystem->isDir(idx)){
             location = m_DeskFileSystem->filePath(idx);
-#ifdef Q_OS_WIN32
-            location +="\\";
-#else
-            location +="/";
-#endif
+            location += QDir::separator();
         }
         else{
             location = m_DeskFileSystem->filePath(idx).remove(m_DeskFileSystem->fileName(idx));
@@ -742,13 +780,23 @@ bool Desktop_View::eventFilter(QObject *, QEvent *ev)
             m_actionMkdir->setEnabled(sel_count < 2);
             m_actionRename->setEnabled(true);
             m_actionDelete->setEnabled(true);
+            if(sel_count == 1){
+                m_actionSetInitDir->setEnabled(m_DeskFileSystem->isDir(Selections.first()));
+            }
+            else{
+                m_actionSetInitDir->setEnabled(false);
+            }
         }
         else{
             m_actionMkdir->setEnabled(true);
             m_actionRename->setEnabled(false);
             m_actionDelete->setEnabled(false);
+            m_actionSetInitDir->setEnabled(true);
         }
+
         m_qmenu->exec(QCursor::pos());
+
+
     }
 
     /**
