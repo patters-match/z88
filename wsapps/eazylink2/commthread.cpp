@@ -692,7 +692,7 @@ done:
         }
         case OP_initrenameDirFiles:
         {
-            if (m_z88rendel_itr != NULL) delete m_z88rendel_itr;
+            delete m_z88rendel_itr;
             m_z88rendel_itr = new QMutableListIterator<Z88_Selection> (*m_z88RenDelSelections);
 
             m_z88rendel_itr->toFront();
@@ -763,7 +763,7 @@ done:
         }
         case OP_initdelDirFiles:
         {
-            if (m_z88rendel_itr != NULL) delete m_z88rendel_itr;
+            delete m_z88rendel_itr;
             m_z88rendel_itr = new QMutableListIterator<Z88_Selection> (*m_z88RenDelSelections);
             m_xferFileprogress = 0;
             m_z88rendel_itr->toFront();
