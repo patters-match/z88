@@ -108,9 +108,6 @@ Z88SerialPort::Z88SerialPort()
 #endif
 #endif
 
-    qDebug() << "Defining default device: " << portName;
-//AbortTransfer
-
 }
 
 Z88SerialPort::~Z88SerialPort()
