@@ -237,6 +237,9 @@ protected:
     QListIterator<Z88_Selection>        *m_z88Sel_itr;
     QListIterator<DeskTop_Selection>    *m_deskSel_itr;
 
+    /**
+     * The Rename / Delete Item Iterator
+     */
     QMutableListIterator<Z88_Selection> *m_z88rendel_itr;
 
     /**
@@ -244,8 +247,10 @@ protected:
       */
     QString                             m_destPath;
 
+    /**
+     * Pointer to the Main Window Form
+     */
     MainWindow                          *m_mainWindow;
-
 
     /**
       * Flag to indicate current desktop transfer destination is

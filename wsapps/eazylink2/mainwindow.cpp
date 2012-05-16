@@ -1114,6 +1114,11 @@ static bool findDupes(const QList<DeskTop_Selection> &selections, DeskTop_Select
     return false;
 }
 
+/**
+  * Start the sending files from the Desktop to the Z88.
+  * @param desk_selections is the list of files to transfer to the Z88.
+  * @param z88_selections is the the destination Dir or Device on the Z88. NOTE: should only contain 1 entry.
+  */
 void MainWindow::StartSending(QList<DeskTop_Selection> *desk_selections, QList<Z88_Selection> &z88_selections)
 {
     bool prompt4each = false;
