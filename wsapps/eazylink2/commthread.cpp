@@ -47,6 +47,7 @@ CommThread::CommThread(Z88SerialPort &port, MainWindow *parent)
    m_deskSelections(NULL),
    m_z88Sel_itr(NULL),
    m_deskSel_itr(NULL),
+   m_z88rendel_itr(NULL),
    m_mainWindow(parent),
    m_dest_isDir(false),
    m_runCnt(0),
@@ -691,7 +692,7 @@ done:
         }
         case OP_initrenameDirFiles:
         {
-            delete m_z88rendel_itr;
+            if (m_z88rendel_itr != NULL) delete m_z88rendel_itr;
             m_z88rendel_itr = new QMutableListIterator<Z88_Selection> (*m_z88RenDelSelections);
 
             m_z88rendel_itr->toFront();
@@ -762,7 +763,7 @@ done:
         }
         case OP_initdelDirFiles:
         {
-            delete m_z88rendel_itr;
+            if (m_z88rendel_itr != NULL) delete m_z88rendel_itr;
             m_z88rendel_itr = new QMutableListIterator<Z88_Selection> (*m_z88RenDelSelections);
             m_xferFileprogress = 0;
             m_z88rendel_itr->toFront();
