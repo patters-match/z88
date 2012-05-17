@@ -403,9 +403,9 @@ void MainWindow::ImpExp_sendfile()
 
 void MainWindow::AboutEazylink()
 {
-    QString msg("\tEazyLink2");
-    msg += " - v1.00 alpha 1";
-    msg += "\r\n\t    April-May 2012";
+    QString msg("EazyLink2");
+    msg += " - " + QCoreApplication::applicationVersion();
+    msg += "\r\nApril-May 2012";
     msg += "\r\n(C) Gunther Strube & Oscar Ernohazy";
 
     QMessageBox::about(this, tr("EazyLink II"), msg);
