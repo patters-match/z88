@@ -51,6 +51,7 @@ public:
     bool renameSelections();
     bool deleteSelections();
     void selectInitDir();
+    void selectDrive();
     bool mkDir();
 
 signals:
@@ -110,7 +111,7 @@ private:
     QAction    *m_actionDelete;
     QAction    *m_actionMkdir;
     QAction    *m_actionSetInitDir;
-
+    QAction    *m_actionChgRoot;
 };
 
 /**

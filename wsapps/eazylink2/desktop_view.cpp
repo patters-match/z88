@@ -46,12 +46,9 @@ Desktop_View::Desktop_View(CommThread &cthread, Prefrences_dlg *pref_dlg, MainWi
     m_recurse(false),
     m_mainWindow(parent),
     m_pref_dlg(pref_dlg),
-    m_qmenu(new QMenu(parent))
+    m_qmenu(new QMenu(parent)),
+    m_actionChgRoot(NULL)
 {
-    m_actionMkdir = m_qmenu->addAction("MakeDir");
-    m_actionSetInitDir = m_qmenu->addAction("Startup Dir");
-    m_actionRename = m_qmenu->addAction("Rename");
-    m_actionDelete = m_qmenu->addAction("Delete");
 
     m_DeskFileSystem = new QFileSystemModel();
 
@@ -76,6 +73,24 @@ Desktop_View::Desktop_View(CommThread &cthread, Prefrences_dlg *pref_dlg, MainWi
     connect(m_qmenu,SIGNAL(triggered(QAction *)), this, SLOT(ActionsMenuSel(QAction *)));
 
     installEventFilter(this);
+
+    m_actionMkdir = m_qmenu->addAction("MakeDir");
+    if(QDir::drives().count() > 1){
+        m_actionChgRoot = m_qmenu->addAction("Select Drive");
+    }
+    else{
+        /* In windows, only add menu option if more than one drive exists */
+#ifndef Q_OS_WIN32
+        /* If the Displayed tree is not '/' (root) then add menu option */
+        if(m_DeskFileSystem->rootPath() != "/"){
+            m_actionChgRoot = m_qmenu->addAction("Switch to /");
+        }
+#endif
+    }
+    m_actionSetInitDir = m_qmenu->addAction("Startup Dir");
+    m_actionRename = m_qmenu->addAction("Rename");
+    m_actionDelete = m_qmenu->addAction("Delete");
+
 }
 
 /**
@@ -420,16 +435,25 @@ void Desktop_View::ActionsMenuSel(QAction *act)
 {
     QList<DeskTop_Selection> *selections;
 
+    /**
+      * Make directory
+      */
     if(act == m_actionMkdir){
         mkDir();
         return;
     }
 
+    /**
+      * Rename Item(s) selected.
+      */
     if(act == m_actionRename){
         renameSelections();
         return;
     }
 
+    /**
+      * Delete item(s) selected.
+      */
     if(act == m_actionDelete){
         selections = getSelection(true);
         if(selections){
@@ -438,8 +462,23 @@ void Desktop_View::ActionsMenuSel(QAction *act)
         return;
     }
 
+    /**
+      * Set the Initial Dir to Display
+      */
     if(act == m_actionSetInitDir){
         selectInitDir();
+        return;
+    }
+
+    /**
+      * Change root or drive
+      */
+    if(act == m_actionChgRoot){
+#ifdef Q_OS_WIN32
+        selectDrive();
+#else
+        setInitViewPath("/", "/");
+#endif
         return;
     }
 }
@@ -698,6 +737,26 @@ void Desktop_View::selectInitDir()
                                           tr("Select Startup Dir:"), stlist, 0, false, &ok);
     if (ok && !item.isEmpty()){
         m_pref_dlg->setInitDeskView(m_DeskFileSystem->rootPath(), item);
+    }
+}
+
+/**
+  * Select a Drive to Display in the Desktop View.
+  */
+void Desktop_View::selectDrive()
+{
+    QStringList stlist;
+    bool ok;
+
+    /* Create a String list of theavailable drives */
+    Q_FOREACH(QFileInfo root, QDir::drives()) {
+        stlist.append(root.path());
+    }
+
+    QString rootPath = QInputDialog::getItem(this, "Eazylink2",
+                                          tr("Select Drive:"), stlist, 0, false, &ok);
+    if (ok && !rootPath.isEmpty()){
+        setInitViewPath(rootPath, rootPath);
     }
 }
 
