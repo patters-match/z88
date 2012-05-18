@@ -148,6 +148,7 @@ signals:
 
 protected:
     void startCmd(const comOpcodes_t &op, bool ena_resume = true);
+    comOpcodes_t setState_Idle();
 
     comOpcodes_t _getDirectories(const QString &devname);
     comOpcodes_t _getFileNames(const QString &devname);

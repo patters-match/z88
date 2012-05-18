@@ -481,9 +481,7 @@ void CommThread::run()
         }
         case OP_dirLoadDone:        // The Desktop Dir read is complete event.
             if(!m_abort){
-                m_mutex.lock();
-                m_curOP = OP_idle;
-                m_mutex.unlock();
+                setState_Idle();
                 emit DirLoadComplete(false);
                 m_runCnt--;
                 return;  // Don't re-enable commands here
@@ -707,6 +705,11 @@ done:
                 emit PromptRename(m_z88rendel_itr);
             }
             else{
+                /**
+                  * Clear the Thread State, so the Refresh can work.
+                  */
+                setState_Idle();
+
                 /**
                  * Refresh the Device view
                  */
@@ -1650,4 +1653,18 @@ void CommThread::startCmd(const CommThread::comOpcodes_t &op, bool ena_resume)
         start();
     else
         m_cond.wakeOne();
+}
+
+/**
+  * Set the Current Opertation State to Idle.
+  * @return the Current Opcode.
+  */
+CommThread::comOpcodes_t CommThread::setState_Idle()
+{
+    m_mutex.lock();
+    comOpcodes_t curop = m_curOP;
+    m_curOP = OP_idle;
+    m_mutex.unlock();
+
+    return curop;
 }
