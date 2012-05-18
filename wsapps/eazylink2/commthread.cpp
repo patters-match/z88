@@ -1239,6 +1239,7 @@ bool CommThread::RefreshZ88DeviceView(const QString &devname)
       * Make sure we are not running another command
       */
     if(m_curOP != OP_idle){
+        qDebug() << "In RefreshZ88DeviceView but not Idle State=" << m_curOP;
         return false;
     }
 
