@@ -1449,6 +1449,8 @@ public class Z88Keyboard {
 
                 case KeyEvent.VK_F5:
                     OZvm.getInstance().commandLine(true);
+                    OZvm.getInstance().getCommandLine().getDebugGui().toFront();
+                    OZvm.getInstance().getCommandLine().getDebugGui().getCmdLineInputArea().grabFocus();
                     Z88.getInstance().getProcessor().stopZ80Execution();
                     break;
 

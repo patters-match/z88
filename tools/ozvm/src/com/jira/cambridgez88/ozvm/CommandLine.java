@@ -45,7 +45,7 @@ public class CommandLine implements KeyListener {
 	private static final String illegalArgumentMessage = "Illegal Argument";
 
 	private	DebugGui debugGui;
-    private boolean logZ80instructions;
+	private boolean logZ80instructions;
 	private	Blink blink;
 	private	Z80Processor z80;
 
@@ -209,7 +209,7 @@ public class CommandLine implements KeyListener {
 					boolean autorun = srVm.loadSnapShot(vmFileName);
 					displayCmdOutput("Snapshot successfully installed from " + vmFileName);
 					if (autorun == true) {
-						Z88.getInstance().runZ80Engine(-1, true);
+						Z88.getInstance().runZ80Engine();
 						Z88.getInstance().getDisplay().grabFocus(); // default keyboard input focus to the Z88
 					} else
 						initDebugCmdline();
@@ -270,8 +270,14 @@ public class CommandLine implements KeyListener {
 		}
 
 		if (cmdLineTokens[0].compareToIgnoreCase("run")	== 0) {
-			if (Z88.getInstance().runZ80Engine(-1, true) == false)
+			if (Z88.getInstance().runZ80Engine() == false)
 				displayCmdOutput("Z88 is already running.");
+                        else {
+                                OZvm.getInstance().getGui().toFront();
+                                
+                                // make sure that keyboard focus is available for Z88 (screen)
+                                Z88.getInstance().getDisplay().grabFocus();
+                        }
 		}
 
 		if (cmdLineTokens[0].compareToIgnoreCase("stop") == 0) {
@@ -322,7 +328,7 @@ public class CommandLine implements KeyListener {
 
 		if (cmdLineTokens[0].compareTo(".") == 0) {
 			if (Z88.getInstance().getProcessorThread() != null) {
-				displayCmdOutput("Z88 is already running.");
+				displayCmdOutput("Z88 is running - single stepping ignored.");
 				return;
 			}
 
@@ -336,16 +342,16 @@ public class CommandLine implements KeyListener {
 
 		if (cmdLineTokens[0].compareToIgnoreCase("z") == 0) {
 			if (Z88.getInstance().getProcessorThread() != null) {
-				displayCmdOutput("Z88 is already running.");
+				displayCmdOutput("Z88 is running - subroutine execution ignored.");
 				return;
 			} else {
 				int nextInstrAddress = blink.decodeLocalAddress(dz.getNextInstrAddress(z80.PC()));
 				if (breakPointManager.isCreated(nextInstrAddress) == true) {
 					// there's already a breakpoint	at that	location...
-					Z88.getInstance().runZ80Engine(-1, false);
+					Z88.getInstance().runZ80Engine();
 				} else {
-					breakPointManager.toggleBreakpoint(nextInstrAddress);	// set a temporary breakpoint at next instruction
-					Z88.getInstance().runZ80Engine(nextInstrAddress, false);	// and automatically remove it when the	engine stops...
+					breakPointManager.setBreakpoint(nextInstrAddress);	// set a temporary breakpoint at next instruction
+					Z88.getInstance().runZ80Engine(nextInstrAddress);	// and automatically remove it when the	engine stops...
 				}
 			}
 		}
@@ -1504,7 +1510,7 @@ public class CommandLine implements KeyListener {
                     tokenIdx++;
                 }
 
-                breakPointManager.setBreakpoint(bpAddress, brkpCmds);
+                breakPointManager.toggleBreakpoint(bpAddress, brkpCmds);
             }
             displayCmdOutput(breakPointManager.displayBreakpoints());
         }
