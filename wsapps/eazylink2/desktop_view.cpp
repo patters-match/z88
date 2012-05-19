@@ -75,17 +75,22 @@ Desktop_View::Desktop_View(CommThread &cthread, Prefrences_dlg *pref_dlg, MainWi
     installEventFilter(this);
 
     m_actionMkdir = m_qmenu->addAction("MakeDir");
+
+    /**
+      * Add the Select Drive Menu If more than One Root Path Is available (Windows).
+      */
     if(QDir::drives().count() > 1){
         m_actionChgRoot = m_qmenu->addAction("Select Drive");
     }
     else{
-        /* In windows, only add menu option if more than one drive exists */
-#ifndef Q_OS_WIN32
-        /* If the Displayed tree is not '/' (root) then add menu option */
-        if(m_DeskFileSystem->rootPath() != "/"){
-            m_actionChgRoot = m_qmenu->addAction("Switch to /");
+        /**
+          * If Only 1 Drive is root, add the Switch to menu if the current Displayed
+          * Path is not already the Root.
+          */
+        QString rootPth = QDir::drives().first().path();
+        if(m_DeskFileSystem->rootPath() != rootPth){
+            m_actionChgRoot = m_qmenu->addAction("Switch to " + rootPth);
         }
-#endif
     }
     m_actionSetInitDir = m_qmenu->addAction("Startup Dir");
     m_actionRename = m_qmenu->addAction("Rename");
