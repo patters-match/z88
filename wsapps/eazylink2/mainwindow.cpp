@@ -149,6 +149,9 @@ void MainWindow::setZ88DirLabel(const QString &path)
   */
 void MainWindow::refreshSelectedZ88DeviceView()
 {
+#ifdef Q_OS_WIN32
+    usleep(500); // Debug for windows
+#endif
     m_Z88StorageView->refreshSelectedDeviceView();
 }
 
