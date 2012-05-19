@@ -129,24 +129,43 @@ public class Z88 {
 	}
 
 	/**
-	 * Execute a Z80 thread.
+	 * Execute a Z80 thread until breakpoint is encountered (or F5 is pressed)
 	 *
 	 * @param oneStopBreakpoint
-	 * @param activateInterrupts
 	 *
 	 * @return true if thread was successfully started.
 	 */
-	public boolean runZ80Engine(final int oneStopBreakpoint, final boolean activateInterrupts) {
+	public boolean runZ80Engine() {
 		if (z80Thread != null && z80Thread.isAlive() ==	true) {
 			return false;
 		}
 
-		z80.setInterrupts(activateInterrupts);
+		OZvm.displayRtmMessage("Z88 virtual machine was started.");
+
+		z80Thread = new Thread(z80);
+		z80Thread.start();
+
+		return true;
+	}
+        
+	/**
+	 * Execute a Z80 thread until temporary breakpoint is encountered 
+         * (or F5 is pressed)
+	 *
+	 * @param oneStopBreakpoint
+	 *
+	 * @return true if thread was successfully started.
+	 */
+	public boolean runZ80Engine(final int oneStopBreakpoint) {
+		if (z80Thread != null && z80Thread.isAlive() ==	true) {
+			return false;
+		}
+
 		z80.setOneStopBreakpoint(oneStopBreakpoint);
 
 		OZvm.displayRtmMessage("Z88 virtual machine was started.");
 
-		z80Thread =	new Thread(z80);
+		z80Thread = new Thread(z80);
 		z80Thread.start();
 
 		return true;

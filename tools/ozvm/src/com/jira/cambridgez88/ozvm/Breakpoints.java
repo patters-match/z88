@@ -39,7 +39,33 @@ public class Breakpoints {
     }
 
     /**
-     * Add (if not created) or remove breakpoint (if prev. created).
+     * Remove breakpoint, if created
+     *
+     * @param address 24bit extended address
+     */
+    public void clearBreakpoint(int bpAddress) {
+        Breakpoint bp = new Breakpoint(bpAddress);
+        if (breakPoints.containsKey(bp) == true) {
+            breakPoints.remove(bp);
+            Z88.getInstance().getMemory().clearBreakpoint(bpAddress);
+        }
+    }
+    
+    /**
+     * Add (if not created) breakpoint
+     *
+     * @param address 24bit extended address
+     */
+    public void setBreakpoint(int bpAddress) {
+        Breakpoint bp = new Breakpoint(bpAddress);
+        if (breakPoints.containsKey(bp) == false) {
+            breakPoints.put(bp, bp);
+            Z88.getInstance().getMemory().setBreakpoint(bpAddress);
+        }
+    }
+    
+    /**
+     * Add (if not created) or remove breakpoint (if previously created).
      *
      * @param address 24bit extended address
      */
@@ -77,7 +103,7 @@ public class Breakpoints {
      * @param address 24bit extended address
      * @param stopStatus
      */
-    public void setBreakpoint(int bpAddress, ArrayList<String> brkpCmds) {
+    public void toggleBreakpoint(int bpAddress, ArrayList<String> brkpCmds) {
         Breakpoint bp = new Breakpoint(bpAddress, brkpCmds);
         if (breakPoints.containsKey(bp) == false) {
             breakPoints.put(bp, bp);

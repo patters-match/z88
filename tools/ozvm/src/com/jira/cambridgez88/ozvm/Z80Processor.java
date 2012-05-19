@@ -24,9 +24,9 @@ public class Z80Processor extends Z80 implements Runnable {
 
 	private Blink blink;
 	private Breakpoints breakpoints;
-    private boolean singleStepping;
+	private boolean singleStepping;
 	private long z88StoppedAtTime;
-	private boolean interrupts;
+	private boolean simulateInterrupts;
 	private int oneStopBreakpoint;
 
     /**
@@ -35,9 +35,11 @@ public class Z80Processor extends Z80 implements Runnable {
     private boolean stopZ88;
 
 	public Z80Processor() {
+            
 		blink = Z88.getInstance().getBlink();
 		breakpoints = new Breakpoints();
 		singleStepping = true;
+		simulateInterrupts = true;
 		stopZ88 = false;
 	}
 
@@ -405,35 +407,42 @@ public class Z80Processor extends Z80 implements Runnable {
 	/**
 	 * Thread start; execute the Z80 processor
 	 */
-	public void run() {
-		Breakpoints breakPointManager = getBreakpoints();
+    public void run() {
+        Breakpoints breakPointManager = getBreakpoints();
         Thread.currentThread().setName("Z80Processor");
 
-		if (breakPointManager.isStoppable(blink.decodeLocalAddress(PC())) == true) {
-			// we need to use single stepping mode to
-			// step	past the break point at	current	instruction
-			singleStepZ80();
-		}
+        if (breakPointManager.isStoppable(blink.decodeLocalAddress(PC())) == true) {
+            // we need to use single stepping mode to
+            // step past the break point at current instruction
+            singleStepZ80();
+        }
 
-        breakPointManager.installBreakpoints();
-		if (interrupts == true) blink.startInterrupts(); // enable Z80/Z88 core interrupts
-		execZ80();
-		// execute Z80 code at full speed until	breakpoint is encountered...
-		// (or F5 emergency break is used!)
-		if (interrupts == true) blink.stopInterrupts();
-		breakPointManager.clearBreakpoints();
+        if (simulateInterrupts == true) {
+            blink.startInterrupts(); // enable Z80/Z88 core interrupts
+        }
+        
+        // execute Z80 code at full speed until	breakpoint is encountered...
+        // (or F5 emergency break is used!)
+        execZ80();
+        
+        // Z80 engine has now stopped (F5 or breakpoint encountered)
+        if (simulateInterrupts == true) {
+            blink.stopInterrupts();
+        }
 
-		if (oneStopBreakpoint != -1)
-			breakPointManager.toggleBreakpoint(oneStopBreakpoint); // remove the temporary breakpoint (reached, or not)
-
-		if (OZvm.getInstance().getDebugMode() == true) {
-			OZvm.getInstance().commandLine(true); // Activate Debug Command Line Window...
-			OZvm.getInstance().getCommandLine().initDebugCmdline();
-		}
-	}
+        if (oneStopBreakpoint != -1) {
+            breakPointManager.clearBreakpoint(oneStopBreakpoint); // remove the temporary breakpoint (reached, or not)
+            oneStopBreakpoint = -1;
+        }
+        
+        if (OZvm.getInstance().getDebugMode() == true) {
+            OZvm.getInstance().commandLine(true); // Activate Debug Command Line Window...
+            OZvm.getInstance().getCommandLine().initDebugCmdline();
+        }
+    }
 
 	public void setInterrupts(boolean interrupts) {
-		this.interrupts = interrupts;
+		this.simulateInterrupts = interrupts;
 	}
 
 	public void setOneStopBreakpoint(int oneStopBreakpoint) {

@@ -440,7 +440,7 @@ public class OZvm {
 
 		if (ozvm.getAutorunStatus() == true) {
 			// no debug mode, just boot the specified ROM and run the virtual Z88...
-			Z88.getInstance().runZ80Engine(-1, true);
+			Z88.getInstance().runZ80Engine();
 			// make sure that keyboard focus is available for Z88 (screen)
 			Z88.getInstance().getDisplay().grabFocus();
 		} else {
