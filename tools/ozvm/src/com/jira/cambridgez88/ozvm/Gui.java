@@ -121,12 +121,7 @@ public class Gui extends JFrame {
     /** Default Window mode Gui constructor */
     public Gui() {
         super();
-        initialize(false);
-    }
-
-    public Gui(boolean fullScreen) {
-        super();
-        initialize(fullScreen);
+        initialize();
     }
 
     private JPanel getZ88ScreenPanel() {
@@ -724,7 +719,7 @@ public class Gui extends JFrame {
 
                             if (autorun == true | fullScreenMode == true) {
                                 // debugging is disabled while full screen mode is enabled
-                                Z88.getInstance().runZ80Engine(-1, true);
+                                Z88.getInstance().runZ80Engine();
                                 Z88.getInstance().getDisplay().grabFocus(); // default keyboard input focus to the Z88								
                             } else {
                                 OZvm.getInstance().commandLine(true); // Activate Debug Command Line Window...
@@ -743,7 +738,7 @@ public class Gui extends JFrame {
                     } else {
                         // User aborted Loading of snapshot..
                         if (resumeExecution == true) {
-                            Z88.getInstance().runZ80Engine(-1, true);
+                            Z88.getInstance().runZ80Engine();
                             Z88.getInstance().getDisplay().grabFocus(); // default keyboard input focus to the Z88
                         }
                     }
@@ -803,7 +798,7 @@ public class Gui extends JFrame {
 
                     if (autorun == true) {
                         // Z80 engine was temporary stopped, now continue to execute...
-                        Z88.getInstance().runZ80Engine(-1, true);
+                        Z88.getInstance().runZ80Engine();
                         Z88.getInstance().getDisplay().grabFocus(); // default keyboard input	focus to the Z88
                     }
                 }
@@ -1510,41 +1505,28 @@ public class Gui extends JFrame {
      * This method initializes the main z88 window with screen menus,
      * runtime messages and keyboard.
      */
-    private void initialize(boolean fullScreen) {
-        fullScreenMode = fullScreen;
+    private void initialize() {
 
         blink = Z88.getInstance().getBlink();
 
         kbLayoutButtonGroup = new ButtonGroup();
         scrRefreshRateButtonGroup = new ButtonGroup();
 
-        // set window decoration, depending on full screen or not
-        setUndecorated(fullScreen);
-
         // Main Gui window is never resizable
         setResizable(false);
         setIconImage(new ImageIcon(this.getClass().getResource("/pixel/title.gif")).getImage());
         setJMenuBar(getMainMenuBar());
 
-        if (fullScreen == true) {
-            getContentPane().setLayout(new BorderLayout());
-            getContentPane().setBackground(Color.BLACK);
-            displayZ88ScreenPane();
-            displayZ88Keyboard(true);
-            displayZ88CardSlots(true);
-        } else {
-            // normal OS window mode...
-            getContentPane().setLayout(new GridBagLayout());
+        getContentPane().setLayout(new GridBagLayout());
 
-            final GridBagConstraints gridBagConstraints_1 = new GridBagConstraints();
-            gridBagConstraints_1.fill = GridBagConstraints.HORIZONTAL;
-            gridBagConstraints_1.gridy = 0;
-            gridBagConstraints_1.gridx = 0;
-            getContentPane().add(getToolBar(), gridBagConstraints_1);
+        final GridBagConstraints gridBagConstraints_1 = new GridBagConstraints();
+        gridBagConstraints_1.fill = GridBagConstraints.HORIZONTAL;
+        gridBagConstraints_1.gridy = 0;
+        gridBagConstraints_1.gridx = 0;
+        getContentPane().add(getToolBar(), gridBagConstraints_1);
 
-            displayZ88ScreenPane();
-            setWindowTitle("");
-        }
+        displayZ88ScreenPane();
+        setWindowTitle("");
 
         // pre-select the Screen Refresh Rate Menu Item
         switch (getZ88Display().getCurrentFrameRate()) {
