@@ -15,6 +15,8 @@
 
 **********************************************************************************************/
 
+#include <QDesktopServices>
+#include <QUrl>
 #include <QStringList>
 #include <QInputDialog>
 #include <QTreeView>
@@ -202,6 +204,7 @@ void MainWindow::createActions()
     connect(ui->Ui::MainWindow::actionDisplayFileDate, SIGNAL(triggered()), this, SLOT(ReloadZ88View()));
     connect(ui->Ui::MainWindow::actionDisplayFileSize, SIGNAL(triggered()), this, SLOT(ReloadZ88View()));
     connect(ui->Ui::MainWindow::actionAbout, SIGNAL(triggered()), this, SLOT(AboutEazylink()));
+    connect(ui->Ui::MainWindow::actionHelpContents, SIGNAL(triggered()), this, SLOT(UrlUserGuide()));
 
     connect(ui->Ui::MainWindow::CancelCmdBtn, SIGNAL(pressed()), this, SLOT(AbortCmd()));
     connect(ui->Ui::MainWindow::actionPreferences, SIGNAL(triggered()), this, SLOT(displayPrefs()));
@@ -403,6 +406,11 @@ void MainWindow::ImpExp_sendfile()
     // qDebug() << m_sport.impExpSendFile(":RAM.1/romupdate.txt", "/Users/oernohaz/files/z88/bitbucket/z88/z88apps/romupdate/readme.txt");
     //qDebug() << m_sport.sendFile(":RAM.1/DIRX/hello2.txt", "/Users/oernohaz/files/hello2.txt");
 
+}
+
+void MainWindow::UrlUserGuide()
+{
+    QDesktopServices::openUrl(QUrl("https://cambridgez88.jira.com/wiki/x/noCD", QUrl::TolerantMode));
 }
 
 void MainWindow::AboutEazylink()
@@ -1192,7 +1200,7 @@ void MainWindow::StartSending(QList<DeskTop_Selection> *desk_selections, QList<Z
     }
 
     /**
-      * Prompt user about Number of diles and Dirs to transfer
+      * Prompt user about Number of files and Dirs to transfer
       */
     QMessageBox msgBox;
     QString msg = "Transfer ";
