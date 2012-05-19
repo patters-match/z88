@@ -21,7 +21,7 @@
 #include <QStatusBar>
 #include <QLabel>
 #include <QPushButton>
-
+#include <QtCore/QTime>
 #include <qdebug.h>
 
 #include "mainwindow.h"
@@ -150,7 +150,8 @@ void MainWindow::setZ88DirLabel(const QString &path)
 void MainWindow::refreshSelectedZ88DeviceView()
 {
 #ifdef Q_OS_WIN32
-    usleep(500); // Debug for windows
+    QTime timeout = QTime::currentTime().addMSecs(500);
+    while(QTime::currentTime() < timeout) {};
 #endif
     m_Z88StorageView->refreshSelectedDeviceView();
 }
