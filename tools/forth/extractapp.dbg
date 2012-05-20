@@ -1,3 +1,3 @@
-bp 200004
+bp 200004 (fcd2 xpc . ; quitvm)
 run
 
