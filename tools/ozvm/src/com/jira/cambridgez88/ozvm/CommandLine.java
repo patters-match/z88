@@ -340,21 +340,32 @@ public class CommandLine implements KeyListener {
 			debugGui.getCmdLineInputArea().selectAll();
 		}
 
-		if (cmdLineTokens[0].compareToIgnoreCase("z") == 0) {
-			if (Z88.getInstance().getProcessorThread() != null) {
-				displayCmdOutput("Z88 is running - subroutine execution ignored.");
-				return;
-			} else {
-				int nextInstrAddress = blink.decodeLocalAddress(dz.getNextInstrAddress(z80.PC()));
-				if (breakPointManager.isCreated(nextInstrAddress) == true) {
-					// there's already a breakpoint	at that	location...
-					Z88.getInstance().runZ80Engine();
-				} else {
-					breakPointManager.setBreakpoint(nextInstrAddress);	// set a temporary breakpoint at next instruction
-					Z88.getInstance().runZ80Engine(nextInstrAddress);	// and automatically remove it when the	engine stops...
-				}
-			}
-		}
+                if (cmdLineTokens[0].compareToIgnoreCase("z") == 0) {
+                    if (Z88.getInstance().getProcessorThread() != null) {
+                        displayCmdOutput("Z88 is running - subroutine execution ignored.");
+                        return;
+                    } else {
+                        // do we really have a subroutine at PC?
+                        if (Dz.getNextStepCommand().compareTo("z") == 0) {
+                            int nextInstrAddress = blink.decodeLocalAddress(dz.getNextInstrAddress(z80.PC()));
+                            if (breakPointManager.isCreated(nextInstrAddress) == true) {
+                                // there's already a breakpoint	at that	location...
+                                Z88.getInstance().runZ80Engine();
+                            } else {
+                                breakPointManager.setBreakpoint(nextInstrAddress);	// set a temporary breakpoint at next instruction
+                                Z88.getInstance().runZ80Engine(nextInstrAddress);	// and automatically remove it when the	engine stops...
+                            }
+                        } else {
+                            // no, do a single step command
+                            z80.singleStepZ80();		// single stepping (no interrupts running)...
+                            displayCmdOutput(Z88Info.dzPcStatus(z80.PC()));
+
+                            debugGui.getCmdLineInputArea().setText(Dz.getNextStepCommand());
+                            debugGui.getCmdLineInputArea().setCaretPosition(debugGui.getCmdLineInputArea().getDocument().getLength());
+                            debugGui.getCmdLineInputArea().selectAll();                            
+                        }
+                    }
+                }
 
 		if (cmdLineTokens[0].compareToIgnoreCase("fcd1") == 0 |
 				cmdLineTokens[0].compareToIgnoreCase("fcd2") == 0 |
