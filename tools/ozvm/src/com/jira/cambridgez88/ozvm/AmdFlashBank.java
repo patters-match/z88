@@ -15,11 +15,11 @@
  * @author <A HREF="mailto:gstrube@gmail.com">Gunther Strube</A>
  *
  */
-
 package com.jira.cambridgez88.ozvm;
 
 /**
- * This class represents the 16Kb Generic Flash Memory Bank on an AMD 29FxxxB chip.
+ * This class represents the 16Kb Generic Flash Memory Bank on an AMD 29FxxxB
+ * chip.
  *
  * The characteristics of a Flash Memory bank is chip memory that can be read at
  * all times and only be written (and erased) using a combination of AMD Flash
@@ -27,58 +27,62 @@ package com.jira.cambridgez88.ozvm;
  * the Z88.
  *
  * The emulation of the AMD Flash Memory solely implements the chip command mode
- * programming, since the Z88 Flash Cards only responds to those command sequences
- * (and not the hardware pin manipulation). Erase Suspend and Erase Resume
- * commands are also not implemented.
+ * programming, since the Z88 Flash Cards only responds to those command
+ * sequences (and not the hardware pin manipulation). Erase Suspend and Erase
+ * Resume commands are also not implemented.
  *
  * The essential emulation is implemented to respond to the Standard Flash Eprom
- * Library (which implements all Flash chip manipulation, issuing commands
- * on a bank, typically specified indirectly using the BHL Z80 registers).
+ * Library (which implements all Flash chip manipulation, issuing commands on a
+ * bank, typically specified indirectly using the BHL Z80 registers).
  */
 public class AmdFlashBank extends GenericAmdFlashBank {
 
-	/** Device Code for 128Kb memory, 8 x 16K erasable sectors, 8 x 16K banks */
-	public static final int AM29F010B = 0x20;
+    /**
+     * Device Code for 128Kb memory, 8 x 16K erasable sectors, 8 x 16K banks
+     */
+    public static final int AM29F010B = 0x20;
+    /**
+     * Device Code for 512Kb memory, 8 x 64K erasable sectors, 32 x 16K banks
+     */
+    public static final int AM29F040B = 0xA4;
+    /**
+     * Device Code for 1Mb memory, 16 x 64K erasable sectors, 64 x 16K banks
+     */
+    public static final int AM29F080B = 0xD5;
+    /**
+     * Manufacturer Code for AM29F0xxx Flash Memory chips
+     */
+    public static final int MANUFACTURERCODE = 0x01;
+    /**
+     * The actual Flash Memory Device Code of this bank instance
+     */
+    private int deviceCode;
 
-	/** Device Code for 512Kb memory, 8 x 64K erasable sectors, 32 x 16K banks */
-	public static final int AM29F040B = 0xA4;
+    /**
+     * Constructor. Assign the Flash Memory bank to the 4Mb memory model.
+     *
+     * @param dc the Flash Memory Device Code (AM29F010B, AM29F040B or
+     * AM29F080B)
+     */
+    public AmdFlashBank(int dc) {
+        super();
 
-	/** Device Code for 1Mb memory, 16 x 64K erasable sectors, 64 x 16K banks */
-	public static final int AM29F080B = 0xD5;
+        deviceCode = dc;
+    }
 
-	/** Manufacturer Code for AM29F0xxx Flash Memory chips */
-	public static final int MANUFACTURERCODE = 0x01;
+    /**
+     * @return the Flash Memory Device Code (AM29F010B, AM29F040B or AM29F080B)
+     * which this bank is part of.
+     */
+    public final int getDeviceCode() {
+        return deviceCode;
+    }
 
-	/**
-	 * The actual Flash Memory Device Code of this bank instance
-	 */
-	private int deviceCode;
-
-	/**
-	 * Constructor.
-	 * Assign the Flash Memory bank to the 4Mb memory model.
-	 *
-	 * @param dc the Flash Memory Device Code (AM29F010B, AM29F040B or AM29F080B)
-	 */
-	public AmdFlashBank(int dc) {
-		super();
-
-		deviceCode = dc;
-	}
-
-	/**
-	 * @return the Flash Memory Device Code
-	 * (AM29F010B, AM29F040B or AM29F080B) which this bank is part of.
-	 */
-	public final int getDeviceCode() {
-		return deviceCode;
-	}
-	
-	/**
-	 * @return the Flash Memory Manufacturer Code
-	 * 
-	 */
-	public final int getManufacturerCode() {
-		return MANUFACTURERCODE;
-	}	
+    /**
+     * @return the Flash Memory Manufacturer Code
+     *
+     */
+    public final int getManufacturerCode() {
+        return MANUFACTURERCODE;
+    }
 }

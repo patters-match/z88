@@ -49,7 +49,8 @@ import com.jira.cambridgez88.ozvm.screen.Z88display;
 import java.net.URI;
 
 /**
- * The end user Gui (Main menu, screen, runtime messages, keyboard & slot management)
+ * The end user Gui (Main menu, screen, runtime messages, keyboard & slot
+ * management)
  */
 public class Gui extends JFrame {
 
@@ -118,7 +119,9 @@ public class Gui extends JFrame {
     private JCheckBoxMenuItem scr50FpsMenuItem;
     private JCheckBoxMenuItem scr100FpsMenuItem;
 
-    /** Default Window mode Gui constructor */
+    /**
+     * Default Window mode Gui constructor
+     */
     public Gui() {
         super();
         initialize();
@@ -230,7 +233,7 @@ public class Gui extends JFrame {
 
                             rt.exec(new String[]{"sh", "-c", cmd.toString()});
 
-                        } 
+                        }
 
                     } catch (IOException ex) {
                         JOptionPane.showMessageDialog(Gui.this, errMsg, "OZvm Help", JOptionPane.ERROR_MESSAGE);
@@ -720,7 +723,7 @@ public class Gui extends JFrame {
                             if (autorun == true | fullScreenMode == true) {
                                 // debugging is disabled while full screen mode is enabled
                                 Z88.getInstance().runZ80Engine();
-                                Z88.getInstance().getDisplay().grabFocus(); // default keyboard input focus to the Z88								
+                                Z88.getInstance().getDisplay().grabFocus(); // default keyboard input focus to the Z88                              
                             } else {
                                 OZvm.getInstance().commandLine(true); // Activate Debug Command Line Window...
                                 OZvm.getInstance().getCommandLine().initDebugCmdline();
@@ -747,7 +750,7 @@ public class Gui extends JFrame {
                     // redraw the slots panel and all is nice again...
                     getSlotsPanel().repaint();
 
-                    Gui.this.pack(); // update Gui window (might have changed by snapshot file...)					
+                    Gui.this.pack(); // update Gui window (might have changed by snapshot file...)                  
                 }
             });
         }
@@ -799,7 +802,7 @@ public class Gui extends JFrame {
                     if (autorun == true) {
                         // Z80 engine was temporary stopped, now continue to execute...
                         Z88.getInstance().runZ80Engine();
-                        Z88.getInstance().getDisplay().grabFocus(); // default keyboard input	focus to the Z88
+                        Z88.getInstance().getDisplay().grabFocus(); // default keyboard input   focus to the Z88
                     }
                 }
             });
@@ -1269,7 +1272,6 @@ public class Gui extends JFrame {
                         JOptionPane.showMessageDialog(Gui.this, "Z88 is not running");
                     }
                 }
-
             });
         }
 
@@ -1309,7 +1311,6 @@ public class Gui extends JFrame {
                         JOptionPane.showMessageDialog(Gui.this, "Z88 is not running");
                     }
                 }
-
             });
         }
 
@@ -1349,7 +1350,6 @@ public class Gui extends JFrame {
                         JOptionPane.showMessageDialog(Gui.this, "Z88 is not running");
                     }
                 }
-
             });
         }
 
@@ -1389,7 +1389,6 @@ public class Gui extends JFrame {
                         JOptionPane.showMessageDialog(Gui.this, "Z88 is not running");
                     }
                 }
-
             });
         }
 
@@ -1429,7 +1428,6 @@ public class Gui extends JFrame {
                         JOptionPane.showMessageDialog(Gui.this, "Z88 is not running");
                     }
                 }
-
             });
         }
 
@@ -1465,7 +1463,7 @@ public class Gui extends JFrame {
             screenSnapshotMenuItem.addActionListener(new ActionListener() {
 
                 public void actionPerformed(ActionEvent e) {
-                    // grab a copy of the current screen frame and write it to file "./z88screenX.png" (X = counter).					
+                    // grab a copy of the current screen frame and write it to file "./z88screenX.png" (X = counter).                   
                     getZ88Display().grabScreenFrameToFile();
                 }
             });
@@ -1482,7 +1480,7 @@ public class Gui extends JFrame {
             gifMovieMenuItem.addActionListener(new ActionListener() {
 
                 public void actionPerformed(ActionEvent e) {
-                    // record an animated Gif movie of the Z88 screen activity					
+                    // record an animated Gif movie of the Z88 screen activity                  
                     getZ88Display().toggleMovieRecording();
                 }
             });
@@ -1494,7 +1492,7 @@ public class Gui extends JFrame {
 
     /**
      * Set the window title which is appended after the 'OZvm VX ' text
-     * 
+     *
      * @param title
      */
     public void setWindowTitle(String title) {
@@ -1502,8 +1500,8 @@ public class Gui extends JFrame {
     }
 
     /**
-     * This method initializes the main z88 window with screen menus,
-     * runtime messages and keyboard.
+     * This method initializes the main z88 window with screen menus, runtime
+     * messages and keyboard.
      */
     private void initialize() {
 

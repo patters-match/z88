@@ -35,7 +35,7 @@ public class Breakpoints {
      */
     public Breakpoints() {
         breakPoints = new HashMap();
-        bpSearchKey = new Breakpoint(0);	// just create a dummy search key object (used by internal lookup) 
+        bpSearchKey = new Breakpoint(0);    // just create a dummy search key object (used by internal lookup) 
     }
 
     /**
@@ -50,7 +50,7 @@ public class Breakpoints {
             Z88.getInstance().getMemory().clearBreakpoint(bpAddress);
         }
     }
-    
+
     /**
      * Add (if not created) breakpoint
      *
@@ -63,7 +63,7 @@ public class Breakpoints {
             Z88.getInstance().getMemory().setBreakpoint(bpAddress);
         }
     }
-    
+
     /**
      * Add (if not created) or remove breakpoint (if previously created).
      *
@@ -314,9 +314,9 @@ public class Breakpoints {
     // The breakpoint container.
     private class Breakpoint {
 
-        private int addressKey;			// the 24bit address of the breakpoint
-        private boolean stop;			// true = stoppable breakpoint, false = display breakpoint
-        private boolean active;			// true = breakpoint is active, false = breakpoint is suspended
+        private int addressKey;         // the 24bit address of the breakpoint
+        private boolean stop;           // true = stoppable breakpoint, false = display breakpoint
+        private boolean active;         // true = breakpoint is active, false = breakpoint is suspended
         private ArrayList<String> commands;     // array of commands to be executed at breakpoint.
 
         /**
@@ -325,8 +325,8 @@ public class Breakpoints {
          * @param bpAddress 24bit extended address
          */
         Breakpoint(int bpAddress) {
-            stop = true;	// default behaviour is to stop execution at breakpoint
-            active = true; 	// when a breakpoint is created it is active by default
+            stop = true;    // default behaviour is to stop execution at breakpoint
+            active = true;  // when a breakpoint is created it is active by default
 
             // the encoded key for the SortedSet...
             addressKey = bpAddress;
@@ -340,8 +340,8 @@ public class Breakpoints {
          * @param one or more debug commands to be executed (separated by ;)
          */
         Breakpoint(int bpAddress, ArrayList<String> cmds) {
-            stop = true;	// default behaviour is to stop execution at breakpoint
-            active = true; 	// when a breakpoint is created it is active by default
+            stop = true;    // default behaviour is to stop execution at breakpoint
+            active = true;  // when a breakpoint is created it is active by default
 
             // the encoded key for the SortedSet...
             addressKey = bpAddress;
@@ -351,7 +351,7 @@ public class Breakpoints {
         Breakpoint(int bpAddress, boolean stopAtAddress) {
             // use <false> to display register status, then continue, <true> to stop execution.
             stop = stopAtAddress;
-            active = true; 	// when a breakpoint is created it is active by default 
+            active = true;  // when a breakpoint is created it is active by default 
 
             // the encoded key for the SortedSet...
             addressKey = bpAddress;
@@ -368,7 +368,7 @@ public class Breakpoints {
 
         // override interface with the actual implementation for this object.
         public int hashCode() {
-            return addressKey;	// the unique key is a perfect hash code
+            return addressKey;  // the unique key is a perfect hash code
         }
 
         private boolean hasCommands() {
@@ -383,7 +383,7 @@ public class Breakpoints {
             if (commands != null) {
                 CommandLine cmdLine = OZvm.getInstance().getCommandLine();
 
-                cmdLine.getDebugGui().getCmdLineInputArea().setEnabled(false);	// don't allow command input while parsing file...
+                cmdLine.getDebugGui().getCmdLineInputArea().setEnabled(false);  // don't allow command input while parsing file...
                 for (int i = 0; i < commands.size(); i++) {
                     cmdLine.parseCommandLine(commands.get(i));
                 }
