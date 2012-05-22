@@ -29,6 +29,7 @@ import java.net.JarURLConnection;
 
 import com.jira.cambridgez88.ozvm.datastructures.SlotInfo;
 import com.jira.cambridgez88.ozvm.filecard.FileArea;
+import java.net.URI;
 
 /**
  * This class represents the 4Mb addressable memory model in the Z88, comprised
@@ -469,13 +470,12 @@ public final class Memory {
      * Reset Z88 to default UK V4.0 ROM with 32K RAM
      */
     public void setDefaultSystem() {
-        JarURLConnection jarConnection;
-
         setVoidMemory(); // remove all current memory (set to void...)
 
         try {
-            jarConnection = (JarURLConnection) Z88.getInstance().getBlink().getClass().getResource("/Z88.rom").openConnection();
-            loadRomBinary((int) jarConnection.getJarEntry().getSize(), jarConnection.getInputStream());
+            File rf = new File(URI.create("file:" + OZvm.getInstance().getAppPath() + "roms/Z88UK400.rom"));
+            loadRomBinary(rf);
+
             Z88.getInstance().getBlink().setRAMS(getBank(0));   // point at ROM bank 0
 
             insertRamCard(128, 0); // set to default 128K RAM...
