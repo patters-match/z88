@@ -17,36 +17,16 @@
  */
 package com.jira.cambridgez88.ozvm;
 
-import javax.swing.JFrame;
-import java.awt.GridBagLayout;
-import javax.swing.JPanel;
-import java.awt.GridBagConstraints;
-import java.awt.Dimension;
-
-import javax.swing.ImageIcon;
-import javax.swing.JFileChooser;
-import javax.swing.JMenuBar;
-import javax.swing.JMenu;
-import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
-import javax.swing.JToolBar;
-import javax.swing.KeyStroke;
-import javax.swing.JButton;
-import javax.swing.border.EmptyBorder;
-import java.awt.event.KeyEvent;
-import java.awt.BorderLayout;
-import java.awt.Insets;
-import java.awt.Color;
-import java.awt.event.ActionListener;
+import com.jira.cambridgez88.ozvm.screen.Z88display;
+import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.IOException;
-
-import javax.swing.JCheckBoxMenuItem;
-import javax.swing.ButtonGroup;
-
-import com.jira.cambridgez88.ozvm.screen.Z88display;
 import java.net.URI;
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 
 /**
  * The end user Gui (Main menu, screen, runtime messages, keyboard & slot
@@ -796,13 +776,13 @@ public class Gui extends JFrame {
             softResetMenuItem.addActionListener(new ActionListener() {
 
                 public void actionPerformed(ActionEvent e) {
-                    if (Z88.getInstance().getProcessorThread() != null) {
-                        if (JOptionPane.showConfirmDialog(Gui.this, "Soft Reset Z88?") == JOptionPane.YES_OPTION) {
-                            blink.signalFlapClosed(); // close flap (if open): We don't want a Hard Reset!
-                            Z88.getInstance().pressResetButton();
-                        }
-                    } else {
-                        JOptionPane.showMessageDialog(Gui.this, "Z88 is not running");
+                    if (Z88.getInstance().getProcessorThread() == null) {
+                        Z88.getInstance().runZ80Engine();
+                    }
+                    
+                    if (JOptionPane.showConfirmDialog(Gui.this, "Soft Reset Z88?") == JOptionPane.YES_OPTION) {
+                        blink.signalFlapClosed(); // close flap (if open): We don't want a Hard Reset!
+                        Z88.getInstance().pressResetButton();
                     }
                 }
             });
@@ -817,12 +797,12 @@ public class Gui extends JFrame {
             hardResetMenuItem.addActionListener(new ActionListener() {
 
                 public void actionPerformed(ActionEvent e) {
-                    if (Z88.getInstance().getProcessorThread() != null) {
-                        if (JOptionPane.showConfirmDialog(Gui.this, "Hard Reset Z88?") == JOptionPane.YES_OPTION) {
-                            Z88.getInstance().pressHardReset();
-                        }
-                    } else {
-                        JOptionPane.showMessageDialog(Gui.this, "Z88 is not running");
+                    if (Z88.getInstance().getProcessorThread() == null) {
+                        Z88.getInstance().runZ80Engine();
+                    }
+                    
+                    if (JOptionPane.showConfirmDialog(Gui.this, "Hard Reset Z88?") == JOptionPane.YES_OPTION) {
+                        Z88.getInstance().pressHardReset();
                     }
                 }
             });
