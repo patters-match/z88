@@ -90,10 +90,10 @@ public class Z88 {
         blink.awakeFromSnooze();                // reset button always awake from coma or snooze...
 
         int comReg = blink.getBlinkCom();
-        comReg &= ~Blink.BM_COMRAMS;            // COM.RAMS = 0 (lower 8K = Bank 0)
+        comReg &= ~Blink.BM_COMRAMS;          // COM.RAMS = 0 (lower 8K = Bank 0)
         blink.setBlinkCom(comReg);
 
-        z80.PC(0x000);                          // execute (soft/hard) reset in bank 0
+        z80.PC(0x0000);                          // execute (soft/hard) reset in bank 0
     }
 
     public void pressHardReset() {
@@ -104,13 +104,8 @@ public class Z88 {
 
         // press reset button while flap is opened
         pressResetButton();
-
+        
         blink.signalFlapClosed();
-
-        try {
-            Thread.sleep(100);
-        } catch (InterruptedException e1) {
-        }
 
         pressResetButton();
     }

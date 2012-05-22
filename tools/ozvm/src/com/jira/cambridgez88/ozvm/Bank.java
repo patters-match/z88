@@ -47,6 +47,8 @@ public abstract class Bank extends WindowAdapter {
     private JFrame win;
 
     public Bank() {
+        this.bankMem = new int[Bank.SIZE];  // contents are default 0        
+        this.breakPoints = new boolean[Bank.SIZE]; // by default, no breakpoints are defined (false)
         this.bankNo = -1; // This bank is not assigned to the 4Mb memory model
     }
 
@@ -56,9 +58,8 @@ public abstract class Bank extends WindowAdapter {
      * @param bankNo
      */
     public Bank(int bankNo) {
+        this();
         this.bankNo = bankNo;
-        this.bankMem = new int[Bank.SIZE];  // contents are default 0        
-        this.breakPoints = new boolean[Bank.SIZE]; // by default, no breakpoints are defined (false)
     }
 
     /**
@@ -211,6 +212,7 @@ public abstract class Bank extends WindowAdapter {
         win.pack();
         win.show();
     }
+
 } /*
  * Bank
  */

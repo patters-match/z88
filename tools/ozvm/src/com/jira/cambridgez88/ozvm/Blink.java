@@ -722,7 +722,7 @@ public final class Blink {
         int bankno;
 
         if (pc > 0x3FFF) {
-            bankno = sR[pc >>> 14];
+            bankno = sR[(pc & 0xffff) >>> 14];
         } else {
             if (pc < 0x2000) // return lower 8K Bank binding
             // Lower 8K is System Bank 0x00 (ROM on hard reset)
@@ -777,25 +777,30 @@ public final class Blink {
      * @param addr 16bit word that points into Z80 64K Address Space
      * @return byte at bank, mapped into segment for specified address
      */
-    public final int readByte(final int addr) {
-        if (addr > 0x3FFF) {
-            return memory.getBank(sR[addr >>> 14]).readByte(addr);
-        } else {
-            if (addr < 0x2000) // return lower 8K Bank binding
-            // Lower 8K is System Bank 0x00 (ROM on hard reset)
-            // or 0x20 (RAM for Z80 stack and system variables)
-            {
-                return RAMS.readByte(addr);
+    public final int readByte(final int addr) {        
+        try {
+            if (addr > 0x3FFF) {
+                return memory.getBank(sR[addr >>> 14]).readByte(addr);
             } else {
-                if ((sR[0] & 1) == 0) // lower 8K of even bank bound into upper 8K of segment 0
+                if (addr < 0x2000) // return lower 8K Bank binding
+                // Lower 8K is System Bank 0x00 (ROM on hard reset)
+                // or 0x20 (RAM for Z80 stack and system variables)
                 {
-                    return memory.getBank(sR[0] & 0xFE).readByte(addr & 0x1FFF);
-                } else // upper 8K of even bank bound into upper 8K of segment 0
-                // addr <= 0x3FFF...
-                {
-                    return memory.getBank(sR[0] & 0xFE).readByte(addr);
+                    return RAMS.readByte(addr);
+                } else {
+                    if ((sR[0] & 1) == 0) // lower 8K of even bank bound into upper 8K of segment 0
+                    {
+                        return memory.getBank(sR[0] & 0xFE).readByte(addr & 0x1FFF);
+                    } else // upper 8K of even bank bound into upper 8K of segment 0
+                    // addr <= 0x3FFF...
+                    {
+                        return memory.getBank(sR[0] & 0xFE).readByte(addr);
+                    }
                 }
             }
+        } catch (ArrayIndexOutOfBoundsException e) {
+            // PC is problably 0x10000
+            return 0;
         }
     }
 
@@ -813,25 +818,30 @@ public final class Blink {
      * @return byte at bank, mapped into segment for specified address
      */
     public final boolean isBreakpoint(final int addr) {
-        if (addr > 0x3FFF) {
-            return memory.getBank(sR[addr >>> 14]).isBreakpoint(addr);
-        } else {
-            if (addr < 0x2000) // return lower 8K Bank binding
-            // Lower 8K is System Bank 0x00 (ROM on hard reset)
-            // or 0x20 (RAM for Z80 stack and system variables)
-            {
-                return RAMS.isBreakpoint(addr);
+        try {
+            if (addr > 0x3FFF) {
+                return memory.getBank(sR[addr >>> 14]).isBreakpoint(addr);
             } else {
-                if ((sR[0] & 1) == 0) // lower 8K of even bank bound into upper 8K of segment 0
+                if (addr < 0x2000) // return lower 8K Bank binding
+                // Lower 8K is System Bank 0x00 (ROM on hard reset)
+                // or 0x20 (RAM for Z80 stack and system variables)
                 {
-                    return memory.getBank(sR[0] & 0xFE).isBreakpoint(addr & 0x1FFF);
-                } else // upper 8K of even bank bound into upper 8K of segment 0
-                // addr <= 0x3FFF...
-                {
-                    return memory.getBank(sR[0] & 0xFE).isBreakpoint(addr);
+                    return RAMS.isBreakpoint(addr);
+                } else {
+                    if ((sR[0] & 1) == 0) // lower 8K of even bank bound into upper 8K of segment 0
+                    {
+                        return memory.getBank(sR[0] & 0xFE).isBreakpoint(addr & 0x1FFF);
+                    } else // upper 8K of even bank bound into upper 8K of segment 0
+                    // addr <= 0x3FFF...
+                    {
+                        return memory.getBank(sR[0] & 0xFE).isBreakpoint(addr);
+                    }
                 }
             }
-        }
+        } catch (ArrayIndexOutOfBoundsException e) {
+            // PC is problably 0x10000
+            return false;
+        }        
     }
 
     /**
@@ -848,26 +858,30 @@ public final class Blink {
      * @param b byte to be written into Z80 64K Address Space
      */
     public final void writeByte(final int addr, final int b) {
-        if (addr > 0x3FFF) {
-            // write byte to segments 1 - 3
-            memory.getBank(sR[addr >>> 14]).writeByte(addr, b);
-        } else {
-            if (addr < 0x2000) {
-                // return lower 8K Bank binding
-                // Lower 8K is System Bank 0x00 (ROM on hard reset)
-                // or 0x20 (RAM for Z80 stack and system variables)
-                RAMS.writeByte(addr, b);
+        try {
+            if (addr > 0x3FFF) {
+                // write byte to segments 1 - 3
+                memory.getBank(sR[addr >>> 14]).writeByte(addr, b);
             } else {
-                Bank bank = memory.getBank(sR[0] & 0xFE);
-                if ((sR[0] & 1) == 0) {
-                    // lower 8K of even bank bound into upper 8K of segment 0
-                    bank.writeByte(addr & 0x1FFF, b);
+                if (addr < 0x2000) {
+                    // return lower 8K Bank binding
+                    // Lower 8K is System Bank 0x00 (ROM on hard reset)
+                    // or 0x20 (RAM for Z80 stack and system variables)
+                    RAMS.writeByte(addr, b);
                 } else {
-                    // upper 8K of even bank bound into upper 8K of segment 0
-                    // addr <= 0x3FFF...
-                    bank.writeByte(addr, b);
+                    Bank bank = memory.getBank(sR[0] & 0xFE);
+                    if ((sR[0] & 1) == 0) {
+                        // lower 8K of even bank bound into upper 8K of segment 0
+                        bank.writeByte(addr & 0x1FFF, b);
+                    } else {
+                        // upper 8K of even bank bound into upper 8K of segment 0
+                        // addr <= 0x3FFF...
+                        bank.writeByte(addr, b);
+                    }
                 }
             }
+        } catch (ArrayIndexOutOfBoundsException e) {
+            // PC is problably 0x10000
         }
     }
 
