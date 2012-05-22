@@ -63,7 +63,6 @@ public class Gui extends JFrame {
             + "<tt>https://cambridgez88.jira.com/wiki/display/OZVM</tt>"
             + "</center></html>";
     private Blink blink;
-    private boolean fullScreenMode;
     private ButtonGroup kbLayoutButtonGroup;
     private ButtonGroup scrRefreshRateButtonGroup;
     private JToolBar toolBar;
@@ -184,9 +183,7 @@ public class Gui extends JFrame {
             helpMenu = new javax.swing.JMenu();
             helpMenu.setText("Help");
 
-            if (fullScreenMode == false) {
-                helpMenu.add(getUserManualMenuItem());
-            }
+            helpMenu.add(getUserManualMenuItem());
             helpMenu.add(getAboutOZvmMenuItem());
         }
 
@@ -265,16 +262,11 @@ public class Gui extends JFrame {
     private JMenuBar getMainMenuBar() {
         if (menuBar == null) {
             menuBar = new JMenuBar();
-            if (fullScreenMode == false) {
-                menuBar.setBorder(new EmptyBorder(0, 0, 0, 0));
-            }
+            menuBar.setBorder(new EmptyBorder(0, 0, 0, 0));
             menuBar.add(getFileMenu());
             menuBar.add(getZ88Menu());
             menuBar.add(getKeyboardMenu());
-            if (fullScreenMode == false) {
-                // the View menu has no relevance in full screen mode
-                menuBar.add(getViewMenu());
-            }
+            menuBar.add(getViewMenu());
             menuBar.add(getHelpMenu());
         }
 
@@ -286,10 +278,8 @@ public class Gui extends JFrame {
             fileMenu = new JMenu();
             fileMenu.setText("File");
 
-            if (fullScreenMode == false) {
-                fileMenu.add(getFileDebugMenuItem());
-                fileMenu.addSeparator();
-            }
+            fileMenu.add(getFileDebugMenuItem());
+            fileMenu.addSeparator();
 
             fileMenu.add(getLoadSnapshotMenuItem());
             fileMenu.add(getCreateSnapshotMenuItem());
@@ -361,13 +351,7 @@ public class Gui extends JFrame {
     }
 
     public void displayRunTimeMessagesPane(boolean display) {
-        if (fullScreenMode == false) {
-            // runtimes messages are not available in full screen mode
-            // (a snapshot might try to activate it, but will be ignored)
-
-            OZvm.getInstance().getRtmMsgGui().setVisible(display);
-        }
-
+        OZvm.getInstance().getRtmMsgGui().setVisible(display);
         getZ88Display().grabFocus();
     }
 
@@ -377,11 +361,9 @@ public class Gui extends JFrame {
             addKeyboardPanel();
             getZ88keyboardMenuItem().setSelected(true);
         } else {
-            if (fullScreenMode == false) {
-                // in full screen mode, the keyboard cannot be removed
-                getContentPane().remove(getKeyboardPanel());
-                getZ88keyboardMenuItem().setSelected(false);
-            }
+            // in full screen mode, the keyboard cannot be removed
+            getContentPane().remove(getKeyboardPanel());
+            getZ88keyboardMenuItem().setSelected(false);
         }
 
         getZ88Display().grabFocus();
@@ -475,46 +457,33 @@ public class Gui extends JFrame {
     }
 
     private void addZ88ScreenPanel() {
-        if (fullScreenMode == false) {
-            final GridBagConstraints gridBagConstraints = new GridBagConstraints();
-            gridBagConstraints.ipady = 5;
-            gridBagConstraints.insets = new Insets(0, 0, 0, 0);
-            gridBagConstraints.fill = GridBagConstraints.BOTH;
-            gridBagConstraints.gridy = 1;
-            gridBagConstraints.gridx = 0;
-            getContentPane().add(getZ88ScreenPanel(), gridBagConstraints);
-        } else {
-            // in full screen mode we just display the 640x64 screen without border
-            getContentPane().add(getZ88Display(), BorderLayout.NORTH);
-        }
+        final GridBagConstraints gridBagConstraints = new GridBagConstraints();
+        gridBagConstraints.ipady = 5;
+        gridBagConstraints.insets = new Insets(0, 0, 0, 0);
+        gridBagConstraints.fill = GridBagConstraints.BOTH;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.gridx = 0;
+        getContentPane().add(getZ88ScreenPanel(), gridBagConstraints);
     }
 
     private void addKeyboardPanel() {
-        if (fullScreenMode == false) {
-            GridBagConstraints gridBagConstraints = new GridBagConstraints();
-            gridBagConstraints.fill = GridBagConstraints.HORIZONTAL;
-            gridBagConstraints.anchor = GridBagConstraints.SOUTHWEST;
-            gridBagConstraints.ipady = 213;
-            gridBagConstraints.gridy = 6;
-            gridBagConstraints.gridx = 0;
-            getContentPane().add(getKeyboardPanel(), gridBagConstraints);
-        } else {
-            getContentPane().add(getKeyboardPanel(), BorderLayout.CENTER);
-        }
+        GridBagConstraints gridBagConstraints = new GridBagConstraints();
+        gridBagConstraints.fill = GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = GridBagConstraints.SOUTHWEST;
+        gridBagConstraints.ipady = 213;
+        gridBagConstraints.gridy = 6;
+        gridBagConstraints.gridx = 0;
+        getContentPane().add(getKeyboardPanel(), gridBagConstraints);
     }
 
     private void addSlotsPanel() {
-        if (fullScreenMode == false) {
-            GridBagConstraints gridBagConstraints = new GridBagConstraints();
-            gridBagConstraints.fill = GridBagConstraints.HORIZONTAL;
-            gridBagConstraints.anchor = GridBagConstraints.CENTER;
-            gridBagConstraints.gridy = 7;
-            gridBagConstraints.gridx = 0;
-            getContentPane().add(getSlotsPanel(), gridBagConstraints);
-        } else {
-            getContentPane().add(getSlotsPanel(), BorderLayout.SOUTH);
-        }
-    }
+        GridBagConstraints gridBagConstraints = new GridBagConstraints();
+        gridBagConstraints.fill = GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = GridBagConstraints.CENTER;
+        gridBagConstraints.gridy = 7;
+        gridBagConstraints.gridx = 0;
+        getContentPane().add(getSlotsPanel(), gridBagConstraints);
+}
 
     private RubberKeyboard getKeyboardPanel() {
         if (keyboardPanel == null) {
@@ -715,12 +684,10 @@ public class Gui extends JFrame {
                         try {
                             boolean autorun = srVM.loadSnapShot(fileName);
                             getSlotsPanel().refreshSlotInfo();
-                            if (fullScreenMode == false) {
-                                OZvm.displayRtmMessage("Snapshot successfully installed from " + fileName);
-                                setWindowTitle("[" + (chooser.getSelectedFile().getName()) + "]");
-                            }
+                            OZvm.displayRtmMessage("Snapshot successfully installed from " + fileName);
+                            setWindowTitle("[" + (chooser.getSelectedFile().getName()) + "]");
 
-                            if (autorun == true | fullScreenMode == true) {
+                            if (autorun == true) {
                                 // debugging is disabled while full screen mode is enabled
                                 Z88.getInstance().runZ80Engine();
                                 Z88.getInstance().getDisplay().grabFocus(); // default keyboard input focus to the Z88                              
@@ -732,11 +699,9 @@ public class Gui extends JFrame {
                             Z88.getInstance().getMemory().setDefaultSystem();
                             Z88.getInstance().getProcessor().reset();
                             blink.resetBlinkRegisters();
-                            if (fullScreenMode == false) {
-                                OZvm.displayRtmMessage("Loading of snapshot '" + fileName + "' failed. Z88 preset to default system.");
-                                OZvm.getInstance().commandLine(true); // Activate Debug Command Line Window...
-                                OZvm.getInstance().getCommandLine().initDebugCmdline();
-                            }
+                            OZvm.displayRtmMessage("Loading of snapshot '" + fileName + "' failed. Z88 preset to default system.");
+                            OZvm.getInstance().commandLine(true); // Activate Debug Command Line Window...
+                            OZvm.getInstance().getCommandLine().initDebugCmdline();
                         }
                     } else {
                         // User aborted Loading of snapshot..
