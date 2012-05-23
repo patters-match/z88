@@ -55,7 +55,7 @@ public:
 signals:
     
 public slots:
-    
+
 protected:
 
     bool insertFspecList(QTreeWidgetItem *parent,
@@ -68,7 +68,7 @@ protected:
     const Z88_Selection &getItemFspec(QTreeWidgetItem *item, Z88_Selection &fspec) const;
 
     const QList<Z88_Selection> &getItemChildren(QTreeWidgetItem *item,
-                                                QString &parent, QList<Z88_Selection> &selections, bool depth_first)const;
+                                                const QString &parent, QList<Z88_Selection> &selections, bool depth_first)const;
 
     void set_EntryIcon(QTreeWidgetItem *qt, const QString &fname, entryType d_type);
 
@@ -95,7 +95,7 @@ protected:
   */
 class Z88_Selection{
 public:
-    Z88_Selection(QString fspec="", Z88_DevView::entryType type = Z88_DevView::type_Dir);
+    Z88_Selection(QTreeWidgetItem *item, const QString &dev_name);
 
     const QString &getFspec()const {return m_fspec;}
     const Z88_DevView::entryType &getType() const{return m_type;}
@@ -103,8 +103,14 @@ public:
     void setRelFspec(const QString &relfspec){m_relFspec = relfspec;}
     const QString &getRelFspec()const {return m_relFspec;}
 
+    QTreeWidgetItem *getQtreeItem(){ return m_QtreeItem;}
+
     friend class Z88_DevView;
+
 protected:
+
+    const QString &setItemFspec(QTreeWidgetItem *item, const QString &devname);
+
     /**
       * Selection file spec
       */
@@ -119,6 +125,11 @@ protected:
       * Selection type (dir or file)
       */
     Z88_DevView::entryType m_type;
+
+    /**
+      * Pointer to the QTreeItem in the Z88 View
+      */
+    QTreeWidgetItem *m_QtreeItem;
 
 };
 

@@ -285,7 +285,6 @@ bool Z88StorageViewer::isValidFilename(const QString &fname, QString &sug_fname)
       * Name contains white spaces
       */
     if(fspec[0].contains(' ')){
-        qDebug() << " has spaces";
         sug_fname = fspec[0].mid(0,12).replace(" ","-");
         if(fspec.count() > 1){
             sug_fname += "." + fspec[1].mid(0,3).replace(" ","-");

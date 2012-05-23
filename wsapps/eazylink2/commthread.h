@@ -24,6 +24,7 @@
 #include<QList>
 #include <QWaitCondition>
 #include <QProgressDialog>
+#include<QTreeWidgetItem>
 
 #include "z88serialport.h"
 #include "z88filespec.h"
@@ -143,8 +144,10 @@ signals:
     void refreshSelectedZ88DeviceView();
     void PromptRename(QMutableListIterator<Z88_Selection> *item);
     void renameCmd_result(const QString &msg, bool success);
+    void renameZ88Item(Z88_Selection *item, const QString &newname);
     void PromptDeleteSpec(const QString &src_name, bool isDir, bool *Continue);
     void PromptDeleteRetry(const QString &msg, bool isDir);
+    void deleteZ88Item(QTreeWidgetItem *item);
 
 protected:
     void startCmd(const comOpcodes_t &op, bool ena_resume = true);

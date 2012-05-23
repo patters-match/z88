@@ -102,6 +102,8 @@ private slots:
     void PromptDeleteSpec(const QString &src_name, bool isDir, bool *prompt_again);
     void PromptDeleteRetry(const QString &fspec, bool isDir);
     void renameCmd_result(const QString &msg, bool success);
+    void renameZ88Item(Z88_Selection *item, const QString &newname);
+    void deleteZ88Item(QTreeWidgetItem *item);
 
     /**
       * Preferences call-back

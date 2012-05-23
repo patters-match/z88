@@ -704,17 +704,7 @@ done:
             if(m_z88rendel_itr->hasNext()){
                 emit PromptRename(m_z88rendel_itr);
             }
-            else{
-                /**
-                  * Clear the Thread State, so the Refresh can work.
-                  */
-                setState_Idle();
 
-                /**
-                 * Refresh the Device view
-                 */
-                emit refreshSelectedZ88DeviceView();
-            }
             break;
         }
         case OP_renameDirFile:          // Rename a File or Dir on the Z88.
@@ -724,8 +714,8 @@ done:
             if(!m_destPath.isEmpty()){
                 rc = m_sport.renameFileDir(m_z88devspec, m_destPath);
 
-                if(rc){
-                    emit boolCmd_result("Rename", rc);
+                if(rc){                 
+                    emit renameZ88Item(&(m_z88rendel_itr->peekNext()), m_destPath);
                 }
                 else{
                     int idx = m_z88devspec.lastIndexOf('/');
@@ -807,7 +797,8 @@ done:
                     break;
                 }
 
-                const Z88_Selection &z88sel(m_z88rendel_itr->next());
+                QTreeWidgetItem *item(m_z88rendel_itr->peekNext().getQtreeItem());
+                Z88_Selection z88sel(m_z88rendel_itr->next());
                 QString srcname(z88sel.getFspec());
 
                 QString msg = "Erasing ";
@@ -827,7 +818,10 @@ done:
 
                 m_xferFileprogress++;
 
-                if(!rc){
+                if(rc){
+                    emit deleteZ88Item(item);
+                }
+                else{
                     bool retc;
                     /**
                       * See if the dir is empty
@@ -868,12 +862,7 @@ done:
 
             }while(m_z88rendel_itr->hasNext());
 
-            emit cmdProgress("Done", -1, -1); // reset the progress dialog
-
-            /**
-             * Refresh the Device view
-             */
-            emit refreshSelectedZ88DeviceView();
+            emit cmdProgress("Done", -1, -1); // reset the progress dialog         
 done2:
             break;
         }
@@ -894,12 +883,7 @@ done2:
                 m_curOP = OP_delDirFiles;
                 run();
             }
-            else{
-                /**
-                 * Refresh the Device view
-                 */
-                 emit refreshSelectedZ88DeviceView();
-            }
+
             break;
         }
         case OP_refreshZ88View:         // Refresh the Z88 View

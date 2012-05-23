@@ -233,6 +233,11 @@ void MainWindow::createActions()
             SLOT(renameCmd_result(const QString &, bool)));
 
     connect(&m_cthread,
+            SIGNAL(renameZ88Item(Z88_Selection *, const QString &)),
+            this,
+            SLOT(renameZ88Item(Z88_Selection *, const QString &)));
+
+    connect(&m_cthread,
             SIGNAL(cmdProgress(const QString &, int, int)),
             this,
             SLOT(cmdProgress(const QString &, int, int)));
@@ -286,6 +291,11 @@ void MainWindow::createActions()
             SIGNAL(PromptDeleteRetry(const QString &, bool)),
             this,
             SLOT(PromptDeleteRetry(const QString &, bool)));
+
+    connect(&m_cthread,
+            SIGNAL(deleteZ88Item(QTreeWidgetItem *)),
+            this,
+            SLOT(deleteZ88Item(QTreeWidgetItem *)));
 
     /**
       * Pref panel events
@@ -810,7 +820,7 @@ void MainWindow::PromptRename(QMutableListIterator<Z88_Selection> *i)
                 name_ok = true;
             }
             else{
-                refreshSelectedZ88DeviceView();
+                //refreshSelectedZ88DeviceView();
                 return;
             }
         }
@@ -850,7 +860,7 @@ void MainWindow::PromptDeleteSpec(const QString &src_name, bool isDir, bool *pro
             break;
         case QMessageBox::Cancel:
             if(m_cmdProgress) m_cmdProgress->reset();
-            refreshSelectedZ88DeviceView();
+        //    refreshSelectedZ88DeviceView();
             return;
     }
 }
@@ -895,7 +905,7 @@ void MainWindow::PromptDeleteRetry(const QString &fspec, bool isDir)
             break;
         case QMessageBox::Cancel:
             if(m_cmdProgress) m_cmdProgress->reset();
-            refreshSelectedZ88DeviceView();
+           // refreshSelectedZ88DeviceView();
             return;
     }
 }
@@ -914,7 +924,7 @@ void MainWindow::renameCmd_result(const QString &msg, bool success)
                                        QMessageBox::Abort | QMessageBox::Retry | QMessageBox::Ignore);
         switch(reply){
         case QMessageBox::Abort:
-            refreshSelectedZ88DeviceView();
+         //   refreshSelectedZ88DeviceView();
             break;
         case QMessageBox::Retry:
             m_cthread.renameFileDirRety(false);
@@ -926,6 +936,36 @@ void MainWindow::renameCmd_result(const QString &msg, bool success)
             break;
         }
     }
+}
+
+/**
+  * Rename of a File or directory Entry in the Z88 Display.
+  * @param item is the QTreeItem to rename
+  * @param newname is the new name to create.
+  */
+void MainWindow::renameZ88Item(Z88_Selection *item, const QString &newname)
+{
+    QString msg("Rename ");
+    msg += (item->getType() == Z88_DevView::type_Dir) ? "Directory: " : "File: ";
+    msg += item->getQtreeItem()->text(0);
+    msg += " -> ";
+    msg += newname;
+    msg += " Success";
+
+    item->getQtreeItem()->setText(0, newname);
+
+    m_StatusLabel->setText(msg);
+}
+
+void MainWindow::deleteZ88Item(QTreeWidgetItem *item)
+{
+    QString msg("Delete ");
+    msg += item->text(0);
+    msg += " Success.";
+
+    delete item;
+    m_StatusLabel->setText(msg);
+
 }
 
 void MainWindow::SerialPortSelChanged()

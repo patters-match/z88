@@ -19,16 +19,56 @@
 #include<QIcon>
 #include "z88_devview.h"
 
+
 /**
   * the Z88 File Selection class constructor.
-  * @param fspec is the file name.
-  * @param type is the item type, dir or file.
+  * @param item is the Entry from the QTree.
+  * @param dev_name is the Z88 Storage Device name, ie RAM.1
   */
-Z88_Selection::Z88_Selection(QString fspec, Z88_DevView::entryType type)
-    :m_fspec(fspec),
-    m_type(type)
+Z88_Selection::Z88_Selection(QTreeWidgetItem *item, const QString &dev_name) :
+    m_type(Z88_DevView::type_Dir),
+    m_QtreeItem(item)
 {
+    if(m_QtreeItem){
+        setRelFspec(m_QtreeItem->text(0));
+    }
+    setItemFspec(m_QtreeItem, dev_name);
+}
 
+const QString &Z88_Selection::setItemFspec(QTreeWidgetItem *item, const QString &devname)
+{
+    QString fname;
+    m_fspec = devname + "/";
+
+    bool rootdev = false;
+
+    if(item){
+        m_type = (item->type() == Z88_DevView::type_File) ? Z88_DevView::type_File : Z88_DevView::type_Dir;
+    }
+    else{
+        rootdev = true;
+        m_type = Z88_DevView::type_Dir;
+    }
+
+    /**
+      * Build the Full filename by backing up to the top of the tree
+      */
+    while(item){
+        fname.prepend(item->text(0));
+        item = item->parent();
+        if(!item)break;
+        fname.prepend("/");
+    }
+    m_fspec += fname;
+
+    /**
+      * If the Selection is just the Z88 Storage device root,
+      * Don't append a trailing '/'
+      */
+    if(!rootdev && m_type == Z88_DevView::type_Dir ){
+        m_fspec += "/";
+    }
+    return m_fspec;
 }
 
 /**
@@ -57,7 +97,6 @@ Z88_DevView::Z88_DevView(const QString devname, CommThread &com_thread, QWidget 
     setColumnWidth(1,68);
     setColumnWidth(2,163);
     setColumnWidth(3,163);
-
 
     setSelectionMode(QAbstractItemView::ExtendedSelection);
 }
@@ -294,7 +333,7 @@ const Z88_Selection &Z88_DevView::getItemFspec(QTreeWidgetItem *item, Z88_Select
   * @param selections is the list to be filled in.
   * @return the list of selections.
   */
-const QList<Z88_Selection> &Z88_DevView::getItemChildren(QTreeWidgetItem *item, QString &parent, QList<Z88_Selection> &selections, bool depth_first = false) const
+const QList<Z88_Selection> &Z88_DevView::getItemChildren(QTreeWidgetItem *item, const QString &parent, QList<Z88_Selection> &selections, bool depth_first = false) const
 {
     QTreeWidgetItem *child;
     int childcount = item->childCount();
@@ -306,7 +345,7 @@ const QList<Z88_Selection> &Z88_DevView::getItemChildren(QTreeWidgetItem *item, 
         QString par = parent + "/";
         par += child->text(0);
 
-        Z88_Selection z88Selection;
+        Z88_Selection z88Selection(child, m_devname);
 
         z88Selection.setRelFspec(par);
 
@@ -395,15 +434,12 @@ QList<Z88_Selection> *Z88_DevView::getSelection(bool recurse)
     /**
       * if No files are selected, then selectall
       */
-
     if(recurse && selectedItems().isEmpty()){
         m_selChangeLock = true;
         selectAll();
     }
 
     const QList<qti_p> &selections(selectedItems());
-    Z88_Selection z88Selection;
-
     QListIterator<qti_p> i(selections);
 
     m_Selections.clear();
@@ -411,15 +447,15 @@ QList<Z88_Selection> *Z88_DevView::getSelection(bool recurse)
     if(!selections.isEmpty()){
         while(i.hasNext()){
             qti_p item(i.next());
-            QString parent = item->text(0);
-            z88Selection.setRelFspec(parent);
-            getItemFspec(item, z88Selection);
+            Z88_Selection z88Selection(item, m_devname);
+
             m_Selections.append(z88Selection);
+
             if(recurse){
                 /**
                   * Recurse the Directory tree if any
                   */
-                getItemChildren(item, parent, m_Selections);
+                getItemChildren(item, item->text(0), m_Selections);
             }
         }
     }
@@ -427,7 +463,7 @@ QList<Z88_Selection> *Z88_DevView::getSelection(bool recurse)
         /**
           * Nothing selected, so get the Device name
           */
-        getItemFspec(NULL, z88Selection);
+        Z88_Selection z88Selection(NULL, m_devname);
         m_Selections.append(z88Selection);
     }
 
@@ -438,4 +474,3 @@ QList<Z88_Selection> *Z88_DevView::getSelection(bool recurse)
 
     return &m_Selections;
 }
-
