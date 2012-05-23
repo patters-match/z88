@@ -66,6 +66,7 @@ public:
     void setZ88DirLabel(const QString &path);
 
 private slots:
+    void UrlUserGuide();
     void AboutEazylink();
     void selSerialPort();
     void Z88Quit_EzLink();
