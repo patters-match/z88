@@ -560,11 +560,19 @@ bool Z88StorageViewer::eventFilter(QObject *, QEvent *ev)
         }
 
         /**
-          * Make sure there is a selcton and it not the root device only
+          * Make sure there is a selection and it's not the root device only
           */
         if(sel_count && selections->first().getFspec().size()>7){
             m_actionMkdir->setEnabled(sel_count < 2);
-            m_actionRename->setEnabled(true);
+            /**
+              * If the Current Storage Device is an EPR device, don't allow rename
+              */
+            if(getSelectedDeviceName().contains("EPR")){
+                m_actionRename->setEnabled(false);
+            }
+            else{
+                m_actionRename->setEnabled(true);
+            }
             m_actionDelete->setEnabled(true);
         }
         else{
