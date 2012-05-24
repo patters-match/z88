@@ -595,6 +595,8 @@ public abstract class Z80 {
             pushw(_PC);
             IFF1(false);
             PC(0x66);
+            instrPC = 0x66; // define first opcode of current Z80 PC
+            
             tstatesCounter += 13;
             setNmi(false);
             return true;
@@ -606,21 +608,29 @@ public abstract class Z80 {
                 IFF1(false);
                 IFF2(false);
                 PC(0x0066);
+                instrPC = 0x66; // define first opcode of current Z80 PC
+                
                 tstatesCounter += 13;
                 return true;
+                
             case IM1:
                 pushw(_PC);
                 IFF1(false);
                 IFF2(false);
                 PC(0x0038);
+                instrPC = 0x38; // define first opcode of current Z80 PC
+
                 tstatesCounter += 13;
                 return true;
+                
             case IM2:
                 pushw(_PC);
                 IFF1(false);
                 IFF2(false);
                 int t = (I() << 8) | 0x00ff;
                 PC(readWord(t));
+                instrPC = readWord(t); // define first opcode of current Z80 PC
+                
                 tstatesCounter += 19;
                 return true;
             default:
