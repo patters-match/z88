@@ -1319,7 +1319,6 @@ public class Z88Keyboard {
         if (Z88.getInstance().getProcessorThread() != null) {
             // Only allow key releases to be registered by Blink while Z80 engine is running...
             keyRows[keyMatrixRow] |= (~keyMask & 0xff);
-            Z88.getInstance().getBlink().signalKeyPressed();
         }
     }
 
