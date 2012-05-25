@@ -691,7 +691,7 @@ public class FileArea {
     }
 
     /**
-     * Create/reformat a file area in specified slot (1-3). Return <b>true </b>
+     * Create/reformat a file area in specified slot (0-3). Return <b>true </b>
      * if a file area was formatted/created. A file area can only be created on
      * Eprom or Flash Cards.
      *
@@ -782,7 +782,10 @@ public class FileArea {
                             }
                         }
 
-                        int topFileAreaBank = ((topBankNo - appCrdHdr.getAppAreaSize()) & 0xFC) - 1;
+                        int appAreaSize = appCrdHdr.getAppAreaSize();
+                        if (appAreaSize % 4 > 0)
+                            appAreaSize += (4-appAreaSize % 4);
+                        int topFileAreaBank = topBankNo - appAreaSize;
 
                         if (formatArea == true) {
                             formatFileArea(topFileAreaBank);
