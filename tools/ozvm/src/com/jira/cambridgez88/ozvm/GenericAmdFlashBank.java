@@ -63,7 +63,7 @@ public abstract class GenericAmdFlashBank extends Bank {
      */
     private static final int commandUnlockCycles[] = {0x555, 0xAA, 0x2AA, 0x55, 0x555, '?'};
     /**
-     * Indicate success by DQ5 = 0 and DQ6 = 1, signalling no toggle in two
+     * Indicate success by DQ5 = 0 and DQ6 = 1, signaling no toggle in two
      * consecutive read cycles.
      */
     private static final int readStatusCommandSuccess[] = {0x40, 0x40};
@@ -155,7 +155,7 @@ public abstract class GenericAmdFlashBank extends Bank {
     public abstract int getDeviceCode();
 
     /**
-     * @return returns the Flash Memory Manufactorer Code of 29F series chip
+     * @return returns the Flash Memory Manufacturer Code of 29F series chip
      */
     public abstract int getManufacturerCode();
 
