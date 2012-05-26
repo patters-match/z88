@@ -83,6 +83,8 @@ public class Gui extends JFrame {
     private JMenuItem installHe313RomMenuItem; // Swizz V3.13 ROM menu
     private JMenuItem installTk317RomMenuItem; // Turkish V3.17 ROM menu
     private JMenuItem userManualMenuItem;
+    private JMenuItem z88UserGuideMenuItem;
+    private JMenuItem z88DevNotesMenuItem;
     private JMenuItem gifMovieMenuItem;
     private JMenuItem screenSnapshotMenuItem;
     private JMenuItem viewMemoryMenuItem;
@@ -164,59 +166,63 @@ public class Gui extends JFrame {
             helpMenu.setText("Help");
 
             helpMenu.add(getUserManualMenuItem());
+            helpMenu.add(getZ88UserGuideMenuItem());
+            helpMenu.add(getZ88DevNotesMenuItem());
             helpMenu.add(getAboutOZvmMenuItem());
         }
 
         return helpMenu;
     }
 
+    private void launchBrowserUrl(String url) {
+        final String errMsg = "Could not launch URL in Desktop Browser.";        
+        String os = System.getProperty("os.name").toLowerCase();
+        Runtime rt = Runtime.getRuntime();
+
+        try {
+            if (os.indexOf("win") >= 0) {
+
+                // this doesn't support showing urls in the form of "page.html#nameLink" 
+                rt.exec("rundll32 url.dll,FileProtocolHandler " + url);
+
+            } else if (os.indexOf("mac") >= 0) {
+
+                rt.exec("open " + url);
+
+            } else if (os.indexOf("nix") >= 0 || os.indexOf("nux") >= 0) {
+
+                // Do a best guess on unix until we get a platform independent way
+                // Build a list of browsers to try, in this order.
+                String[] browsers = {"epiphany", "firefox", "mozilla", "konqueror",
+                    "netscape", "opera", "links", "lynx"};
+
+                // Build a command string which looks like "browser1 "url" || browser2 "url" ||..."
+                StringBuffer cmd = new StringBuffer();
+                for (int i = 0; i < browsers.length; i++) {
+                    cmd.append((i == 0 ? "" : " || ") + browsers[i] + " \"" + url + "\" ");
+                }
+
+                rt.exec(new String[]{"sh", "-c", cmd.toString()});
+
+            }
+
+        } catch (IOException ex) {
+            JOptionPane.showMessageDialog(Gui.this, errMsg, "Online Help", JOptionPane.ERROR_MESSAGE);
+        } catch (IllegalArgumentException ex2) {
+            JOptionPane.showMessageDialog(Gui.this, errMsg, "Online Help", JOptionPane.ERROR_MESSAGE);
+        }
+
+    }
+    
     private JMenuItem getUserManualMenuItem() {
-        final String errMsg = "Could not launch user guide in Desktop Browser.";
 
         if (userManualMenuItem == null) {
             userManualMenuItem = new JMenuItem();
-            userManualMenuItem.setMnemonic(KeyEvent.VK_U);
-            userManualMenuItem.setText("User Guide");
+            userManualMenuItem.setText("OZvm User Guide");
 
             userManualMenuItem.addActionListener(new ActionListener() {
-
                 public void actionPerformed(ActionEvent e) {
-                    String os = System.getProperty("os.name").toLowerCase();
-                    Runtime rt = Runtime.getRuntime();
-                    String userGuideURL = "https://cambridgez88.jira.com/wiki/x/zIB5";
-
-                    try {
-                        if (os.indexOf("win") >= 0) {
-
-                            // this doesn't support showing urls in the form of "page.html#nameLink" 
-                            rt.exec("rundll32 url.dll,FileProtocolHandler " + userGuideURL);
-
-                        } else if (os.indexOf("mac") >= 0) {
-
-                            rt.exec("open " + userGuideURL);
-
-                        } else if (os.indexOf("nix") >= 0 || os.indexOf("nux") >= 0) {
-
-                            // Do a best guess on unix until we get a platform independent way
-                            // Build a list of browsers to try, in this order.
-                            String[] browsers = {"epiphany", "firefox", "mozilla", "konqueror",
-                                "netscape", "opera", "links", "lynx"};
-
-                            // Build a command string which looks like "browser1 "url" || browser2 "url" ||..."
-                            StringBuffer cmd = new StringBuffer();
-                            for (int i = 0; i < browsers.length; i++) {
-                                cmd.append((i == 0 ? "" : " || ") + browsers[i] + " \"" + userGuideURL + "\" ");
-                            }
-
-                            rt.exec(new String[]{"sh", "-c", cmd.toString()});
-
-                        }
-
-                    } catch (IOException ex) {
-                        JOptionPane.showMessageDialog(Gui.this, errMsg, "OZvm Help", JOptionPane.ERROR_MESSAGE);
-                    } catch (IllegalArgumentException ex2) {
-                        JOptionPane.showMessageDialog(Gui.this, errMsg, "OZvm Help", JOptionPane.ERROR_MESSAGE);
-                    }
+                    launchBrowserUrl("https://cambridgez88.jira.com/wiki/x/zIB5");
                 }
             });
         }
@@ -224,6 +230,38 @@ public class Gui extends JFrame {
         return userManualMenuItem;
     }
 
+    private JMenuItem getZ88UserGuideMenuItem() {
+
+        if (z88UserGuideMenuItem == null) {
+            z88UserGuideMenuItem = new JMenuItem();
+            z88UserGuideMenuItem.setText("Z88 User Guide");
+
+            z88UserGuideMenuItem.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    launchBrowserUrl("https://cambridgez88.jira.com/wiki/x/AoAQ");
+                }
+            });
+        }
+
+        return z88UserGuideMenuItem;
+    }
+
+    private JMenuItem getZ88DevNotesMenuItem() {
+
+        if (z88DevNotesMenuItem == null) {
+            z88DevNotesMenuItem = new JMenuItem();
+            z88DevNotesMenuItem.setText("Z88 Developers' Notes");
+
+            z88DevNotesMenuItem.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    launchBrowserUrl("https://cambridgez88.jira.com/wiki/x/NQAE");
+                }
+            });
+        }
+
+        return z88DevNotesMenuItem;
+    }
+    
     private JMenuItem getAboutOZvmMenuItem() {
         if (aboutOZvmMenuItem == null) {
             aboutOZvmMenuItem = new JMenuItem();
