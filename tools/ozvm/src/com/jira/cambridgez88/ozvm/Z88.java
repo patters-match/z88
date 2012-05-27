@@ -38,6 +38,23 @@ public class Z88 {
      * Z88 class default constructor.
      */
     private Z88() {
+        z80 = new Z80Processor();
+        blink = new Blink();
+        memory = new Memory();
+        display = new Z88display();
+        keyboard = new Z88Keyboard();
+        
+        z80.connectBlink(blink);
+        
+        blink.connectProcessor(z80);
+        blink.connectMemory(memory);
+        blink.connectKeyboard(keyboard);
+        
+        display.connectProcessor(z80);
+        display.connectBlink(blink);
+        display.connectMemory(memory);
+        
+        keyboard.processKeyInput();
     }
 
     private static final class singletonContainer {
@@ -50,34 +67,18 @@ public class Z88 {
     }
 
     public Blink getBlink() {
-        if (blink == null) {
-            blink = new Blink();
-        }
-
         return blink;
     }
 
     public Memory getMemory() {
-        if (memory == null) {
-            memory = new Memory();
-        }
-
         return memory;
     }
 
     public Z88display getDisplay() {
-        if (display == null) {
-            display = new Z88display();
-        }
-
         return display;
     }
 
     public Z88Keyboard getKeyboard() {
-        if (keyboard == null) {
-            keyboard = new Z88Keyboard();
-        }
-
         return keyboard;
     }
 
@@ -111,10 +112,6 @@ public class Z88 {
     }
 
     public Z80Processor getProcessor() {
-        if (z80 == null) {
-            z80 = new Z80Processor();
-        }
-
         return z80;
     }
 

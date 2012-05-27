@@ -163,7 +163,12 @@ public class Z88Keyboard {
 
         // use default UK keyboard layout for default UK V4 ROM.
         currentKbLayout = z88Keyboards[currentKbLayoutCountryCode];
+    }
 
+    /**
+     * This method is used by Z88 Class to boot listening to keyboard input from the display
+     */
+    public void processKeyInput() {
         Thread thread = new Thread() {
 
             public void run() {
@@ -177,9 +182,9 @@ public class Z88Keyboard {
         };
 
         thread.setPriority(Thread.MAX_PRIORITY);
-        thread.start();
+        thread.start();        
     }
-
+    
     private void createKbLayouts() {
         Map defaultKbLayout = createUkLayout();
 
