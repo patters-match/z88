@@ -236,7 +236,7 @@ public final class Blink {
 
         resetBlinkRegisters();
     }
-    
+
     /**
      * This method is used by Z88 Class to define the Z80 processor for the Blink
      */
@@ -258,7 +258,7 @@ public final class Blink {
     public void connectKeyboard(Z88Keyboard kb) {
         keyboard = kb;
     }
-    
+
     /**
      * Reset Blink Registers to Power-On-State.
      */
@@ -807,10 +807,10 @@ public final class Blink {
      * @param addr 16bit word that points into Z80 64K Address Space
      * @return byte at bank, mapped into segment for specified address
      */
-    public final int readByte(final int addr) {        
+    public final int readByte(final int addr) {
         try {
             if (addr > 0x3FFF) {
-                return memory.getBank(sR[addr >>> 14]).readByte(addr);
+                return memory.getBank(sR[addr >>> 14]).readByte(addr & 0x3fff);
             } else {
                 if (addr < 0x2000) // return lower 8K Bank binding
                 // Lower 8K is System Bank 0x00 (ROM on hard reset)
@@ -850,7 +850,7 @@ public final class Blink {
     public final boolean isBreakpoint(final int addr) {
         try {
             if (addr > 0x3FFF) {
-                return memory.getBank(sR[addr >>> 14]).isBreakpoint(addr);
+                return memory.getBank(sR[addr >>> 14]).isBreakpoint(addr & 0x3fff);
             } else {
                 if (addr < 0x2000) // return lower 8K Bank binding
                 // Lower 8K is System Bank 0x00 (ROM on hard reset)
@@ -871,7 +871,7 @@ public final class Blink {
         } catch (ArrayIndexOutOfBoundsException e) {
             // PC is problably 0x10000
             return false;
-        }        
+        }
     }
 
     /**
@@ -891,7 +891,7 @@ public final class Blink {
         try {
             if (addr > 0x3FFF) {
                 // write byte to segments 1 - 3
-                memory.getBank(sR[addr >>> 14]).writeByte(addr, b);
+                memory.getBank(sR[addr >>> 14]).writeByte(addr & 0x3fff, b);
             } else {
                 if (addr < 0x2000) {
                     // return lower 8K Bank binding
