@@ -1025,6 +1025,21 @@ public final class Blink {
             RAMS = memory.getBank(0x00);
         }
 
+        if ((COM & Blink.BM_COMSRUN) == 0 & (bits & Blink.BM_COMSRUN) == Blink.BM_COMSRUN) {
+            //System.out.println(Dz.extAddrToHex(decodeLocalAddress(z80.PC()) & 0xff0000 | z80.PC(),true) + ": COM.BM_COMSRUN -> 1");
+        }
+
+        if ((COM & Blink.BM_COMSRUN) == Blink.BM_COMSRUN & (bits & Blink.BM_COMSRUN) == 0) {
+            //System.out.println(Dz.extAddrToHex(decodeLocalAddress(z80.PC()) & 0xff0000 | z80.PC(),true) + ": COM.BM_COMSRUN -> 0");
+        }
+        
+        if ((COM & Blink.BM_COMSBIT) == 0 & (bits & Blink.BM_COMSBIT) == Blink.BM_COMSBIT) {
+            //System.out.println(Dz.extAddrToHex(decodeLocalAddress(z80.PC()) & 0xff0000 | z80.PC(),true) + ": COM.BM_COMSBIT -> 1");
+        }
+        if ((COM & Blink.BM_COMSBIT) == Blink.BM_COMSBIT & (bits & Blink.BM_COMSBIT) == 0) {
+            //System.out.println(Dz.extAddrToHex(decodeLocalAddress(z80.PC()) & 0xff0000 | z80.PC(),true) + ": COM.BM_COMSBIT -> 0");
+        }
+        
         COM = bits;
     }
 
@@ -1376,6 +1391,16 @@ public final class Blink {
     }
 
     /**
+     * Signal an NMI to Z80 CPU
+     */
+    public void signalNmi() {
+        z80.setNmiSignal();            
+
+        awakeFromComa();
+        awakeFromSnooze();        
+    }
+    
+    /**
      * Signal that the flap was closed.<p> The Blink will start to fire STA.TIME
      * interrupts again if the INT.TIME is enabled and TMK has been setup to
      * fire Minute, Second or TICK's.
@@ -1398,4 +1423,15 @@ public final class Blink {
 
         thread.start();
     }
+    
+    /**
+     * return true, if Flap is open, otherwise false
+     */
+    public boolean isFlapOpen() {
+        if ((STA & BM_STAFLAPOPEN) == BM_STAFLAPOPEN)
+            return true;
+        else
+            return false;
+    }
+    
 }
