@@ -55,7 +55,7 @@ xref    IntFlap                                 ; [Kernel0]/cardmgr.asm
 xref    ReadRTC                                 ; [Kernel0]/time.asm
 
 
-.INTEntry                                       ; Entry of IM 1 Interrupt Handler (called from 0038H in lowram.def)
+.INTEntry                                       ; Entry of IM 1 Interrupt Handler (called from 0038H in LOWRAM)
         push    bc
         push    de
         push    hl
