@@ -1,8 +1,8 @@
 *********************************************************************
-              FlashStore Application Version 1.9
+              FlashStore Application Version 1.9.2
 *********************************************************************
 
-User Manual 4th edition, updated 26th May 2010.
+User Manual 5th edition, updated 2nd March 2012.
 (Revised from 1st edition, Paris, 29 September 1997)
 
 
@@ -88,22 +88,22 @@ OZ 4.2
 ======
 
 The flash card is now sold with two versions of the software on it. 
-These versions are with OZ 4.2 or without OZ 4.2.
+These versions are with OZ 4.2, OZ4.3 or without OZ.
 
-To use the OZ 4.2 version the flash card needs to be in slot 1. If you 
+To use the OZ version the flash card needs to be in slot 1. If you 
 are using the 512K RAM / 512K Flash card, you don't need anymore RAM,
 otherwise any RAM you have left, use slot 2. This leaves slot 3 for 
 additional storage or RAM.
 
-To start running OZ 4.2 you need to do a HARD RESET (card flap open and 
+To start running OZ you need to do a HARD RESET (card flap open and 
 press the small reset swich on the left side of the Z88 with an unbent 
 paper clip.
 
 The Z88 will ignore your internal ROM and run from the external card.
 
-OZ 4.2 is in continous development, so check on our web site and 
-http://z88.wiki.sourceforge.net/What%27s+new+in+OZ+v4.2+%3F for 
-further information about it.
+OZ 4.x is in continous development, so check on our web site and 
+https://bitbucket.org/cambidge/z88 for further information about it.
+
 
 
 FOREVER APPLICATION BUNDLE
@@ -134,9 +134,9 @@ modification date/time of transferred files. User interface similar to
 EP-Fetch2 - new version
 -----------------------
 
-This version of EP-Fetch has been specially modified to read all sizes 
-of EPROMs or Flash cards in any slot (1-3), EXCEPT where RAM is in the 
-same device - i.e. the 512K RAM / 512K FLASH card.
+The version of EP-Fetch on this ROM has been specially modified to
+allow it to work with all sizes of EPROMs in any slot (1-3), including
+the new Flash cards.
 
 It can also read files from combined ROM/EPROM cards created with the
 latest version of the RomCombiner program.
@@ -234,8 +234,8 @@ ROMCOMBINER.TXT     Romcombiner instructions
 FLASHSTORE.ZIP      The Application of FlashStore - not supplied on OZ 
                     4.2 versions 
 INSTALLER.TXT       Installer instructions  - not on OZ 4.2.
-WHATSNEW.TXT        What's new in Forever 
-XY-MODEM.TXT        XY-Modem instructions 
+WHATSNEW.TXT        What's new in Forever   - not on OZ 4.2.
+XYMODEM.TXT         XY-Modem instructions 
 UNZIP.TXT           Unzip Instructions 
 ZIPUP.TXT           Zip up instructions 
 FLASH.TXT           This file
@@ -737,12 +737,12 @@ NEWS - OTHER PRODUCTS
 Use EazyLink, Z88 to PC transfer and more - written by Interlogic. A
 ROM with both Eazylink and FlashStore.
 
-Application 2006 has all the best applications written for the Z88. For 
+Application 2010 has all the best applications written for the Z88. For 
 information and supply on any of these, contact Rakewell Ltd.
 
-OZ v4.2 (bundled with Flashstore and Eazylink) is available on a 1M 
-or 512K RAM/ 512K flash card. 
-Visit our website or call Rakewell for details.
+OZ v4.2 or OZ 4.3 (bundled with Flashstore and Eazylink) is available 
+on a 1M or 512K RAM/ 512K flash card. Visit our website or call 
+Rakewell for details.
 
 
 DISCLAIMER
@@ -784,14 +784,15 @@ fetching or saving files.
 5)   Can I EXPORT files from the EPROM directly to my PC or do I
      have to load them into :RAM.0 or :RAM.1 first?
 
-No See above.
+Yes, but only if you are using OZ 4.3 or Eazylink v5.1. Contact us for 
+upgrade details.
 
 Design       Zlab - Thierry Peycru and Xavier Thomas
 Software     Zlab - Thierry Peycru
              Interlogic - Gunther Strube
 Production   Rakewell Ltd - Vic and Gill Gerhardi, Tony Firshman
 
-Rakewell Ltd Tel +44 (0) 1296 630617
+Rakewell Ltd Tel +44 (0) 1296 632491
              Fax +44 (0) 1296 342491
              E-mail: vic@rakewell.com
              Web:    http://www.rakewell.com/
