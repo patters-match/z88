@@ -1463,6 +1463,14 @@ public class Z88Keyboard {
                     OZvm.getInstance().getCommandLine().getDebugGui().toFront();
                     OZvm.getInstance().getCommandLine().getDebugGui().getCmdLineInputArea().grabFocus();
                     Z88.getInstance().getProcessor().stopZ80Execution();
+
+                    Blink blink = Z88.getInstance().getBlink();
+                    // but if thread is sleeping, there is nothing to stop... so force a wake-up, so Z80 can stop
+                    if (blink.isComaEnabled() == true)
+                        blink.awakeFromComa();
+                    if (blink.isSnoozeEnabled() == true)
+                        blink.awakeFromSnooze();
+                                        
                     break;
 
                 case KeyEvent.VK_F12:

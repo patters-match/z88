@@ -285,6 +285,12 @@ public class CommandLine implements KeyListener {
         if (cmdLineTokens[0].compareToIgnoreCase("stop") == 0) {
             // signal Z80 thread to stop execution.
             z80.stopZ80Execution();
+                        
+            // but if thread is sleeping, there is nothing to stop... so force a wake-up, so Z80 can stop
+            if (blink.isComaEnabled() == true)
+                blink.awakeFromComa();
+            if (blink.isSnoozeEnabled() == true)
+                blink.awakeFromSnooze();
         }
 
         if (cmdLineTokens[0].compareToIgnoreCase("quitvm") == 0) {
