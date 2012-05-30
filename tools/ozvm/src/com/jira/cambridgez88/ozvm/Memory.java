@@ -1159,6 +1159,6 @@ public final class Memory {
      * Blink (the Z80 is instructed to execute a RST 66H instruction).
      */
     private void slotConnectorSenseLine() {
-        Z88.getInstance().getBlink().signalNmi();
+        // Z88.getInstance().getBlink().signalNmi();
     }
 }
