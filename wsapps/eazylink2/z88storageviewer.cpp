@@ -17,6 +17,7 @@
 
 #include <qdebug.h>
 #include<QEvent>
+#include <QInputDialog>
 
 #include "mainwindow.h"
 #include "z88storageviewer.h"
@@ -156,6 +157,53 @@ Z88_DevView *Z88StorageViewer::getSelectedDevice()
 }
 
 /**
+  * Create aCopy of a list in reverse Order.
+  * @parm src, is the Source of the copy.
+  * @param newlist is filled in the reverse order.
+  * @return the newlist
+  */
+static QList<Z88_Selection> *fliplist(const QList<Z88_Selection> *src,  QList<Z88_Selection> *newlist){
+
+    QListIterator<Z88_Selection> i(*src);
+
+    while (i.hasNext()){
+        newlist->prepend(i.next());
+    }
+
+    return newlist;
+}
+
+/**
+  * Rename the Selected Files / Directories
+  * @return true if command could execute.
+  */
+bool Z88StorageViewer::renameSelections()
+{
+    QList<Z88_Selection> *selections = new QList<Z88_Selection>(*getSelection(false));
+
+    if(selections->isEmpty()){
+        return false;
+    }
+
+    return m_cthread.renameFileDirectories(selections);
+}
+
+/**
+  * Delete selections
+  * @return true if command could execute.
+  */
+bool Z88StorageViewer::deleteSelections()
+{
+    QList<Z88_Selection> *selections = fliplist(getSelection(true),  new QList<Z88_Selection>());
+
+    if(selections->isEmpty()){
+        return false;
+    }
+
+    return m_cthread.deleteFileDirectories(selections, true);
+}
+
+/**
   * Get all the Selected Files in for the Selected Device.
   * @param recurse set this to true to get a list of files in the selected subdirectories
   * @return a list of the Selected files and directories.
@@ -236,15 +284,78 @@ bool Z88StorageViewer::isValidFilename(const QString &fname, QString &sug_fname)
     /**
       * Name contains white spaces
       */
-    if(fspec[0].simplified() != fspec[0] || fspec[0].contains(" ")){
-        sug_fname = fspec[0].simplified().mid(0,12).replace(" ","_");
+    if(fspec[0].contains(' ')){
+        sug_fname = fspec[0].mid(0,12).replace(" ","-");
         if(fspec.count() > 1){
-            sug_fname += "." + fspec[0].simplified().mid(0,3).replace(" ","_");
+            sug_fname += "." + fspec[1].mid(0,3).replace(" ","-");
+        }
+        return false;
+    }
+
+    if(fspec[0].contains("*")){
+        sug_fname = fspec[0].mid(0,12).replace("*","-");
+        if(fspec.count() > 1){
+            sug_fname += "." + fspec[1].mid(0,3).replace("*","-");
         }
         return false;
     }
 
     return true;
+}
+
+/**
+  * Create a directory in the selected Dir.
+  * @return true on success.
+  */
+bool Z88StorageViewer::mkDir()
+{
+    QList<Z88_Selection> *selections(getSelection(false));
+
+    if(selections && selections->count() == 1){
+        bool ok;
+        QString location;
+
+        Z88_Selection z88sel(selections->first());
+
+        if(z88sel.getType() == Z88_DevView::type_Dir){
+            location = z88sel.getFspec();
+        }
+        else{
+            location = z88sel.getFspec();
+            int idx = location.lastIndexOf('/');
+            if(idx > -1){
+                location = location.mid(0, idx) + '/';
+            }
+        }
+
+        bool validname(false);
+        QString sugname;
+
+        while(!validname){
+            QString newdir = QInputDialog::getText(this,
+                                                   "Make Directory",
+                                                   QString("In " + location),
+                                                   QLineEdit::Normal,
+                                                   sugname,
+                                                   &ok);
+            if(ok && !newdir.isEmpty()){
+                if(!isValidFilename(newdir, sugname)){
+                    int ret = QMessageBox::critical(this, tr("Eazylink2"),
+                                                           "Invalid Directory:\n" + newdir,
+                                                           QMessageBox::Abort | QMessageBox::Retry);
+                    if(ret == QMessageBox::Abort){
+                        return false;
+                    }
+                    continue;
+                }
+                location += newdir;
+                m_cthread.mkDir(location);
+            }
+            validname = true;
+        }
+        return true;
+    }
+    return false;
 }
 
 /**
@@ -254,6 +365,8 @@ bool Z88StorageViewer::isValidFilename(const QString &fname, QString &sug_fname)
   */
 void Z88StorageViewer::Z88Devices_result(QList<QByteArray> *devlist)
 {
+    int idx = currentIndex();
+
     /**
       * Clean Up Previous Entries if any
       */
@@ -321,6 +434,8 @@ void Z88StorageViewer::Z88Devices_result(QList<QByteArray> *devlist)
             addTab(m_Eprdevices[x], m_Eprdevices[x]->getDevname());
         }
     }
+
+    setCurrentIndex(idx);
 }
 
 /**
@@ -392,25 +507,27 @@ void Z88StorageViewer::itemClicked(QTreeWidgetItem *, int )
     changedSelected_file();
 }
 
+/**
+  * The Context Menu Handler. (Right click)
+  * @param act is the action that was performed.
+  */
 void Z88StorageViewer::ActionsMenuSel(QAction *act)
 {
-    QList<Z88_Selection> *selections;
+
 
     if(act == m_actionMkdir){
-        qDebug() << "z88 mkdir action";
+        mkDir();
+        return;
     }
+
     if(act == m_actionRename){
-        selections = getSelection(false);
-
-        qDebug() << "z88 Rename action " << selections->count();
+        renameSelections();
+        return;
     }
+
     if(act == m_actionDelete){
-        selections = getSelection(true);
-
-        qDebug() << "z88 Delete action " << selections->count();
+        deleteSelections();
     }
-
-
 }
 
 /**
@@ -426,7 +543,15 @@ bool Z88StorageViewer::eventFilter(QObject *, QEvent *ev)
       */
     if(ev->type() == QEvent::ContextMenu){
 
+        if(m_cthread.isBusy()){
+            return true;
+        }
+
         QList<Z88_Selection> *selections(getSelection(false));
+
+        if(!selections){
+            return true;
+        }
 
         int sel_count = 0;
 
@@ -435,15 +560,25 @@ bool Z88StorageViewer::eventFilter(QObject *, QEvent *ev)
         }
 
         /**
-          * Make sure there is a selcton and it not the root device only
+          * Make sure there is a selection and it's not the root device only
           */
         if(sel_count && selections->first().getFspec().size()>7){
-            m_actionMkdir->setEnabled(sel_count < 2);
-            m_actionRename->setEnabled(true);
+            /**
+              * If the Current Storage Device is an EPR device, don't allow rename
+              * or Mkdir
+              */
+            if(getSelectedDeviceName().contains("EPR")){
+                m_actionRename->setEnabled(false);
+                m_actionMkdir->setEnabled(false);
+            }
+            else{
+                m_actionMkdir->setEnabled(sel_count < 2);
+                m_actionRename->setEnabled(true);
+            }
             m_actionDelete->setEnabled(true);
         }
         else{
-            m_actionMkdir->setEnabled(true);
+            m_actionMkdir->setEnabled(!getSelectedDeviceName().contains("EPR"));
             m_actionRename->setEnabled(false);
             m_actionDelete->setEnabled(false);
         }

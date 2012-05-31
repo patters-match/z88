@@ -17,38 +17,20 @@
  */
 package com.jira.cambridgez88.ozvm;
 
-import javax.swing.JFrame;
-import java.awt.GridBagLayout;
-import javax.swing.JPanel;
-import java.awt.GridBagConstraints;
-import java.awt.Dimension;
-
-import javax.swing.ImageIcon;
-import javax.swing.JFileChooser;
-import javax.swing.JMenuBar;
-import javax.swing.JMenu;
-import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
-import javax.swing.JToolBar;
-import javax.swing.KeyStroke;
-import javax.swing.JButton;
-import javax.swing.border.EmptyBorder;
-import java.awt.event.KeyEvent;
-import java.awt.BorderLayout;
-import java.awt.Insets;
-import java.awt.Color;
-import java.awt.event.ActionListener;
+import com.jira.cambridgez88.ozvm.screen.Z88display;
+import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.IOException;
-
-import javax.swing.JCheckBoxMenuItem;
-import javax.swing.ButtonGroup;
-
-import com.jira.cambridgez88.ozvm.screen.Z88display;
+import java.net.URI;
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 
 /**
- * The end user Gui (Main menu, screen, runtime messages, keyboard & slot management)
+ * The end user Gui (Main menu, screen, runtime messages, keyboard & slot
+ * management)
  */
 public class Gui extends JFrame {
 
@@ -58,10 +40,9 @@ public class Gui extends JFrame {
             + "<h3>The Z88 emulator & debugging environment</h3>"
             + "GPL v2 licensed software by Gunther Strube<br>"
             + "<tt>gstrube@gmail.com</tt><br><br>"
-            + "<tt>http://cambridgez88.jira.com</tt>"
+            + "<tt>https://cambridgez88.jira.com/wiki/display/OZVM</tt>"
             + "</center></html>";
     private Blink blink;
-    private boolean fullScreenMode;
     private ButtonGroup kbLayoutButtonGroup;
     private ButtonGroup scrRefreshRateButtonGroup;
     private JToolBar toolBar;
@@ -102,6 +83,8 @@ public class Gui extends JFrame {
     private JMenuItem installHe313RomMenuItem; // Swizz V3.13 ROM menu
     private JMenuItem installTk317RomMenuItem; // Turkish V3.17 ROM menu
     private JMenuItem userManualMenuItem;
+    private JMenuItem z88UserGuideMenuItem;
+    private JMenuItem z88DevNotesMenuItem;
     private JMenuItem gifMovieMenuItem;
     private JMenuItem screenSnapshotMenuItem;
     private JMenuItem viewMemoryMenuItem;
@@ -117,15 +100,12 @@ public class Gui extends JFrame {
     private JCheckBoxMenuItem scr50FpsMenuItem;
     private JCheckBoxMenuItem scr100FpsMenuItem;
 
-    /** Default Window mode Gui constructor */
+    /**
+     * Default Window mode Gui constructor
+     */
     public Gui() {
         super();
-        initialize(false);
-    }
-
-    public Gui(boolean fullScreen) {
-        super();
-        initialize(fullScreen);
+        initialize();
     }
 
     private JPanel getZ88ScreenPanel() {
@@ -185,40 +165,64 @@ public class Gui extends JFrame {
             helpMenu = new javax.swing.JMenu();
             helpMenu.setText("Help");
 
-            if (fullScreenMode == false) {
-                helpMenu.add(getUserManualMenuItem());
-            }
+            helpMenu.add(getUserManualMenuItem());
+            helpMenu.add(getZ88UserGuideMenuItem());
+            helpMenu.add(getZ88DevNotesMenuItem());
             helpMenu.add(getAboutOZvmMenuItem());
         }
 
         return helpMenu;
     }
 
+    private void launchBrowserUrl(String url) {
+        final String errMsg = "Could not launch URL in Desktop Browser.";        
+        String os = System.getProperty("os.name").toLowerCase();
+        Runtime rt = Runtime.getRuntime();
+
+        try {
+            if (os.indexOf("win") >= 0) {
+
+                // this doesn't support showing urls in the form of "page.html#nameLink" 
+                rt.exec("rundll32 url.dll,FileProtocolHandler " + url);
+
+            } else if (os.indexOf("mac") >= 0) {
+
+                rt.exec("open " + url);
+
+            } else if (os.indexOf("nix") >= 0 || os.indexOf("nux") >= 0) {
+
+                // Do a best guess on unix until we get a platform independent way
+                // Build a list of browsers to try, in this order.
+                String[] browsers = {"epiphany", "firefox", "mozilla", "konqueror",
+                    "netscape", "opera", "links", "lynx"};
+
+                // Build a command string which looks like "browser1 "url" || browser2 "url" ||..."
+                StringBuffer cmd = new StringBuffer();
+                for (int i = 0; i < browsers.length; i++) {
+                    cmd.append((i == 0 ? "" : " || ") + browsers[i] + " \"" + url + "\" ");
+                }
+
+                rt.exec(new String[]{"sh", "-c", cmd.toString()});
+
+            }
+
+        } catch (IOException ex) {
+            JOptionPane.showMessageDialog(Gui.this, errMsg, "Online Help", JOptionPane.ERROR_MESSAGE);
+        } catch (IllegalArgumentException ex2) {
+            JOptionPane.showMessageDialog(Gui.this, errMsg, "Online Help", JOptionPane.ERROR_MESSAGE);
+        }
+
+    }
+    
     private JMenuItem getUserManualMenuItem() {
-        final String errMsg = "Could not launch user guide in Desktop Browser.";
 
         if (userManualMenuItem == null) {
             userManualMenuItem = new JMenuItem();
-            userManualMenuItem.setMnemonic(KeyEvent.VK_U);
-            userManualMenuItem.setText("User Guide");
+            userManualMenuItem.setText("OZvm User Guide");
 
             userManualMenuItem.addActionListener(new ActionListener() {
-
                 public void actionPerformed(ActionEvent e) {
-                    java.awt.Desktop desktop = java.awt.Desktop.getDesktop();
-
-                    if (!desktop.isSupported(java.awt.Desktop.Action.OPEN)) {
-                        JOptionPane.showMessageDialog(Gui.this, errMsg, "OZvm Help", JOptionPane.ERROR_MESSAGE);
-                    } else {
-                        try {
-                            String localHelpFilePath = OZvm.getInstance().getAppPath() + "help/index.html";
-                            desktop.open(new File(localHelpFilePath));
-                        } catch (IOException ex) {
-                            JOptionPane.showMessageDialog(Gui.this, errMsg, "OZvm Help", JOptionPane.ERROR_MESSAGE);
-                        } catch (IllegalArgumentException ex2) {
-                            JOptionPane.showMessageDialog(Gui.this, errMsg, "OZvm Help", JOptionPane.ERROR_MESSAGE);
-                        }
-                    }
+                    launchBrowserUrl("https://cambridgez88.jira.com/wiki/x/zIB5");
                 }
             });
         }
@@ -226,6 +230,38 @@ public class Gui extends JFrame {
         return userManualMenuItem;
     }
 
+    private JMenuItem getZ88UserGuideMenuItem() {
+
+        if (z88UserGuideMenuItem == null) {
+            z88UserGuideMenuItem = new JMenuItem();
+            z88UserGuideMenuItem.setText("Z88 User Guide");
+
+            z88UserGuideMenuItem.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    launchBrowserUrl("https://cambridgez88.jira.com/wiki/x/AoAQ");
+                }
+            });
+        }
+
+        return z88UserGuideMenuItem;
+    }
+
+    private JMenuItem getZ88DevNotesMenuItem() {
+
+        if (z88DevNotesMenuItem == null) {
+            z88DevNotesMenuItem = new JMenuItem();
+            z88DevNotesMenuItem.setText("Z88 Developers' Notes");
+
+            z88DevNotesMenuItem.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    launchBrowserUrl("https://cambridgez88.jira.com/wiki/x/NQAE");
+                }
+            });
+        }
+
+        return z88DevNotesMenuItem;
+    }
+    
     private JMenuItem getAboutOZvmMenuItem() {
         if (aboutOZvmMenuItem == null) {
             aboutOZvmMenuItem = new JMenuItem();
@@ -244,16 +280,11 @@ public class Gui extends JFrame {
     private JMenuBar getMainMenuBar() {
         if (menuBar == null) {
             menuBar = new JMenuBar();
-            if (fullScreenMode == false) {
-                menuBar.setBorder(new EmptyBorder(0, 0, 0, 0));
-            }
+            menuBar.setBorder(new EmptyBorder(0, 0, 0, 0));
             menuBar.add(getFileMenu());
             menuBar.add(getZ88Menu());
             menuBar.add(getKeyboardMenu());
-            if (fullScreenMode == false) {
-                // the View menu has no relevance in full screen mode
-                menuBar.add(getViewMenu());
-            }
+            menuBar.add(getViewMenu());
             menuBar.add(getHelpMenu());
         }
 
@@ -265,10 +296,8 @@ public class Gui extends JFrame {
             fileMenu = new JMenu();
             fileMenu.setText("File");
 
-            if (fullScreenMode == false) {
-                fileMenu.add(getFileDebugMenuItem());
-                fileMenu.addSeparator();
-            }
+            fileMenu.add(getFileDebugMenuItem());
+            fileMenu.addSeparator();
 
             fileMenu.add(getLoadSnapshotMenuItem());
             fileMenu.add(getCreateSnapshotMenuItem());
@@ -340,13 +369,7 @@ public class Gui extends JFrame {
     }
 
     public void displayRunTimeMessagesPane(boolean display) {
-        if (fullScreenMode == false) {
-            // runtimes messages are not available in full screen mode
-            // (a snapshot might try to activate it, but will be ignored)
-
-            OZvm.getInstance().getRtmMsgGui().setVisible(display);
-        }
-
+        OZvm.getInstance().getRtmMsgGui().setVisible(display);
         getZ88Display().grabFocus();
     }
 
@@ -356,11 +379,9 @@ public class Gui extends JFrame {
             addKeyboardPanel();
             getZ88keyboardMenuItem().setSelected(true);
         } else {
-            if (fullScreenMode == false) {
-                // in full screen mode, the keyboard cannot be removed
-                getContentPane().remove(getKeyboardPanel());
-                getZ88keyboardMenuItem().setSelected(false);
-            }
+            // in full screen mode, the keyboard cannot be removed
+            getContentPane().remove(getKeyboardPanel());
+            getZ88keyboardMenuItem().setSelected(false);
         }
 
         getZ88Display().grabFocus();
@@ -454,46 +475,33 @@ public class Gui extends JFrame {
     }
 
     private void addZ88ScreenPanel() {
-        if (fullScreenMode == false) {
-            final GridBagConstraints gridBagConstraints = new GridBagConstraints();
-            gridBagConstraints.ipady = 5;
-            gridBagConstraints.insets = new Insets(0, 0, 0, 0);
-            gridBagConstraints.fill = GridBagConstraints.BOTH;
-            gridBagConstraints.gridy = 1;
-            gridBagConstraints.gridx = 0;
-            getContentPane().add(getZ88ScreenPanel(), gridBagConstraints);
-        } else {
-            // in full screen mode we just display the 640x64 screen without border
-            getContentPane().add(getZ88Display(), BorderLayout.NORTH);
-        }
+        final GridBagConstraints gridBagConstraints = new GridBagConstraints();
+        gridBagConstraints.ipady = 5;
+        gridBagConstraints.insets = new Insets(0, 0, 0, 0);
+        gridBagConstraints.fill = GridBagConstraints.BOTH;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.gridx = 0;
+        getContentPane().add(getZ88ScreenPanel(), gridBagConstraints);
     }
 
     private void addKeyboardPanel() {
-        if (fullScreenMode == false) {
-            GridBagConstraints gridBagConstraints = new GridBagConstraints();
-            gridBagConstraints.fill = GridBagConstraints.HORIZONTAL;
-            gridBagConstraints.anchor = GridBagConstraints.SOUTHWEST;
-            gridBagConstraints.ipady = 213;
-            gridBagConstraints.gridy = 6;
-            gridBagConstraints.gridx = 0;
-            getContentPane().add(getKeyboardPanel(), gridBagConstraints);
-        } else {
-            getContentPane().add(getKeyboardPanel(), BorderLayout.CENTER);
-        }
+        GridBagConstraints gridBagConstraints = new GridBagConstraints();
+        gridBagConstraints.fill = GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = GridBagConstraints.SOUTHWEST;
+        gridBagConstraints.ipady = 213;
+        gridBagConstraints.gridy = 6;
+        gridBagConstraints.gridx = 0;
+        getContentPane().add(getKeyboardPanel(), gridBagConstraints);
     }
 
     private void addSlotsPanel() {
-        if (fullScreenMode == false) {
-            GridBagConstraints gridBagConstraints = new GridBagConstraints();
-            gridBagConstraints.fill = GridBagConstraints.HORIZONTAL;
-            gridBagConstraints.anchor = GridBagConstraints.CENTER;
-            gridBagConstraints.gridy = 7;
-            gridBagConstraints.gridx = 0;
-            getContentPane().add(getSlotsPanel(), gridBagConstraints);
-        } else {
-            getContentPane().add(getSlotsPanel(), BorderLayout.SOUTH);
-        }
-    }
+        GridBagConstraints gridBagConstraints = new GridBagConstraints();
+        gridBagConstraints.fill = GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = GridBagConstraints.CENTER;
+        gridBagConstraints.gridy = 7;
+        gridBagConstraints.gridx = 0;
+        getContentPane().add(getSlotsPanel(), gridBagConstraints);
+}
 
     private RubberKeyboard getKeyboardPanel() {
         if (keyboardPanel == null) {
@@ -683,6 +691,13 @@ public class Gui extends JFrame {
                     if ((Z88.getInstance().getProcessorThread() != null)) {
                         resumeExecution = true;
                         Z88.getInstance().getProcessor().stopZ80Execution();
+                        Blink blink = Z88.getInstance().getBlink();
+                        // but if thread is sleeping, there is nothing to stop... so force a wake-up, so Z80 can stop
+                        if (blink.isComaEnabled() == true)
+                            blink.awakeFromComa();
+                        if (blink.isSnoozeEnabled() == true)
+                            blink.awakeFromSnooze();
+                        
                     } else {
                         resumeExecution = false;
                     }
@@ -694,15 +709,13 @@ public class Gui extends JFrame {
                         try {
                             boolean autorun = srVM.loadSnapShot(fileName);
                             getSlotsPanel().refreshSlotInfo();
-                            if (fullScreenMode == false) {
-                                OZvm.displayRtmMessage("Snapshot successfully installed from " + fileName);
-                                setWindowTitle("[" + (chooser.getSelectedFile().getName()) + "]");
-                            }
+                            OZvm.displayRtmMessage("Snapshot successfully installed from " + fileName);
+                            setWindowTitle("[" + (chooser.getSelectedFile().getName()) + "]");
 
-                            if (autorun == true | fullScreenMode == true) {
+                            if (autorun == true) {
                                 // debugging is disabled while full screen mode is enabled
-                                Z88.getInstance().runZ80Engine(-1, true);
-                                Z88.getInstance().getDisplay().grabFocus(); // default keyboard input focus to the Z88								
+                                Z88.getInstance().runZ80Engine();
+                                Z88.getInstance().getDisplay().grabFocus(); // default keyboard input focus to the Z88                              
                             } else {
                                 OZvm.getInstance().commandLine(true); // Activate Debug Command Line Window...
                                 OZvm.getInstance().getCommandLine().initDebugCmdline();
@@ -711,16 +724,14 @@ public class Gui extends JFrame {
                             Z88.getInstance().getMemory().setDefaultSystem();
                             Z88.getInstance().getProcessor().reset();
                             blink.resetBlinkRegisters();
-                            if (fullScreenMode == false) {
-                                OZvm.displayRtmMessage("Loading of snapshot '" + fileName + "' failed. Z88 preset to default system.");
-                                OZvm.getInstance().commandLine(true); // Activate Debug Command Line Window...
-                                OZvm.getInstance().getCommandLine().initDebugCmdline();
-                            }
+                            OZvm.displayRtmMessage("Loading of snapshot '" + fileName + "' failed. Z88 preset to default system.");
+                            OZvm.getInstance().commandLine(true); // Activate Debug Command Line Window...
+                            OZvm.getInstance().getCommandLine().initDebugCmdline();
                         }
                     } else {
                         // User aborted Loading of snapshot..
                         if (resumeExecution == true) {
-                            Z88.getInstance().runZ80Engine(-1, true);
+                            Z88.getInstance().runZ80Engine();
                             Z88.getInstance().getDisplay().grabFocus(); // default keyboard input focus to the Z88
                         }
                     }
@@ -729,7 +740,7 @@ public class Gui extends JFrame {
                     // redraw the slots panel and all is nice again...
                     getSlotsPanel().repaint();
 
-                    Gui.this.pack(); // update Gui window (might have changed by snapshot file...)					
+                    Gui.this.pack(); // update Gui window (might have changed by snapshot file...)                  
                 }
             });
         }
@@ -758,6 +769,13 @@ public class Gui extends JFrame {
                     if ((Z88.getInstance().getProcessorThread() != null)) {
                         autorun = true;
                         Z88.getInstance().getProcessor().stopZ80Execution();
+                        Blink blink = Z88.getInstance().getBlink();
+                        // but if thread is sleeping, there is nothing to stop... so force a wake-up, so Z80 can stop
+                        if (blink.isComaEnabled() == true)
+                            blink.awakeFromComa();
+                        if (blink.isSnoozeEnabled() == true)
+                            blink.awakeFromSnooze();
+                        
                     } else {
                         autorun = false;
                     }
@@ -780,8 +798,8 @@ public class Gui extends JFrame {
 
                     if (autorun == true) {
                         // Z80 engine was temporary stopped, now continue to execute...
-                        Z88.getInstance().runZ80Engine(-1, true);
-                        Z88.getInstance().getDisplay().grabFocus(); // default keyboard input	focus to the Z88
+                        Z88.getInstance().runZ80Engine();
+                        Z88.getInstance().getDisplay().grabFocus(); // default keyboard input   focus to the Z88
                     }
                 }
             });
@@ -810,13 +828,13 @@ public class Gui extends JFrame {
             softResetMenuItem.addActionListener(new ActionListener() {
 
                 public void actionPerformed(ActionEvent e) {
-                    if (Z88.getInstance().getProcessorThread() != null) {
-                        if (JOptionPane.showConfirmDialog(Gui.this, "Soft Reset Z88?") == JOptionPane.YES_OPTION) {
-                            blink.signalFlapClosed(); // close flap (if open): We don't want a Hard Reset!
-                            Z88.getInstance().pressResetButton();
-                        }
-                    } else {
-                        JOptionPane.showMessageDialog(Gui.this, "Z88 is not running");
+                    if (Z88.getInstance().getProcessorThread() == null) {
+                        Z88.getInstance().runZ80Engine();
+                    }
+                    
+                    if (JOptionPane.showConfirmDialog(Gui.this, "Soft Reset Z88?") == JOptionPane.YES_OPTION) {
+                        blink.signalFlapClosed(); // close flap (if open): We don't want a Hard Reset!
+                        Z88.getInstance().pressResetButton();
                     }
                 }
             });
@@ -831,12 +849,12 @@ public class Gui extends JFrame {
             hardResetMenuItem.addActionListener(new ActionListener() {
 
                 public void actionPerformed(ActionEvent e) {
-                    if (Z88.getInstance().getProcessorThread() != null) {
-                        if (JOptionPane.showConfirmDialog(Gui.this, "Hard Reset Z88?") == JOptionPane.YES_OPTION) {
-                            Z88.getInstance().pressHardReset();
-                        }
-                    } else {
-                        JOptionPane.showMessageDialog(Gui.this, "Z88 is not running");
+                    if (Z88.getInstance().getProcessorThread() == null) {
+                        Z88.getInstance().runZ80Engine();
+                    }
+                    
+                    if (JOptionPane.showConfirmDialog(Gui.this, "Hard Reset Z88?") == JOptionPane.YES_OPTION) {
+                        Z88.getInstance().pressHardReset();
                     }
                 }
             });
@@ -879,7 +897,7 @@ public class Gui extends JFrame {
 
                         if (JOptionPane.showConfirmDialog(Gui.this, "Install OZ V4.3 ROM in slot 0?") == JOptionPane.YES_OPTION) {
                             try {
-                                File romFileOz43 = new File(OZvm.getInstance().getAppPath() + "roms/Z88OZ43.rom");
+                                File romFileOz43 = new File(URI.create("file:" + OZvm.getInstance().getAppPath() + "roms/Z88OZ43.rom"));
                                 Z88.getInstance().getMemory().loadRomBinary(romFileOz43);
                                 OZvm.getInstance().getGui().setWindowTitle("[" + (romFileOz43.getName()) + "]");
 
@@ -918,7 +936,7 @@ public class Gui extends JFrame {
 
                         if (JOptionPane.showConfirmDialog(Gui.this, "Install British OZ V4.0 in slot 0?") == JOptionPane.YES_OPTION) {
                             try {
-                                File romFileOz40uk = new File(OZvm.getInstance().getAppPath() + "roms/Z88UK400.rom");
+                                File romFileOz40uk = new File(URI.create("file:" + OZvm.getInstance().getAppPath() + "roms/Z88UK400.rom"));
                                 Z88.getInstance().getMemory().loadRomBinary(romFileOz40uk);
                                 OZvm.getInstance().getGui().setWindowTitle("[" + (romFileOz40uk.getName()) + "]");
 
@@ -957,7 +975,7 @@ public class Gui extends JFrame {
 
                         if (JOptionPane.showConfirmDialog(Gui.this, "Install British OZ V3.0 in slot 0?") == JOptionPane.YES_OPTION) {
                             try {
-                                File romFileOz30uk = new File(OZvm.getInstance().getAppPath() + "roms/Z88UK300.rom");
+                                File romFileOz30uk = new File(URI.create("file:" + OZvm.getInstance().getAppPath() + "roms/Z88UK300.rom"));
                                 Z88.getInstance().getMemory().loadRomBinary(romFileOz30uk);
                                 OZvm.getInstance().getGui().setWindowTitle("[" + (romFileOz30uk.getName()) + "]");
 
@@ -996,7 +1014,7 @@ public class Gui extends JFrame {
 
                         if (JOptionPane.showConfirmDialog(Gui.this, "Install British OZ V2.2 in slot 0?") == JOptionPane.YES_OPTION) {
                             try {
-                                File romFileOz22uk = new File(OZvm.getInstance().getAppPath() + "roms/Z88UK220.rom");
+                                File romFileOz22uk = new File(URI.create("file:" + OZvm.getInstance().getAppPath() + "roms/Z88UK220.rom"));
                                 Z88.getInstance().getMemory().loadRomBinary(romFileOz22uk);
                                 OZvm.getInstance().getGui().setWindowTitle("[" + (romFileOz22uk.getName()) + "]");
 
@@ -1035,7 +1053,7 @@ public class Gui extends JFrame {
 
                         if (JOptionPane.showConfirmDialog(Gui.this, "Install French OZ V3.26 in slot 0?") == JOptionPane.YES_OPTION) {
                             try {
-                                File romFileOz = new File(OZvm.getInstance().getAppPath() + "roms/Z88FR326.rom");
+                                File romFileOz = new File(URI.create("file:" + OZvm.getInstance().getAppPath() + "roms/Z88FR326.rom"));
                                 Z88.getInstance().getMemory().loadRomBinary(romFileOz);
                                 OZvm.getInstance().getGui().setWindowTitle("[" + (romFileOz.getName()) + "]");
 
@@ -1074,7 +1092,7 @@ public class Gui extends JFrame {
 
                         if (JOptionPane.showConfirmDialog(Gui.this, "Install Spanish OZ V3.19 in slot 0?") == JOptionPane.YES_OPTION) {
                             try {
-                                File romFileOz = new File(OZvm.getInstance().getAppPath() + "roms/Z88ES319.rom");
+                                File romFileOz = new File(URI.create("file:" + OZvm.getInstance().getAppPath() + "roms/Z88ES319.rom"));
                                 Z88.getInstance().getMemory().loadRomBinary(romFileOz);
                                 OZvm.getInstance().getGui().setWindowTitle("[" + (romFileOz.getName()) + "]");
 
@@ -1113,7 +1131,7 @@ public class Gui extends JFrame {
 
                         if (JOptionPane.showConfirmDialog(Gui.this, "Install German OZ V3.18 in slot 0?") == JOptionPane.YES_OPTION) {
                             try {
-                                File romFileOz = new File(OZvm.getInstance().getAppPath() + "roms/Z88DE318.rom");
+                                File romFileOz = new File(URI.create("file:" + OZvm.getInstance().getAppPath() + "roms/Z88DE318.rom"));
                                 Z88.getInstance().getMemory().loadRomBinary(romFileOz);
                                 OZvm.getInstance().getGui().setWindowTitle("[" + (romFileOz.getName()) + "]");
 
@@ -1152,7 +1170,7 @@ public class Gui extends JFrame {
 
                         if (JOptionPane.showConfirmDialog(Gui.this, "Install Italian OZ V3.23 in slot 0?") == JOptionPane.YES_OPTION) {
                             try {
-                                File romFileOz = new File(OZvm.getInstance().getAppPath() + "roms/Z88IT323.rom");
+                                File romFileOz = new File(URI.create("file:" + OZvm.getInstance().getAppPath() + "roms/Z88IT323.rom"));
                                 Z88.getInstance().getMemory().loadRomBinary(romFileOz);
                                 OZvm.getInstance().getGui().setWindowTitle("[" + (romFileOz.getName()) + "]");
 
@@ -1191,7 +1209,7 @@ public class Gui extends JFrame {
 
                         if (JOptionPane.showConfirmDialog(Gui.this, "Install Danish OZ V3.21 in slot 0?") == JOptionPane.YES_OPTION) {
                             try {
-                                File romFileOz = new File(OZvm.getInstance().getAppPath() + "roms/Z88DK321.rom");
+                                File romFileOz = new File(URI.create("file:" + OZvm.getInstance().getAppPath() + "roms/Z88DK321.rom"));
                                 Z88.getInstance().getMemory().loadRomBinary(romFileOz);
                                 OZvm.getInstance().getGui().setWindowTitle("[" + (romFileOz.getName()) + "]");
 
@@ -1230,7 +1248,7 @@ public class Gui extends JFrame {
 
                         if (JOptionPane.showConfirmDialog(Gui.this, "Install Swedish OZ V2.50 in slot 0?") == JOptionPane.YES_OPTION) {
                             try {
-                                File romFileOz = new File(OZvm.getInstance().getAppPath() + "roms/Z88SE250.rom");
+                                File romFileOz = new File(URI.create("file:" + OZvm.getInstance().getAppPath() + "roms/Z88SE250.rom"));
                                 Z88.getInstance().getMemory().loadRomBinary(romFileOz);
                                 OZvm.getInstance().getGui().setWindowTitle("[" + (romFileOz.getName()) + "]");
 
@@ -1251,7 +1269,6 @@ public class Gui extends JFrame {
                         JOptionPane.showMessageDialog(Gui.this, "Z88 is not running");
                     }
                 }
-
             });
         }
 
@@ -1270,7 +1287,7 @@ public class Gui extends JFrame {
 
                         if (JOptionPane.showConfirmDialog(Gui.this, "Install Norwegian OZ V2.60 in slot 0?") == JOptionPane.YES_OPTION) {
                             try {
-                                File romFileOz = new File(OZvm.getInstance().getAppPath() + "roms/Z88NO260.rom");
+                                File romFileOz = new File(URI.create("file:" + OZvm.getInstance().getAppPath() + "roms/Z88NO260.rom"));
                                 Z88.getInstance().getMemory().loadRomBinary(romFileOz);
                                 OZvm.getInstance().getGui().setWindowTitle("[" + (romFileOz.getName()) + "]");
 
@@ -1291,7 +1308,6 @@ public class Gui extends JFrame {
                         JOptionPane.showMessageDialog(Gui.this, "Z88 is not running");
                     }
                 }
-
             });
         }
 
@@ -1310,7 +1326,7 @@ public class Gui extends JFrame {
 
                         if (JOptionPane.showConfirmDialog(Gui.this, "Install Finnish OZ V4.01 in slot 0?") == JOptionPane.YES_OPTION) {
                             try {
-                                File romFileOz = new File(OZvm.getInstance().getAppPath() + "roms/Z88FI401.rom");
+                                File romFileOz = new File(URI.create("file:" + OZvm.getInstance().getAppPath() + "roms/Z88FI401.rom"));
                                 Z88.getInstance().getMemory().loadRomBinary(romFileOz);
                                 OZvm.getInstance().getGui().setWindowTitle("[" + (romFileOz.getName()) + "]");
 
@@ -1331,7 +1347,6 @@ public class Gui extends JFrame {
                         JOptionPane.showMessageDialog(Gui.this, "Z88 is not running");
                     }
                 }
-
             });
         }
 
@@ -1350,7 +1365,7 @@ public class Gui extends JFrame {
 
                         if (JOptionPane.showConfirmDialog(Gui.this, "Install Swiss OZ V3.13 in slot 0?") == JOptionPane.YES_OPTION) {
                             try {
-                                File romFileOz = new File(OZvm.getInstance().getAppPath() + "roms/Z88HE313.rom");
+                                File romFileOz = new File(URI.create("file:" + OZvm.getInstance().getAppPath() + "roms/Z88HE313.rom"));
                                 Z88.getInstance().getMemory().loadRomBinary(romFileOz);
                                 OZvm.getInstance().getGui().setWindowTitle("[" + (romFileOz.getName()) + "]");
 
@@ -1371,7 +1386,6 @@ public class Gui extends JFrame {
                         JOptionPane.showMessageDialog(Gui.this, "Z88 is not running");
                     }
                 }
-
             });
         }
 
@@ -1390,7 +1404,7 @@ public class Gui extends JFrame {
 
                         if (JOptionPane.showConfirmDialog(Gui.this, "Install Turkish OZ V3.17 in slot 0?") == JOptionPane.YES_OPTION) {
                             try {
-                                File romFileOz = new File(OZvm.getInstance().getAppPath() + "roms/Z88TK317.rom");
+                                File romFileOz = new File(URI.create("file:" + OZvm.getInstance().getAppPath() + "roms/Z88TK317.rom"));
                                 Z88.getInstance().getMemory().loadRomBinary(romFileOz);
                                 OZvm.getInstance().getGui().setWindowTitle("[" + (romFileOz.getName()) + "]");
 
@@ -1411,7 +1425,6 @@ public class Gui extends JFrame {
                         JOptionPane.showMessageDialog(Gui.this, "Z88 is not running");
                     }
                 }
-
             });
         }
 
@@ -1447,7 +1460,7 @@ public class Gui extends JFrame {
             screenSnapshotMenuItem.addActionListener(new ActionListener() {
 
                 public void actionPerformed(ActionEvent e) {
-                    // grab a copy of the current screen frame and write it to file "./z88screenX.png" (X = counter).					
+                    // grab a copy of the current screen frame and write it to file "./z88screenX.png" (X = counter).                   
                     getZ88Display().grabScreenFrameToFile();
                 }
             });
@@ -1464,7 +1477,7 @@ public class Gui extends JFrame {
             gifMovieMenuItem.addActionListener(new ActionListener() {
 
                 public void actionPerformed(ActionEvent e) {
-                    // record an animated Gif movie of the Z88 screen activity					
+                    // record an animated Gif movie of the Z88 screen activity                  
                     getZ88Display().toggleMovieRecording();
                 }
             });
@@ -1476,7 +1489,7 @@ public class Gui extends JFrame {
 
     /**
      * Set the window title which is appended after the 'OZvm VX ' text
-     * 
+     *
      * @param title
      */
     public void setWindowTitle(String title) {
@@ -1484,44 +1497,31 @@ public class Gui extends JFrame {
     }
 
     /**
-     * This method initializes the main z88 window with screen menus,
-     * runtime messages and keyboard.
+     * This method initializes the main z88 window with screen menus, runtime
+     * messages and keyboard.
      */
-    private void initialize(boolean fullScreen) {
-        fullScreenMode = fullScreen;
+    private void initialize() {
 
         blink = Z88.getInstance().getBlink();
 
         kbLayoutButtonGroup = new ButtonGroup();
         scrRefreshRateButtonGroup = new ButtonGroup();
 
-        // set window decoration, depending on full screen or not
-        setUndecorated(fullScreen);
-
         // Main Gui window is never resizable
         setResizable(false);
         setIconImage(new ImageIcon(this.getClass().getResource("/pixel/title.gif")).getImage());
         setJMenuBar(getMainMenuBar());
 
-        if (fullScreen == true) {
-            getContentPane().setLayout(new BorderLayout());
-            getContentPane().setBackground(Color.BLACK);
-            displayZ88ScreenPane();
-            displayZ88Keyboard(true);
-            displayZ88CardSlots(true);
-        } else {
-            // normal OS window mode...
-            getContentPane().setLayout(new GridBagLayout());
+        getContentPane().setLayout(new GridBagLayout());
 
-            final GridBagConstraints gridBagConstraints_1 = new GridBagConstraints();
-            gridBagConstraints_1.fill = GridBagConstraints.HORIZONTAL;
-            gridBagConstraints_1.gridy = 0;
-            gridBagConstraints_1.gridx = 0;
-            getContentPane().add(getToolBar(), gridBagConstraints_1);
+        final GridBagConstraints gridBagConstraints_1 = new GridBagConstraints();
+        gridBagConstraints_1.fill = GridBagConstraints.HORIZONTAL;
+        gridBagConstraints_1.gridy = 0;
+        gridBagConstraints_1.gridx = 0;
+        getContentPane().add(getToolBar(), gridBagConstraints_1);
 
-            displayZ88ScreenPane();
-            setWindowTitle("");
-        }
+        displayZ88ScreenPane();
+        setWindowTitle("");
 
         // pre-select the Screen Refresh Rate Menu Item
         switch (getZ88Display().getCurrentFrameRate()) {

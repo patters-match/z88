@@ -15,17 +15,21 @@
 
 **********************************************************************************************/
 
+#include <QDesktopServices>
+#include <QUrl>
 #include <QStringList>
 #include <QInputDialog>
 #include <QTreeView>
 #include <QStatusBar>
 #include <QLabel>
 #include <QPushButton>
-
+#include <QtCore/QTime>
 #include <qdebug.h>
 
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include "prefrences_dlg.h"
+
 #include "z88serialport.h"
 #include "serialportsavail.h"
 
@@ -37,8 +41,9 @@
 MainWindow::MainWindow(Z88SerialPort &sport, QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
+    m_prefsDialog(new Prefrences_dlg(this, &m_cthread, this)),
     m_StatusLabel(NULL),
-    m_cmdProgress(NULL),
+    m_cmdProgress(new QProgressDialog("prog", "Abort", 0, 1, NULL)),
     m_Z88StorageView(NULL),
     m_DeskFileSystem(NULL),
     m_DeskTopTreeView(NULL),
@@ -83,6 +88,17 @@ MainWindow::MainWindow(Z88SerialPort &sport, QWidget *parent) :
       */
     createActions();
 
+    QString serialPortname;
+    QString port_shortname;
+
+    if(!m_prefsDialog->getSerialPort_Name(serialPortname, port_shortname)){
+        m_prefsDialog->Activate(Prefrences_dlg::Comms);
+    }
+
+    if(m_prefsDialog->get_PortOpenOnStart() &&
+            m_prefsDialog->getSerialPort_Name(serialPortname, port_shortname)){
+        m_cthread.open(serialPortname, port_shortname);
+    }
 }
 
 /**
@@ -90,7 +106,6 @@ MainWindow::MainWindow(Z88SerialPort &sport, QWidget *parent) :
   */
 MainWindow::~MainWindow()
 {
-    delete ui;
     /**
       * request abort from the Current Comm Thread operation,
       * And wait for the thread to complete.
@@ -99,11 +114,17 @@ MainWindow::~MainWindow()
     if (m_cthread.isBusy()) {
         m_cthread.AbortCmd();
     } else {
-        // send a "quit" to Z88 EazyLink popdown, if Z88 communication exists..
-        m_cthread.quitZ88();
+        if(m_prefsDialog->get_ShutdownEZ_OnExit()){
+            // send a "quit" to Z88 EazyLink popdown, if Z88 communication exists..
+            m_cthread.quitZ88();
+        }
     }
 
     m_cthread.wait();
+
+    delete ui;
+
+    delete m_prefsDialog;
 }
 
 /**
@@ -130,7 +151,16 @@ void MainWindow::setZ88DirLabel(const QString &path)
   */
 void MainWindow::refreshSelectedZ88DeviceView()
 {
+#ifdef Q_OS_WIN32
+    QTime timeout = QTime::currentTime().addMSecs(500);
+    while(QTime::currentTime() < timeout) {};
+#endif
     m_Z88StorageView->refreshSelectedDeviceView();
+}
+
+void MainWindow::displayPrefs()
+{
+    m_prefsDialog->Activate(Prefrences_dlg::Default);
 }
 
 /**
@@ -164,9 +194,7 @@ void MainWindow::createActions()
     ui->Ui::MainWindow::actionHello->setStatusTip(tr("Send HelloZ88"));
     connect(ui->Ui::MainWindow::actionHello, SIGNAL(triggered()), this, SLOT(helloZ88()));
 
-    connect(ui->Ui::MainWindow::actionTranslateByte, SIGNAL(triggered()), this, SLOT(ByteTrans()));
-    connect(ui->Ui::MainWindow::actionTranslateCRLF, SIGNAL(triggered()), this, SLOT(CRLFTrans()));
-    connect(ui->Ui::MainWindow::actionReload_Table, SIGNAL(triggered()), this, SLOT(ReloadTranslation()));
+    connect(ui->Ui::MainWindow::actionReload_TransTable, SIGNAL(triggered()), this, SLOT(ReloadTranslation()));
     connect(ui->Ui::MainWindow::actionSet_Z88_Clock, SIGNAL(triggered()), this, SLOT(SetZ88Clock()));
     connect(ui->Ui::MainWindow::actionReadZ88_Clock, SIGNAL(triggered()), this, SLOT(getZ88Clock()));
     connect(ui->Ui::MainWindow::actionGet_Info, SIGNAL(triggered()), this, SLOT(getZ88Info()));
@@ -176,11 +204,14 @@ void MainWindow::createActions()
     connect(ui->Ui::MainWindow::actionDisplayFileDate, SIGNAL(triggered()), this, SLOT(ReloadZ88View()));
     connect(ui->Ui::MainWindow::actionDisplayFileSize, SIGNAL(triggered()), this, SLOT(ReloadZ88View()));
     connect(ui->Ui::MainWindow::actionAbout, SIGNAL(triggered()), this, SLOT(AboutEazylink()));
+    connect(ui->Ui::MainWindow::actionHelpContents, SIGNAL(triggered()), this, SLOT(UrlUserGuide()));
 
     connect(ui->Ui::MainWindow::CancelCmdBtn, SIGNAL(pressed()), this, SLOT(AbortCmd()));
+    connect(ui->Ui::MainWindow::actionPreferences, SIGNAL(triggered()), this, SLOT(displayPrefs()));
 
     connect(m_Z88StorageView,  SIGNAL(ItemSelectionChanged(int)), this, SLOT(Z88SelectionChanged(int)));
     connect(m_DeskTopTreeView, SIGNAL(ItemSelectionChanged(int)), this, SLOT(DeskTopSelectionChanged(int)));
+
 
     /**
       * Configure Communication Thread Events
@@ -201,6 +232,16 @@ void MainWindow::createActions()
             SLOT(cmdStatus(const QString &)));
 
     connect(&m_cthread,
+            SIGNAL(renameCmd_result(const QString &, bool)),
+            this,
+            SLOT(renameCmd_result(const QString &, bool)));
+
+    connect(&m_cthread,
+            SIGNAL(renameZ88Item(Z88_Selection *, const QString &)),
+            this,
+            SLOT(renameZ88Item(Z88_Selection *, const QString &)));
+
+    connect(&m_cthread,
             SIGNAL(cmdProgress(const QString &, int, int)),
             this,
             SLOT(cmdProgress(const QString &, int, int)));
@@ -209,6 +250,11 @@ void MainWindow::createActions()
             SIGNAL(boolCmd_result(const QString &, bool)),
             this,
             SLOT(boolCmd_result(const QString &, bool)));
+
+    connect(&m_cthread,
+            SIGNAL(displayCritError(const QString &)),
+            this,
+            SLOT(displayCritError(const QString &)));
 
     connect(&m_cthread,
             SIGNAL(Z88Info_result(QList<QByteArray> *)),
@@ -234,6 +280,34 @@ void MainWindow::createActions()
             SIGNAL(refreshSelectedZ88DeviceView()),
             this,
             SLOT(refreshSelectedZ88DeviceView()));
+
+    connect(&m_cthread,
+            SIGNAL(PromptRename(QMutableListIterator<Z88_Selection> *)),
+            this,
+            SLOT(PromptRename(QMutableListIterator<Z88_Selection> *)));
+
+    connect(&m_cthread,
+            SIGNAL(PromptDeleteSpec(const QString &, bool, bool *)),
+            this,
+            SLOT(PromptDeleteSpec(const QString &, bool, bool *)));
+
+    connect(&m_cthread,
+            SIGNAL(PromptDeleteRetry(const QString &, bool)),
+            this,
+            SLOT(PromptDeleteRetry(const QString &, bool)));
+
+    connect(&m_cthread,
+            SIGNAL(deleteZ88Item(QTreeWidgetItem *)),
+            this,
+            SLOT(deleteZ88Item(QTreeWidgetItem *)));
+
+    /**
+      * Pref panel events
+      */
+    connect(m_prefsDialog,
+            SIGNAL(SerialPortSelChanged()),
+            this,
+            SLOT(SerialPortSelChanged()));
 }
 
 /**
@@ -241,7 +315,7 @@ void MainWindow::createActions()
   */
 void MainWindow::setupDeskView()
 {
-    m_DeskTopTreeView = new Desktop_View(m_cthread, this);
+    m_DeskTopTreeView = new Desktop_View(m_cthread, m_prefsDialog, this);
 
     m_DeskTopTreeView->setAnimated(true);
     m_DeskTopTreeView->setIndentation(20);
@@ -286,22 +360,13 @@ bool MainWindow::DisplayCommError(const QString &title, const QString &msg)
  */
 void MainWindow::selSerialPort()
 {
+
     openSelSerialDialog();
 }
 
 void MainWindow::helloZ88()
 {
     get_comThread().helloZ88();
-}
-
-void MainWindow::ByteTrans()
-{
-    get_comThread().ByteTrans(ui->Ui::MainWindow::actionTranslateByte->isChecked());
-}
-
-void MainWindow::CRLFTrans()
-{
-    get_comThread().CRLFTrans(ui->Ui::MainWindow::actionTranslateCRLF->isChecked());
 }
 
 void MainWindow::ReloadTranslation()
@@ -353,11 +418,16 @@ void MainWindow::ImpExp_sendfile()
 
 }
 
+void MainWindow::UrlUserGuide()
+{
+    QDesktopServices::openUrl(QUrl("https://cambridgez88.jira.com/wiki/x/noCD", QUrl::TolerantMode));
+}
+
 void MainWindow::AboutEazylink()
 {
-    QString msg("\tEazyLink2");
-    msg += " - v1.00 alpha 1";
-    msg += "\r\n\t    April-May 2012";
+    QString msg("EazyLink2");
+    msg += " - " + QCoreApplication::applicationVersion();
+    msg += "\r\nApril-May 2012";
     msg += "\r\n(C) Gunther Strube & Oscar Ernohazy";
 
     QMessageBox::about(this, tr("EazyLink II"), msg);
@@ -387,7 +457,6 @@ void MainWindow::enableCmds(bool ena, bool com_isOpen)
       */
     ui->Ui::MainWindow::menuSettings->setEnabled(ena);
     ui->Ui::MainWindow::menuFile->setEnabled(ena);
-    ui->Ui::MainWindow::menu_Options->setEnabled(ena);
     ui->Ui::MainWindow::actionSerialPort->setEnabled(ena);
 
     /**
@@ -396,9 +465,10 @@ void MainWindow::enableCmds(bool ena, bool com_isOpen)
     if(!com_isOpen){
         ena = false;
     }
+
     ui->Ui::MainWindow::menuZ88->setEnabled(ena);
     ui->Ui::MainWindow::toolBar->setEnabled(ena);
-    ui->Ui::MainWindow::menuTranslations->setEnabled(ena);
+    ui->Ui::MainWindow::actionReload_TransTable->setEnabled(ena);
     ui->Ui::MainWindow::actionQuitEazyLink->setEnabled(ena);
     ui->Ui::MainWindow::actionEazyLink_Hello->setEnabled(ena);
     ui->Ui::MainWindow::actionReceive_files_from_Z88_Imp_Export_popdown->setEnabled(ena);
@@ -414,6 +484,8 @@ void MainWindow::enableCmds(bool ena, bool com_isOpen)
   */
 bool MainWindow::openSelSerialDialog()
 {
+    m_prefsDialog->Activate(Prefrences_dlg::Comms);
+#if 0
     SerialPortsAvail SportsAvail;
     bool ok;
 
@@ -426,9 +498,10 @@ bool MainWindow::openSelSerialDialog()
         /**
           * Try to opend the Serial Device Specified
           */
-        ok = get_comThread().open(SportsAvail.get_fullportName(item), item);
+        ok = m_cthread.open(SportsAvail.get_fullportName(item), item);
     }
-    return ok;
+#endif
+    return true;
 }
 
 
@@ -449,6 +522,10 @@ void MainWindow::commOpen_result(const QString &, const QString &short_name, boo
         msg += short_name;
 
         m_StatusLabel->setText(msg);
+
+        if(m_prefsDialog->get_RefreshZ88OnStart()){
+            ReloadZ88View();
+        }
     }
     else{
         QString msg;
@@ -494,7 +571,10 @@ void MainWindow::cmdProgress(const QString &title, int curVal, int total)
 
     if(total){
         if(curVal == 0){
+            delete m_cmdProgress;
             m_cmdProgress = new QProgressDialog(title, "Abort", 0, total+1, NULL);
+            m_cmdProgress->show();
+
             /**
               * Setup the Comm thread Abort Signal handler
               */
@@ -555,6 +635,13 @@ void MainWindow::boolCmd_result(const QString &cmdName, bool success)
     else{
         m_cmdSuccessCount++;
     }
+}
+
+void MainWindow::displayCritError(const QString &errmsg)
+{
+    QMessageBox::critical(this, tr("Command Error"),
+                                           errmsg,
+                                           QMessageBox::Ok);
 }
 
 /**
@@ -693,6 +780,213 @@ void MainWindow::PromptSendSpec(const QString &src_name, const QString &dst_name
     }
 }
 
+void MainWindow::PromptRename(QMutableListIterator<Z88_Selection> *i)
+{
+    if(i->hasNext()){
+        bool ok;
+        Z88_Selection z88sel(i->peekNext());
+
+        const QString &ftype((z88sel.getType() == Z88_DevView::type_Dir) ?
+                    "Rename Dir" : "Rename File");
+
+        QString srcname(z88sel.getRelFspec());
+        QString srcfspec(z88sel.getFspec());
+
+        if(srcfspec.size() <=6){
+            return;
+        }
+
+        if(z88sel.getType() == Z88_DevView::type_Dir){
+            srcfspec = srcfspec.mid(0,srcfspec.size()-1);
+        }
+
+        bool name_ok(false);
+        QString newname;
+
+        while(!name_ok){
+            newname = QInputDialog::getText(this,
+                                            ftype,
+                                            srcfspec,
+                                            QLineEdit::Normal,
+                                            srcname,
+                                            &ok);
+
+            if(ok){
+                if(!newname.isEmpty() && newname != srcname){
+                    if(!m_Z88StorageView->isValidFilename(newname, srcname)){
+                        int ret = QMessageBox::critical(this, tr("Eazylink2"),
+                                                               "Invalid Filename:\n" + newname,
+                                                               QMessageBox::Abort | QMessageBox::Retry);
+                        if(ret == QMessageBox::Abort){
+                            return;
+                        }
+                        continue;
+                    }
+                }
+                else{
+                    newname = "";  // Same as current name
+                }
+                name_ok = true;
+            }
+            else{
+                //refreshSelectedZ88DeviceView();
+                return;
+            }
+        }
+
+        m_cthread.renameFileDir(srcfspec, newname);
+    }
+}
+
+void MainWindow::PromptDeleteSpec(const QString &src_name, bool isDir, bool *prompt_again)
+{
+    QMessageBox msgBox;
+    QString msg = "Delete ";
+    if(isDir){
+        msg += "Directory:\n";
+    }
+    else{
+        msg += "File:\n";
+    }
+    msg += src_name;
+
+    msgBox.setText(msg);
+    msgBox.setIcon(QMessageBox::Question);
+    msgBox.setInformativeText("Permanently erase this from the Z88 ?");
+    msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No |
+                              QMessageBox::YesToAll | QMessageBox::Cancel);
+    msgBox.setDefaultButton(QMessageBox::No);
+
+    switch(msgBox.exec()){
+        case QMessageBox::YesToAll:
+            *prompt_again = false;
+            // drop through
+        case QMessageBox::Yes:
+            m_cthread.deleteFileDirectory(false);
+            break;
+        case  QMessageBox::No:
+            m_cthread.deleteFileDirectory(true);
+            break;
+        case QMessageBox::Cancel:
+            if(m_cmdProgress) m_cmdProgress->reset();
+        //    refreshSelectedZ88DeviceView();
+            return;
+    }
+}
+
+/**
+  * Prompt user to retry A Failed Delete.
+  * @param  filename is the name of the fialed delete file or dir.
+  */
+void MainWindow::PromptDeleteRetry(const QString &fspec, bool isDir)
+{
+    QMessageBox msgBox;
+
+    QString msg("Could Not Delete ");
+    QString etext("Make sure ");
+
+    if(isDir){
+        msg += "Directory:\n";
+        etext += "its empty, and not in use.";
+    }
+    else{
+        msg += "File:\n";
+        etext += "its not in use.";
+    }
+
+    etext += "\nDo you want to Retry Delete?";
+    msg += fspec;
+
+    msgBox.setIcon(QMessageBox::Critical);
+    msgBox.setText(msg);
+    msgBox.setInformativeText(etext);
+    msgBox.setStandardButtons(QMessageBox::Ignore | QMessageBox::Retry |
+                               QMessageBox::Cancel);
+    msgBox.setDefaultButton(QMessageBox::Ignore);
+
+    switch(msgBox.exec()){
+
+        case QMessageBox::Retry:
+            m_cthread.deleteFileDirectory(false);
+            break;
+        case  QMessageBox::Ignore:
+            m_cthread.deleteFileDirectory(true);
+            break;
+        case QMessageBox::Cancel:
+            if(m_cmdProgress) m_cmdProgress->reset();
+           // refreshSelectedZ88DeviceView();
+            return;
+    }
+}
+
+void MainWindow::renameCmd_result(const QString &msg, bool success)
+{
+    /**
+     * Update the Status Text
+     */
+    m_StatusLabel->setText(msg);
+
+    if(!success){
+        QMessageBox::StandardButton reply;
+        reply = QMessageBox::critical(this, tr("Eazylink2"),
+                                       msg,
+                                       QMessageBox::Abort | QMessageBox::Retry | QMessageBox::Ignore);
+        switch(reply){
+        case QMessageBox::Abort:
+         //   refreshSelectedZ88DeviceView();
+            break;
+        case QMessageBox::Retry:
+            m_cthread.renameFileDirRety(false);
+            break;
+        case QMessageBox::Ignore:
+            m_cthread.renameFileDirRety(true);
+            break;
+        default:
+            break;
+        }
+    }
+}
+
+/**
+  * Rename of a File or directory Entry in the Z88 Display.
+  * @param item is the QTreeItem to rename
+  * @param newname is the new name to create.
+  */
+void MainWindow::renameZ88Item(Z88_Selection *item, const QString &newname)
+{
+    QString msg("Rename ");
+    msg += (item->getType() == Z88_DevView::type_Dir) ? "Directory: " : "File: ";
+    msg += item->getQtreeItem()->text(0);
+    msg += " -> ";
+    msg += newname;
+    msg += " Success";
+
+    item->getQtreeItem()->setText(0, newname);
+
+    m_StatusLabel->setText(msg);
+}
+
+void MainWindow::deleteZ88Item(QTreeWidgetItem *item)
+{
+    QString msg("Delete ");
+    msg += item->text(0);
+    msg += " Success.";
+
+    delete item;
+    m_StatusLabel->setText(msg);
+
+}
+
+void MainWindow::SerialPortSelChanged()
+{
+    QString serialPortname;
+    QString port_shortname;
+
+    if(m_prefsDialog->getSerialPort_Name(serialPortname, port_shortname)){
+        m_cthread.open(serialPortname, port_shortname);
+    }
+}
+
 /**
   * Validate and enable the Transfer button, based on the selected items in
   * both the z88 and Desktop frames.
@@ -807,11 +1101,15 @@ void MainWindow::TransferFiles()
         deskSelList = m_DeskTopTreeView->getSelection(true);
 
         if(deskSelList){
-            StartSending(*deskSelList, m_z88Selections);
+            StartSending(deskSelList, m_z88Selections);
         }
     }
 }
 
+/**
+  * Recursive Desktop Disk read of a directory finished.
+  * @param aborted on call, set to true, if user has selected abort.
+  */
 void MainWindow::LoadingDeskList(const bool &aborted)
 {
     if(aborted){
@@ -828,7 +1126,8 @@ void MainWindow::LoadingDeskList(const bool &aborted)
           */
         if(m_isTransfer){
             m_isTransfer = false;
-            StartSending(*deskSelList, m_z88Selections);
+            enableCmds(true, m_sport.isOpen());
+            StartSending((deskSelList), m_z88Selections);
         }
         else{
             m_DeskTopTreeView->deleteSelections();
@@ -836,23 +1135,102 @@ void MainWindow::LoadingDeskList(const bool &aborted)
     }
 }
 
-void MainWindow::StartSending(QList<DeskTop_Selection> &desk_selections, QList<Z88_Selection> &z88_selections)
+/**
+  * Removes the Filename form a fully qualified path string.
+  * @param fspec is the filename + path to strip.
+  */
+static QString stripFname(const QString &fspec){
+    int idx = fspec.lastIndexOf('/');
+    if(idx > -1){
+        return fspec.mid(0,idx);
+    }
+    return fspec;
+}
+
+/**
+  * Test to see if a newname is a duplicate of a filename in the same directory,
+  * @param selections is the list of selected files.
+  * @param desk_sel is the File Selection that is being tested.
+  * @param newname is the new name to check.
+  * @return true if its a dupe. False if the newname is OK.
+  */
+static bool findDupes(const QList<DeskTop_Selection> &selections, DeskTop_Selection & desk_sel, const QString &newname){
+    QListIterator<DeskTop_Selection> i(selections);
+
+    while(i.hasNext()){
+        const DeskTop_Selection &dsel(i.next());
+        if(dsel.getFname() == newname && stripFname( dsel.getFspec()) == stripFname( desk_sel.getFspec())){
+            return true;
+        }
+    }
+    return false;
+}
+
+/**
+  * Start the sending files from the Desktop to the Z88.
+  * @param desk_selections is the list of files to transfer to the Z88.
+  * @param z88_selections is the the destination Dir or Device on the Z88. NOTE: should only contain 1 entry.
+  */
+void MainWindow::StartSending(QList<DeskTop_Selection> *desk_selections, QList<Z88_Selection> &z88_selections)
 {
     bool prompt4each = false;
+
+    QList<DeskTop_Selection> *ds = new QList<DeskTop_Selection> (*desk_selections);
 
     /**
       * Count the Number of Files to Send, ignore Directories,
       * Validate the file names.
       */
     int filecnt = 0;
-    if(!desk_selections.isEmpty()){
-        QListIterator<DeskTop_Selection> i(desk_selections);
+    if(!ds->isEmpty()){
+
+        QMutableListIterator<DeskTop_Selection> i(*ds);
+
         while(i.hasNext()){
             QString alt_name;
-            if(!m_Z88StorageView->isValidFilename(i.peekNext().getFname(), alt_name)){
-                qDebug() << "Invalid file=" << i.peekNext().getFname() << " alt=" << alt_name;
+            DeskTop_Selection &dsel(i.next());
+            bool name_inv = true;
+
+            while(name_inv){
+                if(!m_Z88StorageView->isValidFilename(dsel.getFname(), alt_name)){
+
+                    bool ok;
+                    QString newname;
+
+                    newname = QInputDialog::getText(this,
+                                                    "Source Filename Error:",
+                                                    dsel.getFspec() + " is Invalid.\n" +
+                                                    "\nPlease create a new name.",
+                                                    QLineEdit::Normal,
+                                                    alt_name,
+                                                    &ok);
+
+                    if(!ok || newname.isEmpty()){
+                        return;
+                    }
+
+                    /**
+                      * Name sure new filename isn't already being transfered.
+                      */
+                    if(findDupes(*ds, dsel, newname)){
+                        QMessageBox::critical(this,
+                                              tr("Duplicate Name:"),
+                                              newname + " is already in the List."+
+                                              "\nPlease create a unique name.",
+                                              QMessageBox::Ok);
+                        continue;
+                    }
+                    /**
+                      * Rename the destination filename to the corrected one.
+                      */
+                    dsel.setFname(newname);
+                }
+                else{
+                    name_inv = false;
+                }
             }
-            if(i.next().getType() == DeskTop_Selection::type_File){
+
+            if(dsel.getType() == DeskTop_Selection::type_File){
                 filecnt++;
             }
         }
@@ -861,14 +1239,29 @@ void MainWindow::StartSending(QList<DeskTop_Selection> &desk_selections, QList<Z
         return;
     }
 
+    /**
+      * Prompt user about Number of files and Dirs to transfer
+      */
     QMessageBox msgBox;
     QString msg = "Transfer ";
-    msg += QString("%1").arg(filecnt);
-    msg += " file";
-    if(filecnt > 1){
-        msg += 's';
+    if(filecnt){
+        msg += QString("%1").arg(filecnt);
+        msg += " file";
+        if(filecnt > 1){
+            msg += 's';
+        }
+        msg += " and ";
     }
-    msg += " To Z88";
+
+    int dir_cnt(ds->count() - filecnt);
+
+    if(dir_cnt == 1){
+        msg += QString("1 Directory").arg(dir_cnt);
+    }
+    else{
+        msg += QString("%1 Directories").arg(dir_cnt);
+    }
+    msg += " to the Z88";
 
     msgBox.setText(msg);
     msgBox.setIcon(QMessageBox::Question);
@@ -889,13 +1282,13 @@ void MainWindow::StartSending(QList<DeskTop_Selection> &desk_selections, QList<Z
             break;
         case QMessageBox::Cancel:
             cmdStatus("Transfer Cancelled.");
-            enableCmds(true, m_sport.isOpen());
             return;
     }
 
-    m_DeskTopTreeView->prependSubdirNames(desk_selections);
 
-    m_cthread.sendFiles(&desk_selections, z88_selections[0].getFspec(), prompt4each);
+    m_DeskTopTreeView->prependSubdirNames(*ds);
+
+    m_cthread.sendFiles(ds, z88_selections[0].getFspec(), prompt4each);
 }
 
 void MainWindow::StartReceiving(QList<Z88_Selection> &z88_selections, QList<DeskTop_Selection> &deskSelList)
@@ -920,12 +1313,24 @@ void MainWindow::StartReceiving(QList<Z88_Selection> &z88_selections, QList<Desk
 
     QMessageBox msgBox;
     QString msg = "Transfer ";
-    msg += QString("%1").arg(filecnt);
-    msg += " file";
-    if(filecnt > 1){
-        msg += 's';
+    if(filecnt){
+        msg += QString("%1").arg(filecnt);
+        msg += " file";
+        if(filecnt > 1){
+            msg += 's';
+        }
+        msg += " and ";
     }
-    msg += " From Z88";
+
+    int dir_cnt(z88_selections.count() - filecnt);
+
+    if(dir_cnt == 1){
+        msg += QString("1 Directory").arg(dir_cnt);
+    }
+    else{
+        msg += QString("%1 Directories").arg(dir_cnt);
+    }
+    msg += " From the Z88";
 
     msgBox.setText(msg);
     msgBox.setIcon(QMessageBox::Question);

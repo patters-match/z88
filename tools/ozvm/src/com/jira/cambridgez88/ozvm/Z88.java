@@ -14,141 +14,155 @@
  *
  * @author <A HREF="mailto:gstrube@gmail.com">Gunther Strube</A>
  */
-
 package com.jira.cambridgez88.ozvm;
 
 import com.jira.cambridgez88.ozvm.screen.Z88display;
 
 /**
- * The Z88 class defines the Z88 virtual machine
- * (Processor, Blink, Memory, Display & Keyboard).
+ * The Z88 class defines the Z88 virtual machine (Processor, Blink, Memory,
+ * Display & Keyboard).
  */
 public class Z88 {
 
-	private Blink blink;
-	private Memory memory;
-	private Z88Keyboard keyboard;
-	private Z88display display;
-	private Z80Processor z80;
+    private Blink blink;
+    private Memory memory;
+    private Z88Keyboard keyboard;
+    private Z88display display;
+    private Z80Processor z80;
+    /**
+     * Reference to the current executing Z80 processor.
+     */
+    private Thread z80Thread;
 
-	/**
-	 * Reference to the current executing Z80 processor.
-	 */
-	private Thread z80Thread;
+    /**
+     * Z88 class default constructor.
+     */
+    private Z88() {
+        z80 = new Z80Processor();
+        blink = new Blink();
+        memory = new Memory();
+        display = new Z88display();
+        keyboard = new Z88Keyboard();
+        
+        z80.connectBlink(blink);
+        
+        blink.connectProcessor(z80);
+        blink.connectMemory(memory);
+        blink.connectKeyboard(keyboard);
+        
+        display.connectProcessor(z80);
+        display.connectBlink(blink);
+        display.connectMemory(memory);
+        
+        keyboard.processKeyInput();
+    }
 
+    private static final class singletonContainer {
 
-	/**
-	 * Z88 class default constructor.
-	 */
-	private Z88() {
-	}
+        static final Z88 singleton = new Z88();
+    }
 
-	private static final class singletonContainer {
-		static final Z88 singleton = new Z88();
-	}
+    public static Z88 getInstance() {
+        return singletonContainer.singleton;
+    }
 
-	public static Z88 getInstance() {
-		return singletonContainer.singleton;
-	}
+    public Blink getBlink() {
+        return blink;
+    }
 
-	public Blink getBlink() {
-		if (blink == null)
-			blink = new Blink();
+    public Memory getMemory() {
+        return memory;
+    }
 
-		return blink;
-	}
+    public Z88display getDisplay() {
+        return display;
+    }
 
-	public Memory getMemory() {
-		if (memory == null)
-			memory = new Memory();
+    public Z88Keyboard getKeyboard() {
+        return keyboard;
+    }
 
-		return memory;
-	}
+    /**
+     * 'Press' the reset button on the left side of the Z88 (hidden in the small
+     * crack next to the power plug)
+     */
+    public void pressResetButton() {
+        blink.awakeFromComa();
+        blink.awakeFromSnooze();                // reset button always awake from coma or snooze...
 
-	public Z88display getDisplay() {
-		if (display == null)
-			display = new Z88display();
+        int comReg = blink.getBlinkCom();
+        comReg &= ~Blink.BM_COMRAMS;          // COM.RAMS = 0 (lower 8K = Bank 0)
+        blink.setBlinkCom(comReg);
 
-		return display;
-	}
+        z80.PC(0x0000);                          // execute (soft/hard) reset in bank 0
+    }
 
-	public Z88Keyboard getKeyboard() {
-		if (keyboard == null)
-			keyboard = new Z88Keyboard();
+    public void pressHardReset() {
+        blink.signalFlapOpened();
 
-		return keyboard;
-	}
+        memory.setByte(0x210000, 0);    // remove RAM filing system tag 5A A5
+        memory.setByte(0x210001, 0);
 
-	/**
-	 * 'Press' the reset button on the left side of the Z88
-	 * (hidden in the small crack next to the power plug)
-	 */
-	public void pressResetButton() {
-		blink.awakeFromComa();
-		blink.awakeFromSnooze();	// reset button always awake from coma or snooze...
+        // press reset button while flap is opened
+        pressResetButton();
+        
+        blink.signalFlapClosed();
 
-		int comReg = blink.getBlinkCom();
-		comReg &= ~Blink.BM_COMRAMS;				// COM.RAMS = 0 (lower 8K = Bank 0)
-		blink.setBlinkCom(comReg);
+        pressResetButton();
+    }
 
-		z80.PC(0x000);								// execute (soft/hard) reset in bank 0
-	}
+    public Z80Processor getProcessor() {
+        return z80;
+    }
 
-	public void pressHardReset() {
-		blink.signalFlapOpened();
+    public Thread getProcessorThread() {
+        if (z80Thread != null && z80Thread.isAlive() == true) {
+            return z80Thread;
+        } else {
+            return null;
+        }
+    }
 
-		memory.setByte(0x210000, 0);	// remove RAM filing system tag 5A A5
-		memory.setByte(0x210001, 0);
+    /**
+     * Execute a Z80 thread until breakpoint is encountered (or F5 is pressed)
+     *
+     * @param oneStopBreakpoint
+     *
+     * @return true if thread was successfully started.
+     */
+    public boolean runZ80Engine() {
+        if (z80Thread != null && z80Thread.isAlive() == true) {
+            return false;
+        }
 
-		// press reset button while flap is opened
-		pressResetButton();
+        OZvm.displayRtmMessage("Z88 virtual machine was started.");
 
-		blink.signalFlapClosed();
+        z80Thread = new Thread(z80);
+        z80Thread.start();
 
-		try {
-			Thread.sleep(100);
-		} catch (InterruptedException e1) {}
+        return true;
+    }
 
-		pressResetButton();
-	}
+    /**
+     * Execute a Z80 thread until temporary breakpoint is encountered (or F5 is
+     * pressed)
+     *
+     * @param oneStopBreakpoint
+     *
+     * @return true if thread was successfully started.
+     */
+    public boolean runZ80Engine(final int oneStopBreakpoint) {
+        if (z80Thread != null && z80Thread.isAlive() == true) {
+            return false;
+        }
 
-	public Z80Processor getProcessor() {
-		if (z80 == null) {
-			z80 = new Z80Processor();
-		}
+        z80.setOneStopBreakpoint(oneStopBreakpoint);
 
-		return z80;
-	}
+        OZvm.displayRtmMessage("Z88 virtual machine was started.");
 
-	public Thread getProcessorThread() {
-		if (z80Thread != null && z80Thread.isAlive() ==	true) {
-			return z80Thread;
-		} else {
-			return null;
-		}
-	}
+        z80Thread = new Thread(z80);
+        z80Thread.start();
 
-	/**
-	 * Execute a Z80 thread.
-	 *
-	 * @param oneStopBreakpoint
-	 * @param activateInterrupts
-	 *
-	 * @return true if thread was successfully started.
-	 */
-	public boolean runZ80Engine(final int oneStopBreakpoint, final boolean activateInterrupts) {
-		if (z80Thread != null && z80Thread.isAlive() ==	true) {
-			return false;
-		}
-
-		z80.setInterrupts(activateInterrupts);
-		z80.setOneStopBreakpoint(oneStopBreakpoint);
-
-		OZvm.displayRtmMessage("Z88 virtual machine was started.");
-
-		z80Thread =	new Thread(z80);
-		z80Thread.start();
-
-		return true;
-	}
+        return true;
+    }
 }

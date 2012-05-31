@@ -15,7 +15,6 @@
  * @author <A HREF="mailto:gstrube@gmail.com">Gunther Strube</A>
  *
  */
-
 package com.jira.cambridgez88.ozvm;
 
 import java.awt.event.KeyEvent;
@@ -23,68 +22,79 @@ import java.awt.event.KeyListener;
 import java.util.Map;
 import java.util.HashMap;
 
-
 /**
- * Bind host operating system keyboard events to Z88 keyboard.
- * Management of "foreign" keyboard layout between host keyboard
- * and "native" Z88 keyboard.
+ * Bind host operating system keyboard events to Z88 keyboard. Management of
+ * "foreign" keyboard layout between host keyboard and "native" Z88 keyboard.
  */
 public class Z88Keyboard {
 
-    /** English/US Keyboard layout Country Code */
+    /**
+     * English/US Keyboard layout Country Code
+     */
     public static final int COUNTRY_US = 0;
-
-    /** French Keyboard layout Country Code */
+    /**
+     * French Keyboard layout Country Code
+     */
     public static final int COUNTRY_FR = 1;
-
-    /** German Keyboard layout Country Code */
+    /**
+     * German Keyboard layout Country Code
+     */
     public static final int COUNTRY_DE = 2;
-
-    /** English/UK Keyboard layout Country Code */
+    /**
+     * English/UK Keyboard layout Country Code
+     */
     public static final int COUNTRY_UK = 3;
-
-    /** Danish Keyboard layout Country Code */
+    /**
+     * Danish Keyboard layout Country Code
+     */
     public static final int COUNTRY_DK = 4;
-
-    /** Swedish/Finish Keyboard layout Country Code */
+    /**
+     * Swedish/Finish Keyboard layout Country Code
+     */
     public static final int COUNTRY_SE = 5;
-
-    /** Swedish/Finish Keyboard layout Country Code */
+    /**
+     * Swedish/Finish Keyboard layout Country Code
+     */
     public static final int COUNTRY_FI = 5;
-
-    /** Italian Keyboard layout Country Code */
+    /**
+     * Italian Keyboard layout Country Code
+     */
     public static final int COUNTRY_IT = 6;
-
-    /** Spanish Keyboard layout Country Code */
+    /**
+     * Spanish Keyboard layout Country Code
+     */
     public static final int COUNTRY_ES = 7;
-
-    /** Japanese Keyboard layout Country Code */
+    /**
+     * Japanese Keyboard layout Country Code
+     */
     public static final int COUNTRY_JP = 8;
-
-    /** Icelandic Keyboard layout Country Code */
+    /**
+     * Icelandic Keyboard layout Country Code
+     */
     public static final int COUNTRY_IS = 9;
-
-    /** Norwegian Keyboard layout Country Code */
+    /**
+     * Norwegian Keyboard layout Country Code
+     */
     public static final int COUNTRY_NO = 10;
-
-    /** Swiss Keyboard layout Country Code */
+    /**
+     * Swiss Keyboard layout Country Code
+     */
     public static final int COUNTRY_CH = 11;
-
-    /** Turkish Keyboard layout Country Code */
+    /**
+     * Turkish Keyboard layout Country Code
+     */
     public static final int COUNTRY_TR = 12;
-
     private RubberKeyboard rubberKb;
-
-    /** Current Keyboard layout Country Code (default = COUNTRY_UK during boot of OZvm) */
+    /**
+     * Current Keyboard layout Country Code (default = COUNTRY_UK during boot of
+     * OZvm)
+     */
     private int currentKbLayoutCountryCode;
-
     private Map currentKbLayout;
     private Map[] z88Keyboards;         // country specific keyboard layouts
-
     private int keyRows[];              // Z88 Hardware Keyboard (8x8) Matrix
     private KeyPress z88RshKey;         // Right Shift Key
     private KeyPress z88LshKey;         // Left Shift Key
-
     private KeyPress z88DiamondKey;
     private KeyPress z88SquareKey;
     private KeyPress z88TabKey;
@@ -100,11 +110,13 @@ public class Z88Keyboard {
     private KeyPress z88HelpKey;
     private KeyPress z88MenuKey;
     private KeyPress z88SpaceKey;
-
     private KeyPress searchKey;
 
-    /** The Host -> Z88 Key mapping */
+    /**
+     * The Host -> Z88 Key mapping
+     */
     private class KeyPress {
+
         private int keyCode;        // The unique host 'key' for this entity, typically a SWT.xxx constant
         private int keyZ88Typed;    // The Z88 Keyboard Matrix Entry for single typed key, eg. "A"
 
@@ -124,14 +136,14 @@ public class Z88Keyboard {
                 return false;
             } else {
                 KeyPress keyp = (KeyPress) kc;
-                if (keyCode == keyp.keyCode)
+                if (keyCode == keyp.keyCode) {
                     return true;
-                else
+                } else {
                     return false;
+                }
             }
         }
     }
-
 
     /**
      * Create the instance to bind the blink and Swing widget together.
@@ -140,18 +152,25 @@ public class Z88Keyboard {
         currentKbLayoutCountryCode = COUNTRY_UK;
         keyRows = new int[8];   // Z88 Hardware Keyboard (8x8) Matrix
 
-        searchKey = new KeyPress(0,0); // create a search key instance
+        searchKey = new KeyPress(0, 0); // create a search key instance
 
-        for(int r=0; r<8;r++) keyRows[r] = 0xFF;    // Initialize to no keys pressed in z88 key matrix
-
+        for (int r = 0; r < 8; r++) {
+            keyRows[r] = 0xFF;    // Initialize to no keys pressed in z88 key matrix
+        }
         z88Keyboards = new HashMap[13];             // create the container for the various country keyboard layouts.
         createSystemKeys();
         createKbLayouts();
 
         // use default UK keyboard layout for default UK V4 ROM.
         currentKbLayout = z88Keyboards[currentKbLayoutCountryCode];
+    }
 
+    /**
+     * This method is used by Z88 Class to boot listening to keyboard input from the display
+     */
+    public void processKeyInput() {
         Thread thread = new Thread() {
+
             public void run() {
                 Thread.currentThread().setName("Z88Keyboard");
                 Z88KeyboardListener z88Kbl = new Z88KeyboardListener();
@@ -163,21 +182,22 @@ public class Z88Keyboard {
         };
 
         thread.setPriority(Thread.MAX_PRIORITY);
-        thread.start();
+        thread.start();        
     }
-
+    
     private void createKbLayouts() {
         Map defaultKbLayout = createUkLayout();
 
         // just use english keyboard for all countries that haven't got their layout implemented yet
-        for (int l=0; l<z88Keyboards.length; l++) z88Keyboards[l] = defaultKbLayout;
+        for (int l = 0; l < z88Keyboards.length; l++) {
+            z88Keyboards[l] = defaultKbLayout;
+        }
 
         z88Keyboards[COUNTRY_FR] = createFrLayout();    // implement French keyboard layout
         z88Keyboards[COUNTRY_DK] = createDkLayout();    // implement Danish keyboard layout
         z88Keyboards[COUNTRY_SE] = createSeFiLayout();  // implement Swedish/Finish keyboard layout
         z88Keyboards[COUNTRY_FI] = z88Keyboards[COUNTRY_SE];
     }
-
 
     private void createSystemKeys() {
         // RSH: row 7 (0x7F), column 7 (0x7F, 01111111)
@@ -232,13 +252,12 @@ public class Z88Keyboard {
         z88SpaceKey = new KeyPress(KeyEvent.VK_SPACE, 0x05BF);
     }
 
-
     /**
-     * All Z88 keyboard layouts, whatever country, has the same system
-     * key positions in the matrix (<>, [], INDEX, HELP, CAPS...)<p>
+     * All Z88 keyboard layouts, whatever country, has the same system key
+     * positions in the matrix (<>, [], INDEX, HELP, CAPS...)<p>
      *
-     * A few conventions have been defined to map the special keys in the Z88
-     * to a conventional computer keyboard:
+     * A few conventions have been defined to map the special keys in the Z88 to
+     * a conventional computer keyboard:
      * <PRE>
      *      HELP            = F1
      *      INDEX           = F2
@@ -313,17 +332,15 @@ public class Z88Keyboard {
     /**
      * Create Key Event mappings for Z88 english (UK) keyboard matrix.
      *
-     * All key entry mappings are implemented using the
-     * International 104 PC Keyboard with the UK layout.
-     * In other words, to obtain the best Z88 keyboard access
-     * on an english (UK) Rom, you need to use the english keyboard
-     * layout on your host operating system.
+     * All key entry mappings are implemented using the International 104 PC
+     * Keyboard with the UK layout. In other words, to obtain the best Z88
+     * keyboard access on an english (UK) Rom, you need to use the english
+     * keyboard layout on your host operating system.
      *
-     * The mappings only contains the single key press access.
-     * Modifier key combinations (with Shift, Diamond, Square) are
-     * automatically handled by the Z88 operating system. "OZvm"
-     * just maps the modifier keys to host PC keyboard and let
-     * OZ decide what to display on the Z88.
+     * The mappings only contains the single key press access. Modifier key
+     * combinations (with Shift, Diamond, Square) are automatically handled by
+     * the Z88 operating system. "OZvm" just maps the modifier keys to host PC
+     * keyboard and let OZ decide what to display on the Z88.
      *
      * <PRE>
      *  ------------------------------------------------------------------------
@@ -493,17 +510,15 @@ public class Z88Keyboard {
     /**
      * Create Key Event mappings for Z88 english (US) keyboard matrix.
      *
-     * All key entry mappings are implemented using the
-     * International 104 PC Keyboard with the UK layout.
-     * In other words, to obtain the best Z88 keyboard access
-     * on an english (US) Rom, you need to use the english keyboard
-     * layout on your host operating system.
+     * All key entry mappings are implemented using the International 104 PC
+     * Keyboard with the UK layout. In other words, to obtain the best Z88
+     * keyboard access on an english (US) Rom, you need to use the english
+     * keyboard layout on your host operating system.
      *
-     * The mappings only contains the single key press access.
-     * Modifier key combinations (with Shift, Diamond, Square) are
-     * automatically handled by the Z88 operating system. "OZvm"
-     * just maps the modifier keys to host PC keyboard and let
-     * OZ decide what to display on the Z88.
+     * The mappings only contains the single key press access. Modifier key
+     * combinations (with Shift, Diamond, Square) are automatically handled by
+     * the Z88 operating system. "OZvm" just maps the modifier keys to host PC
+     * keyboard and let OZ decide what to display on the Z88.
      *
      * <PRE>
      *  ------------------------------------------------------------------------
@@ -664,21 +679,18 @@ public class Z88Keyboard {
         return keyboardLayout;
     }
 
-
     /**
      * Create Key Event mappings for Z88 FR (French) keyboard matrix.
      *
-     * All key entry mappings are implemented using the
-     * International 104 PC Keyboard with the french (FR) layout.
-     * In other words, to obtain the best Z88 keyboard access
-     * on a French Z88 Rom, you need to use the French keyboard layout on
-     * your host operating system.
+     * All key entry mappings are implemented using the International 104 PC
+     * Keyboard with the french (FR) layout. In other words, to obtain the best
+     * Z88 keyboard access on a French Z88 Rom, you need to use the French
+     * keyboard layout on your host operating system.
      *
-     * The mappings only contains the single key press access.
-     * Modifier key combinations (with Shift, Diamond, Square) are
-     * automatically handled by the Z88 operating system. "OZvm"
-     * just maps the modifier keys to host PC keyboard and let
-     * OZ decide what to display on the Z88.
+     * The mappings only contains the single key press access. Modifier key
+     * combinations (with Shift, Diamond, Square) are automatically handled by
+     * the Z88 operating system. "OZvm" just maps the modifier keys to host PC
+     * keyboard and let OZ decide what to display on the Z88.
      *
      * <PRE>
      *  ------------------------------------------------------------------------
@@ -843,21 +855,18 @@ public class Z88Keyboard {
         return keyboardLayout;
     }
 
-
     /**
      * Create Key Event mappings for Z88 danish (DK) keyboard matrix.
      *
-     * All key entry mappings are implemented using the
-     * International 104 PC Keyboard using the danish layout.
-     * In other words, to obtain the best Z88 keyboard access
-     * on a danish (DK) Rom, you need to use the danish keyboard
+     * All key entry mappings are implemented using the International 104 PC
+     * Keyboard using the danish layout. In other words, to obtain the best Z88
+     * keyboard access on a danish (DK) Rom, you need to use the danish keyboard
      * layout on your host operating system.
      *
-     * The mappings only contains the single key press access.
-     * Modifier key combinations (with Shift, Diamond, Square) are
-     * automatically handled by the Z88 operating system. "OZvm"
-     * just maps the modifier keys to host PC keyboard and let
-     * OZ decide what to display on the Z88.
+     * The mappings only contains the single key press access. Modifier key
+     * combinations (with Shift, Diamond, Square) are automatically handled by
+     * the Z88 operating system. "OZvm" just maps the modifier keys to host PC
+     * keyboard and let OZ decide what to display on the Z88.
      *
      * <PRE>
      *  ------------------------------------------------------------------------
@@ -1031,21 +1040,18 @@ public class Z88Keyboard {
         return keyboardLayout;
     }
 
-
     /**
      * Create Key Event mappings for Z88 Swedish/Finish (SE/FI) keyboard matrix.
      *
-     * All key entry mappings are implemented using the
-     * International 104 PC Keyboard using the swedish/finish layout.
-     * In other words, to obtain the best Z88 keyboard access
-     * on a swedish/finish (SE/FI) Rom, you need to use the
-     * swedish/finish keyboard layout on your host operating system.
+     * All key entry mappings are implemented using the International 104 PC
+     * Keyboard using the swedish/finish layout. In other words, to obtain the
+     * best Z88 keyboard access on a swedish/finish (SE/FI) Rom, you need to use
+     * the swedish/finish keyboard layout on your host operating system.
      *
-     * The mappings only contains the single key press access.
-     * Modifier key combinations (with Shift, Diamond, Square) are
-     * automatically handled by the Z88 operating system. "OZvm"
-     * just maps the modifier keys to host PC keyboard and let
-     * OZ decide what to display on the Z88.
+     * The mappings only contains the single key press access. Modifier key
+     * combinations (with Shift, Diamond, Square) are automatically handled by
+     * the Z88 operating system. "OZvm" just maps the modifier keys to host PC
+     * keyboard and let OZ decide what to display on the Z88.
      *
      * <PRE>
      *  ------------------------------------------------------------------------
@@ -1218,27 +1224,28 @@ public class Z88Keyboard {
         return keyboardLayout;
     }
 
-
     /**
-     * Scans Z88 hardware keyboard row(s), and returns the
-     * corresponding key column(s).<br>
+     * Scans Z88 hardware keyboard row(s), and returns the corresponding key
+     * column(s).<br>
      *
-     * Typically, only a single row is scanned, eg. @10111111,
-     * but several columns might be polled for simultaneously,
-     * eg @00111111 (this example would catch left & right SHIFT's
-     * simultaneously).
+     * Typically, only a single row is scanned, eg. @10111111, but several
+     * columns might be polled for simultaneously, eg @00111111 (this example
+     * would catch left & right SHIFT's simultaneously).
      *
-     * If the Z88 wanted to check for a key press in all rows,
-     * 0 would be specified.
+     * If the Z88 wanted to check for a key press in all rows, 0 would be
+     * specified.
      *
      * @param row, of Z88 keyboard to be scanned, eg @10111111
      * @return keyColumn, the column containing one or several key presses.
      */
     public int scanKeyRow(int row) {
-        int columns = 0xFF; int mask = 1;
+        int columns = 0xFF;
+        int mask = 1;
 
         for (int bit = 0; bit < 8; bit++) {
-            if ((row & mask) == 0) columns &= keyRows[bit];
+            if ((row & mask) == 0) {
+                columns &= keyRows[bit];
+            }
             mask <<= 1;
         }
 
@@ -1246,30 +1253,33 @@ public class Z88Keyboard {
     }
 
     /**
-     * Debug Command line interface.
-     * Press/release one or more keys programmatically.
+     * Debug Command line interface. Press/release one or more keys
+     * programmatically.
      *
      */
     public void setKeyRow(int keyMatrixRow, int keyMask) {
         int mask = 1;
 
         for (int bit = 0; bit < 8; bit++) {
-            if ((keyMatrixRow & mask) == 0) keyRows[bit] = keyMask;
+            if ((keyMatrixRow & mask) == 0) {
+                keyRows[bit] = keyMask;
+            }
             mask <<= 1;
         }
     }
 
     /**
-     * Get a string representation of the current KBD matrix,
-     * each row on a 'separate' line (using a \n).
+     * Get a string representation of the current KBD matrix, each row on a
+     * 'separate' line (using a \n).
      *
      * @return
      */
     public String getKbdMatrix() {
         StringBuffer kbdRows = new StringBuffer(128);
 
-        for(int r=0; r<8; r++)
-            kbdRows.append("A" + (15-r < 10 ? "0": "") + (15-r) + ": " + Dz.byteToBin(keyRows[7-r],false) + "\n");
+        for (int r = 0; r < 8; r++) {
+            kbdRows.append("A" + (15 - r < 10 ? "0" : "") + (15 - r) + ": " + Dz.byteToBin(keyRows[7 - r], false) + "\n");
+        }
 
         return kbdRows.toString();
     }
@@ -1290,7 +1300,6 @@ public class Z88Keyboard {
         }
     }
 
-
     /**
      * "Press" the Z88 key according to the hardware matrix.
      *
@@ -1305,7 +1314,6 @@ public class Z88Keyboard {
         }
     }
 
-
     /**
      * "Release" the Z88 key according to the hardware matrix.
      *
@@ -1316,10 +1324,8 @@ public class Z88Keyboard {
         if (Z88.getInstance().getProcessorThread() != null) {
             // Only allow key releases to be registered by Blink while Z80 engine is running...
             keyRows[keyMatrixRow] |= (~keyMask & 0xff);
-            Z88.getInstance().getBlink().signalKeyPressed();
         }
     }
-
 
     /**
      * Release a Z88 key from the Z88 hardware keyboard matrix.
@@ -1331,14 +1337,12 @@ public class Z88Keyboard {
         }
     }
 
-
     /**
-     * Set the Z88 keyboard layout to be used for mapping
-     * host keyboard events to Z88 keys. The following
-     * country codes are available:
+     * Set the Z88 keyboard layout to be used for mapping host keyboard events
+     * to Z88 keys. The following country codes are available:
      *
-     * The instance of the graphical representation (Rubberkeyboard)
-     * are also updated with the appropriate icons.
+     * The instance of the graphical representation (Rubberkeyboard) are also
+     * updated with the appropriate icons.
      *
      * <PRE>
      *  COUNTRY_US = 0;     // English/US Keyboard layout
@@ -1368,8 +1372,8 @@ public class Z88Keyboard {
     }
 
     /**
-     * Get a reference to Rubberkeyboard, which is the graphical
-     * representation of the Z88 keyboard (a JPanel)
+     * Get a reference to Rubberkeyboard, which is the graphical representation
+     * of the Z88 keyboard (a JPanel)
      *
      * The Rubberkeyboard is auto-loaded with the key caps (icons) of the
      * current defined keyboard layout.
@@ -1377,14 +1381,15 @@ public class Z88Keyboard {
      * @return
      */
     public RubberKeyboard getRubberKeyboard() {
-        if (rubberKb == null)
+        if (rubberKb == null) {
             rubberKb = new RubberKeyboard(); // prepare the Gui keyboard
+        }
         return rubberKb;
     }
 
     /**
-     * Get the current Z88 keyboard layout Country code.<br>
-     * The following country codes are available:
+     * Get the current Z88 keyboard layout Country code.<br> The following
+     * country codes are available:
      *
      * <PRE>
      *  COUNTRY_US = 0;     // English/US Keyboard layout
@@ -1410,8 +1415,8 @@ public class Z88Keyboard {
     }
 
     /**
-     * Return the Z88 Key that represents the host key (event)
-     * Returns null if a Z88 Key wasn't mapped to the host keyboard event.
+     * Return the Z88 Key that represents the host key (event) Returns null if a
+     * Z88 Key wasn't mapped to the host keyboard event.
      *
      * @param keyEvent
      * @return
@@ -1423,33 +1428,49 @@ public class Z88Keyboard {
     }
 
     /**
-     * This class is responsible for receiving java.awt.KeyEvent's from
-     * the real world PC keyboard and redistribute that into the Z88
-     * keyboard hardware that is polled by Z80 IN r,(B2h) instructions.
+     * This class is responsible for receiving java.awt.KeyEvent's from the real
+     * world PC keyboard and redistribute that into the Z88 keyboard hardware
+     * that is polled by Z80 IN r,(B2h) instructions.
      *
-     * Further, this class is executed in a separate Java Thread, avoiding
-     * being suspended when the virtual Z80 processor goes into snooze mode
-     * (simulated by a Thread.sleep() call).
+     * Further, this class is executed in a separate Java Thread, avoiding being
+     * suspended when the virtual Z80 processor goes into snooze mode (simulated
+     * by a Thread.sleep() call).
      */
     private class Z88KeyboardListener implements KeyListener {
+
         /**
-         * This event is fired whenever a key press is recognised on the java.awt.Canvas.
+         * This event is fired whenever a key press is recognised on the
+         * java.awt.Canvas.
          */
         public void keyPressed(KeyEvent e) {
             KeyPress kp = null;
 
             // System.out.println("keyPressed() event: " + e.getKeyCode() + "('" + e.getKeyChar() + "' (" + (int) e.getKeyChar()+ ")," + e.getKeyLocation() + "," + (int) e.getModifiers() + ")");
 
-            switch(e.getKeyCode()) {
+            switch (e.getKeyCode()) {
                 case KeyEvent.VK_SHIFT:
                     // check if left or right SHIFT were pressed
-                    if (e.getKeyLocation() == KeyEvent.KEY_LOCATION_LEFT) pressZ88key(z88LshKey);
-                    if (e.getKeyLocation() == KeyEvent.KEY_LOCATION_RIGHT) pressZ88key(z88RshKey);
+                    if (e.getKeyLocation() == KeyEvent.KEY_LOCATION_LEFT) {
+                        pressZ88key(z88LshKey);
+                    }
+                    if (e.getKeyLocation() == KeyEvent.KEY_LOCATION_RIGHT) {
+                        pressZ88key(z88RshKey);
+                    }
                     break;
 
                 case KeyEvent.VK_F5:
                     OZvm.getInstance().commandLine(true);
+                    OZvm.getInstance().getCommandLine().getDebugGui().toFront();
+                    OZvm.getInstance().getCommandLine().getDebugGui().getCmdLineInputArea().grabFocus();
                     Z88.getInstance().getProcessor().stopZ80Execution();
+
+                    Blink blink = Z88.getInstance().getBlink();
+                    // but if thread is sleeping, there is nothing to stop... so force a wake-up, so Z80 can stop
+                    if (blink.isComaEnabled() == true)
+                        blink.awakeFromComa();
+                    if (blink.isSnoozeEnabled() == true)
+                        blink.awakeFromSnooze();
+                                        
                     break;
 
                 case KeyEvent.VK_F12:
@@ -1524,7 +1545,7 @@ public class Z88Keyboard {
 
                 case KeyEvent.VK_6:
                     if (currentKbLayout == z88Keyboards[COUNTRY_FR]) {
-                        if ( e.getModifiers() == 0 ) {
+                        if (e.getModifiers() == 0) {
                             // French PC '-' is mapped to Z88 -
                             kp = getZ88Key(KeyEvent.VK_MINUS);
                         }
@@ -1549,7 +1570,7 @@ public class Z88Keyboard {
 
                 case KeyEvent.VK_8:
                     if (currentKbLayout == z88Keyboards[COUNTRY_FR]) {
-                        if ( e.getModifiers() == 0 ) {
+                        if (e.getModifiers() == 0) {
                             // French PC '_' is mapped to Z88 SHIFT-
                             pressZ88key(z88RshKey);
                             kp = getZ88Key(KeyEvent.VK_MINUS);
@@ -1676,7 +1697,7 @@ public class Z88Keyboard {
                         // ALT GR pressed down...
 
                         if (currentKbLayout == z88Keyboards[COUNTRY_FR]) {
-                            switch(e.getKeyCode()) {
+                            switch (e.getKeyCode()) {
                                 case KeyEvent.VK_2:  // PC [ALT Gr '2'] = '~' converts to Z88 <>( = ~
                                     releaseZ88key(z88SquareKey); // only DIAMOND (is already) pressed...
                                     kp = getZ88Key(KeyEvent.VK_5);
@@ -1717,13 +1738,15 @@ public class Z88Keyboard {
                         }
                     } else {
                         if (e.getKeyChar() == 163 & currentKbLayout == z88Keyboards[COUNTRY_UK]) {
-                            releaseZ88key(z88LshKey); releaseZ88key(z88RshKey);
+                            releaseZ88key(z88LshKey);
+                            releaseZ88key(z88RshKey);
                             kp = getZ88Key(163); // '£'
-                        } else if(e.getKeyChar() == '"') {
+                        } else if (e.getKeyChar() == '"') {
                             // for PC UK/DK/SE, SHIFT has been pressed on 2
                             kp = getZ88Key(KeyEvent.VK_QUOTE);
-                        } else
+                        } else {
                             kp = getZ88Key(e.getKeyCode());
+                        }
                     }
 
                     if (kp != null) {
@@ -1733,16 +1756,16 @@ public class Z88Keyboard {
             }
         }
 
-
         /**
-         * This event is fired whenever a key is released on the java.awt.canvas.
+         * This event is fired whenever a key is released on the
+         * java.awt.canvas.
          */
         public void keyReleased(KeyEvent e) {
             KeyPress kp = null;
 
             // System.out.println("keyReleased() event: " + e.getKeyCode() + "('" + e.getKeyChar() + "' (" + (int) e.getKeyChar()+ ")," + e.getKeyLocation() + "," + (int) e.getModifiers() + ")");
 
-            switch(e.getKeyCode()) {
+            switch (e.getKeyCode()) {
                 case KeyEvent.VK_SHIFT:
                     // BUG in JVM on Windows:
                     // always release both SHIFT's on Z88, since this event doesn't
@@ -1817,7 +1840,7 @@ public class Z88Keyboard {
 
                 case KeyEvent.VK_6:
                     if (currentKbLayout == z88Keyboards[COUNTRY_FR]) {
-                        if ( e.getModifiers() == 0 ) {
+                        if (e.getModifiers() == 0) {
                             // French PC '-' is mapped to Z88 -
                             kp = getZ88Key(KeyEvent.VK_MINUS);
                         }
@@ -1841,7 +1864,7 @@ public class Z88Keyboard {
 
                 case KeyEvent.VK_8:
                     if (currentKbLayout == z88Keyboards[COUNTRY_FR]) {
-                        if ( e.getModifiers() == 0 ) {
+                        if (e.getModifiers() == 0) {
                             // French PC '_' is mapped to Z88 SHIFT-
                             releaseZ88key(z88RshKey);
                             kp = getZ88Key(KeyEvent.VK_MINUS);
@@ -1967,7 +1990,7 @@ public class Z88Keyboard {
                         // ALT GR pressed down...
 
                         if (currentKbLayout == z88Keyboards[COUNTRY_FR]) {
-                            switch(e.getKeyCode()) {
+                            switch (e.getKeyCode()) {
                                 case KeyEvent.VK_2:  // PC [ALT Gr '2'] = '~' converts to Z88 <>( = ~
                                     kp = getZ88Key(KeyEvent.VK_5);
                                     break;
@@ -2000,11 +2023,12 @@ public class Z88Keyboard {
                     } else {
                         if (e.getKeyChar() == 163 & currentKbLayout == z88Keyboards[COUNTRY_UK]) {
                             kp = getZ88Key(163); // '£'
-                        } else if(e.getKeyChar() == '"') {
+                        } else if (e.getKeyChar() == '"') {
                             // for PC UK/DK, SHIFT has been released on 2
                             kp = getZ88Key(KeyEvent.VK_QUOTE);
-                        } else
+                        } else {
                             kp = getZ88Key(e.getKeyCode());
+                        }
                     }
 
                     if (kp != null) {

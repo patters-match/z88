@@ -26,7 +26,7 @@
 
 class MainWindow;
 
-static const int DEVCNT = 5;
+static const int DEVCNT = 8;
 
 /**
   * The Z88 Tabbed Storage Viewer.
@@ -67,6 +67,10 @@ protected:
       * Get a pointer to the Selected device tab, file tree viewer.
       */
     Z88_DevView *getSelectedDevice();
+
+    bool renameSelections();
+    bool deleteSelections();
+    bool mkDir();
 
     /**
       * User interface event Handler, ie mouse in, out, etc.

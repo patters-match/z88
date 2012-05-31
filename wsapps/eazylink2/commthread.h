@@ -24,6 +24,7 @@
 #include<QList>
 #include <QWaitCondition>
 #include <QProgressDialog>
+#include<QTreeWidgetItem>
 
 #include "z88serialport.h"
 #include "z88filespec.h"
@@ -77,7 +78,16 @@ public:
         OP_initsendFiles,       // Init a New Send  file request to the Z88
         OP_sendFiles,           // Start the Send file(s) Process
         OP_sendFile,            // Start the Specifed file to the Z88
-        OP_sendNext             // Skip the current file, and send the next one. (user prompt to skip)
+        OP_sendNext,            // Skip the current file, and send the next one. (user prompt to skip)
+        OP_createDir,           // Create A directory on the z88.
+        OP_initrenameDirFiles,  // Init a New Rename Selections.
+        OP_renameDirFiles,      // Start the Rename Files process.
+        OP_renameDirFile,       // Rename A directory or file on the Z88
+        OP_refreshZ88View,      // Refresh the Z88 device view.
+        OP_initdelDirFiles,     // Init a New Delete Selections.
+        OP_delDirFiles,         // Start the Delete Dir/Files process.
+        OP_delDirFile,          // Delete A Directory of File on the Z88.
+        OP_delDirFileNext       // Skip the current file, and delete next one in selection.
     };
 
     /**
@@ -85,9 +95,8 @@ public:
      */
     void SetupAbortHandler(QProgressDialog *pd);
     void AbortCmd();
-    void ByteTrans(bool ena);
-    void CRLFTrans(bool ena);
     bool isBusy();
+    bool isOpen();
     bool close();
     bool reopen(bool redo_lastcmd);
     bool open(const QString &devname, const QString &short_name);
@@ -107,7 +116,13 @@ public:
     bool dirLoadComplete();
     bool sendFiles(QList<DeskTop_Selection> *deskSelections, const QString &destpath, bool prompt_usr = false);
     bool sendFile(bool skip);
-    void RefreshZ88DeviceView(const QString &devname);
+    bool RefreshZ88DeviceView(const QString &devname);
+    bool mkDir(const QString &dirname);
+    bool renameFileDirectories(QList<Z88_Selection> *z88Selections);
+    bool renameFileDir(const QString &oldname, const QString &newname);
+    bool renameFileDirRety(bool next);
+    bool deleteFileDirectories(QList<Z88_Selection> *z88Selections, bool prompt_usr = false);
+    bool deleteFileDirectory(bool next);
 
 private slots:
     void CancelSignal();
@@ -118,6 +133,7 @@ signals:
     void cmdStatus(const QString &msg);
     void cmdProgress(const QString &title, int curVal, int total);
     void boolCmd_result(const QString &cmdName, bool success);
+    void displayCritError(const QString &errstr);
     void Z88Info_result(QList<QByteArray> *infolist);
     void Z88Devices_result(QList<QByteArray> *devlist);
     void Z88Dir_result(const QString &devname, QList<QByteArray> *dirlist);
@@ -126,10 +142,16 @@ signals:
     void PromptSendSpec(const QString &src_name, const QString &dst_name, bool *Continue);
     void DirLoadComplete(const bool &);
     void refreshSelectedZ88DeviceView();
-
+    void PromptRename(QMutableListIterator<Z88_Selection> *item);
+    void renameCmd_result(const QString &msg, bool success);
+    void renameZ88Item(Z88_Selection *item, const QString &newname);
+    void PromptDeleteSpec(const QString &src_name, bool isDir, bool *Continue);
+    void PromptDeleteRetry(const QString &msg, bool isDir);
+    void deleteZ88Item(QTreeWidgetItem *item);
 
 protected:
     void startCmd(const comOpcodes_t &op, bool ena_resume = true);
+    comOpcodes_t setState_Idle();
 
     comOpcodes_t _getDirectories(const QString &devname);
     comOpcodes_t _getFileNames(const QString &devname);
@@ -204,6 +226,11 @@ protected:
     QList<Z88_Selection>                *m_z88Selections;
 
     /**
+      * List of Z88 Files Selected to transfer.
+      */
+    QList<Z88_Selection>                *m_z88RenDelSelections;
+
+    /**
       * The List of Desktop Files selected to transfer.
       */
     QList<DeskTop_Selection>            *m_deskSelections;
@@ -215,12 +242,19 @@ protected:
     QListIterator<DeskTop_Selection>    *m_deskSel_itr;
 
     /**
+     * The Rename / Delete Item Iterator
+     */
+    QMutableListIterator<Z88_Selection> *m_z88rendel_itr;
+
+    /**
       * The Destination Path for a transfer
       */
     QString                             m_destPath;
 
+    /**
+     * Pointer to the Main Window Form
+     */
     MainWindow                          *m_mainWindow;
-
 
     /**
       * Flag to indicate current desktop transfer destination is

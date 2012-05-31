@@ -15,56 +15,59 @@
  * @author <A HREF="mailto:gstrube@gmail.com">Gunther Strube</A>
  *
  */
-
 package com.jira.cambridgez88.ozvm;
 
-/** 
+/**
  * This class represents the 16Kb ROM Bank. The characteristics of a ROM bank is
- * chip memory that can be read at all times and never written (Read Only Memory). 
+ * chip memory that can be read at all times and never written (Read Only
+ * Memory).
  */
 public final class RomBank extends Bank {
-	
-	/**
-	 * Assign the Rom bank to the 4Mb memory model.
-	 * 
-	 * @param bankNo
-	 */
-	public RomBank() {		
-		super(-1);		
 
-		for (int i = 0; i < Bank.SIZE; i++) setByte(i, 0xFF); // empty Rom contain FF's
-	}
+    /**
+     * Assign the Rom bank to the 4Mb memory model.
+     *
+     * @param bankNo
+     */
+    public RomBank() {
+        super(-1);
 
-	/**
-	 * Read byte from Rom bank. <addr> is a 16bit word that points into 
-	 * the 16K address space of the bank.
-	 */
-	public final int readByte(final int addr) {
-		return getByte(addr);
-	}
+        for (int i = 0; i < Bank.SIZE; i++) {
+            setByte(i, 0xFF); // empty Rom contain FF's
+        }
+    }
 
-	/**
-	 * Write byte <b> to Rom bank. <addr> is a 16bit word
-	 * that points into the 16K address space of the RAM bank.
-	 * 
-	 * Writing to Rom has no effect.
-	 */
-	public final void writeByte(final int addr, final int b) {
-		// No effect
-	}
-	
-	/**
-	 * Validate if Rom card bank contents is not altered, 
-	 * ie. only containing FF bytes.
-	 *  
-	 * @return true if all bytes in bank are FF
-	 */
-	public boolean isEmpty() {
-		for (int b = 0; b < Bank.SIZE; b++) { 
-			if (getByte(b) != 0xFF)
-				return false;
-		}
-		
-		return true;
-	}	
+    /**
+     * Read byte from Rom bank. <addr> is a 16bit word that points into the 16K
+     * address space of the bank.
+     */
+    public final int readByte(final int addr) {
+        return getByte(addr);
+    }
+
+    /**
+     * Write byte <b> to Rom bank. <addr> is a 16bit word that points into the
+     * 16K address space of the RAM bank.
+     *
+     * Writing to Rom has no effect.
+     */
+    public final void writeByte(final int addr, final int b) {
+        // No effect
+    }
+
+    /**
+     * Validate if Rom card bank contents is not altered, ie. only containing FF
+     * bytes.
+     *
+     * @return true if all bytes in bank are FF
+     */
+    public boolean isEmpty() {
+        for (int b = 0; b < Bank.SIZE; b++) {
+            if (getByte(b) != 0xFF) {
+                return false;
+            }
+        }
+
+        return true;
+    }
 }

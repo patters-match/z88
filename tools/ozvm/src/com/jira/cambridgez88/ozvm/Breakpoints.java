@@ -15,236 +15,273 @@
  * @author <A HREF="mailto:gstrube@gmail.com">Gunther Strube</A>
  *
  */
-
 package com.jira.cambridgez88.ozvm;
 
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.Iterator;
-
 
 /**
  * Manage breakpoint addresses in Z88 virtual machine.
  */
 public class Breakpoints {
+
     private Map breakPoints;
-	private Breakpoint bpSearchKey;
-	
+    private Breakpoint bpSearchKey;
+
     /**
      * Just instantiate this Breakpoint Manager
      */
     public Breakpoints() {
-        breakPoints = new HashMap();        
-		bpSearchKey = new Breakpoint(0);	// just create a dummy search key object (used by internal lookup) 
+        breakPoints = new HashMap();
+        bpSearchKey = new Breakpoint(0);    // just create a dummy search key object (used by internal lookup) 
     }
 
-
-	/**
-	 * Add (if not created) or remove breakpoint (if prev. created).
-	 *
-	 * @param address 24bit extended address
-	 */
-	public void toggleBreakpoint(int bpAddress) {
+    /**
+     * Remove breakpoint, if created
+     *
+     * @param address 24bit extended address
+     */
+    public void clearBreakpoint(int bpAddress) {
         Breakpoint bp = new Breakpoint(bpAddress);
-        if (breakPoints.containsKey( bp) == false) {
-            breakPoints.put( bp, bp);
-            Z88.getInstance().getMemory().setBreakpoint(bpAddress);
-        } else {
-            breakPoints.remove( bp);
+        if (breakPoints.containsKey(bp) == true) {
+            breakPoints.remove(bp);
             Z88.getInstance().getMemory().clearBreakpoint(bpAddress);
         }
-	}
+    }
 
-	
-	/**
-	 * Add (if not created) or remove breakpoint (if prev. created).
-	 *
-	 * @param address 24bit extended address
-	 * @param stopStatus
-	 */
-	public void toggleBreakpoint(int bpAddress, boolean stopStatus ) {
-		Breakpoint bp = new Breakpoint(bpAddress, stopStatus);
-		if (breakPoints.containsKey( bp) == false) {
-			breakPoints.put( bp, bp);
+    /**
+     * Add (if not created) breakpoint
+     *
+     * @param address 24bit extended address
+     */
+    public void setBreakpoint(int bpAddress) {
+        Breakpoint bp = new Breakpoint(bpAddress);
+        if (breakPoints.containsKey(bp) == false) {
+            breakPoints.put(bp, bp);
+            Z88.getInstance().getMemory().setBreakpoint(bpAddress);
+        }
+    }
+
+    /**
+     * Add (if not created) or remove breakpoint (if previously created).
+     *
+     * @param address 24bit extended address
+     */
+    public void toggleBreakpoint(int bpAddress) {
+        Breakpoint bp = new Breakpoint(bpAddress);
+        if (breakPoints.containsKey(bp) == false) {
+            breakPoints.put(bp, bp);
             Z88.getInstance().getMemory().setBreakpoint(bpAddress);
         } else {
-			breakPoints.remove(bp);
+            breakPoints.remove(bp);
             Z88.getInstance().getMemory().clearBreakpoint(bpAddress);
         }
-	}
-    
+    }
+
+    /**
+     * Add (if not created) or remove breakpoint (if prev. created).
+     *
+     * @param address 24bit extended address
+     * @param stopStatus
+     */
+    public void toggleBreakpoint(int bpAddress, boolean stopStatus) {
+        Breakpoint bp = new Breakpoint(bpAddress, stopStatus);
+        if (breakPoints.containsKey(bp) == false) {
+            breakPoints.put(bp, bp);
+            Z88.getInstance().getMemory().setBreakpoint(bpAddress);
+        } else {
+            breakPoints.remove(bp);
+            Z88.getInstance().getMemory().clearBreakpoint(bpAddress);
+        }
+    }
+
+    /**
+     * Add (if not created) or remove breakpoint (if prev. created).
+     *
+     * @param address 24bit extended address
+     * @param stopStatus
+     */
+    public void toggleBreakpoint(int bpAddress, ArrayList<String> brkpCmds) {
+        Breakpoint bp = new Breakpoint(bpAddress, brkpCmds);
+        if (breakPoints.containsKey(bp) == false) {
+            breakPoints.put(bp, bp);
+            Z88.getInstance().getMemory().setBreakpoint(bpAddress);
+        } else {
+            breakPoints.remove(bp);
+            Z88.getInstance().getMemory().clearBreakpoint(bpAddress);
+        }
+    }
 
     public boolean hasCommands(int bpAddress) {
-		bpSearchKey.setBpAddress(bpAddress);
-		Breakpoint bpv = (Breakpoint) breakPoints.get(bpSearchKey);
-		if (bpv != null) {
+        bpSearchKey.setBpAddress(bpAddress);
+        Breakpoint bpv = (Breakpoint) breakPoints.get(bpSearchKey);
+        if (bpv != null) {
             return bpv.hasCommands();
-        } else        
+        } else {
             return false;
+        }
     }
 
-    
     public void runCommands(int bpAddress) {
-		bpSearchKey.setBpAddress(bpAddress);
-		Breakpoint bpv = (Breakpoint) breakPoints.get(bpSearchKey);
-		if (bpv != null & bpv.hasCommands()) {
+        bpSearchKey.setBpAddress(bpAddress);
+        Breakpoint bpv = (Breakpoint) breakPoints.get(bpSearchKey);
+        if (bpv != null & bpv.hasCommands()) {
             bpv.runCommands();
         }
     }
-    
-    
-	/**
-	 * Check if this breakpoint has been created.
-	 *
-	 * @param address 24bit extended (breakpoint) address
-	 * @return true if breakpoint was found, else false.
-	 */
-	public boolean isCreated(int bpAddress) {
-		bpSearchKey.setBpAddress(bpAddress);
-		Breakpoint bpv = (Breakpoint) breakPoints.get(bpSearchKey);
-		if (bpv != null) {
-			return true;
-		} else
-			return false;
-	}
-	
-	
-	/**
-	 * Return <true> if breakpoint will stop Z80 execution.
-	 * (<false> means that it is a display breakpoint) 
-	 *
-	 * @param bpAddress 24bit extended address
-	 * @return true, if breakpoint is defined to stop execution.
-	 */
-	public boolean isStoppable(int bpAddress) {
-		bpSearchKey.setBpAddress(bpAddress);
 
-		Breakpoint bpv = (Breakpoint) breakPoints.get(bpSearchKey);
-		if (bpv != null && bpv.stop == true) {
-			return true;
-		} else
-			return false;
-	}
+    /**
+     * Check if this breakpoint has been created.
+     *
+     * @param address 24bit extended (breakpoint) address
+     * @return true if breakpoint was found, else false.
+     */
+    public boolean isCreated(int bpAddress) {
+        bpSearchKey.setBpAddress(bpAddress);
+        Breakpoint bpv = (Breakpoint) breakPoints.get(bpSearchKey);
+        if (bpv != null) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 
-	
-	/**
-	 * Mark breakpoint as active.
-	 * 
-	 * @param bpAddress
-	 */
-	public void activate(int bpAddress) {
-		bpSearchKey.setBpAddress(bpAddress);
+    /**
+     * Return <true> if breakpoint will stop Z80 execution. (<false> means that
+     * it is a display breakpoint)
+     *
+     * @param bpAddress 24bit extended address
+     * @return true, if breakpoint is defined to stop execution.
+     */
+    public boolean isStoppable(int bpAddress) {
+        bpSearchKey.setBpAddress(bpAddress);
 
-		Breakpoint bpv = (Breakpoint) breakPoints.get(bpSearchKey);
-		if (bpv != null)
-			bpv.active = true;		
-	}
+        Breakpoint bpv = (Breakpoint) breakPoints.get(bpSearchKey);
+        if (bpv != null && bpv.stop == true) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 
-	
-	/**
-	 * Mark breakpoint as suspended.
-	 * 
-	 * @param bpAddress
-	 */
-	public void suspend(int bpAddress) {
-		bpSearchKey.setBpAddress(bpAddress);
+    /**
+     * Mark breakpoint as active.
+     *
+     * @param bpAddress
+     */
+    public void activate(int bpAddress) {
+        bpSearchKey.setBpAddress(bpAddress);
 
-		Breakpoint bpv = (Breakpoint) breakPoints.get(bpSearchKey);
-		if (bpv != null)
-			bpv.active = false;		
-	}
+        Breakpoint bpv = (Breakpoint) breakPoints.get(bpSearchKey);
+        if (bpv != null) {
+            bpv.active = true;
+        }
+    }
 
-	
-	/**
-	 * Return <true> if breakpoint is active
-	 * (<false> if breakpoint is suspended; ie. will be ignored)
-	 *
-	 * @param bpAddress 24bit extended address
-	 * @return true, if breakpoint is defined as active
-	 */
-	public boolean isActive(int bpAddress) {
-		bpSearchKey.setBpAddress(bpAddress);
+    /**
+     * Mark breakpoint as suspended.
+     *
+     * @param bpAddress
+     */
+    public void suspend(int bpAddress) {
+        bpSearchKey.setBpAddress(bpAddress);
 
-		Breakpoint bpv = (Breakpoint) breakPoints.get(bpSearchKey);
-		if (bpv != null && bpv.active == true) {
-			return true;
-		} else
-			return false;
-	}
+        Breakpoint bpv = (Breakpoint) breakPoints.get(bpSearchKey);
+        if (bpv != null) {
+            bpv.active = false;
+        }
+    }
 
-	
+    /**
+     * Return <true> if breakpoint is active (<false> if breakpoint is
+     * suspended; ie. will be ignored)
+     *
+     * @param bpAddress 24bit extended address
+     * @return true, if breakpoint is defined as active
+     */
+    public boolean isActive(int bpAddress) {
+        bpSearchKey.setBpAddress(bpAddress);
+
+        Breakpoint bpv = (Breakpoint) breakPoints.get(bpSearchKey);
+        if (bpv != null && bpv.active == true) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     /**
      * List breakpoints into String, so that caller decides to display them.
      */
     public String displayBreakpoints() {
-    	StringBuffer output = new StringBuffer(1024);
-    	output.append("Breakpoints:\n");
+        StringBuffer output = new StringBuffer(1024);
+        output.append("Breakpoints:\n");
         if (breakPoints.isEmpty() == true) {
             return new String("No Breakpoints defined.");
         } else {
             Iterator keyIterator = breakPoints.entrySet().iterator();
 
-            while(keyIterator.hasNext()) {
+            while (keyIterator.hasNext()) {
                 Map.Entry e = (Map.Entry) keyIterator.next();
                 Breakpoint bp = (Breakpoint) e.getKey();
 
-				output.append(Dz.extAddrToHex(bp.getBpAddress(),false));
-				output.append(bp.stop == false ? "[d]" : "");
-				output.append("\t");
+                output.append(Dz.extAddrToHex(bp.getBpAddress(), false));
+                output.append(bp.stop == false ? "[d]" : "");
+                output.append("\t");
             }
-			output.append("\n");
+            output.append("\n");
         }
-        
+
         return output.toString();
     }
 
-    
     /**
-     * List breakpoints into String, that can be saved in a property.<br>
-     * Each breakpoint is written in hex, separated with a comma.
-     * If a break is a display-breakpoint, it is preceeded with a '[d]'. 
-     * If no breakpoints are defined, an empty string is returned.
+     * List breakpoints into String, that can be saved in a property.<br> Each
+     * breakpoint is written in hex, separated with a comma. If a break is a
+     * display-breakpoint, it is preceeded with a '[d]'. If no breakpoints are
+     * defined, an empty string is returned.
      */
     public String breakpointList() {
-    	StringBuffer output = new StringBuffer(1024);
+        StringBuffer output = new StringBuffer(1024);
         if (breakPoints.isEmpty() == true) {
             return "";
         } else {
             Iterator keyIterator = breakPoints.entrySet().iterator();
 
-            while(keyIterator.hasNext()) {
+            while (keyIterator.hasNext()) {
                 Map.Entry e = (Map.Entry) keyIterator.next();
                 Breakpoint bp = (Breakpoint) e.getKey();
 
-				output.append(bp.stop == false ? "[d]" : "");
-				output.append(Dz.extAddrToHex(bp.getBpAddress(),false));
-				if (keyIterator.hasNext() == true)
-					output.append(",");
+                output.append(bp.stop == false ? "[d]" : "");
+                output.append(Dz.extAddrToHex(bp.getBpAddress(), false));
+                if (keyIterator.hasNext() == true) {
+                    output.append(",");
+                }
             }
         }
-        
+
         return output.toString();
     }
-    
-    
+
     /**
-     * Set the breakpoint flags in Z88 memory for all
-     * currently defined (and active) breakpoints.
+     * Set the breakpoint flags in Z88 memory for all currently defined (and
+     * active) breakpoints.
      */
     public void installBreakpoints() {
         if (breakPoints.isEmpty() == false) {
             Iterator keyIterator = breakPoints.entrySet().iterator();
 
-            while(keyIterator.hasNext()) {
+            while (keyIterator.hasNext()) {
                 Map.Entry e = (Map.Entry) keyIterator.next();
                 Breakpoint bp = (Breakpoint) e.getKey();
 
-              	Z88.getInstance().getMemory().setBreakpoint(bp.getBpAddress());
+                Z88.getInstance().getMemory().setBreakpoint(bp.getBpAddress());
             }
         }
     }
 
-    
     /**
      * Clear the breakpoint flags in Z88 memory.
      */
@@ -252,75 +289,74 @@ public class Breakpoints {
         if (breakPoints.isEmpty() == false) {
             Iterator keyIterator = breakPoints.entrySet().iterator();
 
-            while(keyIterator.hasNext()) {
+            while (keyIterator.hasNext()) {
                 Map.Entry e = (Map.Entry) keyIterator.next();
                 Breakpoint bp = (Breakpoint) e.getKey();
 
-              	Z88.getInstance().getMemory().clearBreakpoint(bp.getBpAddress());
+                Z88.getInstance().getMemory().clearBreakpoint(bp.getBpAddress());
             }
         }
     }
 
-    
     /**
-     * Remove all registered breakpoints within this container 
-     * (using the displayBreakpoints() method afterwards will 
-     * return a "No Breakpoints defined." string).<p>
-     * 
-     * This method is typically used when a snapshot is being loaded 
-     * that might contain a different set of breakpoints; the current
-     * set therefore needs to be removed before a new is loaded.  
+     * Remove all registered breakpoints within this container (using the
+     * displayBreakpoints() method afterwards will return a "No Breakpoints
+     * defined." string).<p>
+     *
+     * This method is typically used when a snapshot is being loaded that might
+     * contain a different set of breakpoints; the current set therefore needs
+     * to be removed before a new is loaded.
      */
     public void removeBreakPoints() {
-    	breakPoints.clear();
+        breakPoints.clear();
     }
 
-    
     // The breakpoint container.
     private class Breakpoint {
-        private int addressKey;			// the 24bit address of the breakpoint
-        private boolean stop;			// true = stoppable breakpoint, false = display breakpoint
-        private boolean active;			// true = breakpoint is active, false = breakpoint is suspended
-        private String[] commands;      // array of commands to be executed at breakpoint.
 
-		/**
-		 * Create a breakpoint object.
-		 *
-		 * @param bpAddress 24bit extended address
-		 */
-		Breakpoint(int bpAddress) {
-			stop = true;	// default behaviour is to stop execution at breakpoint
-			active = true; 	// when a breakpoint is created it is active by default
+        private int addressKey;         // the 24bit address of the breakpoint
+        private boolean stop;           // true = stoppable breakpoint, false = display breakpoint
+        private boolean active;         // true = breakpoint is active, false = breakpoint is suspended
+        private ArrayList<String> commands;     // array of commands to be executed at breakpoint.
 
-			// the encoded key for the SortedSet...
-			addressKey = bpAddress;
+        /**
+         * Create a breakpoint object.
+         *
+         * @param bpAddress 24bit extended address
+         */
+        Breakpoint(int bpAddress) {
+            stop = true;    // default behaviour is to stop execution at breakpoint
+            active = true;  // when a breakpoint is created it is active by default
+
+            // the encoded key for the SortedSet...
+            addressKey = bpAddress;
             commands = null;
-		}
+        }
 
-		/**
-		 * Create a breakpoint object that has debug mode commands
-		 *
-		 * @param bpAddress 24bit extended address
+        /**
+         * Create a breakpoint object that has debug mode commands
+         *
+         * @param bpAddress 24bit extended address
          * @param one or more debug commands to be executed (separated by ;)
-		 */
-		Breakpoint(int bpAddress, String cmds) {
-			stop = true;	// default behaviour is to stop execution at breakpoint
-			active = true; 	// when a breakpoint is created it is active by default
+         */
+        Breakpoint(int bpAddress, ArrayList<String> cmds) {
+            stop = true;    // default behaviour is to stop execution at breakpoint
+            active = true;  // when a breakpoint is created it is active by default
 
-			// the encoded key for the SortedSet...
-			addressKey = bpAddress;
-            commands = cmds.split(";");
-		}
-        
-		Breakpoint(int bpAddress, boolean stopAtAddress) {
-			// use <false> to display register status, then continue, <true> to stop execution.
-			stop = stopAtAddress;
-			active = true; 	// when a breakpoint is created it is active by default 
+            // the encoded key for the SortedSet...
+            addressKey = bpAddress;
+            commands = cmds;
+        }
 
-			// the encoded key for the SortedSet...
-			addressKey = bpAddress;
+        Breakpoint(int bpAddress, boolean stopAtAddress) {
+            // use <false> to display register status, then continue, <true> to stop execution.
+            stop = stopAtAddress;
+            active = true;  // when a breakpoint is created it is active by default 
+
+            // the encoded key for the SortedSet...
+            addressKey = bpAddress;
             commands = null;
-		}
+        }
 
         private void setBpAddress(int bpAddress) {
             addressKey = bpAddress;
@@ -332,28 +368,29 @@ public class Breakpoints {
 
         // override interface with the actual implementation for this object.
         public int hashCode() {
-            return addressKey;	// the unique key is a perfect hash code
+            return addressKey;  // the unique key is a perfect hash code
         }
 
         private boolean hasCommands() {
-            if (commands != null)
+            if (commands != null) {
                 return true;
-            else
+            } else {
                 return false;
+            }
         }
 
         private void runCommands() {
             if (commands != null) {
                 CommandLine cmdLine = OZvm.getInstance().getCommandLine();
-                
-                cmdLine.getDebugGui().getCmdLineInputArea().setEnabled(false);	// don't allow command input while parsing file...
-                for (int i=0; i<commands.length; i++) {
-                    cmdLine.parseCommandLine(commands[i]);
+
+                cmdLine.getDebugGui().getCmdLineInputArea().setEnabled(false);  // don't allow command input while parsing file...
+                for (int i = 0; i < commands.size(); i++) {
+                    cmdLine.parseCommandLine(commands.get(i));
                 }
                 cmdLine.getDebugGui().getCmdLineInputArea().setEnabled(true); // ready for commands from the keyboard again...
             }
         }
-        
+
         // override interface with the actual implementation for this object.
         public boolean equals(Object bp) {
             if (!(bp instanceof Breakpoint)) {
@@ -361,10 +398,11 @@ public class Breakpoints {
             }
 
             Breakpoint aBreakpoint = (Breakpoint) bp;
-            if (addressKey == aBreakpoint.addressKey)
+            if (addressKey == aBreakpoint.addressKey) {
                 return true;
-            else
+            } else {
                 return false;
+            }
         }
     }
 }

@@ -28,9 +28,9 @@ if exist oz.bin goto RUN_SLOT0_OZ
 if exist oz.epr goto RUN_SLOT1_OZ
 
 :RUN_SLOT0_OZ
-java -client -jar ..\tools\ozvm\z88.jar rom oz.bin
+java -jar ..\tools\ozvm\z88.jar rom oz.bin
 exit 0
 
 :RUN_SLOT1_OZ
-java -client -jar ..\tools\ozvm\z88.jar crd1 1024 29f oz.epr
+java -jar ..\tools\ozvm\z88.jar crd1 1024 29f oz.epr
 exit 0

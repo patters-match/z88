@@ -108,9 +108,6 @@ Z88SerialPort::Z88SerialPort()
 #endif
 #endif
 
-    qDebug() << "Defining default device: " << portName;
-//AbortTransfer
-
 }
 
 Z88SerialPort::~Z88SerialPort()
@@ -627,12 +624,39 @@ QList<QByteArray> Z88SerialPort::getZ88Time()
 
 
 /*****************************************************************************
+ *      Set Z88 system Date/Time, if time difference between
+ *      Z88 and Desktop is bigger than 30 seconds
+ *
+ *      Returns true, if Desktop time has been synchronized to Z88
+ *      Returns false, if time was not necessary to be set or there was a communication error
+ *****************************************************************************/
+bool Z88SerialPort::syncZ88Time()
+{
+    QList<QByteArray> z88TimeList = getZ88Time();
+
+    if(z88TimeList.count()==2) {
+        QDateTime z88Dt = QDateTime::fromString(
+                    QString(z88TimeList[0].data()).append(z88TimeList[1].data()),
+                    "dd/MM/yyyyhh:mm:ss");
+
+        int timeDiff = QDateTime::currentDateTime().secsTo(z88Dt);
+        timeDiff = ( timeDiff < 0 ? -timeDiff : timeDiff );
+
+        if (timeDiff > 30)
+            return setZ88Time();
+    }
+
+    return false;
+}
+
+
+/*****************************************************************************
  *      EazyLink Server V4.8
  *      Set Z88 System Clock using PC system time
  *****************************************************************************/
 bool Z88SerialPort::setZ88Time()
 {    
-    QDateTime dt = QDateTime(QDateTime::currentDateTime());
+    QDateTime dt = QDateTime::currentDateTime();
 
     QByteArray setZ88TimeCmdRequest = setZ88TimeCmd;
     setZ88TimeCmdRequest.append(dt.toString("dd/MM/yyyy"));
@@ -757,7 +781,7 @@ bool Z88SerialPort::createDir(const QString &pathName)
  *      EazyLink Server V4.6
  *      Delete file/dir on Z88.
  *****************************************************************************/
-bool Z88SerialPort::deleteFileDir(QByteArray filename)
+bool Z88SerialPort::deleteFileDir(const QString &filename)
 {
     QByteArray deleteFileDirCmdRequest = deleteFileDirCmd;
     deleteFileDirCmdRequest.append(filename);
@@ -797,7 +821,7 @@ bool Z88SerialPort::deleteFileDir(QByteArray filename)
  *      EazyLink Server V4.7
  *      Rename file/directory on Z88.
  *****************************************************************************/
-bool Z88SerialPort::renameFileDir(QByteArray pathName, QByteArray fileName)
+bool Z88SerialPort::renameFileDir(const QString &pathName, const QString &fileName)
 {
     QByteArray renameFileDirCmdRequest = renameFileDirCmd;
     renameFileDirCmdRequest.append(pathName);  // filename (with explicit path)

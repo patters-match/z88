@@ -32,160 +32,160 @@ import java.util.Vector;
  * @author Andrei Kouznetsov
  */
 public class ThreadManager {
-	/**
-	 * runner count
-	 */
-	int count;
+    /**
+     * runner count
+     */
+    int count;
 
-	Runner[] runners;
+    Runner[] runners;
 
-	Runnable[] current;
+    Runnable[] current;
 
-	Vector keys = new Vector();
+    Vector keys = new Vector();
 
-	protected Vector tasks = new Vector();
+    protected Vector tasks = new Vector();
 
-	/**
-	 * create ThreadManager with one runner
-	 */
-	public ThreadManager() {
-		this(1);
-	}
+    /**
+     * create ThreadManager with one runner
+     */
+    public ThreadManager() {
+        this(1);
+    }
 
-	/**
-	 * create ThreadManager with specified amount of runners
-	 * 
-	 * @param count
-	 *            amount of runners
-	 */
-	public ThreadManager(int count) {
-		if (count <= 0) {
-			throw new IllegalArgumentException("" + count);
-		}
+    /**
+     * create ThreadManager with specified amount of runners
+     * 
+     * @param count
+     *            amount of runners
+     */
+    public ThreadManager(int count) {
+        if (count <= 0) {
+            throw new IllegalArgumentException("" + count);
+        }
 
-		this.runners = new Runner[count];
-		this.current = new Runnable[count];
-		for (int i = 0; i < runners.length; i++) {
-			runners[i] = new Runner();
-			runners[i].start();
-		}
-	}
+        this.runners = new Runner[count];
+        this.current = new Runnable[count];
+        for (int i = 0; i < runners.length; i++) {
+            runners[i] = new Runner();
+            runners[i].start();
+        }
+    }
 
-	/**
-	 * remove all tasks from queue
-	 */
-	public void clearTasks() {
-		this.tasks.clear();
-	}
+    /**
+     * remove all tasks from queue
+     */
+    public void clearTasks() {
+        this.tasks.clear();
+    }
 
-	/**
-	 * add task to task queue
-	 * 
-	 * @param r
-	 *            Runnable
-	 */
-	public void addTask(Runnable r) {
-		int index = this.tasks.indexOf(r);
-		if (index < 0 && !isCurrentImpl(r)) {
-			this.tasks.add(r);
-			wakeUp();
-		}
-	}
+    /**
+     * add task to task queue
+     * 
+     * @param r
+     *            Runnable
+     */
+    public void addTask(Runnable r) {
+        int index = this.tasks.indexOf(r);
+        if (index < 0 && !isCurrentImpl(r)) {
+            this.tasks.add(r);
+            wakeUp();
+        }
+    }
 
-	protected boolean isCurrentImpl(Runnable r) {
-		for (int i = 0; i < current.length; i++) {
-			if (current[i] == r) {
-				return true;
-			}
-		}
-		return false;
-	}
+    protected boolean isCurrentImpl(Runnable r) {
+        for (int i = 0; i < current.length; i++) {
+            if (current[i] == r) {
+                return true;
+            }
+        }
+        return false;
+    }
 
-	/**
-	 * check if specified task (job) is now running (in progress)
-	 * 
-	 * @param r
-	 *            Runnable task to check
-	 * @return true if job is in progress
-	 */
-	public boolean isCurrent(Runnable r) {
-		return isCurrentImpl(r);
-	}
+    /**
+     * check if specified task (job) is now running (in progress)
+     * 
+     * @param r
+     *            Runnable task to check
+     * @return true if job is in progress
+     */
+    public boolean isCurrent(Runnable r) {
+        return isCurrentImpl(r);
+    }
 
-	/**
-	 * check if this task is already in queue
-	 * 
-	 * @param r
-	 *            Runnable task to check
-	 * @return true if specified job is already in job queue or is in progress
-	 *         (running)
-	 */
-	public boolean hasTask(Runnable r) {
-		return isCurrentImpl(r) || this.tasks.contains(r);
-	}
+    /**
+     * check if this task is already in queue
+     * 
+     * @param r
+     *            Runnable task to check
+     * @return true if specified job is already in job queue or is in progress
+     *         (running)
+     */
+    public boolean hasTask(Runnable r) {
+        return isCurrentImpl(r) || this.tasks.contains(r);
+    }
 
-	/**
-	 * wake up all runners
-	 */
-	protected synchronized void wakeUp() {
-		notifyAll();
-	}
+    /**
+     * wake up all runners
+     */
+    protected synchronized void wakeUp() {
+        notifyAll();
+    }
 
-	protected void finalize() throws Throwable {
-		for (int i = 0; i < runners.length; i++) {
-			runners[i].stopMe();
-			runners[i] = null;
-		}
-		wakeUp();
-	}
+    protected void finalize() throws Throwable {
+        for (int i = 0; i < runners.length; i++) {
+            runners[i].stopMe();
+            runners[i] = null;
+        }
+        wakeUp();
+    }
 
-	/**
-	 * get next job from queue
-	 * 
-	 * @return next task
-	 */
-	protected synchronized Runnable nextTask() {
-		if (this.tasks.size() > 0) {
-			return (Runnable) this.tasks.remove(0);
-		}
-		return null;
-	}
+    /**
+     * get next job from queue
+     * 
+     * @return next task
+     */
+    protected synchronized Runnable nextTask() {
+        if (this.tasks.size() > 0) {
+            return (Runnable) this.tasks.remove(0);
+        }
+        return null;
+    }
 
-	synchronized void doWait() {
-		try {
-			this.wait();
-		} catch (InterruptedException ex) {
-		}
-	}
+    synchronized void doWait() {
+        try {
+            this.wait();
+        } catch (InterruptedException ex) {
+        }
+    }
 
-	private class Runner extends Thread {
-		protected int num;
+    private class Runner extends Thread {
+        protected int num;
 
-		boolean stopped;
+        boolean stopped;
 
-		public Runner() {
-			num = count++;
-			this.setPriority(Thread.MIN_PRIORITY);
-		}
+        public Runner() {
+            num = count++;
+            this.setPriority(Thread.MIN_PRIORITY);
+        }
 
-		public void stopMe() {
-			stopped = true;
-		}
+        public void stopMe() {
+            stopped = true;
+        }
 
-		public void run() {
+        public void run() {
             Thread.currentThread().setName("com.imagero.util.ThreadManager");
-			while (!stopped) {
-				current[num] = nextTask();
-				if (current[num] != null) {
-					try {
-						current[num].run();
-					} catch (Throwable t) {
-						t.printStackTrace();
-					}
-				} else {
-					doWait();
-				}
-			}
-		}
-	}
+            while (!stopped) {
+                current[num] = nextTask();
+                if (current[num] != null) {
+                    try {
+                        current[num].run();
+                    } catch (Throwable t) {
+                        t.printStackTrace();
+                    }
+                } else {
+                    doWait();
+                }
+            }
+        }
+    }
 }

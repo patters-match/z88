@@ -2,6 +2,7 @@
 
  EazyLink2 - Fast Client/Server Z88 File Management
  (C) Gunther Strube (gstrube@gmail.com) 2011
+ Oscar Ernohazy 2012
 
  EazyLink2 is free software; you can redistribute it and/or modify it under the terms of the
  GNU General Public License as published by the Free Software Foundation;
@@ -36,6 +37,7 @@ QT_END_NAMESPACE
 
 /* Forward decl */
 class Z88SerialPort;
+class Prefrences_dlg;
 
 namespace Ui {
     class MainWindow;
@@ -56,19 +58,19 @@ public:
 
     CommThread &get_comThread(){return m_cthread;}
 
+    Prefrences_dlg &get_Prefs(){return *m_prefsDialog;}
+
     bool isTransferFromZ88();
 
     void setDesktopDirLabel(const QString &path);
     void setZ88DirLabel(const QString &path);
 
-
 private slots:
+    void UrlUserGuide();
     void AboutEazylink();
     void selSerialPort();
     void Z88Quit_EzLink();
     void helloZ88();
-    void ByteTrans();
-    void CRLFTrans();
     void ReloadTranslation();
     void SetZ88Clock();
     void getZ88Clock();
@@ -78,6 +80,7 @@ private slots:
     void AbortCmd();
     void LoadingDeskList(const bool &aborted);
     void refreshSelectedZ88DeviceView();
+    void displayPrefs();
 
     void ImpExp_sendfile();
 
@@ -90,16 +93,28 @@ private slots:
     void cmdStatus(const QString &msg);
     void cmdProgress(const QString &title, int curVal, int total);
     void boolCmd_result(const QString &cmdName, bool success);
+    void displayCritError(const QString &errmsg);
     void Z88Info_result(QList<QByteArray> *infolist);
     void Z88SelectionChanged(int count);
     void DeskTopSelectionChanged(int count);
     void PromptReceiveSpec(const QString &src_name, const QString &dst_name, bool *prompt_again);
     void PromptSendSpec(const QString &src_name, const QString &dst_name, bool *prompt_again);
+    void PromptRename(QMutableListIterator<Z88_Selection> *i);
+    void PromptDeleteSpec(const QString &src_name, bool isDir, bool *prompt_again);
+    void PromptDeleteRetry(const QString &fspec, bool isDir);
+    void renameCmd_result(const QString &msg, bool success);
+    void renameZ88Item(Z88_Selection *item, const QString &newname);
+    void deleteZ88Item(QTreeWidgetItem *item);
+
+    /**
+      * Preferences call-back
+      */
+    void SerialPortSelChanged();
 
 protected:
     bool openSelSerialDialog();
 
-    void StartSending(QList<DeskTop_Selection> &desk_selections, QList<Z88_Selection> &z88_selections);
+    void StartSending(QList<DeskTop_Selection> *desk_selections, QList<Z88_Selection> &z88_selections);
     void StartReceiving(QList<Z88_Selection> &z88_selections, QList<DeskTop_Selection> &deskSelList);
 
 private:
@@ -107,6 +122,11 @@ private:
      * The Main window
      */
     Ui::MainWindow *ui;
+
+    /**
+      * Preferences Dialog
+      */
+    Prefrences_dlg *m_prefsDialog;
 
     /**
       * The Command Status label on the Bottom of the main Form
@@ -148,6 +168,13 @@ private:
     int m_DeskSelectionCount;
 
     bool m_isTransfer;
+#if 0
+    /**
+      * Preferences Dialog
+      */
+    Prefrences_dlg *m_prefsDialog;
+#endif
+    QString m_conf_Fspec;
 
     /**
       * private method to set up connections for Signals.
