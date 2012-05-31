@@ -84,20 +84,20 @@ Flashstore is able to fetch files on EPROM packs in any slot. You
 should continue to use the Filer rather than Flashstore for all the 
 other functions.
 
-OZ 4.2
-======
+OZ 4.2 and newer
+================
 
 The flash card is now sold with two versions of the software on it. 
-These versions are with OZ 4.2, OZ4.3 or without OZ.
+These versions are with OZ 4.2+ or without OZ.
 
 To use the OZ version the flash card needs to be in slot 1. If you 
 are using the 512K RAM / 512K Flash card, you don't need anymore RAM,
 otherwise any RAM you have left, use slot 2. This leaves slot 3 for 
 additional storage or RAM.
 
-To start running OZ you need to do a HARD RESET (card flap open and 
-press the small reset swich on the left side of the Z88 with an unbent 
-paper clip.
+To start running OZ V4.x in slot 1 you need to do a HARD RESET 
+(card flap open and press the small reset swich on the left side 
+of the Z88 with an unbent paper clip.
 
 The Z88 will ignore your internal ROM and run from the external card.
 
@@ -113,7 +113,7 @@ As you would lose 64K's worth of space once FlashStore is on the Flash
 card, we have supplied it with Garry Lancaster's compilation FOREVER
 and ZIP utilities to use up the spare space on the 1M Flash card.
 
-There are a number of applications that do not run on OZ 4.2 so these
+There are a number of applications that do not run on OZ 4.x so these 
 are not supplied on those versions.
 
 Details of some of the Applications on Forever and ZIP utilities are:
@@ -144,7 +144,7 @@ latest version of the RomCombiner program.
 New features have been added including printing filenames to a printer. 
 See whatsnew.txt for more details.
 
-FreeRam - not on OZ 4.2. It is displayed in INDEX <>CARD instead.
+FreeRam - not on OZ 4.x. It is displayed in INDEX <>CARD instead.
 -------
 
 FreeRam is a popdown which instantly displays the amount of memory
@@ -154,7 +154,7 @@ showing exactly where the free and used memory areas are located.
 Press a number key (0-3) to view the RAM device (:RAM.0 to :RAM.3) of
 your choice.
 
-Alarmsafe - not on OZ 4.2.
+Alarmsafe - not on OZ 4.x.
 ---------
 
 AlarmSafe is a popdown which allows you to save all your current alarms
@@ -162,7 +162,7 @@ to a datafile for backup purposes. If you need to reset your Z88 for
 any reason, you can then simply load the datafile back into AlarmSafe
 which will automatically set all the alarms back up again.
 
-Lockup - not on OZ 4.2.
+Lockup - not on OZ 4.x.
 ------
 
 Lockup is a popdown giving your Z88 an elementary level of security,
@@ -178,17 +178,17 @@ SHIFT and the square and diamond keys) counts as part of the password -
 only the ESC, DEL and ENTER keys cannot be included. Passwords can be
 up to 16 keystrokes long.
 
-Installer - not on OZ 4.2.
+Installer - not on OZ 4.x.
 ---------
 
 Installer allows you to run true Z88 applications from free RAM in your
 machine, rather than requiring them to be blown to EPROMs or cards.
 This makes it ideal for trying out new applications, or if you have no
 ROM-creating facility. It is also very useful for developers, who can
-test software in a fraction of the usual time. DO NOT RUN THIS if you 
-are using OZ v4.2.
+test software in a fraction of the usual time. 
+Installer is not available for OZ v4.2 and newer.
 
-Bootstrap - not on OZ 4.2.
+Bootstrap - not on OZ 4.x.
 =========
 
 Bootstrap is a popdown which runs automatically after every reset. It
@@ -212,7 +212,7 @@ Note that EPROM or card files must not contain any directory names (ie
 just /bootstrap.cli is accepted).
 
 This application only runs on original ROM Z88's, and it is being 
-phased out due to the incompatibility of running it under OZ 4.2.
+phased out due to the incompatibility of running it under OZ 4.x.
 
 Other programs
 ==============
@@ -232,7 +232,7 @@ PipeDream (.PDD) format.  They are as follows:-
 ROMCOMBINER.ZIP     Adds Applications you already have
 ROMCOMBINER.TXT     Romcombiner instructions
 FLASHSTORE.ZIP      The Application of FlashStore - not supplied on OZ 
-                    4.2 versions 
+                    4.2 and newer versions (it is integrated into OZ)
 INSTALLER.TXT       Installer instructions  - not on OZ 4.2.
 WHATSNEW.TXT        What's new in Forever   - not on OZ 4.2.
 XYMODEM.TXT         XY-Modem instructions 
@@ -310,12 +310,12 @@ files from two Flash Cards provided you have enough space.
 Using two Flash cards
 ---------------------
 
-If you have the non OZ 4.2 version, you can have your Applications 
+If you have the non OZ 4.x version, you can have your Applications 
 (including FlashStore) in slot 2 and read any of your "master" files 
 from there, whilst using the another Flash card in slot 3 for current 
 files.
 
-In the OZ 4.2 version (which is in slot 1 and RAM in slot 2) you still 
+In the OZ 4.x version (which is in slot 1 and RAM in slot 2) you still 
 have slot 3 to use the additional flash card to do what is described.
 
 To use two Flash cards first prepare the Flash card which you want to 
@@ -734,8 +734,7 @@ or <>PURGE in the INDEX.
 NEWS - OTHER PRODUCTS
 =====================
 
-Use EazyLink, Z88 to PC transfer and more - written by Interlogic. A
-ROM with both Eazylink and FlashStore.
+Use EazyLink, Z88 to PC transfer and more. A ROM with both Eazylink and FlashStore.
 
 Application 2010 has all the best applications written for the Z88. For 
 information and supply on any of these, contact Rakewell Ltd.
@@ -789,7 +788,7 @@ upgrade details.
 
 Design       Zlab - Thierry Peycru and Xavier Thomas
 Software     Zlab - Thierry Peycru
-             Interlogic - Gunther Strube
+             Standard Z88 library & OZ V4.x integration, Gunther Strube
 Production   Rakewell Ltd - Vic and Gill Gerhardi, Tony Firshman
 
 Rakewell Ltd Tel +44 (0) 1296 632491
