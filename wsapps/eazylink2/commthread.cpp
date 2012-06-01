@@ -435,6 +435,7 @@ void CommThread::run()
                   * Receive the file from Z88
                   */
                 rc = m_sport.receiveFiles(srcname, m_destPath, z88sel.getRelFspec(), m_dest_isDir);
+
                 m_xferFileprogress++;
 
                 if(m_abort){
@@ -1700,8 +1701,16 @@ bool CommThread::shouldPromptUser(const DeskTop_Selection &Source, const QString
              !(m_enaPromtUser & (NO_TO_OW_ALL | YES_TO_OW_ALL))) );
 }
 
+/**
+  * Test to seeif we should Prompt for User file transfer
+  * @parm Source is the Z88 Selection
+  * @parm destFspec is the destination on the desktop
+  * @return true is prompt is needed
+  */
 bool CommThread::shouldPromptUser(const Z88_Selection &Source, const QString &destFspec)
 {
+    m_enaPromtUser &= ~FILE_EXISTS;
+
     if((m_enaPromtUser & NO_TO_OW_ALL) || !(m_enaPromtUser & YES_TO_OW_ALL) &&
         (Source.getType() == Z88_DevView::type_File))
     {
