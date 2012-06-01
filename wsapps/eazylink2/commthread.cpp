@@ -79,6 +79,7 @@ void CommThread::run()
     }
 
     m_runCnt++;
+
     emit enableCmds(false, m_sport.isOpen());
 
     if(m_abort){
@@ -495,7 +496,10 @@ skip2:
             if(!m_abort){
                 setState_Idle();
                 emit DirLoadComplete(false);
-                m_runCnt--;
+                if(--m_runCnt <=0){
+                    m_runCnt = 0;
+                    emit enableCmds(true, m_sport.isOpen());
+                }
                 return;  // Don't re-enable commands here
             }
             break;

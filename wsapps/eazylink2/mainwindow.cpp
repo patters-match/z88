@@ -577,6 +577,9 @@ void MainWindow::cmdProgress(const QString &title, int curVal, int total)
 {
     if(total < 0){
         if(m_cmdProgress) m_cmdProgress->reset();
+        /* re-sort (hack)*/
+        // m_DeskTopTreeView->sortByColumn(1,Qt::AscendingOrder);
+        // m_DeskTopTreeView->sortByColumn(0,Qt::AscendingOrder);
         return;
     }
 
