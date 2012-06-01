@@ -163,7 +163,12 @@ public class Z88Keyboard {
 
         // use default UK keyboard layout for default UK V4 ROM.
         currentKbLayout = z88Keyboards[currentKbLayoutCountryCode];
+    }
 
+    /**
+     * This method is used by Z88 Class to boot listening to keyboard input from the display
+     */
+    public void processKeyInput() {
         Thread thread = new Thread() {
 
             public void run() {
@@ -177,9 +182,9 @@ public class Z88Keyboard {
         };
 
         thread.setPriority(Thread.MAX_PRIORITY);
-        thread.start();
+        thread.start();        
     }
-
+    
     private void createKbLayouts() {
         Map defaultKbLayout = createUkLayout();
 
@@ -1458,6 +1463,14 @@ public class Z88Keyboard {
                     OZvm.getInstance().getCommandLine().getDebugGui().toFront();
                     OZvm.getInstance().getCommandLine().getDebugGui().getCmdLineInputArea().grabFocus();
                     Z88.getInstance().getProcessor().stopZ80Execution();
+
+                    Blink blink = Z88.getInstance().getBlink();
+                    // but if thread is sleeping, there is nothing to stop... so force a wake-up, so Z80 can stop
+                    if (blink.isComaEnabled() == true)
+                        blink.awakeFromComa();
+                    if (blink.isSnoozeEnabled() == true)
+                        blink.awakeFromSnooze();
+                                        
                     break;
 
                 case KeyEvent.VK_F12:

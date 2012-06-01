@@ -39,6 +39,14 @@ public final class Blink {
      */
     private Memory memory;
     /**
+     * Access to Z80 Processor
+     */
+    Z80Processor z80;
+    /**
+     * Access to the Z88 keyboard
+     */
+    private Z88Keyboard keyboard;
+    /**
      * The main Timer daemon that runs the Rtc clock and sends 10ms interrupts
      * to the Z80 virtual processor.
      */
@@ -216,8 +224,9 @@ public final class Blink {
         coma = false;
         snooze = false;
 
-        memory = Z88.getInstance().getMemory(); // access to Z88 memory model (4Mb)
-        RAMS = memory.getBank(0); // point at ROM bank 0 (null at the moment)
+        z80 = null;
+        memory = null;
+        keyboard = null;
 
         // the segment register SR0 - SR3
         sR = new int[4];
@@ -226,6 +235,28 @@ public final class Blink {
         rtc = new Rtc();                // the Real Time Clock counter, not yet started...
 
         resetBlinkRegisters();
+    }
+
+    /**
+     * This method is used by Z88 Class to define the Z80 processor for the Blink
+     */
+    public void connectProcessor(Z80Processor z80Proc) {
+        z80 = z80Proc;
+    }
+
+    /**
+     * This method is used by Z88 Class to define the memory access for the Blink
+     */
+    public void connectMemory(Memory mem) {
+        memory = mem;               // access to Z88 memory model (4Mb)
+        RAMS = memory.getBank(0);   // point at ROM bank 0
+    }
+
+    /**
+     * This method is used by Z88 Class to define the keyboard matrix for the Blink
+     */
+    public void connectKeyboard(Z88Keyboard kb) {
+        keyboard = kb;
     }
 
     /**
@@ -636,7 +667,6 @@ public final class Blink {
      * Z80Processor thread (if the Z88 was snoozing or in coma).
      */
     public synchronized void signalKeyPressed() {
-        Z80Processor z80 = Z88.getInstance().getProcessor();
 
         // processor snooze always awakes on a key press (even if INT.GINT = 0)
         awakeFromSnooze();
@@ -648,7 +678,7 @@ public final class Blink {
                 // But only if the interrupt is allowed to escape the Blink...
                 if (coma == true) {
                     // I register hold the address lines to be read
-                    if (Z88.getInstance().getKeyboard().scanKeyRow(z80.I()) == z80.I()) {
+                    if (keyboard.scanKeyRow(z80.I()) == z80.I()) {
                         awakeFromComa();
                     }
                 } else {
@@ -656,7 +686,7 @@ public final class Blink {
                 }
 
                 // Signal INT interrupt when KEY interrupts are enabled
-                Z88.getInstance().getProcessor().setIntSignal();
+                z80.setIntSignal();
             }
         }
     }
@@ -680,10 +710,10 @@ public final class Blink {
             } catch (InterruptedException ie) {
             }
 
-            Z88.getInstance().getProcessor().setIntSignal();
+            z80.setIntSignal();
         }
 
-        return Z88.getInstance().getKeyboard().scanKeyRow(row);
+        return keyboard.scanKeyRow(row);
     }
 
     /**
@@ -777,10 +807,10 @@ public final class Blink {
      * @param addr 16bit word that points into Z80 64K Address Space
      * @return byte at bank, mapped into segment for specified address
      */
-    public final int readByte(final int addr) {        
+    public final int readByte(final int addr) {
         try {
             if (addr > 0x3FFF) {
-                return memory.getBank(sR[addr >>> 14]).readByte(addr);
+                return memory.getBank(sR[addr >>> 14]).readByte(addr & 0x3fff);
             } else {
                 if (addr < 0x2000) // return lower 8K Bank binding
                 // Lower 8K is System Bank 0x00 (ROM on hard reset)
@@ -820,7 +850,7 @@ public final class Blink {
     public final boolean isBreakpoint(final int addr) {
         try {
             if (addr > 0x3FFF) {
-                return memory.getBank(sR[addr >>> 14]).isBreakpoint(addr);
+                return memory.getBank(sR[addr >>> 14]).isBreakpoint(addr & 0x3fff);
             } else {
                 if (addr < 0x2000) // return lower 8K Bank binding
                 // Lower 8K is System Bank 0x00 (ROM on hard reset)
@@ -841,7 +871,7 @@ public final class Blink {
         } catch (ArrayIndexOutOfBoundsException e) {
             // PC is problably 0x10000
             return false;
-        }        
+        }
     }
 
     /**
@@ -861,7 +891,7 @@ public final class Blink {
         try {
             if (addr > 0x3FFF) {
                 // write byte to segments 1 - 3
-                memory.getBank(sR[addr >>> 14]).writeByte(addr, b);
+                memory.getBank(sR[addr >>> 14]).writeByte(addr & 0x3fff, b);
             } else {
                 if (addr < 0x2000) {
                     // return lower 8K Bank binding
@@ -938,7 +968,7 @@ public final class Blink {
         rtcElapsedTime += getBlinkTim2() * 60 * 1000;  // convert from min to ms.
         rtcElapsedTime += getBlinkTim3() * 256 * 60 * 1000;  // convert from 256 min to ms.
         rtcElapsedTime += getBlinkTim4() * 65536 * 60 * 1000;  // convert from 64K min to ms.
-        rtcElapsedTime += (System.currentTimeMillis() - Z88.getInstance().getProcessor().getZ88StoppedAtTime()); // add host system elapsed time...
+        rtcElapsedTime += (System.currentTimeMillis() - z80.getZ88StoppedAtTime()); // add host system elapsed time...
 
         setBlinkTim4(((int) (rtcElapsedTime / 65536 / 60 / 1000)) & 0xFF);
 
@@ -974,7 +1004,7 @@ public final class Blink {
 
         if (rtc.isRunning() == true && ((bits & Blink.BM_COMRESTIM) == Blink.BM_COMRESTIM)) {
             // Stop Real Time Clock (RESTIM = 1)
-            if (Z88.getInstance().getProcessor().singleSteppingMode() == false) {
+            if (z80.singleSteppingMode() == false) {
                 rtc.stop();
             }
             rtc.reset();
@@ -982,7 +1012,7 @@ public final class Blink {
 
         if (rtc.isRunning() == false && ((bits & Blink.BM_COMRESTIM) == 0)) {
             // Real Time Clock is not running, and is asked to start (RESTIM = 0)...
-            if (Z88.getInstance().getProcessor().singleSteppingMode() == false) {
+            if (z80.singleSteppingMode() == false) {
                 rtc.start();
             }
         }
@@ -995,6 +1025,21 @@ public final class Blink {
             RAMS = memory.getBank(0x00);
         }
 
+        if ((COM & Blink.BM_COMSRUN) == 0 & (bits & Blink.BM_COMSRUN) == Blink.BM_COMSRUN) {
+            //System.out.println(Dz.extAddrToHex(decodeLocalAddress(z80.PC()) & 0xff0000 | z80.PC(),true) + ": COM.BM_COMSRUN -> 1");
+        }
+
+        if ((COM & Blink.BM_COMSRUN) == Blink.BM_COMSRUN & (bits & Blink.BM_COMSRUN) == 0) {
+            //System.out.println(Dz.extAddrToHex(decodeLocalAddress(z80.PC()) & 0xff0000 | z80.PC(),true) + ": COM.BM_COMSRUN -> 0");
+        }
+        
+        if ((COM & Blink.BM_COMSBIT) == 0 & (bits & Blink.BM_COMSBIT) == Blink.BM_COMSBIT) {
+            //System.out.println(Dz.extAddrToHex(decodeLocalAddress(z80.PC()) & 0xff0000 | z80.PC(),true) + ": COM.BM_COMSBIT -> 1");
+        }
+        if ((COM & Blink.BM_COMSBIT) == Blink.BM_COMSBIT & (bits & Blink.BM_COMSBIT) == 0) {
+            //System.out.println(Dz.extAddrToHex(decodeLocalAddress(z80.PC()) & 0xff0000 | z80.PC(),true) + ": COM.BM_COMSBIT -> 0");
+        }
+        
         COM = bits;
     }
 
@@ -1110,7 +1155,7 @@ public final class Blink {
      */
     public synchronized void enableSnooze() throws InterruptedException {
         snooze = true;
-        while (snooze == true & Z88.getInstance().getProcessor().isZ80running() == true) {
+        while (snooze == true & z80.isZ80running() == true) {
             wait();
         }
     }
@@ -1263,7 +1308,7 @@ public final class Blink {
                         awakeFromComa();
 
                         // Signal INT interrupt to Z80...
-                        Z88.getInstance().getProcessor().setIntSignal();
+                        z80.setIntSignal();
                     }
                 }
             }
@@ -1346,6 +1391,16 @@ public final class Blink {
     }
 
     /**
+     * Signal an NMI to Z80 CPU
+     */
+    public void signalNmi() {
+        z80.setNmiSignal();            
+
+        awakeFromComa();
+        awakeFromSnooze();        
+    }
+    
+    /**
      * Signal that the flap was closed.<p> The Blink will start to fire STA.TIME
      * interrupts again if the INT.TIME is enabled and TMK has been setup to
      * fire Minute, Second or TICK's.
@@ -1368,4 +1423,15 @@ public final class Blink {
 
         thread.start();
     }
+    
+    /**
+     * return true, if Flap is open, otherwise false
+     */
+    public boolean isFlapOpen() {
+        if ((STA & BM_STAFLAPOPEN) == BM_STAFLAPOPEN)
+            return true;
+        else
+            return false;
+    }
+    
 }

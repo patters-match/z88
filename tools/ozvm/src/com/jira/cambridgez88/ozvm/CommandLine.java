@@ -17,24 +17,22 @@
  */
 package com.jira.cambridgez88.ozvm;
 
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.RandomAccessFile;
-import java.util.ListIterator;
-
-import javax.swing.JTextArea;
-import javax.swing.JTextField;
-
 import com.jira.cambridgez88.ozvm.datastructures.ApplicationDor;
 import com.jira.cambridgez88.ozvm.datastructures.ApplicationInfo;
 import com.jira.cambridgez88.ozvm.filecard.FileArea;
 import com.jira.cambridgez88.ozvm.filecard.FileAreaExhaustedException;
 import com.jira.cambridgez88.ozvm.filecard.FileAreaNotFoundException;
 import com.jira.cambridgez88.ozvm.filecard.FileEntry;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.util.ArrayList;
+import java.util.ListIterator;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
 
 /**
  * The OZvm debug command line.
@@ -285,7 +283,14 @@ public class CommandLine implements KeyListener {
         }
 
         if (cmdLineTokens[0].compareToIgnoreCase("stop") == 0) {
-            Z88.getInstance().getProcessor().stopZ80Execution();
+            // signal Z80 thread to stop execution.
+            z80.stopZ80Execution();
+                        
+            // but if thread is sleeping, there is nothing to stop... so force a wake-up, so Z80 can stop
+            if (blink.isComaEnabled() == true)
+                blink.awakeFromComa();
+            if (blink.isSnoozeEnabled() == true)
+                blink.awakeFromSnooze();
         }
 
         if (cmdLineTokens[0].compareToIgnoreCase("quitvm") == 0) {
@@ -297,7 +302,6 @@ public class CommandLine implements KeyListener {
                 displayCmdOutput("Interrupt state cannot be edited while Z88 is running.");
                 return;
             } else {
-                Z80Processor z80 = Z88.getInstance().getProcessor();
                 z80.IFF1(false);
                 z80.IFF2(false);
                 displayCmdOutput("Maskable interrupts disabled.");
@@ -309,7 +313,6 @@ public class CommandLine implements KeyListener {
                 displayCmdOutput("Interrupt state cannot be edited while Z88 is running.");
                 return;
             } else {
-                Z80Processor z80 = Z88.getInstance().getProcessor();
                 z80.IFF1(true);
                 z80.IFF2(true);
                 displayCmdOutput("Maskable interrupts enabled.");
@@ -317,7 +320,6 @@ public class CommandLine implements KeyListener {
         }
 
         if (cmdLineTokens[0].compareToIgnoreCase("log") == 0) {
-            Z80Processor z80 = Z88.getInstance().getProcessor();
             if (z80.izZ80Logged() == true) {
                 logZ80instructions = false;
                 z80.setZ80Logging(logZ80instructions);
@@ -924,7 +926,7 @@ public class CommandLine implements KeyListener {
             }
             displayCmdOutput("A=" + Dz.byteToHex(z80.A(), true) + " (" + Dz.byteToBin(z80.A(), true) + ")");
         }
-
+        
         if (cmdLineTokens[0].compareToIgnoreCase("a'") == 0) {
             if (cmdLineTokens.length == 2) {
                 if (Z88.getInstance().getProcessorThread() != null) {
@@ -1288,6 +1290,23 @@ public class CommandLine implements KeyListener {
             z80.exx();
         }
 
+        if (cmdLineTokens[0].compareToIgnoreCase("i") == 0) {
+            if (cmdLineTokens.length == 2) {
+                if (Z88.getInstance().getProcessorThread() != null) {
+                    displayCmdOutput("Cannot change I register while Z88 is running!");
+                    return;
+                }
+                arg = StringEval.toInteger(cmdLineTokens[1]);
+                if (arg == -1 | arg > 255) {
+                    displayCmdOutput(illegalArgumentMessage);
+                    return;
+                } else {
+                    z80.I(arg);
+                }
+            }
+            displayCmdOutput("I=" + Dz.byteToHex(z80.I(), true) + " (" + Dz.byteToBin(z80.I(), true) + ")");
+        }
+        
         if (cmdLineTokens[0].compareToIgnoreCase("ix") == 0) {
             if (cmdLineTokens.length == 2) {
                 if (Z88.getInstance().getProcessorThread() != null) {
@@ -1355,6 +1374,24 @@ public class CommandLine implements KeyListener {
             }
             displayCmdOutput("PC=" + Dz.addrToHex(z80.PC(), true) + " (" + z80.PC() + "d)");
         }
+        
+        if (cmdLineTokens[0].compareToIgnoreCase("r") == 0) {
+            if (cmdLineTokens.length == 2) {
+                if (Z88.getInstance().getProcessorThread() != null) {
+                    displayCmdOutput("Cannot change R register while Z88 is running!");
+                    return;
+                }
+                arg = StringEval.toInteger(cmdLineTokens[1]);
+                if (arg == -1 | arg > 255) {
+                    displayCmdOutput(illegalArgumentMessage);
+                    return;
+                } else {
+                    z80.R(arg);
+                }
+            }
+            displayCmdOutput("R=" + Dz.byteToHex(z80.R(), true) + " (" + Dz.byteToBin(z80.R(), true) + ")");
+        }
+        
     }
 
     /**

@@ -293,9 +293,9 @@ public class Z88display extends JLabel implements MouseListener {
     public Z88display() {
         super();
 
-        blink = Z88.getInstance().getBlink();
-        memory = Z88.getInstance().getMemory();
-        z80Proc = Z88.getInstance().getProcessor();
+        blink = null; 
+        memory = null;
+        z80Proc = null;
 
         curRenderSpeedIndex = FPS25;
         movieHelper = new ThreadManager(1);
@@ -315,6 +315,27 @@ public class Z88display extends JLabel implements MouseListener {
         this.addMouseListener(this);
     }
 
+    /**
+     * This method is used by Z88 Class to define the Blink chip for the display
+     */
+    public void connectBlink(Blink bl) {
+        blink = bl;
+    }
+    
+    /**
+     * This method is used by Z88 Class to define the Z80 processor for the display
+     */
+    public void connectProcessor(Z80Processor z80) {
+        z80Proc = z80;
+    }
+
+    /**
+     * This method is used by Z88 Class to define the memory access for the display
+     */
+    public void connectMemory(Memory mem) {
+        memory = mem;               // access to Z88 memory model (4Mb)
+    }
+    
     /**
      * Set the update frequency or frames per second (fps) of the Z88 screen.
      * The following values are possible:

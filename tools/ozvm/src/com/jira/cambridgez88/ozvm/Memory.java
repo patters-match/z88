@@ -17,18 +17,9 @@
  */
 package com.jira.cambridgez88.ozvm;
 
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FilenameFilter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.RandomAccessFile;
-import java.net.JarURLConnection;
-
 import com.jira.cambridgez88.ozvm.datastructures.SlotInfo;
 import com.jira.cambridgez88.ozvm.filecard.FileArea;
+import java.io.*;
 import java.net.URI;
 
 /**
@@ -1168,7 +1159,6 @@ public final class Memory {
      * Blink (the Z80 is instructed to execute a RST 66H instruction).
      */
     private void slotConnectorSenseLine() {
-        Z88.getInstance().getBlink().awakeFromComa();
-        Z88.getInstance().getProcessor().setNmiSignal();
+        // Z88.getInstance().getBlink().signalNmi();
     }
 }

@@ -35,13 +35,20 @@ public class Z80Processor extends Z80 implements Runnable {
 
     public Z80Processor() {
 
-        blink = Z88.getInstance().getBlink();
+        blink = null;
         breakpoints = new Breakpoints();
         singleStepping = true;
         simulateInterrupts = true;
         stopZ88 = false;
     }
 
+    /**
+     * This method is used by Z88 Class to define the Blink chip for the processor
+     */
+    public void connectBlink(Blink bl) {
+        blink = bl;
+    }
+            
     /**
      * execute a single Z80 instruction and return
      */

@@ -94,7 +94,12 @@ public abstract class Bank extends WindowAdapter {
      * bank.
      */
     public int getByte(final int addr) {
-        return bankMem[addr & (Bank.SIZE - 1)];
+        try {
+            return bankMem[addr];
+        } catch (ArrayIndexOutOfBoundsException e) {
+            // address is problably specified as 64K absolute address
+            return bankMem[addr & 0x3FFF];
+        }
     }
 
     /**
@@ -105,7 +110,12 @@ public abstract class Bank extends WindowAdapter {
      * @return true if breakpoint is defined, otherwise false
      */
     public boolean isBreakpoint(final int addr) {
-        return breakPoints[addr & (Bank.SIZE - 1)];
+        try {
+            return breakPoints[addr];
+        } catch (ArrayIndexOutOfBoundsException e) {
+            // address is problably specified as 64K absolute address
+            return breakPoints[addr & 0x3FFF];
+        }
     }
 
     /**
@@ -139,8 +149,13 @@ public abstract class Bank extends WindowAdapter {
      * @param b is the byte to be "set" at specific address
      *
      */
-    public void setByte(final int addr, final int b) {
-        bankMem[addr & (Bank.SIZE - 1)] = b & 0xFF;
+    public void setByte(final int addr, final int b) {        
+        try {
+            bankMem[addr] = b & 0xFF;
+        } catch (ArrayIndexOutOfBoundsException e) {
+            // address is problably specified as 64K absolute address
+            bankMem[addr & 0x3FFF] = b & 0xFF;
+        }        
     }
 
     /**

@@ -38,6 +38,7 @@ public abstract class Z80 {
     private LogZ80Instruction lgZ80;
     private boolean logZ80instructions;
     private boolean externIntSignal = false;
+    private boolean nmi = false;
     private boolean z80Stopped = false;
 
     /*
@@ -401,15 +402,6 @@ public abstract class Z80 {
     public final void IFF2(boolean iff2) {
         _IFF2 = iff2;
     }
-    private boolean nmi = false;
-
-    public boolean getNmi() {
-        return nmi;
-    }
-
-    public synchronized void setNmi(boolean nmiState) {
-        nmi = nmiState;
-    }
 
     public final int IM() {
         return _IM;
@@ -555,22 +547,14 @@ public abstract class Z80 {
     }
 
     /**
-     * Interrupt handler
-     */
-    public final boolean interruptTriggered() {
-        return externIntSignal;
-    }
-
-    /**
-     * Maskable Interrupt Signal
+     * An outside source signals to execute Maskable Interrupt 
      */
     public final void setIntSignal() {
-        nmi = false;
         externIntSignal = true;
     }
 
     /**
-     * Non-Maskable Interrupt Signal
+     * An outside source signals to execute a Non-Maskable Interrupt
      */
     public final void setNmiSignal() {
         nmi = true;
@@ -578,29 +562,27 @@ public abstract class Z80 {
     }
 
     /**
-     * Interrupt handler
+     * process Non Maskable interrupt (NMI)
      */
-    private final void acknowledgeInterrupt() {
+    private void execNmiInterrupt() {
+        nmi = false;
         externIntSignal = false;
+
+        // non maskable interrupt occurred... (overrides DI)
+        pushw(_PC);
+        IFF2(IFF1());
+        IFF1(false);
+        PC(0x66);
+        instrPC = 0x66; // define first opcode of current Z80 PC
+
+        tstatesCounter += 13;
     }
-
+    
     /**
-     * process interrupt
+     * process maskable interrupt (INT)
      */
-    private boolean execInterrupt() {
-        acknowledgeInterrupt();
-
-        if (getNmi() == true) {
-            // non maskable interrupt occurred... (overrides DI)
-            pushw(_PC);
-            IFF1(false);
-            PC(0x66);
-            instrPC = 0x66; // define first opcode of current Z80 PC
-            
-            tstatesCounter += 13;
-            setNmi(false);
-            return true;
-        }
+    private void execMaskableInterrupt() {
+        externIntSignal = false;
 
         switch (IM()) {
             case IM0:
@@ -611,7 +593,7 @@ public abstract class Z80 {
                 instrPC = 0x66; // define first opcode of current Z80 PC
                 
                 tstatesCounter += 13;
-                return true;
+                break;
                 
             case IM1:
                 pushw(_PC);
@@ -621,7 +603,7 @@ public abstract class Z80 {
                 instrPC = 0x38; // define first opcode of current Z80 PC
 
                 tstatesCounter += 13;
-                return true;
+                break;
                 
             case IM2:
                 pushw(_PC);
@@ -632,9 +614,7 @@ public abstract class Z80 {
                 instrPC = readWord(t); // define first opcode of current Z80 PC
                 
                 tstatesCounter += 19;
-                return true;
-            default:
-                return false;
+                break;
         }
     }
 
@@ -652,9 +632,14 @@ public abstract class Z80 {
         do {
             instrPC = _PC; // define origin PC of current instruction
 
-            if ((debugMode == false) & IFF1() == true && interruptTriggered() == true) {
+            if ((debugMode == false) & nmi == true & externIntSignal == true) {
+                // a NMI want's to be executed...
+                execNmiInterrupt();
+            }
+            
+            if ((debugMode == false) & IFF1() == true & externIntSignal == true) {
                 // a maskable interrupt want's to be executed...
-                execInterrupt();
+                execMaskableInterrupt();
             }
 
             if (logZ80instructions == true) {
