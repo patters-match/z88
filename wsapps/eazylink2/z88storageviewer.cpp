@@ -410,9 +410,23 @@ void Z88StorageViewer::Z88Devices_result(QList<QByteArray> *devlist)
                 m_Eprdevices[dnum - '0'] = dview;
             }
             if(dview){
-                connect(dview,SIGNAL(itemSelectionChanged()),this,SLOT(changedSelected_file()));
-                connect(dview,SIGNAL(itemClicked( QTreeWidgetItem *, int )),
-                        this,SLOT(	itemClicked ( QTreeWidgetItem *, int )));
+                connect(dview,
+                        SIGNAL(itemSelectionChanged()),
+                        this,
+                        SLOT  (changedSelected_file())
+                        );
+
+                connect(dview,
+                        SIGNAL(itemClicked( QTreeWidgetItem *, int )),
+                        this,
+                        SLOT  (itemClicked( QTreeWidgetItem *, int ))
+                        );
+
+                connect(dview,
+                        SIGNAL(itemDoubleClicked( QTreeWidgetItem *, int )),
+                        this,
+                        SLOT  (itemDblClicked( QTreeWidgetItem *, int ))
+                        );
             }
         }
     }
@@ -507,13 +521,21 @@ void Z88StorageViewer::itemClicked(QTreeWidgetItem *, int )
     changedSelected_file();
 }
 
+void Z88StorageViewer::itemDblClicked(QTreeWidgetItem *item, int column)
+{
+    if(item){
+        changedSelected_file();
+
+        qDebug() << "item dbl clicked =" << item->text(column);
+    }
+}
+
 /**
   * The Context Menu Handler. (Right click)
   * @param act is the action that was performed.
   */
 void Z88StorageViewer::ActionsMenuSel(QAction *act)
 {
-
 
     if(act == m_actionMkdir){
         mkDir();

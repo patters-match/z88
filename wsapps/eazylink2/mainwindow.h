@@ -97,10 +97,10 @@ private slots:
     void Z88Info_result(QList<QByteArray> *infolist);
     void Z88SelectionChanged(int count);
     void DeskTopSelectionChanged(int count);
-    void PromptReceiveSpec(const QString &src_name, const QString &dst_name, bool *prompt_again);
-    void PromptSendSpec(const QString &src_name, const QString &dst_name, bool *prompt_again);
+    void PromptReceiveSpec(const QString &src_name, const QString &dst_name, CommThread::uPrompt *prompt_again);
+    void PromptSendSpec(const QString &src_name, const QString &dst_name, CommThread::uPrompt *prompt_again);
     void PromptRename(QMutableListIterator<Z88_Selection> *i);
-    void PromptDeleteSpec(const QString &src_name, bool isDir, bool *prompt_again);
+    void PromptDeleteSpec(const QString &src_name, bool isDir, CommThread::uPrompt *prompt_again);
     void PromptDeleteRetry(const QString &fspec, bool isDir);
     void renameCmd_result(const QString &msg, bool success);
     void renameZ88Item(Z88_Selection *item, const QString &newname);

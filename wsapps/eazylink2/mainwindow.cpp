@@ -262,14 +262,14 @@ void MainWindow::createActions()
             SLOT(Z88Info_result(QList<QByteArray> *)));
 
     connect(&m_cthread,
-            SIGNAL(PromptReceiveSpec(const QString &, const QString &,bool *)),
+            SIGNAL(PromptReceiveSpec(const QString &, const QString &,CommThread::uPrompt *)),
             this,
-            SLOT(PromptReceiveSpec(const QString &, const QString &,bool *)));
+            SLOT(PromptReceiveSpec(const QString &, const QString &,CommThread::uPrompt *)));
 
     connect(&m_cthread,
-            SIGNAL(PromptSendSpec(const QString &, const QString &,bool *)),
+            SIGNAL(PromptSendSpec(const QString &, const QString &,CommThread::uPrompt *)),
             this,
-            SLOT(PromptSendSpec(const QString &, const QString &,bool *)));
+            SLOT(PromptSendSpec(const QString &, const QString &,CommThread::uPrompt  *)));
 
     connect(&m_cthread,
             SIGNAL(DirLoadComplete(const bool &)),
@@ -287,9 +287,9 @@ void MainWindow::createActions()
             SLOT(PromptRename(QMutableListIterator<Z88_Selection> *)));
 
     connect(&m_cthread,
-            SIGNAL(PromptDeleteSpec(const QString &, bool, bool *)),
+            SIGNAL(PromptDeleteSpec(const QString &, bool, CommThread::uPrompt *)),
             this,
-            SLOT(PromptDeleteSpec(const QString &, bool, bool *)));
+            SLOT(PromptDeleteSpec(const QString &, bool, CommThread::uPrompt *)));
 
     connect(&m_cthread,
             SIGNAL(PromptDeleteRetry(const QString &, bool)),
@@ -716,7 +716,7 @@ void MainWindow::DeskTopSelectionChanged(int count)
   * @par dst_name is the destination filename.
   * @param prompt_again set this to false to stop prompting for the remaining files.
   */
-void MainWindow::PromptReceiveSpec(const QString &src_name, const QString &dst_name, bool *prompt_again)
+void MainWindow::PromptReceiveSpec(const QString &src_name, const QString &dst_name, CommThread::uPrompt *prompt_again)
 {
     QMessageBox msgBox;
     QString msg = "Copy ";
@@ -731,24 +731,65 @@ void MainWindow::PromptReceiveSpec(const QString &src_name, const QString &dst_n
                               QMessageBox::YesToAll | QMessageBox::Cancel);
     msgBox.setDefaultButton(QMessageBox::YesToAll);
 
-    switch(msgBox.exec()){
-        case QMessageBox::YesToAll:
-            *prompt_again = false;
-            // drop through
-        case QMessageBox::Yes:
-            m_cthread.receiveFile(false);
-            break;
-        case  QMessageBox::No:
-            m_cthread.receiveFile(true);
-            break;
-        case QMessageBox::Cancel:
-            if(m_cmdProgress) m_cmdProgress->reset();
-        //cmdProgress("Cancelled", m_z88Selections.count()-1,m_z88Selections.count())
-            return;
+    bool prompt_for_ow = (*prompt_again & CommThread::FILE_EXISTS) && !(*prompt_again & (CommThread::NO_TO_OW_ALL | CommThread::YES_TO_OW_ALL));
+
+    if((*prompt_again & CommThread::PROMPT_USER)){
+        switch(msgBox.exec()){
+            case QMessageBox::YesToAll:
+                *prompt_again &= ~(CommThread::PROMPT_USER);
+                // drop through
+            case QMessageBox::Yes:
+                if(!prompt_for_ow){
+                    m_cthread.receiveFile(false);
+                }
+                break;
+            case  QMessageBox::No:
+                m_cthread.receiveFile(true);
+                break;
+            case QMessageBox::Cancel:
+                if(m_cmdProgress) m_cmdProgress->reset();
+                return;
+        }
+    }
+
+    /**
+      * Prompt User For Over-Write Options
+      */
+    if(prompt_for_ow) {
+
+        msg = "File Already Exists.\n";
+        msg += dst_name;
+
+        msgBox.setText(msg);
+        msgBox.setInformativeText("Do you want to replace the file on the Desktop ?");
+        msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No |
+                                  QMessageBox::YesToAll | QMessageBox::NoToAll | QMessageBox::Cancel);
+        msgBox.setDefaultButton(QMessageBox::NoToAll);
+        msgBox.setIcon(QMessageBox::Warning);
+
+        switch(msgBox.exec()){
+            case QMessageBox::YesToAll:
+                *prompt_again |= (CommThread::YES_TO_OW_ALL);
+                m_cthread.receiveFile(false);
+                break;
+            case QMessageBox::Yes:
+                m_cthread.receiveFile(false);
+                break;
+            case QMessageBox::NoToAll:
+                *prompt_again |= (CommThread::NO_TO_OW_ALL);
+                m_cthread.receiveFile(true);
+                break;
+            case  QMessageBox::No:
+                m_cthread.receiveFile(true);
+                break;
+            case QMessageBox::Cancel:
+                if(m_cmdProgress) m_cmdProgress->reset();
+                return;
+        }
     }
 }
 
-void MainWindow::PromptSendSpec(const QString &src_name, const QString &dst_name, bool *prompt_again)
+void MainWindow::PromptSendSpec(const QString &src_name, const QString &dst_name, CommThread::uPrompt *prompt_again)
 {
     QMessageBox msgBox;
     QString msg = "Copy ";
@@ -763,20 +804,67 @@ void MainWindow::PromptSendSpec(const QString &src_name, const QString &dst_name
                               QMessageBox::YesToAll | QMessageBox::Cancel);
     msgBox.setDefaultButton(QMessageBox::YesToAll);
 
-    switch(msgBox.exec()){
-        case QMessageBox::YesToAll:
-            *prompt_again = false;
-            // drop through
-        case QMessageBox::Yes:
-            m_cthread.sendFile(false);
-            break;
-        case  QMessageBox::No:
-            m_cthread.sendFile(true);
-            break;
-        case QMessageBox::Cancel:
-            if(m_cmdProgress) m_cmdProgress->reset();
-            refreshSelectedZ88DeviceView();
-            return;
+    bool prompt_for_ow = (*prompt_again & CommThread::FILE_EXISTS) && !(*prompt_again & (CommThread::NO_TO_OW_ALL | CommThread::YES_TO_OW_ALL));
+
+    /**
+      * Prompt user for a File to the Z88
+      */
+    if((*prompt_again & CommThread::PROMPT_USER)){
+        switch(msgBox.exec()){
+            case QMessageBox::YesToAll:
+                *prompt_again &= ~(CommThread::PROMPT_USER);
+                // drop through
+            case QMessageBox::Yes:
+                if(!prompt_for_ow){
+                    m_cthread.sendFile(false);
+                }
+                break;
+            case  QMessageBox::No:
+                m_cthread.sendFile(true);
+                break;
+            case QMessageBox::Cancel:
+                if(m_cmdProgress) m_cmdProgress->reset();
+                refreshSelectedZ88DeviceView();
+                return;
+        }
+    }
+
+    /**
+      * Prompt User For Over-Write Options
+      */
+    if(prompt_for_ow) {
+
+        msg = "File Already Exists.\n";
+        msg += dst_name;
+
+        msgBox.setText(msg);
+        msgBox.setInformativeText("Do you want to replace the file on the Z88 ?");
+        msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No |
+                                  QMessageBox::YesToAll | QMessageBox::NoToAll | QMessageBox::Cancel);
+        msgBox.setDefaultButton(QMessageBox::NoToAll);
+        msgBox.setIcon(QMessageBox::Warning);
+
+
+        switch(msgBox.exec()){
+            case QMessageBox::YesToAll:
+                *prompt_again |= (CommThread::YES_TO_OW_ALL);
+                m_cthread.sendFile(false);
+                break;
+            case QMessageBox::Yes:
+                m_cthread.sendFile(false);
+                break;
+            case QMessageBox::NoToAll:
+                *prompt_again |= (CommThread::NO_TO_OW_ALL);
+                m_cthread.sendFile(true);
+                break;
+            case  QMessageBox::No:
+                m_cthread.sendFile(true);
+                break;
+            case QMessageBox::Cancel:
+                if(m_cmdProgress) m_cmdProgress->reset();
+                refreshSelectedZ88DeviceView();
+                return;
+        }
     }
 }
 
@@ -838,7 +926,7 @@ void MainWindow::PromptRename(QMutableListIterator<Z88_Selection> *i)
     }
 }
 
-void MainWindow::PromptDeleteSpec(const QString &src_name, bool isDir, bool *prompt_again)
+void MainWindow::PromptDeleteSpec(const QString &src_name, bool isDir, CommThread::uPrompt *prompt_again)
 {
     QMessageBox msgBox;
     QString msg = "Delete ";
@@ -858,8 +946,8 @@ void MainWindow::PromptDeleteSpec(const QString &src_name, bool isDir, bool *pro
     msgBox.setDefaultButton(QMessageBox::No);
 
     switch(msgBox.exec()){
-        case QMessageBox::YesToAll:
-            *prompt_again = false;
+        case QMessageBox::YesToAll:          
+            *prompt_again &= ~(CommThread::PROMPT_USER);
             // drop through
         case QMessageBox::Yes:
             m_cthread.deleteFileDirectory(false);
@@ -869,7 +957,6 @@ void MainWindow::PromptDeleteSpec(const QString &src_name, bool isDir, bool *pro
             break;
         case QMessageBox::Cancel:
             if(m_cmdProgress) m_cmdProgress->reset();
-        //    refreshSelectedZ88DeviceView();
             return;
     }
 }
@@ -1173,7 +1260,7 @@ static bool findDupes(const QList<DeskTop_Selection> &selections, DeskTop_Select
   */
 void MainWindow::StartSending(QList<DeskTop_Selection> *desk_selections, QList<Z88_Selection> &z88_selections)
 {
-    bool prompt4each = false;
+    CommThread::uPrompt prompt4each = 0;
 
     QList<DeskTop_Selection> *ds = new QList<DeskTop_Selection> (*desk_selections);
 
@@ -1276,7 +1363,7 @@ void MainWindow::StartSending(QList<DeskTop_Selection> *desk_selections, QList<Z
 
     switch(msgBox.exec()){
         case QMessageBox::Yes:
-            prompt4each = true;
+            prompt4each = CommThread::PROMPT_USER;
             break;
         case  QMessageBox::No:
             break;
@@ -1293,7 +1380,7 @@ void MainWindow::StartSending(QList<DeskTop_Selection> *desk_selections, QList<Z
 
 void MainWindow::StartReceiving(QList<Z88_Selection> &z88_selections, QList<DeskTop_Selection> &deskSelList)
 {
-    bool prompt4each = false;
+    CommThread::uPrompt prompt4each = 0;
 
     /**
       * Count the Number of Files to Receive, ignore Directories
@@ -1345,7 +1432,7 @@ void MainWindow::StartReceiving(QList<Z88_Selection> &z88_selections, QList<Desk
 
     switch(msgBox.exec()){
         case QMessageBox::Yes:
-            prompt4each = true;
+            prompt4each = CommThread::PROMPT_USER;
             break;
         case  QMessageBox::No:
             break;
