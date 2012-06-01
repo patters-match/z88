@@ -56,11 +56,13 @@ public:
 
 signals:
     void ItemSelectionChanged(int);
+    void Trigger_Transfer();
 
 private slots:
     void ItemSelectionChanged(const QModelIndex &);
     void DirLoaded(const QString &);
     void ActionsMenuSel(QAction * act);
+    void ItemDoubleClicked(const QModelIndex & index);
 
 protected:
     /**

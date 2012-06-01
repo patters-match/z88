@@ -308,6 +308,17 @@ void MainWindow::createActions()
             SIGNAL(SerialPortSelChanged()),
             this,
             SLOT(SerialPortSelChanged()));
+
+    connect( m_Z88StorageView,
+             SIGNAL(Trigger_Transfer()),
+             this,
+             SLOT(Trigger_Transfer()));
+
+    connect( m_DeskTopTreeView,
+             SIGNAL(Trigger_Transfer()),
+             this,
+             SLOT(Trigger_Transfer()));
+
 }
 
 /**
@@ -745,6 +756,7 @@ void MainWindow::PromptReceiveSpec(const QString &src_name, const QString &dst_n
                 break;
             case  QMessageBox::No:
                 m_cthread.receiveFile(true);
+                return;
                 break;
             case QMessageBox::Cancel:
                 if(m_cmdProgress) m_cmdProgress->reset();
@@ -821,6 +833,7 @@ void MainWindow::PromptSendSpec(const QString &src_name, const QString &dst_name
                 break;
             case  QMessageBox::No:
                 m_cthread.sendFile(true);
+                return;
                 break;
             case QMessageBox::Cancel:
                 if(m_cmdProgress) m_cmdProgress->reset();
@@ -1071,6 +1084,13 @@ void MainWindow::SerialPortSelChanged()
 
     if(m_prefsDialog->getSerialPort_Name(serialPortname, port_shortname)){
         m_cthread.open(serialPortname, port_shortname);
+    }
+}
+
+void MainWindow::Trigger_Transfer()
+{
+    if(enaTransferButton() && !m_cthread.isBusy()){
+        TransferFiles();
     }
 }
 

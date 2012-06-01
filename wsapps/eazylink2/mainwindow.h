@@ -111,6 +111,8 @@ private slots:
       */
     void SerialPortSelChanged();
 
+    void Trigger_Transfer();
+
 protected:
     bool openSelSerialDialog();
 

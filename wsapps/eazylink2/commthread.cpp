@@ -1702,9 +1702,6 @@ bool CommThread::shouldPromptUser(const DeskTop_Selection &Source, const QString
 
 bool CommThread::shouldPromptUser(const Z88_Selection &Source, const QString &destFspec)
 {
-    qDebug() << "Should promt" << destFspec << " m_enaPromtUser=" << m_enaPromtUser;
-    qDebug() << "(Source.getType() == Z88_DevView::type_File)" << (Source.getType() == Z88_DevView::type_File);
-
     if((m_enaPromtUser & NO_TO_OW_ALL) || !(m_enaPromtUser & YES_TO_OW_ALL) &&
         (Source.getType() == Z88_DevView::type_File))
     {
@@ -1715,16 +1712,11 @@ bool CommThread::shouldPromptUser(const Z88_Selection &Source, const QString &de
 
         if(ofile.exists()){
             m_enaPromtUser |= FILE_EXISTS;
-            qDebug() << "file exists";
         }
     }
 
-    bool rc =   (Source.getType() == Z88_DevView::type_File) &&
+    return (Source.getType() == Z88_DevView::type_File) &&
             ((m_enaPromtUser & PROMPT_USER) ||
             ((m_enaPromtUser & FILE_EXISTS) &&
              !(m_enaPromtUser & (NO_TO_OW_ALL | YES_TO_OW_ALL))) );
-
-    qDebug()<< " Rc = " << rc;
-
-    return rc;
 }

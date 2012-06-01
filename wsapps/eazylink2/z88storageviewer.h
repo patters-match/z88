@@ -53,6 +53,7 @@ public:
 
 signals:
     void ItemSelectionChanged(int);
+    void Trigger_Transfer();
     
 public slots:
     void Z88Devices_result(QList<QByteArray> *devlist);

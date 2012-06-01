@@ -531,12 +531,19 @@ void Z88StorageViewer::itemClicked(QTreeWidgetItem *, int )
     changedSelected_file();
 }
 
+/**
+  * AZ88 Item Is double Clicked Handler.
+  * @param item is the Item that was last selected
+  * @param column is the selected col.
+  */
 void Z88StorageViewer::itemDblClicked(QTreeWidgetItem *item, int column)
 {
     if(item){
         changedSelected_file();
 
-        qDebug() << "item dbl clicked =" << item->text(column);
+        if(!item->childCount()){
+            emit Trigger_Transfer();
+        }
     }
 }
 

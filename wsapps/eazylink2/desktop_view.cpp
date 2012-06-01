@@ -72,6 +72,8 @@ Desktop_View::Desktop_View(CommThread &cthread, Prefrences_dlg *pref_dlg, MainWi
 
     connect(m_qmenu,SIGNAL(triggered(QAction *)), this, SLOT(ActionsMenuSel(QAction *)));
 
+    connect(this, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(ItemDoubleClicked(QModelIndex)));
+
     installEventFilter(this);
 
     m_actionMkdir = m_qmenu->addAction("MakeDir");
@@ -485,6 +487,13 @@ void Desktop_View::ActionsMenuSel(QAction *act)
         setInitViewPath("/", "/");
 #endif
         return;
+    }
+}
+
+void Desktop_View::ItemDoubleClicked(const QModelIndex &index)
+{
+    if(!m_DeskFileSystem->isDir(index)){
+        emit Trigger_Transfer();
     }
 }
 
