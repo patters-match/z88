@@ -49,6 +49,8 @@ public:
 
     bool isValidFilename(const QString &fname, QString &sug_fname);
 
+    bool SelectedDevice_isEmpty();
+
 signals:
     void ItemSelectionChanged(int);
     

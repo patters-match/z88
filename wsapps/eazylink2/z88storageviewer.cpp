@@ -303,6 +303,16 @@ bool Z88StorageViewer::isValidFilename(const QString &fname, QString &sug_fname)
     return true;
 }
 
+bool Z88StorageViewer::SelectedDevice_isEmpty()
+{
+    Z88_DevView *dev = getSelectedDevice();
+
+    if(dev){
+        return !dev->topLevelItemCount();
+    }
+    return true;
+}
+
 /**
   * Create a directory in the selected Dir.
   * @return true on success.

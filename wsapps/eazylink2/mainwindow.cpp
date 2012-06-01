@@ -1107,6 +1107,15 @@ bool MainWindow::enaTransferButton()
             ui->Ui::MainWindow::actionTransfer->setEnabled(false);
             return false;
         }
+
+        /**
+          * Don't allow a copy of a blank Z88 Storage device
+          */
+        if(m_Z88SelectionCount == 1 && m_Z88StorageView->SelectedDevice_isEmpty()){
+            ui->Ui::MainWindow::actionTransfer->setEnabled(false);
+            return false;
+        }
+
         ui->Ui::MainWindow::actionTransfer->setEnabled(true);
         ui->Ui::MainWindow::actionTransfer->setText("Transfer Z88 -> Desk");
     }
@@ -1412,7 +1421,7 @@ void MainWindow::StartReceiving(QList<Z88_Selection> &z88_selections, QList<Desk
     int dir_cnt(z88_selections.count() - filecnt);
 
     if(dir_cnt == 1){
-        msg += QString("1 Directory").arg(dir_cnt);
+        msg += QString("1 Directory");
     }
     else{
         msg += QString("%1 Directories").arg(dir_cnt);
