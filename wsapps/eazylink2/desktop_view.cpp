@@ -869,7 +869,6 @@ bool Desktop_View::eventFilter(QObject *, QEvent *ev)
 
         m_qmenu->exec(QCursor::pos());
 
-
     }
 
     /**

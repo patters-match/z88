@@ -536,7 +536,7 @@ void Z88StorageViewer::itemClicked(QTreeWidgetItem *, int )
   * @param item is the Item that was last selected
   * @param column is the selected col.
   */
-void Z88StorageViewer::itemDblClicked(QTreeWidgetItem *item, int column)
+void Z88StorageViewer::itemDblClicked(QTreeWidgetItem *item, int )
 {
     if(item){
         changedSelected_file();

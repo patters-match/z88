@@ -88,7 +88,10 @@ protected:
         OP_initdelDirFiles,     // Init a New Delete Selections.
         OP_delDirFiles,         // Start the Delete Dir/Files process.
         OP_delDirFile,          // Delete A Directory of File on the Z88.
-        OP_delDirFileNext       // Skip the current file, and delete next one in selection.
+        OP_delDirFileNext,      // Skip the current file, and delete next one in selection.
+        OP_impExpSendFiles,     // Send Files Over Imp-Export Pull-down Protocol to Z88.
+        OP_impExpRecvFiles      // Receive Files Over Imp-Export Pull-down Protocol from Z88.
+
     };
 
 public:
@@ -151,8 +154,14 @@ public:
     bool deleteFileDirectories(QList<Z88_Selection> *z88Selections, uPrompt prompt_usr);
     bool deleteFileDirectory(bool next);
 
+    bool impExpSendFile(const QString &Z88_devname, const QStringList &z88Filenames, const QStringList &hostFilenames); // send a file to Z88 using Imp/Export protocol
+    bool impExpReceiveFiles(const QString &hostPath);                      // receive Z88 files from Imp/Export popdown
+
+
 private slots:
     void CancelSignal();
+    void impExpRecFilename(const QString &fname);
+    void impExpRecFile_Done(const QString &fname);
 
 signals:
     void enableCmds(bool ena, bool com_isOpen);
@@ -286,6 +295,10 @@ protected:
       * The Destination Path for a transfer
       */
     QString                             m_destPath;
+
+    QStringList                         m_ImpExp_srcList;
+
+    QStringList                         m_ImpExp_dstList;
 
     /**
      * Pointer to the Main Window Form

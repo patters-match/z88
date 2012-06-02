@@ -54,8 +54,17 @@ CommThread::CommThread(Z88SerialPort &port, MainWindow *parent)
    m_abort(false)
 {
 
+    connect(&m_sport,
+            SIGNAL(impExpRecFilename(const QString &)),
+            this,
+            SLOT(impExpRecFilename(const QString &)) );
 
+    connect(&m_sport,
+            SIGNAL(impExpRecFile_Done(const QString &)),
+            this,
+            SLOT(impExpRecFile_Done(const QString &)) );
 }
+
 /**
   * The Destructor
   */
@@ -922,6 +931,44 @@ done2:
             _getFileNames(m_z88devspec);
             run();
         }
+        case OP_impExpSendFiles:
+        {
+            int cnt = m_ImpExp_srcList.count();
+            bool rc = true;
+
+            if(cnt){
+                for(int idx = 0; idx < cnt; idx++ ){
+                    if(m_abort){
+                        break;
+                    }
+
+                    QString msg = "Sending ";
+                    msg += m_ImpExp_dstList[idx];
+
+                    emit cmdStatus("Imp-Export Sending: " + m_ImpExp_srcList[idx]);
+                    emit cmdProgress(msg, idx, cnt);
+                  //  qDebug() << "dev=" << m_destPath << " src=" << m_ImpExp_srcList[idx] << " dst=" << m_ImpExp_dstList[idx];
+
+                    if(!(rc = m_sport.impExpSendFile(m_destPath + m_ImpExp_dstList[idx], m_ImpExp_srcList[idx]))){
+                        emit boolCmd_result("Imp-Export Send " + m_ImpExp_srcList[idx], false);
+                        break;
+                    }
+                }
+                if(rc){
+                    emit boolCmd_result("Imp-Export Send", rc);
+                }
+                emit cmdProgress("done", -1, -1);
+            }
+            break;
+        }
+        case OP_impExpRecvFiles:
+        {
+            emit cmdStatus("Imp-Export Receiving into: " + m_destPath);
+
+            bool rc = m_sport.impExpReceiveFiles(m_destPath);
+            emit boolCmd_result("Imp-Export Receive", rc);
+            break;
+        }
     }
 abort:
     m_mutex.lock();
@@ -955,6 +1002,24 @@ void CommThread::SetupAbortHandler(QProgressDialog *pd)
 void CommThread::CancelSignal()
 {
     AbortCmd();
+}
+
+/**
+  * Imp-Export Protocol Receive File Start
+  * @param fname is the File name that started.
+  */
+void CommThread::impExpRecFilename(const QString &fname)
+{
+    emit cmdStatus("Imp-Export receiving file: " + fname);
+}
+
+/**
+  * Import Export Protocol Receive File Complete.
+  * @param fname is the name of the Complete file.
+  */
+void CommThread::impExpRecFile_Done(const QString &fname)
+{
+    emit boolCmd_result("Imp-Export Receive " + fname, true);
 }
 
 /**
@@ -1410,6 +1475,48 @@ bool CommThread::deleteFileDirectory(bool next)
     else{
         startCmd(OP_delDirFile,false);
     }
+
+    return true;
+}
+
+bool CommThread::impExpSendFile(const QString &Z88_devname, const QStringList &z88Filenames, const QStringList &hostFilenames)
+{
+    QMutexLocker locker(&m_mutex);
+
+    /**
+      * Make sure we are not running another command
+      */
+    if(m_curOP != OP_idle){
+        return false;
+    }
+
+    if(z88Filenames.count() != hostFilenames.count() || Z88_devname.isEmpty()){
+        return false;
+    }
+
+    m_destPath = Z88_devname;
+    m_ImpExp_dstList = z88Filenames;
+    m_ImpExp_srcList = hostFilenames;
+
+    startCmd(OP_impExpSendFiles);
+
+    return true;
+}
+
+bool CommThread::impExpReceiveFiles(const QString &hostPath)
+{
+    QMutexLocker locker(&m_mutex);
+
+    /**
+      * Make sure we are not running another command
+      */
+    if(m_curOP != OP_idle){
+        return false;
+    }
+
+    m_destPath = hostPath;
+
+    startCmd(OP_impExpRecvFiles);
 
     return true;
 }

@@ -23,6 +23,9 @@
 #include <QMessageBox>
 #include <QProgressDialog>
 #include <QFileSystemModel>
+#include <QErrorMessage>
+#include <QFileDialog>
+
 
 #include "commthread.h"
 #include "z88storageviewer.h"
@@ -83,6 +86,7 @@ private slots:
     void displayPrefs();
 
     void ImpExp_sendfile();
+    void ImpExp_receivefiles();
 
     /**
       * I/O Thread Call-backs
@@ -118,6 +122,9 @@ protected:
 
     void StartSending(QList<DeskTop_Selection> *desk_selections, QList<Z88_Selection> &z88_selections);
     void StartReceiving(QList<Z88_Selection> &z88_selections, QList<DeskTop_Selection> &deskSelList);
+
+    void StartImpExpSending(const QStringList &src_fileNames);
+    bool StartImpExpReceive(const QString &dst_dir);
 
 private:
     /**
@@ -170,12 +177,13 @@ private:
     int m_DeskSelectionCount;
 
     bool m_isTransfer;
-#if 0
+
     /**
-      * Preferences Dialog
+      * Error Message / Help Display Dialogs.
       */
-    Prefrences_dlg *m_prefsDialog;
-#endif
+    QErrorMessage m_ImpExp_sendErrMsg;
+    QErrorMessage m_ImpExp_recvErrMsg;
+
     QString m_conf_Fspec;
 
     /**

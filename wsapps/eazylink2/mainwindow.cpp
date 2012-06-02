@@ -24,6 +24,7 @@
 #include <QLabel>
 #include <QPushButton>
 #include <QtCore/QTime>
+#include <QDir>
 #include <qdebug.h>
 
 #include "mainwindow.h"
@@ -190,6 +191,9 @@ void MainWindow::createActions()
 
     ui->Ui::MainWindow::actionSend_files_to_Z88ImpExport->setStatusTip(tr("Send files to Z88 using the Imp-Export Pulldown"));
     connect(ui->Ui::MainWindow::actionSend_files_to_Z88ImpExport, SIGNAL(triggered()), this, SLOT(ImpExp_sendfile()));
+
+    ui->Ui::MainWindow::actionReceive_files_from_Z88_Imp_Export_popdown->setStatusTip(tr("Send files to Z88 using the Imp-Export Pulldown"));
+    connect(ui->Ui::MainWindow::actionReceive_files_from_Z88_Imp_Export_popdown, SIGNAL(triggered()), this, SLOT(ImpExp_receivefiles()));
 
     ui->Ui::MainWindow::actionHello->setStatusTip(tr("Send HelloZ88"));
     connect(ui->Ui::MainWindow::actionHello, SIGNAL(triggered()), this, SLOT(helloZ88()));
@@ -408,7 +412,6 @@ void MainWindow::ReloadZ88View()
     m_Z88StorageView->getFileTree(ena_filesizes, ena_timeddate);
 }
 
-
 /**
   * The User requested Abort of Command.
   */
@@ -417,16 +420,119 @@ void MainWindow::AbortCmd()
     m_cthread.AbortCmd();
 }
 
-
 /**
   * Send a file to the Z88 using the Imp-Exp pulldown app protocol.
   */
 void MainWindow::ImpExp_sendfile()
 {
+    QString HelpMsg;
+    HelpMsg += "1)Please make sure you have the following Z88 Settings:";
+    HelpMsg += " Baud = 9600 and ";
+    HelpMsg += " Parity = NONE. -- (Press []S on the Z88 to enter Setup Menu). ";
 
-    // qDebug() << m_sport.impExpSendFile(":RAM.1/romupdate.txt", "/Users/oernohaz/files/z88/bitbucket/z88/z88apps/romupdate/readme.txt");
-    //qDebug() << m_sport.sendFile(":RAM.1/DIRX/hello2.txt", "/Users/oernohaz/files/hello2.txt");
+    m_ImpExp_sendErrMsg.showMessage(HelpMsg, "IMPEXP_Send");
 
+    HelpMsg = "2)On the Z88, Launch the Imp-Export Pulldown -- (Press []X)  ";
+    m_ImpExp_sendErrMsg.showMessage(HelpMsg, "IMPEXP_Send");
+
+    HelpMsg = "3)On the Z88 Imp-Export Pulldown, Select option 'b' and press 'Enter'.";
+    m_ImpExp_sendErrMsg.showMessage(HelpMsg, "IMPEXP_Send");
+
+    HelpMsg = "4)On the Desktop, select files to Send to the Z88.";
+    m_ImpExp_sendErrMsg.showMessage(HelpMsg, "IMPEXP_Send");
+
+    if(m_ImpExp_sendErrMsg.isVisible()){
+        QFont qfont;
+        qfont.setStyleHint(QFont::Courier);
+        qfont.setBold(true);
+        m_ImpExp_sendErrMsg.setFont(qfont);
+
+        m_ImpExp_sendErrMsg.setWindowTitle("Imp-Export Help.");
+        m_ImpExp_sendErrMsg.setMinimumSize(500,200);
+        m_ImpExp_sendErrMsg.exec();
+    }
+
+    QFileDialog dialog(this);
+    dialog.setFileMode(QFileDialog::ExistingFiles);
+
+    dialog.setViewMode(QFileDialog::Detail);
+
+    QStringList src_fileNames;
+
+    QList<DeskTop_Selection> *deskSelList;
+    deskSelList = m_DeskTopTreeView->getSelection(false);
+
+    QFileInfo qf(deskSelList->first().getFspec());
+
+    if(qf.isDir()){
+        dialog.setDirectory(qf.filePath());
+    }
+    else{
+        dialog.setDirectory(qf.dir());
+        dialog.selectFile(qf.fileName());
+    }
+
+    if(dialog.exec()){
+         src_fileNames = dialog.selectedFiles();
+         StartImpExpSending(src_fileNames);
+    }
+}
+
+/**
+  * Imp-Export Protocol Receive Files Menu Handler
+  */
+void MainWindow::ImpExp_receivefiles()
+{
+    QString HelpMsg;
+    HelpMsg += "1)Please make sure you have the following Z88 Settings:";
+    HelpMsg += " Baud = 9600 and ";
+    HelpMsg += " Parity = NONE. -- (Press []S on the Z88 to enter Setup Menu). ";
+
+    m_ImpExp_recvErrMsg.showMessage(HelpMsg, "IMPEXP_Rx");
+
+    HelpMsg = "2)On the Z88, Launch the Imp-Export Pulldown -- (Press []X)  ";
+    m_ImpExp_recvErrMsg.showMessage(HelpMsg, "IMPEXP_Rx");
+
+    HelpMsg = "3)On the Desktop, select Subdirectory to receive Z88 Files.";
+    m_ImpExp_recvErrMsg.showMessage(HelpMsg, "IMPEXP_Rx");
+
+    HelpMsg = "4)On the Z88 Imp-Export Pulldown, Select option 's' and press 'Enter'.";
+    HelpMsg += "Then Enter the Filename";
+    m_ImpExp_recvErrMsg.showMessage(HelpMsg, "IMPEXP_Rx");
+
+    if(m_ImpExp_recvErrMsg.isVisible()){
+        QFont qfont;
+        qfont.setStyleHint(QFont::Courier);
+        qfont.setBold(true);
+        m_ImpExp_recvErrMsg.setFont(qfont);
+
+        m_ImpExp_recvErrMsg.setWindowTitle("Imp-Export Help.");
+        m_ImpExp_recvErrMsg.setMinimumSize(500,200);
+        m_ImpExp_recvErrMsg.exec();
+    }
+
+    QFileDialog dialog(this);
+    dialog.setFileMode(QFileDialog::Directory);
+    dialog.setViewMode(QFileDialog::List);
+
+    QStringList src_fileNames;
+
+    QList<DeskTop_Selection> *deskSelList;
+    deskSelList = m_DeskTopTreeView->getSelection(false);
+
+    QFileInfo qf(deskSelList->first().getFspec());
+
+    if(qf.isDir()){
+        dialog.setDirectory(qf.filePath());
+    }
+    else{
+        dialog.setDirectory(qf.dir());
+    }
+
+    if(dialog.exec()){
+         src_fileNames = dialog.selectedFiles();
+         StartImpExpReceive(src_fileNames.first());
+    }
 }
 
 void MainWindow::UrlUserGuide()
@@ -1036,7 +1142,6 @@ void MainWindow::renameCmd_result(const QString &msg, bool success)
                                        QMessageBox::Abort | QMessageBox::Retry | QMessageBox::Ignore);
         switch(reply){
         case QMessageBox::Abort:
-         //   refreshSelectedZ88DeviceView();
             break;
         case QMessageBox::Retry:
             m_cthread.renameFileDirRety(false);
@@ -1489,5 +1594,82 @@ void MainWindow::StartReceiving(QList<Z88_Selection> &z88_selections, QList<Desk
     }
     bool dest_isDir = (deskSelList[0].getType() == DeskTop_Selection::type_Dir);
     m_cthread.receiveFiles(&z88_selections, deskSelList[0].getFspec(), dest_isDir, prompt4each);
+}
+
+void MainWindow::StartImpExpSending(const QStringList &src_fileNames)
+{
+    if(src_fileNames.isEmpty()){
+        return;
+    }
+
+    QStringList dst_filenames;
+    QListIterator<QString> i(src_fileNames);
+
+    while(i.hasNext()){
+        /**
+          * Strip the Leading Path
+          */
+        QString fname(i.peekNext());
+        int idx = fname.lastIndexOf(QDir::separator());
+
+        if(idx >= 0){
+            fname = fname.mid(idx+1);
+        }
+
+        /**
+          * Validate the Filenames
+          */
+        QString sug;
+        bool inv_name = true;
+
+        while(inv_name){
+            if(m_Z88StorageView->isValidFilename(fname, sug)){
+                inv_name = false;
+                dst_filenames.append(fname);
+            }
+            else{
+                bool ok;
+                QString newname;
+
+                newname = QInputDialog::getText(this,
+                                                "Source Filename Error:",
+                                                fname + " is Invalid.\n" +
+                                                "\nPlease create a new name.",
+                                                QLineEdit::Normal,
+                                                sug,
+                                                &ok);
+
+                if(!ok || newname.isEmpty()){
+                    return;
+                }
+                fname = newname;
+            }
+        }
+        i.next();
+    }
+
+    QStringList Z88Slots;
+
+    Z88Slots.append("0");
+    Z88Slots.append("1");
+    Z88Slots.append("2");
+    Z88Slots.append("3");
+
+    bool ok;
+    QString item = QInputDialog::getItem(this, "Eazylink2",
+                                          tr("Select Z88 Dest Storage Slot:"), Z88Slots, 0, false, &ok);
+    if (ok && !item.isEmpty()){
+        QString devname = QString(":RAM.");
+        devname += item.mid(0,1);
+        devname += "/";
+        m_cthread.impExpSendFile(devname, dst_filenames, src_fileNames);
+    }
+
+    return;
+}
+
+bool MainWindow::StartImpExpReceive(const QString &dst_dir)
+{
+    return m_cthread.impExpReceiveFiles(dst_dir);
 }
 

@@ -62,7 +62,7 @@ public slots:
     void changedSelected_device(int index);
     void changedSelected_file();
     void itemClicked ( QTreeWidgetItem * item, int column );
-    void itemDblClicked ( QTreeWidgetItem * item, int column );
+    void itemDblClicked ( QTreeWidgetItem * item, int  );
 
     void ActionsMenuSel(QAction * act);
 
