@@ -585,7 +585,7 @@ public class Slots extends JPanel {
             // default select an Intel 1mb Flash Card
             getCardSizeComboBox().setModel(intelFlashSizes);
             getCardTypeComboBox().setSelectedIndex(2); // default Intel Flash card
-            getCardSizeComboBox().setSelectedIndex(1); // default 1024K size
+            getCardSizeComboBox().setSelectedIndex(0); // default 1024K size
 
             insertCardDialogAccessibility(true);
         }
