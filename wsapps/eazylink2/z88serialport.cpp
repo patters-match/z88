@@ -58,6 +58,7 @@ Z88SerialPort::Z88SerialPort()
     char _freeMemDevCmd[] = { 27, 'M' };
     char _receiveFilesCmd[] = { 27, 's' };
     char _sendFilesCmd[] = { 27, 'b' };
+    char _crc32FileCmd[] = { 27, 'i' };
 
     // Initialize ESC command constants
     synchEazyLinkProtocol = QByteArray( _synchEazyLinkProtocol, 3); // EazyLink Synchronize protocol
@@ -91,7 +92,8 @@ Z88SerialPort::Z88SerialPort()
     getZ88TimeCmd = QByteArray( _getZ88TimeCmd, 2);             // EazyLink V4.8 Get Z88 system Date/Time
     setZ88TimeCmd = QByteArray( _setZ88TimeCmd, 2);             // EazyLink V4.8 Set Z88 System Clock using PC system time
     freeMemoryCmd = QByteArray( _freeMemoryCmd, 2);             // EazyLink V4.8 Get free memory for all RAM cards
-    freeMemDevCmd = QByteArray( _freeMemDevCmd, 2);             // EazyLink V4.8 Get free memory for specific device
+    freeMemDevCmd = QByteArray( _freeMemDevCmd, 2);             // EazyLink V5.0 Get free memory for specific device
+    crc32FileCmd = QByteArray( _crc32FileCmd, 2);               // EazyLink V5.2 Get CRC-32 of specified Z88 file
 
     transmitting = portOpenStatus = z88AvailableStatus = false;
 
@@ -587,7 +589,7 @@ QByteArray Z88SerialPort::getFileSize(const QString &filename)
         if (transmitting == true) {
             qDebug() << "getFileSize(): Transmission already ongoing with Z88 - aborting...";
         } else {
-            // receive date stamps into list
+            // receive file size into list
             receiveListItems(fileSizeList);
             transmitting = false;
 
@@ -1288,6 +1290,43 @@ bool Z88SerialPort::sendFile(const QString &z88Filename, QString hostFilename)
     }
 
     return false;
+}
+
+
+/*****************************************************************************
+ *      EazyLink Server V5.2, protocol level 06
+ *      Get CRC-32 of Z88 file
+ *****************************************************************************/
+QByteArray Z88SerialPort::getFileCrc32(const QString &filename)
+{
+    QList<QByteArray> fileSizeList;
+    QByteArray fileCrc32String;
+
+    QByteArray crc32FileCmdRequest = crc32FileCmd;
+    crc32FileCmdRequest.append(filename);
+    crc32FileCmdRequest.append(escZ);
+    if ( sendCommand(crc32FileCmdRequest) == true) {
+        if (transmitting == true) {
+            qDebug() << "getFileCrc32(): Transmission already ongoing with Z88 - aborting...";
+        } else {
+            QTime timeout = QTime::currentTime().addSecs(10);
+            while(QTime::currentTime() < timeout) {
+                // wait max 10 secs for a response, because CRC-32 might take some time for 32K+ files
+                if (port.bytesAvailable() > 0)
+                    break;
+            }
+
+            // receive crc-32 into list
+            receiveListItems(fileSizeList);
+            transmitting = false;
+
+            if (fileSizeList.count() > 0) {
+                fileCrc32String = fileSizeList.at(0); // the "list" has only one item...
+            }
+        }
+    }
+
+    return fileCrc32String;
 }
 
 

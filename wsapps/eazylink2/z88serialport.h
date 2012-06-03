@@ -82,6 +82,7 @@ public:
     QByteArray getZ88FreeMem();                                     // receive string of Z88 All Free Memory
     QByteArray getZ88DeviceFreeMem(QByteArray device);              // receive string of Free Memory from specific device
     QByteArray getFileSize(const QString &fileName);                // receive string of Z88 File size
+    QByteArray getFileCrc32(const QString &fileName);               // receive string of Z88 File CRC-32
     QList<QByteArray> getDevices();                                 // receive a list of Z88 Storage Devices
     QList<QByteArray> getZ88Time();                                 // receive string of current Z88 date & time
     QList<QByteArray> getRamDefaults();                             // receive default RAM & default Directory from Z88 Panel popdown
@@ -138,7 +139,8 @@ private:
     QByteArray getZ88TimeCmd;                               // ESC e    EazyLink V4.8 Get Z88 system Date/Time
     QByteArray setZ88TimeCmd;                               // ESC p    EazyLink V4.8 Set Z88 System Clock using PC system time
     QByteArray freeMemoryCmd;                               // ESC m    EazyLink V4.8 Get free memory for all RAM cards
-    QByteArray freeMemDevCmd;                               // ESC M    EazyLink V4.8 Get free memory for specific device
+    QByteArray freeMemDevCmd;                               // ESC M    EazyLink V5.0 Get free memory for specific device
+    QByteArray crc32FileCmd;                                // ESC i    EazyLink V5.2 Get CRC-32 of specified Z88 file
 
     bool        getByte(unsigned char  &byte);              // Receive a byte from the Z88
     bool        synchronize();                              // Synchronize with Z88 before sending command
