@@ -24,15 +24,14 @@
      include "integer.def"
      include "rtmvars.def"
 
-     xdef ESC_I_cmd, CrcFile, CrcBuffer
+     xdef ESC_I_cmd, HexNibble
 
-     lib FileEprFindFile, FileEprFileSize
+     lib FileEprFindFile
 
      xref crctable
      xref ESC_N, ESC_Z, SendString, Debug_message, Message37
      xref CheckEprName, Set_TraFlag, Restore_TraFlag, Fetch_pathname
      xref Get_file_handle, Close_file, CheckFileAreaOfSlot, Msg_Command_aborted
-
 
 
 ; ************************************************************
@@ -56,7 +55,7 @@
                CALL CheckEprName                  ; Path begins with ":EPR.x"?
                JR   Z, get_eprfilecrc32           ; Yes, try to get CRC-32 of file in File Area...
 
-               LD   A, op_in                      ; open file for transfer...
+               LD   A, OP_IN                      ; open file for transfer...
                LD   D,H
                LD   E,L                           ; (explicit filename overwrite original fname)
                CALL Get_file_handle               ; open file
@@ -65,17 +64,14 @@
 
                LD   BC,FileBufferSize
                LD   DE,File_buffer
-               CALL CrcFile
+               CALL CrcRamFile
                LD   (File_ptr),DE
                LD   (File_ptr+2),HL               ; low byte, high byte sequense of CRC-32
 
 .send_filecrc32
                LD   HL, File_ptr                  ; convert 32bit integer
                LD   DE, filename_buffer           ; to an ASCII string
-               LD   A, 1                          ; disable zero blanking
-               CALL_OZ(GN_Pdn)
-               XOR  A
-               LD   (DE),A                        ; null-terminate string
+               CALL Int32Hex
 
                LD   HL,ESC_N
                CALL SendString
@@ -107,7 +103,8 @@
                jr      c,file_not_found           ; this slot had no file area (no card)...
                jr      nz,file_not_found          ; File Entry was not found...
 
-;               call    FileEprFileSize            ; get 24bit file size in CDE (C = high byte)
+               ; Crc-32 here for Epr file...
+
                LD      (File_ptr),de
                LD      (File_ptr+2),hl            ; DEHL -> (File_ptr)
                jr      send_filecrc32
@@ -115,7 +112,7 @@
 
 ; *************************************************************************************
 ;
-; Perform a CRC-32 of file, already opened by caller, from current file pointer until EOF.
+; Perform a CRC-32 of RAM file, already opened by caller, from current file pointer until EOF.
 ; If the complete file is to be CRC'ed then it is vital that the current file pointer
 ; is at the beginning of the file (use FA_PTR / OS_FWM to reset file pointer) before
 ; executing this routine.
@@ -133,7 +130,7 @@
 ;    ......../IXIY same
 ;    AFBCDEHL/.... different
 ;
-.CrcFile            call initCrc             ; initialise CRC register D'E'B'C' to FFFFFFFF
+.CrcRamFile         call initCrc             ; initialise CRC register D'E'B'C' to FFFFFFFF
 .scanfile           push bc
                     push de
                     push bc
@@ -248,3 +245,44 @@
                     ret                      ; exit with DEHL=CRC
 
 .end_CrcBuffer
+
+; Convert 32bit integer at (HL) to hexadecimal string at (DE)
+; Integer is in low byte, high byte order
+.Int32Hex
+                    push hl
+                    ex   de,hl
+                    ld   bc,9
+                    add  hl,bc
+                    ex   de,hl
+                    pop  hl
+                    xor  a
+                    ld   (de),a              ; DE points a null-terminator
+                    dec  de                  ; ready for first nibble of lowest byte of 32bit integer
+
+                    ld   b,4                 ; 32bit integer is 4 bytes
+.conv_hexloop
+                    ld   a,(hl)
+                    and  $0f
+                    call hexnibble
+                    ld   (de),a
+                    dec  de
+
+                    ld   a,(hl)
+                    and  $f0
+                    rrca
+                    rrca
+                    rrca
+                    rrca
+                    call hexnibble
+                    ld   (de),a
+                    dec  de
+                    inc  hl                  ; get ready for next byte of 32bit integer..
+                    djnz conv_hexloop
+                    ret
+
+.HexNibble          cp   $0a
+                    jr   nc, hexnibble_16
+                    add  a,$30
+                    ret
+.hexnibble_16       add  a,$37
+                    ret

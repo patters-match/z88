@@ -19,6 +19,7 @@
 
     XREF ErrHandler
     XREF Write_Message, Message2, ESC_B, ESC_ESC
+    XREF HexNibble
 
     XDEF Check_synch, Send_Synch, Check_timeout, SendString, SendString_ackn
     XDEF Send_ESC, Send_ESC_byte_ackn
@@ -374,10 +375,4 @@
                   POP  BC
                   RET
 
-.HexNibble        CP   $0A
-                  JR   NC, HexNibble_16
-                  ADD  A,$30
-                  RET
-.HexNibble_16     ADD  A,$37
-                  RET
 
