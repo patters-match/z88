@@ -51,6 +51,7 @@ public:
       */
     void run();
 
+protected:
     /**
       * The Opcodes for Each command the CommThread Supports.
       */
@@ -87,8 +88,37 @@ public:
         OP_initdelDirFiles,     // Init a New Delete Selections.
         OP_delDirFiles,         // Start the Delete Dir/Files process.
         OP_delDirFile,          // Delete A Directory of File on the Z88.
-        OP_delDirFileNext       // Skip the current file, and delete next one in selection.
+        OP_delDirFileNext,      // Skip the current file, and delete next one in selection.
+        OP_impExpSendFiles,     // Send Files Over Imp-Export Pull-down Protocol to Z88.
+        OP_impExpRecvFiles      // Receive Files Over Imp-Export Pull-down Protocol from Z88.
+
     };
+
+public:
+
+    /**
+      * User Prompt State Flags.
+      */
+    typedef uint32_t uPrompt;
+
+    /**
+      * Prompt User for files
+      */
+    static const uPrompt PROMPT_USER    = 0x1;
+    /**
+     * Over Write All
+     */
+    static const uPrompt YES_TO_OW_ALL  = 0x2;
+
+    /**
+      * No To over write all
+      */
+    static const uPrompt NO_TO_OW_ALL   = 0x4;
+
+    /**
+      * File Exists Flag
+      */
+    static const uPrompt FILE_EXISTS    = 0x20;
 
     /**
      * Api Commands
@@ -111,21 +141,27 @@ public:
     bool getDirectories(const QString &devname);
     bool getFileNames(const QString &devname);
     bool getZ88FileSystemTree(bool ena_size = false, bool ena_date = false);
-    bool receiveFiles(QList<Z88_Selection> *z88Selections, const QString &destpath, bool dest_isDir, bool prompt_usr = false);
+    bool receiveFiles(QList<Z88_Selection> *z88Selections, const QString &destpath, bool dest_isDir, uPrompt prompt_usr);
     bool receiveFile(bool skip);
     bool dirLoadComplete();
-    bool sendFiles(QList<DeskTop_Selection> *deskSelections, const QString &destpath, bool prompt_usr = false);
+    bool sendFiles(QList<DeskTop_Selection> *deskSelections, const QString &destpath, uPrompt prompt_usr);
     bool sendFile(bool skip);
     bool RefreshZ88DeviceView(const QString &devname);
     bool mkDir(const QString &dirname);
     bool renameFileDirectories(QList<Z88_Selection> *z88Selections);
     bool renameFileDir(const QString &oldname, const QString &newname);
     bool renameFileDirRety(bool next);
-    bool deleteFileDirectories(QList<Z88_Selection> *z88Selections, bool prompt_usr = false);
+    bool deleteFileDirectories(QList<Z88_Selection> *z88Selections, uPrompt prompt_usr);
     bool deleteFileDirectory(bool next);
+
+    bool impExpSendFile(const QString &Z88_devname, const QStringList &z88Filenames, const QStringList &hostFilenames); // send a file to Z88 using Imp/Export protocol
+    bool impExpReceiveFiles(const QString &hostPath);                      // receive Z88 files from Imp/Export popdown
+
 
 private slots:
     void CancelSignal();
+    void impExpRecFilename(const QString &fname);
+    void impExpRecFile_Done(const QString &fname);
 
 signals:
     void enableCmds(bool ena, bool com_isOpen);
@@ -138,20 +174,25 @@ signals:
     void Z88Devices_result(QList<QByteArray> *devlist);
     void Z88Dir_result(const QString &devname, QList<QByteArray> *dirlist);
     void Z88FileSpeclist_result(const QString &devname, QList<Z88FileSpec> *filespeclist);
-    void PromptReceiveSpec(const QString &src_name, const QString &dst_name, bool *Continue);
-    void PromptSendSpec(const QString &src_name, const QString &dst_name, bool *Continue);
+    void PromptReceiveSpec(const QString &src_name, const QString &dst_name, CommThread::uPrompt *Continue);
+    void PromptSendSpec(const QString &src_name, const QString &dst_name, CommThread::uPrompt *Continue);
     void DirLoadComplete(const bool &);
     void refreshSelectedZ88DeviceView();
     void PromptRename(QMutableListIterator<Z88_Selection> *item);
     void renameCmd_result(const QString &msg, bool success);
     void renameZ88Item(Z88_Selection *item, const QString &newname);
-    void PromptDeleteSpec(const QString &src_name, bool isDir, bool *Continue);
+    void PromptDeleteSpec(const QString &src_name, bool isDir, CommThread::uPrompt *Continue);
     void PromptDeleteRetry(const QString &msg, bool isDir);
     void deleteZ88Item(QTreeWidgetItem *item);
 
 protected:
     void startCmd(const comOpcodes_t &op, bool ena_resume = true);
     comOpcodes_t setState_Idle();
+
+    bool shouldPromptUser(const DeskTop_Selection &Source, const QString &destFspec);
+
+    bool shouldPromptUser(const Z88_Selection &Source, const QString &destFspec);
+
 
     comOpcodes_t _getDirectories(const QString &devname);
     comOpcodes_t _getFileNames(const QString &devname);
@@ -207,7 +248,11 @@ protected:
     bool m_redo_lastCmd;
     bool m_enaFilesize;
     bool m_enaTimeDate;
-    bool m_enaPromtUser;
+
+    /**
+      * Prompt user State flags
+      */
+    uPrompt m_enaPromtUser;
 
     /**
       * Translation / Conversion flags
@@ -250,6 +295,10 @@ protected:
       * The Destination Path for a transfer
       */
     QString                             m_destPath;
+
+    QStringList                         m_ImpExp_srcList;
+
+    QStringList                         m_ImpExp_dstList;
 
     /**
      * Pointer to the Main Window Form

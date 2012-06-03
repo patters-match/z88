@@ -32,9 +32,13 @@ Z88_Selection::Z88_Selection(QTreeWidgetItem *item, const QString &dev_name) :
     if(m_QtreeItem){
         setRelFspec(m_QtreeItem->text(0));
     }
+
     setItemFspec(m_QtreeItem, dev_name);
 }
 
+/**
+  * Set the Item's Filename Spec.
+  */
 const QString &Z88_Selection::setItemFspec(QTreeWidgetItem *item, const QString &devname)
 {
     QString fname;
@@ -423,6 +427,37 @@ void Z88_DevView::set_EntryIcon(QTreeWidgetItem *qt, const QString &fname, entry
 }
 
 /**
+  * Save all the Expanded Items and Collapse them.
+  */
+void Z88_DevView::SaveCollapseAll()
+{
+    int cnt = topLevelItemCount();
+
+    m_ExpandedList.clear();
+
+    while(cnt){
+        QTreeWidgetItem *item(topLevelItem(cnt));
+        if(item && item->isExpanded()){
+            m_ExpandedList.append(item);
+            item->setExpanded(false);
+        }
+        cnt--;
+    }
+}
+
+/**
+  * Restore all the Previously Collapsed Exmpanded Items.
+  */
+void Z88_DevView::RestoreCollapseAll()
+{
+    QListIterator<QTreeWidgetItem*> i(m_ExpandedList);
+
+    while(i.hasNext()){
+        i.next()->setExpanded(true);
+    }
+}
+
+/**
   * Get the List of selected Files and Directories.
   * @param recurse set to true to get all the sub files within selected directories.
   * @return the list of fully qualified file names and directories.
@@ -436,7 +471,9 @@ QList<Z88_Selection> *Z88_DevView::getSelection(bool recurse)
       */
     if(recurse && selectedItems().isEmpty()){
         m_selChangeLock = true;
+        SaveCollapseAll();
         selectAll();
+        RestoreCollapseAll();
     }
 
     const QList<qti_p> &selections(selectedItems());

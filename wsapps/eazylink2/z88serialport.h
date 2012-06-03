@@ -71,8 +71,8 @@ public:
                            QByteArray updateDate);                  // set Create & Update date stamps of Z88 file
     bool sendFile(const QString &z88Filename, QString hostFilename);// send a file to Z88 using EazyLink protocol
 
-    bool impExpSendFile(QByteArray z88Filename, QString hostFilename); // send a file to Z88 using Imp/Export protocol
-    bool impExpReceiveFiles(QString hostPath);                      // receive Z88 files from Imp/Export popdown
+    bool impExpSendFile(const QString &z88Filename, const QString hostFilename); // send a file to Z88 using Imp/Export protocol
+    bool impExpReceiveFiles(const QString &hostPath);                      // receive Z88 files from Imp/Export popdown
     retcode receiveFiles(const QString &z88Filenames,
                          const QString &hostpath,
                          const QString &destFspec,
@@ -94,6 +94,11 @@ public:
     QString getOpenErrorString() const;                             // Get the port Open Error String.
 
 private slots:
+
+signals:
+    void impExpRecFilename(const QString &fname);
+    void impExpRecFile_Done(const QString &fname);
+
 
 private:
 

@@ -921,7 +921,7 @@ QByteArray Z88SerialPort::getZ88DeviceFreeMem(QByteArray device)
  *      Send a file to Z88 using Imp/Export protocol (Imp/Export popdown batch mode)
  *      Caller must ensure that the filename applies to Z88 standard
  *****************************************************************************/
-bool Z88SerialPort::impExpSendFile(QByteArray z88Filename, QString hostFilename)
+bool Z88SerialPort::impExpSendFile(const QString &z88Filename, const QString hostFilename)
 {
     QFile hostFile(hostFilename);
     QByteArray byte, escBSequence;
@@ -1118,7 +1118,7 @@ Z88SerialPort::retcode Z88SerialPort::receiveFiles(const QString &z88Filenames, 
  *      Receive one or more files from Z88 using Imp/Export protocol (Imp/Export popdown batch mode)
  *      Received files will be stored at <hostPath>
  *****************************************************************************/
-bool Z88SerialPort::impExpReceiveFiles(QString hostPath)
+bool Z88SerialPort::impExpReceiveFiles(const QString &hostPath)
 {
     unsigned char byte;
     QByteArray z88Filename, remoteFile, hexBytes;
@@ -1138,6 +1138,9 @@ bool Z88SerialPort::impExpReceiveFiles(QString hostPath)
 
         QString hostFilename = QString(hostPath).append((z88Filename.constData()+6));
         QFile hostFile(hostFilename);
+        QString tfile = hostFilename + ".xfer";
+
+        emit impExpRecFilename(hostFilename);
 
         if (hostFile.exists() == true) {
             // automatically replace existing host file
@@ -1163,6 +1166,14 @@ bool Z88SerialPort::impExpReceiveFiles(QString hostPath)
                                     case 'E':
                                         hostFile.write(remoteFile);     // write entire collected remote file contents to host file
                                         hostFile.close();
+                                        /**
+                                          * Work Around for QT bug
+                                          */
+                                        hostFile.rename(tfile);
+                                        hostFile.rename(hostFilename);
+
+                                        emit impExpRecFile_Done(hostFilename);
+
                                         recievingFile = false;
                                         break;
 

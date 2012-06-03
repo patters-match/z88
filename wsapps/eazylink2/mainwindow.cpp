@@ -24,6 +24,7 @@
 #include <QLabel>
 #include <QPushButton>
 #include <QtCore/QTime>
+#include <QDir>
 #include <qdebug.h>
 
 #include "mainwindow.h"
@@ -191,6 +192,9 @@ void MainWindow::createActions()
     ui->Ui::MainWindow::actionSend_files_to_Z88ImpExport->setStatusTip(tr("Send files to Z88 using the Imp-Export Pulldown"));
     connect(ui->Ui::MainWindow::actionSend_files_to_Z88ImpExport, SIGNAL(triggered()), this, SLOT(ImpExp_sendfile()));
 
+    ui->Ui::MainWindow::actionReceive_files_from_Z88_Imp_Export_popdown->setStatusTip(tr("Send files to Z88 using the Imp-Export Pulldown"));
+    connect(ui->Ui::MainWindow::actionReceive_files_from_Z88_Imp_Export_popdown, SIGNAL(triggered()), this, SLOT(ImpExp_receivefiles()));
+
     ui->Ui::MainWindow::actionHello->setStatusTip(tr("Send HelloZ88"));
     connect(ui->Ui::MainWindow::actionHello, SIGNAL(triggered()), this, SLOT(helloZ88()));
 
@@ -262,14 +266,14 @@ void MainWindow::createActions()
             SLOT(Z88Info_result(QList<QByteArray> *)));
 
     connect(&m_cthread,
-            SIGNAL(PromptReceiveSpec(const QString &, const QString &,bool *)),
+            SIGNAL(PromptReceiveSpec(const QString &, const QString &,CommThread::uPrompt *)),
             this,
-            SLOT(PromptReceiveSpec(const QString &, const QString &,bool *)));
+            SLOT(PromptReceiveSpec(const QString &, const QString &,CommThread::uPrompt *)));
 
     connect(&m_cthread,
-            SIGNAL(PromptSendSpec(const QString &, const QString &,bool *)),
+            SIGNAL(PromptSendSpec(const QString &, const QString &,CommThread::uPrompt *)),
             this,
-            SLOT(PromptSendSpec(const QString &, const QString &,bool *)));
+            SLOT(PromptSendSpec(const QString &, const QString &,CommThread::uPrompt  *)));
 
     connect(&m_cthread,
             SIGNAL(DirLoadComplete(const bool &)),
@@ -287,9 +291,9 @@ void MainWindow::createActions()
             SLOT(PromptRename(QMutableListIterator<Z88_Selection> *)));
 
     connect(&m_cthread,
-            SIGNAL(PromptDeleteSpec(const QString &, bool, bool *)),
+            SIGNAL(PromptDeleteSpec(const QString &, bool, CommThread::uPrompt *)),
             this,
-            SLOT(PromptDeleteSpec(const QString &, bool, bool *)));
+            SLOT(PromptDeleteSpec(const QString &, bool, CommThread::uPrompt *)));
 
     connect(&m_cthread,
             SIGNAL(PromptDeleteRetry(const QString &, bool)),
@@ -308,6 +312,17 @@ void MainWindow::createActions()
             SIGNAL(SerialPortSelChanged()),
             this,
             SLOT(SerialPortSelChanged()));
+
+    connect( m_Z88StorageView,
+             SIGNAL(Trigger_Transfer()),
+             this,
+             SLOT(Trigger_Transfer()));
+
+    connect( m_DeskTopTreeView,
+             SIGNAL(Trigger_Transfer()),
+             this,
+             SLOT(Trigger_Transfer()));
+
 }
 
 /**
@@ -397,7 +412,6 @@ void MainWindow::ReloadZ88View()
     m_Z88StorageView->getFileTree(ena_filesizes, ena_timeddate);
 }
 
-
 /**
   * The User requested Abort of Command.
   */
@@ -406,16 +420,119 @@ void MainWindow::AbortCmd()
     m_cthread.AbortCmd();
 }
 
-
 /**
   * Send a file to the Z88 using the Imp-Exp pulldown app protocol.
   */
 void MainWindow::ImpExp_sendfile()
 {
+    QString HelpMsg;
+    HelpMsg += "1)Please make sure you have the following Z88 Settings:";
+    HelpMsg += " Baud = 9600 and ";
+    HelpMsg += " Parity = NONE. -- (Press []S on the Z88 to enter Setup Menu). ";
 
-    // qDebug() << m_sport.impExpSendFile(":RAM.1/romupdate.txt", "/Users/oernohaz/files/z88/bitbucket/z88/z88apps/romupdate/readme.txt");
-    //qDebug() << m_sport.sendFile(":RAM.1/DIRX/hello2.txt", "/Users/oernohaz/files/hello2.txt");
+    m_ImpExp_sendErrMsg.showMessage(HelpMsg, "IMPEXP_Send");
 
+    HelpMsg = "2)On the Z88, Launch the Imp-Export Pulldown -- (Press []X)  ";
+    m_ImpExp_sendErrMsg.showMessage(HelpMsg, "IMPEXP_Send");
+
+    HelpMsg = "3)On the Z88 Imp-Export Pulldown, Select option 'b' and press 'Enter'.";
+    m_ImpExp_sendErrMsg.showMessage(HelpMsg, "IMPEXP_Send");
+
+    HelpMsg = "4)On the Desktop, select files to Send to the Z88.";
+    m_ImpExp_sendErrMsg.showMessage(HelpMsg, "IMPEXP_Send");
+
+    if(m_ImpExp_sendErrMsg.isVisible()){
+        QFont qfont;
+        qfont.setStyleHint(QFont::Courier);
+        qfont.setBold(true);
+        m_ImpExp_sendErrMsg.setFont(qfont);
+
+        m_ImpExp_sendErrMsg.setWindowTitle("Imp-Export Help.");
+        m_ImpExp_sendErrMsg.setMinimumSize(500,200);
+        m_ImpExp_sendErrMsg.exec();
+    }
+
+    QFileDialog dialog(this);
+    dialog.setFileMode(QFileDialog::ExistingFiles);
+
+    dialog.setViewMode(QFileDialog::Detail);
+
+    QStringList src_fileNames;
+
+    QList<DeskTop_Selection> *deskSelList;
+    deskSelList = m_DeskTopTreeView->getSelection(false);
+
+    QFileInfo qf(deskSelList->first().getFspec());
+
+    if(qf.isDir()){
+        dialog.setDirectory(qf.filePath());
+    }
+    else{
+        dialog.setDirectory(qf.dir());
+        dialog.selectFile(qf.fileName());
+    }
+
+    if(dialog.exec()){
+         src_fileNames = dialog.selectedFiles();
+         StartImpExpSending(src_fileNames);
+    }
+}
+
+/**
+  * Imp-Export Protocol Receive Files Menu Handler
+  */
+void MainWindow::ImpExp_receivefiles()
+{
+    QString HelpMsg;
+    HelpMsg += "1)Please make sure you have the following Z88 Settings:";
+    HelpMsg += " Baud = 9600 and ";
+    HelpMsg += " Parity = NONE. -- (Press []S on the Z88 to enter Setup Menu). ";
+
+    m_ImpExp_recvErrMsg.showMessage(HelpMsg, "IMPEXP_Rx");
+
+    HelpMsg = "2)On the Z88, Launch the Imp-Export Pulldown -- (Press []X)  ";
+    m_ImpExp_recvErrMsg.showMessage(HelpMsg, "IMPEXP_Rx");
+
+    HelpMsg = "3)On the Desktop, select Subdirectory to receive Z88 Files.";
+    m_ImpExp_recvErrMsg.showMessage(HelpMsg, "IMPEXP_Rx");
+
+    HelpMsg = "4)On the Z88 Imp-Export Pulldown, Select option 's' and press 'Enter'.";
+    HelpMsg += "Then Enter the Filename";
+    m_ImpExp_recvErrMsg.showMessage(HelpMsg, "IMPEXP_Rx");
+
+    if(m_ImpExp_recvErrMsg.isVisible()){
+        QFont qfont;
+        qfont.setStyleHint(QFont::Courier);
+        qfont.setBold(true);
+        m_ImpExp_recvErrMsg.setFont(qfont);
+
+        m_ImpExp_recvErrMsg.setWindowTitle("Imp-Export Help.");
+        m_ImpExp_recvErrMsg.setMinimumSize(500,200);
+        m_ImpExp_recvErrMsg.exec();
+    }
+
+    QFileDialog dialog(this);
+    dialog.setFileMode(QFileDialog::Directory);
+    dialog.setViewMode(QFileDialog::List);
+
+    QStringList src_fileNames;
+
+    QList<DeskTop_Selection> *deskSelList;
+    deskSelList = m_DeskTopTreeView->getSelection(false);
+
+    QFileInfo qf(deskSelList->first().getFspec());
+
+    if(qf.isDir()){
+        dialog.setDirectory(qf.filePath());
+    }
+    else{
+        dialog.setDirectory(qf.dir());
+    }
+
+    if(dialog.exec()){
+         src_fileNames = dialog.selectedFiles();
+         StartImpExpReceive(src_fileNames.first());
+    }
 }
 
 void MainWindow::UrlUserGuide()
@@ -566,6 +683,9 @@ void MainWindow::cmdProgress(const QString &title, int curVal, int total)
 {
     if(total < 0){
         if(m_cmdProgress) m_cmdProgress->reset();
+        /* re-sort (hack)*/
+        // m_DeskTopTreeView->sortByColumn(1,Qt::AscendingOrder);
+        // m_DeskTopTreeView->sortByColumn(0,Qt::AscendingOrder);
         return;
     }
 
@@ -716,7 +836,7 @@ void MainWindow::DeskTopSelectionChanged(int count)
   * @par dst_name is the destination filename.
   * @param prompt_again set this to false to stop prompting for the remaining files.
   */
-void MainWindow::PromptReceiveSpec(const QString &src_name, const QString &dst_name, bool *prompt_again)
+void MainWindow::PromptReceiveSpec(const QString &src_name, const QString &dst_name, CommThread::uPrompt *prompt_again)
 {
     QMessageBox msgBox;
     QString msg = "Copy ";
@@ -731,24 +851,66 @@ void MainWindow::PromptReceiveSpec(const QString &src_name, const QString &dst_n
                               QMessageBox::YesToAll | QMessageBox::Cancel);
     msgBox.setDefaultButton(QMessageBox::YesToAll);
 
-    switch(msgBox.exec()){
-        case QMessageBox::YesToAll:
-            *prompt_again = false;
-            // drop through
-        case QMessageBox::Yes:
-            m_cthread.receiveFile(false);
-            break;
-        case  QMessageBox::No:
-            m_cthread.receiveFile(true);
-            break;
-        case QMessageBox::Cancel:
-            if(m_cmdProgress) m_cmdProgress->reset();
-        //cmdProgress("Cancelled", m_z88Selections.count()-1,m_z88Selections.count())
-            return;
+    bool prompt_for_ow = (*prompt_again & CommThread::FILE_EXISTS) && !(*prompt_again & (CommThread::NO_TO_OW_ALL | CommThread::YES_TO_OW_ALL));
+
+    if((*prompt_again & CommThread::PROMPT_USER)){
+        switch(msgBox.exec()){
+            case QMessageBox::YesToAll:
+                *prompt_again &= ~(CommThread::PROMPT_USER);
+                // drop through
+            case QMessageBox::Yes:
+                if(!prompt_for_ow){
+                    m_cthread.receiveFile(false);
+                }
+                break;
+            case  QMessageBox::No:
+                m_cthread.receiveFile(true);
+                return;
+                break;
+            case QMessageBox::Cancel:
+                if(m_cmdProgress) m_cmdProgress->reset();
+                return;
+        }
+    }
+
+    /**
+      * Prompt User For Over-Write Options
+      */
+    if(prompt_for_ow) {
+
+        msg = "File Already Exists.\n";
+        msg += dst_name;
+
+        msgBox.setText(msg);
+        msgBox.setInformativeText("Do you want to replace the file on the Desktop ?");
+        msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No |
+                                  QMessageBox::YesToAll | QMessageBox::NoToAll | QMessageBox::Cancel);
+        msgBox.setDefaultButton(QMessageBox::NoToAll);
+        msgBox.setIcon(QMessageBox::Warning);
+
+        switch(msgBox.exec()){
+            case QMessageBox::YesToAll:
+                *prompt_again |= (CommThread::YES_TO_OW_ALL);
+                m_cthread.receiveFile(false);
+                break;
+            case QMessageBox::Yes:
+                m_cthread.receiveFile(false);
+                break;
+            case QMessageBox::NoToAll:
+                *prompt_again |= (CommThread::NO_TO_OW_ALL);
+                m_cthread.receiveFile(true);
+                break;
+            case  QMessageBox::No:
+                m_cthread.receiveFile(true);
+                break;
+            case QMessageBox::Cancel:
+                if(m_cmdProgress) m_cmdProgress->reset();
+                return;
+        }
     }
 }
 
-void MainWindow::PromptSendSpec(const QString &src_name, const QString &dst_name, bool *prompt_again)
+void MainWindow::PromptSendSpec(const QString &src_name, const QString &dst_name, CommThread::uPrompt *prompt_again)
 {
     QMessageBox msgBox;
     QString msg = "Copy ";
@@ -763,20 +925,68 @@ void MainWindow::PromptSendSpec(const QString &src_name, const QString &dst_name
                               QMessageBox::YesToAll | QMessageBox::Cancel);
     msgBox.setDefaultButton(QMessageBox::YesToAll);
 
-    switch(msgBox.exec()){
-        case QMessageBox::YesToAll:
-            *prompt_again = false;
-            // drop through
-        case QMessageBox::Yes:
-            m_cthread.sendFile(false);
-            break;
-        case  QMessageBox::No:
-            m_cthread.sendFile(true);
-            break;
-        case QMessageBox::Cancel:
-            if(m_cmdProgress) m_cmdProgress->reset();
-            refreshSelectedZ88DeviceView();
-            return;
+    bool prompt_for_ow = (*prompt_again & CommThread::FILE_EXISTS) && !(*prompt_again & (CommThread::NO_TO_OW_ALL | CommThread::YES_TO_OW_ALL));
+
+    /**
+      * Prompt user for a File to the Z88
+      */
+    if((*prompt_again & CommThread::PROMPT_USER)){
+        switch(msgBox.exec()){
+            case QMessageBox::YesToAll:
+                *prompt_again &= ~(CommThread::PROMPT_USER);
+                // drop through
+            case QMessageBox::Yes:
+                if(!prompt_for_ow){
+                    m_cthread.sendFile(false);
+                }
+                break;
+            case  QMessageBox::No:
+                m_cthread.sendFile(true);
+                return;
+                break;
+            case QMessageBox::Cancel:
+                if(m_cmdProgress) m_cmdProgress->reset();
+                refreshSelectedZ88DeviceView();
+                return;
+        }
+    }
+
+    /**
+      * Prompt User For Over-Write Options
+      */
+    if(prompt_for_ow) {
+
+        msg = "File Already Exists.\n";
+        msg += dst_name;
+
+        msgBox.setText(msg);
+        msgBox.setInformativeText("Do you want to replace the file on the Z88 ?");
+        msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No |
+                                  QMessageBox::YesToAll | QMessageBox::NoToAll | QMessageBox::Cancel);
+        msgBox.setDefaultButton(QMessageBox::NoToAll);
+        msgBox.setIcon(QMessageBox::Warning);
+
+
+        switch(msgBox.exec()){
+            case QMessageBox::YesToAll:
+                *prompt_again |= (CommThread::YES_TO_OW_ALL);
+                m_cthread.sendFile(false);
+                break;
+            case QMessageBox::Yes:
+                m_cthread.sendFile(false);
+                break;
+            case QMessageBox::NoToAll:
+                *prompt_again |= (CommThread::NO_TO_OW_ALL);
+                m_cthread.sendFile(true);
+                break;
+            case  QMessageBox::No:
+                m_cthread.sendFile(true);
+                break;
+            case QMessageBox::Cancel:
+                if(m_cmdProgress) m_cmdProgress->reset();
+                refreshSelectedZ88DeviceView();
+                return;
+        }
     }
 }
 
@@ -838,7 +1048,7 @@ void MainWindow::PromptRename(QMutableListIterator<Z88_Selection> *i)
     }
 }
 
-void MainWindow::PromptDeleteSpec(const QString &src_name, bool isDir, bool *prompt_again)
+void MainWindow::PromptDeleteSpec(const QString &src_name, bool isDir, CommThread::uPrompt *prompt_again)
 {
     QMessageBox msgBox;
     QString msg = "Delete ";
@@ -858,8 +1068,8 @@ void MainWindow::PromptDeleteSpec(const QString &src_name, bool isDir, bool *pro
     msgBox.setDefaultButton(QMessageBox::No);
 
     switch(msgBox.exec()){
-        case QMessageBox::YesToAll:
-            *prompt_again = false;
+        case QMessageBox::YesToAll:          
+            *prompt_again &= ~(CommThread::PROMPT_USER);
             // drop through
         case QMessageBox::Yes:
             m_cthread.deleteFileDirectory(false);
@@ -869,7 +1079,6 @@ void MainWindow::PromptDeleteSpec(const QString &src_name, bool isDir, bool *pro
             break;
         case QMessageBox::Cancel:
             if(m_cmdProgress) m_cmdProgress->reset();
-        //    refreshSelectedZ88DeviceView();
             return;
     }
 }
@@ -933,7 +1142,6 @@ void MainWindow::renameCmd_result(const QString &msg, bool success)
                                        QMessageBox::Abort | QMessageBox::Retry | QMessageBox::Ignore);
         switch(reply){
         case QMessageBox::Abort:
-         //   refreshSelectedZ88DeviceView();
             break;
         case QMessageBox::Retry:
             m_cthread.renameFileDirRety(false);
@@ -987,6 +1195,13 @@ void MainWindow::SerialPortSelChanged()
     }
 }
 
+void MainWindow::Trigger_Transfer()
+{
+    if(enaTransferButton() && !m_cthread.isBusy()){
+        TransferFiles();
+    }
+}
+
 /**
   * Validate and enable the Transfer button, based on the selected items in
   * both the z88 and Desktop frames.
@@ -1020,6 +1235,15 @@ bool MainWindow::enaTransferButton()
             ui->Ui::MainWindow::actionTransfer->setEnabled(false);
             return false;
         }
+
+        /**
+          * Don't allow a copy of a blank Z88 Storage device
+          */
+        if(m_Z88SelectionCount == 1 && m_Z88StorageView->SelectedDevice_isEmpty()){
+            ui->Ui::MainWindow::actionTransfer->setEnabled(false);
+            return false;
+        }
+
         ui->Ui::MainWindow::actionTransfer->setEnabled(true);
         ui->Ui::MainWindow::actionTransfer->setText("Transfer Z88 -> Desk");
     }
@@ -1173,7 +1397,7 @@ static bool findDupes(const QList<DeskTop_Selection> &selections, DeskTop_Select
   */
 void MainWindow::StartSending(QList<DeskTop_Selection> *desk_selections, QList<Z88_Selection> &z88_selections)
 {
-    bool prompt4each = false;
+    CommThread::uPrompt prompt4each = 0;
 
     QList<DeskTop_Selection> *ds = new QList<DeskTop_Selection> (*desk_selections);
 
@@ -1276,7 +1500,7 @@ void MainWindow::StartSending(QList<DeskTop_Selection> *desk_selections, QList<Z
 
     switch(msgBox.exec()){
         case QMessageBox::Yes:
-            prompt4each = true;
+            prompt4each = CommThread::PROMPT_USER;
             break;
         case  QMessageBox::No:
             break;
@@ -1293,7 +1517,7 @@ void MainWindow::StartSending(QList<DeskTop_Selection> *desk_selections, QList<Z
 
 void MainWindow::StartReceiving(QList<Z88_Selection> &z88_selections, QList<DeskTop_Selection> &deskSelList)
 {
-    bool prompt4each = false;
+    CommThread::uPrompt prompt4each = 0;
 
     /**
       * Count the Number of Files to Receive, ignore Directories
@@ -1325,7 +1549,7 @@ void MainWindow::StartReceiving(QList<Z88_Selection> &z88_selections, QList<Desk
     int dir_cnt(z88_selections.count() - filecnt);
 
     if(dir_cnt == 1){
-        msg += QString("1 Directory").arg(dir_cnt);
+        msg += QString("1 Directory");
     }
     else{
         msg += QString("%1 Directories").arg(dir_cnt);
@@ -1345,7 +1569,7 @@ void MainWindow::StartReceiving(QList<Z88_Selection> &z88_selections, QList<Desk
 
     switch(msgBox.exec()){
         case QMessageBox::Yes:
-            prompt4each = true;
+            prompt4each = CommThread::PROMPT_USER;
             break;
         case  QMessageBox::No:
             break;
@@ -1370,5 +1594,82 @@ void MainWindow::StartReceiving(QList<Z88_Selection> &z88_selections, QList<Desk
     }
     bool dest_isDir = (deskSelList[0].getType() == DeskTop_Selection::type_Dir);
     m_cthread.receiveFiles(&z88_selections, deskSelList[0].getFspec(), dest_isDir, prompt4each);
+}
+
+void MainWindow::StartImpExpSending(const QStringList &src_fileNames)
+{
+    if(src_fileNames.isEmpty()){
+        return;
+    }
+
+    QStringList dst_filenames;
+    QListIterator<QString> i(src_fileNames);
+
+    while(i.hasNext()){
+        /**
+          * Strip the Leading Path
+          */
+        QString fname(i.peekNext());
+        int idx = fname.lastIndexOf(QDir::separator());
+
+        if(idx >= 0){
+            fname = fname.mid(idx+1);
+        }
+
+        /**
+          * Validate the Filenames
+          */
+        QString sug;
+        bool inv_name = true;
+
+        while(inv_name){
+            if(m_Z88StorageView->isValidFilename(fname, sug)){
+                inv_name = false;
+                dst_filenames.append(fname);
+            }
+            else{
+                bool ok;
+                QString newname;
+
+                newname = QInputDialog::getText(this,
+                                                "Source Filename Error:",
+                                                fname + " is Invalid.\n" +
+                                                "\nPlease create a new name.",
+                                                QLineEdit::Normal,
+                                                sug,
+                                                &ok);
+
+                if(!ok || newname.isEmpty()){
+                    return;
+                }
+                fname = newname;
+            }
+        }
+        i.next();
+    }
+
+    QStringList Z88Slots;
+
+    Z88Slots.append("0");
+    Z88Slots.append("1");
+    Z88Slots.append("2");
+    Z88Slots.append("3");
+
+    bool ok;
+    QString item = QInputDialog::getItem(this, "Eazylink2",
+                                          tr("Select Z88 Dest Storage Slot:"), Z88Slots, 0, false, &ok);
+    if (ok && !item.isEmpty()){
+        QString devname = QString(":RAM.");
+        devname += item.mid(0,1);
+        devname += "/";
+        m_cthread.impExpSendFile(devname, dst_filenames, src_fileNames);
+    }
+
+    return;
+}
+
+bool MainWindow::StartImpExpReceive(const QString &dst_dir)
+{
+    return m_cthread.impExpReceiveFiles(dst_dir);
 }
 

@@ -23,6 +23,9 @@
 #include <QMessageBox>
 #include <QProgressDialog>
 #include <QFileSystemModel>
+#include <QErrorMessage>
+#include <QFileDialog>
+
 
 #include "commthread.h"
 #include "z88storageviewer.h"
@@ -83,6 +86,7 @@ private slots:
     void displayPrefs();
 
     void ImpExp_sendfile();
+    void ImpExp_receivefiles();
 
     /**
       * I/O Thread Call-backs
@@ -97,10 +101,10 @@ private slots:
     void Z88Info_result(QList<QByteArray> *infolist);
     void Z88SelectionChanged(int count);
     void DeskTopSelectionChanged(int count);
-    void PromptReceiveSpec(const QString &src_name, const QString &dst_name, bool *prompt_again);
-    void PromptSendSpec(const QString &src_name, const QString &dst_name, bool *prompt_again);
+    void PromptReceiveSpec(const QString &src_name, const QString &dst_name, CommThread::uPrompt *prompt_again);
+    void PromptSendSpec(const QString &src_name, const QString &dst_name, CommThread::uPrompt *prompt_again);
     void PromptRename(QMutableListIterator<Z88_Selection> *i);
-    void PromptDeleteSpec(const QString &src_name, bool isDir, bool *prompt_again);
+    void PromptDeleteSpec(const QString &src_name, bool isDir, CommThread::uPrompt *prompt_again);
     void PromptDeleteRetry(const QString &fspec, bool isDir);
     void renameCmd_result(const QString &msg, bool success);
     void renameZ88Item(Z88_Selection *item, const QString &newname);
@@ -111,11 +115,16 @@ private slots:
       */
     void SerialPortSelChanged();
 
+    void Trigger_Transfer();
+
 protected:
     bool openSelSerialDialog();
 
     void StartSending(QList<DeskTop_Selection> *desk_selections, QList<Z88_Selection> &z88_selections);
     void StartReceiving(QList<Z88_Selection> &z88_selections, QList<DeskTop_Selection> &deskSelList);
+
+    void StartImpExpSending(const QStringList &src_fileNames);
+    bool StartImpExpReceive(const QString &dst_dir);
 
 private:
     /**
@@ -168,12 +177,13 @@ private:
     int m_DeskSelectionCount;
 
     bool m_isTransfer;
-#if 0
+
     /**
-      * Preferences Dialog
+      * Error Message / Help Display Dialogs.
       */
-    Prefrences_dlg *m_prefsDialog;
-#endif
+    QErrorMessage m_ImpExp_sendErrMsg;
+    QErrorMessage m_ImpExp_recvErrMsg;
+
     QString m_conf_Fspec;
 
     /**

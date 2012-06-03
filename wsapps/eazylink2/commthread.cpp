@@ -38,7 +38,7 @@ CommThread::CommThread(Z88SerialPort &port, MainWindow *parent)
    m_redo_lastCmd(false),
    m_enaFilesize(false),
    m_enaTimeDate(false),
-   m_enaPromtUser(false),
+   m_enaPromtUser(0),
    m_byteTranslation(false),
    m_linefeedConversion(false),
    m_xferFileprogress(0),
@@ -54,8 +54,17 @@ CommThread::CommThread(Z88SerialPort &port, MainWindow *parent)
    m_abort(false)
 {
 
+    connect(&m_sport,
+            SIGNAL(impExpRecFilename(const QString &)),
+            this,
+            SLOT(impExpRecFilename(const QString &)) );
 
+    connect(&m_sport,
+            SIGNAL(impExpRecFile_Done(const QString &)),
+            this,
+            SLOT(impExpRecFile_Done(const QString &)) );
 }
+
 /**
   * The Destructor
   */
@@ -79,6 +88,7 @@ void CommThread::run()
     }
 
     m_runCnt++;
+
     emit enableCmds(false, m_sport.isOpen());
 
     if(m_abort){
@@ -385,9 +395,9 @@ void CommThread::run()
 
                 const Z88_Selection &z88sel(m_z88Sel_itr->peekNext());
                 QString srcname(z88sel.getFspec());
+                QString dest = m_destPath + "/" + z88sel.getRelFspec();
 
-                if(m_enaPromtUser){
-                    QString dest = m_destPath + "/" + z88sel.getRelFspec();
+                if(shouldPromptUser(z88sel, dest)){
                     emit PromptReceiveSpec(srcname, dest, &m_enaPromtUser);
                     break;
                 }
@@ -401,6 +411,8 @@ void CommThread::run()
         }
         case OP_receiveFile:        // Get the Specified file.
         {
+            Z88SerialPort::retcode rc;
+
             do{
                 if(m_abort){
                     cmdStatus("Transfer Aborted..");
@@ -423,9 +435,17 @@ void CommThread::run()
                 cmdStatus(msg);
 
                 /**
+                  * See if the File Already Exists and Skip the File if Needed.
+                  */
+                if((m_enaPromtUser & FILE_EXISTS) && (m_enaPromtUser & (NO_TO_OW_ALL))){
+                    goto skip2;
+                }
+
+                /**
                   * Receive the file from Z88
                   */
-                Z88SerialPort::retcode rc = m_sport.receiveFiles(srcname, m_destPath, z88sel.getRelFspec(), m_dest_isDir);
+                rc = m_sport.receiveFiles(srcname, m_destPath, z88sel.getRelFspec(), m_dest_isDir);
+
                 m_xferFileprogress++;
 
                 if(m_abort){
@@ -439,15 +459,17 @@ void CommThread::run()
                     qDebug() << "Transfer rc=" << rc;
                     break;
                 }
-
-                if(m_enaPromtUser && m_z88Sel_itr->hasNext()){
+skip2:
+                if(m_z88Sel_itr->hasNext()){
                     const Z88_Selection &z88selnxt(m_z88Sel_itr->peekNext());
-
-                    srcname = z88selnxt.getFspec();
                     QString dest = m_destPath + "/" + z88selnxt.getRelFspec();
 
-                    emit PromptReceiveSpec(srcname, dest, &m_enaPromtUser);
-                    break;
+                    if(shouldPromptUser(z88selnxt, dest)){
+                        srcname = z88selnxt.getFspec();
+
+                        emit PromptReceiveSpec(srcname, dest, &m_enaPromtUser);
+                        break;
+                    }
                 }
                 else{
                     emit boolCmd_result("File Transfer", true);
@@ -483,7 +505,10 @@ void CommThread::run()
             if(!m_abort){
                 setState_Idle();
                 emit DirLoadComplete(false);
-                m_runCnt--;
+                if(--m_runCnt <=0){
+                    m_runCnt = 0;
+                    emit enableCmds(true, m_sport.isOpen());
+                }
                 return;  // Don't re-enable commands here
             }
             break;
@@ -533,10 +558,14 @@ void CommThread::run()
             if(m_deskSel_itr->hasNext()){
 
                 const DeskTop_Selection &desksel(m_deskSel_itr->peekNext());
-                QString srcname(desksel.getFspec());
+                QString destFspec = m_destPath + desksel.getFname();
 
-                if(m_enaPromtUser && (desksel.getType() == DeskTop_Selection::type_File)){
-                    QString destFspec = m_destPath + desksel.getFname();
+                /**
+                  * Prompt the User for transfer and / or for Overwrite
+                  */
+                if(shouldPromptUser(desksel, destFspec))
+                {
+                    QString srcname(desksel.getFspec());
                     emit PromptSendSpec(srcname, destFspec, &m_enaPromtUser);
                     break;
                 }
@@ -583,10 +612,15 @@ void CommThread::run()
                     }
                 }
                 else{
+                    /**
+                      * See if the File Already Exists and Skip the File if Needed.
+                      */
+                    if((m_enaPromtUser & FILE_EXISTS) && (m_enaPromtUser & (NO_TO_OW_ALL))){
+                        goto skip1;
+                    }
+
                     rc = m_sport.sendFile(destFspec, srcname);
                 }
-
-                m_xferFileprogress++;
 
                 if(m_abort){
                     cmdStatus("Transfer Cancelled.");
@@ -598,14 +632,17 @@ void CommThread::run()
                 if(!rc){
                     break;
                 }
+skip1:             
+                m_xferFileprogress++;
 
                 if(m_deskSel_itr->hasNext()){
                     const DeskTop_Selection &deskselnxt(m_deskSel_itr->peekNext());
 
-                    if(m_enaPromtUser && (deskselnxt.getType() == DeskTop_Selection::type_File)){
+                    QString destFspec = m_destPath + deskselnxt.getFname();
+
+                    if(shouldPromptUser(deskselnxt, destFspec)){
 
                         srcname = deskselnxt.getFspec();
-                        QString destFspec = m_destPath + deskselnxt.getFname();
 
                         emit PromptSendSpec(srcname, destFspec, &m_enaPromtUser);
                         break;
@@ -773,7 +810,7 @@ done:
                 const Z88_Selection &z88sel(m_z88rendel_itr->peekNext());
                 QString srcname(z88sel.getFspec());
 
-                if(m_enaPromtUser){
+                if(m_enaPromtUser & PROMPT_USER){
                     emit PromptDeleteSpec(srcname, (z88sel.getType() == Z88_DevView::type_Dir), &m_enaPromtUser);
                     break;
                 }
@@ -852,7 +889,7 @@ done:
                     break;
                 }
 
-                if(m_enaPromtUser && m_z88rendel_itr->hasNext()){
+                if((m_enaPromtUser & PROMPT_USER) && m_z88rendel_itr->hasNext()){
                     const Z88_Selection &z88selnxt(m_z88rendel_itr->peekNext());
 
                     srcname = z88selnxt.getFspec();
@@ -894,6 +931,44 @@ done2:
             _getFileNames(m_z88devspec);
             run();
         }
+        case OP_impExpSendFiles:
+        {
+            int cnt = m_ImpExp_srcList.count();
+            bool rc = true;
+
+            if(cnt){
+                for(int idx = 0; idx < cnt; idx++ ){
+                    if(m_abort){
+                        break;
+                    }
+
+                    QString msg = "Sending ";
+                    msg += m_ImpExp_dstList[idx];
+
+                    emit cmdStatus("Imp-Export Sending: " + m_ImpExp_srcList[idx]);
+                    emit cmdProgress(msg, idx, cnt);
+                  //  qDebug() << "dev=" << m_destPath << " src=" << m_ImpExp_srcList[idx] << " dst=" << m_ImpExp_dstList[idx];
+
+                    if(!(rc = m_sport.impExpSendFile(m_destPath + m_ImpExp_dstList[idx], m_ImpExp_srcList[idx]))){
+                        emit boolCmd_result("Imp-Export Send " + m_ImpExp_srcList[idx], false);
+                        break;
+                    }
+                }
+                if(rc){
+                    emit boolCmd_result("Imp-Export Send", rc);
+                }
+                emit cmdProgress("done", -1, -1);
+            }
+            break;
+        }
+        case OP_impExpRecvFiles:
+        {
+            emit cmdStatus("Imp-Export Receiving into: " + m_destPath);
+
+            bool rc = m_sport.impExpReceiveFiles(m_destPath);
+            emit boolCmd_result("Imp-Export Receive", rc);
+            break;
+        }
     }
 abort:
     m_mutex.lock();
@@ -927,6 +1002,24 @@ void CommThread::SetupAbortHandler(QProgressDialog *pd)
 void CommThread::CancelSignal()
 {
     AbortCmd();
+}
+
+/**
+  * Imp-Export Protocol Receive File Start
+  * @param fname is the File name that started.
+  */
+void CommThread::impExpRecFilename(const QString &fname)
+{
+    emit cmdStatus("Imp-Export receiving file: " + fname);
+}
+
+/**
+  * Import Export Protocol Receive File Complete.
+  * @param fname is the name of the Complete file.
+  */
+void CommThread::impExpRecFile_Done(const QString &fname)
+{
+    emit boolCmd_result("Imp-Export Receive " + fname, true);
 }
 
 /**
@@ -1340,7 +1433,7 @@ bool CommThread::renameFileDirRety(bool next)
   * @param prompt_usr set to true to prompt for each file or directory before deleting.
   * @return true if the Coms thread is not already busy.
   */
-bool CommThread::deleteFileDirectories(QList<Z88_Selection> *z88Selections, bool prompt_usr)
+bool CommThread::deleteFileDirectories(QList<Z88_Selection> *z88Selections, uPrompt prompt_usr)
 {
     QMutexLocker locker(&m_mutex);
 
@@ -1382,6 +1475,48 @@ bool CommThread::deleteFileDirectory(bool next)
     else{
         startCmd(OP_delDirFile,false);
     }
+
+    return true;
+}
+
+bool CommThread::impExpSendFile(const QString &Z88_devname, const QStringList &z88Filenames, const QStringList &hostFilenames)
+{
+    QMutexLocker locker(&m_mutex);
+
+    /**
+      * Make sure we are not running another command
+      */
+    if(m_curOP != OP_idle){
+        return false;
+    }
+
+    if(z88Filenames.count() != hostFilenames.count() || Z88_devname.isEmpty()){
+        return false;
+    }
+
+    m_destPath = Z88_devname;
+    m_ImpExp_dstList = z88Filenames;
+    m_ImpExp_srcList = hostFilenames;
+
+    startCmd(OP_impExpSendFiles);
+
+    return true;
+}
+
+bool CommThread::impExpReceiveFiles(const QString &hostPath)
+{
+    QMutexLocker locker(&m_mutex);
+
+    /**
+      * Make sure we are not running another command
+      */
+    if(m_curOP != OP_idle){
+        return false;
+    }
+
+    m_destPath = hostPath;
+
+    startCmd(OP_impExpRecvFiles);
 
     return true;
 }
@@ -1492,7 +1627,7 @@ bool CommThread::getZ88FileSystemTree(bool ena_size, bool ena_date)
   * @parm prompt_usr set to true, to poll user for each file.
   * @return true if communication thread was idle.
   */
-bool CommThread::receiveFiles(QList<Z88_Selection> *z88Selections, const QString &destpath, bool dest_isDir, bool prompt_usr)
+bool CommThread::receiveFiles(QList<Z88_Selection> *z88Selections, const QString &destpath, bool dest_isDir, uPrompt prompt_usr)
 {
     QMutexLocker locker(&m_mutex);
 
@@ -1566,7 +1701,7 @@ bool CommThread::dirLoadComplete()
   * @param prompt_usr set to true on call to prompt before each file transfer.
   * @return true if the coms thread isn't already busy.
   */
-bool CommThread::sendFiles(QList<DeskTop_Selection> *deskSelections, const QString &destpath, bool prompt_usr)
+bool CommThread::sendFiles(QList<DeskTop_Selection> *deskSelections, const QString &destpath, uPrompt prompt_usr)
 {
     QMutexLocker locker(&m_mutex);
 
@@ -1651,4 +1786,57 @@ CommThread::comOpcodes_t CommThread::setState_Idle()
     m_mutex.unlock();
 
     return curop;
+}
+
+/**
+  * test to see if we should prompt the user for File Transfer
+  * @param Source is the Desktop Source File.
+  * @param destFspec is the Destination File on the Z88
+  * @return true if A prompt is needed.
+  */
+bool CommThread::shouldPromptUser(const DeskTop_Selection &Source, const QString &destFspec)
+{
+    m_enaPromtUser &= ~FILE_EXISTS;
+
+    if((m_enaPromtUser & NO_TO_OW_ALL) || !(m_enaPromtUser & YES_TO_OW_ALL) &&
+        (Source.getType() == DeskTop_Selection::type_File))
+    {
+        if(m_sport.isFileAvailable(destFspec)){
+            m_enaPromtUser |= FILE_EXISTS;
+        }
+    }
+
+    return  (Source.getType() == DeskTop_Selection::type_File) &&
+            ((m_enaPromtUser & PROMPT_USER) ||
+            ((m_enaPromtUser & FILE_EXISTS) &&
+             !(m_enaPromtUser & (NO_TO_OW_ALL | YES_TO_OW_ALL))) );
+}
+
+/**
+  * Test to seeif we should Prompt for User file transfer
+  * @parm Source is the Z88 Selection
+  * @parm destFspec is the destination on the desktop
+  * @return true is prompt is needed
+  */
+bool CommThread::shouldPromptUser(const Z88_Selection &Source, const QString &destFspec)
+{
+    m_enaPromtUser &= ~FILE_EXISTS;
+
+    if((m_enaPromtUser & NO_TO_OW_ALL) || !(m_enaPromtUser & YES_TO_OW_ALL) &&
+        (Source.getType() == Z88_DevView::type_File))
+    {
+        /**
+          * Check to see if the file exists on Desktop
+          */
+        QFile ofile(destFspec);
+
+        if(ofile.exists()){
+            m_enaPromtUser |= FILE_EXISTS;
+        }
+    }
+
+    return (Source.getType() == Z88_DevView::type_File) &&
+            ((m_enaPromtUser & PROMPT_USER) ||
+            ((m_enaPromtUser & FILE_EXISTS) &&
+             !(m_enaPromtUser & (NO_TO_OW_ALL | YES_TO_OW_ALL))) );
 }

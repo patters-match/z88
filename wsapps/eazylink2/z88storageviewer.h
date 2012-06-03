@@ -49,8 +49,11 @@ public:
 
     bool isValidFilename(const QString &fname, QString &sug_fname);
 
+    bool SelectedDevice_isEmpty();
+
 signals:
     void ItemSelectionChanged(int);
+    void Trigger_Transfer();
     
 public slots:
     void Z88Devices_result(QList<QByteArray> *devlist);
@@ -59,6 +62,8 @@ public slots:
     void changedSelected_device(int index);
     void changedSelected_file();
     void itemClicked ( QTreeWidgetItem * item, int column );
+    void itemDblClicked ( QTreeWidgetItem * item, int  );
+
     void ActionsMenuSel(QAction * act);
 
 protected:

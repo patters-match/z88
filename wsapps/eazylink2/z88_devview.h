@@ -72,6 +72,10 @@ protected:
 
     void set_EntryIcon(QTreeWidgetItem *qt, const QString &fname, entryType d_type);
 
+    void SaveCollapseAll();
+
+    void RestoreCollapseAll();
+
     /**
       * The Communications Thread.
       */
@@ -80,6 +84,8 @@ protected:
     QString    m_devname;
 
     QList<Z88_Selection> m_Selections;
+
+    QList<QTreeWidgetItem *> m_ExpandedList;
 
     /**
       * Flag to disable recursive events call-backs

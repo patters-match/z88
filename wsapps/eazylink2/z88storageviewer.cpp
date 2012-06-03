@@ -303,6 +303,16 @@ bool Z88StorageViewer::isValidFilename(const QString &fname, QString &sug_fname)
     return true;
 }
 
+bool Z88StorageViewer::SelectedDevice_isEmpty()
+{
+    Z88_DevView *dev = getSelectedDevice();
+
+    if(dev){
+        return !dev->topLevelItemCount();
+    }
+    return true;
+}
+
 /**
   * Create a directory in the selected Dir.
   * @return true on success.
@@ -410,9 +420,23 @@ void Z88StorageViewer::Z88Devices_result(QList<QByteArray> *devlist)
                 m_Eprdevices[dnum - '0'] = dview;
             }
             if(dview){
-                connect(dview,SIGNAL(itemSelectionChanged()),this,SLOT(changedSelected_file()));
-                connect(dview,SIGNAL(itemClicked( QTreeWidgetItem *, int )),
-                        this,SLOT(	itemClicked ( QTreeWidgetItem *, int )));
+                connect(dview,
+                        SIGNAL(itemSelectionChanged()),
+                        this,
+                        SLOT  (changedSelected_file())
+                        );
+
+                connect(dview,
+                        SIGNAL(itemClicked( QTreeWidgetItem *, int )),
+                        this,
+                        SLOT  (itemClicked( QTreeWidgetItem *, int ))
+                        );
+
+                connect(dview,
+                        SIGNAL(itemDoubleClicked( QTreeWidgetItem *, int )),
+                        this,
+                        SLOT  (itemDblClicked( QTreeWidgetItem *, int ))
+                        );
             }
         }
     }
@@ -508,12 +532,27 @@ void Z88StorageViewer::itemClicked(QTreeWidgetItem *, int )
 }
 
 /**
+  * AZ88 Item Is double Clicked Handler.
+  * @param item is the Item that was last selected
+  * @param column is the selected col.
+  */
+void Z88StorageViewer::itemDblClicked(QTreeWidgetItem *item, int )
+{
+    if(item){
+        changedSelected_file();
+
+        if(!item->childCount()){
+            emit Trigger_Transfer();
+        }
+    }
+}
+
+/**
   * The Context Menu Handler. (Right click)
   * @param act is the action that was performed.
   */
 void Z88StorageViewer::ActionsMenuSel(QAction *act)
 {
-
 
     if(act == m_actionMkdir){
         mkDir();
