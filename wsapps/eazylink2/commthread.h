@@ -99,7 +99,7 @@ public:
     /**
       * User Prompt State Flags.
       */
-    typedef uint32_t uPrompt;
+    typedef quint32 uPrompt;
 
     /**
       * Prompt User for files
