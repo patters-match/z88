@@ -1,6 +1,6 @@
 ; *************************************************************************************
 ; EazyLink - Fast Client/Server File Management, including support for PCLINK II protocol
-; (C) Gunther Strube (gbs@users.sourceforge.net) 1990-2011
+; (C) Gunther Strube (gstrube@gmail.com) 1990-2012
 ;
 ; EazyLink is free software; you can redistribute it and/or modify it under the terms of the
 ; GNU General Public License as published by the Free Software Foundation;
@@ -131,7 +131,7 @@
 .No_Parameter       DEFB 'N'
 .Yes_Parameter      DEFB 'Y'
 
-; Lookup table of commands available. 
+; Lookup table of commands available.
 ; (total of EazyLink commands identifiers in lookup tables, is specified in rtmvars.def)
 .EscCommands        DEFB 'A'                 ; PCLINK  II 'Hello'
                     DEFB 'H'                 ; PCLINK  II Devices

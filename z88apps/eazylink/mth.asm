@@ -1,6 +1,6 @@
 ; *************************************************************************************
 ; EazyLink - Fast Client/Server File Management, including support for PCLINK II protocol
-; (C) Gunther Strube (gbs@users.sourceforge.net) 1990-2011
+; (C) Gunther Strube (gstrube@gmail.com) 1990-2012
 ;
 ; EazyLink is free software; you can redistribute it and/or modify it under the terms of the
 ; GNU General Public License as published by the Free Software Foundation;
@@ -73,9 +73,9 @@
 ;
 .EazyLinkHelp
                     DEFB 12
-                    DEFM "EazyLink V5.1 - flexible file transfer", $7F
+                    DEFM "EazyLink V5.2 - flexible file transfer", $7F
                     DEFB $7F
-                    DEFM "Copyright (C) by G.Strube (gbs@users.sf.net) 1991-2011", $7F
+                    DEFM "Copyright (C) by G.Strube (gstrube@gmail.com) 1991-2012", $7F
                     DEFB $7F
                     DEFM "This software is released as Open Source (GPL licence).", $7F
                     DEFM "Get latest news, updates for EazyLink and", $7F

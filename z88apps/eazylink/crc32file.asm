@@ -12,7 +12,6 @@
 ; see the file COPYING. If not, write to the
 ; Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 ;
-;
 ; *************************************************************************************
 
 
@@ -23,16 +22,16 @@
      include "rtmvars.def"
 
      xdef ESC_I_cmd, CrcFile, CrcBuffer
-     
+
      lib FileEprFindFile, FileEprFileSize
-     
+
      xref crctable
      xref ESC_N, ESC_Z, SendString, Debug_message, Message37
      xref CheckEprName, Set_TraFlag, Restore_TraFlag, Fetch_pathname
      xref Get_file_handle, Close_file, CheckFileAreaOfSlot, Msg_Command_aborted
 
-     
-     
+
+
 ; ************************************************************
 ; Get CRC-32 of file (RAM or File Card)
 ;
@@ -111,7 +110,7 @@
                LD      (File_ptr+2),bc            ; CDE -> (File_ptr)
                jr      send_filelength
 
-               
+
 ; *************************************************************************************
 ;
 ; Perform a CRC-32 of file, already opened by caller, from current file pointer until EOF.

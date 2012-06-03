@@ -1,6 +1,6 @@
 ; *************************************************************************************
 ; EazyLink - Fast Client/Server File Management, including support for PCLINK II protocol
-; (C) Gunther Strube (gbs@users.sourceforge.net) 1990-2011
+; (C) Gunther Strube (gstrube@gmail.com) 1990-2012
 ;
 ; EazyLink is free software; you can redistribute it and/or modify it under the terms of the
 ; GNU General Public License as published by the Free Software Foundation;
@@ -161,7 +161,7 @@
 
 
 ; ***********************************************************************
-.RxByte           
+.RxByte
                   PUSH BC
                   LD   BC,3000
                   LD   IX,(serport_handle)

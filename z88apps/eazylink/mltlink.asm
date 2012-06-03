@@ -1,6 +1,6 @@
 ; *************************************************************************************
 ; EazyLink - Fast Client/Server File Management, including support for PCLINK II protocol
-; (C) Gunther Strube (gbs@users.sourceforge.net) 1990-2011
+; (C) Gunther Strube (gstrube@gmail.com) 1990-2012
 ;
 ; EazyLink is free software; you can redistribute it and/or modify it under the terms of the
 ; GNU General Public License as published by the Free Software Foundation;
@@ -276,7 +276,7 @@
 
 
 ; ***********************************************************************
-.Batch_Receive    
+.Batch_Receive
 .Batch_Receive_loop
                   CALL FetchBytes
                   JR   C, abort_batch_receive            ; system error
@@ -334,7 +334,7 @@
                   JR   abort_batch_receive
 .close_rcvd_file                                     ; ESC 'E' received.
                   CALL Flush_buffer                  ; save contents of buffer...
-                  CALL Close_file                    
+                  CALL Close_file
                   JP   Batch_Receive_loop            ; new file coming?
 ; byte in A to file...
 .byte_to_file     CP   LF                            ; is it a line feed?
@@ -363,7 +363,7 @@
 .RamFile_create_error
                   CALL Msg_file_aborted              ; write 'File aborted' message
                   jr   void_file_loop                ; wait for end of file marker, then back to main loop
-  
+
 .verify_write_filearea
                   call CheckFileAreaOfSlot           ; file area in slot A = "0", "1", "2" or "3" => C = slot number
                   jr   c,FileEpr_create_error        ; this slot had no file area (no card)...

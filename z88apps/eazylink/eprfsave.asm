@@ -1,6 +1,6 @@
 ; *************************************************************************************
 ; EazyLink - Fast Client/Server File Management, including support for PCLINK II protocol
-; (C) Gunther Strube (gbs@users.sourceforge.net) 1990-2011
+; (C) Gunther Strube (gstrube@gmail.com) 1990-2012
 ;
 ; EazyLink is free software; you can redistribute it and/or modify it under the terms of the
 ; GNU General Public License as published by the Free Software Foundation;
@@ -20,7 +20,7 @@
 ; *************************************************************************************
 ; Standard Z88 File Eprom Format.
 ;
-; Save file received through serial port to Flash Memory file area 
+; Save file received through serial port to Flash Memory file area
 ; in slot C
 ;
 ; The routine does NOT handle automatical "deletion" of existing files
@@ -221,7 +221,7 @@
 
 ; **************************************************************************
 ; Whenever a byte has been loaded into the buffer, update the total file size.
-; When the File has been blown completely to the file area, the file size is 
+; When the File has been blown completely to the file area, the file size is
 ; post-updated into the File Entry Header.
 ;
 ; IN:
@@ -232,7 +232,7 @@
 .FileEntrySizeCounter
         ld      a,1
         add     a,(iy + FileSize)
-        inc     (iy + FileSize)                 
+        inc     (iy + FileSize)
         ret     nc                              ; FileSize++ didn't go to zero (Fc = 1)
         ld      a,1
         add     a,(iy + FileSize+1)
@@ -258,24 +258,24 @@
         ld      d,c
         ld      e,a                             ; CDE = length of filename
         inc     de                              ; adjust length to point at first byte of file length block
-        call    AddPointerDistance              ; BHL points at low byte of (4-byte) file image length 
+        call    AddPointerDistance              ; BHL points at low byte of (4-byte) file image length
 
         push    iy
         pop     ix                              ; length of File Entry in IX
         ld      de,FileSize
         add     ix,de
-        push    ix 
-        pop     de                              ; point at 24-bit file length "block", IY+FileSize 
+        push    ix
+        pop     de                              ; point at 24-bit file length "block", IY+FileSize
 
         ld      a,(iy + CardType)               ; A = Flash card type
-        push    iy                              
+        push    iy
         ld      iy,3                            ; blow three bytes
         res     7,h
         set     6,h                             ; use segment 1 to blow bytes...
         call    FlashEprWriteBlock              ; blow File Entry file size from DE to Flash Eprom at BHL
         pop     iy
         pop     af
-        ret  
+        ret
 
 
 ; **************************************************************************
@@ -570,7 +570,7 @@
 .uveprom                                        ; ignore UV Eprom...
 .blow_failed
         ld      a, RC_BWR                       ; No, file entry can only be marked as deleted in Flash cards
-        scf                                     
+        scf
         jr      err_delfile
 
 
