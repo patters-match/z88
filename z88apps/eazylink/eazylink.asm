@@ -226,9 +226,6 @@ ELSE
 .DOREnd6
 ENDIF
 
-               DEFS $100-($PC%$100)     ; adjust code to position tables at xx00 address
-               include "crctable.asm"
-
 
 ; ***************************************************************************************************
 ;
@@ -309,89 +306,6 @@ ENDIF
                JR   endless
 
 
-; ***********************************************************************
-;
-; Display Command Window - use window "2"
-;
-.CommandWindow
-               LD   A,192 | '2'
-               LD   BC,$0000
-               LD   DE,$081A
-               LD   HL, command_banner
-               CALL CreateWindow
-               LD   B,0
-               LD   HL, cmds
-               CALL_OZ(Gn_Sop)
-               RET
-.cmds          DEFM 1, "2H2", 1, SD_DTS, 1, "2+T"
-               DEFM " TOGGLE TRANSLATION MODE", 13, 10
-               DEFM " TOGGLE LINEFEED MODE", 13, 10
-               DEFM " USE ISO/IBM TRANSLATIONS", 13, 10
-               DEFM " LOAD TRANSLATIONS", 13, 10
-               DEFM " QUIT EAZYLINK", 13, 10
-               DEFM 1, "2-T", 0
-
-
-; ***********************************************************************
-;
-; Display Log Window - use window "3"
-;
-.LogWindow
-               LD   A,128 | '3'
-               LD   BC,$001C
-               LD   DE,$083E
-               LD   HL, menu_banner
-               CALL CreateWindow
-               RET
-
-
-; *************************************************************************************
-;
-.DisplMenuBar  PUSH AF
-               PUSH HL
-               LD   HL,SelectMenuWindow
-               CALL_OZ(Gn_Sop)
-               LD   HL, xypos                     ; (old menu bar will be overwritten)
-               CALL_OZ(Gn_Sop)
-               LD   A,32                          ; display menu bar at (0,Y)
-               CALL_OZ(Os_out)
-               LD   A,(MenuBarPosn)               ; get Y position of menu bar
-               ADD  A,32                          ; VDU...
-               CALL_OZ(Os_out)
-               LD   HL,MenuBarOn                  ; now display menu bar at cursor
-               CALL_OZ(Gn_Sop)
-               POP  HL
-               POP  AF
-               RET
-.xypos         DEFM 1, "3@", 0
-.SelectMenuWindow
-               DEFM 1, "2H2", 1, "2-C", 0         ; activate menu window, no Cursor...
-.MenuBarOn     DEFM 1, "2+R"                      ; set reverse video
-               DEFM 1, "2A", 32+$1A, 0            ; XOR 'display' menu bar (20 chars wide)
-
-
-; *************************************************************************************
-;
-.RemoveMenuBar PUSH AF
-               PUSH HL
-               LD   HL,SelectMenuWindow
-               CALL_OZ(Gn_Sop)
-               LD   HL, xypos                     ; (old menu bar will be overwritten)
-               CALL_OZ(Gn_Sop)
-               LD   A,32                          ; display menu bar at (0,Y)
-               CALL_OZ(Os_out)
-               LD   A,(MenuBarPosn)               ; get Y position of menu bar
-               ADD  A,32                          ; VDU...
-               CALL_OZ(Os_out)
-               LD   HL,MenuBarOff                 ; now display menu bar at cursor
-               CALL_OZ(Gn_Sop)
-               POP  HL
-               POP  AF
-               RET
-.MenuBarOff    DEFM 1, "2-R"                      ; set reverse video
-               DEFM 1, "2A", 32+$1A, 0            ; apply 'display' menu bar (20 chars wide)
-
-
 ; *************************************************************************************
 ;
 .Poll
@@ -445,6 +359,99 @@ ENDIF
                CALL ActivateCommand               ; then execute...
                POP  HL
                JR   main_loop
+
+
+               DEFS $100-($PC%$100)               ; adjust code to position CRC-32 tables at xx00 address
+               include "crctable.asm"
+
+
+; *************************************************************************************
+;
+.DisplMenuBar  PUSH AF
+               PUSH HL
+               LD   HL,SelectMenuWindow
+               CALL_OZ(Gn_Sop)
+               LD   HL, xypos                     ; (old menu bar will be overwritten)
+               CALL_OZ(Gn_Sop)
+               LD   A,32                          ; display menu bar at (0,Y)
+               CALL_OZ(Os_out)
+               LD   A,(MenuBarPosn)               ; get Y position of menu bar
+               ADD  A,32                          ; VDU...
+               CALL_OZ(Os_out)
+               LD   HL,MenuBarOn                  ; now display menu bar at cursor
+               CALL_OZ(Gn_Sop)
+               POP  HL
+               POP  AF
+               RET
+.xypos         DEFM 1, "3@", 0
+.SelectMenuWindow
+               DEFM 1, "2H2", 1, "2-C", 0         ; activate menu window, no Cursor...
+.MenuBarOn     DEFM 1, "2+R"                      ; set reverse video
+               DEFM 1, "2A", 32+$1A, 0            ; XOR 'display' menu bar (20 chars wide)
+
+
+; *************************************************************************************
+;
+.RemoveMenuBar PUSH AF
+               PUSH HL
+               LD   HL,SelectMenuWindow
+               CALL_OZ(Gn_Sop)
+               LD   HL, xypos                     ; (old menu bar will be overwritten)
+               CALL_OZ(Gn_Sop)
+               LD   A,32                          ; display menu bar at (0,Y)
+               CALL_OZ(Os_out)
+               LD   A,(MenuBarPosn)               ; get Y position of menu bar
+               ADD  A,32                          ; VDU...
+               CALL_OZ(Os_out)
+               LD   HL,MenuBarOff                 ; now display menu bar at cursor
+               CALL_OZ(Gn_Sop)
+               POP  HL
+               POP  AF
+               RET
+.MenuBarOff    DEFM 1, "2-R"                      ; set reverse video
+               DEFM 1, "2A", 32+$1A, 0            ; apply 'display' menu bar (20 chars wide)
+
+
+
+; ***********************************************************************
+;
+; Display Log Window - use window "3"
+;
+.LogWindow
+               LD   A,128 | '3'
+               LD   BC,$001C
+               LD   DE,$083E
+               LD   HL, menu_banner
+               CALL CreateWindow
+               RET
+
+
+; ***********************************************************************
+;
+; Display Command Window - use window "2"
+;
+.CommandWindow
+               LD   A,192 | '2'
+               LD   BC,$0000
+               LD   DE,$081A
+               LD   HL, command_banner
+               CALL CreateWindow
+               LD   B,0
+               LD   HL, cmds
+               CALL_OZ(Gn_Sop)
+               RET
+
+.cmds          DEFM 1, "2H2", 1, SD_DTS, 1, "2+T"
+               DEFM " TOGGLE TRANSLATION MODE", 13, 10
+               DEFM " TOGGLE LINEFEED MODE", 13, 10
+               DEFM " USE ISO/IBM TRANSLATIONS", 13, 10
+               DEFM " LOAD TRANSLATIONS", 13, 10
+               DEFM " QUIT EAZYLINK", 13, 10
+               DEFM 1, "2-T", 0
+
+
+
+
 
 
 ; ******************************************************************************************
