@@ -78,8 +78,8 @@
                     DEFM "Copyright (C) by G.Strube (gstrube@gmail.com) 1991-2012", $7F
                     DEFB $7F
                     DEFM "This software is released as Open Source (GPL licence).", $7F
-                    DEFM "Get latest news, updates for EazyLink and", $7F
-                    DEFM "other Z88 software at http://www.rakewell.com"
+                    DEFM "Get latest news, updates for EazyLink and other", $7F
+                    DEFM "Z88 software at https://cambridgez88.jira.com"
                     DEFB 0
 
 .cmd_d_help
