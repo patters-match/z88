@@ -18,7 +18,7 @@
 ; Application Safe workspace
 
 ; EazyLink commands identifiers in lookup tables
-DEFC TotalOfCmds = 33
+DEFC TotalOfCmds = 34
 
 DEFC SerportXonXoffMode = 1        ; Parity No, Xon/Xoff Yes (serial port software handshake)
 DEFC SerportHardwareMode = 2       ; Parity No, Xon/Xoff No (serial port hardware handshake)

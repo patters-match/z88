@@ -160,6 +160,7 @@
      XREF EazyLinkCommands
      XREF EazyLinkHelp
 
+     XDEF crctable
      XDEF ErrHandler
      XDEF Write_message, Debug_message
      XDEF Msg_File_Open_error, Msg_Protocol_error, Msg_file_aborted, Msg_No_Room
@@ -224,6 +225,9 @@ ELSE
 .NameEnd6      DEFB $FF
 .DOREnd6
 ENDIF
+
+               DEFS $100-($PC%$100)     ; adjust code to position tables at xx00 address
+               include "crctable.asm"
 
 
 ; ***************************************************************************************************

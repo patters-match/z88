@@ -24,5 +24,6 @@ byteio
 fileio
 eprfsave
 eprfsend
+crc32file
 consts
 mth
