@@ -1,4 +1,7 @@
 ; *************************************************************************************
+; EazyLink - Fast Client/Server File Management, including support for PCLINK II protocol
+; (C) Gunther Strube (gstrube@gmail.com) 1990-2012
+;
 ; 32bit Cyclic Redundancy Checksum Management for EazyLink
 ; CRC algorithm from UnZip, by Garry Lancaster, Copyright 1999, released as GPL.
 ;
@@ -60,13 +63,13 @@
                JR   C, file_not_found             ; ups, file not available
                LD   (file_handle),IX
 
-               LD   A, FA_EXT
-               LD   DE,0
-               CALL_OZ(OS_Frm)                    ; get size of file
-               CALL Close_file                    ; close file
-               LD   (File_ptr),BC
-               LD   (File_ptr+2),DE               ; low byte, high byte sequense
-.send_filelength
+               LD   BC,FileBufferSize
+               LD   DE,File_buffer
+               CALL CrcFile
+               LD   (File_ptr),DE
+               LD   (File_ptr+2),HL               ; low byte, high byte sequense of CRC-32
+
+.send_filecrc32
                LD   HL, File_ptr                  ; convert 32bit integer
                LD   DE, filename_buffer           ; to an ASCII string
                LD   A, 1                          ; disable zero blanking
@@ -104,11 +107,10 @@
                jr      c,file_not_found           ; this slot had no file area (no card)...
                jr      nz,file_not_found          ; File Entry was not found...
 
-               call    FileEprFileSize            ; get 24bit file size in CDE (C = high byte)
+;               call    FileEprFileSize            ; get 24bit file size in CDE (C = high byte)
                LD      (File_ptr),de
-               ld      b,0
-               LD      (File_ptr+2),bc            ; CDE -> (File_ptr)
-               jr      send_filelength
+               LD      (File_ptr+2),hl            ; DEHL -> (File_ptr)
+               jr      send_filecrc32
 
 
 ; *************************************************************************************

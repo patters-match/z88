@@ -27,6 +27,8 @@ DEFC SerportHardwareMode = 2       ; Parity No, Xon/Xoff No (serial port hardwar
 DEFC EazyLink_CC_dbgOn = $80       ; Serial Dump Enable
 DEFC EazyLink_CC_dbgOff = $81      ; Serial Dump Disable
 
+DEFC FileBufferSize = 1280
+
 DEFVARS $2000                      ; big work space buffers
     start_workspace
 
@@ -57,7 +59,7 @@ DEFVARS $2000                      ; big work space buffers
     directory_ptr        ds.w 1
     Filename_buffer      ds.b 256  ; Buffer for filenames
 
-    File_buffer          ds.b 1280 ; Receive/transmit Buffer for serial port communication
+    File_buffer          ds.b FileBufferSize ; Receive/transmit Buffer for serial port communication
     DirName_stack        ds.b 128
     File_buffer_end                ; 1.2K file buffer for sending/receiving files (File_buffer <-> File_buffer_end)
     TraTableIn           ds.b 256  ; ASCII translation lookup table, Z88
