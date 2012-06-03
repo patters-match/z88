@@ -48,7 +48,7 @@
                JR   C,esc_i_aborted
                JR   Z,esc_i_aborted               ; timeout - communication stopped
                LD   HL, Message37
-               CALL Debug_message                 ; "Get size of file."
+               CALL Debug_message                 ; "File CRC-32"
                LD   HL,filename_buffer
                CALL Debug_message                 ; write filename to screen
 
@@ -65,8 +65,8 @@
                LD   BC,FileBufferSize
                LD   DE,File_buffer
                CALL CrcRamFile
-               LD   (File_ptr),DE
-               LD   (File_ptr+2),HL               ; low byte, high byte sequense of CRC-32
+               LD   (File_ptr),HL                 ; low word of CRC-32
+               LD   (File_ptr+2),DE               ; high word of CRC-32
 
 .send_filecrc32
                LD   HL, File_ptr                  ; convert 32bit integer
@@ -251,7 +251,7 @@
 .Int32Hex
                     push hl
                     ex   de,hl
-                    ld   bc,9
+                    ld   bc,8
                     add  hl,bc
                     ex   de,hl
                     pop  hl
