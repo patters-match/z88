@@ -26,7 +26,8 @@
 
      xdef ESC_I_cmd, HexNibble
 
-     lib FileEprFindFile
+     lib FileEprFindFile, FileEprFileImage, FileEprFileEntryInfo
+     lib FileEprTransferBlockSize, MemDefBank
 
      xref crctable
      xref ESC_N, ESC_Z, SendString, Debug_message, Message37
@@ -65,6 +66,7 @@
                LD   BC,FileBufferSize
                LD   DE,File_buffer
                CALL CrcRamFile
+.crc_result
                LD   (File_ptr),HL                 ; low word of CRC-32
                LD   (File_ptr+2),DE               ; high word of CRC-32
 
@@ -103,11 +105,8 @@
                jr      c,file_not_found           ; this slot had no file area (no card)...
                jr      nz,file_not_found          ; File Entry was not found...
 
-               ; Crc-32 here for Epr file...
-
-               LD      (File_ptr),de
-               LD      (File_ptr+2),hl            ; DEHL -> (File_ptr)
-               jr      send_filecrc32
+               call    FileEprFileCrc32           ; return CRC in DEHL
+               jr      crc_result
 
 
 ; *************************************************************************************
@@ -243,9 +242,11 @@
                     cpl
                     ld   l,a                 ; complement low byte
                     ret                      ; exit with DEHL=CRC
-
 .end_CrcBuffer
 
+
+; ***************************************************************************************************
+;
 ; Convert 32bit integer at (HL) to hexadecimal string at (DE)
 ; Integer is in low byte, high byte order
 .Int32Hex
@@ -285,4 +286,129 @@
                     add  a,$30
                     ret
 .hexnibble_16       add  a,$37
+                    ret
+
+
+; ***************************************************************************************************
+;
+; Standard Z88 File Eprom Format.
+;
+; Generate CRC-32 of file entry in file area.
+;
+; IN:
+;         BHL = pointer to file entry to be CRC-32 scanned
+; OUT:
+;         Fc = 0,
+;              DEHL = CRC-32
+;         Fc = 1,
+;              File Entry at BHL was not found.
+;                   A = RC_Onf
+;
+; Registers changed on return:
+;    ......../..IY ........ same
+;    AFBCDEHL/IX.. afbcdehl different
+;
+; -------------------------------------------------------------------------
+; Design & Programming by Gunther Strube, June 2012
+; -------------------------------------------------------------------------
+;
+.FileEprFileCrc32
+                    push hl
+                    ld   hl,$FFFF
+                    ld   (file_ptr),hl
+                    ld   (file_ptr+2),hl          ; initialise CRC register
+                    pop  hl
+
+                    push bc
+                    push hl
+
+                    call FileEprFileEntryInfo     ; return CDE = file image size, A = length of entry filename
+                    jr   c, exit_FileEprCrc32     ; File entry not recognised, exit with error...
+                    push bc
+                    push de
+                    exx
+                    pop  de
+                    pop  bc                       ; File Entry File Image size in 'CDE
+                    exx
+
+                    pop  hl
+                    pop  bc                       ; BHL = pointer to entry in File Area
+                    res  7,h
+                    res  6,h                      ; discard segment mask, if any...
+                    call FileEprFileImage         ; adjust BHL pointer to first byte of file image (beyond file entry header)
+                    call Crc32FileEntry           ; Now, CRC-32-scan the file image, optionally across banks inn file area
+                    exx
+                    ld   bc,(file_ptr)
+                    ld   de,(file_ptr+2)          ; get accumulated CRC
+                    exx
+                    jp   CrcResult                ; complete the final CRC-32 result in DEHL
+.exit_FileEprCrc32
+                    pop  hl
+                    pop  bc
+                    ret
+
+
+; **************************************************************************
+.Crc32FileEntry
+.crc32_file_loop
+                    exx                           ; file size = 0?
+                    ld   a,d
+                    or   e
+                    exx
+                    jr   nz,init_blocksize        ; file size not yet 0
+                    exx
+                    inc  c
+                    dec  c
+                    exx
+                    ret  z                        ; File entry was successfully CRC-32 scanned (CDE = 0)!
+.init_blocksize
+                    call FileEprTransferBlockSize ; get block size in hl' based on current BHL pointer
+                    exx                           ; and remaining file size in cde'
+                    push bc
+                    push de                       ; preserve remaining file size
+                    exx
+
+                    call EprFileCrc32Block        ; CRC-32 scan file entry at BHL block size IX
+
+                    exx
+                    pop  de
+                    pop  bc                       ; restore remaining file size = CDE
+                    exx
+                    jr   crc32_file_loop          ; then get next block from source file
+
+.EprFileCrc32Block
+                    push bc                       ; preserve B (HL)
+                    set  7,h
+                    res  6,h                      ; use segment 2 to bind data block of file entry into address space
+                    ld   a,b
+                    exx
+                    ld   b,a
+                    ld   c, $02                   ; Use C = MS_S2 of BHL source data block
+                    call MemDefBank               ; Bind bank of source data into segment C
+                    push bc                       ; preserve old bank binding of segment C
+                    push hl                       ; hl' (from FileEprTransferBlockSize) block size to be in main BC
+
+                    ld   bc,(file_ptr)
+                    ld   de,(file_ptr+2)          ; get current CRC in BC'DE'
+                    exx
+                    pop  bc                       ; now BHL source block in current address space
+
+                    call CrcIterateBuffer         ; CRC-32 scan block at (HL), BC size
+
+                    exx
+                    ld   (file_ptr),bc
+                    ld   (file_ptr+2),de
+
+                    pop  bc
+                    call MemDefBank               ; restore old segment C bank binding of BHL source data block
+                    exx
+
+                    res  7,h
+                    res  6,h                      ; strip segment mask to become bank offset again..
+                    pop  bc                       ; original B restored
+
+                    inc  h                        ; source pointer crossed bank boundary?
+                    dec  h                        ; (HL = 0, because segment specifier went into next segment)
+                    ret  nz                       ; nope (within 16k offset)
+                    inc  b                        ; remaining block of file is in next bank of file area
                     ret
