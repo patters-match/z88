@@ -64,9 +64,9 @@
 ; V1.1                   Extended protocol with additional commands included (Multilink V2)
 ; 09.06.93               Split up into modules for new Z80 Cross Assembler
 
-; 4.2                    Serial port protokol algorithms improved.
+; 4.2                    Serial port protocol algorithms improved.
 ; V4.3, 03.03.95         Automatical directory creation on receiving files from outside
-; V4.4                   Extended protokol fetch filename & directories commands changed:
+; V4.4                   Extended protocol fetch filename & directories commands changed:
 ;                        The wildcard hmust be explicitly spercified, e.g. ":ram.1/dir/*"
 
 ; V4.5, 05.09.96         ESC "v" command added: Client gets version of EasyLink Server
@@ -105,6 +105,8 @@
 ; V5.0, 20.12.97         Several messages were not placed in log window. Now fixed.
 ;                        OZ internal keyboard queue purged while using hardware scanning
 ;                        of keybard.
+;                        ESC "M" command added: Get explicit free memory
+;                        Protocol version updated to "05"
 ;
 ; V5.0.4, 07.06.2005     Serial port logging to "/serdump.in" and "/serdump.out".
 ;                        (Implemented as MTH commands)
@@ -448,10 +450,6 @@ ENDIF
                DEFM " LOAD TRANSLATIONS", 13, 10
                DEFM " QUIT EAZYLINK", 13, 10
                DEFM 1, "2-T", 0
-
-
-
-
 
 
 ; ******************************************************************************************
