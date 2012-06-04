@@ -24,7 +24,7 @@
     XREF ESC_T_cmd1, ESC_T_cmd2, ESC_C_cmd1, ESC_C_cmd2
     XREF ESC_V_cmd, ESC_X_cmd, ESC_U_cmd, ESC_U_cmd2, ESC_F_cmd
     XREF ESC_Z_cmd, ESC_R_cmd, ESC_Y_cmd, ESC_W_cmd, ESC_G_cmd2
-    XREF ESC_m_cmd, ESC_p_cmd, ESC_E_cmd, ESC_M_cmd2, ESC_I_cmd
+    XREF ESC_m_cmd, ESC_p_cmd, ESC_E_cmd, ESC_M_cmd2, ESC_I_cmd, ESC_O_cmd
 
     XDEF TraFilename
     XDEF serial_port, ramdev_wildcard, eprdev
@@ -37,7 +37,7 @@
     XDEF Message16, Message17, Message18, Message19, Message20, Message21, Message22
     XDEF Message23, Message24, Message25, Message26, Message27, Message28
     XDEF Message29, Message30, Message31, Message32, Message33, Message34
-    XDEF Message35, Message36, Message37
+    XDEF Message35, Message36, Message37, message38
     XDEF Error_Message0, Error_Message1, Error_Message2, Error_Message3
     XDEF Error_Message4, Error_Message5, Error_message6
     XDEF ESC_Z, ESC_F, ESC_N, ESC_E, ESC_Y, ESC_B, ESC_ESC, CRLF
@@ -106,6 +106,7 @@
 .message35          DEFM "Switching to Xon/Xoff serial port handshake", 0
 .message36          DEFM "Switching to Hardware serial port handshake", 0
 .message37          DEFM "File CRC-32", 0
+.message38          DEFM "Device Info", 0
 
 .error_message0     DEFM "Escape pressed....", 0
 .error_message1     DEFM "File open error.", 0
@@ -167,6 +168,7 @@
                     DEFB 'e'                 ; EazyLink Get System Clock
                     DEFB 'M'                 ; EazyLink Get Explicit Free Memory (for RAM device)
                     DEFB 'i'                 ; EazyLink File CRC-32
+                    DEFB 'O'                 ; EazyLink Device InfO
 
 .subroutines        DEFW ESC_A_cmd1          ; Address of subroutines:
                     DEFW ESC_H_cmd1
@@ -175,7 +177,7 @@
                     DEFW ESC_S_cmd1
                     DEFW ESC_G_cmd1
                     DEFW ESC_Q_cmd1          ; Address of   PCLINK II 'Quit'
-                    DEFW ESC_A_cmd2          ;     - "" -   MultiLink 'Hello' command
+                    DEFW ESC_A_cmd2          ;     - "" -   EazyLink 'Hello' command
                     DEFW ESC_H_cmd2          ; ESC "h"
                     DEFW ESC_D_cmd2          ; ESC "d"
                     DEFW ESC_N_cmd2          ; ESC "n"
@@ -202,6 +204,7 @@
                     DEFW ESC_E_cmd           ; ESC "e"
                     DEFW ESC_M_cmd2          ; ESC "M"
                     DEFW ESC_I_cmd           ; ESC "i"
+                    DEFW ESC_O_cmd           ; ESC "O"
 
 ; Z88 ISO - IBM translation table
 ;

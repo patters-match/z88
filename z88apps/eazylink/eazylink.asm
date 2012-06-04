@@ -141,7 +141,7 @@
      XREF extended_synch, pclink_Synch, EscCommands, Subroutines
      XREF msg_serdmpfile_enable, msg_serdmpfile_disable
      XREF Message1, Message2, Message10, Message11, Message12, Message13, Message21, Message22
-     XREF Message23, Message24, Message25, Message26, Message27, Message28
+     XREF Message23, Message24, Message25, Message26, Message27, Message28, Message38
      XREF Message29, Message30, Message31, Message32, Message33, Message34, Message35, Message36
      XREF Error_Message0, Error_Message1, Error_Message2, Error_Message3
      XREF Error_Message4, Error_Message5, Error_Message6
@@ -172,7 +172,7 @@
      XDEF Open_serialport, Close_serialport
      XDEF ESC_T_cmd1, ESC_T_cmd2, ESC_C_cmd1, ESC_C_cmd2
      XDEF ESC_V_cmd, ESC_X_cmd, ESC_U_cmd, ESC_U_cmd2, ESC_F_cmd
-     XDEF ESC_Z_cmd, ESC_R_cmd, ESC_Y_cmd, ESC_W_cmd
+     XDEF ESC_Z_cmd, ESC_R_cmd, ESC_Y_cmd, ESC_W_cmd, ESC_O_cmd
      XDEF ESC_G_cmd2, ESC_M_cmd, ESC_P_cmd, ESC_E_cmd, ESC_M_cmd2
      XDEF UseHardwareHandshaking, UseSoftwareHandshaking
 
@@ -1730,6 +1730,43 @@ ENDIF
 .get_fa_free_space
                call FileEprFreeSpace         ; return Free space of File Area in DEBC
                jr   send_free_bytes2
+
+
+; ************************************************************
+; Get Device Info of specified device name
+;
+; <Devicename> = ":RAM.x" or ":EPR.x" (slot 0 - 3)
+;
+; Client:      ESC "O" <Devicename> ESC "Z"
+;
+; Server:      ESC "N" <FreeMemory>          (Device found, free memory in bytes)
+;              ESC "N" <Device size>         (Device found, size of device in K)
+;              ESC "Z"
+;                                  or
+;              ESC "Z"                       (Device not found)
+;
+.ESC_O_cmd     LD   HL, Message38
+               Call Debug_message            ; "Get Device Info"
+
+               CALL Fetch_pathname           ; fetch Device name
+               JR   C,esc_m_aborted
+               JR   Z,esc_m_aborted          ; timeout - communication stopped
+
+               LD   HL, filename_buffer
+               CALL CheckEprName             ; Path begins with ":EPR.x"?
+               JR   Z, check_filearea        ; Yes, check if file area..
+
+               CALL RamDevFreeSpace
+
+.check_filearea
+               ld      a,(filename_buffer+5) ; get device number for possible EPR device in slot
+               call    CheckFileAreaOfSlot   ; File area in slot A?
+               jr      z,get_fa_devinfo      ; Yes, return amount of free space in file area
+               jr      no_Device
+.get_fa_devinfo
+               call FileEprFreeSpace         ; return Free space of File Area in DEBC
+               jp   send_free_bytes2
+
 
 ; ************************************************************
 ;
