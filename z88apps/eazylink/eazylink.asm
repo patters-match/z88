@@ -1658,12 +1658,30 @@ ENDIF
                Call Debug_message                 ; "Get Estimated Free RAM"
 .global_free_space
                CALL TotalFreeSpace                ; return DE = free pages in system
-.send_free_bytes
+.send_free_space_de
                LD   B,E
                LD   C,0
                LD   E,D
-               LD   D,0                           ; <free pages> * 256
-.send_free_bytes2
+               LD   D,0                           ; DEBC = free pages * 256
+.send_free_space_debc
+               CALL send_integer_string
+               JR   C, esc_m_aborted
+               JR   Z, esc_m_aborted
+.no_Device
+.send_esc_z
+               LD   HL,ESC_Z
+               CALL SendString                    ; String transmitted
+               JR   C, esc_m_aborted
+               JR   Z, esc_m_aborted
+               JR   end_ESC_M_cmd
+.esc_m_aborted
+               CALL Msg_Command_aborted
+.end_ESC_M_cmd
+               XOR A
+               RET
+
+; DEBC = Integer to transmit as ESC N <Ascii string>
+.send_integer_string
                LD   (File_ptr),BC
                LD   (File_ptr+2),DE               ; low byte, high byte sequense
 
@@ -1676,23 +1694,11 @@ ENDIF
 
                LD   HL,ESC_N
                CALL SendString                    ; String transmitted
-               JR   C, esc_m_aborted
-               JR   Z, esc_m_aborted
+               RET  C
+               RET  Z
 
                LD   HL,filename_buffer            ; Send string to Client
                CALL SendString
-               JR   C, esc_m_aborted
-               JR   Z, esc_m_aborted
-.no_Device
-               LD   HL,ESC_Z
-               CALL SendString                    ; String transmitted
-               JR   C, esc_m_aborted
-               JR   Z, esc_m_aborted
-               JR   end_ESC_M_cmd
-.esc_m_aborted
-               CALL Msg_Command_aborted
-.end_ESC_M_cmd
-               XOR A
                RET
 
 
@@ -1721,7 +1727,7 @@ ENDIF
 
                SUB  48
                CALL RamDevFreeSpace
-               JR   NC,send_free_bytes       ; RAM was found... return free space..
+               JR   NC,send_free_space_de    ; RAM was found... return free space in DE = 256 byte pages..
 
                ld      a,(filename_buffer)   ; get device number for possible EPR device in slot
                call    CheckFileAreaOfSlot   ; File area in slot A?
@@ -1729,7 +1735,7 @@ ENDIF
                jr      no_Device
 .get_fa_free_space
                call FileEprFreeSpace         ; return Free space of File Area in DEBC
-               jr   send_free_bytes2
+               jr   send_free_space_debc
 
 
 ; ************************************************************
@@ -1754,18 +1760,45 @@ ENDIF
 
                LD   HL, filename_buffer
                CALL CheckEprName             ; Path begins with ":EPR.x"?
-               JR   Z, check_filearea        ; Yes, check if file area..
+               JR   Z, check_filearea        ; Yes, check if file area is available..
 
-               CALL RamDevFreeSpace
+               ld   a,(filename_buffer+5)    ; get RAM device number for possible EPR device in slot
+               CALL RamDevFreeSpace          ; A = RAM card in 16K banks, DE = free 256 byte pages
+               jr   c,no_Device              ; Fc = 1 -> no RAM card either...
+
+               push af
+               LD   B,E
+               LD   C,0
+               LD   E,D
+               LD   D,0                      ; DEBC = RAM <free pages> * 256
+               call send_integer_string      ; send ESC N <devsize>
+               pop  hl
+               JR   C,esc_m_aborted
+               JR   Z,esc_m_aborted          ; timeout - communication stopped
+
+               ld   l,h
+               ld   h,0                      ; A -> HL
+.send_card16k_size
+               call m16                      ; HL = size of device in 16K banks
+               ld   de,0
+               ld   b,h
+               ld   c,l                      ; DEBC = banks * 16K = size of card in K
+               call send_integer_string      ; send ESC N <devsize>
+               JP   C,esc_m_aborted
+               JP   Z,esc_m_aborted          ; timeout - communication stopped
+               jp   send_esc_z
 
 .check_filearea
-               ld      a,(filename_buffer+5) ; get device number for possible EPR device in slot
-               call    CheckFileAreaOfSlot   ; File area in slot A?
-               jr      z,get_fa_devinfo      ; Yes, return amount of free space in file area
-               jr      no_Device
-.get_fa_devinfo
+               call CheckFileAreaOfSlot      ; File area in slot A?
+               jp   c,no_Device              ; this slot had no file area (no card)...
+               jp   nz,no_Device             ; this slot had no file area (card, but no file area)
+               push de
                call FileEprFreeSpace         ; return Free space of File Area in DEBC
-               jp   send_free_bytes2
+               call send_integer_string
+               pop  hl
+               JP   C,esc_m_aborted
+               JP   Z,esc_m_aborted          ; timeout - communication stopped
+               JR   send_card16k_size
 
 
 ; ************************************************************
@@ -2117,6 +2150,18 @@ ENDIF
                LD   (wildcard_handle),HL
                POP  HL
                RET
+
+; *************************************************************************************
+;
+; Multiply HL * 16, result in HL.
+;
+.m16
+                    PUSH BC
+                    LD   B,4
+.multiply_loop      ADD  HL,HL
+                    DJNZ multiply_loop
+                    POP  BC
+                    RET
 
 ; ***********************************************************************
 ; Reset both translation tables to identical lookup values ( 0 - 255 )

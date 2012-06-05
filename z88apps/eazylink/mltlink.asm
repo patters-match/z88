@@ -773,16 +773,18 @@
 ; ***********************************************************************
 ; Check if there is a File Area in slot A = "0", "1", "2" or "3"
 ;
-; returns Fz = 1, Fc = 0, if file area found, otherwise Fc 1 or Fz = 0
+; returns Fz = 1, Fc = 0, if file area found, DE = size of cards in 16K banks
+; otherwise Fc 1 or Fz = 0
 ;
 .CheckFileAreaOfSlot
                   and     3                          ; strip to raw slot number number (0 - 3)
                   ld      c,a
                   push    bc
                   call    FileEprRequest
+                  ld      d,0
+                  ld      e,c                        ; C -> DE = size of card in 16K banks
                   pop     bc
                   ret
-
 
 
 ; ***********************************************************************
