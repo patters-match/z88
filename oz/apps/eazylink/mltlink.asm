@@ -21,7 +21,7 @@
     LIB ToUpper
 
     XREF ESC_Y, ESC_Z, ESC_N, ESC_F, ESC_E, CRLF, DM_Dev, Current_Dir, Parent_Dir
-    XREF Eprdev
+    XREF Eprdev, ramdev_wildcard
     XREF TranslateByte
     XREF cli_filename
     XREF SendString, Send_ESC, PutByte, GetByte
@@ -36,7 +36,7 @@
     XREF Set_Traflag, Restore_Traflag, Def_RamDev_wildc, SearchFileSystem, Get_directories
     XREF Open_Serialport, Calc_hexnibble
     XREF FileEprSendFile, FileEprSaveFile, SlotWriteSupport
-    XDEF SetEprDevName,CheckEprName,CheckFileAreaOfSlot
+    XDEF SetEprDevName,CheckEprName,CheckRamName,CheckFileAreaOfSlot
     XDEF SendBuffer,Transfer_filename, Transfer_RamfileImage
 
     XDEF ESC_A_cmd2, ESC_H_cmd2, ESC_D_cmd2, ESC_N_cmd2, ESC_Q_cmd2
@@ -219,7 +219,7 @@
 
                   call    GetNextEprFile             ; get pointer to next File Entry in BHL...
                   jr      send_fa_names
-                  
+
 
 
 ; ***********************************************************************
@@ -264,7 +264,7 @@
 
 
 ; ***********************************************************************
-.Batch_Receive    
+.Batch_Receive
 .Batch_Receive_loop
                   CALL FetchBytes
                   JR   C, abort_batch_receive            ; system error
@@ -321,7 +321,7 @@
                   JR   abort_batch_receive
 .close_rcvd_file                                         ; ESC 'E' received.
                   CALL Flush_buffer                      ; save contents of buffer...
-                  CALL Close_file                    
+                  CALL Close_file
                   JP   Batch_Receive_loop                ; new file coming?
 ; byte in A to file...
 .byte_to_file     CP   LF                            ; is it a line feed?
@@ -350,7 +350,7 @@
 .RamFile_create_error
                   CALL Msg_file_aborted              ; write 'File aborted' message
                   jr   void_file_loop                ; wait for end of file marker, then back to main loop
-  
+
 .verify_write_filearea
                   call CheckFileAreaOfSlot           ; file area in slot A = "0", "1", "2" or "3" => C = slot number
                   jr   c,FileEpr_create_error        ; this slot had no file area (no card)...
@@ -359,7 +359,7 @@
                   jr   c,FileEpr_create_error
 
                   ld   de,filename_buffer+6          ; filename begins with "/" (skip ":EPR.x" device name)
-                  ld   a,EP_Find 
+                  ld   a,EP_Find
                   oz   OS_Epr                        ; filename already exists on file eprom?
                   push af                            ; remember found status... Fz = 1, if found
                   push bc
@@ -764,7 +764,8 @@
 ; ***********************************************************************
 ; Check if there is a File Area in slot A = "0", "1", "2" or "3"
 ;
-; returns Fz = 1, Fc = 0, if file area found, otherwise Fc 1 or Fz = 0
+; returns Fz = 1, Fc = 0, if file area found, DE = size of cards in 16K banks
+; otherwise Fc 1 or Fz = 0
 ;
 .CheckFileAreaOfSlot
                   and     3                          ; strip to raw slot number number (0 - 3)
@@ -772,6 +773,29 @@
                   push    bc
                   ld      a,EP_Req
                   oz      OS_Epr
+                  ld      d,0
+                  ld      e,c                        ; C -> DE = size of card in 16K banks
+                  pop     bc
+                  ret
+
+
+; ***********************************************************************
+; Path begins with ":RAM." ?
+;
+; HL = pointer to path containing device / dir names
+;
+; returns A = slot number ('0', '1', '2' or '3' or '-'), if :RAM.x device recognized (Fz = 1)
+;
+.CheckRamName
+                  push    bc
+                  push    de
+                  push    hl
+
+                  ld      de,ramdev_wildcard
+                  call    CheckDevName
+
+                  pop     hl
+                  pop     de
                   pop     bc
                   ret
 
@@ -781,7 +805,7 @@
 ;
 ; HL = pointer to path containing device / dir names
 ;
-; returns A = slot number ('0', '1', '2' or '3'), if :EPR.x device recognized
+; returns A = slot number ('0', '1', '2' or '3'), if :EPR.x device recognized (Fz = 1)
 ;
 .CheckEprName
                   push    bc
@@ -789,22 +813,35 @@
                   push    hl
 
                   ld      de,eprdev
+                  call    CheckDevName
+
+                  pop     hl
+                  pop     de
+                  pop     bc
+                  ret
+
+
+; ***********************************************************************
+; Path begins with ":XXX."
+;
+; HL = pointer to path containing device / dir names
+; DE = pointer to device name pattern
+;
+; returns A = slot number ('0', '1', '2', '3' or '-'), if device is recognized
+;
+.CheckDevName
                   ex      de,hl
                   ld      b,5
 .cmp_loop
                   ld      a,(de)
                   call    ToUpper
                   cp      (hl)
-                  jr      nz,exit_CheckEprName
+                  ret     nz                         ; Fz = 0, no match
                   inc     hl
                   inc     de
                   djnz    cmp_loop
                   cp      a                          ; Fz = 1, match!
                   ld      a,(de)                     ; get slot number of file area
-.exit_CheckEprName
-                  pop     hl
-                  pop     de
-                  pop     bc
                   ret
 
 

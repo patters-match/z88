@@ -23,4 +23,5 @@ eprfsend    : eprom.def error.def
 srchfsys    : dor.def fileio.def rtmvars.def
 byteio      : fileio.def screen.def error.def blink.def rtmvars.def
 fileio      : fileio.def rtmvars.def
+crc32file   : fileio.def integer.def eprom.def rtmvars.def
 consts      : stdio.def rtmvars.def
