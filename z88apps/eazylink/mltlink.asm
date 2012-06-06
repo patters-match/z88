@@ -28,7 +28,7 @@
     lib ToUpper                   ; fast upper case conversion
 
     XREF ESC_Y, ESC_Z, ESC_N, ESC_F, ESC_E, CRLF, DM_Dev, Current_Dir, Parent_Dir
-    XREF Eprdev
+    XREF Eprdev, ramdev_wildcard
     XREF TranslateByte
     XREF cli_filename
     XREF SendString, Send_ESC, PutByte, GetByte
@@ -45,7 +45,7 @@
     XREF FileEprSendFile, FileEprSaveFile, FileEprDeleteFile, SlotWriteSupport
 
     XDEF ESC_A_cmd2, ESC_H_cmd2, ESC_D_cmd2, ESC_N_cmd2, ESC_Q_cmd2
-    XDEF SetEprDevName,CheckEprName,CheckFileAreaOfSlot
+    XDEF SetEprDevName,CheckEprName,CheckRamName,CheckFileAreaOfSlot
     XDEF ImpExp_Send, ImpExp_Receive, ImpExp_Backup, Batch_Send
     XDEF FetchBytes,SendBuffer
     XDEF Transfer_filename, Transfer_RamfileImage
@@ -788,11 +788,32 @@
 
 
 ; ***********************************************************************
+; Path begins with ":RAM." ?
+;
+; HL = pointer to path containing device / dir names
+;
+; returns A = slot number ('0', '1', '2' or '3' or '-'), if :RAM.x device recognized (Fz = 1)
+;
+.CheckRamName
+                  push    bc
+                  push    de
+                  push    hl
+
+                  ld      de,ramdev_wildcard
+                  call    CheckDevName
+
+                  pop     hl
+                  pop     de
+                  pop     bc
+                  ret
+
+
+; ***********************************************************************
 ; Path begins with ":EPR." ?
 ;
 ; HL = pointer to path containing device / dir names
 ;
-; returns A = slot number ('0', '1', '2' or '3'), if :EPR.x device recognized
+; returns A = slot number ('0', '1', '2' or '3'), if :EPR.x device recognized (Fz = 1)
 ;
 .CheckEprName
                   push    bc
@@ -800,23 +821,37 @@
                   push    hl
 
                   ld      de,eprdev
+                  call    CheckDevName
+
+                  pop     hl
+                  pop     de
+                  pop     bc
+                  ret
+
+
+; ***********************************************************************
+; Path begins with ":XXX." 
+;
+; HL = pointer to path containing device / dir names
+; DE = pointer to device name pattern
+;
+; returns A = slot number ('0', '1', '2', '3' or '-'), if device is recognized
+;
+.CheckDevName
                   ex      de,hl
                   ld      b,5
 .cmp_loop
                   ld      a,(de)
                   call    ToUpper
                   cp      (hl)
-                  jr      nz,exit_CheckEprName
+                  ret     nz                         ; Fz = 0, no match
                   inc     hl
                   inc     de
                   djnz    cmp_loop
                   cp      a                          ; Fz = 1, match!
                   ld      a,(de)                     ; get slot number of file area
-.exit_CheckEprName
-                  pop     hl
-                  pop     de
-                  pop     bc
                   ret
+
 
 ; ***********************************************************************
 ; Set ":EPR.x" device name at (filename_buffer)

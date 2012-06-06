@@ -156,7 +156,7 @@
      XREF Use_StdTranslations
      XREF Dump_serport_in_byte, serdmpfile_in, serdmpfile_out
      XREF SafeSegmentMask
-     XREF CheckEprName, CheckFileAreaOfSlot
+     XREF CheckEprName, CheckRamName, CheckFileAreaOfSlot
 
      XREF EazyLinkTopics
      XREF EazyLinkCommands
@@ -1662,7 +1662,7 @@ ENDIF
                LD   B,E
                LD   C,0
                LD   E,D
-               LD   D,0                           ; DEBC = free pages * 256
+               LD   D,0                           ; DEBC = (DE = free pages) * 256
 .send_free_space_debc
                CALL send_integer_string
                JR   C, esc_m_aborted
@@ -1680,7 +1680,9 @@ ENDIF
                XOR A
                RET
 
-; DEBC = Integer to transmit as ESC N <Ascii string>
+
+; ************************************************************
+; IN: DEBC = Integer to transmit as ESC N <Ascii string>
 .send_integer_string
                LD   (File_ptr),BC
                LD   (File_ptr+2),DE               ; low byte, high byte sequense
@@ -1703,7 +1705,11 @@ ENDIF
 
 
 ; ************************************************************
-; Get explicit free memory in specified RAM/EPR card slot
+; Get explicit free memory in specified RAM/EPR card slot.
+;
+; (Unfortunately, this call is ambiguous if there is both
+; RAM and EPR in the same slot - using a Rakewell Hybrid card -
+; RAM is always picked first)
 ;
 ; <RamDeviceNumber> = "0", "1", "2", "3" or "-" (all)
 ;
@@ -1723,25 +1729,26 @@ ENDIF
 
                LD   A,(filename_buffer)      ; get RAM device number
                CP   '-'
-               JR   Z, global_free_space     ; request for global free space
+               JR   Z, global_free_space     ; send global free space string
 
-               SUB  48
+               SUB  48                       ; A = slot no of RAM card
                CALL RamDevFreeSpace
                JR   NC,send_free_space_de    ; RAM was found... return free space in DE = 256 byte pages..
 
-               ld      a,(filename_buffer)   ; get device number for possible EPR device in slot
-               call    CheckFileAreaOfSlot   ; File area in slot A?
-               jr      z,get_fa_free_space   ; Yes, return amount of free space in file area
-               jr      no_Device
-.get_fa_free_space
+               ld   a,(filename_buffer)      ; get device number for possible EPR device in slot
+               call CheckFileAreaOfSlot      ; File area in slot A?
+               jr   c,no_Device              ; this slot had no file area (no card)...
+               jr   nz,no_Device
+
                call FileEprFreeSpace         ; return Free space of File Area in DEBC
                jr   send_free_space_debc
 
 
 ; ************************************************************
 ; Get Device Info of specified device name
+; Using :RAM.- total free memory & total RAM size is returned.
 ;
-; <Devicename> = ":RAM.x" or ":EPR.x" (slot 0 - 3)
+; <Devicename> = ":RAM.x", ":RAM.-" or ":EPR.x" (slot 0 - 3, or :RAM.-)
 ;
 ; Client:      ESC "O" <Devicename> ESC "Z"
 ;
@@ -1759,22 +1766,24 @@ ENDIF
                JR   Z,esc_m_aborted          ; timeout - communication stopped
 
                LD   HL, filename_buffer
-               CALL CheckEprName             ; Path begins with ":EPR.x"?
+               CALL CheckEprName             ; Device is ":EPR.x"?
                JR   Z, check_filearea        ; Yes, check if file area is available..
 
-               ld   a,(filename_buffer+5)    ; get RAM device number for possible EPR device in slot
-               CALL RamDevFreeSpace          ; A = RAM card in 16K banks, DE = free 256 byte pages
-               jr   c,no_Device              ; Fc = 1 -> no RAM card either...
+               CALL CheckRamName             ; Device is ":RAM.x"?
+               JR   nz,no_Device             ; Fz = 0 -> not a RAM card either...
+               CP   '-'
+               CALL Z, TotalFreeSpace        ; return A = total RAM in 16K banks, DE = total free 256 byte pages
+               CALL NZ,RamDevFreeSpace       ; return A = RAM.x card in 16K banks, DE = free 256 byte pages
 
-               push af
+               PUSH AF
                LD   B,E
                LD   C,0
                LD   E,D
                LD   D,0                      ; DEBC = RAM <free pages> * 256
                call send_integer_string      ; send ESC N <devsize>
-               pop  hl
-               JR   C,esc_m_aborted
-               JR   Z,esc_m_aborted          ; timeout - communication stopped
+               POP  HL
+               JP   C,esc_m_aborted
+               JP   Z,esc_m_aborted          ; timeout - communication stopped
 
                ld   l,h
                ld   h,0                      ; A -> HL
@@ -1792,7 +1801,7 @@ ENDIF
                call CheckFileAreaOfSlot      ; File area in slot A?
                jp   c,no_Device              ; this slot had no file area (no card)...
                jp   nz,no_Device             ; this slot had no file area (card, but no file area)
-               push de
+               push de                       ; (preserve size of EPR card in 16K banks)
                call FileEprFreeSpace         ; return Free space of File Area in DEBC
                call send_integer_string
                pop  hl
@@ -1809,27 +1818,35 @@ ENDIF
 ; IN:
 ;    -
 ; OUT:
+;     F(out) = F(in)
+;     A = total size of RAM in 16K banks
 ;    DE = total free 256 bytes pages in system.
 ;
 .TotalFreeSpace
-               PUSH AF
                PUSH BC
+               PUSH AF
                PUSH HL
 
-               LD   BC,$0400                      ; scan all 4 slots, 0 - 3 ...
+               LD   BC,$0300                      ; scan all 4 slots, 3 -> 0 ...
                LD   HL,0
 .scan_ram_loop
-               LD   A,C
+               LD   A,B
                CALL RamDevFreeSpace
                JR   C, scan_next_Ram
                ADD  HL,DE                         ; add pages to sum of all pages
-               INC  C
-.scan_next_Ram DJNZ scan_ram_loop
+               DEC  B
+               ADD  A.C
+               LD   C,A                           ; C = sum of total RAM in 16K banks
+
+               LD   A,B
+               CP   $FF
+.scan_next_Ram JR   NZ,scan_ram_loop
                EX   DE,HL
 
                POP  HL
-               POP  BC
                POP  AF
+               LD   A,C                           ; return A = total RAM in 16K banks
+               POP  BC                            ; return DE = total free 256 bytes pages in system.
                RET
 
 
