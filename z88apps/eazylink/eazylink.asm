@@ -1832,15 +1832,17 @@ ENDIF
 .scan_ram_loop
                LD   A,B
                CALL RamDevFreeSpace
-               JR   C, scan_next_Ram
-               ADD  HL,DE                         ; add pages to sum of all pages
+               PUSH AF
                DEC  B
-               ADD  A.C
+               POP  AF
+               JR   C, scan_ram_loop
+               ADD  HL,DE                         ; add pages to sum of all pages
+               ADD  A,C
                LD   C,A                           ; C = sum of total RAM in 16K banks
 
                LD   A,B
                CP   $FF
-.scan_next_Ram JR   NZ,scan_ram_loop
+               JR   NZ,scan_ram_loop
                EX   DE,HL
 
                POP  HL
