@@ -89,6 +89,7 @@ public:
     QList<QByteArray> getDirectories(const QString &path);          // receive a list of Z88 Directories in <path>
     QList<QByteArray> getFilenames(const QString &path, bool &retc);// receive a list of Z88 Filenames in <path>
     QList<QByteArray> getFileDateStamps(const QString &fileName);   // receive Create & Update date stamps of Z88 file
+    QList<QByteArray> getDeviceInfo(const QString &deviceName);     // receive Device Information (free space / total size)
 
     QString getLastErrorString()const;                              // Get the Last Port Error string.
     int     getOpenErrno() const;                                   // Get the port Open Error number.
@@ -141,6 +142,7 @@ private:
     QByteArray freeMemoryCmd;                               // ESC m    EazyLink V4.8 Get free memory for all RAM cards
     QByteArray freeMemDevCmd;                               // ESC M    EazyLink V5.0 Get free memory for specific device
     QByteArray crc32FileCmd;                                // ESC i    EazyLink V5.2 Get CRC-32 of specified Z88 file
+    QByteArray devInfoCmd;                                  // ESC O    EazyLink V5.2 Device Information
 
     bool        getByte(unsigned char  &byte);              // Receive a byte from the Z88
     bool        synchronize();                              // Synchronize with Z88 before sending command

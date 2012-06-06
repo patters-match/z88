@@ -59,6 +59,7 @@ Z88SerialPort::Z88SerialPort()
     char _receiveFilesCmd[] = { 27, 's' };
     char _sendFilesCmd[] = { 27, 'b' };
     char _crc32FileCmd[] = { 27, 'i' };
+    char _devInfoCmd[] = { 27, 'O' };
 
     // Initialize ESC command constants
     synchEazyLinkProtocol = QByteArray( _synchEazyLinkProtocol, 3); // EazyLink Synchronize protocol
@@ -94,6 +95,7 @@ Z88SerialPort::Z88SerialPort()
     freeMemoryCmd = QByteArray( _freeMemoryCmd, 2);             // EazyLink V4.8 Get free memory for all RAM cards
     freeMemDevCmd = QByteArray( _freeMemDevCmd, 2);             // EazyLink V5.0 Get free memory for specific device
     crc32FileCmd = QByteArray( _crc32FileCmd, 2);               // EazyLink V5.2 Get CRC-32 of specified Z88 file
+    devInfoCmd = QByteArray( _devInfoCmd, 2);                   // EazyLink V5.2 Get Device Information
 
     transmitting = portOpenStatus = z88AvailableStatus = false;
 
@@ -1327,6 +1329,34 @@ QByteArray Z88SerialPort::getFileCrc32(const QString &filename)
     }
 
     return fileCrc32String;
+}
+
+
+/*****************************************************************************
+ *      EazyLink Server V5.2, protocol level 06
+ *      Get Device Information; free memory / total size, returned in list
+ *****************************************************************************/
+QList<QByteArray> Z88SerialPort::getDeviceInfo(const QString &device)
+{
+    QList<QByteArray> infoList;
+
+    QByteArray devInfoCmdPath = devInfoCmd;
+    devInfoCmdPath.append(device);
+    devInfoCmdPath.append(escZ);
+
+    if ( sendCommand(devInfoCmdPath) == true) {
+        if (transmitting == true) {
+            qDebug() << "getDeviceinfo(): Transmission already ongoing with Z88 - aborting...";
+        } else {
+            // receive device information elements into list
+            // first element is free memory in byte, second element is device sice in Kb
+            // if device was not found, an empty list is returned.
+            receiveListItems(infoList);
+            transmitting = false;
+        }
+    }
+
+    return infoList;
 }
 
 
