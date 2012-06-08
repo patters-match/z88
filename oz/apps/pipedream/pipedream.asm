@@ -48,6 +48,20 @@
         include "printer.def"
 
 
+defgroup
+        FuncID_Abs, FuncID_Acs, FuncID_Asn, FuncID_Atn, FuncID_Choose,
+        FuncID_Col, FuncID_Cos, FuncID_Count, FuncID_Day, FuncID_Deg,
+        FuncID_Exp, FuncID_If, FuncID_Index, FuncID_Int, FuncID_Ln,
+        FuncID_Log, FuncID_Lookup, FuncID_Max, FuncID_Min, FuncID_Month,
+        FuncID_Pi, FuncID_Rad, FuncID_Row, FuncID_Sgn, FuncID_Sin,
+        FuncID_Sqr, FuncID_Sum, FuncID_Tan, FuncID_Year,
+        FuncID_Not, FuncID_And, FuncID_Multiply, FuncID_Add,
+        FuncID_Subtract, FuncID_Divide, FuncID_Less, FuncID_LessEqual,
+        FuncID_NotEqual, FuncID_Equal, FuncID_Greater, FuncID_GreaterEqual,
+        FuncID_Raise, FuncID_Or, FuncID_Negate
+enddef
+
+
         jp      main_entry
 
         defm    "PipeDream", $00
@@ -626,7 +640,7 @@
         pop     hl
         pop     de
         ld      a,(hl)
-        call    L_EE09
+        call    GetUppercase
         cp      $54
         jr      z,L_8450
         cp      $50
@@ -3119,7 +3133,7 @@
         jr      z,L_974C
         inc     hl
         ld      a,(hl)
-        call    L_EE1B
+        call    ValidateAlphabetic
         ret     nc
         dec     ix
 .L_9765
@@ -4065,7 +4079,7 @@
         dec     c
         jr      nz,L_9F5B
         ld      a,(de)
-        call    L_EE09
+        call    GetUppercase
         cp      $4C
         scf
         jp      z,L_F994
@@ -4567,7 +4581,7 @@
         or      a
         jr      z,L_A44B
         inc     hl
-        call    L_EE1B
+        call    ValidateAlphabetic
         jr      nc,L_A42A
         inc     (iy-13)
         and     $20
@@ -4577,7 +4591,7 @@
         ld      a,(hl)
         or      a
         jr      z,L_A44B
-        call    L_EE1B
+        call    ValidateAlphabetic
         jr      nc,L_A44B
         and     $20
         jr      nz,L_A44B
@@ -4918,7 +4932,7 @@
         or      a
         jr      z,L_A67F
         pop     af
-        call    L_EE1B
+        call    ValidateAlphabetic
         jr      nc,L_A67E
         or      $20
         push    af
@@ -5544,7 +5558,7 @@
 .L_AAA5
         bit     2,(iy+34)
         ret     z
-        jp      L_EE09
+        jp      GetUppercase
 
 .PrintPrompt
         defm    $03, $85, "Print only range of columns", $00
@@ -5773,7 +5787,7 @@
         call    L_EFD5
         pop     af
         ret     c
-        call    L_EE09
+        call    GetUppercase
         cp      $43
         jr      nz,L_ACF9
         res     2,(iy-46)
@@ -7958,7 +7972,7 @@
         ld      a,c
         cp      $24
         jr      z,L_BCBE
-        call    L_EE1B
+        call    ValidateAlphabetic
         jr      nc,L_BCF7
 .L_BCBE
         push    hl
@@ -7996,7 +8010,7 @@
         or      a
         jr      z,L_BD26
         rr      d
-        call    L_EE17
+        call    ValidateAlphanumeric
         rl      d
         call    L_BD43
         jr      c,L_BD37
@@ -8132,7 +8146,7 @@
         jr      z,L_BDBF
         ret
 .L_BDC8
-        call    L_EE1B
+        call    ValidateAlphabetic
         ret     nc
         and     $DF
         sub     $41
@@ -12307,7 +12321,7 @@
         res     7,e
         pop     af
         jr      c,L_DAA7
-        call    L_EE09
+        call    GetUppercase
         cp      $59
         jr      z,L_DA93
         ld      e,$00
@@ -12961,7 +12975,7 @@
         ld      a,(hl)
         or      a
         jr      z,L_DEF7
-        call    L_EE09
+        call    GetUppercase
         ld      c,a
         ld      de,L_DFA6
 .L_DED2
@@ -13734,7 +13748,7 @@
         ld      l,(iy-48)
         ld      h,(iy-47)
         inc     hl
-        call    L_EE09
+        call    GetUppercase
         ld      c,a
 .L_E44A
         inc     hl
@@ -13848,7 +13862,7 @@
         jr      nz,L_E531
         ld      c,a
         ld      a,(hl)
-        call    L_EE09
+        call    GetUppercase
         ld      e,a
         ld      a,c
         cp      e
@@ -14317,7 +14331,7 @@
         push    bc
         ld      a,b
         call    L_E790
-        call    L_EE09
+        call    GetUppercase
         ld      e,a
         pop     bc
         pop     af
@@ -14601,7 +14615,7 @@
         and     $7F
         inc     e
         dec     e
-        call    z,L_EE09
+        call    z,GetUppercase
         call    L_B8B4
         inc     e
         dec     c
@@ -14795,31 +14809,47 @@
         call    L_EDB1
         sub     $20
         ret
-.L_EE09
-        call    L_EE1B
+
+; Validate character A is alphabetic, and return
+; upper-case variant.
+; Exits with Fc=0 if character was not alphabetic.
+
+.GetUppercase
+        call    ValidateAlphabetic
         ret     nc
         and     $DF
         ret
-.L_EE10
-        cp      $30
+
+; Return Fc=1 if character A is numeric.
+
+.ValidateNumeric
+        cp      '0'
         ccf
         ret     nc
-        cp      $3A
+        cp      '9'+1
         ret
-.L_EE17
-        call    L_EE10
+
+; Return Fc=1 if character A is alphanumeric.
+
+.ValidateAlphanumeric
+        call    ValidateNumeric
         ret     c
-.L_EE1B
-        cp      $41
+	; fall through
+
+; Return Fc=1 if character A is alphabetic.
+
+.ValidateAlphabetic
+        cp      'A'
         ccf
         ret     nc
-        cp      $5B
+        cp      'Z'+1
         ret     c
-        cp      $61
+        cp      'a'
         ccf
         ret     nc
-        cp      $7B
+        cp      'z'+1
         ret
+
 .L_EE29
         ld      de,$0002
         ld      b,$1E
@@ -15350,12 +15380,12 @@
         push    hl
         call    L_FD2E
         ld      a,c
-        cp      $28
+        cp      '('
         jr      nz,L_F1DB
         call    L_F1E0
         call    L_FD2E
         ld      a,c
-        cp      $29
+        cp      ')'
         jr      z,L_F220
 .L_F1DB
         ld      a,$0A
@@ -15370,7 +15400,7 @@
         push    hl
         call    L_FD0C
         ld      a,c
-        cp      $2C
+        cp      ','
         jr      nz,L_F1F6
         call    L_FD2E
         jr      L_F1E3
@@ -15390,12 +15420,12 @@
         push    hl
         call    L_FD2E
         ld      a,c
-        cp      $28
+        cp      '('
         jr      nz,L_F1DB
         call    L_F0AF
         call    L_FD2E
         ld      a,c
-        cp      $29
+        cp      ')'
         jr      nz,L_F1DB
 .L_F220
         pop     hl
@@ -15407,7 +15437,7 @@
         sla     l
         ld      e,l
         ld      d,$00
-        ld      hl,L_F3CC
+        ld      hl,FunctionRoutineTable
         add     hl,de
         ld      e,(hl)
         inc     hl
@@ -15669,69 +15699,69 @@
 .L_F3C8
         defb    $24,$0D,$07,$06
 
-.L_F3CC
-        defw    L_F424
-        defw    L_F42A
-        defw    L_F430
-        defw    L_F436
-        defw    L_F43C
-        defw    L_F47F
-        defw    L_F487
-        defw    L_F48D
-        defw    L_F4B0
-        defw    L_F4BC
-        defw    L_F4C2
-        defw    L_F4C8
-        defw    L_F4EA
-        defw    L_F523
-        defw    L_F529
-        defw    L_F52F
-        defw    L_F535
-        defw    L_F5F7
-        defw    L_F5FA
-        defw    L_F64A
-        defw    L_F653
-        defw    L_F65A
-        defw    L_F660
-        defw    L_F671
-        defw    L_F677
-        defw    L_F67D
-        defw    L_F683
-        defw    L_F6B8
-        defw    L_F6BE
-        defw    L_F6CF
-        defw    L_F6D9
-        defw    L_F6F6
-        defw    L_F6FC
-        defw    L_F702
-        defw    L_F712
-        defw    L_F718
-        defw    L_F71F
-        defw    L_F726
-        defw    L_F72D
-        defw    L_F739
-        defw    L_F740
-        defw    L_F747
-        defw    L_F74D
-        defw    L_F75F
-.L_F424
+.FunctionRoutineTable
+        defw    fnAbs
+        defw    fnAcs
+        defw    fnAsn
+        defw    fnAtn
+        defw    fnChoose
+        defw    fnCol
+        defw    fnCos
+        defw    fnCount
+        defw    fnDay
+        defw    fnDeg
+        defw    fnExp
+        defw    fnIf
+        defw    fnIndex
+        defw    fnInt
+        defw    fnLn
+        defw    fnLog
+        defw    fnLookup
+        defw    fnMax
+        defw    fnMin
+        defw    fnMonth
+        defw    fnPi
+        defw    fnRad
+        defw    fnRow
+        defw    fnSgn
+        defw    fnSin
+        defw    fnSqr
+        defw    fnSum
+        defw    fnTan
+        defw    fnYear
+        defw    fnNot
+        defw    fnAnd
+        defw    fnMultiply
+        defw    fnAdd
+        defw    fnSubtract
+        defw    fnDivide
+        defw    fnLess
+        defw    fnLessEqual
+        defw    fnNotEqual
+        defw    fnEqual
+        defw    fnGreater
+        defw    fnGreaterEqual
+        defw    fnRaise
+        defw    fnOr
+        defw    fnNegate
+.fnAbs
         call    L_FAC7
 .L_F427
         fpp     Fp_abs
         ret
-.L_F42A
+.fnAcs
         call    L_FAC7
         fpp     Fp_acs
         ret
-.L_F430
+.fnAsn
         call    L_FAC7
         fpp     Fp_asn
         ret
-.L_F436
+.fnAtn
         call    L_FAC7
         fpp     Fp_atn
         ret
-.L_F43C
+.fnChoose
         xor     a
         call    L_F31C
         call    L_F9BE
@@ -15763,15 +15793,15 @@
         ret     nz
         scf
         ret
-.L_F47F
+.fnCol
         ld      l,(iy-110)
         ld      h,$00
         jp      L_F666
-.L_F487
+.fnCos
         call    L_FAC7
         fpp     Fp_cos
         ret
-.L_F48D
+.fnCount
         xor     a
         ld      (iy-30),a
         ld      (iy-29),a
@@ -15789,22 +15819,22 @@
         ret     nz
         inc     (iy-29)
         ret
-.L_F4B0
+.fnDay
         call    L_F924
         ld      a,c
         and     $1F
         ld      l,a
         ld      h,$00
         jp      L_F667
-.L_F4BC
+.fnDeg
         call    L_FAC7
         fpp     Fp_deg
         ret
-.L_F4C2
+.fnExp
         call    L_FAC7
         fpp     Fp_exp
         ret
-.L_F4C8
+.fnIf
         xor     a
         call    L_F31C
         call    L_F9BE
@@ -15821,7 +15851,7 @@
         call    L_F9BE
         ld      (iy-79),c
         jp      L_F380
-.L_F4EA
+.fnIndex
         xor     a
         call    L_F31C
         call    L_F9BE
@@ -15845,19 +15875,19 @@
 .L_F51D
         call    L_FC14
         jp      L_F380
-.L_F523
+.fnInt
         call    L_FAC7
         fpp     Fp_int
         ret
-.L_F529
+.fnLn
         call    L_FAC7
         fpp     Fp_ln
         ret
-.L_F52F
+.fnLog
         call    L_FAC7
         fpp     Fp_log
         ret
-.L_F535
+.fnLookup
         xor     a
         ld      (iy-28),a
         ld      (iy-27),a
@@ -15950,10 +15980,10 @@
         call    L_F9D2
         ld      (iy-79),c
         jp      L_F380
-.L_F5F7
+.fnMax
         or      a
         jr      L_F5FB
-.L_F5FA
+.fnMin
         scf
 .L_F5FB
         rr      (iy-30)
@@ -15990,20 +16020,20 @@
         call    L_FEA0
         or      a
         ret
-.L_F64A
+.fnMonth
         call    L_F924
         ld      l,b
         ld      h,$00
         jp      L_F667
-.L_F653
+.fnPi
         fpp     Fp_pi
         ld      (iy-79),$09
         ret
-.L_F65A
+.fnRad
         call    L_FAC7
         fpp     Fp_rad
         ret
-.L_F660
+.fnRow
         ld      l,(iy-109)
         ld      h,(iy-108)
 .L_F666
@@ -16014,19 +16044,19 @@
         ld      c,l
         ld      (iy-79),$09
         ret
-.L_F671
+.fnSgn
         call    L_FAC7
         fpp     Fp_sgn
         ret
-.L_F677
+.fnSin
         call    L_FAC7
         fpp     Fp_sin
         ret
-.L_F67D
+.fnSqr
         call    L_FAC7
         fpp     Fp_sqr
         ret
-.L_F683
+.fnSum
         fpp     Fp_zer
         ld      ix,$1DA0
         call    L_FEA0
@@ -16049,11 +16079,11 @@
         call    L_FEA0
         or      a
         ret
-.L_F6B8
+.fnTan
         call    L_FAC7
         fpp     Fp_tan
         ret
-.L_F6BE
+.fnYear
         call    L_F924
         ld      bc,$0000
         ex      de,hl
@@ -16061,12 +16091,12 @@
         oz      Gn_d24
         ex      de,hl
         jp      L_F667
-.L_F6CF
+.fnNot
         call    L_FAC7
         call    L_F6EE
         xor     $01
         jr      L_F6E8
-.L_F6D9
+.fnAnd
         call    L_F93F
         call    L_F6EE
         push    af
@@ -16085,15 +16115,15 @@
         ret     z
         inc     a
         ret
-.L_F6F6
+.fnMultiply
         call    L_F93F
         fpp     Fp_mul
         ret
-.L_F6FC
+.fnAdd
         call    L_F93F
         fpp     Fp_add
         ret
-.L_F702
+.fnSubtract
         call    L_F93F
         jr      nz,L_F70F
         cp      $0A
@@ -16102,44 +16132,44 @@
 .L_F70F
         fpp     Fp_sub
         ret
-.L_F712
+.fnDivide
         call    L_F93F
         fpp     Fp_div
         ret
-.L_F718
+.fnLess
         call    L_F770
 .L_F71B
         jr      c,L_F732
         jr      L_F769
-.L_F71F
+.fnLessEqual
         call    L_F770
         jr      z,L_F732
         jr      L_F71B
-.L_F726
+.fnNotEqual
         call    L_F770
         jr      z,L_F769
         jr      L_F732
-.L_F72D
+.fnEqual
         call    L_F770
         jr      nz,L_F769
 .L_F732
         ld      (iy-79),$09
         fpp     Fp_one
         ret
-.L_F739
+.fnGreater
         call    L_F770
         jr      z,L_F769
         jr      L_F743
-.L_F740
+.fnGreaterEqual
         call    L_F770
 .L_F743
         jr      nc,L_F732
         jr      L_F769
-.L_F747
+.fnRaise
         call    L_F93F
         fpp     Fp_pwr
         ret
-.L_F74D
+.fnOr
         call    L_F93F
         call    L_F6EE
         push    af
@@ -16148,7 +16178,7 @@
         pop     bc
         or      b
         jp      L_F6E8
-.L_F75F
+.fnNegate
         call    L_FAC7
         fpp     Fp_neg
         ret
@@ -16252,12 +16282,12 @@
         cp      (iy-111)
         call    nz,L_D887
         ld      a,(de)
-        call    L_EE09
+        call    GetUppercase
         ld      (iy-18),a
         call    L_F8E8
         cp      $15
         jr      z,L_F7FF
-        call    L_EE09
+        call    GetUppercase
         ld      (iy-16),a
         cp      (iy-18)
         jr      z,L_F897
@@ -16836,48 +16866,234 @@
         ld      a,$10
         jp      L_F339
 
-.L_FC19
-        defm    "@", $00
-        defm    $00
-        defm    "AB", $D3, "A", $0D, $01, "AC", $D3, "B", $00
-        defm    $00
-        defm    "AS", $CE, "C", $19, $07, "AT", $CE, $84, $00
-        defm    $00
-        defm    "CHOOS", $C5, $05, "B", $13, "CO", $CC, "F", $00
-        defm    $00
-        defm    "CO", $D3, $87, "6(COUN", $D4, "H<", $00
-        defm    "DA", $D9, "I", $00
-        defm    $00
-        defm    "DE", $C7, "JU.EX", $D0, $8B, "M", $00
-        defm    "I", $C6, $8C, $00
-        defm    $00
-        defm    "INDE", $D8, "M[HIN", $D4, "N", $00
-        defm    $00
-        defm    "L", $CE, "O", $8E, '"', "LO", $C7, $90, "o", $00
-        defm    "LOOKU", $D0, $91, $00
-        defm    $00
-        defm    "MA", $D8, $92, $88, "fMI", $CE, "S", $00
-        defm    $00
-        defm    "MONT", $C8, $14, $00
-        defm    "{P", $C9, "U", $00
-        defm    $83, "RA", $C4, $16, $A6, "uRO", $D7, "W", $00
-        defm    $00
-        defm    "SG", $CE, "X", $A0, $94, "SI", $CE, "Y", $00
-        defm    $00
-        defm    "SQ", $D2, $9A, $AC, $9A, "SU", $CD, "[", $B2, $00
-        defm    "TA", $CE, "\", $00
-        defm    $00
-        defm    "YEA"
 
-.L_FCD0
-        defb    $D2,$1D,$00,$00,$A1,$1E,$00,$01
-        defb    $A6,$1F,$0D,$05,$AA,$20,$00,$00
-        defb    $AB,$21,$15,$09,$AD,$22,$19,$00
-        defb    $AF,$23,$00,$00,$BC,$24,$2F,$11
-        defb    $3C,$BD,$25,$00,$00,$3C,$BE,$26
-        defb    $2B,$22,$BD,$27,$00,$00,$BE,$28
-        defb    $34,$27,$3E,$BD,$29,$38,$00,$DE
-        defb    $2A,$00,$00,$FC
+; Binary search tree of functions.
+
+.FunctionTree
+.FunctionTreeAbs
+        defb    FuncID_Abs + $40
+        defb    0
+        defb    0
+        defm    "AB",'S'+$80
+.FunctionTreeAcs
+        defb    FuncID_Acs + $40
+        defb    FunctionTreeAsn-FunctionTree+1
+        defb    FunctionTreeAbs-FunctionTree+1
+        defm    "AC",'S'+$80
+.FunctionTreeAsn
+        defb    FuncID_Asn + $40
+        defb    0
+        defb    0
+        defm    "AS",'N'+$80
+.FunctionTreeAtn
+        defb    FuncID_Atn + $40
+        defb    FunctionTreeChoose-FunctionTree+1
+        defb    FunctionTreeAcs-FunctionTree+1
+        defm    "AT",'N'+$80
+.FunctionTreeChoose
+        defb    FuncID_Choose + $80
+        defb    0
+        defb    0
+        defm    "CHOOS",'E'+$80
+.FunctionTreeCol
+        defb    FuncID_Col
+        defb    FunctionTreeExp-FunctionTree+1
+        defb    FunctionTreeAtn-FunctionTree+1
+        defm    "CO",'L'+$80
+.FunctionTreeCos
+        defb    FuncID_Cos + $40
+        defb    0
+        defb    0
+        defm    "CO",'S'+$80
+.FunctionTreeCount
+        defb    FuncID_Count + $80
+        defb    FunctionTreeDay-FunctionTree+1
+        defb    FunctionTreeCos-FunctionTree+1
+        defm    "COUN",'T'+$80
+.FunctionTreeDay
+        defb    FuncID_Day + $40
+        defb    FunctionTreeDeg-FunctionTree+1
+        defb    0
+        defm    "DA",'Y'+$80
+.FunctionTreeDeg
+        defb    FuncID_Deg + $40
+        defb    0
+        defb    0
+        defm    "DE",'G'+$80
+.FunctionTreeExp
+        defb    FuncID_Exp + $40
+        defb    FunctionTreeInt-FunctionTree+1
+        defb    FunctionTreeCount-FunctionTree+1
+        defm    "EX",'P'+$80
+.FunctionTreeIf
+        defb    FuncID_If + $80
+        defb    FunctionTreeIndex-FunctionTree+1
+        defb    0
+        defm    "I",'F'+$80
+.FunctionTreeIndex
+        defb    FuncID_Index + $80
+        defb    0
+        defb    0
+        defm    "INDE",'X'+$80
+.FunctionTreeInt
+        defb    FuncID_Int + $40
+        defb    FunctionTreeLn-FunctionTree+1
+        defm    FunctionTreeIf-FunctionTree+1
+        defm    "IN",'T'+$80
+.FunctionTreeLn
+        defb    FuncID_Ln + $40
+        defb    0
+        defb    0
+        defm    "L",'N'+$80
+.FunctionTreeRoot
+.FunctionTreeLog
+        defb    FuncID_Log + $40
+        defb    FunctionTreeRow-FunctionTree+1
+        defb    FunctionTreeCol-FunctionTree+1
+        defm    "LO",'G'+$80
+.FunctionTreeLookup
+        defb    FuncID_Lookup + $80
+        defb    FunctionTreeMax-FunctionTree+1
+        defb    0
+        defm    "LOOKU",'P'+$80
+.FunctionTreeMax
+        defb    FuncID_Max + $80
+        defb    0
+        defm    0
+        defm    "MA",'X'+$80
+.FunctionTreeMin
+        defb    FuncID_Min + $80
+        defb    FunctionTreeRad-FunctionTree+1
+        defb    FunctionTreeLookup-FunctionTree+1
+        defm    "MI",'N'+$80
+.FunctionTreeMonth
+        defb    FuncID_Month + $40
+        defb    0
+        defb    0
+        defm    "MONT",'H'+$80
+.FunctionTreePi
+        defb    FuncID_Pi
+        defb    0
+        defb    FunctionTreeMonth-FunctionTree+1
+        defm    "P",'I'+$80
+.FunctionTreeRad
+        defb    FuncID_Rad + $40
+        defb    0
+        defb    FunctionTreePi-FunctionTree+1
+        defm    "RA",'D'+$80
+.FunctionTreeRow
+        defb    FuncID_Row
+        defb    FunctionTreeSum-FunctionTree+1
+        defb    FunctionTreeMin-FunctionTree+1
+        defm    "RO",'W'+$80
+.FunctionTreeSgn
+        defb    FuncID_Sgn + $40
+        defb    0
+        defb    0
+        defm    "SG",'N'+$80
+.FunctionTreeSin
+        defb    FuncID_Sin + $40
+        defb    FunctionTreeSqr-FunctionTree+1
+        defb    FunctionTreeSgn-FunctionTree+1
+        defm    "SI",'N'+$80
+.FunctionTreeSqr
+        defb    FuncID_Sqr + $40
+        defb    0
+        defb    0
+        defm    "SQ",'R'+$80
+.FunctionTreeSum
+        defb    FuncID_Sum + $80
+        defb    FunctionTreeTan-FunctionTree+1
+        defb    FunctionTreeSin-FunctionTree+1
+        defm    "SU",'M'+$80
+.FunctionTreeTan
+        defb    FuncID_Tan + $40
+        defb    FunctionTreeYear-FunctionTree+1
+        defb    0
+        defm    "TA",'N'+$80
+.FunctionTreeYear
+        defb    FuncID_Year + $40
+        defb    0
+        defb    0
+        defm    "YEA",'R'+$80
+
+
+; Binary search tree of operators.
+
+.OperatorTree
+.OperatorTreeNot
+        defm    FuncID_Not
+        defb    0
+        defb    0
+        defm    '!'+$80
+.OperatorTreeAnd
+        defm    FuncID_And
+        defb    0
+        defb    OperatorTreeNot-OperatorTree+1
+        defm    '&'+$80
+.OperatorTreeMultiply
+        defm    FuncID_Multiply
+        defb    OperatorTreeAdd-OperatorTree+1
+        defb    OperatorTreeAnd-OperatorTree+1
+        defm    '*'+$80
+.OperatorTreeAdd
+        defm    FuncID_Add
+        defb    0
+        defb    0
+        defm    '+'+$80
+.OperatorTreeSubtract
+        defm    FuncID_Subtract
+        defb    OperatorTreeDivide-OperatorTree+1
+        defb    OperatorTreeMultiply-OperatorTree+1
+        defm    '-'+$80
+.OperatorTreeDivide
+        defm    FuncID_Divide
+        defb    OperatorTreeLess-OperatorTree+1
+        defb    0
+        defm    '/'+$80
+.OperatorTreeLess
+        defm    FuncID_Less
+        defb    0
+        defb    0
+        defm    '<'+$80
+.OperatorTreeRoot
+.OperatorTreeLessEqual
+        defm    FuncID_LessEqual
+        defb    OperatorTreeGreaterEqual-OperatorTree+1
+        defb    OperatorTreeSubtract-OperatorTree+1
+        defm    "<",'='+$80
+.OperatorTreeNotEqual
+        defm    FuncID_NotEqual
+        defb    0
+        defb    0
+        defm    "<",'>'+$80
+.OperatorTreeEqual
+        defm    FuncID_Equal
+        defb    OperatorTreeGreater-OperatorTree+1
+        defb    OperatorTreeNotEqual-OperatorTree+1
+        defm    '='+$80
+.OperatorTreeGreater
+        defm    FuncID_Greater
+        defb    0
+        defb    0
+        defm    '>'+$80
+.OperatorTreeGreaterEqual
+        defm    FuncID_GreaterEqual
+        defb    OperatorTreeRaise-OperatorTree+1
+        defb    OperatorTreeEqual-OperatorTree+1
+        defm    ">",'='+$80
+.OperatorTreeRaise
+        defm    FuncID_Raise
+        defb    OperatorTreeOr-OperatorTree+1
+        defb    0
+        defm    '^'+$80
+.OperatorTreeOr
+        defm    FuncID_Or
+        defb    0
+        defb    0
+        defm    '|'+$80
+
+
 .L_FD0C
         ld      hl,$0000
         add     hl,sp
@@ -16920,19 +17136,19 @@
         ld      a,(hl)
         or      a
         jp      z,L_FDF6
-        call    L_EE1B
+        call    ValidateAlphabetic
         jr      c,L_FD92
-        call    L_EE10
+        call    ValidateNumeric
         jr      c,L_FDB8
-        cp      $2E
+        cp      '.'
         jr      z,L_FDB8
         call    L_FE32
         jp      c,L_FDFA
         cp      $14
         jr      z,L_FDD6
-        ld      de,L_FCD0
-        ld      a,$1D
-        call    L_FE39
+        ld      de,OperatorTree-1
+        ld      a,1+(OperatorTreeRoot-OperatorTree)
+        call    BinaryTreeSearch
         ld      c,$0D
         ret     nc
         ld      e,(hl)
@@ -16942,12 +17158,12 @@
         or      a
         ret
 .L_FD92
-        ld      de,$FC18
-        ld      a,$60
-        call    L_FE39
-        jr      c,L_FDF2
+        ld      de,FunctionTree-1
+        ld      a,1+(FunctionTreeRoot-FunctionTree)
+        call    BinaryTreeSearch
+        jr      c,L_FDF2                        ; failed to find match
         push    hl
-        ld      a,l
+        ld      a,l                             ; A=function node data
         and     $3F
         ld      b,$04
         ld      hl,L_FDB5
@@ -17062,51 +17278,80 @@
         ret     nc
         cp      $14
         ret
-.L_FE39
-        push    hl
-        push    de
-        add     a,e
+
+
+
+; Search binary tree for text match.
+;
+; Each tree node consists of the following data:
+;    +0: node data
+;    +1: offset of right subnode + 1 (0=no subnode)
+;    +2: offset of left subnode + 1 (0=no subnode)
+;    +3..N: node text, uppercase, bit 7-terminated
+;
+; Node offsets are from table base.
+;
+; IN:
+;    HL=string start, null-terminated
+;    DE=base address of tree - 1
+;    A=offset of first node to search + 1
+; OUT:
+;    Fc=1, failed to find match
+;        HL=string start
+;    Fc=0, match found
+;        DE=address in string following match
+;        L = node data
+;
+
+.BinaryTreeSearch
+        push    hl                              ; save string start
+        push    de                              ; save tree base
+        add     a,e                             ; calculate DE=next node address
         ld      e,a
-        jr      nc,L_FE40
+        jr      nc,BinaryTreeGotNode
         inc     d
-.L_FE40
+.BinaryTreeGotNode
         push    de
-        pop     ix
+        pop     ix                              ; IX=node address
         inc     de
         inc     de
-        inc     de
-.L_FE46
-        ld      a,(hl)
-        or      a
-        jr      z,L_FE5D
+        inc     de                              ; DE=address of node text
+.BinaryTreeNodeCompare
+        ld      a,(hl)                          ; get next character from string
+        or      a                               ; check for null terminator
+        jr      z,BinaryTreeNodeFail
         inc     hl
-        call    L_EE09
-        ld      c,a
-        ld      a,(de)
-        and     $7F
+        call    GetUppercase
+        ld      c,a                             ; C=next character to match
+        ld      a,(de)                          ; A=next character from table entry
+        and     $7F                             ; mask out terminator bit
         cp      c
-        jr      z,L_FE64
-        ld      a,(ix+1)
-        jr      c,L_FE5D
-        ld      a,(ix+2)
-.L_FE5D
-        pop     de
-        pop     hl
+        jr      z,BinaryTreeCharMatch
+        ld      a,(ix+1)                        ; get right node if string >
+        jr      c,BinaryTreeNodeFail
+        ld      a,(ix+2)                        ; get left node if string <
+.BinaryTreeNodeFail
+        pop     de                              ; restore tree base
+        pop     hl                              ; and string start
         or      a
-        jr      nz,L_FE39
-        scf
+        jr      nz,BinaryTreeSearch             ; loop back for more nodes
+        scf                                     ; Fc=1, failure
         ret
-.L_FE64
-        ld      a,(de)
+.BinaryTreeCharMatch
+        ld      a,(de)                          ; refetch table entry character
         inc     de
         or      a
-        jp      p,L_FE46
-        pop     de
-        ex      (sp),hl
-        pop     de
-        ld      l,(ix+0)
-        or      a
+        jp      p,BinaryTreeNodeCompare         ; loop back unless end of table entry text
+        pop     de                              ; discard tree base
+        ex      (sp),hl                         ; discard string start, stack current string address
+        pop     de                              ; DE=address in string following match
+        ld      l,(ix+0)                        ; L=node data
+        or      a                               ; Fc=0, match found
         ret
+
+
+
+
 .L_FE72
         ld      hl,($1D4D)
         ld      e,(hl)
