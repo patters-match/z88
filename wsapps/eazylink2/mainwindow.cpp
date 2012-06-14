@@ -1328,7 +1328,7 @@ void MainWindow::TransferFiles()
           */
         m_isTransfer = true;
         QList<DeskTop_Selection> *deskSelList;
-        uint32_t src_bytes = 0;
+        quint32 src_bytes = 0;
         deskSelList = m_DeskTopTreeView->getSelection(true, src_bytes);
 
         if(deskSelList){
@@ -1353,7 +1353,7 @@ void MainWindow::LoadingDeskList(const bool &aborted)
         return;
     }
 
-    uint32_t sel_bytes = 0;
+    quint32 sel_bytes = 0;
 
     QList<DeskTop_Selection> *deskSelList;
     deskSelList = m_DeskTopTreeView->getSelection(true, sel_bytes,  true);
@@ -1703,11 +1703,11 @@ bool MainWindow::StartImpExpReceive(const QString &dst_dir)
   * @param sel_bytes is the Number of bytes in the selection.
   * @return true if the files will fit, or user chose to ignore.
   */
-bool MainWindow::Verify_Z88Dest_SpaceAvail(uint32_t sel_bytes)
+bool MainWindow::Verify_Z88Dest_SpaceAvail(quint32 sel_bytes)
 {
 
-    uint32_t freeSpace = 0;
-    uint32_t totSpace = 0;
+    quint32 freeSpace = 0;
+    quint32 totSpace = 0;
 
     float overhead = 1.085;
 

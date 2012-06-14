@@ -47,7 +47,7 @@ public:
     const QString &getSelectedDeviceName();
     bool refreshSelectedDeviceView();
 
-    bool getSelectedDeviceFreeSpace(uint32_t &freeSpace, uint32_t &tot_size);
+    bool getSelectedDeviceFreeSpace(quint32 &freeSpace, quint32 &tot_size);
 
     bool isValidFilename(const QString &fname, QString &sug_fname);
 

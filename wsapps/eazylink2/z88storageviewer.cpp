@@ -261,7 +261,7 @@ bool Z88StorageViewer::refreshSelectedDeviceView()
      return false;
 }
 
-bool Z88StorageViewer::getSelectedDeviceFreeSpace(uint32_t &freeSpace, uint32_t &tot_size)
+bool Z88StorageViewer::getSelectedDeviceFreeSpace(quint32 &freeSpace, quint32 &tot_size)
 {
     Z88_DevView *dv = getSelectedDevice();
 
@@ -399,8 +399,8 @@ void Z88StorageViewer::updateCurrentDeviceInfoDisplay()
 {
     Z88_DevView *dv = getSelectedDevice();
     if(dv){
-        uint32_t freebytes = -1;
-        uint32_t totbytes = -1;
+        quint32 freebytes = -1;
+        quint32 totbytes = -1;
 
         if( dv->get_FreeSpace(freebytes, totbytes))
         {

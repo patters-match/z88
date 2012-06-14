@@ -127,7 +127,7 @@ protected:
     void StartImpExpSending(const QStringList &src_fileNames);
     bool StartImpExpReceive(const QString &dst_dir);
 
-    bool Verify_Z88Dest_SpaceAvail(uint32_t sel_bytes);
+    bool Verify_Z88Dest_SpaceAvail(quint32 sel_bytes);
 
 private:
     /**
