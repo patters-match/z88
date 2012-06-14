@@ -104,7 +104,7 @@ Desktop_View::Desktop_View(CommThread &cthread, Prefrences_dlg *pref_dlg, MainWi
   * Get a List of the selected file(s)
   * @return the list of filenames.
   */
-QList<DeskTop_Selection> *Desktop_View::getSelection(bool recurse, bool cont)
+QList<DeskTop_Selection> *Desktop_View::getSelection(bool recurse, uint32_t &sel_bytes, bool cont)
 {
     if(!recurse && m_recurse){
         return NULL;
@@ -136,12 +136,13 @@ QList<DeskTop_Selection> *Desktop_View::getSelection(bool recurse, bool cont)
                         DeskTop_Selection::type_Dir : DeskTop_Selection::type_File;
 
             if(recurse && type == DeskTop_Selection::type_Dir){
-                if(!getSubdirFiles(idx)){
+                if(!getSubdirFiles(idx, sel_bytes)){
                     return NULL; // More to grab
                 }
             }
             else{
                 m_Selections.append(DeskTop_Selection(m_DeskFileSystem->filePath(idx), m_DeskFileSystem->fileName(idx), type));
+                sel_bytes += m_DeskFileSystem->size(idx);
             }
         }
     }
@@ -151,6 +152,12 @@ QList<DeskTop_Selection> *Desktop_View::getSelection(bool recurse, bool cont)
 
     m_recurse = false;
     return &m_Selections;
+}
+
+QList<DeskTop_Selection> *Desktop_View::getSelection(bool recurse, bool cont)
+{
+    uint32_t sel_bytes = 0;
+    return getSelection(recurse, sel_bytes, cont);
 }
 
 /**
@@ -295,7 +302,7 @@ void Desktop_View::prependSubdirNames(QMutableListIterator<DeskTop_Selection> &i
   * @param idx is the selected directory to recurse.
   * @return false if the directory is still being read, true on success.
   */
-bool Desktop_View::getSubdirFiles(const QModelIndex &idx)
+bool Desktop_View::getSubdirFiles(const QModelIndex &idx, uint32_t &sel_size)
 {
     if(m_DeskFileSystem->isDir(idx)){
         if(m_DeskFileSystem->canFetchMore(idx)){
@@ -308,7 +315,7 @@ bool Desktop_View::getSubdirFiles(const QModelIndex &idx)
     }
     for(int x=0; x < m_DeskFileSystem->rowCount(idx); x++){
         if(m_DeskFileSystem->isDir(idx.child(x,0))){
-            if(!getSubdirFiles(idx.child(x,0))){
+            if(!getSubdirFiles(idx.child(x,0), sel_size)){
                 return false;
             }
         }
@@ -316,6 +323,7 @@ bool Desktop_View::getSubdirFiles(const QModelIndex &idx)
             m_Selections.append(DeskTop_Selection(m_DeskFileSystem->filePath(idx.child(x,0)),
                                                   m_DeskFileSystem->fileName(idx.child(x,0)),
                                                   DeskTop_Selection::type_File));
+            sel_size += m_DeskFileSystem->size(idx.child(x,0));
         }
     }
     return true;
@@ -627,6 +635,10 @@ void Desktop_View::deleteSubdirFiles(const QModelIndex &idx, int &ret)
         case QMessageBox::NoToAll:
             ret = 0;
         case QMessageBox::Cancel:
+            /**
+              * Notify the Main form that the user canceled the delete
+              */
+            emit CancelDirRead();
             return;
     }
 

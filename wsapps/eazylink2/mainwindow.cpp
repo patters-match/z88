@@ -215,6 +215,7 @@ void MainWindow::createActions()
 
     connect(m_Z88StorageView,  SIGNAL(ItemSelectionChanged(int)), this, SLOT(Z88SelectionChanged(int)));
     connect(m_DeskTopTreeView, SIGNAL(ItemSelectionChanged(int)), this, SLOT(DeskTopSelectionChanged(int)));
+    connect(m_DeskTopTreeView, SIGNAL(CancelDirRead()), this, SLOT(enableCmds()));
 
 
     /**
@@ -593,6 +594,11 @@ void MainWindow::enableCmds(bool ena, bool com_isOpen)
     ui->Ui::MainWindow::actionSet_Z88_Clock->setEnabled(ena);
     ui->Ui::MainWindow::actionReadZ88_Clock->setEnabled(ena);
     ui->Ui::MainWindow::actionGet_Info->setEnabled(ena);
+}
+
+void MainWindow::enableCmds()
+{
+    enableCmds(true, m_sport.isOpen());
 }
 
 /**
@@ -1322,10 +1328,16 @@ void MainWindow::TransferFiles()
           */
         m_isTransfer = true;
         QList<DeskTop_Selection> *deskSelList;
-        deskSelList = m_DeskTopTreeView->getSelection(true);
+        uint32_t src_bytes = 0;
+        deskSelList = m_DeskTopTreeView->getSelection(true, src_bytes);
 
         if(deskSelList){
-            StartSending(deskSelList, m_z88Selections);
+            /**
+              * Verify the files will fit HERE
+              */
+            if(Verify_Z88Dest_SpaceAvail(src_bytes)){
+                StartSending(deskSelList, m_z88Selections);
+            }
         }
     }
 }
@@ -1341,8 +1353,10 @@ void MainWindow::LoadingDeskList(const bool &aborted)
         return;
     }
 
+    uint32_t sel_bytes = 0;
+
     QList<DeskTop_Selection> *deskSelList;
-    deskSelList = m_DeskTopTreeView->getSelection(true, true);
+    deskSelList = m_DeskTopTreeView->getSelection(true, sel_bytes,  true);
 
     if(deskSelList){
         /**
@@ -1351,7 +1365,13 @@ void MainWindow::LoadingDeskList(const bool &aborted)
         if(m_isTransfer){
             m_isTransfer = false;
             enableCmds(true, m_sport.isOpen());
-            StartSending((deskSelList), m_z88Selections);
+
+            /**
+              * Verify the files will fit HERE
+              */
+            if(Verify_Z88Dest_SpaceAvail(sel_bytes)){
+                StartSending(deskSelList, m_z88Selections);
+            }
         }
         else{
             m_DeskTopTreeView->deleteSelections();
@@ -1480,7 +1500,7 @@ void MainWindow::StartSending(QList<DeskTop_Selection> *desk_selections, QList<Z
     int dir_cnt(ds->count() - filecnt);
 
     if(dir_cnt == 1){
-        msg += QString("1 Directory").arg(dir_cnt);
+        msg += QString("1 Directory");
     }
     else{
         msg += QString("%1 Directories").arg(dir_cnt);
@@ -1668,8 +1688,74 @@ void MainWindow::StartImpExpSending(const QStringList &src_fileNames)
     return;
 }
 
+/**
+  * Start the Imp-Export protocol Receive Process.
+  * @param dst_dir is the Destinaton directory
+  * @return true if the thread is not busy
+  */
 bool MainWindow::StartImpExpReceive(const QString &dst_dir)
 {
     return m_cthread.impExpReceiveFiles(dst_dir);
+}
+
+/**
+  * Verify the Destination has enough space
+  * @param sel_bytes is the Number of bytes in the selection.
+  * @return true if the files will fit, or user chose to ignore.
+  */
+bool MainWindow::Verify_Z88Dest_SpaceAvail(uint32_t sel_bytes)
+{
+
+    uint32_t freeSpace = 0;
+    uint32_t totSpace = 0;
+
+    float overhead = 1.085;
+
+    if(m_Z88StorageView->getSelectedDeviceFreeSpace(freeSpace, totSpace)){
+
+        if(double (overhead * (sel_bytes)) > double(freeSpace)){
+
+            QMessageBox msgBox;
+            QString msg;
+
+            msg = (sel_bytes > totSpace) ? "Selection Exceeds Device Size.\n" :
+                                           "Selection may not fit.\n";
+
+            msg += "Attempt to copy: ";
+            msg += QLocale(QLocale::system()).toString(float(overhead * sel_bytes), 'f', 0);
+
+            if(sel_bytes > totSpace){
+                msg += " Bytes to Storage that is only: ";
+                msg += QLocale(QLocale::system()).toString(float(totSpace), 'f', 0);
+                msgBox.setStandardButtons(QMessageBox::Cancel);
+                msgBox.setInformativeText("Please Select a Different Device.");
+            }
+            else{
+                msg += " Bytes, but Free Space is only: ";
+                msg += QLocale(QLocale::system()).toString(float(freeSpace), 'f', 0);
+                msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::Cancel);
+                msgBox.setInformativeText("Do you want to Continue anyway ?");
+            }
+            msg += " Bytes.";
+
+            msgBox.setText(msg);
+            msgBox.setIcon(QMessageBox::Critical);
+            msgBox.setDefaultButton(QMessageBox::Cancel);
+
+            switch(msgBox.exec()){
+                case QMessageBox::Yes:
+                    return true;
+
+                default:
+                    return false;
+                    break;
+            }
+        }
+    }
+
+    /**
+      * Size not avail, or there is space
+      */
+    return true;
 }
 

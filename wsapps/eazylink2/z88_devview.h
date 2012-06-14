@@ -52,6 +52,12 @@ public:
 
     bool isSelChangeLocked(){return m_selChangeLock;}
 
+    bool set_FreeSpace(uint32_t free_bytes);
+    bool set_TotalSize(uint32_t total_bytes);
+
+    bool get_FreeSpace(uint32_t &free_bytes, uint32_t &tot_size);
+    bool get_TotalSize(uint32_t &total_bytes);
+
 signals:
     
 public slots:
@@ -86,6 +92,12 @@ protected:
     QList<Z88_Selection> m_Selections;
 
     QList<QTreeWidgetItem *> m_ExpandedList;
+
+    static const uint32_t SZ_NOT_AVAIL = -1;
+
+    uint32_t    m_devSize;
+
+    uint32_t    m_devFree;
 
     /**
       * Flag to disable recursive events call-backs

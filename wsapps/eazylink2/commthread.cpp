@@ -217,6 +217,19 @@ void CommThread::run()
             emit boolCmd_result("Reading Z88 Directories", !dirlist->isEmpty());
             break;
         }
+        case OP_getDevInfo:     // Get the Free Space info for a device.
+        {
+            QList<QByteArray> *devInfolist = new QList<QByteArray>;
+
+            devInfolist->append(m_sport.getDeviceInfo(m_z88devname));
+
+            if(devInfolist->count() == nfo_max){
+                emit Z88DevInfo_result(m_z88devname,
+                                       devInfolist->at(dev_free).toLong(),
+                                       devInfolist->at(dev_total).toLong() * BYTES_PER_K);
+            }
+            break;
+        }
         case OP_getFilenames:       // Read the Filenames on the Z88 Storage Device.
         {
             bool retc = false;
@@ -305,6 +318,17 @@ void CommThread::run()
             break;  // This should never happen
         case OP_getZ88FileTree:     // Get the entire Z88 File tree.
         {
+            QList<QByteArray> *infolist = new QList<QByteArray>;
+            cmdStatus("Reading Z88 Info.");
+
+            infolist->append(m_sport.getEazyLinkZ88Version());
+            if(infolist->count()!=1){
+                emit boolCmd_result("Reading Z88 Version", false);
+            }
+            else{
+                m_EzSvr_Version = infolist->first();
+            }
+
             QList<QByteArray> *devlist = new QList<QByteArray>;
             cmdStatus("Reading Z88 File System");
 
@@ -329,6 +353,12 @@ void CommThread::run()
                     cmdStatus("Command Aborted!");
                     goto abort;
                 }
+
+                /**
+                  * If Available, get the Free device space
+                  */
+                _getDevInfo(i.peekNext());
+
                 _getDirectories(i.next());
                 run();
             }
@@ -507,7 +537,7 @@ skip2:
                 emit DirLoadComplete(false);
                 if(--m_runCnt <=0){
                     m_runCnt = 0;
-                    emit enableCmds(true, m_sport.isOpen());
+                  //Oscar  emit enableCmds(true, m_sport.isOpen());
                 }
                 return;  // Don't re-enable commands here
             }
@@ -818,6 +848,13 @@ done:
                 m_curOP = OP_delDirFile;
                 run();
             }
+            else{
+                /**
+                  * If Available, get the Free device space
+                  */
+                _getDevInfo(m_z88devspec);
+            }
+
             emit cmdProgress("Done", -1, -1); // reset the progress dialog
 
             break;
@@ -901,6 +938,12 @@ done:
 
             emit cmdProgress("Done", -1, -1); // reset the progress dialog         
 done2:
+
+            /**
+              * If Available, get the Free device space
+              */
+            _getDevInfo(m_z88devspec);
+
             break;
         }
         case OP_delDirFileNext:         // Delete Next Z88 Dir or file.
@@ -920,12 +963,24 @@ done2:
                 m_curOP = OP_delDirFiles;
                 run();
             }
+            else{
+                /**
+                  * If Available, get the Free device space
+                  */
+                _getDevInfo(m_z88devspec);
+                emit cmdProgress("Done", -1, -1);
+            }
 
             break;
         }
         case OP_refreshZ88View:         // Refresh the Z88 View
         {
             emit cmdProgress("Done", -1, -1);
+            /**
+              * If Available, get the Free device space
+              */
+            _getDevInfo(m_z88devspec);
+
             _getDirectories(m_z88devspec);
             run();
             _getFileNames(m_z88devspec);
@@ -1447,6 +1502,13 @@ bool CommThread::deleteFileDirectories(QList<Z88_Selection> *z88Selections, uPro
     m_enaPromtUser = prompt_usr;
     m_z88RenDelSelections = z88Selections;
 
+    /**
+      * Save the Device Name from the First Entry
+      */
+    if(!m_z88RenDelSelections->isEmpty()){
+        m_z88devspec = m_z88RenDelSelections->first().getFspec().mid(0,6);
+    }
+
     startCmd(OP_initdelDirFiles);
 
     return true;
@@ -1546,6 +1608,30 @@ CommThread::comOpcodes_t CommThread::_getFileNames(const QString &devname)
     m_z88devspec = devname;
 
     return(m_curOP = OP_getFilenames);
+}
+
+/**
+  * Read the Specified Device Information.
+  * @param devname is the Device to Read info.
+  * @return True if Serversupports this request, false otherwise
+  */
+bool CommThread::_getDevInfo(const QString &devname)
+{
+    /**
+      * The First Version of The ExazyLink PUll-down that supports
+      * Reading Device Info
+      */
+    if(m_EzSvr_Version >= "5.2-06"){
+        m_z88devname = devname;
+        m_z88devname += "//*";
+        m_z88devspec = devname;
+
+        m_curOP = OP_getDevInfo;
+        run();
+
+        return true;
+    }
+    return false;
 }
 
 /**

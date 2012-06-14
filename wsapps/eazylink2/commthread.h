@@ -69,6 +69,7 @@ protected:
         OP_getDevices,          // Read the Available z88 storage Devices.
         OP_getDirectories,      // Read the Dierectories on the selected device.
         OP_getFilenames,        // Read the File names from the selected device.
+        OP_getDevInfo,          // Get the Device Size Info
         OP_getZ88FileTree,      // Read the Entire File tree names from the z88.
         OP_getZ88FileTree_dly,  // Read the Entire File tree after a delay.
         OP_initreceiveFiles,    // Init a new Receive file request from ther Z88.
@@ -119,6 +120,11 @@ public:
       * File Exists Flag
       */
     static const uPrompt FILE_EXISTS    = 0x20;
+
+    /**
+      * The Bytes per K In the DevInfo Usage.
+      */
+    static const uint32_t BYTES_PER_K   = 1024;
 
     /**
      * Api Commands
@@ -184,6 +190,7 @@ signals:
     void PromptDeleteSpec(const QString &src_name, bool isDir, CommThread::uPrompt *Continue);
     void PromptDeleteRetry(const QString &msg, bool isDir);
     void deleteZ88Item(QTreeWidgetItem *item);
+    void Z88DevInfo_result(const QString &devname, unsigned int free, unsigned int total);
 
 protected:
     void startCmd(const comOpcodes_t &op, bool ena_resume = true);
@@ -196,6 +203,13 @@ protected:
 
     comOpcodes_t _getDirectories(const QString &devname);
     comOpcodes_t _getFileNames(const QString &devname);
+    bool _getDevInfo(const QString &devname);
+
+    enum devnfo {
+        dev_free,
+        dev_total,
+        nfo_max
+    };
 
     /**
       * reference to the Z88 Lower-level command class.
@@ -316,6 +330,11 @@ protected:
       * Used to disable the Menu
       */
     int                                 m_runCnt;
+
+    /**
+      * The Z88 eazyLink Pull-down Version
+      */
+    QString m_EzSvr_Version;
 
     /**
       * The Abort Flag, set to true, if user clicked abort

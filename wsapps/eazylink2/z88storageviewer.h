@@ -47,6 +47,8 @@ public:
     const QString &getSelectedDeviceName();
     bool refreshSelectedDeviceView();
 
+    bool getSelectedDeviceFreeSpace(uint32_t &freeSpace, uint32_t &tot_size);
+
     bool isValidFilename(const QString &fname, QString &sug_fname);
 
     bool SelectedDevice_isEmpty();
@@ -59,6 +61,7 @@ public slots:
     void Z88Devices_result(QList<QByteArray> *devlist);
     void Z88Dir_result(const QString &devname, QList<QByteArray> *dirlist);
     void Z88FileSpeclist_result(const QString &devname, QList<Z88FileSpec> *filespeclist);
+    void Z88DevInfo_result(const QString &devname, unsigned int free, unsigned int total);
     void changedSelected_device(int index);
     void changedSelected_file();
     void itemClicked ( QTreeWidgetItem * item, int column );
@@ -73,9 +76,13 @@ protected:
       */
     Z88_DevView *getSelectedDevice();
 
+    Z88_DevView *getDevice(const QString &devname);
+
     bool renameSelections();
     bool deleteSelections();
     bool mkDir();
+
+    void updateCurrentDeviceInfoDisplay();
 
     /**
       * User interface event Handler, ie mouse in, out, etc.

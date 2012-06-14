@@ -55,6 +55,11 @@ Z88StorageViewer::Z88StorageViewer(CommThread &com_thread, MainWindow *parent) :
             this,
             SLOT(Z88FileSpeclist_result(const QString &, QList<Z88FileSpec> *)));
 
+    connect(&m_cthread,
+            SIGNAL(Z88DevInfo_result(const QString &, unsigned int, unsigned int)),
+            this,
+            SLOT(Z88DevInfo_result(const QString &, unsigned int, unsigned int )));
+
     connect(this,SIGNAL(currentChanged(int)),this,SLOT(changedSelected_device(int)));
 
     connect(m_qmenu,SIGNAL(triggered(QAction *)), this, SLOT(ActionsMenuSel(QAction *)));
@@ -131,12 +136,24 @@ int Z88StorageViewer::appendUniqueFile(const Z88FileSpec &filespec, Z88_DevView:
 Z88_DevView *Z88StorageViewer::getSelectedDevice()
 {
     int idx = currentIndex();
-    int dnum;
-    QString devname;
 
     if(idx > -1){
-        devname = tabText(idx);
+        return getDevice(tabText(idx));
+    }
 
+    return NULL;
+}
+
+/**
+  * Get the Z88 Device View for the specified device name
+  * @param devname is the name of the Device to find. ie :RAM.1
+  * @return the Z88_DevView That contains the specified info, or NULL
+  */
+Z88_DevView *Z88StorageViewer::getDevice(const QString &devname)
+{
+    int dnum;
+
+    if(!devname.isEmpty()){
         QChar anum(devname.at(5));
         if(anum == '-'){
             dnum = 4;
@@ -242,6 +259,16 @@ bool Z88StorageViewer::refreshSelectedDeviceView()
         return true;
      }
      return false;
+}
+
+bool Z88StorageViewer::getSelectedDeviceFreeSpace(uint32_t &freeSpace, uint32_t &tot_size)
+{
+    Z88_DevView *dv = getSelectedDevice();
+
+    if(dv){
+        return dv->get_FreeSpace(freeSpace, tot_size);
+    }
+    return false;
 }
 
 bool Z88StorageViewer::isValidFilename(const QString &fname, QString &sug_fname)
@@ -366,6 +393,34 @@ bool Z88StorageViewer::mkDir()
         return true;
     }
     return false;
+}
+
+void Z88StorageViewer::updateCurrentDeviceInfoDisplay()
+{
+    Z88_DevView *dv = getSelectedDevice();
+    if(dv){
+        uint32_t freebytes = -1;
+        uint32_t totbytes = -1;
+
+        if( dv->get_FreeSpace(freebytes, totbytes))
+        {
+            QString msg;
+            msg += QLocale(QLocale::system()).toString(float(totbytes / CommThread::BYTES_PER_K), 'f', 0);
+
+            msg += "K Total. ";
+            msg += QLocale(QLocale::system()).toString(float(freebytes), 'f', 0);
+
+            msg += " Bytes (";
+            float percent = 100.00 * (float(freebytes) / float(totbytes) );
+            msg += QLocale(QLocale::system()).toString(percent, 'f',2);
+            msg += "%) Free.";
+
+            m_mainWindow->setZ88DirLabel(msg);
+        }
+        else{
+            m_mainWindow->setZ88DirLabel(" ");
+        }
+    }
 }
 
 /**
@@ -495,6 +550,29 @@ void Z88StorageViewer::Z88FileSpeclist_result(const QString &, QList<Z88FileSpec
 }
 
 /**
+  * Device Info Result (06 or higher Ez-link pull down).
+  * @param devname is the name of the z88 device. ie :RAM.1
+  * @param free is the Bytes free.
+  * @param total is the Bytes total of the device.
+  */
+void Z88StorageViewer::Z88DevInfo_result(const QString &devname, unsigned int free, unsigned int total)
+{
+    Z88_DevView *z88View = getDevice(devname);
+
+    if(z88View){
+        z88View->set_FreeSpace(free);
+        z88View->set_TotalSize(total);
+    }
+
+    /**
+      * Update the Dispplay if the Currently displayed one is changed.
+      */
+    if(z88View == getSelectedDevice()){
+        updateCurrentDeviceInfoDisplay();
+    }
+}
+
+/**
   * The Selected Device tab changed call-back.
   * @param index is the Tab index of the newly selected tab.
   */
@@ -504,6 +582,7 @@ void Z88StorageViewer::changedSelected_device(int)
 
     if(selections){
         emit ItemSelectionChanged(selections->count());
+        updateCurrentDeviceInfoDisplay();
     }
 }
 

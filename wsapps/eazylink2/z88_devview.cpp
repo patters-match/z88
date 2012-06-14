@@ -85,6 +85,8 @@ Z88_DevView::Z88_DevView(const QString devname, CommThread &com_thread, QWidget 
     QTreeWidget(parent),
     m_cthread(com_thread),
     m_devname(devname),
+    m_devSize(SZ_NOT_AVAIL),
+    m_devFree(SZ_NOT_AVAIL),
     m_selChangeLock(false)
 {
     setObjectName("Z88Tree");
@@ -510,4 +512,35 @@ QList<Z88_Selection> *Z88_DevView::getSelection(bool recurse)
     }
 
     return &m_Selections;
+}
+
+bool Z88_DevView::set_FreeSpace(uint32_t free_bytes)
+{
+    m_devFree = free_bytes;
+    return true;  // for now
+}
+
+bool Z88_DevView::set_TotalSize(uint32_t total_bytes)
+{
+    m_devSize = total_bytes;
+    return true;
+}
+
+bool Z88_DevView::get_FreeSpace(uint32_t &free_bytes, uint32_t &tot_size)
+{
+    if(m_devFree != SZ_NOT_AVAIL){
+        free_bytes = m_devFree;
+        tot_size = m_devSize;
+        return true;
+    }
+    return false;
+}
+
+bool Z88_DevView::get_TotalSize(uint32_t &total_bytes)
+{
+    if(m_devFree != SZ_NOT_AVAIL){
+        total_bytes = m_devSize;
+        return true;
+    }
+    return false;
 }

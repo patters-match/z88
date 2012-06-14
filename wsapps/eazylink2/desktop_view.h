@@ -42,6 +42,7 @@ class Desktop_View : public QTreeView
 public:
     explicit Desktop_View(CommThread &cthread, Prefrences_dlg *pref_dlg, MainWindow *parent = 0);
 
+    QList<DeskTop_Selection> *getSelection(bool recurse, uint32_t &sel_bytes, bool cont = false);
     QList<DeskTop_Selection> *getSelection(bool recurse, bool cont = false);
 
     bool mkDirectoryTree(const QList<Z88_Selection> &z88Selections );
@@ -57,6 +58,7 @@ public:
 signals:
     void ItemSelectionChanged(int);
     void Trigger_Transfer();
+    void CancelDirRead();
 
 private slots:
     void ItemSelectionChanged(const QModelIndex &);
@@ -76,7 +78,7 @@ protected:
     bool mkSubdir(QListIterator<Z88_Selection> &i, QModelIndex dst_root);
     void prependSubdirNames(QMutableListIterator<DeskTop_Selection> &i);
 
-    bool getSubdirFiles(const QModelIndex &idx);
+    bool getSubdirFiles(const QModelIndex &idx, uint32_t &sel_size);
     bool delSubdirFiles(QListIterator<DeskTop_Selection> &i, int &ret);
     bool delFile(QListIterator<DeskTop_Selection> &i, int &ret);
 

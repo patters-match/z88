@@ -93,6 +93,7 @@ private slots:
       */
 private slots:
     void enableCmds(bool ena, bool com_isOpen);
+    void enableCmds();
     void commOpen_result(const QString &dev_name, const QString &short_name, bool success);
     void cmdStatus(const QString &msg);
     void cmdProgress(const QString &title, int curVal, int total);
@@ -125,6 +126,8 @@ protected:
 
     void StartImpExpSending(const QStringList &src_fileNames);
     bool StartImpExpReceive(const QString &dst_dir);
+
+    bool Verify_Z88Dest_SpaceAvail(uint32_t sel_bytes);
 
 private:
     /**
