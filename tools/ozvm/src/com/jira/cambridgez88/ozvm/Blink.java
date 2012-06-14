@@ -1242,26 +1242,20 @@ public final class Blink {
             public void run() {
                 boolean signalTimeInterrupt = false;
 
-                if (++tick > 1) {
-                    // 1/100 second has passed (two 5ms ticks..)
-                    tick = 0;
-                    if ((TMK & BM_TMKTICK) == BM_TMKTICK) {
-                        // TMK.TICK interrupts are enabled, signal that a tick occurred only if it not already signaled
-                        TSTA = BM_TSTATICK;
-
-                        if (((INT & BM_INTTIME) == BM_INTTIME) & ((INT & BM_INTGINT) == BM_INTGINT)) {
-                            // INT.TIME interrupts are enabled, and Blink may signal it as IM 1
-                            signalTimeInterrupt = true;
-                        }
-                    }
-                }
-
+                ++tick; // 5ms TICK counter..
+                
                 if (++TIM0 > 199) {
-                    // 1 second has passed... (200 * 5 ms ticks = 1 sec)
+                    // When this counter reaches 200, a second has passed... (200 * 5 ms ticks = 1 sec)
                     TIM0 = 0;
+                }
+                
+                if (TIM0 == 0x80) {
+                    // According to blink dump monitoring on Z88, when TIM0 reaches 0x80, a second interrupt
+                    // is signaled
+                    ++TIM1;
 
-                    if ((TMK & BM_TMKSEC) == BM_TMKSEC & ((TSTA & BM_TSTASEC) == 0)) {
-                        // TMK.SEC interrupts are enabled, signal that a second occurred only if it not already signaled
+                    if ((TMK & BM_TMKSEC) == BM_TMKSEC ) {
+                        // TMK.SEC interrupts are enabled
                         TSTA = BM_TSTASEC; // only signal one TSTA interrupt at a time, SEC > TICK...
 
                         if (((INT & BM_INTTIME) == BM_INTTIME) & ((INT & BM_INTGINT) == BM_INTGINT)) {
@@ -1269,35 +1263,36 @@ public final class Blink {
                             signalTimeInterrupt = true;
                         }
                     }
+                }
 
-                    if (++TIM1 > 59) {
-                        // 1 minute has passed
-                        TIM1 = 0;
+                if (TIM1 > 59) {
+                    // 1 minute has passed
+                    TIM1 = 0;
 
-                        if ((TMK & BM_TMKMIN) == BM_TMKMIN & ((TSTA & BM_TSTAMIN) == 0)) {
-                            // TMK.MIN interrupts are enabled, signal that a minute occurred only if it not already signaled
-                            TSTA = BM_TSTAMIN;  // only signal one TSTA interrupt at a time, MIN > SEC > TICK...
+                    if ((TMK & BM_TMKMIN) == BM_TMKMIN) {
+                        // TMK.MIN interrupts are enabled, signal that a minute occurred only if it not already signaled
+                        TSTA = BM_TSTAMIN;  // only signal one TSTA interrupt at a time, MIN > SEC > TICK...
 
-                            if (((INT & BM_INTTIME) == BM_INTTIME) & ((INT & BM_INTGINT) == BM_INTGINT)) {
-                                // INT.TIME interrupts are enabled, and Blink may signal it as IM 1
-                                signalTimeInterrupt = true;
-                            }
+                        if (((INT & BM_INTTIME) == BM_INTTIME) & ((INT & BM_INTGINT) == BM_INTGINT)) {
+                            // INT.TIME interrupts are enabled, and Blink may signal it as IM 1
+                            signalTimeInterrupt = true;
                         }
+                    }
 
-                        if (++TIM2 > 255) {
-                            TIM2 = 0; // 256 minutes has passed
-                            if (++TIM3 > 255) {
-                                TIM3 = 0; // 65536 minutes has passed
-                                if (++TIM4 > 31) {
-                                    TIM4 = 0; // 65536 * 32 minutes has passed
-                                }
+                    if (++TIM2 > 255) {
+                        TIM2 = 0; // 256 minutes has passed
+                        if (++TIM3 > 255) {
+                            TIM3 = 0; // 65536 minutes has passed
+                            if (++TIM4 > 31) {
+                                TIM4 = 0; // 65536 * 32 minutes has passed
                             }
                         }
                     }
                 }
 
                 if (signalTimeInterrupt == true) {
-                    // fire a single interrupt for one or several TIMx registers,
+                    
+                    // fire a single interrupt for TSTA.SEC & TSTA.MIN registers,
                     // but only if the flap is closed (the Blink doesn't emit
                     // RTC interrupts while the flap is open, even if INT.TIME
                     // is enabled)
@@ -1309,6 +1304,30 @@ public final class Blink {
 
                         // Signal INT interrupt to Z80...
                         z80.setIntSignal();
+                    }
+                } else {
+                    if (tick == 2) {
+                        // 1/100 second has passed (two 5ms ticks..)
+                        tick = 0;
+
+                        // fire a single interrupt for TSTA.TICK register,
+                        // but only if the flap is closed (the Blink doesn't emit
+                        // RTC interrupts while the flap is open, even if INT.TIME
+                        // is enabled)
+                        if ( ((STA & BM_STAFLAPOPEN) == 0) & ((TMK & BM_TMKTICK) == BM_TMKTICK) ) {
+                            if (((INT & BM_INTTIME) == BM_INTTIME) & ((INT & BM_INTGINT) == BM_INTGINT)) {
+                                // INT.TIME interrupts are enabled, and Blink may signal it as IM 1
+                                // TMK.TICK interrupts are enabled, signal that a tick occurred
+                                TSTA = BM_TSTATICK;
+                                STA |= BM_STATIME;
+
+                                awakeFromSnooze();
+                                awakeFromComa();
+
+                                // Signal INT interrupt to Z80...
+                                z80.setIntSignal();
+                            }
+                        }
                     }
                 }
             }
@@ -1340,7 +1359,8 @@ public final class Blink {
          * Reset time counters. Performed when COM.RESTIM = 1.
          */
         public void reset() {
-            TIM0 = TIM1 = TIM2 = TIM3 = TIM4 = 0;
+            TIM0 = 0x98;
+            TIM1 = TIM2 = TIM3 = TIM4 = 0;
         }
 
         /**

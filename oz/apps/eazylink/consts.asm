@@ -24,7 +24,7 @@
     XREF ESC_T_cmd1, ESC_T_cmd2, ESC_C_cmd1, ESC_C_cmd2
     XREF ESC_V_cmd, ESC_X_cmd, ESC_U_cmd, ESC_U_cmd2, ESC_F_cmd
     XREF ESC_Z_cmd, ESC_R_cmd, ESC_Y_cmd, ESC_W_cmd, ESC_G_cmd2
-    XREF ESC_m_cmd, ESC_p_cmd, ESC_E_cmd, ESC_M_cmd2
+    XREF ESC_m_cmd, ESC_p_cmd, ESC_E_cmd, ESC_M_cmd2, ESC_I_cmd, ESC_O_cmd
 
     XDEF TraFilename
     XDEF serial_port, ramdev_wildcard, eprdev
@@ -54,7 +54,7 @@
 ; ***                      Static definitions; device & filenames, messages, etc.                        **
 ; *********************************************************************************************************
 
-.EasyLinkVersion    DEFM "5.1-05", 0
+.EasyLinkVersion    DEFM "5.2-06", 0
 .TraFilename        DEFM ":*//Translate.dat", 0
 .serial_port        DEFM ":COM.0", 0
 .ramdev_wildcard    DEFM ":RAM.*", 0
@@ -113,7 +113,7 @@
 .Yes_Parameter      DEFB 'Y'
 
 ; Lookup table of commands available.
-; total of commands defined in "defs.asm"
+; (total of EazyLink commands identifiers in lookup tables, is specified in rtmvars.def)
 .EscCommands        DEFB 'A'                 ; PCLINK  II 'Hello'
                     DEFB 'H'                 ; PCLINK  II Devices
                     DEFB 'D'                 ; PCLINK  II Directories
@@ -147,6 +147,8 @@
                     DEFB 'p'                 ; EazyLink Set System Clock
                     DEFB 'e'                 ; EazyLink Get System Clock
                     DEFB 'M'                 ; EazyLink Get Explicit Free Memory (for RAM device)
+                    DEFB 'i'                 ; EazyLink File CRC-32
+                    DEFB 'O'                 ; EazyLink Device InfO
 
 .subroutines        DEFW ESC_A_cmd1          ; Address of subroutines:
                     DEFW ESC_H_cmd1
@@ -155,7 +157,7 @@
                     DEFW ESC_S_cmd1
                     DEFW ESC_G_cmd1
                     DEFW ESC_Q_cmd1          ; Address of   PCLINK II 'Quit'
-                    DEFW ESC_A_cmd2          ;     - "" -   MultiLink 'Hello' command
+                    DEFW ESC_A_cmd2          ;     - "" -   EazyLink 'Hello' command
                     DEFW ESC_H_cmd2          ; ESC "h"
                     DEFW ESC_D_cmd2          ; ESC "d"
                     DEFW ESC_N_cmd2          ; ESC "n"
@@ -181,6 +183,8 @@
                     DEFW ESC_P_cmd           ; ESC "p"
                     DEFW ESC_E_cmd           ; ESC "e"
                     DEFW ESC_M_cmd2          ; ESC "M"
+                    DEFW ESC_I_cmd           ; ESC "i"
+                    DEFW ESC_O_cmd           ; ESC "O"
 
 ; Z88 ISO - IBM translation table
 ;

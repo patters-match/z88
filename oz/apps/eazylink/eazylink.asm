@@ -106,17 +106,16 @@
 ;                       OZ internal keyboard queue purged while using hardware scanning
 ;                       of keybard.
 ;
-; V5.0.4, 07.06.2005    Serial port logging to "/serdump.in" and "/serdump.out".
-;                       (Implemented as MTH commands)
-;                       Auto Software handshaking used for PCLINK II protocol: Xon/Xoff Yes
-;                       Auto Hardware handshaking used for EazyLink protocol (Xon/Xoff No)
-;                       (Software handshaking is default when EazyLink is started)
-;                       "PCLINK II" blinking message in topic window during PCLINK II protocol
+;                        ESC "M" command added: Get explicit free memory
+;                        Protocol version updated to "05"
 ;
-; V5.0.5, Sep 2006      Ported to V4.2 OZ ROM
-;                       Serial port logging features removed.
-;                       Experimental fast hardware routines removed.
-
+; V5.0.4, 07.06.2005     Serial port logging to "/serdump.in" and "/serdump.out".
+;                        (Implemented as MTH commands)
+;                        Auto Software handshaking used for PCLINK II protocol: Xon/Xoff Yes
+;                        Auto Hardware handshaking used for EazyLink protocol (Xon/Xoff No)
+;                        (Software handshaking is default when EazyLink is started)
+;                        "PCLINK II" blinking message in topic window during PCLINK II protocol
+;
 
     ; Various constant & operating system definitions...
 
@@ -143,7 +142,7 @@
      XREF msg_serdmpfile_enable, msg_serdmpfile_disable
      XREF Message1, Message2, Message10, Message11, Message12, Message13
      XREF Message26, Message27, Message28
-     XREF Message29, Message32, Message35, Message36
+     XREF Message29, Message32, Message35, Message36, Message38
      XREF Error_Message0, Error_Message1, Error_Message2, Error_Message3
      XREF Error_Message4, Error_Message5, Error_Message6
      XREF Serial_port, BaudRate, No_parameter, Yes_Parameter, EasyLinkVersion
@@ -156,13 +155,13 @@
      XREF rw_date
      XREF Use_StdTranslations
      XREF Dump_serport_in_byte, serdmpfile_in, serdmpfile_out
-     XREF SafeSegmentMask, CheckEprName, CheckFileAreaOfSlot
+     XREF SafeSegmentMask, CheckEprName, CheckRamName, CheckFileAreaOfSlot
 
      XREF EazyLinkTopics
      XREF EazyLinkCommands
      XREF EazyLinkHelp
 
-
+     XDEF crctable
      XDEF ErrHandler
      XDEF Write_message
      XDEF Msg_File_Open_error, Msg_Protocol_error, Msg_file_aborted, Msg_No_Room
@@ -172,7 +171,7 @@
      XDEF Open_serialport, Close_serialport
      XDEF ESC_T_cmd1, ESC_T_cmd2, ESC_C_cmd1, ESC_C_cmd2
      XDEF ESC_V_cmd, ESC_X_cmd, ESC_U_cmd, ESC_U_cmd2, ESC_F_cmd
-     XDEF ESC_Z_cmd, ESC_R_cmd, ESC_Y_cmd, ESC_W_cmd
+     XDEF ESC_Z_cmd, ESC_R_cmd, ESC_Y_cmd, ESC_W_cmd, ESC_O_cmd
      XDEF ESC_G_cmd2, ESC_M_cmd, ESC_P_cmd, ESC_E_cmd, ESC_M_cmd2
      XDEF UseHardwareHandshaking, UseSoftwareHandshaking
 
@@ -271,12 +270,14 @@
                DEFM " QUIT EAZYLINK", 13, 10
                DEFM 1, "2-T", 0
 
+               DEFS $100-($PC%$100)               ; adjust code to position CRC-32 tables at xx00 address
+               include "crctable.asm"
 
 ; ***********************************************************************
 ;
 ; Display Log Window - use window "3"
 ;
-.LogWindow               
+.LogWindow
                LD   B,0
                LD   HL, LogWinDef
                OZ   GN_Win
@@ -783,7 +784,7 @@
 ;
 ; Server:      ESC "N" <Version> ESC "Z"
 ;
-.ESC_V_cmd     
+.ESC_V_cmd
                LD   HL,ESC_N
                CALL SendString
                JR   C, esc_v_aborted
@@ -1196,7 +1197,7 @@
 ;              ESC "N" <System Clock Time>
 ;              ESC "Z"
 ;
-.ESC_E_cmd     
+.ESC_E_cmd
                LD   DE, creation_date
                CALL_OZ(Gn_Gmd)                    ; store machine date at (DE)
 
@@ -1260,7 +1261,7 @@
 ; Server:      ESC "Y"                  (File found)
 ;              ESC "Z"                  (File not found)
 ;
-.ESC_F_cmd     
+.ESC_F_cmd
                CALL Set_TraFlag
                CALL Fetch_pathname                ; load filename into filename_buffer
                CALL Restore_TraFlag
@@ -1499,7 +1500,7 @@
 ;              ESC "N" <Default Directory>   (Panel Default Directory)
 ;              ESC "Z"
 ;
-.ESC_G_cmd2    
+.ESC_G_cmd2
                LD    A, 255
                LD   BC, PA_Dev                    ; Read default device
                LD   DE, file_buffer               ; buffer for device name
@@ -1560,35 +1561,20 @@
 ; Server:      ESC "N" <FreeMemory>          (Estimated free memory in bytes)
 ;              ESC "Z"
 ;
-.ESC_M_cmd     
+.ESC_M_cmd
 .global_free_space
                CALL TotalFreeSpace                ; return DE = free pages in system
-.send_free_bytes
+.send_free_space_de
                LD   B,E
                LD   C,0
                LD   E,D
-               LD   D,0                           ; <free pages> * 256
-.send_free_bytes2			   
-               LD   (File_ptr),BC
-               LD   (File_ptr+2),DE               ; low byte, high byte sequense
-
-               LD   HL, File_ptr                  ; convert 32bit integer
-               LD   DE, filename_buffer           ; to an ASCII string
-               LD   A, 1                          ; disable zero blanking
-               CALL_OZ(GN_Pdn)
-               XOR  A
-               LD   (DE),A                        ; null-terminate string
-
-               LD   HL,ESC_N
-               CALL SendString                    ; String transmitted
+               LD   D,0                           ; DEBC = (DE = free pages) * 256
+.send_free_space_debc
+               CALL send_integer_string
                JR   C, esc_m_aborted
                JR   Z, esc_m_aborted
-
-               LD   HL,filename_buffer            ; Send string to Client
-               CALL SendString
-               JR   C, esc_m_aborted
-               JR   Z, esc_m_aborted
-.no_Ram_Device
+.no_Device
+.send_esc_z
                LD   HL,ESC_Z
                CALL SendString                    ; String transmitted
                JR   C, esc_m_aborted
@@ -1602,7 +1588,34 @@
 
 
 ; ************************************************************
-; Get explicit free memory in specified RAM/EPR card slot
+; IN: DEBC = Integer to transmit as ESC N <Ascii string>
+.send_integer_string
+               LD   (File_ptr),BC
+               LD   (File_ptr+2),DE               ; low byte, high byte sequense
+
+               LD   HL, File_ptr                  ; convert 32bit integer
+               LD   DE, filename_buffer           ; to an ASCII string
+               LD   A, 1                          ; disable zero blanking
+               CALL_OZ(GN_Pdn)
+               XOR  A
+               LD   (DE),A                        ; null-terminate string
+
+               LD   HL,ESC_N
+               CALL SendString                    ; String transmitted
+               RET  C
+               RET  Z
+
+               LD   HL,filename_buffer            ; Send string to Client
+               CALL SendString
+               RET
+
+
+; ************************************************************
+; Get explicit free memory in specified RAM/EPR card slot.
+;
+; (Unfortunately, this call is ambiguous if there is both
+; RAM and EPR in the same slot - using a Rakewell Hybrid card -
+; RAM is always picked first)
 ;
 ; <RamDeviceNumber> = "0", "1", "2", "3" or "-" (all)
 ;
@@ -1613,30 +1626,99 @@
 ;                                  or
 ;              ESC "Z"                       (RAM device not found)
 ;
-.ESC_M_cmd2    
+.ESC_M_cmd2
                CALL Fetch_pathname           ; fetch RAM device number
                JR   C,esc_m_aborted
                JR   Z,esc_m_aborted          ; timeout - communication stopped
 
                LD   A,(filename_buffer)      ; get RAM device number
                CP   '-'
-               JR   Z, global_free_space     ; request for global free space
+               JR   Z, global_free_space     ; send global free space string
 
-               SUB  48                       ; slot number 0 - 3
+               SUB  48                       ; A = slot no of RAM card
                push bc
                ld   bc,Nq_Mfp
                oz   OS_Nq
                pop  bc
-               JR   NC,send_free_bytes       ; RAM was found... return free space..
+               JR   NC,send_free_space_de    ; RAM was found... return free space in DE = 256 byte pages..
 
-               ld      a,(filename_buffer)   ; get device number for possible EPR device in slot
-               call    CheckFileAreaOfSlot   ; File area in slot A?
-               jr      z,get_fa_free_space   ; Yes, return amount of free space in file area
-               jr      no_Ram_Device
-.get_fa_free_space
-               ld      a,EP_FreSp
-               oz      OS_Epr                ; return Free space of File Area in DEBC
-               jr   send_free_bytes2
+               ld   a,(filename_buffer)      ; get device number for possible EPR device in slot
+               call CheckFileAreaOfSlot      ; File area in slot A?
+               jr   c,no_Device              ; this slot had no file area (no card)...
+               jr   nz,no_Device
+
+               ld   a,EP_FreSp
+               oz   OS_Epr                   ; return Free space of File Area in DEBC
+               jr   send_free_space_debc
+
+
+; ************************************************************
+; Get Device Info of specified device name
+; Using :RAM.- total free memory & total RAM size is returned.
+;
+; <Devicename> = ":RAM.x", ":RAM.-" or ":EPR.x" (slot 0 - 3, or :RAM.-)
+;
+; Client:      ESC "O" <Devicename> ESC "Z"
+;
+; Server:      ESC "N" <FreeMemory>          (Device found, free memory in bytes)
+;              ESC "N" <Device size>         (Device found, size of device in K)
+;              ESC "Z"
+;                                  or
+;              ESC "Z"                       (Device not found)
+;
+.ESC_O_cmd
+               CALL Fetch_pathname           ; fetch Device name
+               JR   C,esc_m_aborted
+               JR   Z,esc_m_aborted          ; timeout - communication stopped
+
+               LD   HL, filename_buffer
+               CALL CheckEprName             ; Device is ":EPR.x"?
+               JR   Z, check_filearea        ; Yes, check if file area is available..
+
+               CALL CheckRamName             ; Device is ":RAM.x"?
+               JR   nz,no_Device             ; Fz = 0 -> not a RAM card either...
+               CP   '-'
+               CALL Z, TotalFreeSpace        ; return A = total RAM in 16K banks, DE = total free 256 byte pages
+               JR   Z,transmit_free_space
+               push bc
+               ld   bc,Nq_Mfp
+               oz   OS_Nq
+               pop  bc                       ; return A = RAM.x card in 16K banks, DE = free 256 byte pages
+.transmit_free_space
+               PUSH AF
+               LD   B,E
+               LD   C,0
+               LD   E,D
+               LD   D,0                      ; DEBC = RAM <free pages> * 256
+               call send_integer_string      ; send ESC N <devsize>
+               POP  HL
+               JP   C,esc_m_aborted
+               JP   Z,esc_m_aborted          ; timeout - communication stopped
+
+               ld   l,h
+               ld   h,0                      ; A -> HL
+.send_card16k_size
+               call m16                      ; HL = size of device in 16K banks
+               ld   de,0
+               ld   b,h
+               ld   c,l                      ; DEBC = banks * 16K = size of card in K
+               call send_integer_string      ; send ESC N <devsize>
+               JP   C,esc_m_aborted
+               JP   Z,esc_m_aborted          ; timeout - communication stopped
+               jp   send_esc_z
+
+.check_filearea
+               call CheckFileAreaOfSlot      ; File area in slot A?
+               jp   c,no_Device              ; this slot had no file area (no card)...
+               jp   nz,no_Device             ; this slot had no file area (card, but no file area)
+               push de                       ; (preserve size of EPR card in 16K banks)
+               ld   a,EP_FreSp
+               oz   OS_Epr                   ; return Free space of File Area in DEBC
+               call send_integer_string
+               pop  hl
+               JP   C,esc_m_aborted
+               JP   Z,esc_m_aborted          ; timeout - communication stopped
+               JR   send_card16k_size
 
 
 ; ************************************************************
@@ -1647,30 +1729,40 @@
 ; IN:
 ;    -
 ; OUT:
+;     F(out) = F(in)
+;     A = total size of RAM in 16K banks
 ;    DE = total free 256 bytes pages in system.
 ;
 .TotalFreeSpace
-               PUSH AF
                PUSH BC
+               PUSH AF
                PUSH HL
 
-               LD   BC,$0400                      ; scan all 4 slots, 0 - 3 ...
+               LD   BC,$0300                      ; scan all 4 slots, 3 -> 0 ...
                LD   HL,0
 .scan_ram_loop
-               LD   A,C
+               LD   A,B
                push bc
                ld   bc,Nq_Mfp
                oz   OS_Nq
                pop  bc
-               JR   C, scan_next_Ram
+               PUSH AF
+               DEC  B
+               POP  AF
+               JR   C, scan_ram_loop
                ADD  HL,DE                         ; add pages to sum of all pages
-               INC  C
-.scan_next_Ram DJNZ scan_ram_loop
+               ADD  A,C
+               LD   C,A                           ; C = sum of total RAM in 16K banks
+
+               LD   A,B
+               CP   $FF
+               JR   NZ,scan_ram_loop
                EX   DE,HL
 
                POP  HL
-               POP  BC
                POP  AF
+               LD   A,C                           ; return A = total RAM in 16K banks
+               POP  BC                            ; return DE = total free 256 bytes pages in system.
                RET
 
 
@@ -1901,6 +1993,18 @@
                POP  HL
                RET
 
+; *************************************************************************************
+;
+; Multiply HL * 16, result in HL.
+;
+.m16
+                    PUSH BC
+                    LD   B,4
+.multiply_loop      ADD  HL,HL
+                    DJNZ multiply_loop
+                    POP  BC
+                    RET
+
 ; ***********************************************************************
 ; Reset both translation tables to identical lookup values ( 0 - 255 )
 ;
@@ -1988,7 +2092,7 @@
                DEFW $081A
                DEFW command_banner
 .LogWinDef
-               DEFB 3 | 128 
+               DEFB 3 | 128
                DEFW $001C
                DEFW $083E
                DEFW menu_banner

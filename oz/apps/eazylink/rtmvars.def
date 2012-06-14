@@ -18,10 +18,12 @@
 ; Variable Address definitions...
 
 ; EazyLink commands identifiers in lookup tables
-DEFC TotalOfCmds = 33
+DEFC TotalOfCmds = 35
 
 DEFC SerportXonXoffMode = 1        ; Parity No, Xon/Xoff Yes (serial port software handshake)
 DEFC SerportHardwareMode = 2       ; Parity No, Xon/Xoff No (serial port hardware handshake)
+
+DEFC FileBufferSize = 1280
 
 DEFVARS $2000                      ; big work space buffers
     start_workspace
@@ -50,7 +52,8 @@ DEFVARS $2000                      ; big work space buffers
     file_ptr             ds.l 1
     directory_ptr        ds.w 1
     Filename_buffer      ds.b 256  ; Buffer for filenames
-    File_buffer          ds.b 1280 ; Receive/transmit Buffer for serial port communication
+
+    File_buffer          ds.b FileBufferSize ; Receive/transmit Buffer for serial port communication
     DirName_stack        ds.b 128
     File_buffer_end                ; 1.2K file buffer for sending/receiving files (File_buffer <-> File_buffer_end)
     TraTableIn           ds.b 256  ; ASCII translation lookup table, Z88
