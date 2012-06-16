@@ -45,7 +45,7 @@ public:
     QList<DeskTop_Selection> *getSelection(bool recurse, quint32 &sel_bytes, bool cont = false);
     QList<DeskTop_Selection> *getSelection(bool recurse, bool cont = false);
 
-    QList<DeskTop_Selection> *getSelection(QList<QUrl> *urlList, bool recurse, uint32_t &sel_bytes);
+    QList<DeskTop_Selection> *getSelection(QList<QUrl> *urlList, bool recurse, quint32 &sel_bytes);
 
     //
 

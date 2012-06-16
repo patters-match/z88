@@ -15,12 +15,12 @@
 
 **********************************************************************************************/
 
-#include<QDebug>
-#include<QEvent>
+#include <QDebug>
+#include <QEvent>
 #include <QFileSystemWatcher>
 #include <QInputDialog>
 #include <QDragEnterEvent>
-#include<QUrl>
+#include <QUrl>
 
 #include "mainwindow.h"
 #include "desktop_view.h"
@@ -174,7 +174,7 @@ QList<DeskTop_Selection> *Desktop_View::getSelection(bool recurse, bool cont)
     return getSelection(recurse, sel_bytes, cont);
 }
 
-QList<DeskTop_Selection> *Desktop_View::getSelection(QList<QUrl> *urlList, bool recurse, uint32_t &sel_bytes)
+QList<DeskTop_Selection> *Desktop_View::getSelection(QList<QUrl> *urlList, bool recurse, quint32 &sel_bytes)
 {
     m_ModelSelections.clear();
 

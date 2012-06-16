@@ -175,7 +175,7 @@ void MainWindow::Drop_Requested(QList<Z88_Selection> *z88_dest, QList<QUrl> *url
         return;
     }
 
-    uint32_t sel_bytes = 0;
+    quint32 sel_bytes = 0;
 
     /**
       * Get the Selected Destination from the Drop
