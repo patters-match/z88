@@ -165,6 +165,39 @@ void MainWindow::displayPrefs()
 }
 
 /**
+  * Z88 Destination Drag And Drop Request
+  * @param z88_dest is the detination dir on the Z88. (NOTE Should have 1 entry)
+  * @param urlList is a string list of filenames and directories
+  */
+void MainWindow::Drop_Requested(QList<Z88_Selection> *z88_dest, QList<QUrl> *urlList)
+{
+    if(!z88_dest || !urlList){
+        return;
+    }
+
+    uint32_t sel_bytes = 0;
+
+    /**
+      * Get the Selected Destination from the Drop
+      */
+    m_isTransfer = true;
+    QList<DeskTop_Selection> *deskSelList;
+    deskSelList = m_DeskTopTreeView->getSelection(urlList, true, sel_bytes);
+
+    m_z88Selections = *z88_dest;
+
+    if(deskSelList){
+
+        /**
+          * Verify the files will fit
+          */
+        if(Verify_Z88Dest_SpaceAvail(sel_bytes)){
+            StartSending(deskSelList, m_z88Selections);
+        }
+    }
+}
+
+/**
  * Create Menu Action and Signal Handlers for the main form
  */
 void MainWindow::createActions()
@@ -324,6 +357,10 @@ void MainWindow::createActions()
              this,
              SLOT(Trigger_Transfer()));
 
+    connect( m_Z88StorageView,
+             SIGNAL(Drop_Requested(QList<Z88_Selection>*,QList<QUrl>*)),
+             this,
+             SLOT(Drop_Requested(QList<Z88_Selection>*,QList<QUrl>*)));
 }
 
 /**
@@ -1206,6 +1243,9 @@ void MainWindow::Trigger_Transfer()
     if(enaTransferButton() && !m_cthread.isBusy()){
         TransferFiles();
     }
+    else{
+        qDebug() << "no trig busy";
+    }
 }
 
 /**
@@ -1359,16 +1399,18 @@ void MainWindow::LoadingDeskList(const bool &aborted)
     deskSelList = m_DeskTopTreeView->getSelection(true, sel_bytes,  true);
 
     if(deskSelList){
+
         /**
           * If the reason for dirlist is a transfer vs a delete
           */
         if(m_isTransfer){
             m_isTransfer = false;
+
             enableCmds(true, m_sport.isOpen());
 
             /**
               * Verify the files will fit HERE
-              */
+              */          
             if(Verify_Z88Dest_SpaceAvail(sel_bytes)){
                 StartSending(deskSelList, m_z88Selections);
             }
@@ -1377,6 +1419,7 @@ void MainWindow::LoadingDeskList(const bool &aborted)
             m_DeskTopTreeView->deleteSelections();
         }
     }
+
 }
 
 /**
@@ -1419,7 +1462,7 @@ void MainWindow::StartSending(QList<DeskTop_Selection> *desk_selections, QList<Z
 {
     CommThread::uPrompt prompt4each = 0;
 
-    QList<DeskTop_Selection> *ds = new QList<DeskTop_Selection> (*desk_selections);
+    QList<DeskTop_Selection> *ds = desk_selections;
 
     /**
       * Count the Number of Files to Send, ignore Directories,
@@ -1488,24 +1531,48 @@ void MainWindow::StartSending(QList<DeskTop_Selection> *desk_selections, QList<Z
       */
     QMessageBox msgBox;
     QString msg = "Transfer ";
+    int dir_cnt(ds->count() - filecnt);
+
     if(filecnt){
         msg += QString("%1").arg(filecnt);
         msg += " file";
         if(filecnt > 1){
             msg += 's';
         }
-        msg += " and ";
-    }
 
-    int dir_cnt(ds->count() - filecnt);
+        if(dir_cnt){
+            msg += " and ";
+        }
+    }
 
     if(dir_cnt == 1){
-        msg += QString("1 Directory");
+        if(filecnt == 0){
+            msg += "Empty ";
+        }
+        msg += QString("Directory ");
+        msg +=  ds->first().getFname();
     }
     else{
-        msg += QString("%1 Directories").arg(dir_cnt);
+        if(dir_cnt){
+            msg += QString("%1").arg(dir_cnt);
+            if(filecnt == 0){
+                msg += " Empty";
+            }
+            msg += " Directories";
+        }
+        else{
+            /**
+              * If there is only one file, then display the filename
+              */
+            if(filecnt == 1){
+                msg = "Transfer ";
+                msg +=  ds->first().getFname();
+            }
+        }
     }
-    msg += " to the Z88";
+
+    msg += " to the Z88 ->";
+    msg += z88_selections.first().getFspec();
 
     msgBox.setText(msg);
     msgBox.setIcon(QMessageBox::Question);
@@ -1528,7 +1595,6 @@ void MainWindow::StartSending(QList<DeskTop_Selection> *desk_selections, QList<Z
             cmdStatus("Transfer Cancelled.");
             return;
     }
-
 
     m_DeskTopTreeView->prependSubdirNames(*ds);
 
@@ -1557,24 +1623,39 @@ void MainWindow::StartReceiving(QList<Z88_Selection> &z88_selections, QList<Desk
 
     QMessageBox msgBox;
     QString msg = "Transfer ";
+
+    int dir_cnt(z88_selections.count() - filecnt);
+
     if(filecnt){
         msg += QString("%1").arg(filecnt);
         msg += " file";
         if(filecnt > 1){
             msg += 's';
         }
-        msg += " and ";
+        if(dir_cnt){
+            msg += " and ";
+        }
     }
-
-    int dir_cnt(z88_selections.count() - filecnt);
 
     if(dir_cnt == 1){
-        msg += QString("1 Directory");
+        if(filecnt == 0){
+            msg += "Empty ";
+        }
+        msg += QString("Directory ");
+        msg +=  z88_selections.first().getFspec();
     }
     else{
-        msg += QString("%1 Directories").arg(dir_cnt);
+        if(dir_cnt){
+            msg += QString("%1").arg(dir_cnt);
+            if(filecnt == 0){
+                msg += " Empty";
+            }
+            msg += " Directories";
+        }
     }
-    msg += " From the Z88";
+    msg += " from the Z88 -> ";
+
+    msg += deskSelList.first().getFspec();
 
     msgBox.setText(msg);
     msgBox.setIcon(QMessageBox::Question);

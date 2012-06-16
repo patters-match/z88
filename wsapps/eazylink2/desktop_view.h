@@ -45,6 +45,10 @@ public:
     QList<DeskTop_Selection> *getSelection(bool recurse, uint32_t &sel_bytes, bool cont = false);
     QList<DeskTop_Selection> *getSelection(bool recurse, bool cont = false);
 
+    QList<DeskTop_Selection> *getSelection(QList<QUrl> *urlList, bool recurse, uint32_t &sel_bytes);
+
+    //
+
     bool mkDirectoryTree(const QList<Z88_Selection> &z88Selections );
     void prependSubdirNames(QList<DeskTop_Selection> &desk_selections);
     void DirLoadAborted();
@@ -54,6 +58,8 @@ public:
     void selectInitDir();
     void selectDrive();
     bool mkDir();
+
+    bool selectPath(const QString &path);
 
 signals:
     void ItemSelectionChanged(int);
@@ -67,6 +73,12 @@ private slots:
     void ItemDoubleClicked(const QModelIndex & index);
 
 protected:
+
+    void dragEnterEvent(QDragEnterEvent *event);
+    void dragMoveEvent(QDragMoveEvent *event);
+    void dragLeaveEvent(QDragLeaveEvent *event);
+    void dropEvent(QDropEvent *event);
+
     /**
       * The GUI Event handler. handles mouse in/out etc.
       */

@@ -24,6 +24,7 @@
 #include "commthread.h"
 
 class Z88_Selection;
+class Z88StorageViewer;
 
 /**
   * The Z88 Storage Device Tree View Class.
@@ -33,7 +34,7 @@ class Z88_DevView : public QTreeWidget
 {
     Q_OBJECT
 public:
-    explicit Z88_DevView(const QString devname, CommThread &com_thread, QWidget *parent = 0);
+    explicit Z88_DevView(const QString devname, CommThread &com_thread, Z88StorageViewer *parent);
     
     const QString &getDevname();
 
@@ -59,7 +60,8 @@ public:
     bool get_TotalSize(uint32_t &total_bytes);
 
 signals:
-    
+    void DropRequested(QList<Z88_Selection> *z88_dest, QList<QUrl> *urlList);
+
 public slots:
 
 protected:
@@ -82,6 +84,12 @@ protected:
 
     void RestoreCollapseAll();
 
+    void dragEnterEvent(QDragEnterEvent *event);
+    void dragMoveEvent(QDragMoveEvent *event);
+    void dragLeaveEvent(QDragLeaveEvent *event);
+   // void dropEvent(QDropEvent *event);
+    bool dropMimeData ( QTreeWidgetItem * parent, int , const QMimeData * data, Qt::DropAction  );
+
     /**
       * The Communications Thread.
       */
@@ -98,6 +106,11 @@ protected:
     uint32_t    m_devSize;
 
     uint32_t    m_devFree;
+
+    /**
+      * The Storage View that this object belongs.
+      */
+    Z88StorageViewer    *m_z88StorageView;
 
     /**
       * Flag to disable recursive events call-backs

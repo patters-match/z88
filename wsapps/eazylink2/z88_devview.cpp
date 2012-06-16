@@ -17,7 +17,11 @@
 
 #include <QListIterator>
 #include<QIcon>
+#include <QDragEnterEvent>
+#include<QUrl>
+#include<QFileInfo>
 #include "z88_devview.h"
+#include "z88storageviewer.h"
 
 
 /**
@@ -81,12 +85,13 @@ const QString &Z88_Selection::setItemFspec(QTreeWidgetItem *item, const QString 
   * @param com_thread is the communications thread to use for I/O.
   * @param parent is the owner QWidget.
   */
-Z88_DevView::Z88_DevView(const QString devname, CommThread &com_thread, QWidget *parent) :
-    QTreeWidget(parent),
+Z88_DevView::Z88_DevView(const QString devname, CommThread &com_thread, Z88StorageViewer *parent) :
+    QTreeWidget((QWidget*)parent),
     m_cthread(com_thread),
     m_devname(devname),
     m_devSize(SZ_NOT_AVAIL),
     m_devFree(SZ_NOT_AVAIL),
+    m_z88StorageView(parent),
     m_selChangeLock(false)
 {
     setObjectName("Z88Tree");
@@ -103,6 +108,12 @@ Z88_DevView::Z88_DevView(const QString devname, CommThread &com_thread, QWidget 
     setColumnWidth(1,68);
     setColumnWidth(2,163);
     setColumnWidth(3,163);
+
+    setAcceptDrops(true);
+    setAutoExpandDelay(600);
+
+    setDragDropMode(QAbstractItemView::DragDrop);
+    setAnimated(true);
 
     setSelectionMode(QAbstractItemView::ExtendedSelection);
 }
@@ -457,6 +468,50 @@ void Z88_DevView::RestoreCollapseAll()
     while(i.hasNext()){
         i.next()->setExpanded(true);
     }
+}
+
+void Z88_DevView::dragEnterEvent(QDragEnterEvent *event)
+{
+    /**
+      * Don't allow a drop of a Z88 File from itself
+      */
+    if(event->source() == this || !event->mimeData()->hasUrls()){
+        event->ignore();
+        return;
+    }
+
+    clearSelection();
+    event->acceptProposedAction();
+}
+
+void Z88_DevView::dragMoveEvent(QDragMoveEvent *event)
+{
+    event->acceptProposedAction();
+}
+
+void Z88_DevView::dragLeaveEvent(QDragLeaveEvent *event)
+{
+    event->accept();
+}
+
+bool Z88_DevView::dropMimeData(QTreeWidgetItem *parent, int , const QMimeData *data, Qt::DropAction )
+{
+    /**
+      * If a Directory or Item was selected.
+      * Otherwise the Root device is selected.
+      */
+    if(parent){
+        parent->setSelected(true);
+    }    
+
+    if(data->hasUrls()){
+        QList<QUrl> *urlList = new QList<QUrl>(data->urls());
+        QList<Z88_Selection> *z88_dest = new QList<Z88_Selection>(*getSelection(false));
+
+        emit DropRequested(z88_dest, urlList);
+        return true;
+    }
+    return false;
 }
 
 /**

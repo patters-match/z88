@@ -19,6 +19,8 @@
 #include<QEvent>
 #include <QFileSystemWatcher>
 #include <QInputDialog>
+#include <QDragEnterEvent>
+#include<QUrl>
 
 #include "mainwindow.h"
 #include "desktop_view.h"
@@ -98,6 +100,11 @@ Desktop_View::Desktop_View(CommThread &cthread, Prefrences_dlg *pref_dlg, MainWi
     m_actionRename = m_qmenu->addAction("Rename");
     m_actionDelete = m_qmenu->addAction("Delete");
 
+    setDragDropMode(QAbstractItemView::DragDrop);
+    setAcceptDrops(true);
+    setAutoExpandDelay(600);
+    setDefaultDropAction(Qt::CopyAction);
+
 }
 
 /**
@@ -150,7 +157,14 @@ QList<DeskTop_Selection> *Desktop_View::getSelection(bool recurse, uint32_t &sel
         m_Selections.append(DeskTop_Selection(m_DeskFileSystem->rootPath(), m_DeskFileSystem->rootPath(), DeskTop_Selection::type_Dir));
     }
 
-    m_recurse = false;
+    /**
+      * Return A New Copy of the List
+      */
+    if(m_recurse){
+        m_recurse = false;
+        return new QList<DeskTop_Selection>(m_Selections);
+    }
+
     return &m_Selections;
 }
 
@@ -158,6 +172,25 @@ QList<DeskTop_Selection> *Desktop_View::getSelection(bool recurse, bool cont)
 {
     uint32_t sel_bytes = 0;
     return getSelection(recurse, sel_bytes, cont);
+}
+
+QList<DeskTop_Selection> *Desktop_View::getSelection(QList<QUrl> *urlList, bool recurse, uint32_t &sel_bytes)
+{
+    m_ModelSelections.clear();
+
+    for (int i = 0; i < urlList->size() && i < 32; ++i) {
+        if(urlList->at(i).isLocalFile()){
+
+            QString url = urlList->at(i).toLocalFile();
+            QModelIndex idx = m_DeskFileSystem->index(url);
+
+            if(idx.isValid()){
+                m_ModelSelections.append(idx);
+            }
+        }
+    }
+
+    return getSelection(recurse, sel_bytes, true);
 }
 
 /**
@@ -505,6 +538,63 @@ void Desktop_View::ItemDoubleClicked(const QModelIndex &index)
     }
 }
 
+void Desktop_View::dragEnterEvent(QDragEnterEvent *event)
+{
+    if(event->source() == this){
+        const QModelIndexList &Selections(selectedIndexes());
+        emit ItemSelectionChanged(Selections.count() / 3);
+        event->ignore();
+        return;
+    }
+
+    if(event->mimeData()->hasFormat("application/x-qabstractitemmodeldatalist")){
+        event->acceptProposedAction();
+    }
+}
+
+void Desktop_View::dragMoveEvent(QDragMoveEvent *event)
+{
+    event->acceptProposedAction();
+}
+
+void Desktop_View::dragLeaveEvent(QDragLeaveEvent *event)
+{
+    event->accept();
+}
+
+void Desktop_View::dropEvent(QDropEvent *event)
+{
+    const QMimeData *mimeData = event->mimeData();
+
+    if (mimeData->hasUrls()) {
+        QList<QUrl> urlList = mimeData->urls();
+        QString text;
+        for (int i = 0; i < urlList.size() && i < 32; ++i) {
+            QString url = urlList.at(i).toLocalFile();
+
+            text += url + QString("\n");
+        }
+      //  qDebug() << "st:" << text;
+        event->ignore();
+        return;
+    } else {
+        /**
+          * Data from the Other window
+          */
+        if(mimeData->hasFormat("application/x-qabstractitemmodeldatalist")){
+            QModelIndex idx = indexAt(event->pos());
+
+            if(idx.isValid()){
+                setCurrentIndex(idx);
+            }
+
+            emit Trigger_Transfer();
+        }
+    }
+
+    event->acceptProposedAction();
+}
+
 /**
   * Directory read aborted handler.
   */
@@ -841,6 +931,21 @@ bool Desktop_View::mkDir()
                                       QMessageBox::Ok);
             }
         }
+        return true;
+    }
+    return false;
+}
+
+/**
+  * Set the Current Selection to the Path string.
+  * @param path is the new path to change to.,
+  * @return true on success.
+  */
+bool Desktop_View::selectPath(const QString &path)
+{
+    QModelIndex idx = m_DeskFileSystem->index(path);
+    if(idx.isValid()){
+        setCurrentIndex(idx);
         return true;
     }
     return false;

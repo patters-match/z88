@@ -221,7 +221,7 @@ void CommThread::run()
         {
             QList<QByteArray> *devInfolist = new QList<QByteArray>;
 
-            devInfolist->append(m_sport.getDeviceInfo(m_z88devname));
+            devInfolist->append(m_sport.getDeviceInfo(m_z88devname.mid(0,6)));
 
             if(devInfolist->count() == nfo_max){
                 emit Z88DevInfo_result(m_z88devname,

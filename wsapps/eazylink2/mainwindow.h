@@ -85,6 +85,8 @@ private slots:
     void refreshSelectedZ88DeviceView();
     void displayPrefs();
 
+    void Drop_Requested(QList<Z88_Selection> *z88_dest, QList<QUrl> *urlList);
+
     void ImpExp_sendfile();
     void ImpExp_receivefiles();
 

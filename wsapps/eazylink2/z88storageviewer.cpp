@@ -18,6 +18,8 @@
 #include <qdebug.h>
 #include<QEvent>
 #include <QInputDialog>
+#include <QDragEnterEvent>
+#include<QUrl>
 
 #include "mainwindow.h"
 #include "z88storageviewer.h"
@@ -36,6 +38,7 @@ Z88StorageViewer::Z88StorageViewer(CommThread &com_thread, MainWindow *parent) :
     memset(&m_Ramdevices[0], 0, sizeof(m_Ramdevices));
     memset(&m_Eprdevices[0], 0, sizeof(m_Eprdevices));
 
+   // setAcceptDrops(true);
     m_actionMkdir = m_qmenu->addAction("MakeDir");
     m_actionRename = m_qmenu->addAction("Rename");
     m_actionDelete = m_qmenu->addAction("Delete");
@@ -340,6 +343,11 @@ bool Z88StorageViewer::SelectedDevice_isEmpty()
     return true;
 }
 
+void Z88StorageViewer::emitTrigger_Transfer()
+{
+    emit Trigger_Transfer();
+}
+
 /**
   * Create a directory in the selected Dir.
   * @return true on success.
@@ -459,7 +467,7 @@ void Z88StorageViewer::Z88Devices_result(QList<QByteArray> *devlist)
             Z88_DevView *dview(NULL);
 
             if( devname.contains("RAM")){
-                dview = new Z88_DevView(devname, m_cthread);
+                dview = new Z88_DevView(devname, m_cthread, this);
 
                 if(dnum == '-'){
                     m_Ramdevices[4] = dview;
@@ -470,7 +478,7 @@ void Z88StorageViewer::Z88Devices_result(QList<QByteArray> *devlist)
             }
 
             if( devname.contains("EPR")){
-                dview = new Z88_DevView(devname, m_cthread);
+                dview = new Z88_DevView(devname, m_cthread, this);
 
                 m_Eprdevices[dnum - '0'] = dview;
             }
@@ -491,6 +499,11 @@ void Z88StorageViewer::Z88Devices_result(QList<QByteArray> *devlist)
                         SIGNAL(itemDoubleClicked( QTreeWidgetItem *, int )),
                         this,
                         SLOT  (itemDblClicked( QTreeWidgetItem *, int ))
+                        );
+                connect(dview,
+                        SIGNAL(DropRequested(QList<Z88_Selection>*,QList<QUrl>*)),
+                        this,
+                        SLOT(DropRequested(QList<Z88_Selection>*,QList<QUrl>*))
                         );
             }
         }
@@ -648,6 +661,67 @@ void Z88StorageViewer::ActionsMenuSel(QAction *act)
     }
 }
 
+void Z88StorageViewer::DropRequested(QList<Z88_Selection> *z88_dest, QList<QUrl> *urlList)
+{
+#if 0
+    QString text;
+    for (int i = 0; i < urlList->size() && i < 32; ++i) {
+        if(urlList->at(i).isLocalFile()){
+            QString url = urlList->at(i).toLocalFile();
+            text += url + QString("\n");
+            qDebug() << " File:" << url;
+        }
+    }
+#endif
+    emit Drop_Requested(z88_dest, urlList);
+}
+
+#if 0
+void Z88StorageViewer::dragEnterEvent(QDragEnterEvent *event)
+{
+     event->acceptProposedAction();
+}
+
+void Z88StorageViewer::dragMoveEvent(QDragMoveEvent *event)
+{
+    event->acceptProposedAction();
+
+}
+
+void Z88StorageViewer::dragLeaveEvent(QDragLeaveEvent *event)
+{
+    event->accept();
+
+}
+
+void Z88StorageViewer::dropEvent(QDropEvent *event)
+{
+     const QMimeData *mimeData = event->mimeData();
+
+     if (mimeData->hasImage()) {
+ //        setPixmap(qvariant_cast<QPixmap>(mimeData->imageData()));
+     } else if (mimeData->hasHtml()) {
+   //      setText(mimeData->html());
+   //      setTextFormat(Qt::RichText);
+     } else if (mimeData->hasText()) {
+  //       setText(mimeData->text());
+  //       setTextFormat(Qt::PlainText);
+     } else if (mimeData->hasUrls()) {
+         QList<QUrl> urlList = mimeData->urls();
+         QString text;
+         for (int i = 0; i < urlList.size() && i < 32; ++i) {
+             QString url = urlList.at(i).toLocalFile();
+             text += url + QString("\n");
+         }
+         qDebug() << "st:" << text;
+     } else {
+         qDebug() << "Cannot display data";
+     }
+
+     event->acceptProposedAction();
+
+}
+#endif
 /**
   * The GUI Event Handler.
   * @param obj is the object that caused the event call-back.

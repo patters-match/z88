@@ -52,10 +52,12 @@ public:
     bool isValidFilename(const QString &fname, QString &sug_fname);
 
     bool SelectedDevice_isEmpty();
+    void emitTrigger_Transfer();
 
 signals:
     void ItemSelectionChanged(int);
     void Trigger_Transfer();
+    void Drop_Requested(QList<Z88_Selection> *z88_dest, QList<QUrl> *urlList);
     
 public slots:
     void Z88Devices_result(QList<QByteArray> *devlist);
@@ -68,8 +70,16 @@ public slots:
     void itemDblClicked ( QTreeWidgetItem * item, int  );
 
     void ActionsMenuSel(QAction * act);
+    void DropRequested(QList<Z88_Selection> *z88_dest, QList<QUrl> *urlList);
 
 protected:
+
+#if 0
+    void dragEnterEvent(QDragEnterEvent *event);
+    void dragMoveEvent(QDragMoveEvent *event);
+    void dragLeaveEvent(QDragLeaveEvent *event);
+    void dropEvent(QDropEvent *event);
+#endif
 
     /**
       * Get a pointer to the Selected device tab, file tree viewer.
