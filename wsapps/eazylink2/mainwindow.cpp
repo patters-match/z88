@@ -187,6 +187,11 @@ void MainWindow::Drop_Requested(QList<Z88_Selection> *z88_dest, QList<QUrl> *url
     m_z88Selections = *z88_dest;
 
     if(deskSelList){
+        DeskTopSelectionChanged(deskSelList->count());
+        if(!enaTransferButton(deskSelList)){
+            cmdStatus("Invalid Drop Target.");
+            return;
+        }
 
         /**
           * Verify the files will fit
@@ -1240,11 +1245,13 @@ void MainWindow::SerialPortSelChanged()
 
 void MainWindow::Trigger_Transfer()
 {
-    if(enaTransferButton() && !m_cthread.isBusy()){
-        TransferFiles();
+    if(enaTransferButton()){
+        if(!m_cthread.isBusy()) {
+            TransferFiles();
+        }
     }
     else{
-        qDebug() << "no trig busy";
+        cmdStatus("Invalid Drop Target.");
     }
 }
 
@@ -1255,9 +1262,12 @@ void MainWindow::Trigger_Transfer()
   */
 bool MainWindow::enaTransferButton()
 {
-    QList<DeskTop_Selection> *dl;
+    return enaTransferButton(m_DeskTopTreeView->getSelection(false));
+}
+
+bool MainWindow::enaTransferButton(QList<DeskTop_Selection> *dl)
+{
     QList<DeskTop_Selection> DeskSelList;
-    dl = m_DeskTopTreeView->getSelection(false);
 
     if(!dl){
         return false;
@@ -1408,6 +1418,12 @@ void MainWindow::LoadingDeskList(const bool &aborted)
 
             enableCmds(true, m_sport.isOpen());
 
+            DeskTopSelectionChanged(deskSelList->count());
+            if(!enaTransferButton(deskSelList)){
+                cmdStatus("Invalid Drop Target.");
+                return;
+            }
+
             /**
               * Verify the files will fit HERE
               */          
@@ -1419,7 +1435,6 @@ void MainWindow::LoadingDeskList(const bool &aborted)
             m_DeskTopTreeView->deleteSelections();
         }
     }
-
 }
 
 /**

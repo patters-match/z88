@@ -204,6 +204,7 @@ private:
     bool DisplayCommError(const QString &title, const QString &msg);
 
     bool enaTransferButton();
+    bool enaTransferButton(QList<DeskTop_Selection> *dl);
 
 };
 #endif // MAINWINDOW_H
