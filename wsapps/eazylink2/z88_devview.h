@@ -53,11 +53,11 @@ public:
 
     bool isSelChangeLocked(){return m_selChangeLock;}
 
-    bool set_FreeSpace(uint32_t free_bytes);
-    bool set_TotalSize(uint32_t total_bytes);
+    bool set_FreeSpace(quint32 free_bytes);
+    bool set_TotalSize(quint32 total_bytes);
 
-    bool get_FreeSpace(uint32_t &free_bytes, uint32_t &tot_size);
-    bool get_TotalSize(uint32_t &total_bytes);
+    bool get_FreeSpace(quint32 &free_bytes, quint32 &tot_size);
+    bool get_TotalSize(quint32 &total_bytes);
 
 signals:
     void DropRequested(QList<Z88_Selection> *z88_dest, QList<QUrl> *urlList);
@@ -101,11 +101,11 @@ protected:
 
     QList<QTreeWidgetItem *> m_ExpandedList;
 
-    static const uint32_t SZ_NOT_AVAIL = -1;
+    static const quint32 SZ_NOT_AVAIL = -1;
 
-    uint32_t    m_devSize;
+    quint32    m_devSize;
 
-    uint32_t    m_devFree;
+    quint32    m_devFree;
 
     /**
       * The Storage View that this object belongs.

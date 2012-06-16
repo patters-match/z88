@@ -124,7 +124,7 @@ public:
     /**
       * The Bytes per K In the DevInfo Usage.
       */
-    static const uint32_t BYTES_PER_K   = 1024;
+    static const quint32 BYTES_PER_K   = 1024;
 
     /**
      * Api Commands

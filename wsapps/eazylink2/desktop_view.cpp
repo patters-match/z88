@@ -111,7 +111,7 @@ Desktop_View::Desktop_View(CommThread &cthread, Prefrences_dlg *pref_dlg, MainWi
   * Get a List of the selected file(s)
   * @return the list of filenames.
   */
-QList<DeskTop_Selection> *Desktop_View::getSelection(bool recurse, uint32_t &sel_bytes, bool cont)
+QList<DeskTop_Selection> *Desktop_View::getSelection(bool recurse, quint32 &sel_bytes, bool cont)
 {
     if(!recurse && m_recurse){
         return NULL;
@@ -170,7 +170,7 @@ QList<DeskTop_Selection> *Desktop_View::getSelection(bool recurse, uint32_t &sel
 
 QList<DeskTop_Selection> *Desktop_View::getSelection(bool recurse, bool cont)
 {
-    uint32_t sel_bytes = 0;
+    quint32 sel_bytes = 0;
     return getSelection(recurse, sel_bytes, cont);
 }
 
@@ -335,7 +335,7 @@ void Desktop_View::prependSubdirNames(QMutableListIterator<DeskTop_Selection> &i
   * @param idx is the selected directory to recurse.
   * @return false if the directory is still being read, true on success.
   */
-bool Desktop_View::getSubdirFiles(const QModelIndex &idx, uint32_t &sel_size)
+bool Desktop_View::getSubdirFiles(const QModelIndex &idx, quint32 &sel_size)
 {
     if(m_DeskFileSystem->isDir(idx)){
         if(m_DeskFileSystem->canFetchMore(idx)){

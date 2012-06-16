@@ -569,19 +569,19 @@ QList<Z88_Selection> *Z88_DevView::getSelection(bool recurse)
     return &m_Selections;
 }
 
-bool Z88_DevView::set_FreeSpace(uint32_t free_bytes)
+bool Z88_DevView::set_FreeSpace(quint32 free_bytes)
 {
     m_devFree = free_bytes;
     return true;  // for now
 }
 
-bool Z88_DevView::set_TotalSize(uint32_t total_bytes)
+bool Z88_DevView::set_TotalSize(quint32 total_bytes)
 {
     m_devSize = total_bytes;
     return true;
 }
 
-bool Z88_DevView::get_FreeSpace(uint32_t &free_bytes, uint32_t &tot_size)
+bool Z88_DevView::get_FreeSpace(quint32 &free_bytes, quint32 &tot_size)
 {
     if(m_devFree != SZ_NOT_AVAIL){
         free_bytes = m_devFree;
@@ -591,7 +591,7 @@ bool Z88_DevView::get_FreeSpace(uint32_t &free_bytes, uint32_t &tot_size)
     return false;
 }
 
-bool Z88_DevView::get_TotalSize(uint32_t &total_bytes)
+bool Z88_DevView::get_TotalSize(quint32 &total_bytes)
 {
     if(m_devFree != SZ_NOT_AVAIL){
         total_bytes = m_devSize;
