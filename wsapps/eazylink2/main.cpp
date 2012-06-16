@@ -26,7 +26,7 @@
 
 int main(int argc, char *argv[])
 {
-    QCoreApplication::setApplicationVersion("1.0 alpha1");
+    QCoreApplication::setApplicationVersion("1.0 alpha2");
     QCoreApplication::setOrganizationDomain("cambridgez88.jira.com");
 
     QApplication a(argc, argv);
