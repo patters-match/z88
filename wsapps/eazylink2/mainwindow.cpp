@@ -175,6 +175,8 @@ void MainWindow::Drop_Requested(QList<Z88_Selection> *z88_dest, QList<QUrl> *url
         return;
     }
 
+    cmdStatus("Reading Dropped Files...");
+
     uint32_t sel_bytes = 0;
 
     /**
