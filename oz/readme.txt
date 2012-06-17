@@ -21,15 +21,15 @@ COPYING. If not, write to:
 
 
 ---------------------------------------------------------------------------------------------------
-Compiling the Z88 ROM from the SVN repository
+Compiling the Z88 ROM from the Git repository
 ---------------------------------------------------------------------------------------------------
 
-Since you're reading this, it means that you successfully checked out a fresh copy of the SVN
+Since you're reading this, it means that you successfully checked out a fresh copy of the Git
 repository.
 
 To compile the Z88 ROM, you need two utilities - Mpm (assembler) and MakeApp (binary file loader) -
 that are necessary to compile the ROM sources into a complete 128K binary. Further, two complete
-directories must have been checked out from SVN:
+directories must have been checked out from Git:
         /oz
         /tools
 
@@ -51,7 +51,7 @@ nmake /f makefile.z80.msvc.win32 [using Microsoft Visual C V6.0 or later ]
 or
 make -f makefile.z80.gcc.unix [using GCC on GCC/Linux/Mac OSX/Unix]
 
-Then, to compile & run the MakeApp utility you need to have a Java Runtime Environment (JRE) 1.4.x or
+Then, to compile & run the MakeApp utility you need to have a Java Runtime Environment (JRE) 1.6.x or
 later installed. Download & install it from http://java.sun.com for your operating system platform.
 
 cd /tools/makeapp

@@ -2,15 +2,15 @@
 Introduction
 ----------------------------------------------------------------------
 
-Welcome to the Z88 development repository! The place to get the latest software 
-for Z88 applications, workstation tools and various utilities. 
+Welcome to the Z88 development repository! The place to get the latest software
+for Z88 applications, workstation tools and various utilities.
 
-The repository directory file layout has been designed to beself-contained 
+The repository directory file layout has been designed to beself-contained
 as much as possible so that once you check out the repository,
-you will be able to compile all Z88 native software and run the Z88 emulator 
-within the directory structure of the repository. Further, you can easily 
-copy or move the complete directory structure to another media and carry on 
-working, including getting new updates from the Git repsoitory or committing 
+you will be able to compile all Z88 native software and run the Z88 emulator
+within the directory structure of the repository. Further, you can easily
+copy or move the complete directory structure to another media and carry on
+working, including getting new updates from the Git repsoitory or committing
 changes back to the repository (if you have been granted write access).
 
 
@@ -47,7 +47,7 @@ The third requirement on your operating system is Sun's Java Runtime
 Environment V1.6 or newer. Several command line tools (which is
 part of the tool chain to develop Z88 applications) and the Z88 emulator
 (virtual Z88 hardware and debugging environment) are implemented in
-Java. Get your JRE from http://java.sun.com. Java V1.6 JRE (or newer) is 
+Java. Get your JRE from http://java.sun.com. Java V1.6 JRE (or newer) is
 bundled by default on Mac OS X.
 
 There's an extra feature for Windows users which enables you to create
@@ -63,7 +63,7 @@ Getting started with Git and a quick tour of the repository layout
 ----------------------------------------------------------------------
 
 To get the complete main development tree of all source files and
-documentation in the Git repository, you simply check out the repository 
+documentation in the Git repository, you simply check out the repository
 to a locally preferred place on your workstation hard drive:
 
 git clone https://cambridge@bitbucket.org/cambridge/z88.git
@@ -72,10 +72,10 @@ git clone https://cambridge@bitbucket.org/cambridge/z88.git
 (the above example uses the command line client tool, available on all
 supported operating systems by official Git project)
 
-There are myriads of other Git clients out there to use. 
+There are myriads of other Git clients out there to use.
 
 If you are a developer with write permission, you must generate a
-SSH public/private key pair and install your public key into your 
+SSH public/private key pair and install your public key into your
 bitbuket account, then:
 
 git clone git@bitbucket.org:cambridge/z88.git
@@ -91,7 +91,7 @@ will get the following directory structure with lots of files in it:
      /servman       Z88 Service Manual, html files
      /userguide     Z88 User Guide (4th edition, in progress)
 
-/oz                 Z88 ROM, OZ V4.2 (in development)
+/oz                 Z88 ROM, OZ V4.3+ (in development)
      /apps          The system applications; Index, PipeDream, Diary, etc.
      /dc            The DC_xx system calls
      /def           OZ system manifests, used by Z88 assembler sources
@@ -114,6 +114,7 @@ will get the following directory structure with lots of files in it:
      /ozvm          Z88 Virtual Machine & Debugger
 
 /wsapps             Generic workstation Z88 related applications
+     eazylink2      EazyLink Client for Window, Mac & Linux, by O.Ernohazy & G.Strube
      z88transfer    EazyLink Client by Sergio Costas (requires Python)
 
 /z88apps            Z88 Applications & popdowns (Z80 source code)
@@ -126,7 +127,7 @@ will get the following directory structure with lots of files in it:
      /flashstore    Rakewell Flash Card File Management
      /flashstest    Rakewell Flash Card testing popdown
      /forever       Compilation build of:
-                    pdrom, zdis, zmonitor, fview, alarmsafe, lockup, 
+                    pdrom, zdis, zmonitor, fview, alarmsafe, lockup,
                     epfetch, freeram, installer, bootstrap & packages.
      /freeram       Small utility to display free RAM graphically
      /fview         Simple Ascii File Viewer popdown.
