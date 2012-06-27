@@ -5758,7 +5758,7 @@ enddef
         defm    1,"3@",$20+0,$20+0              ; clear lines 1-4
         defm    1,"2C",$FD
         defm    1,"3@",$20+0,$20+1
-        defm    1,"2C",$F
+        defm    1,"2C",$FD
         defm    1,"3@",$20+0,$20+2
         defm    1,"2C",$FD
         defm    1,"3@",$20+0,$20+3
