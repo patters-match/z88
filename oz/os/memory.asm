@@ -2169,6 +2169,11 @@ xref    RAMxDOR                                 ; [Kernel1]/misc1.asm
 ;
 .VerifySlotType
         ld      a, d                            ; get last bank in slot
+        or      a
+        jr      nz, extslot
+        ld      d,BU_ROM                        ; slot 0 always contains an OZ ROM
+        ret
+.extslot
         rrca
         rrca
         or      $3f
@@ -2193,13 +2198,12 @@ xref    RAMxDOR                                 ; [Kernel1]/misc1.asm
         jr      nz, vst_2
 
         ld      a, ($bffc)                      ; card size
-        cp     $40                              ; handle this case (else is zero)
+        cp      $40                             ; handle this case (else is zero)
         ret     z
         cpl
         and     $3F                             ; a is last unused bank in slot
         cp      e                               ; bank to test
         ret     c                               ; size ok? ret
-
 .vst_2
         ld      d, BU_NOT                       ; nothing inthe bank
         ret

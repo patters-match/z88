@@ -396,6 +396,7 @@ xref    Keymap_SP
 
         dec     a
         cp      e
+        jr      z, slt_3
         jr      c, slt_3                        ; bank above RAM part? test ROM/EPROM
 
         ld      d, BU_FRE|BU_WRK
