@@ -308,9 +308,9 @@ public class MakeApp {
 			try 
 			{ 
 				if (System.getProperty("os.name").indexOf("Windows") != -1)
-					p=Runtime.getRuntime().exec("cmd /c git describe --long"); 
+					p=Runtime.getRuntime().exec("cmd /c git describe --long --match OZ_V*"); 
 				else
-					p=Runtime.getRuntime().exec("git describe --long"); 
+					p=Runtime.getRuntime().exec("git describe --long --match OZ_V*"); 
 				
 				p.waitFor(); 
 				BufferedReader reader=new BufferedReader(new InputStreamReader(p.getInputStream())); 
