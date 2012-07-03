@@ -9,6 +9,7 @@
 
 #include<QDebug>
 
+
 namespace Action_Settings{
     const char *ActKey_DBLCLK_HOSTFILE = "DBLCLKDSK";
     const char *ActKey_DBLCLK_Z88FILE = "DBLCLKZ88";
