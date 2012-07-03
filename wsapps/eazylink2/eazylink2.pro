@@ -19,7 +19,8 @@ z88storageviewer.cpp \
 z88filespec.cpp \
 desktop_view.cpp \
 serialportsavail.cpp \
-    prefrences_dlg.cpp
+    prefrences_dlg.cpp \
+    actionsettings.cpp
 
 HEADERS += mainwindow.h\
 serialport.h\
@@ -31,10 +32,12 @@ z88_devview.h \
 z88storageviewer.h \
 z88filespec.h \
 desktop_view.h \
-    prefrences_dlg.h
+    prefrences_dlg.h \
+    actionsettings.h
 
 FORMS    += mainwindow.ui \
-    prefrences_dlg.ui
+    prefrences_dlg.ui \
+    actionsettings.ui
 
 RESOURCES += \
     images.qrc

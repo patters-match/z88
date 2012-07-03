@@ -16,10 +16,15 @@
 
 **********************************************************************************************/
 #include <QSettings>
-#include<QFile>
-#include<QDir>
-#include<QDebug>
+#include <QFile>
+#include <QDir>
+#include <QDebug>
+#include <QTableWidget>
+#include <QInputDialog>
+#include <QFileDialog>
+#include <QProcess>
 
+#include "actionsettings.h"
 #include "prefrences_dlg.h"
 #include "ui_prefrences_dlg.h"
 #include "commthread.h"
@@ -28,7 +33,8 @@ Prefrences_dlg::Prefrences_dlg(MainWindow *mw, CommThread *ct, QWidget *parent) 
     QDialog(parent),
     ui(new Ui::Prefrences_dlg),
     m_mainwinow(mw),
-    m_cthread(ct)
+    m_cthread(ct),
+    m_ActionSettings(NULL)
 {
     ui->setupUi(this);
 
@@ -39,6 +45,11 @@ Prefrences_dlg::Prefrences_dlg(MainWindow *mw, CommThread *ct, QWidget *parent) 
     connect(&m_InUse_Timer, SIGNAL(timeout()), this, SLOT(Poll_inuse()));
 
     RefreshComsList();
+
+    /**
+      * Init the Actions Pref Panel
+      */
+    Init_Actions();
 
     ReadCfg();
 }
@@ -138,6 +149,10 @@ void Prefrences_dlg::WriteCfg()
     settings.setValue("Serialport", ui->Ui::Prefrences_dlg::SerialPortList->currentText());
     settings.setValue("InitDeskIsRoot", m_initDir_isRoot);
 
+    /**
+      * Save the Actions Table(s)
+      */
+    m_ActionSettings->save_ActionList(settings);
     // settings are stored on disk by QSettings destructor..
 }
 
@@ -217,12 +232,53 @@ bool Prefrences_dlg::get_initDir_IsRoot() const
     return ui->Ui::Prefrences_dlg::InitDir_isRoot->isChecked();
 }
 
+int Prefrences_dlg::findAction(const QString &ActionStr, const QString Fspec, QString &CmdLine)
+{
+    if(m_ActionSettings){
+        return m_ActionSettings->findAction(ActionStr, Fspec,CmdLine);
+    }
+    return 0;
+}
+
+/**
+  * Execute the Action, including launching external app if needed
+  */
+int Prefrences_dlg::execActions(const QString &ActionStr, const QString Fspec, QString &CmdLine)
+{
+    int rc = findAction(ActionStr, Fspec, CmdLine);
+
+    if(rc == Action_Settings::OPEN_WITH_ID){
+
+        QStringList commandAndParameters = CmdLine.split(" ");
+
+        if(commandAndParameters.count() < 1){
+            return 0;
+        }
+
+        QString exename(commandAndParameters.first());
+        commandAndParameters.removeFirst();
+
+        qDebug() << "Start :" << exename <<  commandAndParameters;
+        QProcess *myProcess = new QProcess(this);
+
+            // Start the QProcess instance.
+        myProcess->start(exename, commandAndParameters);
+    }
+
+    return rc;
+}
+
 /**
   * Reset the Previous Values.
   */
 void Prefrences_dlg::rejected()
 {
     m_InUse_Timer.stop();
+
+    /**
+      * Refresh the Old Values
+      */
+    m_ActionSettings->reLoadActionList();
 
     restoreChecked();
 }
@@ -283,6 +339,131 @@ void Prefrences_dlg::restoreChecked()
 
 }
 
+void Prefrences_dlg::Init_Actions()
+{
+    StringLList_t defaults;
+    QStringList def_data;
+
+    m_ActionSettings = new ActionSettings();
+    ui->Ui::Prefrences_dlg::tabWidget->addTab(m_ActionSettings, "Actions");
+
+    /**
+      * Double Click HostFile Action
+      */
+    QStringList avl1;
+    avl1.append("Transfer to Z88");
+    avl1.append("Open with...");
+    avl1.append("Ignore");
+
+    /**
+      * Set up Defaults
+      */
+    def_data.append("*");        // Filename
+    def_data.append("*");        // ext
+    def_data.append(avl1[0]);    // action
+    def_data.append("");         // args
+    defaults.append(def_data);
+
+    FileAction fa1(Action_Settings::ActKey_DBLCLK_HOSTFILE, "Double Click HostFile", avl1, defaults);
+    m_ActionSettings->Append_FileAction(fa1);
+
+    /**
+      * Double Click Z88 File Action.
+      */
+    QStringList avl2;
+    avl2.append("Transfer to Desktop");
+    avl2.append("RX & Open with...");
+    avl2.append("Ignore");
+
+    /**
+      * Set up Defaults
+      */
+    def_data.clear();
+    defaults.clear();
+
+    def_data.append("*");        // Filename
+    def_data.append("*");        // ext
+    def_data.append(avl2[0]);    // action
+    def_data.append("");         // args
+    defaults.append(def_data);
+
+    FileAction fa2(Action_Settings::ActKey_DBLCLK_Z88FILE, "Double Click Z88 File", avl2, defaults);
+    m_ActionSettings->Append_FileAction(fa2);
+
+    /**
+      * Receive From Z88 Action
+      */
+    QStringList avl3;
+    avl3.append("Receive Default");
+    avl3.append("Open with...");
+    avl3.append("Convert Linefeeds");
+    avl3.append("Receive Binary");
+    avl3.append("Skip");
+
+    /**
+      * Set up Defaults
+      */
+    def_data.clear();
+    defaults.clear();
+
+    /**
+      * Defaults for text files
+      */
+    def_data.append("*");        // Filename
+    def_data.append("txt");      // ext
+    def_data.append(avl3[2]);    // action  Convert Line Feeds for txt files
+    def_data.append(Action_Settings::DEFAULT_FILESPEC_ARGS);         // args
+    defaults.append(def_data);
+
+    /*
+      * Defaults for All other files
+      */
+    def_data.clear();
+    def_data.append("*");        // Filename
+    def_data.append("*");        // ext
+    def_data.append(avl3[0]);    // action - receive with default settings.
+    def_data.append(Action_Settings::DEFAULT_FILESPEC_ARGS);         // args
+    defaults.append(def_data);
+
+    FileAction fa3(Action_Settings::ActKey_RX_FROMZ88, "Receive From Z88", avl3, defaults);
+    m_ActionSettings->Append_FileAction(fa3);
+
+    /**
+      * Send to Z88 Action.
+      */
+    QStringList avl4;
+    avl4.append("Send Default");
+    avl4.append("Pre-process with...");
+    avl4.append("Convert Linefeeds");
+    avl4.append("Send Binary");
+    avl4.append("Skip");
+
+    /**
+      * Set up Defaults
+      */
+    def_data.clear();
+    defaults.clear();
+
+    /**
+      * Defaults for text files
+      */
+    def_data.append("*");        // Filename
+    def_data.append("txt");      // ext
+    def_data.append(avl4[2]);    // action  Convert Line Feeds for txt files
+    def_data.append(Action_Settings::DEFAULT_Z88_DESTSPEC);         // args
+    defaults.append(def_data);
+
+    def_data.clear();
+    def_data.append("*");        // Filename
+    def_data.append("*");        // ext
+    def_data.append(avl4[0]);    // action
+    def_data.append(Action_Settings::DEFAULT_Z88_DESTSPEC);         // args
+    defaults.append(def_data);
+
+    FileAction fa4(Action_Settings::ActKey_TX_TOZ88, "Send to Z88", avl4, defaults);
+    m_ActionSettings->Append_FileAction(fa4);
+}
+
 void Prefrences_dlg::Poll_inuse()
 {
     if(ui->Ui::Prefrences_dlg::tabWidget->currentIndex() == Comms){
@@ -298,4 +479,3 @@ void Prefrences_dlg::Poll_inuse()
     }
     m_InUse_Timer.stop();
 }
-

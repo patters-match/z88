@@ -24,6 +24,8 @@
 #include "desktop_view.h"
 #include "z88_devview.h"
 #include "prefrences_dlg.h"
+#include "actionsettings.h"
+
 
 /**
   * The Communications Thread Constructor.
@@ -388,34 +390,15 @@ void CommThread::run()
             m_xferFileprogress = 0;
 
             /** ensure that current translation mode is set on Z88 before actual transfer begins.. */
-            if (m_mainWindow->get_Prefs().get_Byte_Trans()) {
-                cmdStatus("Sending Enable Byte Translation");
-                if(!m_sport.translationOn()){
-                    emit boolCmd_result("Byte Translation ON", false);
-                    break;
-                }
-            } else {
-                cmdStatus("Sending Disable Byte Translation");
-                if(!m_sport.translationOff()){
-                    emit boolCmd_result("Byte Translation OFF", false);
-                    break;
-                }
+            if(!BYTE_TranslationEnable(m_byteTranslation = m_mainWindow->get_Prefs().get_Byte_Trans())){
+                break;
             }
 
             /** ensure that current CRLF mode is also set ... */
-            if (m_mainWindow->get_Prefs().get_CRLF_Trans()) {
-                cmdStatus("Sending Enable CRLF Translation");
-                if(!m_sport.linefeedConvOn()){
-                    emit boolCmd_result("CRLF Translation ON", false);
-                    break;
-                }
-            } else {
-                cmdStatus("Sending Disable CRLF Translation");
-                if(!m_sport.linefeedConvOff()){
-                    emit boolCmd_result("CRLF Translation OFF", false);
-                    break;
-                }
+            if(!CRLF_TranslationEnable(m_linefeedConversion = m_mainWindow->get_Prefs().get_CRLF_Trans())){
+                break;
             }
+
             // drop through
         }
 
@@ -426,6 +409,26 @@ void CommThread::run()
                 const Z88_Selection &z88sel(m_z88Sel_itr->peekNext());
                 QString srcname(z88sel.getFspec());
                 QString dest = m_destPath + "/" + z88sel.getRelFspec();
+
+                QString cmdLine;
+                int action = m_mainWindow->get_Prefs().findAction(Action_Settings::ActKey_RX_FROMZ88,  dest, cmdLine );
+
+                /**
+                  * Skip the file Requested.
+                  */
+                if(action == 4){
+                    m_curOP = OP_receiveNext;
+                    run();
+                    break;
+                }
+
+                /**
+                  * Allow for User Expanded cmd line.
+                  * Don't use cmd line with the Open On....
+                  */
+                if(action != Action_Settings::OPEN_WITH_ID){
+                    dest = cmdLine;
+                }
 
                 if(shouldPromptUser(z88sel, dest)){
                     emit PromptReceiveSpec(srcname, dest, &m_enaPromtUser);
@@ -442,6 +445,8 @@ void CommThread::run()
         case OP_receiveFile:        // Get the Specified file.
         {
             Z88SerialPort::retcode rc;
+            QString cmdLine;
+            int action;
 
             do{
                 if(m_abort){
@@ -471,12 +476,72 @@ void CommThread::run()
                     goto skip2;
                 }
 
+                cmdLine.clear();
+                action = m_mainWindow->get_Prefs().findAction(Action_Settings::ActKey_RX_FROMZ88,  m_destPath + "/" + z88sel.getRelFspec(), cmdLine );
+
+                if(action == 0){ // Receive Default
+                    bool ena = m_mainWindow->get_Prefs().get_CRLF_Trans();
+
+                    if(m_linefeedConversion != ena){
+                        if(!CRLF_TranslationEnable(ena)){
+                            break;
+                        }
+                        m_linefeedConversion = ena;
+                    }
+
+                    ena = m_mainWindow->get_Prefs().get_Byte_Trans();
+
+                    if(m_byteTranslation != ena){
+                        if(!BYTE_TranslationEnable(ena)){
+                            break;
+                        }
+                        m_byteTranslation = ena;
+                    }
+                }
+                else{
+                    if(action == 2){ // Convert CRLF
+                        if(!m_linefeedConversion){
+                            if(!CRLF_TranslationEnable(true)){
+                                break;
+                            }
+                        }
+                        m_linefeedConversion = true;
+                    }
+                    else{
+                        if(action == 3){ // RX Binary
+                            if(m_linefeedConversion){
+                                if(!CRLF_TranslationEnable(false)){
+                                    break;
+                                }
+                            }
+                            m_linefeedConversion = false;
+
+                            if(m_byteTranslation){
+                                if(!BYTE_TranslationEnable(false)){
+                                    break;
+                                }
+                                m_byteTranslation = false;
+                            }
+                        }
+                    }
+                }
+
                 /**
                   * Receive the file from Z88
                   */
-                rc = m_sport.receiveFiles(srcname, m_destPath, z88sel.getRelFspec(), m_dest_isDir);
+                if(action != Action_Settings::OPEN_WITH_ID){
+                    rc = m_sport.receiveFiles(srcname, m_destPath, cmdLine, m_dest_isDir);
+                }
+                else{
+                    rc = m_sport.receiveFiles(srcname, m_destPath, z88sel.getRelFspec(), m_dest_isDir);
+                }
 
                 m_xferFileprogress++;
+
+                /**
+                  * Post RX Processing Action Handling
+                  */
+                action = m_mainWindow->get_Prefs().execActions(Action_Settings::ActKey_RX_FROMZ88,  m_destPath + "/" + z88sel.getRelFspec(), cmdLine );
 
                 if(m_abort){
                     cmdStatus("Transfer Cancelled.");
@@ -493,6 +558,26 @@ skip2:
                 if(m_z88Sel_itr->hasNext()){
                     const Z88_Selection &z88selnxt(m_z88Sel_itr->peekNext());
                     QString dest = m_destPath + "/" + z88selnxt.getRelFspec();
+
+                    QString cmdLine;
+                    int action = m_mainWindow->get_Prefs().findAction(Action_Settings::ActKey_RX_FROMZ88,  dest, cmdLine );
+
+                    /**
+                      * Skip the file Requested.
+                      */
+                    if(action == 4){
+                        m_curOP = OP_receiveNext;
+                        run();
+                        break;
+                    }
+
+                    /**
+                      * Allow for User Expanded cmd line.
+                      * Don't use cmd line with the Open On....
+                      */
+                    if(action != Action_Settings::OPEN_WITH_ID){
+                        dest = cmdLine;
+                    }
 
                     if(shouldPromptUser(z88selnxt, dest)){
                         srcname = z88selnxt.getFspec();
@@ -555,32 +640,15 @@ skip2:
             }
 
             /** ensure that current translation mode is set on Z88 before actual transfer begins.. */
-            if (m_mainWindow->get_Prefs().get_Byte_Trans()) {
-                cmdStatus("Sending Enable Byte Translation");
-                if(!m_sport.translationOn()){
-                    emit boolCmd_result("Byte Translation ON", false);
-                    break;
-                }
-            } else {
-                cmdStatus("Sending Disable Byte Translation");
-                if(!m_sport.translationOff()){
-                    emit boolCmd_result("Byte Translation OFF", false);
-                    break;
-                }
+            if(!BYTE_TranslationEnable( m_byteTranslation = m_mainWindow->get_Prefs().get_Byte_Trans())){
+                break;
             }
 
             /** ensure that current CRLF mode is also set ... */
-            if (m_mainWindow->get_Prefs().get_CRLF_Trans()) {
-                cmdStatus("Sending Enable CRLF Translation");
-                if(!m_sport.linefeedConvOn()){
-                    emit boolCmd_result("CRLF Translation ON", false);
-                }
-            } else {
-                cmdStatus("Sending Disable CRLF Translation");
-                if(!m_sport.linefeedConvOff()){
-                    emit boolCmd_result("CRLF Translation OFF", false);
-                }
+            if(!CRLF_TranslationEnable( m_linefeedConversion = m_mainWindow->get_Prefs().get_CRLF_Trans())){
+                break;
             }
+
             // drop through
         }
         case OP_sendFiles:          // Send Files to the Z88.
@@ -589,13 +657,29 @@ skip2:
 
                 const DeskTop_Selection &desksel(m_deskSel_itr->peekNext());
                 QString destFspec = m_destPath + desksel.getFname();
+                QString srcname(desksel.getFspec());
+
+                QString cmdLine;
+                int action = m_mainWindow->get_Prefs().findAction(Action_Settings::ActKey_TX_TOZ88,  destFspec, cmdLine );
+
+                /**
+                  * Skip the file Requested.
+                  */
+                if(action == 4){  // Skip
+                    m_curOP = OP_sendNext;
+                    run();
+                    break;
+                }
+
+                if(action != Action_Settings::OPEN_WITH_ID){
+                    destFspec = cmdLine;
+                }
 
                 /**
                   * Prompt the User for transfer and / or for Overwrite
                   */
                 if(shouldPromptUser(desksel, destFspec))
                 {
-                    QString srcname(desksel.getFspec());
                     emit PromptSendSpec(srcname, destFspec, &m_enaPromtUser);
                     break;
                 }
@@ -649,6 +733,65 @@ skip2:
                         goto skip1;
                     }
 
+                    QString cmdLine;
+                    int action = m_mainWindow->get_Prefs().findAction(Action_Settings::ActKey_TX_TOZ88,  destFspec, cmdLine );
+
+                    if(action == 0){ // send Default
+                        bool ena = m_mainWindow->get_Prefs().get_CRLF_Trans();
+
+                        if(m_linefeedConversion != ena){
+                            if(!CRLF_TranslationEnable(ena)){
+                                break;
+                            }
+                            m_linefeedConversion = ena;
+                        }
+
+                        ena = m_mainWindow->get_Prefs().get_Byte_Trans();
+
+                        if(m_byteTranslation != ena){
+                            if(!BYTE_TranslationEnable(ena)){
+                                break;
+                            }
+                            m_byteTranslation = ena;
+                        }
+                    }
+                    else{
+                        if(action == 2){ // Convert CRLF
+                            if(!m_linefeedConversion){
+                                if(!CRLF_TranslationEnable(true)){
+                                    break;
+                                }
+                            }
+                            m_linefeedConversion = true;
+                        }
+                        else{
+                            if(action == 3){ // TX Binary
+                                if(m_linefeedConversion){
+                                    if(!CRLF_TranslationEnable(false)){
+                                        break;
+                                    }
+                                }
+                                m_linefeedConversion = false;
+
+                                if(m_byteTranslation){
+                                    if(!BYTE_TranslationEnable(false)){
+                                        break;
+                                    }
+                                    m_byteTranslation = false;
+                                }
+                            }
+                        }
+                    }
+
+                    if(action == Action_Settings::OPEN_WITH_ID){
+                        qDebug() <<  "Open With [" << cmdLine <<  "] Not Implemented Yet.";
+                    }
+                    else{
+                        if(!cmdLine.isEmpty()){
+                            destFspec = cmdLine;
+                        }
+                    }
+
                     rc = m_sport.sendFile(destFspec, srcname);
                 }
 
@@ -670,10 +813,24 @@ skip1:
 
                     QString destFspec = m_destPath + deskselnxt.getFname();
 
+                    QString cmdLine;
+                    int action = m_mainWindow->get_Prefs().findAction(Action_Settings::ActKey_TX_TOZ88,  destFspec, cmdLine );
+
+                    /**
+                      * Skip the file Requested.
+                      */
+                    if(action == 4){
+                        m_curOP = OP_sendNext;
+                        run();
+                        break;
+                    }
+
+                    if(action == Action_Settings::OPEN_WITH_ID){
+                        destFspec = cmdLine;
+                    }
+
                     if(shouldPromptUser(deskselnxt, destFspec)){
-
                         srcname = deskselnxt.getFspec();
-
                         emit PromptSendSpec(srcname, destFspec, &m_enaPromtUser);
                         break;
                     }
@@ -1925,4 +2082,41 @@ bool CommThread::shouldPromptUser(const Z88_Selection &Source, const QString &de
             ((m_enaPromtUser & PROMPT_USER) ||
             ((m_enaPromtUser & FILE_EXISTS) &&
              !(m_enaPromtUser & (NO_TO_OW_ALL | YES_TO_OW_ALL))) );
+}
+
+bool CommThread::CRLF_TranslationEnable(bool ena)
+{
+    if (ena) {
+        cmdStatus("Sending Enable CRLF Translation");
+        if(!m_sport.linefeedConvOn()){
+            emit boolCmd_result("CRLF Translation ON", false);
+            return false;
+        }
+    } else {
+        cmdStatus("Sending Disable CRLF Translation");
+        if(!m_sport.linefeedConvOff()){
+            emit boolCmd_result("CRLF Translation OFF", false);
+            return false;
+        }
+    }
+
+    return true;
+}
+
+bool CommThread::BYTE_TranslationEnable(bool ena)
+{
+    if (ena){
+        cmdStatus("Sending Enable Byte Translation");
+        if(!m_sport.translationOn()){
+            emit boolCmd_result("Byte Translation ON", false);
+            return false;
+        }
+    } else {
+        cmdStatus("Sending Disable Byte Translation");
+        if(!m_sport.translationOff()){
+            emit boolCmd_result("Byte Translation OFF", false);
+            return false;
+        }
+    }
+    return true;
 }

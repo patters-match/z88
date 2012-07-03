@@ -76,7 +76,7 @@ MainWindow::MainWindow(Z88SerialPort &sport, QWidget *parent) :
     /**
       * Create the Z88 Storage Device Tab View Object
       */
-    m_Z88StorageView = new Z88StorageViewer(m_cthread, this);
+    m_Z88StorageView = new Z88StorageViewer(m_cthread, m_prefsDialog, this);
     ui->Ui::MainWindow::Z88Layout->addWidget(m_Z88StorageView);
 
     /**
@@ -177,7 +177,7 @@ void MainWindow::Drop_Requested(QList<Z88_Selection> *z88_dest, QList<QUrl> *url
 
     cmdStatus("Reading Dropped Files...");
 
-    uint32_t sel_bytes = 0;
+    quint32 sel_bytes = 0;
 
     /**
       * Get the Selected Destination from the Drop
@@ -471,19 +471,19 @@ void MainWindow::AbortCmd()
 void MainWindow::ImpExp_sendfile()
 {
     QString HelpMsg;
-    HelpMsg += "1)Please make sure you have the following Z88 Settings:";
+    HelpMsg += "1) Please make sure you have the following Z88 Settings:";
     HelpMsg += " Baud = 9600 and ";
-    HelpMsg += " Parity = NONE. -- (Press []S on the Z88 to enter Setup Menu). ";
+    HelpMsg += " Parity = NONE. -- (Press []S on the Z88 to enter Panel). ";
 
     m_ImpExp_sendErrMsg.showMessage(HelpMsg, "IMPEXP_Send");
 
-    HelpMsg = "2)On the Z88, Launch the Imp-Export Pulldown -- (Press []X)  ";
+    HelpMsg = "2) On the Z88, Launch the Imp-Export Popdown -- (Press []X)  ";
     m_ImpExp_sendErrMsg.showMessage(HelpMsg, "IMPEXP_Send");
 
-    HelpMsg = "3)On the Z88 Imp-Export Pulldown, Select option 'b' and press 'Enter'.";
+    HelpMsg = "3) On the Z88 Imp-Export Popdown, Select option 'b' and press 'Enter'.";
     m_ImpExp_sendErrMsg.showMessage(HelpMsg, "IMPEXP_Send");
 
-    HelpMsg = "4)On the Desktop, select files to Send to the Z88.";
+    HelpMsg = "4) On the Desktop, select files to Send to the Z88.";
     m_ImpExp_sendErrMsg.showMessage(HelpMsg, "IMPEXP_Send");
 
     if(m_ImpExp_sendErrMsg.isVisible()){
@@ -529,19 +529,19 @@ void MainWindow::ImpExp_sendfile()
 void MainWindow::ImpExp_receivefiles()
 {
     QString HelpMsg;
-    HelpMsg += "1)Please make sure you have the following Z88 Settings:";
+    HelpMsg += "1) Please make sure you have the following Z88 Settings:";
     HelpMsg += " Baud = 9600 and ";
-    HelpMsg += " Parity = NONE. -- (Press []S on the Z88 to enter Setup Menu). ";
+    HelpMsg += " Parity = NONE. -- (Press []S on the Z88 to enter Panel). ";
 
     m_ImpExp_recvErrMsg.showMessage(HelpMsg, "IMPEXP_Rx");
 
-    HelpMsg = "2)On the Z88, Launch the Imp-Export Pulldown -- (Press []X)  ";
+    HelpMsg = "2) On the Z88, Launch the Imp-Export Popdown -- (Press []X)  ";
     m_ImpExp_recvErrMsg.showMessage(HelpMsg, "IMPEXP_Rx");
 
-    HelpMsg = "3)On the Desktop, select Subdirectory to receive Z88 Files.";
+    HelpMsg = "3) On the Desktop, select Subdirectory to receive Z88 Files.";
     m_ImpExp_recvErrMsg.showMessage(HelpMsg, "IMPEXP_Rx");
 
-    HelpMsg = "4)On the Z88 Imp-Export Pulldown, Select option 's' and press 'Enter'.";
+    HelpMsg = "4) On the Z88 Imp-Export Popdown, Select option 's' and press 'Enter'.";
     HelpMsg += "Then Enter the Filename";
     m_ImpExp_recvErrMsg.showMessage(HelpMsg, "IMPEXP_Rx");
 
@@ -589,7 +589,7 @@ void MainWindow::AboutEazylink()
 {
     QString msg("EazyLink2");
     msg += " - " + QCoreApplication::applicationVersion();
-    msg += "\r\nApril-May 2012";
+    msg += "\r\nApril-June 2012";
     msg += "\r\n(C) Gunther Strube & Oscar Ernohazy";
 
     QMessageBox::about(this, tr("EazyLink II"), msg);

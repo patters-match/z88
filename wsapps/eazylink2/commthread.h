@@ -200,6 +200,9 @@ protected:
 
     bool shouldPromptUser(const Z88_Selection &Source, const QString &destFspec);
 
+    bool CRLF_TranslationEnable(bool ena);
+    bool BYTE_TranslationEnable(bool ena);
+
 
     comOpcodes_t _getDirectories(const QString &devname);
     comOpcodes_t _getFileNames(const QString &devname);

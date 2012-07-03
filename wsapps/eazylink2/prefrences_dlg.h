@@ -29,6 +29,8 @@ namespace Ui {
 
 class MainWindow;
 class CommThread;
+class QTableWidgetItem;
+class ActionSettings;
 
 class Prefrences_dlg : public QDialog
 {
@@ -42,7 +44,21 @@ public:
         General,
         Translate,
         Comms,
+        Actions,
         Default
+    };
+
+    enum ft_columns{
+        ft_filename,
+        ft_extension,
+        ft_action,
+        ft_columns
+    };
+
+    enum DblClk_Actions{
+        Do_Nothing = 1001,
+        Transfer,
+        OpenFile
     };
 
     void Activate(TabName tab = Default);
@@ -62,6 +78,9 @@ public:
     bool get_RefreshZ88OnStart() const;
     bool get_initDir_IsRoot() const;
 
+    int findAction(const QString &ActionStr, const QString Fspec, QString &CmdLine);
+    int execActions(const QString &ActionStr, const QString Fspec, QString &CmdLine);
+
 private slots:
     void rejected();
     void accepted();
@@ -75,6 +94,8 @@ signals:
 private:
     void restoreChecked();
 
+    void Init_Actions();
+
     Ui::Prefrences_dlg *ui;
 
     MainWindow *m_mainwinow;
@@ -87,8 +108,11 @@ private:
     QString m_initDir;
 
     CommThread *m_cthread;
+    ActionSettings *m_ActionSettings;
 
     QTimer m_InUse_Timer;
+
+    QStringList m_ft_items;
 
     bool m_autoSyncClock;
     bool m_Shutdown_exit;

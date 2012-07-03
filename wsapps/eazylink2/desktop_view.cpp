@@ -15,16 +15,19 @@
 
 **********************************************************************************************/
 
-#include<QDebug>
-#include<QEvent>
+#include <QDebug>
+#include <QEvent>
 #include <QFileSystemWatcher>
 #include <QInputDialog>
 #include <QDragEnterEvent>
-#include<QUrl>
+#include <QUrl>
+#include <QProcess>
 
 #include "mainwindow.h"
 #include "desktop_view.h"
 #include "z88_devview.h"
+#include "actionsettings.h"
+
 
 /**
   * DeskTop Selection Constructor
@@ -174,7 +177,7 @@ QList<DeskTop_Selection> *Desktop_View::getSelection(bool recurse, bool cont)
     return getSelection(recurse, sel_bytes, cont);
 }
 
-QList<DeskTop_Selection> *Desktop_View::getSelection(QList<QUrl> *urlList, bool recurse, uint32_t &sel_bytes)
+QList<DeskTop_Selection> *Desktop_View::getSelection(QList<QUrl> *urlList, bool recurse, quint32 &sel_bytes)
 {
     m_ModelSelections.clear();
 
@@ -533,9 +536,20 @@ void Desktop_View::ActionsMenuSel(QAction *act)
 
 void Desktop_View::ItemDoubleClicked(const QModelIndex &index)
 {
+    int action;
+    QString cmdline;
+
     if(!m_DeskFileSystem->isDir(index)){
-        emit Trigger_Transfer();
+
+        action = m_pref_dlg->execActions( Action_Settings::ActKey_DBLCLK_HOSTFILE,
+                                          m_DeskFileSystem->filePath(index),
+                                          cmdline);
+        if(!action){
+            emit Trigger_Transfer();
+        }
     }
+
+
 }
 
 void Desktop_View::dragEnterEvent(QDragEnterEvent *event)
