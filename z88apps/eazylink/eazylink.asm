@@ -323,7 +323,7 @@ ENDIF
                CP   EazyLink_CC_dbgOn
                CALL Z,EnableSerportLogging        ; <>D, Enable Serial port logging
                CP   EazyLink_CC_dbgOff
-               CALL Z,DisableSerportLogging         ; <>Z, Disable Serial port logging
+               CALL Z,DisableSerportLogging       ; <>Z, Disable Serial port logging
                JR   main_loop                     ; ignore keypress, get another...
 
 .MVbar_down
@@ -2255,7 +2255,6 @@ ENDIF
 .Msg_Protocol_error
                LD   HL, error_message3
                CALL Write_message
-               CALL DisableSerportLogging
                RET
 
 

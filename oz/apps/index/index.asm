@@ -1243,54 +1243,60 @@ xref    ClsMapWin2, ClsMapWin4, UpdateFreeSpaceRamCard
 
 .cmd_card
         ld      hl, INDEX_UNSAFE_WS_START
-        ld      b, 36
+        ld      b, 3*4                          ; each device info block is 3 bytes
         call    ZeroMem
-        ld      d, 3                            ; slot #
-        ld      iy, INDEX_UNSAFE_WS_START+3*12
+        ld      d, 3                            ; start scan with slot 3, downwards...
+        ld      iy, INDEX_UNSAFE_WS_START+(3*4)
 
-.crd_1                                          ; slot loop
-        ld      bc, -12
+.poll_slot_loop                                 ; slot loop
+        ld      bc, -3
         add     iy, bc
-        ld      e, 0                            ; bank
 
-.crd_2
-        ld      bc, NQ_Slt
-        OZ      OS_Nq                           ; read slot type information
-        jr      c, crd_7                        ; no card?
-        and     ~$40                            ; bit 5 unused by NQ_Slt
-        jr      z, crd_6
+        ld      a,d                             ; poll for total RAM in slot D
+        ld      bc, NQ_Mfp
+        push    de
+        oz      OS_Nq
+        pop     de
+        jr      c, check_rom                    ; no RAM found, is there a ROM / App Card?
+        ld      (iy+0),a                        ; size of RAM card in 16K banks...
 
-        bit     7, a                            ; available RAM
-        push    af
-
-        ld      bc, 6<<8|0                      ; find lowest set bit
-.crd_3
-        rrca                                    ; !! pre-increment
-        jr      c, crd_4
-        inc     c
-        djnz    crd_3
-
-.crd_4
-        sla     c                               ; lowest set bit *2
-        pop     af
-        jr      nz, crd_5
-        inc     c                               ; inc if not available RAM
-
-.crd_5
-        ld      b, 0
-        push    iy
-        pop     hl
-        add     hl, bc
-        inc     (hl)
-
-.crd_6
-        inc     e
-        bit     6, e                            ; $40, last bank reached ?
-        jr      z, crd_2                        ; loop thru all banks
-
-.crd_7
+.check_rom
+        ld      e,$3f                           ; top bank of slots 1-3 for ROM / App Cards is $3f
+        inc     d
         dec     d
-        jr      nz, crd_1                       ; loop thru slots 1-3
+        jr      nz, poll_rom_bank
+        ld      e,$1f                           ; top bank of ROM in slot 0 is $1f
+.poll_rom_bank
+        ld      bc, NQ_Slt
+        oz      OS_Nq                           ; read slot type information
+        jr      c, next_slot                    ; no card?
+        cp      BU_ROM
+        jr      nz, check_eprom
+
+        ld      a,d
+        and     @00000011
+        rrca
+        rrca                                    ; slot number -> to slot mask
+        or      e
+        ld      b,a                             ; absolute (top) bank number of ROM / App Card
+        ld      hl,$3ffc
+        oz      GN_Rbe
+        ld      (iy+2),a                        ; size of ROM / App Card in 16K banks
+
+.check_eprom
+        ld      c,d
+        push    de
+        ld      a,EP_Req
+        oz      OS_Epr                          ; File Area in slot D?
+        pop     de
+        jr      c, next_slot
+        jr      nz, next_slot                   ; no File area, look in next slot..
+        ld      (iy+1),c                        ; size of file area in 16K banks...
+.next_slot
+        dec     d
+        ld      a,d
+        cp      -1
+        jr      nz, poll_slot_loop              ; loop thru slots 0-3
 
         ld      a, 2                            ; card display
         ld      (ubIdxActiveWindow),    a
@@ -1306,7 +1312,7 @@ xref    ClsMapWin2, ClsMapWin4, UpdateFreeSpaceRamCard
         OZ      GN_Win
 
         OZ      OS_Pout
-        defm    1,"3@",$20+17,$20
+        defm    1,"3@",$20+16,$20
         defm    1,"T"
         defm    "APPS"
         defm    1,"2X",$20+26
@@ -1314,10 +1320,8 @@ xref    ClsMapWin2, ClsMapWin4, UpdateFreeSpaceRamCard
         defm    1,"2X",$20+37
         defm    "RAM"
         defm    1,"3@",$20+0,$20+0
-        defm    1,"U"
-        defm    1,"2A",$20+46
-        defm    1,"U"
-        defm    1,"3@",$20+0,$20+2
+        defm    1,"3@",$20+0,$20+1
+        defm    " SLOT 0",13,10
         defm    " SLOT 1",13,10
         defm    " SLOT 2",13,10
         defm    " SLOT 3"
@@ -1345,10 +1349,11 @@ xref    ClsMapWin2, ClsMapWin4, UpdateFreeSpaceRamCard
 
 .dcrds_1
         ld      a, d
-        dec     a
         call    GetCardData
         call    DisplayCard
         dec     d
+        ld      a,d
+        cp      -1
         jr      nz, dcrds_1
         ret
 
@@ -1361,7 +1366,7 @@ xref    ClsMapWin2, ClsMapWin4, UpdateFreeSpaceRamCard
         inc     c
         call    MoveXY_BC
 
-        ld      c, (iy+3)
+        ld      c, (iy+2)
         ld      a, 15
         call    PrintCardSize                   ; ROM
 
@@ -1369,11 +1374,7 @@ xref    ClsMapWin2, ClsMapWin4, UpdateFreeSpaceRamCard
         ld      a, 25
         call    PrintCardSize                   ; EPROM
 
-        ld      a, (iy+4)
-        add     a, (iy+5)
-        add     a, (iy+6)
-        add     a, (iy+7)
-        ld      c, a
+        ld      c, (iy+0)
         ld      a, 35
         call    PrintCardSize                   ; RAM
 
@@ -1423,14 +1424,12 @@ xref    ClsMapWin2, ClsMapWin4, UpdateFreeSpaceRamCard
 ;       point IY to data of card A
 
 .GetCardData
-        ld      iy, INDEX_UNSAFE_WS_START-12
-        inc     a
-        ld      bc, 12
-        ld      d, b                            ; d = 0
+        ld      iy, INDEX_UNSAFE_WS_START-3
+        ld      bc, 3
 .gcd_1
         add     iy, bc
-        inc     d
         dec     a
+        cp      -1
         jr      nz, gcd_1
         ret
 
