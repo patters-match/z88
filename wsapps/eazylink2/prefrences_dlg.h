@@ -31,6 +31,7 @@ class MainWindow;
 class CommThread;
 class QTableWidgetItem;
 class ActionSettings;
+class ActionRule;
 
 class Prefrences_dlg : public QDialog
 {
@@ -79,7 +80,9 @@ public:
     bool get_initDir_IsRoot() const;
 
     int findAction(const QString &ActionStr, const QString Fspec, QString &CmdLine);
-    int execActions(const QString &ActionStr, const QString Fspec, QString &CmdLine);
+    const ActionRule *findActionRule(const QString &ActionKey, const QString Fspec, QString &CmdLine);
+
+    const ActionRule * execActions(const QString &ActionStr, const QString Fspec, QString &CmdLine);
 
 private slots:
     void rejected();

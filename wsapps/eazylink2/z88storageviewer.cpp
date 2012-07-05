@@ -632,8 +632,6 @@ void Z88StorageViewer::itemClicked(QTreeWidgetItem *, int )
   */
 void Z88StorageViewer::itemDblClicked(QTreeWidgetItem *item, int )
 {
-    int action;
-
     if(item){
         changedSelected_file();
 
@@ -642,11 +640,11 @@ void Z88StorageViewer::itemDblClicked(QTreeWidgetItem *item, int )
           */
         if(!item->childCount()){
             QString cmdline;
-            action = m_pref_dlg->findAction( Action_Settings::ActKey_DBLCLK_Z88FILE,
-                                              item->text(0),
-                                              cmdline);
+            const ActionRule *arule = m_pref_dlg->findActionRule(Action_Settings::ActKey_DBLCLK_Z88FILE,
+                                                                 item->text(0),
+                                                                 cmdline);
 
-            if(action != 2){ // ignore Action (fix this later)
+            if(arule->m_RuleID != ActionRule::IGNORE){
                 emit Trigger_Transfer();
             }
         }

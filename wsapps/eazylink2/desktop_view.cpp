@@ -536,20 +536,25 @@ void Desktop_View::ActionsMenuSel(QAction *act)
 
 void Desktop_View::ItemDoubleClicked(const QModelIndex &index)
 {
-    int action;
     QString cmdline;
 
     if(!m_DeskFileSystem->isDir(index)){
 
-        action = m_pref_dlg->execActions( Action_Settings::ActKey_DBLCLK_HOSTFILE,
-                                          m_DeskFileSystem->filePath(index),
-                                          cmdline);
-        if(!action){
+        /**
+          * Execute an External app, or just transfer the file.
+          */
+        const ActionRule *arule = m_pref_dlg->execActions(Action_Settings::ActKey_DBLCLK_HOSTFILE,
+                                                          m_DeskFileSystem->filePath(index),
+                                                          cmdline);
+
+        if(!arule){
+            return;
+        }
+
+        if(arule->m_RuleID == ActionRule::TRANSFER_FILE){
             emit Trigger_Transfer();
         }
     }
-
-
 }
 
 void Desktop_View::dragEnterEvent(QDragEnterEvent *event)

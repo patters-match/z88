@@ -32,6 +32,7 @@
 class Z88_Selection;
 class DeskTop_Selection;
 class MainWindow;
+class ActionRule;
 
 /**
   * The Communicatons Thread class to allow background I/O with the Z88.
@@ -207,6 +208,8 @@ protected:
     comOpcodes_t _getDirectories(const QString &devname);
     comOpcodes_t _getFileNames(const QString &devname);
     bool _getDevInfo(const QString &devname);
+
+    void merge_relFspec(const QString &fname, const QString &relFspec, QString &result);
 
     enum devnfo {
         dev_free,
