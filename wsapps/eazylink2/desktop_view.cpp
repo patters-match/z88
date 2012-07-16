@@ -21,10 +21,13 @@
 #include <QInputDialog>
 #include <QDragEnterEvent>
 #include <QUrl>
+#include <QProcess>
 
 #include "mainwindow.h"
 #include "desktop_view.h"
 #include "z88_devview.h"
+#include "actionsettings.h"
+
 
 /**
   * DeskTop Selection Constructor
@@ -533,8 +536,24 @@ void Desktop_View::ActionsMenuSel(QAction *act)
 
 void Desktop_View::ItemDoubleClicked(const QModelIndex &index)
 {
+    QString cmdline;
+
     if(!m_DeskFileSystem->isDir(index)){
-        emit Trigger_Transfer();
+
+        /**
+          * Execute an External app, or just transfer the file.
+          */
+        const ActionRule *arule = m_pref_dlg->execActions(Action_Settings::ActKey_DBLCLK_HOSTFILE,
+                                                          m_DeskFileSystem->filePath(index),
+                                                          cmdline);
+
+        if(!arule){
+            return;
+        }
+
+        if(arule->m_RuleID == ActionRule::TRANSFER_FILE){
+            emit Trigger_Transfer();
+        }
     }
 }
 

@@ -76,7 +76,7 @@ MainWindow::MainWindow(Z88SerialPort &sport, QWidget *parent) :
     /**
       * Create the Z88 Storage Device Tab View Object
       */
-    m_Z88StorageView = new Z88StorageViewer(m_cthread, this);
+    m_Z88StorageView = new Z88StorageViewer(m_cthread, m_prefsDialog, this);
     ui->Ui::MainWindow::Z88Layout->addWidget(m_Z88StorageView);
 
     /**
@@ -174,6 +174,8 @@ void MainWindow::Drop_Requested(QList<Z88_Selection> *z88_dest, QList<QUrl> *url
     if(!z88_dest || !urlList){
         return;
     }
+
+    cmdStatus("Reading Dropped Files...");
 
     quint32 sel_bytes = 0;
 

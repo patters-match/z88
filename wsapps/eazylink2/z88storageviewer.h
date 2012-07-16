@@ -24,6 +24,8 @@
 
 #include "z88_devview.h"
 
+#include "prefrences_dlg.h"
+
 class MainWindow;
 
 static const int DEVCNT = 8;
@@ -38,7 +40,7 @@ class Z88StorageViewer : public QTabWidget
     Q_OBJECT
 public:
 
-    explicit Z88StorageViewer(CommThread &com_thread, MainWindow *parent = 0);
+    explicit Z88StorageViewer(CommThread &com_thread, Prefrences_dlg *pref_dlg, MainWindow *parent = 0);
     
     bool getFileTree(bool ena_fs = false, bool ena_ts = false);
     int appendUniqueFile(const Z88FileSpec &filespec, Z88_DevView::entryType d_type);
@@ -115,6 +117,7 @@ protected:
     CommThread  &m_cthread;
 
     MainWindow *m_mainWindow;
+    Prefrences_dlg *m_pref_dlg;
 
     QMenu      *m_qmenu;
     QAction    *m_actionRename;

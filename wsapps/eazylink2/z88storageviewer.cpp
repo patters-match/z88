@@ -22,6 +22,7 @@
 #include<QUrl>
 
 #include "mainwindow.h"
+#include "actionsettings.h"
 #include "z88storageviewer.h"
 
 /**
@@ -29,10 +30,11 @@
   * @parm com_thread is the communications thread to use for I/O
   * @param parent is the owning QWidget class.
   */
-Z88StorageViewer::Z88StorageViewer(CommThread &com_thread, MainWindow *parent) :
+Z88StorageViewer::Z88StorageViewer(CommThread &com_thread, Prefrences_dlg *pref_dlg, MainWindow *parent) :
     QTabWidget(parent),
     m_cthread(com_thread),
     m_mainWindow(parent),
+    m_pref_dlg(pref_dlg),
     m_qmenu(new QMenu(parent))
 {
     memset(&m_Ramdevices[0], 0, sizeof(m_Ramdevices));
@@ -633,8 +635,18 @@ void Z88StorageViewer::itemDblClicked(QTreeWidgetItem *item, int )
     if(item){
         changedSelected_file();
 
+        /**
+          * If Clicked on Non Directory
+          */
         if(!item->childCount()){
-            emit Trigger_Transfer();
+            QString cmdline;
+            const ActionRule *arule = m_pref_dlg->findActionRule(Action_Settings::ActKey_DBLCLK_Z88FILE,
+                                                                 item->text(0),
+                                                                 cmdline);
+
+            if(arule->m_RuleID != ActionRule::IGNORE){
+                emit Trigger_Transfer();
+            }
         }
     }
 }
