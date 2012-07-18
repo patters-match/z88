@@ -589,7 +589,7 @@ void MainWindow::AboutEazylink()
 {
     QString msg("EazyLink2");
     msg += " - " + QCoreApplication::applicationVersion();
-    msg += "\r\nApril-June 2012";
+    msg += "\r\nApril-July 2012";
     msg += "\r\n(C) Gunther Strube & Oscar Ernohazy";
 
     QMessageBox::about(this, tr("EazyLink II"), msg);
