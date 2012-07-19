@@ -2,6 +2,7 @@
     <shortName>eazylink2</shortName>
     <fullName>EazyLink</fullName>
     <version>1.0-BETA1</version>
+    <readmeFile>readme-windows.txt</readmeFile>
     <licenseFile>../../../gpl-2.0.txt</licenseFile>
     <leftImage>z88-rs232-leftside.png</leftImage>
     <logoImage>cambridge-logo.png</logoImage>
@@ -82,6 +83,9 @@
                         </distributionFile>
                         <distributionFile>
                             <origin>z88-shortcut.ico</origin>
+                        </distributionFile>
+                        <distributionFile>
+                            <origin>readme-windows.txt</origin>
                         </distributionFile>
                     </distributionFileList>
                 </folder>
