@@ -2,6 +2,7 @@
     <shortName>eazylink2</shortName>
     <fullName>EazyLink</fullName>
     <version>1.0-BETA1</version>
+    <readmeFile>/home/gbs/z88/wsapps/eazylink2/installer/readme-linux.txt</readmeFile>
     <licenseFile>/home/gbs/z88/gpl-2.0.txt</licenseFile>
     <leftImage>/home/gbs/z88/wsapps/eazylink2/installer/z88-rs232-leftside.png</leftImage>
     <logoImage>/home/gbs/z88/wsapps/eazylink2/installer/cambridge-logo.png</logoImage>
@@ -97,6 +98,9 @@
                         </distributionFile>
                         <distributionFile>
                             <origin>/lib/i386-linux-gnu/librt-2.15.so</origin>
+                        </distributionFile>
+                        <distributionFile>
+                            <origin>/home/gbs/z88/wsapps/eazylink2/installer/readme-linux.txt</origin>
                         </distributionFile>
                     </distributionFileList>
                 </folder>
