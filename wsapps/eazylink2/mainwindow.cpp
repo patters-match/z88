@@ -471,30 +471,44 @@ void MainWindow::AbortCmd()
 void MainWindow::ImpExp_sendfile()
 {
     QString HelpMsg;
-    HelpMsg += "1) Please make sure you have the following Z88 Settings:";
-    HelpMsg += " Baud = 9600 and ";
-    HelpMsg += " Parity = NONE. -- (Press []S on the Z88 to enter Panel). ";
+    QTextStream hmsg(&HelpMsg);
 
-    m_ImpExp_sendErrMsg.showMessage(HelpMsg, "IMPEXP_Send");
+    hmsg << "Z88 Setup Instructions:" << endl;
+    hmsg << "-=-=-=-=-=-==-=-=-=-=-=-" << endl;
+    hmsg << "1) Verify Port settings:" << endl;
+    hmsg << "-=-=-=-=-=-==-=-=-=-=-=-" << endl;
+    hmsg << "    Select the Panel []S" << endl;
+    hmsg << "    Check the following default settings:" << endl;
+    hmsg << "      Transmit baud rate 9600" << endl;
+    hmsg << "      Receive baud rate 9600" << endl;
+    hmsg << "      Parity None" << endl;
+    hmsg << "      Xon/Xoff Yes" << endl << endl;
+    hmsg << "If correct, exit Panel using the ESC key." << endl;
+    hmsg << "If they are different, correct them:" << endl
+         << "Using the arrow keys move the cursor over the wrong "
+            "setting, then use <>J to toggle the values until the correct "
+            "value is displayed." << endl;
+    hmsg << "When all the values are correct, press the ENTER key to update them. "
+            "Pressing the ESC key to exit will abandon changes." << endl << endl;
 
-    HelpMsg = "2) On the Z88, Launch the Imp-Export Popdown -- (Press []X)  ";
-    m_ImpExp_sendErrMsg.showMessage(HelpMsg, "IMPEXP_Send");
+    hmsg << "-=-=-=-=-=-==-=-=-=-=-=-" << endl;
+    hmsg << "2) Launch Imp-Export Pulldown []X" << endl;
+    hmsg << "-=-=-=-=-=-==-=-=-=-=-=-" << endl;
+    hmsg << "3) Select (B)atch Receive by pressing b and then the Enter key." << endl;
+    hmsg << "-=-=-=-=-=-==-=-=-=-=-=-" << endl;
 
-    HelpMsg = "3) On the Z88 Imp-Export Popdown, Select option 'b' and press 'Enter'.";
-    m_ImpExp_sendErrMsg.showMessage(HelpMsg, "IMPEXP_Send");
+    QMessageBox msgBox(this);
+    msgBox.setIcon(QMessageBox::Question);
+    msgBox.setText("Send to Z88 using Imp-Export Pulldown.");
+    msgBox.setInformativeText("Is Z88 ready? (Click Details for help)");
 
-    HelpMsg = "4) On the Desktop, select files to Send to the Z88.";
-    m_ImpExp_sendErrMsg.showMessage(HelpMsg, "IMPEXP_Send");
+    msgBox.setDetailedText(HelpMsg);
+    msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+    msgBox.setDefaultButton(QMessageBox::Yes);
+    int rc = msgBox.exec();
 
-    if(m_ImpExp_sendErrMsg.isVisible()){
-        QFont qfont;
-        qfont.setStyleHint(QFont::Courier);
-        qfont.setBold(true);
-        m_ImpExp_sendErrMsg.setFont(qfont);
-
-        m_ImpExp_sendErrMsg.setWindowTitle("Imp-Export Help.");
-        m_ImpExp_sendErrMsg.setMinimumSize(500,200);
-        m_ImpExp_sendErrMsg.exec();
+    if(rc == QMessageBox::No ){
+        return;
     }
 
     QFileDialog dialog(this);
@@ -528,37 +542,12 @@ void MainWindow::ImpExp_sendfile()
   */
 void MainWindow::ImpExp_receivefiles()
 {
-    QString HelpMsg;
-    HelpMsg += "1) Please make sure you have the following Z88 Settings:";
-    HelpMsg += " Baud = 9600 and ";
-    HelpMsg += " Parity = NONE. -- (Press []S on the Z88 to enter Panel). ";
-
-    m_ImpExp_recvErrMsg.showMessage(HelpMsg, "IMPEXP_Rx");
-
-    HelpMsg = "2) On the Z88, Launch the Imp-Export Popdown -- (Press []X)  ";
-    m_ImpExp_recvErrMsg.showMessage(HelpMsg, "IMPEXP_Rx");
-
-    HelpMsg = "3) On the Desktop, select Subdirectory to receive Z88 Files.";
-    m_ImpExp_recvErrMsg.showMessage(HelpMsg, "IMPEXP_Rx");
-
-    HelpMsg = "4) On the Z88 Imp-Export Popdown, Select option 's' and press 'Enter'.";
-    HelpMsg += "Then Enter the Filename";
-    m_ImpExp_recvErrMsg.showMessage(HelpMsg, "IMPEXP_Rx");
-
-    if(m_ImpExp_recvErrMsg.isVisible()){
-        QFont qfont;
-        qfont.setStyleHint(QFont::Courier);
-        qfont.setBold(true);
-        m_ImpExp_recvErrMsg.setFont(qfont);
-
-        m_ImpExp_recvErrMsg.setWindowTitle("Imp-Export Help.");
-        m_ImpExp_recvErrMsg.setMinimumSize(500,200);
-        m_ImpExp_recvErrMsg.exec();
-    }
 
     QFileDialog dialog(this);
     dialog.setFileMode(QFileDialog::Directory);
     dialog.setViewMode(QFileDialog::List);
+    dialog.setToolTip("Select the Desktop directory to receive file.");
+    dialog.setWindowTitle("Select Receive Directory...");
 
     QStringList src_fileNames;
 
@@ -576,6 +565,53 @@ void MainWindow::ImpExp_receivefiles()
 
     if(dialog.exec()){
          src_fileNames = dialog.selectedFiles();
+
+
+         QString HelpMsg;
+         QTextStream hmsg(&HelpMsg);
+
+         hmsg << "Z88 Setup Instructions:" << endl;
+         hmsg << "-=-=-=-=-=-==-=-=-=-=-=-" << endl << endl;
+         hmsg << "1) Verify Port settings:" << endl;
+         hmsg << "-=-=-=-=-=-==-=-=-=-=-=-" << endl;
+         hmsg << "    Select the Panel []S" << endl;
+         hmsg << "    Check the following default settings:" << endl;
+         hmsg << "      Transmit baud rate 9600" << endl;
+         hmsg << "      Receive baud rate 9600" << endl;
+         hmsg << "      Parity None" << endl;
+         hmsg << "      Xon/Xoff Yes" << endl << endl;
+         hmsg << "If correct, exit Panel using the ESC key." << endl;
+         hmsg << "If they are different, correct them:" << endl
+              << "Using the arrow keys move the cursor over the wrong "
+                 "setting, then use <>J to toggle the values until the correct "
+                 "value is displayed." << endl;
+         hmsg << "When all the values are correct, press the ENTER key to update them. "
+                 "Pressing the ESC key to exit will abandon changes." << endl;
+
+         hmsg << "-=-=-=-=-=-==-=-=-=-=-=-" << endl;
+         hmsg << "2) Launch Imp-Export Pulldown []X" << endl;
+         hmsg << "-=-=-=-=-=-==-=-=-=-=-=-" << endl;
+         hmsg << "3) On Z88, select (S)end by pressing s and then the Enter key." << endl;
+         hmsg << "-=-=-=-=-=-==-=-=-=-=-=-" << endl;
+         hmsg << "4) Enter the filename to transfer, and press the Enter key." << endl;
+         hmsg << "-=-=-=-=-=-==-=-=-=-=-=-" << endl;
+         hmsg << "5) (E)nd batch by pressing e, or repeat step 3 for next file." << endl;
+         hmsg << "-=-=-=-=-=-==-=-=-=-=-=-" << endl;
+
+         QMessageBox msgBox(this);
+         msgBox.setIcon(QMessageBox::Question);
+         msgBox.setText("Receive from Z88 using Imp-Export Pulldown.");
+         msgBox.setInformativeText("Click Ok before starting Z88 send. (Click Details for help)");
+
+         msgBox.setDetailedText(HelpMsg);
+         msgBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
+         msgBox.setDefaultButton(QMessageBox::Yes);
+         int rc = msgBox.exec();
+
+         if(rc == QMessageBox::Cancel ){
+             return;
+         }
+
          StartImpExpReceive(src_fileNames.first());
     }
 }

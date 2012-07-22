@@ -183,12 +183,6 @@ private:
 
     bool m_isTransfer;
 
-    /**
-      * Error Message / Help Display Dialogs.
-      */
-    QErrorMessage m_ImpExp_sendErrMsg;
-    QErrorMessage m_ImpExp_recvErrMsg;
-
     QString m_conf_Fspec;
 
     /**
