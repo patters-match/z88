@@ -1,0 +1,227 @@
+<project>
+    <shortName>eazylink2</shortName>
+    <fullName>EazyLink</fullName>
+    <version>1.0-BETA1</version>
+    <readmeFile>/home/gbs/z88/wsapps/eazylink2/installer/readme-linux.txt</readmeFile>
+    <licenseFile>/home/gbs/z88/gpl-2.0.txt</licenseFile>
+    <leftImage>/home/gbs/z88/wsapps/eazylink2/installer/z88-rs232-leftside.png</leftImage>
+    <logoImage>/home/gbs/z88/wsapps/eazylink2/installer/cambridge-logo.png</logoImage>
+    <splashImage>/home/gbs/z88/wsapps/eazylink2/installer/z88splash.png</splashImage>
+    <allowLanguageSelection>1</allowLanguageSelection>
+    <componentList>
+        <component>
+            <name>default</name>
+            <description>Default Component</description>
+            <canBeEdited>1</canBeEdited>
+            <selected>1</selected>
+            <show>1</show>
+            <desktopShortcutList>
+                <shortcut>
+                    <comment>Easy file transfer to the Cambridge Z88 from your Desktop</comment>
+                    <exec>${installdir}/eazylink2.sh</exec>
+                    <icon>${installdir}/z88-shortcut.png</icon>
+                    <name>EazyLink 2</name>
+                    <path></path>
+                    <platforms>all</platforms>
+                    <runAsAdmin>0</runAsAdmin>
+                    <runInTerminal>0</runInTerminal>
+                    <windowsExec></windowsExec>
+                    <windowsExecArgs></windowsExecArgs>
+                    <windowsIcon></windowsIcon>
+                    <windowsPath></windowsPath>
+                </shortcut>
+            </desktopShortcutList>
+            <folderList>
+                <folder>
+                    <description>Program Files</description>
+                    <destination>${installdir}</destination>
+                    <name>programfiles</name>
+                    <platforms>all</platforms>
+                    <shortcutList>
+                        <shortcut>
+                            <comment>Uninstall</comment>
+                            <exec>${installdir}/${uninstallerName}</exec>
+                            <icon></icon>
+                            <name>Uninstall ${product_fullname}</name>
+                            <path>${installdir}</path>
+                            <platforms>all</platforms>
+                            <runAsAdmin>0</runAsAdmin>
+                            <runInTerminal>0</runInTerminal>
+                            <windowsExec>${installdir}/${uninstallerName}.exe</windowsExec>
+                            <windowsExecArgs></windowsExecArgs>
+                            <windowsIcon></windowsIcon>
+                            <windowsPath>${installdir}</windowsPath>
+                        </shortcut>
+                    </shortcutList>
+                </folder>
+                <folder>
+                    <description>Program Files</description>
+                    <destination>${installdir}</destination>
+                    <name>programfileslinux</name>
+                    <platforms>linux</platforms>
+                    <distributionFileList>
+                        <distributionFile>
+                            <origin>/home/gbs/z88/wsapps/eazylink2/installer/linux/eazylink2.sh</origin>
+                        </distributionFile>
+                        <distributionFile>
+                            <origin>/home/gbs/z88/wsapps/eazylink2/eazylink2</origin>
+                        </distributionFile>
+                        <distributionFile>
+                            <origin>/home/gbs/z88/wsapps/eazylink2/installer/z88-shortcut.png</origin>
+                        </distributionFile>
+                        <distributionFile>
+                            <origin>/home/gbs/bin/QtSDK/Desktop/Qt/4.8.1/gcc/lib/libQtCore.so.4.8.1</origin>
+                        </distributionFile>
+                        <distributionFile>
+                            <origin>/home/gbs/bin/QtSDK/Desktop/Qt/4.8.1/gcc/lib/libQtGui.so.4.8.1</origin>
+                        </distributionFile>
+                        <distributionFile>
+                            <origin>/usr/lib/i386-linux-gnu/libstdc++.so.6.0.16</origin>
+                        </distributionFile>
+                        <distributionFile>
+                            <origin>/lib/i386-linux-gnu/libc-2.15.so</origin>
+                        </distributionFile>
+                        <distributionFile>
+                            <origin>/home/gbs/bin/QtSDK/Desktop/Qt/4.8.1/gcc/lib/libQtDBus.so.4.8.1</origin>
+                        </distributionFile>
+                        <distributionFile>
+                            <origin>/home/gbs/bin/QtSDK/Desktop/Qt/4.8.1/gcc/lib/libQtXml.so.4.8.1</origin>
+                        </distributionFile>
+                        <distributionFile>
+                            <origin>/lib/i386-linux-gnu/libm-2.15.so</origin>
+                        </distributionFile>
+                        <distributionFile>
+                            <origin>/lib/i386-linux-gnu/libgcc_s.so.1</origin>
+                        </distributionFile>
+                        <distributionFile>
+                            <origin>/lib/i386-linux-gnu/libpthread-2.15.so</origin>
+                        </distributionFile>
+                        <distributionFile>
+                            <origin>/lib/i386-linux-gnu/librt-2.15.so</origin>
+                        </distributionFile>
+                        <distributionFile>
+                            <origin>/home/gbs/z88/wsapps/eazylink2/installer/readme-linux.txt</origin>
+                        </distributionFile>
+                    </distributionFileList>
+                </folder>
+                <folder>
+                    <description>Program Files</description>
+                    <destination>${installdir}</destination>
+                    <name>programfileswindows</name>
+                    <platforms>windows</platforms>
+                </folder>
+                <folder>
+                    <description>Program Files</description>
+                    <destination>${installdir}</destination>
+                    <name>programfilesosx</name>
+                    <platforms>osx</platforms>
+                </folder>
+            </folderList>
+            <startMenuShortcutList>
+                <startMenuShortcut>
+                    <comment>Uninstall ${product_fullname}</comment>
+                    <name>Uninstall ${product_fullname}</name>
+                    <runAsAdmin>0</runAsAdmin>
+                    <runInTerminal>0</runInTerminal>
+                    <windowsExec>${installdir}/${uninstallerName}.exe</windowsExec>
+                    <windowsExecArgs></windowsExecArgs>
+                    <windowsIcon></windowsIcon>
+                    <windowsPath>${installdir}/</windowsPath>
+                </startMenuShortcut>
+            </startMenuShortcutList>
+        </component>
+    </componentList>
+    <postInstallationActionList>
+        <renameFile>
+            <destination>${installdir}/libQtCore.so.4</destination>
+            <origin>${installdir}/libQtCore.so.4.8.1</origin>
+        </renameFile>
+        <renameFile>
+            <destination>${installdir}/libQtGui.so.4</destination>
+            <origin>${installdir}/libQtGui.so.4.8.1</origin>
+        </renameFile>
+        <renameFile>
+            <destination>${installdir}/libstdc++.so.6</destination>
+            <origin>${installdir}/libstdc++.so.6.0.16</origin>
+        </renameFile>
+        <renameFile>
+            <destination>${installdir}/libc.so.6</destination>
+            <origin>${installdir}/libc-2.15.so</origin>
+        </renameFile>
+        <renameFile>
+            <destination>${installdir}/libQtDBus.so.4</destination>
+            <origin>${installdir}/libQtDBus.so.4.8.1</origin>
+        </renameFile>
+        <renameFile>
+            <destination>${installdir}/libQtXml.so.4</destination>
+            <origin>${installdir}/libQtXml.so.4.8.1</origin>
+        </renameFile>
+        <renameFile>
+            <destination>${installdir}/libm.so.6</destination>
+            <origin>${installdir}/libm-2.15.so</origin>
+        </renameFile>
+        <renameFile>
+            <destination>${installdir}/libpthread.so.0</destination>
+            <origin>${installdir}/libpthread-2.15.so</origin>
+        </renameFile>
+        <renameFile>
+            <destination>${installdir}/librt.so.1</destination>
+            <origin>${installdir}/librt-2.15.so</origin>
+        </renameFile>
+        <actionGroup>
+            <actionList>
+                <throwError text="Unable to add &quot;${system_username}&quot; to &quot;dialout&quot; group; please make sure gksu/kdesu is in path">
+                    <ruleList>
+                        <programTest condition="is_not_in_path" name="gksu"/>
+                        <programTest condition="is_not_in_path" name="kdesu"/>
+                    </ruleList>
+                </throwError>
+                <runProgram program="gksu" programArguments="&quot;usermod -a -G dialout ${system_username}&quot;">
+                    <ruleList>
+                        <programTest condition="is_in_path" name="gksu"/>
+                    </ruleList>
+                </runProgram>
+                <runProgram program="kdesu" programArguments="-c &quot;usermod -a -G dialout ${system_username}&quot;">
+                    <ruleList>
+                        <programTest condition="is_not_in_path" name="gksu"/>
+                        <programTest condition="is_in_path" name="kdesu"/>
+                    </ruleList>
+                </runProgram>
+            </actionList>
+            <ruleList>
+                <isFalse value="${installer_is_root_install}"/>
+            </ruleList>
+        </actionGroup>
+    </postInstallationActionList>
+    <compressionAlgorithm>lzma</compressionAlgorithm>
+    <enableRollback>1</enableRollback>
+    <enableTimestamp>1</enableTimestamp>
+    <vendor>cambridgez88.jira.com</vendor>
+    <parameterList>
+        <directoryParameter>
+            <name>installdir</name>
+            <description>Installer.Parameter.installdir.description</description>
+            <explanation>Installer.Parameter.installdir.explanation</explanation>
+            <value></value>
+            <default>${platform_install_prefix}/${product_shortname}-${product_version}</default>
+            <allowEmptyValue>0</allowEmptyValue>
+            <ask>yes</ask>
+            <cliOptionName>prefix</cliOptionName>
+            <mustBeWritable>yes</mustBeWritable>
+            <mustExist>0</mustExist>
+            <width>30</width>
+        </directoryParameter>
+    </parameterList>
+    <platformOptionsList>
+        <platformOptions>
+            <platform>deb</platform>
+        </platformOptions>
+        <platformOptions>
+            <platform>linux</platform>
+        </platformOptions>
+        <platformOptions>
+            <platform>rpm</platform>
+        </platformOptions>
+    </platformOptionsList>
+</project>
+

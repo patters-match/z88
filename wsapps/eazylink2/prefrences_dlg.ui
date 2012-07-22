@@ -53,10 +53,10 @@
        <item row="3" column="0">
         <widget class="QCheckBox" name="ezQuit_cbox">
          <property name="toolTip">
-          <string>Quit the Z88 Eazylink pull-down when quitting the Eazylink Client.</string>
+          <string>Quit the Z88 Eazylink popdown when quitting the Eazylink Client.</string>
          </property>
          <property name="text">
-          <string>Shutdown Z88 Eazylink pull-down on exit.</string>
+          <string>Shutdown Z88 Eazylink popdown on exit.</string>
          </property>
          <property name="checked">
           <bool>true</bool>
