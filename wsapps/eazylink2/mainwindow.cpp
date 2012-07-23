@@ -229,10 +229,10 @@ void MainWindow::createActions()
     ui->Ui::MainWindow::actionEazyLink_Hello->setStatusTip(tr("Send HelloZ88"));
     connect(ui->Ui::MainWindow::actionEazyLink_Hello, SIGNAL(triggered()), this, SLOT(helloZ88()));
 
-    ui->Ui::MainWindow::actionSend_files_to_Z88ImpExport->setStatusTip(tr("Send files to Z88 using the Imp-Export Pulldown"));
+    ui->Ui::MainWindow::actionSend_files_to_Z88ImpExport->setStatusTip(tr("Send files to Z88 using the Imp-Export Popdown"));
     connect(ui->Ui::MainWindow::actionSend_files_to_Z88ImpExport, SIGNAL(triggered()), this, SLOT(ImpExp_sendfile()));
 
-    ui->Ui::MainWindow::actionReceive_files_from_Z88_Imp_Export_popdown->setStatusTip(tr("Send files to Z88 using the Imp-Export Pulldown"));
+    ui->Ui::MainWindow::actionReceive_files_from_Z88_Imp_Export_popdown->setStatusTip(tr("Send files to Z88 using the Imp-Export Popdown"));
     connect(ui->Ui::MainWindow::actionReceive_files_from_Z88_Imp_Export_popdown, SIGNAL(triggered()), this, SLOT(ImpExp_receivefiles()));
 
     ui->Ui::MainWindow::actionHello->setStatusTip(tr("Send HelloZ88"));
@@ -466,7 +466,7 @@ void MainWindow::AbortCmd()
 }
 
 /**
-  * Send a file to the Z88 using the Imp-Exp pulldown app protocol.
+  * Send a file to the Z88 using the Imp-Exp Popdown app protocol.
   */
 void MainWindow::ImpExp_sendfile()
 {
@@ -492,14 +492,14 @@ void MainWindow::ImpExp_sendfile()
             "Pressing the ESC key to exit will abandon changes." << endl << endl;
 
     hmsg << "-=-=-=-=-=-==-=-=-=-=-=-" << endl;
-    hmsg << "2) Launch Imp-Export Pulldown []X" << endl;
+    hmsg << "2) Launch Imp-Export Popdown []X" << endl;
     hmsg << "-=-=-=-=-=-==-=-=-=-=-=-" << endl;
     hmsg << "3) Select (B)atch Receive by pressing b and then the Enter key." << endl;
     hmsg << "-=-=-=-=-=-==-=-=-=-=-=-" << endl;
 
     QMessageBox msgBox(this);
     msgBox.setIcon(QMessageBox::Question);
-    msgBox.setText("Send to Z88 using Imp-Export Pulldown.");
+    msgBox.setText("Send to Z88 using Imp-Export Popdown.");
     msgBox.setInformativeText("Is Z88 ready? (Click Details for help)");
 
     msgBox.setDetailedText(HelpMsg);
@@ -589,7 +589,7 @@ void MainWindow::ImpExp_receivefiles()
                  "Pressing the ESC key to exit will abandon changes." << endl;
 
          hmsg << "-=-=-=-=-=-==-=-=-=-=-=-" << endl;
-         hmsg << "2) Launch Imp-Export Pulldown []X" << endl;
+         hmsg << "2) Launch Imp-Export Popdown []X" << endl;
          hmsg << "-=-=-=-=-=-==-=-=-=-=-=-" << endl;
          hmsg << "3) On Z88, select (S)end by pressing s and then the Enter key." << endl;
          hmsg << "-=-=-=-=-=-==-=-=-=-=-=-" << endl;
@@ -600,8 +600,8 @@ void MainWindow::ImpExp_receivefiles()
 
          QMessageBox msgBox(this);
          msgBox.setIcon(QMessageBox::Question);
-         msgBox.setText("Receive from Z88 using Imp-Export Pulldown.");
-         msgBox.setInformativeText("Click Ok before starting Z88 send. (Click Details for help)");
+         msgBox.setText("Receive from Z88 using Imp-Export Popdown.");
+         msgBox.setInformativeText("Click OK before starting Z88 send. (Click Details for help)");
 
          msgBox.setDetailedText(HelpMsg);
          msgBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
