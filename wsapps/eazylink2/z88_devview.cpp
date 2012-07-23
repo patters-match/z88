@@ -104,10 +104,10 @@ Z88_DevView::Z88_DevView(const QString devname, CommThread &com_thread, Z88Stora
     setHeaderLabels(hdrList);
     setSortingEnabled (true);
     sortItems(0, Qt::AscendingOrder);
-    setColumnWidth(0,200);
+    setColumnWidth(0,207);
     setColumnWidth(1,68);
-    setColumnWidth(2,163);
-    setColumnWidth(3,163);
+    setColumnWidth(2,148);
+    setColumnWidth(3,148);
 
     setAcceptDrops(true);
     setAutoExpandDelay(600);

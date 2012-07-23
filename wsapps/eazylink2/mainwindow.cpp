@@ -816,7 +816,7 @@ void MainWindow::boolCmd_result(const QString &cmdName, bool success)
         if(!m_cmdSuccessCount){
             msg += "Please check the serial connection, and make sure EasyLink is running on the Z88.\r\n";
         }
-        msg += "Click \'retry\' to reset comm-link & try again.";
+        msg += "Click \'retry\' to reset communication link & try again.";
 
         QMessageBox::StandardButton reply;
 

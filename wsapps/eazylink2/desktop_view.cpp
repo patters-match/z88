@@ -22,6 +22,7 @@
 #include <QDragEnterEvent>
 #include <QUrl>
 #include <QProcess>
+#include <QLocale>
 
 #include "mainwindow.h"
 #include "desktop_view.h"
@@ -71,7 +72,11 @@ Desktop_View::Desktop_View(CommThread &cthread, Prefrences_dlg *pref_dlg, MainWi
 
     m_DeskFileSystem->setResolveSymlinks(true);
 
+    setMouseTracking(true);
+
     connect(this, SIGNAL(clicked(const QModelIndex &)), this, SLOT(ItemSelectionChanged(const QModelIndex &)));
+    connect(this, SIGNAL(entered(const QModelIndex &)), this, SLOT(ItemEntered(const QModelIndex &)));
+
 
     connect(m_DeskFileSystem, SIGNAL(directoryLoaded(QString)), this, SLOT(DirLoaded(QString)));
 
@@ -557,6 +562,25 @@ void Desktop_View::ItemDoubleClicked(const QModelIndex &index)
     }
 }
 
+/**
+  * Event to handle a mouse over of an Item.
+  */
+void Desktop_View::ItemEntered(const QModelIndex &itm)
+{
+    QLocale loc(QLocale::system());
+    QString msg;
+    QTextStream bstr(&msg);
+
+    /**
+      * If the Item is not a directory then display it's size as a tool tip
+      */
+    if(itm.isValid() && ! m_DeskFileSystem->isDir((itm))){
+        bstr << m_DeskFileSystem->fileName(itm) << " (" << loc.toString(m_DeskFileSystem->size(itm)) << " bytes.)";
+    }
+
+    setToolTip(msg);
+}
+
 void Desktop_View::dragEnterEvent(QDragEnterEvent *event)
 {
     if(event->source() == this){
@@ -976,7 +1000,7 @@ bool Desktop_View::selectPath(const QString &path)
   * @param ev is the event that occured.
   * @return false.
   */
-bool Desktop_View::eventFilter(QObject *, QEvent *ev)
+bool Desktop_View::eventFilter(QObject *ob, QEvent *ev)
 {
     /**
       * Handle Right Click Context Menu
@@ -1005,6 +1029,24 @@ bool Desktop_View::eventFilter(QObject *, QEvent *ev)
 
         m_qmenu->exec(QCursor::pos());
 
+    }
+    if(0 && ev->type() == 110) {
+
+        const QModelIndexList &Selections(selectedIndexes());
+
+        if(Selections.count()){
+            QString bstr;
+            QTextStream msg(&bstr);
+
+            const QModelIndex itm = Selections.first();
+
+            if(itm.isValid() && !m_DeskFileSystem->isDir(itm)){
+                QLocale loc(QLocale::system());
+                msg << loc.toString(m_DeskFileSystem->size(itm)) << " bytes.";
+            }
+
+            setToolTip(bstr);
+        }
     }
 
     /**

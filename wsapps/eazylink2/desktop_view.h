@@ -71,6 +71,8 @@ private slots:
     void DirLoaded(const QString &);
     void ActionsMenuSel(QAction * act);
     void ItemDoubleClicked(const QModelIndex & index);
+    void ItemEntered(const QModelIndex & itm);
+
 
 protected:
 
@@ -82,7 +84,7 @@ protected:
     /**
       * The GUI Event handler. handles mouse in/out etc.
       */
-    bool eventFilter(QObject *, QEvent *ev);
+    bool eventFilter(QObject * , QEvent *ev);
 
     /**
       * Internal, create a sub-directory on Desktop method.

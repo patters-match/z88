@@ -17,6 +17,7 @@
 
 #include <qdebug.h>
 #include <QListIterator>
+#include <QDate>
 
 #include "mainwindow.h"
 #include "commthread.h"
@@ -286,9 +287,9 @@ void CommThread::run()
                   */
                 if(m_enaFilesize){
                     QString msg = QString("[%1] Reading File Size: (%2 of %3)").arg(fname.mid(0,6)).arg(idx).arg(count);
-
                     cmdStatus(msg);
-                    fsize = m_sport.getFileSize(fname);
+                    /* Format the Size to a nicely formated integer */
+                    fsize = QLocale(QLocale::system()).toString(m_sport.getFileSize(fname).toLongLong());
                 }
 
                 /**
@@ -302,8 +303,39 @@ void CommThread::run()
 
                     QList<QByteArray> fileTD(m_sport.getFileDateStamps(fname));
                     if(fileTD.count() == 2){
-                        fcdate = fileTD[0];
-                        fmdate = fileTD[1];
+                        QDate qdt;
+                        QTime qtm;
+
+                        /**
+                          * Convert the Eazylink date format to local format.
+                          */
+                        qdt = QDate::fromString(fileTD[0].mid(0,10), "dd/MM/yyyy");
+                        qtm = QTime::fromString(fileTD[0].mid(11), "hh:mm:ss");
+
+                        if(qdt.isValid()){
+                            fcdate = QLocale(QLocale::system()).toString(qdt, QLocale::ShortFormat);
+
+                            if(qtm.isValid()){
+                                fcdate += " " + QLocale(QLocale::system()).toString(qtm, QLocale::ShortFormat);
+                            }
+                        }
+                        else{
+                            fcdate = fileTD[0];
+                        }
+
+                        qdt = QDate::fromString(fileTD[1].mid(0,10), "dd/MM/yyyy");
+                        qtm = QTime::fromString(fileTD[1].mid(11), "hh:mm:ss");
+
+                        if(qdt.isValid()){
+                            fmdate = QLocale(QLocale::system()).toString(qdt, QLocale::ShortFormat);
+
+                            if(qtm.isValid()){
+                                fmdate += " " + QLocale(QLocale::system()).toString(qtm, QLocale::ShortFormat);
+                            }
+                        }
+                        else{
+                            fmdate = fileTD[1];
+                        }
                     }
                 }
 
