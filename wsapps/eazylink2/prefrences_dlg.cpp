@@ -424,6 +424,16 @@ void Prefrences_dlg::Init_Actions()
     def_data.append(Action_Settings::DEFAULT_FILESPEC_ARGS);         // args
     defaults.append(def_data);
 
+    /**
+      * Defaults for ZIP files
+      */
+    def_data.clear();
+    def_data.append("*");        // Filename
+    def_data.append("zip");      // ext
+    def_data.append(avl3[3]);    // action Receive Binary
+    def_data.append(Action_Settings::DEFAULT_FILESPEC_ARGS);         // args
+    defaults.append(def_data);
+
     /*
       * Defaults for All other files
       */
@@ -458,6 +468,16 @@ void Prefrences_dlg::Init_Actions()
     def_data.append("*");        // Filename
     def_data.append("txt");      // ext
     def_data.append(avl4[1]);    // action  Convert Line Feeds for txt files
+    def_data.append(Action_Settings::DEFAULT_Z88_DESTSPEC);         // args
+    defaults.append(def_data);
+
+    /**
+      * Defaults for ZIP files
+      */
+    def_data.clear();
+    def_data.append("*");        // Filename
+    def_data.append("zip");      // ext
+    def_data.append(avl4[2]);    // action Send Binary
     def_data.append(Action_Settings::DEFAULT_Z88_DESTSPEC);         // args
     defaults.append(def_data);
 
