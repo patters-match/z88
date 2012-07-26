@@ -4,3 +4,6 @@
 [submodule "oz"]
 	path = oz
 	url = https://bitbucket.org/cambridge/oz.git
+[submodule "tools/mpm"]
+	path = tools/mpm
+	url = https://bitbucket.org/cambridge/mpm.git
