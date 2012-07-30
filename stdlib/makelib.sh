@@ -2,7 +2,7 @@
 
 # *************************************************************************************
 # Z88 Standard Library Makefile for Unix/Linux
-# (C) Gunther Strube (gbs@users.sf.net) 1991-2005
+# (C) Gunther Strube (gstrube@gmail.com) 1991-2012
 #
 # This is free software; you can redistribute it and/or modify it under the terms of the
 # GNU General Public License as published by the Free Software Foundation;
@@ -25,4 +25,4 @@
 # The OZ Manifests are located in /oz/def
 
 # compile only updated source files and build the standard.lib file
-../tools/mpm/mpm -I../oz/def -d -xstandard.lib @standard
+mpm -I../oz/def -d -xstandard.lib @standard
