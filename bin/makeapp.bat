@@ -41,8 +41,7 @@ set RETURN_PATH=%cd%
 set MAKEAPP_PATH=%Z88WORKBENCH_HOME%\tools\makeapp
 
 :: define the '<path>\makeapp.jar' filename, based on this script name...
-set MAKEAPP_JAR=%0
-set MAKEAPP_JAR=%MAKEAPP_JAR:.bat=.jar%
+set MAKEAPP_JAR=%Z88WORKBENCH_HOME%\bin\makeapp.jar
 
 if exist %MAKEAPP_JAR% goto EXECUTE_MAKEJAR
 :: the makeapp.jar has not yet been compiled,
@@ -60,4 +59,4 @@ cd %RETURN_PATH%
 
 @ECHO on
 :: execute the makeapp executable and supply the arguments that was assigned this script
-java -jar %MAKEAPP_JAR% %*
+java -jar "%MAKEAPP_JAR%" %*

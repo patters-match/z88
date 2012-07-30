@@ -46,4 +46,4 @@ if [ ! -f "$MAKEAPP_JAR" ]; then
 fi
 
 # execute the makeapp executable and supply the arguments that was assigned this script
-java -jar $MAKEAPP_JAR "$@"
+java -jar "$MAKEAPP_JAR" "$@"
