@@ -1,21 +1,41 @@
 ----------------------------------------------------------------------
-Introduction
+Introduction to Z88 Workbench
 ----------------------------------------------------------------------
 
-Welcome to the Z88 development repository! The place to get the latest software
-for Z88 applications, workstation tools and various utilities.
+Welcome to the Z88 development repository! The place to get the
+latest software for Z88 applications, workstation tools and various
+utilities.
 
-The repository directory file layout has been designed to beself-contained
-as much as possible so that once you check out the repository,
-you will be able to compile all Z88 native software and run the Z88 emulator
-within the directory structure of the repository. Further, you can easily
-copy or move the complete directory structure to another media and carry on
-working, including getting new updates from the Git repsoitory or committing
-changes back to the repository (if you have been granted write access).
+The repository directory file layout has been designed to be
+self-contained as much as possible so that once you check out the
+repository,you will be able to compile all Z88 native software and
+run the Z88 emulator within the directory structure of the repository.
+Further, you can easily copy or move the complete directory structure
+to another media and carry on working, including getting new updates
+from the Git repository or committing changes back to the repository
+(if you have been granted write access).
+
+Whether you have used our installer to provide this repository or
+have downloaded the Git repository directly from bitbucket.org, this
+readme should help you get an overview of what you have installed on
+your desktop operating system.
 
 
 ----------------------------------------------------------------------
-Basic requirements
+Using the Z88 Workbench Installer
+----------------------------------------------------------------------
+The Z88 project has now made Desktop Installers available for Linux,
+Mac OS X and Windows that provides all executable tools necessary to
+start learning the Z88 universe of software. No need to set up special
+environment variables, using a C compiler or installing 3rd party software.
+
+The installer will provide icons on your desktop for running the
+emulator, transferring files to your Z88, compiling OZ, links to
+project documentation and much more.
+
+
+----------------------------------------------------------------------
+Basic requirements - for DIY power users.
 ----------------------------------------------------------------------
 
 The cross platform tools, scripts and other Z88 software to be compiled
@@ -25,7 +45,7 @@ operating systems.
 The first requirement is to checkout the Git Master branch (main
 development or HEAD in CVS terms) you need to have a Git client
 installed on your preferred operating system. We recomment SmartGit
-for cross-platform use, tortoisegit for Window or SourceTree for Mac.
+for cross-platform use, tortoisegit for Windows or SourceTree for Mac.
 
 Note that the standard git command-line client must be available in
 order for build revision information to be generated for OZ builds.
@@ -66,21 +86,13 @@ To get the complete main development tree of all source files and
 documentation in the Git repository, you simply check out the repository
 to a locally preferred place on your workstation hard drive:
 
-git clone https://cambridge@bitbucket.org/cambridge/z88.git
+git clone https://bitbucket.org/cambridge/z88.git
 (this is anonymous checkout only)
 
 (the above example uses the command line client tool, available on all
 supported operating systems by official Git project)
 
 There are myriads of other Git clients out there to use.
-
-If you are a developer with write permission, you must generate a
-SSH public/private key pair and install your public key into your
-bitbuket account, then:
-
-git clone git@bitbucket.org:cambridge/z88.git
-
-Windows users: Install Putty, generate/export SSH keys with PuttyGen)
 
 Once you've got yourself the latest snapshot of the repository, you
 will get the following directory structure with lots of files in it:
@@ -91,7 +103,7 @@ will get the following directory structure with lots of files in it:
      /servman       Z88 Service Manual, html files
      /userguide     Z88 User Guide (4th edition, in progress)
 
-/oz                 Z88 ROM, OZ V4.3+ (in development)
+/oz                 Z88 ROM, OZ V4.3+
      /apps          The system applications; Index, PipeDream, Diary, etc.
      /dc            The DC_xx system calls
      /def           OZ system manifests, used by Z88 assembler sources
@@ -153,6 +165,32 @@ will get the following directory structure with lots of files in it:
      /zprom         Blow code/data to UV Eprom / Flash Cards
 
 
+----------------------------------------------------------------------
+Configuring command line shell environment variables
+----------------------------------------------------------------------
+(This is provided automatically by the Z88 Workbench Installer)
+
+In order for the many compile scripts to function properly, two steps
+must be made before following the next steps:
+
+1) Add to your operating system PATH environment variable the
+   <Project Home>/bin path. This is to ensure the all executables will
+   be found, no matter where you are located inside the project folders
+
+2) Create a new environment variable Z88WORKBENCH_HOME that points to
+   the base location of the git repository you just checked out.
+   This variable is also essential to many compile scripts used by their
+   project.
+
+In Windows you define the PATH environment variable as follows:
+
+    Control Panel -> "System" -> Advanced -> System Variables
+    Click on "Path", then append <Project Home>\bin to line.
+
+Generally for Unixes, you add the <Project Home>/bin path to your shell
+environment init scripts, for example in the .bash_profile file for
+BASH.
+
 
 ----------------------------------------------------------------------
 Z88 development project uses standard OS scripting facilities
@@ -184,6 +222,7 @@ differs, depending on which platform it is determined to be executed on.
 ----------------------------------------------------------------------
 Compiling the Z80 assembler tool chain (Mpm & MakeApp)
 ----------------------------------------------------------------------
+(This is provided automatically by the Z88 Workbench Installer)
 
 All Z88 applications and popdowns, especially the Z88 ROM (OZ), are
 implemented using native Z80 machine code (Zilog Z80 assembly language).
@@ -219,7 +258,7 @@ qmake mpm.pro; make [using Qt/Qt-Creator installed on Windows/Mac/Linux]
 -- Compiling MakeApp --
 
 MakeApp, a binary file combiner, is a java program which needs a Sun
-Java 1.4 Runtime Environment (or newer) installed to get compiled. MakeApp
+Java 1.6 Runtime Environment (or newer) installed to get compiled. MakeApp
 is found together with Mpm in most Z88 application compile scripts.
 The resulting binary is a makeapp.jar file, which is executed with the
 java -jar makeapp.jar command. The MakeApp program is compiled using the
@@ -290,9 +329,12 @@ on your system. This can be obtained for most platforms from www.z88dk.org.
 Ubuntu users will find it can be installed directly from their package
 manager.
 
+
+
 ----------------------------------------------------------------------
 Compiling Z88 Virtual Machine, OZvm
 ----------------------------------------------------------------------
+(This is provided automatically by the Z88 Workbench Installer)
 
 You can use the Z88 emulated machine, OZvm, to run the Z88 applications
 available in /z88apps, and even work at processor single step level to
@@ -307,9 +349,13 @@ execute the makejar script:
     cd <z88 project>/tools/ozvm
     makejar.bat (or ./makejar.sh)
 
-This will create the z88.jar executable Java file. Run OZvm with
+This will create the z88.jar executable Java file in <Project Home>/bin.
+Run OZvm with
 
-    java -jar z88.jar
+    cd <Project Home>/bin; java -jar z88.jar
+
+Many scripts are integrated in the project that know the location of the
+executable binary.
 
 Windows users may create an EXE program (a Java JAR file wrapper).
 You need to install Launch4J (http://launch4j.sourceforge.net/), and
