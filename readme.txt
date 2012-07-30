@@ -97,6 +97,17 @@ There are myriads of other Git clients out there to use.
 Once you've got yourself the latest snapshot of the repository, you
 will get the following directory structure with lots of files in it:
 
+/bin
+     /roms          This folder contains all known Z88 ROMS, used by OZvm
+     z88.jar        The Z88 emulator / debugger.
+     makeapp.jar    The MakeApp utility used by compilation script to
+                    generate Z88 Application Card binaries.
+     mpm            The Z80 assembler used to compile all Z80 sources
+     dzasm          Utility to reverse-engineer Z80 binaries into source
+                    code
+
+     [Various 3rd party runtime binaries provided by Z88 Workbench installer]
+
 /documentation
      /devnotes      Z88 Developers Notes, html files (V4.2 or later).
      /packages      Packages system, txt files (up to and including V4.0)
