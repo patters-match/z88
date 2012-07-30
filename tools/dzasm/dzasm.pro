@@ -11,7 +11,9 @@
 #   DDDDDDDDDDDDDDD     ZZZZZZZZZZZZZZZZZ     AAAA      AAAA           SSSSS   MMMM       MMMM
 #   DDDDDDDDDDDDD     ZZZZZZZZZZZZZZZZZ      AAAA        AAAA  SSSSSSSSSSS     MMMM       MMMM
 #
-# Generic GCC Unix/Linux makefile for the intelligent Z80 Disassembler, DZasm
+# Qt Creator Qmake compile project for the intelligent Z80 Disassembler, DZasm
+# Use qmake mpm.pro, then make. Executable binary will be generated in
+#   <Project Home>/bin
 #
 # Copyright (C) 1996-2012, Gunther Strube, gstrube@gmail.com
 #
@@ -27,41 +29,14 @@
 #
 # ------------------------------------------------------------------------------
 
-prefix = /usr
-CC = gcc
-CFLAGS = -Wall -O2 -I.
+TEMPLATE  = app
+CONFIG    += console
+QT -= gui core
 
-exec_prefix = ${prefix}
-bindir = ${exec_prefix}/bin
+DESTDIR   = ../../bin
+TARGET = dzasm
 
-INSTALL = install -c
-INSTALL_PROGRAM = ${INSTALL}
-INSTALL_DATA = ${INSTALL} -m 644
+QMAKE_LINK = $$QMAKE_LINK_C
 
-.c.o:
-	$(CC) -c $(CFLAGS) $*.c
-
-DZASM = main.o avltree.o prscmds.o collect.o dz.o genasm.o parse.o areas.o
-
-debug: $(DZASM)
-	$(CC) -g -o ../../bin/dzasm $(DZASM)
-
-all: dzasm
-
-dzasm: $(DZASM)
-	$(CC) -o ../../bin/dzasm $(DZASM)
-
-main.o: main.c avltree.h dzasm.h
-avltree.o: avltree.c avltree.h
-prscmds.o: prscmds.c avltree.h dzasm.h table.h
-collect.o: collect.c avltree.h dzasm.h
-dz.o: dz.c avltree.h dzasm.h table.h
-genasm.o: genasm.c avltree.h dzasm.h
-parse.o: parse.c avltree.h dzasm.h table.h
-areas.o: areas.c dzasm.h
-
-install: dzasm
-	$(INSTALL_PROGRAM) dzasm $(bindir)
-
-clean:
-	rm -f *.o dzasm
+HEADERS  += dzasm.h avltree.h table.h
+SOURCES  += main.c dz.c prscmds.c collect.c genasm.c parse.c areas.c avltree.c

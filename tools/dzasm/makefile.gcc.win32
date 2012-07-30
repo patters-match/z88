@@ -13,7 +13,7 @@
 #
 # Generic GCC Windows makefile for the intelligent Z80 Disassembler, DZasm
 #
-# Copyright (C) 1996-2006, Gunther Strube, gbs@users.sourceforge.net
+# Copyright (C) 1996-2012, Gunther Strube, gstrube@gmail.com
 #
 # DZasm is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by the Free Software Foundation;
@@ -44,12 +44,12 @@ INSTALL_DATA = ${INSTALL} -m 644
 DZASM = main.o avltree.o prscmds.o collect.o dz.o genasm.o parse.o areas.o
 
 debug: $(DZASM)
-	$(CC) -g -o dzasm $(DZASM)
+	$(CC) -g -o ..\..\bin\dzasm $(DZASM)
 
 all: dzasm
 
 dzasm: $(DZASM)
-	$(CC) -o dzasm $(DZASM)
+	$(CC) -o ..\..\bin\dzasm $(DZASM)
 
 main.o: main.c avltree.h dzasm.h
 avltree.o: avltree.c avltree.h

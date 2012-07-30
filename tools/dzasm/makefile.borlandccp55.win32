@@ -15,7 +15,7 @@
 #
 # Makefile for the for the intelligent Z80 Disassembler, DZasm, Windows 32 bit console for Borland C++Builder
 #
-# Copyright (C) 1996-2006, Gunther Strube, gbs@users.sourceforge.net
+# Copyright (C) 1996-2012, Gunther Strube, gstrube@gmail.com
 #
 # DZasm is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by the Free Software Foundation;
@@ -80,7 +80,7 @@ BuildAll: dzasm$(EXE)
 dzasm$(EXE): $(DZASMOBJS)
   $(LINK) $(LINKFLAGS) @&&|     #open temp response file
     $(STARTUP) $**
-    dzasm$(EXE)
+    ..\..\bin\dzasm$(EXE)
     # default MAP file name for EXE
     $(LIBRARIES)
 |                                # close temp file, first column!
