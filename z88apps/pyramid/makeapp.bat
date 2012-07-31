@@ -22,8 +22,8 @@ del *.ap? *.6? *.epr
 call ..\..\tools\forth\makeforthapp.bat -f makeapp.fth -f pyramid.fth -f pyramid-app.fth -f pyramid-app.dor
 
 :: Create a 32K standalone Rom Card with Pyramid
-call ..\..\tools\makeapp\makeapp.bat -f pyramid-std.loadmap
+call makeapp.bat -f pyramid-std.loadmap
 
 :: Create a 16K client Rom Card with Pyramid
-call ..\..\tools\makeapp\makeapp.bat -f pyramid-cli.loadmap
+call makeapp.bat -f pyramid-cli.loadmap
 

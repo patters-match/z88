@@ -1,6 +1,6 @@
 :: *************************************************************************************
 :: RomUpdate - Popdown compile script
-:: (C) Gunther Strube (gbs@users.sf.net) 2005
+:: (C) Gunther Strube (gstrube@gmail.com) 2005-2012
 ::
 :: RomUpdate is free software; you can redistribute it and/or modify it under the terms of the
 :: GNU General Public License as published by the Free Software Foundation;
@@ -22,14 +22,14 @@ call makelib.bat
 cd ..\z88apps\romupdate
 
 del *.obj *.bin *.map romupdate.epr
-..\..\tools\mpm\mpm -b -oromupdate.bin -DPOPDOWN -I..\..\oz\def -l..\..\stdlib\standard.lib @romupdate.popdown.prj
-..\..\tools\mpm\mpm -b romhdr
+mpm -b -oromupdate.bin -DPOPDOWN -I..\..\oz\def -l..\..\stdlib\standard.lib @romupdate.popdown.prj
+mpm -b romhdr
 dir *.err 2>nul >nul || goto CREATE_EPR
 goto LIST_ERRORS
 
 :CREATE_EPR
 :: Create a 16K Rom Card with RomUpdate
-..\..\tools\makeapp\makeapp.bat romupdate.epr romupdate.bin 3f0000 romhdr.bin 3f3fc0
+makeapp.bat romupdate.epr romupdate.bin 3f0000 romhdr.bin 3f3fc0
 goto END
 
 :LIST_ERRORS

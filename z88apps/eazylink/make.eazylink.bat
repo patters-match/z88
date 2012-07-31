@@ -1,6 +1,6 @@
 :: *************************************************************************************
 :: EazyLink application make script for DOS/Windows
-:: (C) Gunther Strube (gbs@users.sourceforge.net) 2005-2006
+:: (C) Gunther Strube (gstrube@gmail.com) 2005-2012
 ::
 :: EazyLink is free software; you can redistribute it and/or modify it under the terms of the
 :: GNU General Public License as published by the Free Software Foundation;
@@ -23,8 +23,8 @@ cd ..\z88apps\eazylink
 :: compile EazyLink application from scratch
 :: (this compile script is located in /z88apps/eazylink)
 del *.obj *.bin *.map *.63 *.epr
-..\..\tools\mpm\mpm -b -I..\..\oz\def -l..\..\stdlib\standard.lib @eazylink
-..\..\tools\mpm\mpm -b romhdr
+mpm -b -I..\..\oz\def -l..\..\stdlib\standard.lib @eazylink
+mpm -b romhdr
 
 :: produce bank to be blown by RomCombiner, Zprom or RomUpdate on real cards
-..\..\tools\makeapp\makeapp.bat -f eazylink.loadmap
+makeapp.bat -f eazylink.loadmap

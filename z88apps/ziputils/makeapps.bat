@@ -25,7 +25,7 @@ call makeapp.bat
 cd ..
 
 del *.obj *.bin *.map
-..\..\tools\mpm\mpm -b -I..\..\oz\def romheader.asm
+mpm -b -I..\..\oz\def romheader.asm
 
 :: Create a 16K Rom Card with ZipUp & Unzip
-..\..\tools\makeapp\makeapp.bat -f ziputils.loadmap
+makeapp.bat -f ziputils.loadmap

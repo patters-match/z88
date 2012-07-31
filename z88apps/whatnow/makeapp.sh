@@ -24,8 +24,8 @@ rm -f *.ap? *.6? *.epr
 ../../tools/forth/makeforthapp.sh -f makeapp.fth -f actions.fth -f appl-z88.fth -f constants.fth -f database.fth -f data.fth -f data-z88.fth -f dialogs.fth -f errors.fth -f files.fth -f game.fth -f markers.fth -f messages.fth -f objects.fth -f output.fth -f parser.fth -f pictures.fth -f process.fth -f rooms.fth -f whatnow.dor -f whatnow.fth -f whatnow.scr -f wn-z88.fth -f zxscreen.fth
 
 # Create a 32K standalone Rom Card with WhatNow?
-../../tools/makeapp/makeapp.sh -f whatnow-std.loadmap
+makeapp.sh -f whatnow-std.loadmap
 
 # Create a 16K client Rom Card with WhatNow?
-../../tools/makeapp/makeapp.sh -f whatnow-cli.loadmap
+makeapp.sh -f whatnow-cli.loadmap
 

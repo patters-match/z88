@@ -22,8 +22,8 @@ del *.ap? *.6? *.epr
 call ..\..\tools\forth\makeforthapp.bat -f makeapp.fth -f shell.fth -f shell.dor -f shellapi.fth -f xfsblock.bin
 
 :: Create a 32K standalone Rom Card with Shell
-call ..\..\tools\makeapp\makeapp.bat -f shell-std.loadmap
+call makeapp.bat -f shell-std.loadmap
 
 :: Create a 16K client Rom Card with Shell
-call ..\..\tools\makeapp\makeapp.bat -f shell-cli.loadmap
+call makeapp.bat -f shell-cli.loadmap
 

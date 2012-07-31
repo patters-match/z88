@@ -22,4 +22,4 @@
 rm -f *.obj *.sym *.bin *.map installer.c
 
 # Assemble the BASIC installer codefile
-../../tools/mpm/mpm -b -oinstaller.c -I../../oz/def -DBASINST @basinstaller.prj
+mpm -b -oinstaller.c -I../../oz/def -DBASINST @basinstaller.prj

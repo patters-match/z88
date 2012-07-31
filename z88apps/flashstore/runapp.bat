@@ -1,6 +1,6 @@
 :: *************************************************************************************
 :: FlashStore
-:: (C) Gunther Strube (gbs@users.sf.net) & Thierry Peycru (pek@users.sf.net), 1997-2007
+:: (C) Gunther Strube (gstrube@gmail.com) & Thierry Peycru (pek@users.sf.net), 1997-2012
 ::
 :: FlashStore is free software; you can redistribute it and/or modify it under the terms of the
 :: GNU General Public License as published by the Free Software Foundation;
@@ -19,4 +19,4 @@ call makeapp.bat
 
 :: Execute OZvm with preloaded FlashStore in slot 2 (on a 1Mb AMD Flash)
 :: and a 512K Intel Flash Card in slot 3
-java -jar ..\..\tools\ozvm\z88.jar fcd3 512 28f crd2 1024 29f flashstore.epr
+java -jar %Z88WORKBENCH_HOME%\bin\z88.jar fcd3 512 28f crd2 1024 29f flashstore.epr

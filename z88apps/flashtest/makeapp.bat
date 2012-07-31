@@ -1,6 +1,6 @@
 :: *************************************************************************************
 :: FlashTest
-:: (C) Gunther Strube (gbs@users.sf.net) 1997-2005
+:: (C) Gunther Strube (gstrube@gmail.com) 1997-2012
 ::
 :: FlashTest is free software; you can redistribute it and/or modify it under the terms of the
 :: GNU General Public License as published by the Free Software Foundation;
@@ -22,14 +22,14 @@ call makelib.bat
 cd ..\z88apps\flashtest
 
 del *.obj *.map flashtest.epr fltest.bin romhdr.bin
-..\..\tools\mpm\mpm -I..\..\oz\def -l..\..\stdlib\standard.lib -b fltest.asm ramcard.asm
-..\..\tools\mpm\mpm -b romhdr.asm
+mpm -I..\..\oz\def -l..\..\stdlib\standard.lib -b fltest.asm ramcard.asm
+mpm -b romhdr.asm
 dir *.err 2>nul >nul || goto CREATE_EPR
 goto LIST_ERRORS
 
 :CREATE_EPR
 :: Create a 16K Rom Card with FlashTest
-..\..\tools\makeapp\makeapp.bat flashtest.epr fltest.bin 0000 romhdr.bin 3fc0
+makeapp.bat flashtest.epr fltest.bin 0000 romhdr.bin 3fc0
 goto END
 
 :LIST_ERRORS

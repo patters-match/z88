@@ -1,6 +1,6 @@
 :: *************************************************************************************
 :: Intuition Z88 application make script for DOS/Windows
-:: (C) Gunther Strube (gbs@users.sourceforge.net) 1991-2005
+:: (C) Gunther Strube (gstrube@gmail.com) 1991-2012
 ::
 :: Intuition is free software; you can redistribute it and/or modify it under the terms of the
 :: GNU General Public License as published by the Free Software Foundation;
@@ -23,9 +23,9 @@ cd ..\z88apps\intuition
 :: compile Intuition application from scratch
 :: Intuition application uses segment 2 for bank switching (Intuition application is located in segment 3)
 del *.err *.def *.lst *.obj *.bin *.map *.epr
-..\..\tools\mpm\mpm -b -g -DSEGMENT2 -I..\..\oz\def -l..\..\stdlib\standard.lib mthdbg tokens mthtext
-..\..\tools\mpm\mpm -b -DSEGMENT2 -I..\..\oz\def -l..\..\stdlib\standard.lib @debugapl
-..\..\tools\mpm\mpm -b -DSEGMENT2 romhdr
+mpm -b -g -DSEGMENT2 -I..\..\oz\def -l..\..\stdlib\standard.lib mthdbg tokens mthtext
+mpm -b -DSEGMENT2 -I..\..\oz\def -l..\..\stdlib\standard.lib @debugapl
+mpm -b -DSEGMENT2 romhdr
 
 :: produce a complete 32K card image for OZvm, and make individual banks for RomCombiner.
-..\..\tools\makeapp\makeapp.bat -szc 32 intuition.epr mthdbg.bin 3e0000 debugger.bin 3f0000 romhdr.bin 3f3fc0
+makeapp.bat -szc 32 intuition.epr mthdbg.bin 3e0000 debugger.bin 3f0000 romhdr.bin 3f3fc0

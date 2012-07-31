@@ -2,7 +2,7 @@
 
 # *************************************************************************************
 # EazyLink application make script for Unix/Linux/MAC OS X
-# (C) Gunther Strube (gbs@users.sourceforge.net) 2005-2006
+# (C) Gunther Strube (gstrube@gmail.com) 2005-2012
 #
 # EazyLink is free software; you can redistribute it and/or modify it under the terms of the
 # GNU General Public License as published by the Free Software Foundation;
@@ -22,8 +22,8 @@ cd ../../stdlib; ./makelib.sh; cd ../z88apps/eazylink
 
 # compile EazyLink application from scratch
 rm -f *.obj *.bin *.map *.63 *.epr
-../../tools/mpm/mpm -b -I../../oz/def -l../../stdlib/standard.lib @eazylink
-../../tools/mpm/mpm -b romhdr
+mpm -b -I../../oz/def -l../../stdlib/standard.lib @eazylink
+mpm -b romhdr
 
 # produce bank to be blown by RomCombiner, Zprom or RomUpdate on real cards
-../../tools/makeapp/makeapp.sh -f eazylink.loadmap
+makeapp.sh -f eazylink.loadmap

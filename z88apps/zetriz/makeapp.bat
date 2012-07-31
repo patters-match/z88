@@ -1,6 +1,6 @@
 :: *************************************************************************************
 :: ZetriZ
-:: (C) Gunther Strube (gbs@users.sf.net) 1995-2006
+:: (C) Gunther Strube (gstrube@gmail.com) 1995-2006
 ::
 :: ZetriZ is free software; you can redistribute it and/or modify it under the terms of the
 :: GNU General Public License as published by the Free Software Foundation;
@@ -23,8 +23,8 @@ call makelib.bat
 cd ..\z88apps\zetriz
 
 :: Compile the MTH and the application code
-..\..\tools\mpm\mpm -b -I..\..\oz\def -l..\..\stdlib\standard.lib @zetriz
-..\..\tools\mpm\mpm -b -I..\..\oz\def romhdr
+mpm -b -I..\..\oz\def -l..\..\stdlib\standard.lib @zetriz
+mpm -b -I..\..\oz\def romhdr
 
 :: Create a 16K Rom Card with ZetriZ to be blown by RomCombiner, Zprom or RomUpdate on real cards
-..\..\tools\makeapp\makeapp.bat -f zetriz.loadmap
+makeapp.bat -f zetriz.loadmap

@@ -22,11 +22,11 @@
 rm -f *.obj *.sym *.bin *.map *.6? ibp.epr
 
 # Assemble the popdown and MTH
-../../tools/mpm/mpm -b -oibp.bin -I../../oz/def @ibp.prj
+mpm -b -oibp.bin -I../../oz/def @ibp.prj
 
 # Assemble the card header
-../../tools/mpm/mpm -b -I../../oz/def romheader.asm
+mpm -b -I../../oz/def romheader.asm
 
 # Create a 16K Rom Card with Installer/Bootstrap/Packages
-../../tools/makeapp/makeapp.sh -f ibp.loadmap
+makeapp.sh -f ibp.loadmap
 

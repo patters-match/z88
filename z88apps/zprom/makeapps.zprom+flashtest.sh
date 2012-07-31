@@ -2,7 +2,7 @@
 
 # *************************************************************************************
 # Zprom + FlashTest make script
-# (C) Gunther Strube (gbs@users.sf.net) 2006
+# (C) Gunther Strube (gstrube@gmail.com) 2006-2012
 #
 # Zprom & FlashTest is free software; you can redistribute it and/or modify it under
 # the terms of theGNU General Public License as published by the Free Software Foundation;
@@ -21,13 +21,13 @@ cd ../../stdlib; ./makelib.sh; cd ../z88apps/zprom
 
 # Compile the MTH and the application code
 rm -f *.obj *.bin *.map zprom.epr
-../../tools/mpm/mpm -b -I../../oz/def tokens
-../../tools/mpm/mpm -bg -I../../oz/def mthzprom
-../../tools/mpm/mpm -b -I../../oz/def -l../../stdlib/standard.lib @zprom
-../../tools/mpm/mpm -b -I../../oz/def romhdr
+mpm -b -I../../oz/def tokens
+mpm -bg -I../../oz/def mthzprom
+mpm -b -I../../oz/def -l../../stdlib/standard.lib @zprom
+mpm -b -I../../oz/def romhdr
 
 # Compile FlashTest to reside at $EB00 in bank $3F
-../../tools/mpm/mpm -rEB00 -I../../oz/def -l../../stdlib/standard.lib -b ../flashtest/fltest.asm ../flashtest/ramcard.asm
+mpm -rEB00 -I../../oz/def -l../../stdlib/standard.lib -b ../flashtest/fltest.asm ../flashtest/ramcard.asm
 
 # Create a 32K Rom Card with Zprom and FlashTest ($3E contains MTH, $3F contains application code for Zprom and FlashTest)
-../../tools/makeapp/makeapp.sh -f zprom+flashtest.loadmap
+makeapp.sh -f zprom+flashtest.loadmap

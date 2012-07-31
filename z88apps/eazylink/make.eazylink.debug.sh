@@ -2,7 +2,7 @@
 
 # *************************************************************************************
 # EazyLink application make script for Unix/Linux for Intuition debugging
-# (C) Gunther Strube (gbs@users.sourceforge.net) 2005
+# (C) Gunther Strube (gstrube@gmail.com) 2005-2012
 #
 # EazyLink is free software; you can redistribute it and/or modify it under the terms of the
 # GNU General Public License as published by the Free Software Foundation;
@@ -22,4 +22,4 @@ cd ../../stdlib; ./makelib.sh; cd ../z88apps/eazylink
 
 # compile EazyLink application (debug version) from scratch
 rm -f *.obj *.bin *.map *.63 *.epr
-../../tools/mpm/mpm -b -DDEBUGGING -I../../oz/def -l../../stdlib/standard.lib @eazylink
+mpm -b -DDEBUGGING -I../../oz/def -l../../stdlib/standard.lib @eazylink

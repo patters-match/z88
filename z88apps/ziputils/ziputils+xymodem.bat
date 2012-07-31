@@ -21,4 +21,4 @@ call makeapp.bat
 cd ..
 
 :: Create a 16K Rom Card with ZipUp & Unzip & XY-modem
-..\..\tools\makeapp\makeapp.bat -f ziputils+xymodem.loadmap
+makeapp.bat -f ziputils+xymodem.loadmap

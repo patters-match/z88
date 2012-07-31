@@ -19,7 +19,7 @@
 
 # compile XY-Modem popdown from scratch
 rm -f *.obj *.bin *.map *.63 *.epr
-../../tools/mpm/mpm -b -I../../oz/def xy-modem.asm
+mpm -b -I../../oz/def xy-modem.asm
 
 # Create a 16K Rom Card with XY-Modem
-../../tools/makeapp/makeapp.sh xy-modem.epr xy-modem.bin 32d4
+makeapp.sh xy-modem.epr xy-modem.bin 32d4

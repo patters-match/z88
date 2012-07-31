@@ -20,11 +20,11 @@
 del *.obj *.sym *.bin *.map *.6? tester.epr
 
 :: Assemble the popdown and MTH
-..\..\tools\mpm\mpm -b -I..\..\oz\def @tester.prj
+mpm -b -I..\..\oz\def @tester.prj
 
 :: Assemble the card header
-..\..\tools\mpm\mpm -b -I..\..\oz\def romheader.asm
+mpm -b -I..\..\oz\def romheader.asm
 
 :: Create a 16K Rom Card with Tester & Example Package
-..\..\tools\makeapp\makeapp.bat -f tester.loadmap
+makeapp.bat -f tester.loadmap
 

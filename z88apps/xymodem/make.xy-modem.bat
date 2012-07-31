@@ -18,7 +18,7 @@
 :: compile XY-Modem popdown from scratch
 :: (this compile script is located in /z88apps/xymodem)
 del *.obj *.bin *.map *.63 *.epr
-..\..\tools\mpm\mpm -b -I..\..\oz\def xy-modem.asm
+mpm -b -I..\..\oz\def xy-modem.asm
 
 :: Create a 16K Rom Card with XY-Modem
-..\..\tools\makeapp\makeapp.bat xy-modem.epr xy-modem.bin 32d4
+makeapp.bat xy-modem.epr xy-modem.bin 32d4

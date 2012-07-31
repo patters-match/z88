@@ -1,6 +1,6 @@
 :: *************************************************************************************
 :: Zprom
-:: (C) Gunther Strube (gbs@users.sf.net) 1993-2005
+:: (C) Gunther Strube (gstrube@gmail.com) 1993-2012
 ::
 :: Zprom is free software; you can redistribute it and/or modify it under the terms of the
 :: GNU General Public License as published by the Free Software Foundation;
@@ -22,10 +22,10 @@ cd ..\z88apps\zprom
 
 :: Compile the MTH and the application code
 del *.obj *.bin *.map zprom.epr
-..\..\tools\mpm\mpm -b -I..\..\oz\def tokens
-..\..\tools\mpm\mpm -bg -I..\..\oz\def mthzprom
-..\..\tools\mpm\mpm -b -I..\..\oz\def -l..\..\stdlib\standard.lib @zprom
-..\..\tools\mpm\mpm -b -I..\..\oz\def romhdr
+mpm -b -I..\..\oz\def tokens
+mpm -bg -I..\..\oz\def mthzprom
+mpm -b -I..\..\oz\def -l..\..\stdlib\standard.lib @zprom
+mpm -b -I..\..\oz\def romhdr
 
 :: Create a 32K Rom Card with Zprom ($3E contains MTH, $3F contains application code)
-..\..\tools\makeapp\makeapp.bat -szc 32 zprom.epr tokens.bin 3e0000 mthzprom.bin 3e0400 zprom.bin 3fc000 romhdr.bin 3f3fc0
+makeapp.bat -szc 32 zprom.epr tokens.bin 3e0000 mthzprom.bin 3e0400 zprom.bin 3fc000 romhdr.bin 3f3fc0

@@ -2,7 +2,7 @@
 
 # *************************************************************************************
 # RomUpdate - BBC BASIC compile script
-# (C) Gunther Strube (gbs@users.sf.net) 2005-2006
+# (C) Gunther Strube (gstrube@gmail.com) 2005-2012
 #
 # RomUpdate is free software; you can redistribute it and/or modify it under the terms of the
 # GNU General Public License as published by the Free Software Foundation;
@@ -22,7 +22,7 @@ cd ../../stdlib; ./makelib.sh; cd ../z88apps/romupdate
 
 # this is actually to be run as a BBC BASIC program on the Z88
 rm -f *.obj *.bin romupdate.bas *.map
-../../tools/mpm/mpm -b -crc32 -oromupdate.bas -DBBCBASIC -I../../oz/def -l../../stdlib/standard.lib @romupdate.bbcbasic.prj
+mpm -b -crc32 -oromupdate.bas -DBBCBASIC -I../../oz/def -l../../stdlib/standard.lib @romupdate.bbcbasic.prj
 if test `find . -name '*.err' | wc -l` != 0; then
   cat *.err
 fi

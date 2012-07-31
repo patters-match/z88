@@ -20,4 +20,4 @@
 
 rm -f *.obj *.bin *.map
 
-../../../tools/mpm/mpm -b -I../../../oz/def -DALCHNEWS @alchnews.prj
+mpm -b -I../../../oz/def -DALCHNEWS @alchnews.prj

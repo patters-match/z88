@@ -31,43 +31,43 @@ cd ../pdrom
 
 # Assemble Z80Dis
 cd ../zdis
-../../tools/mpm/mpm -b -I../../oz/def -rDA92 zdis.asm
+mpm -b -I../../oz/def -rDA92 zdis.asm
 
 # Assemble ZMonitor
 cd ../zmonitor
-../../tools/mpm/mpm -b -I../../oz/def -rEF00 zmonitor.asm
+mpm -b -I../../oz/def -rEF00 zmonitor.asm
 
 # Assemble Lockup
 cd ../lockup
-../../tools/mpm/mpm -b -I../../oz/def -rFA00 lockup.asm
+mpm -b -I../../oz/def -rFA00 lockup.asm
 
 # Assemble AlarmSafe
 cd ../alarmsafe
-../../tools/mpm/mpm -b -I../../oz/def -rFCB8 alarmsafe.asm
+mpm -b -I../../oz/def -rFCB8 alarmsafe.asm
 
 # Assemble FileView
 cd ../fview
-../../tools/mpm/mpm -b -I../../oz/def -rC460 fview.asm
+mpm -b -I../../oz/def -rC460 fview.asm
 
 # Assemble EP-Fetch2
 cd ../epfetch
-../../tools/mpm/mpm -b -I../../oz/def -rC600 epfetch2.asm
+mpm -b -I../../oz/def -rC600 epfetch2.asm
 
 # Assemble FreeRAM
 cd ../freeram
-../../tools/mpm/mpm -b -I../../oz/def -rD500 -l../../stdlib/standard.lib freeram.asm
+mpm -b -I../../oz/def -rD500 -l../../stdlib/standard.lib freeram.asm
 
 # Assemble Installer, Bootstrap & Packages
 cd ../installer
-../../tools/mpm/mpm -b -I../../oz/def -oibp3e.bin -DBANK3E -rDC00 @ibp.prj
+mpm -b -I../../oz/def -oibp3e.bin -DBANK3E -rDC00 @ibp.prj
 
 # Assemble the card header
 cd ../forever
-../../tools/mpm/mpm -b -I../../oz/def romheader.asm
+mpm -b -I../../oz/def romheader.asm
 
 # Create a 32K Rom Card
-../../tools/makeapp/makeapp.sh -f forever.loadmap
+makeapp.sh -f forever.loadmap
 
 # Create a 32K Rom Card for OZ v4.1+, omitting incompatible applications
-../../tools/makeapp/makeapp.sh -f forever4X.loadmap
+makeapp.sh -f forever4X.loadmap
 

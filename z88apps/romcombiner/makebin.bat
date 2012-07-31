@@ -21,4 +21,4 @@ call makelib.bat
 cd ..\z88apps\romcombiner
 
 del *.obj *.bin *.map
-..\..\tools\mpm\mpm -b -I..\..\oz\def -l..\..\stdlib\standard.lib romcombiner.asm ..\romupdate\crc32.asm
+mpm -b -I..\..\oz\def -l..\..\stdlib\standard.lib romcombiner.asm ..\romupdate\crc32.asm

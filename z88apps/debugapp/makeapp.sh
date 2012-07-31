@@ -2,7 +2,7 @@
 
 # *************************************************************************************
 # DebugApp/Ozvm compile script for Unix/Linux.
-# (C) Gunther Strube (gbs@users.sf.net), 2004
+# (C) Gunther Strube (gstrube@gmail.com), 2004-2012
 #
 # DebugApp is free software; you can redistribute it and/or modify it under the terms of the
 # GNU General Public License as published by the Free Software Foundation;
@@ -17,4 +17,4 @@
 #
 # *************************************************************************************
 
-../../tools/mpm/mpm -I../../oz/def -tb debugapp.asm
+mpm -I../../oz/def -tb debugapp.asm

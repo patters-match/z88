@@ -2,7 +2,7 @@
 
 # *************************************************************************************
 # FlashStore
-# (C) Gunther Strube (gbs@users.sf.net) & Thierry Peycru (pek@users.sf.net), 1997-2007
+# (C) Gunther Strube (gstrube@gmail.com) & Thierry Peycru (pek@users.sf.net), 1997-2012
 #
 # FlashStore is free software; you can redistribute it and/or modify it under the terms of the
 # GNU General Public License as published by the Free Software Foundation;
@@ -21,9 +21,9 @@
 cd ../../stdlib; ./makelib.sh; cd ../z88apps/flashstore
 
 rm -f flashstore.63 flashstore.epr
-../../tools/mpm/mpm -b -I../../oz/def -l../../stdlib/standard.lib @flashstore
-../../tools/mpm/mpm -b romhdr
+mpm -b -I../../oz/def -l../../stdlib/standard.lib @flashstore
+mpm -b romhdr
 
 # Create a 16K Rom Card with FlashStore
-../../tools/makeapp/makeapp.sh -f flashstore.loadmap
+makeapp.sh -f flashstore.loadmap
 

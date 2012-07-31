@@ -2,7 +2,7 @@
 
 # *************************************************************************************
 # Intuition make script for UNIX/LINUX to build executable for segment 1 address space
-# (C) Gunther Strube (gbs@users.sourceforge.net) 1991-2005
+# (C) Gunther Strube (gstrube@gmail.com) 1991-2012
 #
 # Intuition is free software; you can redistribute it and/or modify it under the terms of the
 # GNU General Public License as published by the Free Software Foundation;
@@ -23,4 +23,4 @@ cd ../../stdlib; ./makelib.sh; cd ../z88apps/intuition
 # compile Intuition code from scratch
 # Intuition uses segment 3 for bank switching (Intuition is located at $4000 - segment 1)
 rm -f *.err *.lst *.def *.obj *.bin *.map
-../../tools/mpm/mpm -b -DSEGMENT3 -r4000 -odebugS01.bin -I../../oz/def -l../../stdlib/standard.lib @debug
+mpm -b -DSEGMENT3 -r4000 -odebugS01.bin -I../../oz/def -l../../stdlib/standard.lib @debug

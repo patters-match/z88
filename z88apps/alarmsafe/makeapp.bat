@@ -19,11 +19,11 @@
 del *.obj *.sym *.bin *.map *.6? alarmsafe.epr
 
 :: Assemble the popdown and MTH
-..\..\tools\mpm\mpm -b -I..\..\oz\def alarmsafe.asm
+mpm -b -I..\..\oz\def alarmsafe.asm
 
 :: Assemble the card header
-..\..\tools\mpm\mpm -b -I..\..\oz\def romheader.asm
+mpm -b -I..\..\oz\def romheader.asm
 
 :: Create a 16K Rom Card with AlarmSafe
-..\..\tools\makeapp\makeapp.bat -f alarmsafe.loadmap
+makeapp.bat -f alarmsafe.loadmap
 

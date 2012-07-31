@@ -2,7 +2,7 @@
 
 # *************************************************************************************
 # RomUpdate - Popdown compile script
-# (C) Gunther Strube (gbs@users.sf.net) 2005
+# (C) Gunther Strube (gstrube@gmail.com) 2005-2012
 #
 # RomUpdate is free software; you can redistribute it and/or modify it under the terms of the
 # GNU General Public License as published by the Free Software Foundation;
@@ -21,11 +21,11 @@
 cd ../../stdlib; ./makelib.sh; cd ../z88apps/romupdate
 
 rm -f *.obj *.bin *.map romupdate.epr
-../../tools/mpm/mpm -b -oromupdate.bin -DPOPDOWN -I../../oz/def -l../../stdlib/standard.lib @romupdate.popdown.prj
-../../tools/mpm/mpm -b romhdr
+mpm -b -oromupdate.bin -DPOPDOWN -I../../oz/def -l../../stdlib/standard.lib @romupdate.popdown.prj
+mpm -b romhdr
 if test `find . -name '*.err' | wc -l` != 0; then
     cat *.err
 else
     # Create a 16K Rom Card with RomUpdate
-    ../../tools/makeapp/makeapp.sh romupdate.epr romupdate.bin 3f0000 romhdr.bin 3f3fc0
+    makeapp.sh romupdate.epr romupdate.bin 3f0000 romhdr.bin 3f3fc0
 fi

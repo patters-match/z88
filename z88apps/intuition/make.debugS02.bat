@@ -1,6 +1,6 @@
 :: *************************************************************************************
 :: Intuition make script (DOS/Windows) to build executable for segment 2 address space
-:: (C) Gunther Strube (gbs@users.sourceforge.net) 1991-2005
+:: (C) Gunther Strube (gstrube@gmail.com) 1991-2012
 ::
 :: Intuition is free software; you can redistribute it and/or modify it under the terms of the
 :: GNU General Public License as published by the Free Software Foundation;
@@ -23,4 +23,4 @@ cd ..\z88apps\intuition
 :: compile Intuition code from scratch
 :: Intuition uses segment 3 for bank switching (Intuition is located at $8000 - segment 2)
 del *.err *.lst *.def *.obj *.bin *.map
-..\..\tools\mpm\mpm -b -DSEGMENT3 -r8000 -odebugS02.bin -I..\..\oz\def -l..\..\stdlib\standard.lib @debug
+mpm -b -DSEGMENT3 -r8000 -odebugS02.bin -I..\..\oz\def -l..\..\stdlib\standard.lib @debug

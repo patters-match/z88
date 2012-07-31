@@ -2,7 +2,7 @@
 
 # *************************************************************************************
 # FreeRam
-# (C) Gunther Strube (gbs@users.sf.net) 1998
+# (C) Gunther Strube (gstrube@gmail.com) 1998
 #
 # FreeRam is free software; you can redistribute it and/or modify it under the terms of the
 # GNU General Public License as published by the Free Software Foundation;
@@ -21,8 +21,8 @@
 cd ../../stdlib; ./makelib.sh; cd ../z88apps/freeram
 
 rm *.obj *.bin *.map freeram.63 freeram.epr
-../../tools/mpm/mpm -b -I../../oz/def -l../../stdlib/standard.lib freeram.asm
-../../tools/mpm/mpm -b romhdr
+mpm -b -I../../oz/def -l../../stdlib/standard.lib freeram.asm
+mpm -b romhdr
 
 # Create a 16K Rom Card with FreeRam
-../../tools/makeapp/makeapp.sh -f freeram.loadmap
+makeapp.sh -f freeram.loadmap

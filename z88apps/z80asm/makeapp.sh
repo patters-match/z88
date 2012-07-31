@@ -14,7 +14,7 @@
 # ZZZZZZZZZZZZZZZZZZZZZ      8888888888888       00000000000     AAAA        AAAA  SSSSSSSSSSS     MMMM       MMMM
 #
 # Z80asm compile script for Linux/Unix
-# (C) Gunther Strube (gbs@users.sf.net) 1995-2006
+# (C) Gunther Strube (gstrube@gmail.com) 1995-2006
 #
 # Z80asm is free software; you can redistribute it and/or modify it under the terms of the
 # GNU General Public License as published by the Free Software Foundation;
@@ -36,16 +36,10 @@ cd ../../stdlib; ./makelib.sh; cd ../z88apps/z80asm
 rm -f *.obj *.bin *.map mth.def z80asm.epr z80asm.bn? z80asm.6?
 
 # Compile the MTH, application code and rom header
-../../tools/mpm/mpm -b -I../../oz/def tokens
-../../tools/mpm/mpm -bg -I../../oz/def mth
-../../tools/mpm/mpm -bc -I../../oz/def -l../../stdlib/standard.lib @z80asm
-../../tools/mpm/mpm -b -I../../oz/def romhdr
+mpm -b -I../../oz/def tokens
+mpm -bg -I../../oz/def mth
+mpm -bc -I../../oz/def -l../../stdlib/standard.lib @z80asm
+mpm -b -I../../oz/def romhdr
 
 # Create an image with Z80asm application
-../../tools/makeapp/makeapp.sh -f z80asm.loadmap
-
-# bottom 16K of 64K image is not used. A new z80asm.epr image will be generated.
-rm -f z80asm.epr z80asm.60
-
-# final binary is 48K Eprom image
-cat z80asm.61 z80asm.62 z80asm.63 > z80asm.epr
+makeapp.sh -f z80asm.loadmap
