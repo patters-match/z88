@@ -7,6 +7,3 @@
 [submodule "tools/makeapp"]
 	path = tools/makeapp
 	url = https://bitbucket.org/cambridge/makeapp.git
-[submodule "tools/ozvm"]
-	path = tools/ozvm
-	url = https://bitbucket.org/cambridge/ozvm.git
