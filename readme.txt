@@ -2,14 +2,14 @@
 Introduction to Z88 Workbench
 ----------------------------------------------------------------------
 
-Welcome to the Z88 development repository! The place to get the
-latest software for Z88 applications, workstation tools and various
-utilities.
+Welcome to the Z88 development repository! The place to get the latest
+software for Z88 applications, workstation tools and various utilities.
 
-The repository directory file layout has been designed to be
-self-contained as much as possible so that once you check out the
-repository,you will be able to compile all Z88 native software and
-run the Z88 emulator within the directory structure of the repository.
+The repository directory file layout has been designed to be self-
+contained as much as possible so that once you check out the repository,
+you will be able to compile all Z88 native software and run the Z88
+emulator within the directory structure of the repository.
+
 Further, you can easily copy or move the complete directory structure
 to another media and carry on working, including getting new updates
 from the Git repository or committing changes back to the repository
@@ -21,6 +21,16 @@ readme should help you get an overview of what you have installed on
 your desktop operating system.
 
 
+
+----------------------------------------------------------------------
+The Z88 project on the Internet
+----------------------------------------------------------------------
+https://cambridgez88.jira.com/wiki   (the welcome page and documentation)
+https://cambridgez88.jira.com        (browse all projects and issues)
+https://bitbucket.org/cambridge/z88  (main source code Git repository)
+
+
+
 ----------------------------------------------------------------------
 Using the Z88 Workbench Installer
 ----------------------------------------------------------------------
@@ -30,8 +40,10 @@ start learning the Z88 universe of software. No need to set up special
 environment variables, using a C compiler or installing 3rd party software.
 
 The installer will provide icons on your desktop for running the
-emulator, transferring files to your Z88, compiling OZ, links to
-project documentation and much more.
+emulator, local access to all project source code (Git repository),
+transferring files to your Z88, compiling OZ, links to project
+documentation and much more.
+
 
 
 ----------------------------------------------------------------------
@@ -89,7 +101,13 @@ to a locally preferred place on your workstation hard drive:
 git clone https://bitbucket.org/cambridge/z88.git
 (this is anonymous checkout only)
 
-(the above example uses the command line client tool, available on all
+The main z88 repository contains submodules, so you need to use two
+more steps to get the rest of the source code:
+
+git submodule init
+git submodule update
+
+(the above examples uses the command line client tool, available on all
 supported operating systems by official Git project)
 
 There are myriads of other Git clients out there to use.
@@ -109,10 +127,10 @@ will get the following directory structure with lots of files in it:
      [Various 3rd party runtime binaries provided by Z88 Workbench installer]
 
 /documentation
-     /devnotes      Z88 Developers Notes, html files (V4.2 or later).
+     /devnotes      Z88 Developers Notes (outdated - use online wiki!)
      /packages      Packages system, txt files (up to and including V4.0)
      /servman       Z88 Service Manual, html files
-     /userguide     Z88 User Guide (4th edition, in progress)
+     /userguide     Z88 User Guide (outdated, use online wiki!)
 
 /oz                 Z88 ROM, OZ V4.3+
      /apps          The system applications; Index, PipeDream, Diary, etc.
@@ -176,6 +194,7 @@ will get the following directory structure with lots of files in it:
      /zprom         Blow code/data to UV Eprom / Flash Cards
 
 
+
 ----------------------------------------------------------------------
 Configuring command line shell environment variables
 ----------------------------------------------------------------------
@@ -201,6 +220,7 @@ In Windows you define the PATH environment variable as follows:
 Generally for Unixes, you add the <Project Home>/bin path to your shell
 environment init scripts, for example in the .bash_profile file for
 BASH.
+
 
 
 ----------------------------------------------------------------------
@@ -303,9 +323,11 @@ You're now ready compile MakeApp:
     makejar.bat (Windows) or ./makejar.sh (Unix)
 
 
+
 ----------------------------------------------------------------------
 Compiling Z88 ROM
 ----------------------------------------------------------------------
+(This is provided automatically by the Z88 Workbench Installer)
 
 Before you can compile your own Z88 operating system ROM you need to
 have compiled the Z80 assembler tool chain (see previous section).
