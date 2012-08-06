@@ -10,3 +10,6 @@
 [submodule "tools/ozvm"]
 	path = tools/ozvm
 	url = https://bitbucket.org/cambridge/ozvm.git
+[submodule "wsapps/eazylink2"]
+	path = wsapps/eazylink2
+	url = https://bitbucket.org/cambridge/eazylink2.git
