@@ -276,6 +276,9 @@ bool Z88StorageViewer::getSelectedDeviceFreeSpace(quint32 &freeSpace, quint32 &t
     return false;
 }
 
+/**
+  * Validate a filename destined for the Z88.
+  */
 bool Z88StorageViewer::isValidFilename(const QString &fname, QString &sug_fname)
 {
     QStringList fspec;

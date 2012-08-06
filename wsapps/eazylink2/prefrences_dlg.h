@@ -21,6 +21,7 @@
 
 #include <QDialog>
 #include <QTimer>
+#include <QComboBox>
 #include "serialportsavail.h"
 
 namespace Ui {
@@ -62,12 +63,20 @@ public:
         OpenFile
     };
 
-    void Activate(TabName tab = Default);
+    bool isSetupNeeded();
+
+    void Activate(TabName tab = Default, bool s_portChanged = false);
     void ReadCfg();
     void WriteCfg();
-    bool select_SerDevice(const QString & TabName);
+    void WriteWizardCfg(const QString &shortname, bool use_Ezlink);
 
-    bool getSerialPort_Name(QString &portname, QString &shortname);
+    CommThread *get_ComThread()const {return m_cthread;}
+
+    bool select_SerDevice(const QString & TabName);
+    bool select_SerDevice(const QString & TabName, QComboBox *cbox);
+
+    bool getSerialPort_Names(QString &portname, QString &shortname);
+    bool getSerialPort_Name(const QString &shortname, QString &portname);
     bool getInitDeskView(QString &rootPath, QString &initDir);
     void setInitDeskView(const QString &rootPath, const QString &initDir);
 
@@ -84,10 +93,14 @@ public:
 
     const ActionRule * execActions(const QString &ActionStr, const QString Fspec, QString &CmdLine);
 
+    void RefreshComsList(QComboBox *cbox);
+    void RefreshComsList(QStringList &portList);
+
 private slots:
     void rejected();
     void accepted();
     void RefreshComsList();
+
     void TabChanged(int idx);
     void Poll_inuse();
 
@@ -125,6 +138,7 @@ private:
     bool m_Z88RefreshonStart;
     bool m_initDir_isRoot;
 
+    friend class SetupWizard;
 };
 
 #endif // PREFRENCES_DLG_H

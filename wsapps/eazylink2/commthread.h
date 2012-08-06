@@ -60,6 +60,8 @@ protected:
         OP_idle,                // Thread is idle. Must be in this state to start a new command.
         OP_openDevName,         // Open the Specified Serial Port using Hardware Flow Control.
         OP_openDevXonXoff,      // Open the Specified Serial Port with Xon / Xoff Flow control.
+        OP_openTestEzProto,     // Open the specified port and send a Hello Msg, wait, then close.
+        OP_openTestAscii,       // Open the specified port and the port name, wait, then close.
         OP_reopen,              // Re-init the Serial port, and optionally re-run the last command.
         OP_helloZ88,            // Send a Hello Message to the Z88.
         OP_quitZ88,             // Request the Z88 Should exit the Ez-link pulldown app.
@@ -131,13 +133,14 @@ public:
      * Api Commands
      */
     void SetupAbortHandler(QProgressDialog *pd);
-    void AbortCmd();
+    void AbortCmd(const QString &msg = "Aborting current process...");
     bool isBusy();
     bool isOpen();
     bool close();
     bool reopen(bool redo_lastcmd);
     bool open(const QString &devname, const QString &short_name);
     bool openXonXoff(const QString &devname, const QString &short_name);
+    bool scanForZ88(const QStringList &portList, bool EzLink = false);
     bool helloZ88();
     bool quitZ88();
     bool ReloadTranslation();
@@ -173,6 +176,8 @@ private slots:
 signals:
     void enableCmds(bool ena, bool com_isOpen);
     void open_result(const QString &dev_name, const QString &short_name, bool success);
+    void openTest_Start(int portIdx);
+    void openTest_result(int portIdx, bool success);
     void cmdStatus(const QString &msg);
     void cmdProgress(const QString &title, int curVal, int total);
     void boolCmd_result(const QString &cmdName, bool success);
@@ -319,6 +324,8 @@ protected:
     QStringList                         m_ImpExp_srcList;
 
     QStringList                         m_ImpExp_dstList;
+
+    QStringList                         m_PortScanList;
 
     /**
      * Pointer to the Main Window Form

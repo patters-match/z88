@@ -29,6 +29,8 @@
 #include "ui_prefrences_dlg.h"
 #include "commthread.h"
 
+static const int Prefs_db_version = 1;
+
 Prefrences_dlg::Prefrences_dlg(MainWindow *mw, CommThread *ct, QWidget *parent) :
     QDialog(parent),
     ui(new Ui::Prefrences_dlg),
@@ -62,9 +64,23 @@ Prefrences_dlg::~Prefrences_dlg()
 }
 
 /**
+  * Check to see if the Setup Wizard is needed, ie first time or updated Version
+  * @return true if setup is needed.
+  */
+bool Prefrences_dlg::isSetupNeeded()
+{
+    QSettings settings(QSettings::UserScope, "z88", "EazyLink2");
+
+     /**
+       * Verify Saved config version
+       */
+    return (settings.value("CONF_WIZ_VER").toInt() != Prefs_db_version);
+}
+
+/**
   * Display the Preferences Dialog
   */
-void Prefrences_dlg::Activate(TabName tab)
+void Prefrences_dlg::Activate(TabName tab, bool s_portChanged)
 {
     /**
       * Save the Initial Values.
@@ -77,7 +93,7 @@ void Prefrences_dlg::Activate(TabName tab)
     m_Z88RefreshonStart = get_RefreshZ88OnStart();
     m_initDir_isRoot = get_initDir_IsRoot();
 
-    if(m_cthread->isOpen()){
+    if(m_cthread->isOpen() && !s_portChanged){
         m_origPortName = ui->Ui::Prefrences_dlg::SerialPortList->currentText();
     }
     else{
@@ -101,17 +117,32 @@ void Prefrences_dlg::Activate(TabName tab)
     show();
 }
 
+/**
+  * Select the initially displayed driver name in the Pref's Serial selection Combo Box.
+  * @param TabName is the Short portname of the device
+  */
 bool Prefrences_dlg::select_SerDevice(const QString &TabName)
 {
-    int idx = ui->Ui::Prefrences_dlg::SerialPortList->findText(TabName);
+    return select_SerDevice(TabName, ui->Ui::Prefrences_dlg::SerialPortList);
+}
+
+/**
+  * Select the initially displayed Driver name in the combobox
+  */
+bool Prefrences_dlg::select_SerDevice(const QString &TabName, QComboBox *cbox)
+{
+    int idx = cbox->findText(TabName);
     if(idx > -1){
-        ui->Ui::Prefrences_dlg::SerialPortList->setCurrentIndex(idx);
-        m_PortName = ui->Ui::Prefrences_dlg::SerialPortList->currentText();
+        cbox->setCurrentIndex(idx);
+        m_PortName = cbox->currentText();
         return true;
     }
     return false;
 }
 
+/**
+  * Read config from the Saved cfg
+  */
 void Prefrences_dlg::ReadCfg()
 {
     QSettings settings(QSettings::UserScope, "z88", "EazyLink2");
@@ -136,6 +167,9 @@ void Prefrences_dlg::ReadCfg()
     restoreChecked();
 }
 
+/**
+  * Write the Configuration to the cfg file
+  */
 void Prefrences_dlg::WriteCfg()
 {
     QSettings settings(QSettings::UserScope, "z88", "EazyLink2");
@@ -154,13 +188,89 @@ void Prefrences_dlg::WriteCfg()
       */
     m_ActionSettings->save_ActionList(settings);
     // settings are stored on disk by QSettings destructor..
+
+    /**
+      * Mark the config Version
+      */
+    settings.setValue("CONF_WIZ_VER", Prefs_db_version);
+
 }
 
-bool Prefrences_dlg::getSerialPort_Name(QString &portname, QString &shortname)
+/**
+  * Write the Wizard setup Configuration
+  * @param shortname is the Serial ports name without path.
+  * @param use_EzLink set this to true to save EzLink setup.
+  */
+void Prefrences_dlg::WriteWizardCfg(const QString &shortname, bool use_Ezlink)
 {
-    if(!m_PortName.isEmpty()){
-        portname = m_SportsAvail.get_fullportName(m_PortName);
+
+    QSettings settings(QSettings::UserScope, "z88", "EazyLink2");
+
+    /**
+      * If using the Eazylink Protocol talking to Z88 Ezlink.
+      */
+    if(use_Ezlink){
+        settings.setValue("AutoSynchronizeClock", true);
+        settings.setValue("ShutdownEazyLinkOnExit", true);
+        settings.setValue("DefaultLinefeedConversion", m_crlfTrans);
+        settings.setValue("DefaultByteTranslation", m_byteTrans);
+        settings.setValue("OpenSerialportOnStart", true);
+        settings.setValue("RefreshZ88panelOnStart", true);
+        settings.setValue("Serialport", shortname);
+        settings.setValue("InitDeskIsRoot", m_initDir_isRoot);
+    }
+    else{
+        /**
+          * Imp-Export Protocol only
+          */
+        settings.setValue("AutoSynchronizeClock", false);
+        settings.setValue("ShutdownEazyLinkOnExit", false);
+        settings.setValue("DefaultLinefeedConversion", m_crlfTrans);
+        settings.setValue("DefaultByteTranslation", m_byteTrans);
+        settings.setValue("OpenSerialportOnStart", true);
+        settings.setValue("RefreshZ88panelOnStart", false);
+        settings.setValue("Serialport", shortname);
+        settings.setValue("InitDeskIsRoot", m_initDir_isRoot);
+    }
+    /**
+      * Save the Actions Table(s)
+      */
+    m_ActionSettings->save_ActionList(settings);
+    // settings are stored on disk by QSettings destructor..
+
+    /**
+      * Mark the config Version
+      */
+    settings.setValue("CONF_WIZ_VER", Prefs_db_version);
+
+    QString origPortName(m_PortName);
+
+    ReadCfg();
+}
+
+/**
+  * Get the Currently selected Port name
+  */
+bool Prefrences_dlg::getSerialPort_Names(QString &portname, QString &shortname)
+{
+    if(getSerialPort_Name(m_PortName, portname)){
         shortname = m_PortName;
+        return true;
+    }
+
+    return false;
+}
+
+/**
+  * Get the Full port name from the shortname (ie ttyS0)
+  * @param shortname is the short name of the port ie ttys0.
+  * @param portname is the returned full port name.
+  * @return true if port is found.
+  */
+bool Prefrences_dlg::getSerialPort_Name(const QString &shortname, QString &portname)
+{
+    if(!shortname.isEmpty()){
+        portname = m_SportsAvail.get_fullportName(shortname);
         return true;
     }
     return false;
@@ -291,6 +401,9 @@ void Prefrences_dlg::rejected()
     restoreChecked();
 }
 
+/**
+  * Event when user accepts the settings.
+  */
 void Prefrences_dlg::accepted()
 {
     m_InUse_Timer.stop();
@@ -312,13 +425,39 @@ void Prefrences_dlg::accepted()
     WriteCfg();
 }
 
+/**
+  * Refresh the List of available serial ports.
+  */
 void Prefrences_dlg::RefreshComsList()
 {
-    QString cur_dev = ui->Ui::Prefrences_dlg::SerialPortList->currentText();
+    RefreshComsList(ui->Ui::Prefrences_dlg::SerialPortList);
+}
 
-    ui->Ui::Prefrences_dlg::SerialPortList->clear();
-    ui->Ui::Prefrences_dlg::SerialPortList->addItems(m_SportsAvail.get_portList());
-    select_SerDevice(cur_dev);
+/**
+  * Refresh the List of available serial ports.
+  * @param cbox is the Combobox to be filled in.
+  */
+void Prefrences_dlg::RefreshComsList(QComboBox *cbox)
+{
+    QString cur_dev = cbox->currentText();
+    cbox->clear();
+    cbox->addItems(m_SportsAvail.get_portList());
+    select_SerDevice(cur_dev, cbox);
+}
+
+/**
+  * Refresh the List of available serial ports.
+  * @param portList is the returned list of ports.
+  */
+void Prefrences_dlg::RefreshComsList(QStringList &portList)
+{
+    portList.clear();
+    QStringListIterator i(m_SportsAvail.get_portList());
+
+    while(i.hasNext()){
+        portList.append(m_SportsAvail.get_fullportName(i.next()));
+    }
+
 }
 
 /**
@@ -335,6 +474,9 @@ void Prefrences_dlg::TabChanged(int idx)
     }
 }
 
+/**
+  * Restore the Previous values.
+  */
 void Prefrences_dlg::restoreChecked()
 {
     ui->Ui::Prefrences_dlg::tmSync_cbox->setChecked(m_autoSyncClock);
@@ -347,6 +489,9 @@ void Prefrences_dlg::restoreChecked()
 
 }
 
+/**
+  * Init the Actions tables
+  */
 void Prefrences_dlg::Init_Actions()
 {
     StringLList_t defaults;
@@ -492,6 +637,9 @@ void Prefrences_dlg::Init_Actions()
     m_ActionSettings->Append_FileAction(fa4);
 }
 
+/**
+  * Poll to see if the Comm thread is in use
+  */
 void Prefrences_dlg::Poll_inuse()
 {
     if(ui->Ui::Prefrences_dlg::tabWidget->currentIndex() == Comms){

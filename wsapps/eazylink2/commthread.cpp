@@ -123,6 +123,69 @@ void CommThread::run()
             cmdStatus(msg);
             emit open_result(m_devname, m_shortname, m_sport.openXonXoff(m_devname));
             break;
+        case OP_openTestEzProto:
+        {
+            QStringListIterator i(m_PortScanList);
+            int portIdx=-1;
+            bool rc = false;
+
+            cmdStatus("Looking for Z88...");
+
+            while(i.hasNext()){
+                portIdx++;
+                QString pname(i.next());
+
+                if(m_abort){
+                    emit openTest_result(-2, false);
+                    goto abort;
+                }
+
+                emit openTest_Start(portIdx);
+
+                if(m_sport.openXonXoff(pname)){
+                    rc = m_sport.helloZ88();
+                    m_sport.close();
+                }
+
+                if(rc){
+                    break;
+                }
+            }
+            emit openTest_result(portIdx, rc);
+        }
+        break;
+        case OP_openTestAscii:
+        {
+            QStringListIterator i(m_PortScanList);
+            int portIdx=-1;
+            bool rc = false;
+
+            cmdStatus("Looking for Z88...");
+
+            while(i.hasNext()){
+                portIdx++;
+                QString pname(i.next());
+
+                if(m_abort){
+                    emit openTest_result(-2, false);
+                    goto abort;
+                }
+
+                /* Notify Prefs panel */
+                emit openTest_Start(portIdx);
+
+                /**
+                  * Open the Port without HW flow control, so we don't hang
+                  * When there is nothing attached.
+                  */
+                if(m_sport.openXonXoff(pname)){
+                    m_sport.sendAsciiPortNameString(false);
+                    m_sport.close();
+                }
+            }
+            emit openTest_result(-3, rc);
+        }
+        break;
         case OP_helloZ88:       // Send a Z88 Hello Command.
             cmdStatus("Sending Hello Z88");
             emit boolCmd_result("HelloZ88", m_sport.helloZ88());
@@ -1288,10 +1351,10 @@ void CommThread::impExpRecFile_Done(const QString &fname)
 /**
   * The Slot that gets called when user hits abort button on the main form.
   */
-void CommThread::AbortCmd()
+void CommThread::AbortCmd(const QString &msg)
 {
     m_abort = true;
-    cmdStatus("Aborting current process...");
+    cmdStatus(msg);
 }
 
 /**
@@ -1426,6 +1489,35 @@ bool CommThread::openXonXoff(const QString &devname, const QString &short_name)
     m_devname = devname;
     m_shortname = short_name;
     startCmd(OP_openDevXonXoff);
+
+    return true;
+}
+
+/**
+  * Start Scan for the Z88 Port.
+  * @param portList is the List of ports to scan.
+  * @param EzLink set to true to perform Eazylink Hello to test.
+  * @return true if communication thread was idle.
+  */
+bool CommThread::scanForZ88(const QStringList &portList, bool EzLink)
+{
+    QMutexLocker locker(&m_mutex);
+
+    /**
+      * Make sure we are not running another command
+      */
+    if(m_curOP != OP_idle){
+        return false;
+    }
+
+    m_PortScanList = portList;
+
+    if(EzLink){
+        startCmd(OP_openTestEzProto);
+    }
+    else{
+        startCmd(OP_openTestAscii);
+    }
 
     return true;
 }

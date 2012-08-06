@@ -84,6 +84,7 @@ private slots:
     void LoadingDeskList(const bool &aborted);
     void refreshSelectedZ88DeviceView();
     void displayPrefs();
+    void Start_SetupWizard();
 
     void Drop_Requested(QList<Z88_Selection> *z88_dest, QList<QUrl> *urlList);
 
@@ -112,6 +113,8 @@ private slots:
     void renameCmd_result(const QString &msg, bool success);
     void renameZ88Item(Z88_Selection *item, const QString &newname);
     void deleteZ88Item(QTreeWidgetItem *item);
+    void ApplySerial_Configuration();
+
 
     /**
       * Preferences call-back
@@ -172,6 +175,8 @@ private:
      * The Communications Thread.
      */
     CommThread m_cthread;
+
+    QTimer m_SetupWizard_tmr;
 
     /**
       * The Number of Succesfull commands executed

@@ -1000,7 +1000,7 @@ bool Desktop_View::selectPath(const QString &path)
   * @param ev is the event that occured.
   * @return false.
   */
-bool Desktop_View::eventFilter(QObject *ob, QEvent *ev)
+bool Desktop_View::eventFilter(QObject *, QEvent *ev)
 {
     /**
       * Handle Right Click Context Menu
