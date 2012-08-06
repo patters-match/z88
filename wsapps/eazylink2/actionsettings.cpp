@@ -25,7 +25,7 @@ namespace Action_Settings{
       * increment this Any time the Format Changes.
       * That forces a Defualt Refresh.
       */
-    extern const int Action_db_version = 4;
+    const int Action_db_version = 4;
 }
 
 ActionSettings::ActionSettings(QWidget *parent) :

@@ -198,7 +198,7 @@
      <x>0</x>
      <y>0</y>
      <width>900</width>
-     <height>21</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -214,6 +214,7 @@
     </property>
     <addaction name="actionSerialPort"/>
     <addaction name="actionPreferences"/>
+    <addaction name="actionSetup_Wizzard"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
@@ -455,6 +456,11 @@
    </property>
    <property name="text">
     <string>Reload Translation Table</string>
+   </property>
+  </action>
+  <action name="actionSetup_Wizzard">
+   <property name="text">
+    <string>Setup Wizzard</string>
    </property>
   </action>
  </widget>

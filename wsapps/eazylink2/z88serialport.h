@@ -53,6 +53,7 @@ public:
     bool isOpen();                                                  // Return Port Open state.
     bool isZ88Available();                                          // Has communication been established with the Z88?
 
+    bool sendAsciiPortNameString(bool fullPath);                                 // Send the Port name out the Serial port.
     bool helloZ88();                                                // poll for "hello" to Z88
     bool quitZ88();                                                 // quit EazyLink popdown on Z88
     bool translationOn();                                           // enable byte translations during transfer

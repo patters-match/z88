@@ -33,6 +33,7 @@
 
 #include "z88serialport.h"
 #include "serialportsavail.h"
+#include "setupwizard.h"
 
 /**
   * The mainWindow Constructor
@@ -89,17 +90,29 @@ MainWindow::MainWindow(Z88SerialPort &sport, QWidget *parent) :
       */
     createActions();
 
+    /**
+      * If setup is needed, then don't try to open ports, etc.
+      * Open the Setup Wizard after about 1/2 Second.
+      */
+    if(m_prefsDialog->isSetupNeeded()){
+        QTimer::singleShot(550, this, SLOT(Start_SetupWizard()));
+        return;
+    }
+
+    ApplySerial_Configuration();
+#if 0
     QString serialPortname;
     QString port_shortname;
 
-    if(!m_prefsDialog->getSerialPort_Name(serialPortname, port_shortname)){
+    if(!m_prefsDialog->getSerialPort_Names(serialPortname, port_shortname)){
         m_prefsDialog->Activate(Prefrences_dlg::Comms);
     }
 
     if(m_prefsDialog->get_PortOpenOnStart() &&
-            m_prefsDialog->getSerialPort_Name(serialPortname, port_shortname)){
+            m_prefsDialog->getSerialPort_Names(serialPortname, port_shortname)){
         m_cthread.open(serialPortname, port_shortname);
     }
+#endif
 }
 
 /**
@@ -159,9 +172,28 @@ void MainWindow::refreshSelectedZ88DeviceView()
     m_Z88StorageView->refreshSelectedDeviceView();
 }
 
+/**
+  * Display the Last diplayed Preferences Dialog
+  */
 void MainWindow::displayPrefs()
 {
     m_prefsDialog->Activate(Prefrences_dlg::Default);
+}
+
+/**
+  * Start the Setup Wizard and Refresh the Serial ports.
+  */
+void MainWindow::Start_SetupWizard()
+{
+    SetupWizard *sw = new SetupWizard(m_prefsDialog, this);
+    int rc = sw->exec();
+
+    if(rc){
+        /**
+          * Prompt User for General Settings, and force re-load Serial.
+          */
+        m_prefsDialog->Activate(Prefrences_dlg::General, true);
+    }
 }
 
 /**
@@ -252,6 +284,7 @@ void MainWindow::createActions()
 
     connect(ui->Ui::MainWindow::CancelCmdBtn, SIGNAL(pressed()), this, SLOT(AbortCmd()));
     connect(ui->Ui::MainWindow::actionPreferences, SIGNAL(triggered()), this, SLOT(displayPrefs()));
+    connect(ui->Ui::MainWindow::actionSetup_Wizzard, SIGNAL(triggered()), this, SLOT(Start_SetupWizard()));
 
     connect(m_Z88StorageView,  SIGNAL(ItemSelectionChanged(int)), this, SLOT(Z88SelectionChanged(int)));
     connect(m_DeskTopTreeView, SIGNAL(ItemSelectionChanged(int)), this, SLOT(DeskTopSelectionChanged(int)));
@@ -726,6 +759,9 @@ void MainWindow::commOpen_result(const QString &, const QString &short_name, boo
 
         m_StatusLabel->setText(msg);
 
+        /**
+          * If Auto - Referesh Z88 on Serial connect
+          */
         if(m_prefsDialog->get_RefreshZ88OnStart()){
             ReloadZ88View();
         }
@@ -816,7 +852,7 @@ void MainWindow::boolCmd_result(const QString &cmdName, bool success)
         if(!m_cmdSuccessCount){
             msg += "Please check the serial connection, and make sure EasyLink is running on the Z88.\r\n";
         }
-        msg += "Click \'retry\' to reset communication link & try again.";
+        msg += "Click \'retry\' to reset serial link & try again.\r\n";
 
         QMessageBox::StandardButton reply;
 
@@ -1271,12 +1307,27 @@ void MainWindow::deleteZ88Item(QTreeWidgetItem *item)
 
 }
 
+void MainWindow::ApplySerial_Configuration()
+{
+    QString serialPortname;
+    QString port_shortname;
+
+    if(!m_prefsDialog->getSerialPort_Names(serialPortname, port_shortname)){
+        m_prefsDialog->Activate(Prefrences_dlg::Comms);
+    }
+
+    if(m_prefsDialog->get_PortOpenOnStart() &&
+            m_prefsDialog->getSerialPort_Names(serialPortname, port_shortname)){
+        m_cthread.open(serialPortname, port_shortname);
+    }
+}
+
 void MainWindow::SerialPortSelChanged()
 {
     QString serialPortname;
     QString port_shortname;
 
-    if(m_prefsDialog->getSerialPort_Name(serialPortname, port_shortname)){
+    if(m_prefsDialog->getSerialPort_Names(serialPortname, port_shortname)){
         m_cthread.open(serialPortname, port_shortname);
     }
 }
@@ -1764,7 +1815,7 @@ void MainWindow::StartImpExpSending(const QStringList &src_fileNames)
           * Strip the Leading Path
           */
         QString fname(i.peekNext());
-        int idx = fname.lastIndexOf(QDir::separator());
+        int idx = fname.lastIndexOf('/');
 
         if(idx >= 0){
             fname = fname.mid(idx+1);
@@ -1802,6 +1853,9 @@ void MainWindow::StartImpExpSending(const QStringList &src_fileNames)
         i.next();
     }
 
+    /**
+      * The Z88 Destination Slots (Storage slots)
+      */
     QStringList Z88Slots;
 
     Z88Slots.append("0");

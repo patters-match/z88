@@ -251,6 +251,38 @@ bool Z88SerialPort::isZ88Available()
     return z88AvailableStatus;
 }
 
+bool Z88SerialPort::sendAsciiPortNameString(bool fullPath)
+{
+    QString pname(portName);
+
+    /**
+      * If not fullpath requested, then strip the Path
+      */
+    if(!fullPath){
+        int idx = portName.lastIndexOf("/");
+        if(idx >=0){
+            pname = portName.mid(idx+1);
+        }
+    }
+
+    QByteArray frm;
+    QByteArray obuf;
+    obuf.append(QChar(12));
+    obuf.append(QChar(12));
+    obuf.append(QChar(7));
+
+    obuf += "Serial Port Found!!!\r\n";
+    /**
+      * Draw a fram around the device name
+      */
+    obuf.append(frm.fill('*', 4 + pname.size()));
+    obuf += "\r\n* " + pname  + " *\r\n";
+    obuf.append(frm.fill('*', 4 + pname.size()));
+    obuf += "\r\n";
+
+    return (port.write(obuf, obuf.size()) == obuf.size());
+}
+
 void Z88SerialPort::close()
 {
     if (portOpenStatus == true) {
