@@ -64,7 +64,7 @@ protected:
         OP_openTestAscii,       // Open the specified port and the port name, wait, then close.
         OP_reopen,              // Re-init the Serial port, and optionally re-run the last command.
         OP_helloZ88,            // Send a Hello Message to the Z88.
-        OP_quitZ88,             // Request the Z88 Should exit the Ez-link pulldown app.
+        OP_quitZ88,             // Request the Z88 Should exit the Ez-link popdown app.
         OP_reloadTransTable,    // Request the Z88 reload its translation table.
         OP_setZ88Clock,         // Set the Z88 real time clock.
         OP_getZ88Clock,         // Read the Z88 real time clock.
