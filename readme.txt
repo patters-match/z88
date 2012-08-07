@@ -91,15 +91,23 @@ which you can get from http://launch4j.sourceforge.net.
 
 
 ----------------------------------------------------------------------
-Getting started with Git and a quick tour of the repository layout
+Getting started with Git and a tour of the repository layout
 ----------------------------------------------------------------------
 
 To get the complete main development tree of all source files and
 documentation in the Git repository, you simply check out the repository
-to a locally preferred place on your workstation hard drive:
+to a locally preferred place on your workstation file system:
 
+Using HTTPS:
 git clone https://bitbucket.org/cambridge/z88.git
 (this is anonymous checkout only)
+
+Using SSH:
+git clone git@bitbucket.org:cambridge/z88.git
+
+Read here how to use SSH with our bitbucket repositories:
+https://confluence.atlassian.com/display/BITBUCKET/Using+the+SSH+protocol+with+bitbucket
+
 
 The main z88 repository contains submodules, so you need to use two
 more steps to get the rest of the source code:
@@ -110,7 +118,8 @@ git submodule update
 (the above examples uses the command line client tool, available on all
 supported operating systems by official Git project)
 
-There are myriads of other Git clients out there to use.
+There are myriads of other Git clients out there to use. They also
+support submodule functionality.
 
 Once you've got yourself the latest snapshot of the repository, you
 will get the following directory structure with lots of files in it:
@@ -133,6 +142,8 @@ will get the following directory structure with lots of files in it:
      /userguide     Z88 User Guide (outdated, use online wiki!)
 
 /oz                 Z88 ROM, OZ V4.3+
+                    (SUBMODULE - points to oz.git)
+
      /apps          The system applications; Index, PipeDream, Diary, etc.
      /dc            The DC_xx system calls
      /def           OZ system manifests, used by Z88 assembler sources
@@ -150,12 +161,20 @@ will get the following directory structure with lots of files in it:
      /jdk           Eclipse Java Compiler and the MakeJar utility
                     (these tools are used to compile executable Jar's
                     for OZvm, MakeApp and FontBitMap applications.
+
      /makeapp       Binary loader to make Z88 ROM & Application Cards
+                    (SUBMODULE - points to makeapp.git)
+
      /mpm           Z80/Z88 Cross Module Assembler & Linker
+                    (SUBMODULE - points to mpm.git)
+
      /ozvm          Z88 Virtual Machine & Debugger
+                    (SUBMODULE - points to ozvm.git)
 
 /wsapps             Generic workstation Z88 related applications
      eazylink2      EazyLink Client for Window, Mac & Linux, by O.Ernohazy & G.Strube
+                    (SUBMODULE - points to eazylink2.git)
+
      z88transfer    EazyLink Client by Sergio Costas (requires Python)
 
 /z88apps            Z88 Applications & popdowns (Z80 source code)
@@ -192,6 +211,26 @@ will get the following directory structure with lots of files in it:
      /ziputils      UnZip & ZipUp applications for ZIP file management
      /zmonitor      View Z88 memory (RAM/ROM)
      /zprom         Blow code/data to UV Eprom / Flash Cards
+
+
+----------------------------------------------------------------------
+The Z88 Project Git repositories
+----------------------------------------------------------------------
+As described above, the main repository, z88.git, contains all work,
+partly as submodules to other Git repositories. This repository is
+regarded as an umbrella for work archived or referenced.
+
+Ultimately, every stand-alone project will have it's own Git repository.
+Currently, when working on a specific project, use a stand-alone Git:
+
+https://bitbucket.org/cambridge/oz.git (OZ - Z88 ROM)
+https://bitbucket.org/cambridge/mpm.git (Mpm - Z80 Assember utility)
+https://bitbucket.org/cambridge/makeapp.git (MakeApp - Z88 AppCard Manager)
+https://bitbucket.org/cambridge/ozvm.git (OZvm - Z88 Emulator)
+https://bitbucket.org/cambridge/eazylink2.git (EazyLink2 Desktop Client)
+
+If you need write access to the repositories, drop us an email with
+your user account name on bitbucket: cambridgez88@gmail.com
 
 
 
