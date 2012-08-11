@@ -27,5 +27,5 @@ mpm -b -I../../oz/def lockup.asm
 mpm -b -I../../oz/def romheader.asm
 
 # Create a 16K Rom Card with Lockup
-makeapp.sh -f lockup.loadmap
+makeapp -f lockup.loadmap
 

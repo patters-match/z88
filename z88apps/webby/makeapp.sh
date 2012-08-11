@@ -24,8 +24,8 @@ rm -f *.ap? *.6? *.epr
 ../../tools/forth/makeforthapp.sh -f makeapp.fth -f webby.fth -f webby.dor -f sockdummy.fth
 
 # Create a 32K standalone Rom Card with Webby
-makeapp.sh -f webby-std.loadmap
+makeapp -f webby-std.loadmap
 
 # Create a 16K client Rom Card with Webby
-makeapp.sh -f webby-cli.loadmap
+makeapp -f webby-cli.loadmap
 

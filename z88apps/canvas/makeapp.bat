@@ -22,8 +22,8 @@ del *.ap? *.6? *.epr
 call ..\..\tools\forth\makeforthapp.bat -f makeapp.fth -f arttools.fth -f canvas.fth -f canvas.dor -f ..\whatnow\zxscreen.fth
 
 :: Create a 32K standalone Rom Card with Canvas
-call makeapp.bat -f canvas-std.loadmap
+call makeapp -f canvas-std.loadmap
 
 :: Create a 16K client Rom Card with Canvas
-call makeapp.bat -f canvas-cli.loadmap
+call makeapp -f canvas-cli.loadmap
 

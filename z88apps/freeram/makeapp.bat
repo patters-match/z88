@@ -25,4 +25,4 @@ mpm -b -I..\..\oz\def -l..\..\stdlib\standard.lib freeram.asm
 mpm -b romhdr
 
 :: Create a 16K Rom Card with FreeRam
-makeapp.bat -f freeram.loadmap
+makeapp -f freeram.loadmap

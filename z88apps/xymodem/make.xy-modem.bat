@@ -21,4 +21,4 @@ del *.obj *.bin *.map *.63 *.epr
 mpm -b -I..\..\oz\def xy-modem.asm
 
 :: Create a 16K Rom Card with XY-Modem
-makeapp.bat xy-modem.epr xy-modem.bin 32d4
+makeapp xy-modem.epr xy-modem.bin 32d4

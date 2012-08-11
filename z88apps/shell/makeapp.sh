@@ -27,5 +27,5 @@ rm -f *.ap? *.6? *.epr
 makeapp.sh -f shell-std.loadmap
 
 # Create a 16K client Rom Card with Shell
-makeapp.sh -f shell-cli.loadmap
+makeapp -f shell-cli.loadmap
 

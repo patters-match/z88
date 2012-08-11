@@ -29,7 +29,7 @@ goto LIST_ERRORS
 
 :CREATE_EPR
 :: Create a 16K Rom Card with RomUpdate
-makeapp.bat romupdate.epr romupdate.bin 3f0000 romhdr.bin 3f3fc0
+makeapp romupdate.epr romupdate.bin 3f0000 romhdr.bin 3f3fc0
 goto END
 
 :LIST_ERRORS

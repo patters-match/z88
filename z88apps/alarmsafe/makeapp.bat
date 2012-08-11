@@ -25,5 +25,5 @@ mpm -b -I..\..\oz\def alarmsafe.asm
 mpm -b -I..\..\oz\def romheader.asm
 
 :: Create a 16K Rom Card with AlarmSafe
-makeapp.bat -f alarmsafe.loadmap
+makeapp -f alarmsafe.loadmap
 

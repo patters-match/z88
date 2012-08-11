@@ -26,4 +26,4 @@ mpm -b -I../../oz/def -l../../stdlib/standard.lib @zetriz
 mpm -b -I../../oz/def romhdr
 
 # Create a 16K Rom Card with ZetriZ to be blown by RomCombiner, Zprom or RomUpdate on real cards
-makeapp.sh -f zetriz.loadmap
+makeapp -f zetriz.loadmap

@@ -27,6 +27,6 @@ mthzprom.bin 3e0400                ; MTH for Zprom application
 zprom.bin 3fc000                   ; load Zprom Application code
 patch 3f0003 00 eb 3f              ; patch Zprom DOR to point at FlashTest DOR
 
-..\flashtest\fltest.bin 3feb00     ; FlashTest DOR & Application
+../flashtest/fltest.bin 3feb00     ; FlashTest DOR & Application
 
 romhdr.bin 3f3fc0                  ; ROM Application header at top of card

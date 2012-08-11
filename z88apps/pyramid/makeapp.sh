@@ -24,8 +24,8 @@ rm -f *.ap? *.6? *.epr
 ../../tools/forth/makeforthapp.sh -f makeapp.fth -f pyramid.fth -f pyramid-app.fth -f pyramid-app.dor
 
 # Create a 32K standalone Rom Card with Pyramid
-makeapp.sh -f pyramid-std.loadmap
+makeapp -f pyramid-std.loadmap
 
 # Create a 16K client Rom Card with Pyramid
-makeapp.sh -f pyramid-cli.loadmap
+makeapp -f pyramid-cli.loadmap
 

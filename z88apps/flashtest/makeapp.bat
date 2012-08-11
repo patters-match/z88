@@ -29,7 +29,7 @@ goto LIST_ERRORS
 
 :CREATE_EPR
 :: Create a 16K Rom Card with FlashTest
-makeapp.bat flashtest.epr fltest.bin 0000 romhdr.bin 3fc0
+makeapp flashtest.epr fltest.bin 0000 romhdr.bin 3fc0
 goto END
 
 :LIST_ERRORS

@@ -25,4 +25,4 @@ mpm -db -I..\..\oz\def -l..\..\stdlib\standard.lib @flashstore
 mpm -db romhdr
 
 :: Create a 16K Rom Card with FlashStore
-makeapp.bat -f flashstore.loadmap
+makeapp -f flashstore.loadmap

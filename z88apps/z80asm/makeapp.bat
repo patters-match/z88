@@ -24,7 +24,6 @@
 :: see the file COPYING. If not, write to the
 :: Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 ::
-::
 :: ******************************************************************************************************************
 
 :: ensure that we have an up-to-date standard library
@@ -42,4 +41,4 @@ mpm -bc -I..\..\oz\def -l..\..\stdlib\standard.lib @z80asm
 mpm -b -I..\..\oz\def romhdr
 
 :: Create a 64K image with Z80asm (required by MakeApp)
-makeapp.bat -f z80asm.loadmap
+makeapp -f z80asm.loadmap
