@@ -327,7 +327,7 @@ qmake mpm.pro; make [using Qt/Qt-Creator installed on Windows/Mac/Linux]
 
 -- Compiling MakeApp --
 
-MakeApp, a binary file combiner, is a Qt-based library exectuable program
+MakeApp, a binary file combiner, is a Qt-based library executable program
 to be compiled. MakeApp
 is found together with Mpm in most Z88 application compile scripts.
 The resulting binary is a makeapp executable file, just as Mpm.
