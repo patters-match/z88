@@ -127,7 +127,7 @@ will get the following directory structure with lots of files in it:
 /bin
      /roms          This folder contains all known Z88 ROMS, used by OZvm
      z88.jar        The Z88 emulator / debugger.
-     makeapp.jar    The MakeApp utility used by compilation script to
+     makeapp        The MakeApp utility used by compilation scripts to
                     generate Z88 Application Card binaries.
      mpm            The Z80 assembler used to compile all Z80 sources
      dzasm          Utility to reverse-engineer Z80 binaries into source
@@ -327,40 +327,27 @@ qmake mpm.pro; make [using Qt/Qt-Creator installed on Windows/Mac/Linux]
 
 -- Compiling MakeApp --
 
-MakeApp, a binary file combiner, is a java program which needs a Sun
-Java 1.6 Runtime Environment (or newer) installed to get compiled. MakeApp
+MakeApp, a binary file combiner, is a Qt-based library exectuable program
+to be compiled. MakeApp
 is found together with Mpm in most Z88 application compile scripts.
-The resulting binary is a makeapp.jar file, which is executed with the
-java -jar makeapp.jar command. The MakeApp program is compiled using the
-the ECJ compiler and the MakeJar utility (integrated inside the /tools/jdk
-directory).
+The resulting binary is a makeapp executable file, just as Mpm.
 
-If the java command is unknown or not found when executing it on the command
-line, you need to add the location of the java executable to the PATH
-environment variable.
-
-For all operating system platforms, the PATH environment variable
-must be set to the <jre install>/bin folder. In Windows you define the
-PATH environment variable as follows:
-
-    Control Panel -> "System" -> Advanced -> System Variables
-    Click on "Path", then append <jdk install>\bin to line.
-
-Generally for Unixes, you add the <jre install>\bin path to your shell
-environment init scripts, for example in the .bash_profile file for
-BASH. To test the availablity of the java interpreter, just type
-
-    java -version
-
-This will display the version and the runtime options to the console.
-So, if the command isn't recognised, you need to go through the above
-steps to make it visible to the command shell.
-
-You're now ready compile MakeApp:
+To compile MakeApp you have to install the Qt libraries and tools.
+More information is described in the comments in each platform compile
+script:
 
     cd <z88 project>/tools/makeapp
-    makejar.bat (Windows) or ./makejar.sh (Unix)
+    compile-gcc-linux.sh         (qt 4.8+, make & gcc are installed your
+                                  linux using native package manager)
 
+    compile-qtsdk-linux.sh       (qt 4.8+ and tools,are installed from
+                                  QtSDK for Linux - make & gcc are on linux)
+
+    compile-mingw32-windows.bat  (qt 4.8+, mingw make & gcc are installed
+                                  through the QtSDK for Windows)
+
+    compile-qtsdk-macosx.sh      (qt 4.8+ and tools are installed from QtSDK
+                                  for Mac OSX. Requires Xcode to be installed)
 
 
 ----------------------------------------------------------------------
