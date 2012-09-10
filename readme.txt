@@ -127,7 +127,7 @@ will get the following directory structure with lots of files in it:
 /bin
      /roms          This folder contains all known Z88 ROMS, used by OZvm
      z88.jar        The Z88 emulator / debugger.
-     makeapp        The MakeApp utility used by compilation scripts to
+     z88card        The Z88Card utility used by compilation scripts to
                     generate Z88 Application Card binaries.
      mpm            The Z80 assembler used to compile all Z80 sources
      dzasm          Utility to reverse-engineer Z80 binaries into source
@@ -160,10 +160,10 @@ will get the following directory structure with lots of files in it:
      /forth         Tools to generate CamelForth-based applications
      /jdk           Eclipse Java Compiler and the MakeJar utility
                     (these tools are used to compile executable Jar's
-                    for OZvm, MakeApp and FontBitMap applications.
+                    for OZvm, Z88Card and FontBitMap applications.
 
-     /makeapp       Binary loader to make Z88 ROM & Application Cards
-                    (SUBMODULE - points to makeapp.git)
+     /z88card       Binary loader to make Z88 ROM & Application Cards
+                    (SUBMODULE - points to z88card.git)
 
      /mpm           Z80/Z88 Cross Module Assembler & Linker
                     (SUBMODULE - points to mpm.git)
@@ -225,7 +225,7 @@ Currently, when working on a specific project, use a stand-alone Git:
 
 https://bitbucket.org/cambridge/oz.git (OZ - Z88 ROM)
 https://bitbucket.org/cambridge/mpm.git (Mpm - Z80 Assember utility)
-https://bitbucket.org/cambridge/makeapp.git (MakeApp - Z88 AppCard Manager)
+https://bitbucket.org/cambridge/z88card.git (Z88Card - Z88 AppCard Manager)
 https://bitbucket.org/cambridge/ozvm.git (OZvm - Z88 Emulator)
 https://bitbucket.org/cambridge/eazylink2.git (EazyLink2 Desktop Client)
 
@@ -290,7 +290,7 @@ differs, depending on which platform it is determined to be executed on.
 
 
 ----------------------------------------------------------------------
-Compiling the Z80 assembler tool chain (Mpm & MakeApp)
+Compiling the Z80 assembler tool chain (Mpm & Z88Card)
 ----------------------------------------------------------------------
 (This is provided automatically by the Z88 Workbench Installer)
 
@@ -298,7 +298,7 @@ All Z88 applications and popdowns, especially the Z88 ROM (OZ), are
 implemented using native Z80 machine code (Zilog Z80 assembly language).
 All Z80 assembler source code is provided in *.asm files and needs to
 be compiled using the Z80 Cross Module Assembler, Mpm. Usually, several
-compiled binaries are combined into a single binary file, using MakeApp.
+compiled binaries are combined into a single binary file, using Z88Card.
 
 -- Compiling Mpm --
 
@@ -325,18 +325,17 @@ or
 qmake mpm.pro; make [using Qt/Qt-Creator installed on Windows/Mac/Linux]
 
 
--- Compiling MakeApp --
+-- Compiling Z88Card --
 
-MakeApp, a binary file combiner, is a Qt-based library executable program
-to be compiled. MakeApp
-is found together with Mpm in most Z88 application compile scripts.
-The resulting binary is a makeapp executable file, just as Mpm.
+Z88Card, a binary file combiner, is a Qt-based library executable program
+to be compiled. Z88Card is found together with Mpm in most Z88 application
+compile scripts. The resulting binary is a z88card executable file, just as Mpm.
 
-To compile MakeApp you have to install the Qt libraries and tools.
+To compile Z88Card you have to install the Qt libraries and tools.
 More information is described in the comments in each platform compile
 script:
 
-    cd <z88 project>/tools/makeapp
+    cd <z88 project>/tools/z88card
     compile-gcc-linux.sh         (qt 4.8+, make & gcc are installed your
                                   linux using native package manager)
 
