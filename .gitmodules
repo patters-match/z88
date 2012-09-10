@@ -4,9 +4,9 @@
 [submodule "tools/mpm"]
 	path = tools/mpm
 	url = https://bitbucket.org/cambridge/mpm.git
-[submodule "tools/makeapp"]
-	path = tools/makeapp
-	url = https://bitbucket.org/cambridge/makeapp.git
+[submodule "tools/z88card"]
+	path = tools/z88card
+	url = https://bitbucket.org/cambridge/z88card.git
 [submodule "tools/ozvm"]
 	path = tools/ozvm
 	url = https://bitbucket.org/cambridge/ozvm.git
