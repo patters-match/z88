@@ -27,4 +27,4 @@ mpm -b -I..\..\oz\def -l..\..\stdlib\standard.lib @eazylink
 mpm -b romhdr
 
 :: produce bank to be blown by RomCombiner, Zprom or RomUpdate on real cards
-makeapp -f eazylink.loadmap
+z88card -f eazylink.loadmap

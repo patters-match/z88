@@ -29,7 +29,7 @@ mpm -b -DINT_SEGM0 -DSEGMENT3 -I../../oz/def -l../../stdlib/standard.lib @debug0
 # combine the two images as a single 16K executable, to be executed at $2000 in upper 8K segment 0
 # 'debug0a.bin' is the bootstrap and the core instruction debugger
 # 'debug0b.bin' contains the debugger command line
-makeapp debugS00.bin debug0a.bin 0000 debug0b.bin 2000
+z88card debugS00.bin debug0a.bin 0000 debug0b.bin 2000
 
 # delete the redundant output binaries
 rm -f debug0a.bin debug0b.bin

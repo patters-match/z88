@@ -24,8 +24,8 @@ rm -f *.ap? *.6? *.epr
 ../../tools/forth/makeforthapp.sh -f makeapp.fth -f arttools.fth -f canvas.fth -f canvas.dor -f ../whatnow/zxscreen.fth
 
 # Create a 32K standalone Rom Card with Canvas
-makeapp -f canvas-std.loadmap
+z88card -f canvas-std.loadmap
 
 # Create a 16K client Rom Card with Canvas
-makeapp -f canvas-cli.loadmap
+z88card -f canvas-cli.loadmap
 

@@ -28,5 +28,5 @@ mpm -b -I../../oz/def @tester.prj
 mpm -b -I../../oz/def romheader.asm
 
 # Create a 16K Rom Card with Tester & Example Package
-makeapp -f tester.loadmap
+z88card -f tester.loadmap
 

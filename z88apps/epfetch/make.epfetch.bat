@@ -22,4 +22,4 @@ mpm -bg -I..\..\oz\def epfetch2
 mpm -b romhdr
 
 # Create a 16K Rom Card with EP-Fetch2
-makeapp -f epfetch2.loadmap
+z88card -f epfetch2.loadmap

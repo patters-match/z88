@@ -27,5 +27,5 @@ if test `find . -name '*.err' | wc -l` != 0; then
     cat *.err
 else
     # Create a 16K Rom Card with RomUpdate
-    makeapp romupdate.epr romupdate.bin 3f0000 romhdr.bin 3f3fc0
+    z88card romupdate.epr romupdate.bin 3f0000 romhdr.bin 3f3fc0
 fi

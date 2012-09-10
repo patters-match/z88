@@ -24,8 +24,8 @@ rm -f *.ap? *.6? *.epr
 ../../tools/forth/makeforthapp.sh -f makeapp.fth -f shell.fth -f shell.dor -f shellapi.fth -f xfsblock.bin
 
 # Create a 32K standalone Rom Card with Shell
-makeapp.sh -f shell-std.loadmap
+z88card -f shell-std.loadmap
 
 # Create a 16K client Rom Card with Shell
-makeapp -f shell-cli.loadmap
+z88card -f shell-cli.loadmap
 

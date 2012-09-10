@@ -26,5 +26,5 @@ mpm -b -oibp.bin -I..\..\oz\def @ibp.prj
 mpm -b -I..\..\oz\def romheader.asm
 
 :: Create a 16K Rom Card with Installer/Bootstrap/Packages
-makeapp -f ibp.loadmap
+z88card -f ibp.loadmap
 

@@ -22,5 +22,5 @@ del *.6? *.bin zcc_opt.def *.epr
 zcc -lz88 -create-app -make-app -o uutools.bin uutools.c uuapp.c mimepkg.c
 
 :: Create a 16K Rom Card with UUtools, and generate a proper card Id
-makeapp -f uutools.loadmap
+z88card -f uutools.loadmap
 

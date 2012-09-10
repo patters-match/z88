@@ -31,4 +31,4 @@ mpm -b -I..\..\oz\def romhdr
 mpm -rEB00 -I..\..\oz\def -l..\..\stdlib\standard.lib -b ..\flashtest\fltest.asm ..\flashtest\ramcard.asm
 
 :: Create a 32K Rom Card with Zprom and FlashTest ($3E contains MTH, $3F contains application code for Zprom and FlashTest)
-makeapp -f zprom+flashtest.loadmap
+z88card -f zprom+flashtest.loadmap

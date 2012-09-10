@@ -28,4 +28,4 @@ mpm -b -DSEGMENT2 -I..\..\oz\def -l..\..\stdlib\standard.lib @debugapl
 mpm -b -DSEGMENT2 romhdr
 
 :: produce a complete 32K card image for OZvm, and make individual banks for RomCombiner.
-makeapp -szc 32 intuition.epr mthdbg.bin 3e0000 debugger.bin 3f0000 romhdr.bin 3f3fc0
+z88card -szc 32 intuition.epr mthdbg.bin 3e0000 debugger.bin 3f0000 romhdr.bin 3f3fc0

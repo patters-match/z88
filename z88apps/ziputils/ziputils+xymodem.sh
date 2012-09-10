@@ -18,4 +18,4 @@ cd unzip; ./makeapp.sh; cd ..
 cd zipup; ./makeapp.sh; cd ..
 
 # Create a 16K Rom Card with ZipUp & Unzip & XY-modem
-makeapp -f ziputils+xymodem.loadmap
+z88card -f ziputils+xymodem.loadmap

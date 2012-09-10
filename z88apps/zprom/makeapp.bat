@@ -28,4 +28,4 @@ mpm -b -I..\..\oz\def -l..\..\stdlib\standard.lib @zprom
 mpm -b -I..\..\oz\def romhdr
 
 :: Create a 32K Rom Card with Zprom ($3E contains MTH, $3F contains application code)
-makeapp -szc 32 zprom.epr tokens.bin 3e0000 mthzprom.bin 3e0400 zprom.bin 3fc000 romhdr.bin 3f3fc0
+z88card -szc 32 zprom.epr tokens.bin 3e0000 mthzprom.bin 3e0400 zprom.bin 3fc000 romhdr.bin 3f3fc0

@@ -41,4 +41,4 @@ mpm -bc -I..\..\oz\def -l..\..\stdlib\standard.lib @z80asm
 mpm -b -I..\..\oz\def romhdr
 
 :: Create a 64K image with Z80asm (required by MakeApp)
-makeapp -f z80asm.loadmap
+z88card -f z80asm.loadmap

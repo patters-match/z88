@@ -28,5 +28,5 @@ if test `find . -name '*.err' | wc -l` != 0; then
     cat *.err
 else
     # Create a 16K Rom Card with FlashTest
-    makeapp flashtest.epr fltest.bin 0000 romhdr.bin 3fc0
+    z88card flashtest.epr fltest.bin 0000 romhdr.bin 3fc0
 fi
