@@ -1,15 +1,3 @@
 [submodule "oz"]
 	path = oz
 	url = https://bitbucket.org/cambridge/oz.git
-[submodule "tools/mpm"]
-	path = tools/mpm
-	url = https://bitbucket.org/cambridge/mpm.git
-[submodule "tools/z88card"]
-	path = tools/z88card
-	url = https://bitbucket.org/cambridge/z88card.git
-[submodule "tools/ozvm"]
-	path = tools/ozvm
-	url = https://bitbucket.org/cambridge/ozvm.git
-[submodule "wsapps/eazylink2"]
-	path = wsapps/eazylink2
-	url = https://bitbucket.org/cambridge/eazylink2.git

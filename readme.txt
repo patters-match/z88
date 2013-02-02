@@ -32,22 +32,7 @@ https://bitbucket.org/cambridge/z88  (main source code Git repository)
 
 
 ----------------------------------------------------------------------
-Using the Z88 Workbench Installer
-----------------------------------------------------------------------
-The Z88 project has now made Desktop Installers available for Linux,
-Mac OS X and Windows that provides all executable tools necessary to
-start learning the Z88 universe of software. No need to set up special
-environment variables, using a C compiler or installing 3rd party software.
-
-The installer will provide icons on your desktop for running the
-emulator, local access to all project source code (Git repository),
-transferring files to your Z88, compiling OZ, links to project
-documentation and much more.
-
-
-
-----------------------------------------------------------------------
-Basic requirements - for DIY power users.
+Basic requirements
 ----------------------------------------------------------------------
 
 The cross platform tools, scripts and other Z88 software to be compiled
@@ -109,7 +94,7 @@ Read here how to use SSH with our bitbucket repositories:
 https://confluence.atlassian.com/display/BITBUCKET/Using+the+SSH+protocol+with+bitbucket
 
 
-The main z88 repository contains submodules, so you need to use two
+The main z88 repository contains the OZ submodule, so you need to use two
 more steps to get the rest of the source code:
 
 git submodule init
@@ -126,14 +111,14 @@ will get the following directory structure with lots of files in it:
 
 /bin
      /roms          This folder contains all known Z88 ROMS, used by OZvm
-     z88.jar        The Z88 emulator / debugger.
+     z88.jar        The Z88 emulator / debugger (needs JVM runtime installed)
+
+     Executable binaries the needs to be compiled from Tool Git repositories are placed here:
      z88card        The Z88Card utility used by compilation scripts to
                     generate Z88 Application Card binaries.
      mpm            The Z80 assembler used to compile all Z80 sources
      dzasm          Utility to reverse-engineer Z80 binaries into source
                     code
-
-     [Various 3rd party runtime binaries provided by Z88 Workbench installer]
 
 /documentation
      /devnotes      Z88 Developers Notes (outdated - use online wiki!)
@@ -162,19 +147,7 @@ will get the following directory structure with lots of files in it:
                     (these tools are used to compile executable Jar's
                     for OZvm, Z88Card and FontBitMap applications.
 
-     /z88card       Binary loader to make Z88 ROM & Application Cards
-                    (SUBMODULE - points to z88card.git)
-
-     /mpm           Z80/Z88 Cross Module Assembler & Linker
-                    (SUBMODULE - points to mpm.git)
-
-     /ozvm          Z88 Virtual Machine & Debugger
-                    (SUBMODULE - points to ozvm.git)
-
 /wsapps             Generic workstation Z88 related applications
-     eazylink2      EazyLink Client for Window, Mac & Linux, by O.Ernohazy & G.Strube
-                    (SUBMODULE - points to eazylink2.git)
-
      z88transfer    EazyLink Client by Sergio Costas (requires Python)
 
 /z88apps            Z88 Applications & popdowns (Z80 source code)
@@ -216,18 +189,17 @@ will get the following directory structure with lots of files in it:
 ----------------------------------------------------------------------
 The Z88 Project Git repositories
 ----------------------------------------------------------------------
-As described above, the main repository, z88.git, contains all work,
-partly as submodules to other Git repositories. This repository is
-regarded as an umbrella for work archived or referenced.
+The main repository, z88.git, contains mostly Z88 source code, and a
+single submodule, OZ, that poitns to another Git repository. This repository
+is regarded as an umbrella for work archived or referenced.
 
-Ultimately, every stand-alone project will have it's own Git repository.
 Currently, when working on a specific project, use a stand-alone Git:
 
 https://bitbucket.org/cambridge/oz.git (OZ - Z88 ROM)
 https://bitbucket.org/cambridge/mpm.git (Mpm - Z80 Assember utility)
 https://bitbucket.org/cambridge/z88card.git (Z88Card - Z88 AppCard Manager)
 https://bitbucket.org/cambridge/ozvm.git (OZvm - Z88 Emulator)
-https://bitbucket.org/cambridge/eazylink2.git (EazyLink2 Desktop Client)
+https://bitbucket.org/cambridge/eazylink2.git (New EazyLink2 Desktop Client)
 
 If you need write access to the repositories, drop us an email with
 your user account name on bitbucket: cambridgez88@gmail.com
@@ -237,7 +209,6 @@ your user account name on bitbucket: cambridgez88@gmail.com
 ----------------------------------------------------------------------
 Configuring command line shell environment variables
 ----------------------------------------------------------------------
-(This is provided automatically by the Z88 Workbench Installer)
 
 In order for the many compile scripts to function properly, two steps
 must be made before following the next steps:
@@ -292,7 +263,6 @@ differs, depending on which platform it is determined to be executed on.
 ----------------------------------------------------------------------
 Compiling the Z80 assembler tool chain (Mpm & Z88Card)
 ----------------------------------------------------------------------
-(This is provided automatically by the Z88 Workbench Installer)
 
 All Z88 applications and popdowns, especially the Z88 ROM (OZ), are
 implemented using native Z80 machine code (Zilog Z80 assembly language).
@@ -302,8 +272,11 @@ compiled binaries are combined into a single binary file, using Z88Card.
 
 -- Compiling Mpm --
 
-Mpm is developed in the C programming language. The source code in the
-/tools/mpm is provided with make files for different C compilers.
+Mpm is developed in the C programming language. 
+
+The source code is located in a separate Git repository and is provided 
+with make files for different C compilers.
+
 On Linux and Mac OS X, the GCC compiler is easily installed on the
 accompanying CD's (or from a download repository). For Windows, you
 need to download and install a free C compiler. Please refer to basic
@@ -312,7 +285,8 @@ requirements section above.
 Use your favorite C compiler on your platform with these supplied make
 files:
 
-cd <z88 project>/tools/mpm
+Check out the mpm-git repository, start a command shell and change
+directory to you check-out location. Then
 
 make -f makefile.z80.bcc.win32 [Borland C++ V5.5 on Windows]
 or
@@ -324,18 +298,21 @@ make -f makefile.z80.gcc.unix [using GCC on GCC/Linux/Mac OS X/Unix]
 or
 qmake mpm.pro; make [using Qt/Qt-Creator installed on Windows/Mac/Linux]
 
+Copy the compiled binary to you main [Z88 project] / bin folder.
+
 
 -- Compiling Z88Card --
 
 Z88Card, a binary file combiner, is a Qt-based library executable program
 to be compiled. Z88Card is found together with Mpm in most Z88 application
-compile scripts. The resulting binary is a z88card executable file, just as Mpm.
+compile scripts. The resulting binary is a z88card executable file, 
+just as Mpm.
 
-To compile Z88Card you have to install the Qt libraries and tools.
+To compile Z88Card you have to check-out the separate Git repository and 
+install the Qt libraries and tools.
 More information is described in the comments in each platform compile
 script:
 
-    cd <z88 project>/tools/z88card
     compile-gcc-linux.sh         (qt 4.8+, make & gcc are installed your
                                   linux using native package manager)
 
@@ -348,11 +325,12 @@ script:
     compile-qtsdk-macosx.sh      (qt 4.8+ and tools are installed from QtSDK
                                   for Mac OSX. Requires Xcode to be installed)
 
+Copy the compiled binary to you main [Z88 project] / bin folder.
+
 
 ----------------------------------------------------------------------
 Compiling Z88 ROM
 ----------------------------------------------------------------------
-(This is provided automatically by the Z88 Workbench Installer)
 
 Before you can compile your own Z88 operating system ROM you need to
 have compiled the Z80 assembler tool chain (see previous section).
@@ -392,7 +370,8 @@ manager.
 ----------------------------------------------------------------------
 Compiling Z88 Virtual Machine, OZvm
 ----------------------------------------------------------------------
-(This is provided automatically by the Z88 Workbench Installer)
+The Z88 source code tree has provided latest z88.jar application.
+----------------------------------------------------------------------
 
 You can use the Z88 emulated machine, OZvm, to run the Z88 applications
 available in /z88apps, and even work at processor single step level to
@@ -401,10 +380,12 @@ debug the Z88 applications and OZ rom (located in /oz).
 OZvm is a Java application and needs the Java Runtime V1.4 Environment
 to run. Please refer to above sections for getting java installed.
 
-To get OZvm compiled into an executable program on your operating system,
-execute the makejar script:
+(If you want latest (possibly unstable) version, you have to 
+checkout from the ozvm Git repository and compile from there.)
 
-    cd <z88 project>/tools/ozvm
+To get OZvm compiled into an executable program on your operating system,
+execute the makejar script in your separate Git repo checkout:
+
     makejar.bat (or ./makejar.sh)
 
 This will create the z88.jar executable Java file in <Project Home>/bin.
