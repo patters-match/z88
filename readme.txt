@@ -113,7 +113,7 @@ will get the following directory structure with lots of files in it:
      /roms          This folder contains all known Z88 ROMS, used by OZvm
      z88.jar        The Z88 emulator / debugger (needs JVM runtime installed)
 
-     Executable binaries the needs to be compiled from Tool Git repositories are placed here:
+     Executable binaries that needs to be compiled from separate Git repositories are placed here:
      z88card        The Z88Card utility used by compilation scripts to
                     generate Z88 Application Card binaries.
      mpm            The Z80 assembler used to compile all Z80 sources
@@ -195,11 +195,11 @@ is regarded as an umbrella for work archived or referenced.
 
 Currently, when working on a specific project, use a stand-alone Git:
 
-https://bitbucket.org/cambridge/oz.git (OZ - Z88 ROM)
-https://bitbucket.org/cambridge/mpm.git (Mpm - Z80 Assember utility)
-https://bitbucket.org/cambridge/z88card.git (Z88Card - Z88 AppCard Manager)
-https://bitbucket.org/cambridge/ozvm.git (OZvm - Z88 Emulator)
-https://bitbucket.org/cambridge/eazylink2.git (New EazyLink2 Desktop Client)
+https://bitbucket.org/cambridge/oz (OZ - Z88 ROM)
+https://bitbucket.org/cambridge/mpm (Mpm - Z80 Assember utility)
+https://bitbucket.org/cambridge/z88card (Z88Card - Z88 AppCard Manager)
+https://bitbucket.org/cambridge/ozvm (OZvm - Z88 Emulator)
+https://bitbucket.org/cambridge/eazylink2 (New EazyLink2 Desktop Client)
 
 If you need write access to the repositories, drop us an email with
 your user account name on bitbucket: cambridgez88@gmail.com
