@@ -22,4 +22,4 @@
 
 # Execute OZvm with preloaded FlashStore in slot 2 (on a 1Mb AMD Flash)
 # and a 512K Intel Flash Card in slot 3
-java -jar $Z88WORKBENCH_HOME/bin/z88.jar fcd3 512 28f crd2 1024 29f flashstore.epr
+java -jar ../../bin/z88.jar fcd3 512 28f crd2 1024 29f flashstore.epr
