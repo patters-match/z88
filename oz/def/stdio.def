@@ -1,0 +1,157 @@
+lstoff
+
+; **************************************************************************************************
+; Standard Z88 Operating System Manifests
+;
+; This file is part of the Z88 operating system, OZ      0000000000000000      ZZZZZZZZZZZZZZZZZZZ
+;                                                       000000000000000000   ZZZZZZZZZZZZZZZZZZZ
+; OZ is free software; you can redistribute it and/    0000            0000              ZZZZZ
+; or modify it under the terms of the GNU General      0000            0000            ZZZZZ
+; Public License as published by the Free Software     0000            0000          ZZZZZ
+; Foundation; either version 2, or (at your option)    0000            0000        ZZZZZ
+; any later version. OZ is distributed in the hope     0000            0000      ZZZZZ
+; that it will be useful, but WITHOUT ANY WARRANTY;    0000            0000    ZZZZZ
+; without even the implied warranty of MERCHANTA-       000000000000000000   ZZZZZZZZZZZZZZZZZZZZ
+; BILITY or FITNESS FOR A PARTICULAR PURPOSE. See        0000000000000000  ZZZZZZZZZZZZZZZZZZZZ
+; the GNU General Public License for more details.
+; You should have received a copy of the GNU General Public License along with OZ; see the file
+; COPYING. If not, write to:
+;                                  Free Software Foundation, Inc.
+;                                  59 Temple Place-Suite 330,
+;                                  Boston, MA 02111-1307, USA.
+;
+; (C) Jorma Oksanen (jorma.oksanen@aini.fi), 2003
+; (C) Thierry Peycru (pek@users.sf.net), 2005-2007
+; (C) Gunther Strube (gbs@users.sf.net), 2005-2007
+;
+; ***************************************************************************************************
+
+; Standard I/O calls:
+
+IF !__STDIO_DEF__
+define __STDIO_DEF__
+
+     DEFC  OS_In     = $2A         ; read a byte from std. input (keyboard)
+     DEFC  OS_Tin    = $2D         ; read a byte from std. input, with timeout
+     DEFC  OS_Out    = $27         ; write a byte to std. output
+     DEFC  OS_Bout   = $90         ; send a block of bytes from local or extended address to std. output (OZ 4.2 or newer)
+     DEFC  OS_Pout   = $93         ; send embedded string at (PC) to std. output (OZ 4.2 or newer)
+     DEFC  OS_Xin    = $30         ; examine input (e.g. check for pre-emption)
+     DEFC  GN_Nln    = $2E09       ; send newline (CR/LF) to std. output
+     DEFC  GN_Sop    = $3A09       ; write string to std. output
+     DEFC  GN_Soe    = $3C09       ; write string from extended address
+     DEFC  GN_Sip    = $3809       ; system input line routine
+     DEFC  GN_Win    = $7A09       ; Create window (OZ 4.2 and newer)
+     DEFC  OS_Pur    = $33         ; purge keyboard buffer (and reset timeout)
+     DEFC  OS_Blp    = $D806       ; Bleep
+
+; Standard input key definitions (Returned by OS_IN, OS_TIN, GN_SIP)
+;
+; The following codes are NOT zero prefixed:
+; IN_ESC, IN_ENT, IN_TAB, IN_SPC & IN_DEL
+
+     defc IN_SHI  = $D8
+     defc IN_DIA  = $C8
+     defc IN_SQU  = $B8
+     defc IN_CAPS = $E8
+
+;         ENTER          TAB            DELETE
+     DEFC IN_ENT  = $0D, IN_TAB  = $09, IN_DEL  = $7F
+     DEFC IN_SENT = $D1, IN_STAB = $D2, IN_SDEL = $D3                   ; SHIFT
+     DEFC IN_DENT = $C1, IN_DTAB = $C2, IN_DDEL = $C3                   ; DIAMOND
+     DEFC IN_AENT = $B1, IN_ATAB = $B2, IN_ADEL = $B3                   ; SQUARE
+     DEFC IN_ENTER= $E1, IN_TAB0 = $E2, IN_DELX = $E3                   ; used in MTH routines
+
+;         LEFT           RIGHT          DOWN           UP
+     DEFC IN_LFT  = $FC, IN_RGT  = $FD, IN_DWN  = $FE, IN_UP   = $FF
+     DEFC IN_SLFT = $F8, IN_SRGT = $F9, IN_SDWN = $FA, IN_SUP  = $FB    ; SHIFT
+     DEFC IN_DLFT = $F4, IN_DRGT = $F5, IN_DDWN = $F6, IN_DUP  = $F7    ; DIAMOND
+     DEFC IN_ALFT = $F0, IN_ARGT = $F1, IN_ADWN = $F2, IN_AUP  = $F3    ; SQUARE
+
+;         SPACE          ESCAPE
+     defc IN_SPC  = $20, IN_ESC  = $1B
+     defc IN_SSPC = $D0, IN_SESC = $D4                                  ; SHIFT
+     defc IN_DSPC = $C0, IN_DESC = $C4                                  ; DIAMOND
+     defc IN_ASPC = $B0, IN_AESC = $B4                                  ; SQUARE
+
+;         MENU           INDEX          HELP
+     defc IN_MEN  = $E5, IN_IDX  = $E6, IN_HLP  = $E7
+     defc IN_SMEN = $D5, IN_SIDX = $D6, IN_SHEL = $D7                   ; SHIFT
+     defc IN_DMEN = $C5, IN_DIDX = $C6, IN_DHEL = $C7                   ; DIAMOND
+     defc IN_AMEN = $B5, IN_AIDX = $B6, IN_AHEL = $B7                   ; SQUARE
+
+; ASCII control characters:
+     DEFC NUL  = 0
+     DEFC SOH  = 1
+     DEFC STX  = 2
+     DEFC ETX  = 3
+     DEFC EOT  = 4
+     DEFC ENQ  = 5
+     DEFC ACK  = 6
+     DEFC BEL  = 7
+     DEFC BS   = 8
+     DEFC HT   = 9
+     DEFC LF   = 10
+     DEFC VT   = 11
+     DEFC FF   = 12
+     DEFC CR   = 13
+     DEFC SO   = 14
+     DEFC SI   = 15
+     DEFC DLE  = 16
+     DEFC DC1  = 17
+     DEFC DC2  = 18
+     DEFC DC3  = 19
+     DEFC DC4  = 20
+     DEFC NAK  = 21
+     DEFC SYN  = 22
+     DEFC ETB  = 23
+     DEFC CAN  = 24
+     DEFC EM   = 25
+     DEFC SUB  = 26
+     DEFC ESC  = 27
+     DEFC FS   = 28
+     DEFC GS   = 29
+     DEFC RS   = 30
+     DEFC US   = 31
+     DEFC DEL  = 127
+
+; Serial interface codes:
+     DEFC XON  = 17
+     DEFC XOFF = 19
+
+
+; Menu exception codes:
+     DEFC MU_ENT  = $E1, MU_TAB  = $E2, MU_SPC = $E0, MU_DEL = $E3
+
+; OZ screen driver icons:
+     DEFC SD_EXSP = $20       ; Exact space
+     DEFC SD_BLL  = $21       ; Bell
+     DEFC SD_GRV  = $27       ; Grave accent
+     DEFC SD_SQUA = $2A       ; Square
+     DEFC SD_DIAM = $2B       ; Diamond
+     DEFC SD_SHFT = $2D       ; Shift
+     DEFC SD_VBAR = $7C       ; Unbroken vertical bar
+
+     DEFC SD_ENT = $E1, SD_TAB = $E2, SD_SPC = $E0, SD_DEL = $E3
+     DEFC SD_ESC = $E4, SD_MNU = $E5, SD_INX = $E6, SD_HLP = $E7
+
+; Outlined icons:
+     DEFC SD_OLFT = $F0, SD_ORGT = $F1
+     DEFC SD_OUP  = $F3, SD_ODWN = $F2
+
+; bullet icons:
+     DEFC SD_BLFT = $F4, SD_BRGT = $F5
+     DEFC SD_BDWN = $F6, SD_BUP  = $F7
+
+; pointer icons:
+     DEFC SD_PLFT = $F8, SD_PRGT = $F9
+     DEFC SD_PDWN = $FA, SD_PUP  = $FB
+
+; Miscellaneous driver codes:
+     DEFC SD_DTS = $7F        ; Delete toggle settings
+     DEFC SD_UP  = $FE        ; Scroll screen upwards
+     DEFC SD_DWN = $FF        ; Scroll screen downwards
+
+ENDIF
+
+lston
