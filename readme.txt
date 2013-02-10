@@ -1,9 +1,9 @@
 ----------------------------------------------------------------------
-Introduction to Z88 Workbench
+Introduction to Cambridge Z88 Git repository
 ----------------------------------------------------------------------
 
 Welcome to the Z88 development repository! The place to get the latest
-software for Z88 applications andvarious utilities.
+software for Z88 applications and various utilities.
 
 Further, you can easily copy or move the complete directory structure
 to another media and carry on working, including getting new updates
@@ -16,7 +16,23 @@ The Z88 project on the Internet
 ----------------------------------------------------------------------
 https://cambridgez88.jira.com/wiki   (the welcome page and documentation)
 https://cambridgez88.jira.com        (browse all projects and issues)
-https://bitbucket.org/cambridge/z88  (main source code Git repository)
+
+
+----------------------------------------------------------------------
+The Z88 Project Git Repositories
+----------------------------------------------------------------------
+The main repository, z88.git, contains mostly Z88 Application source code.
+
+Our other repositories refer to specific projects:
+
+https://bitbucket.org/cambridge/oz (OZ - Z88 ROM)
+https://bitbucket.org/cambridge/mpm (Mpm - Z80 Assember utility)
+https://bitbucket.org/cambridge/z88card (Z88Card - Z88 AppCard Manager)
+https://bitbucket.org/cambridge/ozvm (OZvm - Z88 Emulator)
+https://bitbucket.org/cambridge/eazylink2 (Desktop Appl. to transfer files to Z88)
+
+If you need write access to the repositories, drop us an email with
+your user account name on bitbucket: cambridgez88@gmail.com
 
 
 
@@ -29,7 +45,8 @@ into executable form to be run on the Cambridge Z88 are downloaded
 separately from our files area:
 http://sourceforge.net/projects/z88/files/Z88%20Assembler%20Workbench%20Tools/
 
-Tools to be installed exists for Mac OS X, Linux and Windows.
+Tools to be installed on your desktop comoputer exists for Mac OS X, Linux 
+and Windows.
 
 The first requirement is to checkout the Git Master branch (main
 development or HEAD in CVS terms) you need to have a Git client
@@ -133,23 +150,6 @@ will get the following directory structure with lots of files in it:
      /ziputils      UnZip & ZipUp applications for ZIP file management
      /zmonitor      View Z88 memory (RAM/ROM)
      /zprom         Blow code/data to UV Eprom / Flash Cards
-
-
-----------------------------------------------------------------------
-The Z88 Project Git repositories
-----------------------------------------------------------------------
-The main repository, z88.git, contains mostly Z88 Application source code.
-
-Currently, when working on a specific project, use a stand-alone Git:
-
-https://bitbucket.org/cambridge/oz (OZ - Z88 ROM)
-https://bitbucket.org/cambridge/mpm (Mpm - Z80 Assember utility)
-https://bitbucket.org/cambridge/z88card (Z88Card - Z88 AppCard Manager)
-https://bitbucket.org/cambridge/ozvm (OZvm - Z88 Emulator)
-https://bitbucket.org/cambridge/eazylink2 (New EazyLink2 Desktop Client)
-
-If you need write access to the repositories, drop us an email with
-your user account name on bitbucket: cambridgez88@gmail.com
 
 
 
