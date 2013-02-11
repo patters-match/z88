@@ -1,14 +1,31 @@
+Cambridge Z88 Git Repository
+GPL V2 software
+
+    ZZZZZZZZZZZZZZZZZZZ     888888888          888888888     
+    Z:::::::::::::::::Z   88:::::::::88      88:::::::::88   
+    Z:::::::::::::::::Z 88:::::::::::::88  88:::::::::::::88 
+    Z:::ZZZZZZZZ:::::Z 8::::::88888::::::88::::::88888::::::8
+    ZZZZZ     Z:::::Z  8:::::8     8:::::88:::::8     8:::::8
+            Z:::::Z    8:::::8     8:::::88:::::8     8:::::8
+           Z:::::Z      8:::::88888:::::8  8:::::88888:::::8 
+          Z:::::Z        8:::::::::::::8    8:::::::::::::8  
+         Z:::::Z        8:::::88888:::::8  8:::::88888:::::8 
+        Z:::::Z        8:::::8     8:::::88:::::8     8:::::8
+       Z:::::Z         8:::::8     8:::::88:::::8     8:::::8
+    ZZZ:::::Z     ZZZZZ8:::::8     8:::::88:::::8     8:::::8
+    Z::::::ZZZZZZZZ:::Z8::::::88888::::::88::::::88888::::::8
+    Z:::::::::::::::::Z 88:::::::::::::88  88:::::::::::::88 
+    Z:::::::::::::::::Z   88:::::::::88      88:::::::::88   
+    ZZZZZZZZZZZZZZZZZZZ     888888888          888888888    
+
+
 ----------------------------------------------------------------------
 Introduction to Cambridge Z88 Git repository
 ----------------------------------------------------------------------
 
 Welcome to the Z88 development repository! The place to get the latest
-software for Z88 applications and various utilities.
+software for Cambridge Z88 applications and utilities.
 
-Further, you can easily copy or move the complete directory structure
-to another media and carry on working, including getting new updates
-from the Git repository or committing changes back to the repository
-(if you have been granted write access).
 
 
 ----------------------------------------------------------------------
@@ -16,6 +33,7 @@ The Z88 project on the Internet
 ----------------------------------------------------------------------
 https://cambridgez88.jira.com/wiki   (the welcome page and documentation)
 https://cambridgez88.jira.com        (browse all projects and issues)
+
 
 
 ----------------------------------------------------------------------
