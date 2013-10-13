@@ -95,7 +95,7 @@
      include "dor.def"
 
      ; FlashStore variables
-     include "fsapp.def"
+     include "fsapp.inc"
 
      ORG $C000
 

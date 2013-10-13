@@ -47,8 +47,8 @@ Module SelectCard
 
      include "stdio.def"
      include "integer.def"
-     include "fsapp.def"
      include "flashepr.def"
+     include "fsapp.inc"
 
 
 ; *************************************************************************************

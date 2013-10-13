@@ -62,7 +62,7 @@ Module FetchFile
      include "error.def"
 
      ; FlashStore popdown variables
-     include "fsapp.def"
+     include "fsapp.inc"
 
 
 ; *************************************************************************************

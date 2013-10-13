@@ -31,7 +31,7 @@ Module DefaultRamDevice
      include "syspar.def"
 
      ; FlashStore popdown variables
-     include "fsapp.def"
+     include "fsapp.inc"
 
 
 ; *************************************************************************************

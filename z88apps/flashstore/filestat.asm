@@ -52,7 +52,7 @@ Module FileAreaStatistics
      include "screen.def"
 
      ; FlashStore popdown variables
-     include "fsapp.def"
+     include "fsapp.inc"
 
 
 ; ****************************************************************************

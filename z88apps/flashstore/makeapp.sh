@@ -21,7 +21,7 @@
 cd ../../stdlib; ./makelib.sh; cd ../z88apps/flashstore
 
 rm -f flashstore.63 flashstore.epr
-mpm -b -I../../oz/def -l../../stdlib/standard.lib @flashstore
+mpm -bg -I../../oz/def -l../../stdlib/standard.lib @flashstore
 mpm -b romhdr
 
 # Create a 16K Rom Card with FlashStore

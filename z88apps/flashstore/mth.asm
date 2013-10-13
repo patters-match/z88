@@ -23,7 +23,7 @@
      XDEF FlashStoreHelp
 
      include "stdio.def"
-     include "fsapp.def"
+     include "fsapp.inc"
 
 
 ; ********************************************************************************************************************

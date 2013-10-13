@@ -68,7 +68,7 @@ Module SaveFiles
      include "flashepr.def"
 
      ; FlashStore popdown variables
-     include "fsapp.def"
+     include "fsapp.inc"
 
 
 ; *************************************************************************************
