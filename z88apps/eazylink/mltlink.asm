@@ -27,7 +27,7 @@
     lib SafeBHLSegment, MemDefBank
     lib ToUpper                   ; fast upper case conversion
 
-    XREF ESC_Y, ESC_Z, ESC_N, ESC_F, ESC_E, CRLF, DM_Dev, Current_Dir, Parent_Dir
+    XREF ESC_Y, ESC_Z, ESC_N, ESC_F, ESC_E, CRLF, Current_Dir, Parent_Dir
     XREF Eprdev, ramdev_wildcard
     XREF TranslateByte
     XREF cli_filename

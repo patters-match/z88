@@ -20,7 +20,7 @@
 
     lib createfilename
 
-    XREF ESC_Y, ESC_Z, ESC_N, ESC_F, ESC_E, CRLF, DM_Dev, Current_Dir, Parent_Dir
+    XREF ESC_Y, ESC_Z, ESC_N, ESC_F, ESC_E, CRLF, Current_Dir, Parent_Dir
     XREF TranslateByte
     XREF ramdev_wildcard
     XREF SendString_ackn, Send_ESC_Byte_ackn, PutByte, PutByte_ackn, GetByte, GetByte_ackn
