@@ -31,7 +31,7 @@
 
 ; external variables:
      XREF separators
-     XREF select_win4, select_win5, bytes_msg
+     XREF select_win4, bytes_msg
 
 ; library procedures:
      LIB Read_word, Read_long, Read_byte, Read_pointer
