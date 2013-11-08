@@ -99,7 +99,6 @@
         include "fileio.def"
         include "memory.def"
         include "director.def"
-        include "oz.def"
         include "blink.def"
         include "stdio.def"
         include "flashepr.def"
