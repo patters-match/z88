@@ -28,8 +28,9 @@
      xref SopNln
      xref Loading_msg, Loading2_msg
 
+     defc    fhnd_firstblk           =$04
+     defc    fhnd_firstblk_h         =$05
 
-     include "sysvar.def"
      include "handle.def"
      include "stdio.def"
      include "fileio.def"
