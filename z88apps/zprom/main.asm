@@ -42,7 +42,7 @@
      XREF EprType_banner, EprBank_banner, ProgRange_banner, StartRange_banner
      XREF startfile_banner, mrbl_banner, RamBank_banner, mbl_banner, mbs_banner, eprd_banner, report_banner
      XREF epvf_banner, epck_banner, startmbs_banner, endmbs_banner
-     XREF mbsfln_banner, mbcl_banner, YesNoPrompt
+     XREF mbsfln_banner, mbcl_banner
      XREF Write_Err_Msg, DispErrWindow, Disp_EprAddrError
      XREF ReportWindow
      XREF File_IO_error, File_Buffer_Bndry, Out_of_Bufrange, Illegal_Range, Illegal_Bankref
