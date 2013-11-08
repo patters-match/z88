@@ -36,7 +36,7 @@
      XREF Disp_window_ID
 
      ; Routines defined in 'prscmdline.asm':
-     XREF InputCommand, ExecuteCommand
+     XREF InputCommand
 
      XREF SkipSpaces, GetChar, UpperCase
 

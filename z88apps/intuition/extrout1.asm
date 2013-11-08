@@ -18,8 +18,6 @@
 
      LIB ExtCall
 
-     INCLUDE "oz.def"
-
      XDEF ExtRoutine_s01
 
 

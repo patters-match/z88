@@ -16,7 +16,7 @@
 
     MODULE Display_Z80registers
 
-    XREF BC_Mnemonic, DE_Mnemonic, HL_Mnemonic, IX_Mnemonic, IY_Mnemonic, SP_Mnemonic, PC_Mnemonic
+    XREF BC_Mnemonic, DE_Mnemonic, HL_Mnemonic, IX_Mnemonic, IY_Mnemonic, SP_Mnemonic
     XREF Write_CRLF, Display_string, Display_char
     XREF Display_FlagReg
     XREF IntHexDisp_H
