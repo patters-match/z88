@@ -20,11 +20,11 @@
 # *************************************************************************************
 
 FORTH_PATH=`dirname $0`
-OZ_ROM=$Z88WORKBENCH_HOME/oz/oz.bin
+OZ_ROM=../../bin/roms/Z88OZ431.rom
 
 if [ -f $OZ_ROM ]; then
-        java -jar $Z88WORKBENCH_HOME/bin/z88.jar ram0 512 rom $OZ_ROM crd1 16 27c $FORTH_PATH/camelforth.epr fcd2 1024 29f fcd3 1024 29f -f $FORTH_PATH/boot.cli -f $FORTH_PATH/appgen.fth -f $FORTH_PATH/acceptmail.fth -f $FORTH_PATH/environ.fth -f $FORTH_PATH/map.fth -f $FORTH_PATH/mime.fth -f $FORTH_PATH/pw.fth -f $FORTH_PATH/tcpip.fth -f $FORTH_PATH/wildcard.fth $@ initdebug $FORTH_PATH/extractapp.dbg
+        java -jar ../../bin/z88.jar ram0 512 rom $OZ_ROM crd1 16 27c $FORTH_PATH/camelforth.epr fcd2 1024 29f fcd3 1024 29f -f $FORTH_PATH/boot.cli -f $FORTH_PATH/appgen.fth -f $FORTH_PATH/acceptmail.fth -f $FORTH_PATH/environ.fth -f $FORTH_PATH/map.fth -f $FORTH_PATH/mime.fth -f $FORTH_PATH/pw.fth -f $FORTH_PATH/tcpip.fth -f $FORTH_PATH/wildcard.fth $@ initdebug $FORTH_PATH/extractapp.dbg
 else
-        echo Please build OZ for slot 0 - oz.bin. Aborting.
+        echo OZvm: Could not find ROM for slot 0. Aborting.
         exit 1
 fi

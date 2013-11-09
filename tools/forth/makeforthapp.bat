@@ -19,14 +19,14 @@
 
 set FORTH_PATH=%0
 set FORTH_PATH=%FORTH_PATH:\makeforthapp.bat=%
-set OZ_ROM=%Z88WORKBENCH_HOME%\oz\oz.bin
+set OZ_ROM=..\..\bin\roms\Z88OZ431.rom
 
 if exist %OZ_ROM% goto EXECUTE_MAKEFORTHAPP
 echo Please build OZ for slot 0 - oz.bin. Aborting.
 goto END_MAKEFORTHAPP
 
 :EXECUTE_MAKEFORTHAPP
-java -jar %Z88WORKBENCH_HOME%\bin\z88.jar ram0 512 rom %OZ_ROM% crd1 16 27c %FORTH_PATH%\camelforth.epr fcd2 1024 29f fcd3 1024 29f -f %FORTH_PATH%\boot.cli -f %FORTH_PATH%\appgen.fth %FORTH_PATH%\acceptmail.fth -f %FORTH_PATH%\environ.fth -f %FORTH_PATH%\map.fth -f %FORTH_PATH%\mime.fth -f %FORTH_PATH%\pw.fth -f %FORTH_PATH%\tcpip.fth -f %FORTH_PATH%\wildcard.fth %* initdebug %FORTH_PATH%\extractapp.dbg
+java -jar ..\..\bin\z88.jar ram0 512 rom %OZ_ROM% crd1 16 27c %FORTH_PATH%\camelforth.epr fcd2 1024 29f fcd3 1024 29f -f %FORTH_PATH%\boot.cli -f %FORTH_PATH%\appgen.fth %FORTH_PATH%\acceptmail.fth -f %FORTH_PATH%\environ.fth -f %FORTH_PATH%\map.fth -f %FORTH_PATH%\mime.fth -f %FORTH_PATH%\pw.fth -f %FORTH_PATH%\tcpip.fth -f %FORTH_PATH%\wildcard.fth %* initdebug %FORTH_PATH%\extractapp.dbg
 
 :END_MAKEFORTHAPP
 
