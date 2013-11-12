@@ -1,4 +1,4 @@
-     XLIB Line
+     XLIB DrawLine
 
 ; **************************************************************************************************
 ; This file is part of the Z88 Standard Library.
@@ -58,7 +58,7 @@
 ; Design & programming by Gunther Strube, Copyright (C) InterLogic 1995
 ; --------------------------------------------------------------------------
 ;
-.Line               push de
+.DrawLine           push de
                     push hl
                     ld   a,l
                     cp   64
