@@ -155,10 +155,10 @@ include "saverst.def"
         jr      c,error2                        ; exit if error
         ld      a,'A'+128                       ; output alarm file signature
         call_oz(os_pb)
-        jr      c,error
+        jr      c,clerror
         ld      a,'S'+128
         call_oz(os_pb)
-        jr      c,error
+        jr      c,clerror
         ld      a,$20
         ld      ($04d1),a
         out     ($d1),a                         ; bind bank $20 to segment 1
@@ -184,7 +184,7 @@ include "saverst.def"
         ld      de,0
         ld      bc,40
         call_oz(os_mv)                          ; write alarm block to file
-        jr      c,error
+        jr      c,clerror
         pop     hl
         ld      e,(hl)
         inc     hl
@@ -203,7 +203,7 @@ include "saverst.def"
 .do_exit
         xor     a
         call_oz(os_bye)                         ; and exit
-.error
+.clerror
         push    af
         call_oz(gn_cl)                          ; try to close file
         pop     af
@@ -224,15 +224,15 @@ include "saverst.def"
         call_oz(gn_opf)                         ; attempt to open file
         jr      c,error2                        ; exit if error
         call_oz(os_gb)                          ; check file signature
-        jr      c,error
+        jr      c,clerror
         cp      'A'+128
         ld      a,rc_fail
-        jr      nz,error
+        jr      nz,clerror
         call_oz(os_gb)
-        jr      c,error
+        jr      c,clerror
         cp      'S'+128
         ld      a,rc_fail
-        jr      nz,error
+        jr      nz,clerror
 .loadloop
         ld      hl,0
         ld      de,scratch2
@@ -240,7 +240,7 @@ include "saverst.def"
         call_oz(os_mv)                          ; get next alarm block from file
         jr      c,loaderr                       ; move on if error
         call_oz(gn_aab)                         ; allocate an alarm block
-        jr      c,error
+        jr      c,clerror
         push    bc                              ; save BHL
         push    hl
         ld      a,b
@@ -267,12 +267,12 @@ include "saverst.def"
         jr      loadloop                        ; back for more
 .loaderr
         cp      rc_eof
-        jr      nz,error                        ; exit if not EOF error 
+        jr      nz,clerror                        ; exit if not EOF error 
         ld      hl,40
         and     a
         sbc     hl,bc
         ld      a,rc_fail
-        jr      nz,error                        ; FAIL error if block partially loaded
+        jr      nz,clerror                        ; FAIL error if block partially loaded
         call_oz(gn_cl)                          ; close file
         jr      c,error2
         ld      hl,msg_loaded
