@@ -256,7 +256,7 @@ module zmonitor
 .loophex
         LD A,(HL)
         CALL hexbyte
-        CALL space
+        CALL displspace
         INC HL
         DJNZ loophex
         POP BC
@@ -275,7 +275,7 @@ module zmonitor
         RET
 
 
-.space
+.displspace
         PUSH AF
         LD A,$20
         CALL_OZ(os_out)
@@ -443,7 +443,7 @@ CALL_OZ(os_out)
 LD B,8
 .pageloop
 PUSH BC
-CALL space
+CALL displspace
 LD A,(bank2)
 CALL hexbyte
 LD HL,offset
@@ -454,17 +454,17 @@ OR (HL)
 CALL hexbyte
 LD A,E
 CALL hexbyte
-CALL space
-CALL space
+CALL displspace
+CALL displspace
 LD HL,(adr)
 PUSH HL
 CALL v8b
-CALL space
+CALL displspace
 CALL v8b
-CALL space
+CALL displspace
 POP HL
 CALL v8a
-CALL space
+CALL displspace
 CALL v8a
 LD (adr),HL
 POP BC
