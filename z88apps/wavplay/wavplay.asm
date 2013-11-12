@@ -18,12 +18,12 @@ module WavPlay
 ;
 ; ********************************************************************************************
 
-        INCLUDE "#error.def"
-        INCLUDE "#director.def"
-        INCLUDE "#fileio.def"
-        INCLUDE "#saverst.def"
-        INCLUDE "#stdio.def"
-        INCLUDE "#interrpt.def"
+        INCLUDE "error.def"
+        INCLUDE "director.def"
+        INCLUDE "fileio.def"
+        INCLUDE "saverst.def"
+        INCLUDE "stdio.def"
+        INCLUDE "interrpt.def"
 
         DEFC unsafe_ws = $100
         DEFC ram_vars  = $1FFE - unsafe_ws
