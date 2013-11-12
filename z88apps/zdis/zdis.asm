@@ -216,7 +216,7 @@ module zdis
         LD (HL),A
         RET 
         
-.space
+.displspace
         PUSH AF
         LD A,(tabcnt)
         INC A
@@ -348,7 +348,7 @@ module zdis
         SUB B
         LD B,A
 .spaloop
-        CALL space
+        CALL displspace
         DJNZ spaloop
         POP BC
         POP AF
@@ -622,7 +622,7 @@ module zdis
         call_oz gn_nln
         XOR A
         LD (tabcnt),A
-        CALL space
+        CALL displspace
         LD A,(bank)
         CALL hexbyte
         LD HL,(adrdis)
@@ -630,12 +630,12 @@ module zdis
         CALL hexbyte
         LD A,L
         CALL hexbyte
-        CALL space
-        CALL space
+        CALL displspace
+        CALL displspace
         CALL rb
         LD B,A
         CALL hexbyte
-        CALL space
+        CALL displspace
         LD A,B
         AND 192
         CP 0
@@ -727,7 +727,7 @@ module zdis
         CALL rb
         PUSH AF
         CALL hexbyte
-        CALL space
+        CALL displspace
         CALL rb
         PUSH AF
         CALL hexbyte
@@ -778,7 +778,7 @@ module zdis
         CALL rb
         PUSH AF
         CALL hexbyte
-        CALL space
+        CALL displspace
         CALL rb
         PUSH AF
         CALL hexbyte
@@ -983,7 +983,7 @@ module zdis
         CALL rb
         LD B,A
         CALL hexbyte
-        CALL space
+        CALL displspace
         LD A,B
         CP $21
         JP Z,ldiznn
@@ -1035,7 +1035,7 @@ module zdis
         CALL hexbyte
         CALL rb
         PUSH AF
-        CALL space
+        CALL displspace
         CALL hexbyte
         CALL tabmn
         LD HL,ldmes
@@ -1053,7 +1053,7 @@ module zdis
         CALL hexbyte
         CALL rb
         PUSH AF
-        CALL space
+        CALL displspace
         CALL hexbyte
         CALL tabmn
         LD HL,ldmes
@@ -1174,7 +1174,7 @@ module zdis
         CALL hexbyte
         CALL rb
         PUSH AF
-        CALL space
+        CALL displspace
         CALL hexbyte
         CALL tabmn
         LD HL,ldmes
@@ -1266,7 +1266,7 @@ module zdis
         CALL rb
         PUSH AF
         CALL hexbyte
-        CALL space
+        CALL displspace
         CALL rb
         PUSH AF
         CALL hexbyte
@@ -1320,7 +1320,7 @@ module zdis
         CALL rb
         PUSH AF
         CALL hexbyte
-        CALL space
+        CALL displspace
         CALL rb
         PUSH AF
         CALL hexbyte
@@ -1355,7 +1355,7 @@ module zdis
         CALL rb
         PUSH AF
         CALL hexbyte
-        CALL space
+        CALL displspace
         CALL rb
         PUSH AF
         CALL hexbyte
@@ -1430,7 +1430,7 @@ module zdis
         CALL rb
         PUSH AF
         CALL hexbyte
-        CALL space
+        CALL displspace
         POP AF
         PUSH AF
         AND 240
@@ -1631,7 +1631,7 @@ module zdis
         CALL rb
         LD B,A
         CALL hexbyte
-        CALL space
+        CALL displspace
         LD A,B
         AND 199
         CP 64
@@ -1716,7 +1716,7 @@ module zdis
         CALL rb
         PUSH AF
         CALL hexbyte
-        CALL space
+        CALL displspace
         CALL rb
         PUSH AF
         CALL hexbyte
@@ -1739,7 +1739,7 @@ module zdis
         CALL tabmn
         LD HL,ldmes
         CALL_OZ(gn_sop)
-        CALL space
+        CALL displspace
         LD A,B
         AND 24
         RRA
