@@ -26,7 +26,6 @@
         include "stdio.def"
         include "tokens.def"
 
-        include "sysvar.def"
 
 xdef    EPFetchDOR
 
@@ -40,6 +39,9 @@ defc    LINK_ADDR = 0
 defc    SafeWorkspaceSize       = $171
 defc    SafeWorkspaceStart      = $1ffe - SafeWorkspaceSize
 
+; Kernel system variable addresses (hack!!!)
+defc UBSLOTRAMOFFSET            = 0344H
+defc UBSLOTRAMSIZE              = 0348H
 
 DEFVARS         SafeWorkspaceStart
 {
@@ -234,7 +236,7 @@ defc    CMD_MEM         = 5
                 defb 0
                 defb sC-sCbottom
 
-                defb 0
+.sC             defb 0
 
 ;       ----
 
