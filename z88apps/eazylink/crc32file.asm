@@ -66,6 +66,7 @@
                LD   BC,FileBufferSize
                LD   DE,File_buffer
                CALL CrcRamFile
+               CALL Close_file                    ; close file
 .crc_result
                LD   (File_ptr),HL                 ; low word of CRC-32
                LD   (File_ptr+2),DE               ; high word of CRC-32
