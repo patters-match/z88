@@ -266,7 +266,7 @@ DEFC state_tx  = 2
     JR main_menu
 ; .toggle_ymodem 
 ;   LD A,(state+state_prg) 
-;   XOR 2^ymodem 
+;   XOR 2**ymodem 
 ;   LD (state+state_prg),A 
 ;   call save_cfg
 ;   jp main_menu 
@@ -274,7 +274,7 @@ DEFC state_tx  = 2
     CP 'C'
     JR NZ,toggle_block1k
     LD A,(state+state_prg)
-    XOR 2^crc
+    XOR 2**crc
     LD (state+state_prg),A
     call save_cfg
     JP main_menu
@@ -283,7 +283,7 @@ DEFC state_tx  = 2
 ;   JR NZ,toggle_g
     JR NZ,batch
     LD A,(state+state_prg)
-    XOR 2^block1k
+    XOR 2**block1k
     LD (state+state_prg),A
     call save_cfg
     JP main_menu
@@ -291,7 +291,7 @@ DEFC state_tx  = 2
 ;   CP 'G'
 ;   JR NZ,batch
 ;   LD A,(state+state_prg)
-;   XOR 2^g
+;   XOR 2**g
 ;   LD (state+state_prg),A
 ;   call save_cfg
 ;   JP main_menu
@@ -1657,7 +1657,7 @@ CALL calc_blocks_and_bytes
     CALL open_cfg
     RET C
     CALL_OZ(os_gb)
-    AND 2^crc|2^block1k|2^ymodem
+    AND 2**crc|2**block1k|2**ymodem
     LD (state+state_prg),a
     CALL_OZ(gn_cl)             ;close file
     RET
@@ -1667,7 +1667,7 @@ CALL calc_blocks_and_bytes
     CALL open_cfg
     RET C
     LD A,(state+state_prg)
-    AND 2^crc|2^block1k|2^ymodem
+    AND 2**crc|2**block1k|2**ymodem
     CALL_OZ(os_pb)
     CALL_OZ(gn_cl)             ;close file
     RET
