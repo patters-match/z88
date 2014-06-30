@@ -55,7 +55,7 @@
 ; ***                      Static definitions; device & filenames, messages, etc.                        **
 ; *********************************************************************************************************
 
-.EasyLinkVersion    DEFM "5.2.1-06", 0
+.EasyLinkVersion    DEFM "5.2.2-06", 0
 .TraFilename        DEFM ":*//Translate.dat", 0
 .serial_port        DEFM ":COM.0", 0
 .ramdev_wildcard    DEFM ":RAM.*", 0
