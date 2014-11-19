@@ -22,7 +22,7 @@ lstoff
 ;
 ; (C) Jorma Oksanen (jorma.oksanen@aini.fi), 2003
 ; (C) Thierry Peycru (pek@users.sf.net), 2005-2007
-; (C) Gunther Strube (gbs@users.sf.net), 2005-2007
+; (C) Gunther Strube (gstrube@gmail.com), 2005-2007
 ;
 ; ***************************************************************************************************
 
@@ -30,6 +30,8 @@ lstoff
 
 IF !__ALARM_DEF__
 define __ALARM_DEF__
+
+     INCLUDE "macros.def"
 
      DEFC Gn_Aab  = $6809          ; Allocate alarm block
      DEFC Gn_Fab  = $6A09          ; Free alarm block

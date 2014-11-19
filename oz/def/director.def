@@ -22,14 +22,17 @@ lstoff
 ;
 ; (C) Jorma Oksanen (jorma.oksanen@aini.fi), 2003
 ; (C) Thierry Peycru (pek@users.sf.net), 2005-2007
-; (C) Gunther Strube (gbs@users.sf.net), 2005-2007
+; (C) Gunther Strube (gstrube@gmail.com), 2005-2007
 ;
 ; ***************************************************************************************************
 
 ; Director/CLI low level access:
 
 IF !__DIRECTOR_DEF__
-define __DIRECTOR_DEF__
+     DEFINE __DIRECTOR_DEF__
+
+     INCLUDE "macros.def"
+
 
      DEFC Dc_Alt = $1A0C           ; Pass an alternative character
      DEFC Dc_Bye = $080C           ; Exiting current application (internal)

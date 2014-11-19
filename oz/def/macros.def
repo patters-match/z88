@@ -1,0 +1,94 @@
+lstoff
+
+; **************************************************************************************************
+; Standard Z88 Operating System Macros
+;
+; This file is part of the Z88 operating system, OZ      0000000000000000      ZZZZZZZZZZZZZZZZZZZ
+;                                                       000000000000000000   ZZZZZZZZZZZZZZZZZZZ
+; OZ is free software; you can redistribute it and/    0000            0000              ZZZZZ
+; or modify it under the terms of the GNU General      0000            0000            ZZZZZ
+; Public License as published by the Free Software     0000            0000          ZZZZZ
+; Foundation; either version 2, or (at your option)    0000            0000        ZZZZZ
+; any later version. OZ is distributed in the hope     0000            0000      ZZZZZ
+; that it will be useful, but WITHOUT ANY WARRANTY;    0000            0000    ZZZZZ
+; without even the implied warranty of MERCHANTA-       000000000000000000   ZZZZZZZZZZZZZZZZZZZZ
+; BILITY or FITNESS FOR A PARTICULAR PURPOSE. See        0000000000000000  ZZZZZZZZZZZZZZZZZZZZ
+; the GNU General Public License for more details.
+; You should have received a copy of the GNU General Public License along with OZ; see the file
+; COPYING. If not, write to:
+;                                  Free Software Foundation, Inc.
+;                                  59 Temple Place-Suite 330,
+;                                  Boston, MA 02111-1307, USA.
+;
+; (C) Gunther Strube (gstrube@gmail.com), 2014
+;
+; ***************************************************************************************************
+
+
+IF !__MACROS_DEF__
+DEFINE __MACROS_DEF__
+
+; OZ System Call Interface through RST 20H vector
+; (See https://cambridgez88.jira.com/wiki/x/WAAE)
+macro oz (syscall)
+  if \% > 0                                     ; only generate code if API Call is specified
+        rst     20h
+    if \$$ > 255
+        defw    \syscall                        ; OZ high level OS / Generic system call
+    else
+        defb    \syscall                        ; OZ low level system call
+    endif
+  else
+    error "Missing OZ API Call"
+  endif
+endmacro
+
+
+; alias for "oz" macro
+macro call_oz (syscall)
+        oz      \syscall
+endmacro
+
+
+; EXTCALL as integrated in OZ V4.5+
+; 24bit CALL to any address of the 4Mb addressable memory.
+; Instruction format:
+;     RST 28H, 24-bit address (low byte, highbyte)
+macro extcall (offset, bank)
+  if \% = 2                                     ; only generate code if offset and bank is specified
+        rst     28h                             ; EXTCALL <address>
+        defw    \offset
+        defb    \bank
+  else
+        error "EXTCALL: missing or incomplete address"
+  endif
+endmacro
+
+
+; OZ Floating Package System Call Interface through RST 18H vector
+; (See https://cambridgez88.jira.com/wiki/x/NgAq)
+macro fpp (functioncode)
+  if \% > 0                                     ; only generate code if API Call is specified
+        rst     18h
+        defb    \functioncode                   ; FPP function code
+  else
+        error "Missing OZ API Call"
+  endif
+endmacro
+
+
+; Package Call Interface through RST 08H vector
+; (Used by Installer system by Garry Lancaster)
+macro call_pkg (pkg)
+  if \% > 0                                     ; only generate code if API Call is specified
+        rst     08h
+        defw    \pkg
+  else
+        error "Missing CALL_PKG API Call"
+  endif
+endmacro
+
+
+ENDIF
+
+lston

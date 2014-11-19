@@ -22,12 +22,14 @@ lstoff
 ;
 ; (C) Jorma Oksanen (jorma.oksanen@aini.fi), 2003
 ; (C) Thierry Peycru (pek@users.sf.net), 2005-2007
-; (C) Gunther Strube (gbs@users.sf.net), 2005-2007
+; (C) Gunther Strube (gstrube@gmail.com), 2005-2007
 ;
 ; ***************************************************************************************************
 
 IF !__SYSPAR_DEF__
-define __SYSPAR_DEF__
+     DEFINE __SYSPAR_DEF__
+
+     INCLUDE "macros.def"
 
 
      DEFC OS_Nq   = $66  ; enquire (fetch) parameter
@@ -51,6 +53,7 @@ define __SYSPAR_DEF__
      DEFC NQ_Ihn   = $8615    ; read IN handle
      DEFC NQ_Ohn   = $8618    ; read OUT handle
      DEFC NQ_Rhn   = $861B    ; read direct printer handle
+     DEFC NQ_Voz   = $861E    ; application verifies running OZ version (OZ 4.5 and newer)
 
      DEFC NQ_Mfs   = $8900    ; read free space information
      DEFC NQ_Slt   = $8903    ; read slot type information

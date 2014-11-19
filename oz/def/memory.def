@@ -22,14 +22,17 @@ lstoff
 ;
 ; (C) Jorma Oksanen (jorma.oksanen@aini.fi), 2003
 ; (C) Thierry Peycru (pek@users.sf.net), 2005-2007
-; (C) Gunther Strube (gbs@users.sf.net), 2005-2007
+; (C) Gunther Strube (gstrube@gmail.com), 2005-2007
 ;
 ; ***************************************************************************************************
 
 ; Memory allocation, deallocation:
 
 IF !__MEMORY_DEF__
-define __MEMORY_DEF__
+DEFINE __MEMORY_DEF__
+
+     INCLUDE "macros.def"
+
 
      DEFC Os_Mop = $4E             ; Open memory (allocate memory pool)
      DEFC Os_Mal = $54             ; Allocate memory

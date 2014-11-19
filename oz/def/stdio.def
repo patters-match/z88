@@ -22,14 +22,17 @@ lstoff
 ;
 ; (C) Jorma Oksanen (jorma.oksanen@aini.fi), 2003
 ; (C) Thierry Peycru (pek@users.sf.net), 2005-2007
-; (C) Gunther Strube (gbs@users.sf.net), 2005-2007
+; (C) Gunther Strube (gstrube@gmail.com), 2005-2007
 ;
 ; ***************************************************************************************************
 
 ; Standard I/O calls:
 
 IF !__STDIO_DEF__
-define __STDIO_DEF__
+     DEFINE __STDIO_DEF__
+
+     INCLUDE "macros.def"
+
 
      DEFC  OS_In     = $2A         ; read a byte from std. input (keyboard)
      DEFC  OS_Tin    = $2D         ; read a byte from std. input, with timeout

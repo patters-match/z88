@@ -22,14 +22,17 @@ lstoff
 ;
 ; (C) Jorma Oksanen (jorma.oksanen@aini.fi), 2003
 ; (C) Thierry Peycru (pek@users.sf.net), 2005-2007
-; (C) Gunther Strube (gbs@users.sf.net), 2005-2007
+; (C) Gunther Strube (gstrube@gmail.com), 2005-2007
 ;
 ; ***************************************************************************************************
 
 ; Screen control:
 
 IF !__SCREEN_DEF__
-define __SCREEN_DEF__
+     DEFINE __SCREEN_DEF__
+
+     INCLUDE "macros.def"
+     
 
      DEFC Os_Off  = $EC06          ; switch machine (screen) off
 
@@ -46,7 +49,7 @@ define __SCREEN_DEF__
          defc SBF_PAGE    = $78
          defc SBF_ADDRESS = SBF_PAGE<<8
 
-; OZ window (hires chars)
+; OZ window lines (hires chars)
 defc    LCD_ozrow1              =SBF_ADDRESS+$d2
 defc    LCD_ozrow2              =LCD_ozrow1+$100
 defc    LCD_ozrow3              =LCD_ozrow1+$200
@@ -55,6 +58,23 @@ defc    LCD_ozrow5              =LCD_ozrow1+$400
 defc    LCD_ozrow6              =LCD_ozrow1+$500
 defc    LCD_ozrow7              =LCD_ozrow1+$600
 defc    LCD_ozrow8              =LCD_ozrow1+$700
+
+; OZ window characters (hires)
+defc    OZW_OZ                  = $8081
+defc    OZW_LOCKOUT             = $8283
+defc    OZW_HCAPS               = $8485
+defc    OZW_LCAPS               = $8687
+defc    OZW_CLI                 = $8889
+defc    OZW_FAIL                = $8A8B
+defc    OZW_BAT                 = $8C8D
+defc    OZW_LOW                 = $8E8F
+defc    OZW_BELL                = $9293
+defc    OZW_CARD                = $9495
+defc    OZW_INDEX               = $9697
+defc    OZW_BLANK               = $A0A0
+defc    OZW_SPC                 = $A0
+defc    OZW_SQUARE              = $91
+defc    OZW_DIAMND              = $90
 
 ; windows
 defc    Wd1Frame                =SBF_ADDRESS+$e6

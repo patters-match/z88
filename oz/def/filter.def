@@ -22,14 +22,17 @@ lstoff
 ;
 ; (C) Jorma Oksanen (jorma.oksanen@aini.fi), 2003
 ; (C) Thierry Peycru (pek@users.sf.net), 2005-2007
-; (C) Gunther Strube (gbs@users.sf.net), 2005-2007
+; (C) Gunther Strube (gstrube@gmail.com), 2005-2007
 ;
 ; ***************************************************************************************************
 
 ; Filter manipulation:
 
 IF !__FILTER_DEF__
-define __FILTER_DEF__
+     DEFINE __FILTER_DEF__
+
+     INCLUDE "macros.def"
+
 
      DEFC Gn_Flo  = $2209          ; Open a filter
      DEFC Gn_Flc  = $2409          ; Close a filter

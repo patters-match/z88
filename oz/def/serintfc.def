@@ -22,14 +22,17 @@ lstoff
 ;
 ; (C) Jorma Oksanen (jorma.oksanen@aini.fi), 2003
 ; (C) Thierry Peycru (pek@users.sf.net), 2005-2007
-; (C) Gunther Strube (gbs@users.sf.net), 2005-2007
+; (C) Gunther Strube (gstrube@gmail.com), 2005-2007
 ;
 ; ***************************************************************************************************
 
 ; Low level serial port interface:
 
 IF !__SERIALINTERFACE_DEF__
-define __SERIALINTERFACE_DEF__
+        DEFINE __SERIALINTERFACE_DEF__
+
+        INCLUDE "macros.def"
+
 
         DEFC Os_Si   = $8D         ; serial interface (low level)
 
@@ -42,35 +45,9 @@ define __SERIALINTERFACE_DEF__
         DEFC SI_FTX  = $12         ; Flush Tx (transmit) buffer
         DEFC SI_FRX  = $15         ; Flush Rx (receive) buffer
         DEFC SI_TMO  = $18         ; Set timeout
-
-; *** INTERNAL OPERATING SYSTEM USAGE ONLY ***
-
-; Parity:
-
-        defc PAR_B_PARITY = 7      ; has parity
-        defc PAR_B_STICKY = 6      ; space or mark
-        defc PAR_B_ODD    = 5      ; odd parity
-        defc PAR_B_MARK   = 4      ; mark parity
-        defc PAR_B_3      = 3      ; not used
-        defc PAR_B_9BIT   = 2      ; never set, checked during send
-        defc PAR_B_1      = 1      ; set but not used
-        defc PAR_B_0      = 0      ; set but not used
-
-; Flow control:
-
-        defc FLOW_XONXOFF   = $01
-        defc FLOW_TXSTOP    = $02
-
-        defc FLOW_B_XONXOFF = 0
-        defc FLOW_B_TXSTOP  = 1
-
-        defc TDRH_START     = $01
-        defc TDRH_STOP      = $02
-        defc TDRH_STOP2     = $04
-
-        defc TDRH_B_START   = 0
-        defc TDRH_B_STOP    = 1
-        defc TDRH_B_STOP2   = 2
+        DEFC SI_GX   = $1B         ; Get multiple bytes from serial port (OZ 4.5)
+        DEFC SI_PX   = $1E         ; Put multiple bytes to serial port (OZ 4.5)
+        DEFC SI_GXT  = $21         ; Get multiple bytes until terminator (OZ 4.5)
 
 ENDIF
 
