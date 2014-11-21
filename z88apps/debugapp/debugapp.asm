@@ -20,6 +20,7 @@
 
     INCLUDE "stdio.def"
     INCLUDE "director.def"
+    INCLUDE "dor.def"
     INCLUDE "error.def"
 
     DEFC RAM_pages = 32                           ; 32 * 256 = 8K RAM at $2000-3FFF
