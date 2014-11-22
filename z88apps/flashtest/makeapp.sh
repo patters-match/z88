@@ -2,7 +2,7 @@
 
 # *************************************************************************************
 # FlashTest
-# (C) Gunther Strube (gbs@users.sf.net) 1997-2006
+# (C) Gunther Strube (gbs@users.sf.net) 1997-2014
 #
 # FlashTest is free software; you can redistribute it and/or modify it under the terms of the
 # GNU General Public License as published by the Free Software Foundation;
@@ -19,6 +19,17 @@
 
 # ensure that we have an up-to-date standard library
 cd ../../stdlib; ./makelib.sh; cd ../z88apps/flashtest
+
+# return version of Mpm to command line environment.
+# validate that MPM is V1.5 or later - only this version or later supports macros
+MPM_VERSIONTEXT=`mpm -version`
+
+if test $? -lt 15; then
+  echo Mpm version is less than V1.5, FlashTest compilation aborted.
+  echo Mpm displays the following:
+  mpm
+  exit 1
+fi
 
 rm -f *.obj *.map flashtest.epr fltest.bin romhdr.bin
 mpm -b -I../../oz/def -l../../stdlib/standard.lib fltest.asm ramcard.asm
