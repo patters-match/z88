@@ -14,12 +14,27 @@
 ::
 :: *************************************************************************************
 
+@echo off
+
 :: compile EP-Fetch2 application from scratch
 :: (this compile script is located in /z88apps/epfetch)
+
+:: return version of Mpm to command line environment.
+:: Only V1.5 or later of Mpm supports macros
+mpm -version 2>nul >nul
+if ERRORLEVEL 15 goto COMPILE_EPFETCH
+echo Mpm version is less than V1.5, Ep-Fetch2 compilation aborted.
+echo Mpm displays the following:
+mpm
+goto END
+
+:COMPILE_EPFETCH
 
 del *.obj *.bin *.map
 mpm -bg -I..\..\oz\def epfetch2
 mpm -b romhdr
 
-# Create a 16K Rom Card with EP-Fetch2
+:: Create a 16K Rom Card with EP-Fetch2
 z88card -f epfetch2.loadmap
+
+:END
