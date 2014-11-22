@@ -16,7 +16,20 @@
 ::
 :: *************************************************************************************
 
-del *.obj *.sym *.bin *.map *.6? lockup.epr
+@echo off
+
+del /S /Q *.obj *.sym *.bin *.map *.6? lockup.epr 2>nul >nul
+
+:: return version of Mpm to command line environment.
+:: Only V1.5 or later of Mpm supports macros
+mpm -version 2>nul >nul
+if ERRORLEVEL 15 goto COMPILE_LOCKUP
+echo Mpm version is less than V1.5, Intuition compilation aborted.
+echo Mpm displays the following:
+mpm
+goto END
+
+:COMPILE_LOCKUP
 
 :: Assemble the popdown and MTH
 mpm -b -I..\..\oz\def lockup.asm
@@ -25,5 +38,6 @@ mpm -b -I..\..\oz\def lockup.asm
 mpm -b -I..\..\oz\def romheader.asm
 
 :: Create a 16K Rom Card with Lockup
-makeapp -f lockup.loadmap
+z88card -f lockup.loadmap
 
+:END
