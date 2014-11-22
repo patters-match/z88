@@ -15,10 +15,23 @@
 ::
 :: *************************************************************************************
 
+@echo off
+
 :: ensure that we have an up-to-date standard library
 cd ..\..\stdlib
 call makelib.bat
 cd ..\z88apps\freeram
+
+:: return version of Mpm to command line environment.
+:: Only V1.5 or later of Mpm supports macros
+mpm -version 2>nul >nul
+if ERRORLEVEL 15 goto COMPILE_FREERAM
+echo Mpm version is less than V1.5, FreeRam compilation aborted.
+echo Mpm displays the following:
+mpm
+goto END
+
+:COMPILE_FREERAM
 
 del *.obj *.bin *.map FreeRam.63 FreeRam.epr
 mpm -b -I..\..\oz\def -l..\..\stdlib\standard.lib freeram.asm
@@ -26,3 +39,5 @@ mpm -b romhdr
 
 :: Create a 16K Rom Card with FreeRam
 z88card -f freeram.loadmap
+
+:END
