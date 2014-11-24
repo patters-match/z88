@@ -1,6 +1,6 @@
 :: *************************************************************************************
 :: Zprom + FlashTest make script
-:: (C) Gunther Strube (gstrube@gmail.com) 2006-2012
+:: (C) Gunther Strube (gstrube@gmail.com) 2006-2014
 ::
 :: Zprom & FlashTest is free software; you can redistribute it and/or modify it under
 :: the terms of theGNU General Public License as published by the Free Software Foundation;
@@ -15,13 +15,27 @@
 ::
 :: *************************************************************************************
 
+@echo off
+
 :: ensure that we have an up-to-date standard library
 cd ..\..\stdlib
 call makelib.bat
 cd ..\z88apps\zprom
 
 :: Compile the MTH and the application code
-del *.obj *.bin *.map zprom.epr
+del /S /Q *.obj *.bin *.map zprom.epr 2>nul >nul
+
+:: return version of Mpm to command line environment.
+:: Only V1.5 or later of Mpm supports macros
+mpm -version 2>nul >nul
+if ERRORLEVEL 15 goto COMPILE_ZPROM
+echo Mpm version is less than V1.5, Zprom compilation aborted.
+echo Mpm displays the following:
+mpm
+goto END
+
+:COMPILE_ZPROM
+
 mpm -b -I..\..\oz\def tokens
 mpm -bg -I..\..\oz\def mthzprom
 mpm -b -I..\..\oz\def -l..\..\stdlib\standard.lib @zprom
@@ -32,3 +46,5 @@ mpm -rEB00 -I..\..\oz\def -l..\..\stdlib\standard.lib -b ..\flashtest\fltest.asm
 
 :: Create a 32K Rom Card with Zprom and FlashTest ($3E contains MTH, $3F contains application code for Zprom and FlashTest)
 z88card -f zprom+flashtest.loadmap
+
+:END
