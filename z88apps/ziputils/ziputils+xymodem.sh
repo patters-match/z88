@@ -9,7 +9,15 @@
 # compile XY-Modem popdown from scratch
 cd ../xymodem
 rm -f *.obj *.bin *.map
-../../tools/mpm/mpm -b -I../../oz/def xy-modem.asm
+
+if test $? -lt 15; then
+  echo Mpm version is less than V1.5, XY-Modem compilation aborted.
+  echo Mpm displays the following:
+  mpm
+  exit 1
+fi
+
+mpm -b -I../../oz/def xy-modem.asm
 cd ../ziputils
 
 # --------------------------------------------------------------------
