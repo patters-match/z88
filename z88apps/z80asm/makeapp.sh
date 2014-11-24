@@ -34,10 +34,21 @@ cd ../../stdlib; ./makelib.sh; cd ../z88apps/z80asm
 # delete previously compiled files
 rm -f *.obj *.bin *.map mth.def z80asm.epr z80asm.bn? z80asm.6?
 
+# return version of Mpm to command line environment.
+# validate that MPM is V1.5 or later - only this version or later supports macros
+MPM_VERSIONTEXT=`mpm -version`
+
+if test $? -lt 15; then
+  echo Mpm version is less than V1.5, Z80asm compilation aborted.
+  echo Mpm displays the following:
+  mpm
+  exit 1
+fi
+
 # Compile the MTH, application code and rom header
 mpm -b -I../../oz/def tokens
 mpm -bg -I../../oz/def mth
-mpm -bc -I../../oz/def -l../../stdlib/standard.lib @z80asm
+mpm -bc -I../../oz/def -l../../stdlib/standard.lib @z80asm.prj
 mpm -b -I../../oz/def romhdr
 
 # Create an image with Z80asm application
