@@ -28,4 +28,4 @@ if test $? -lt 15; then
   exit 1
 fi
 
-mpm -I../../oz/def -tb debugapp.asm
+mpm -I../../oz/def -b debugapp.asm

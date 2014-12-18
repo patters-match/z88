@@ -34,8 +34,8 @@ goto END
 :COMPILE_FLASHSTORE
 
 del flashstore.63 flashstore.epr
-mpm -db -I..\..\oz\def -l..\..\stdlib\standard.lib @flashstore
-mpm -db romhdr
+mpm -b -I..\..\oz\def -l..\..\stdlib\standard.lib @flashstore
+mpm -b romhdr
 
 :: Create a 16K Rom Card with FlashStore
 z88card -f flashstore.loadmap

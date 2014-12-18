@@ -27,6 +27,6 @@ mpm
 goto END
 
 :COMPILE_DEBUGAPP
-mpm -I..\..\oz\def -tb debugapp.asm
+mpm -I..\..\oz\def -b debugapp.asm
 
 :END
