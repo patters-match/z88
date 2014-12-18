@@ -50,7 +50,7 @@ goto END
 :: Compile the MTH, application code and rom header
 mpm -b -I..\..\oz\def tokens
 mpm -bg -I..\..\oz\def mth
-mpm -bc -I..\..\oz\def -l..\..\stdlib\standard.lib @z80asm.prj
+mpm -b -cz80 -I..\..\oz\def -l..\..\stdlib\standard.lib @z80asm.prj
 mpm -b -I..\..\oz\def romhdr
 
 :: Create a 64K image with Z80asm (required by MakeApp)
