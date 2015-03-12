@@ -477,7 +477,23 @@ defc    CMD_MEM         = 5
         jr      nz, ie_m1
 .ie_1mb
         xor     a                       ; assume 1MB card
+        ret
+
+; ROM/RAM cards have RAM at the bottom of the slot, so it cannot
+; be assumed that the base of the EPROM area is in bank 0 of the slot.
+; Calculate the EPROM area base by subtracting its size-1 from the top
+; bank of the area, and adjust the card base by this offset.
+
 .ie_ok  or      a
+        push    af
+        ld      hl,(EPROMbase)          ; L=slot base
+        ld      h,a
+        dec     h                       ; H=EPROM area size - 1
+        ld      a,b                     ; A=top bank of EPROM area
+        sub     h                       ; calculate offset of EPROM area in slot
+        add     a,l                     ; A=adjusted slot base for EPROM area
+        ld      (EPROMbase),a
+        pop     af
         ret
 .ie_err
         scf
