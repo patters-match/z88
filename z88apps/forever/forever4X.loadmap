@@ -35,7 +35,7 @@ romheader.bin 3f3fc0                    ; Card header
 ../pdrom/zhelp+zmacro.bin 3ec000        ; Z-Help & Z-Macro
 ../fview/fview.bin 3ec460               ; FileView
 ../epfetch/epfetch2.bin 3ec600          ; EP-Fetch2
-../freeram/freeram.bin 3ed500           ; FreeRAM
+../freeram/freeram.bin 3ed530           ; FreeRAM
 
 ; The linked DOR list for this 32K application card is
 ;   Z-Help
@@ -60,9 +60,9 @@ patch 3ec61c 3e                         ; patch EP-Fetch2 to use bank $3e
 patch 3ec623 3e                         ; patch EP-Fetch2 to use bank $3e
 patch 3ec626 3e                         ; patch EP-Fetch2 to use bank $3e
 patch 3ec629 3e                         ; patch EP-Fetch2 to use bank $3e
-patch 3ec603 00 d5 3e                   ; patch EP-Fetch2 DOR ($3E,$C600) to point at FreeRAM ($3E,$D500)
-patch 3ed51c 3e                         ; patch FreeRAM to use bank $3e
-patch 3ed523 3e                         ; patch FreeRAM to use bank $3e
-patch 3ed526 3e                         ; patch FreeRAM to use bank $3e
-patch 3ed529 3e                         ; patch FreeRAM to use bank $3e
+patch 3ec603 30 d5 3e                   ; patch EP-Fetch2 DOR ($3E,$C600) to point at FreeRAM ($3E,$D530)
+patch 3ed54c 3e                         ; patch FreeRAM to use bank $3e
+patch 3ed553 3e                         ; patch FreeRAM to use bank $3e
+patch 3ed556 3e                         ; patch FreeRAM to use bank $3e
+patch 3ed559 3e                         ; patch FreeRAM to use bank $3e
 

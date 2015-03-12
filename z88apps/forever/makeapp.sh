@@ -51,11 +51,11 @@ mpm -b -I../../oz/def -rC460 fview.asm
 
 # Assemble EP-Fetch2
 cd ../epfetch
-mpm -b -I../../oz/def -rC600 epfetch2.asm
+mpm -b -I../../oz/def -rC600 -l../../stdlib/standard.lib epfetch2.asm
 
 # Assemble FreeRAM
 cd ../freeram
-mpm -b -I../../oz/def -rD500 -l../../stdlib/standard.lib freeram.asm
+mpm -b -I../../oz/def -rD530 -l../../stdlib/standard.lib freeram.asm
 
 # Assemble Installer, Bootstrap & Packages
 cd ../installer
