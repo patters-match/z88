@@ -16,9 +16,12 @@
 #
 # *************************************************************************************
 
+# ensure that we have an up-to-date standard library
+cd ../../stdlib; ./makelib.sh; cd ../z88apps/epfetch
+
 # compile EazyLink application from scratch
 rm -f *.obj *.bin *.map
-mpm -bg -I../../oz/def epfetch2
+mpm -bg -I../../oz/def -l../../stdlib/standard.lib epfetch2
 mpm -b romhdr
 
 # Create a 16K Rom Card with EP-Fetch2

@@ -1,6 +1,6 @@
 ; *************************************************************************************
 ; EP-Fetch2
-; (C) Garry Lancaster / Jorma Oksanen, 1993-2005
+; Modifications (C) Garry Lancaster / Jorma Oksanen, 1998-2015
 ;
 ; EP-Fetch2 is free software; you can redistribute it and/or modify it under the terms of the
 ; GNU General Public License as published by the Free Software Foundation;
@@ -16,6 +16,8 @@
 ; *************************************************************************************
 
         Module  ep3
+
+        lib RamDevFreeSpace
 
         include "director.def"
         include "dor.def"
@@ -38,10 +40,6 @@ defc    LINK_ADDR = 0
 
 defc    SafeWorkspaceSize       = $171
 defc    SafeWorkspaceStart      = $1ffe - SafeWorkspaceSize
-
-; Kernel system variable addresses (hack!!!)
-defc UBSLOTRAMOFFSET            = 0344H
-defc UBSLOTRAMSIZE              = 0348H
 
 DEFVARS         SafeWorkspaceStart
 {
@@ -78,11 +76,11 @@ defc    CMD_MEM         = 5
 
 ;       file entry has the form:
 ;
-;1 byte����� n���������� length of filename
-;1 byte����� x���������� '/' for latest version, $00 for old (deleted) version
-;n-1 bytes�� 'xxxx'����� filename
-;4 bytes���� m���������� length of file (least significant byte first)
-;m bytes���������������� body of file
+;1 byte      n           length of filename
+;1 byte      x           '/' for latest version, $00 for old (deleted) version
+;n-1 bytes   'xxxx'      filename
+;4 bytes     m           length of file (least significant byte first)
+;m bytes                 body of file
 
 
 .EPFetchDOR
@@ -249,7 +247,7 @@ defc    CMD_MEM         = 5
                 defm    "To fetch a file move bar over the filename required.",$7f
                 defm    "Deleted files are shown in ",1,"T","tiny text",1,"T"," and preceeded by -",$7f
                 defm    "The printing and listing of filenames is supported.",$7f,$7f
-                defm    1,"T","Modified GWL 1998-99, JO 2004-05",0
+                defm    1,"T","Modified GWL & JO 1998-2015",0
 
 
 .sHelp2         defm    1,"2JL",1,"2L!",$7f
@@ -408,17 +406,11 @@ defc    CMD_MEM         = 5
 
 .IsEPROM
 
-        ld      hl, ubSlotRamSize
-        add     a, l
-        ld      l, a
         and     3                               ; 1-3
         rrca
         rrca                                    ; $40/$80/$c0
         ld      (EPROMbase), a
         ld      (S1Bank), a                     ; force bank binding
-        ld      a, (hl)
-        or      a
-        jr      nz, ie_err                      ; RAM, skip
 
 ;       check for $3F3FFE = "oz", file EPROM
 
@@ -1041,39 +1033,11 @@ defc    MAXFILENAMELEN  = PRINTWIDTH2C
         call    KPrint
         defm    13,10,10,"Free space:",0
 
-        ld      b, 4
-        ld      ix, ubSlotRAMoffset
+        ld      bc, $0400               ; B=4 slots, C=slot 0
 .slots
-        ld      a, (ix+4)               ; #banks
-        or      a
-        jr      z, skips
-
-        push    bc
-
-        ld      a, (ix+0)               ; mat bank
-        cp      $40                     ; slot0? add 1
-        adc     a, 0
-        ld      b, a
-        ld      c, 2
-        OZ      OS_Mpb
-
-        ld      a, (ix+4)               ; #banks
-        inc     a
-        srl     a
-        ld      b, a                    ; #pages in mat
-        ld      de, 0                   ; #free pages
-        ld      hl, $8100
-.pages
-        ld      a, (hl)
-        inc     l
-        or      (hl)
-        jr      nz, skipp
-        inc     de
-.skipp
-        inc     l
-        jr      nz, pages
-        inc     h
-        djnz    pages
+        ld      a, c
+        call    RamDevFreeSpace         ; get DE=free 256-byte pages
+        jr      c,skips                 ; not a RAM device
 
         srl     d                       ; pages -> KB
         rr      e
@@ -1083,12 +1047,11 @@ defc    MAXFILENAMELEN  = PRINTWIDTH2C
         call    KPrint
         defm    13,10,":RAM.",0
 
-        push    ix
-        pop     bc
         ld      a, c
-        and     3
         add     a, '0'
         OZ      OS_Out
+
+        push    bc
 
         ld      b, d
         ld      c, e
@@ -1101,7 +1064,7 @@ defc    MAXFILENAMELEN  = PRINTWIDTH2C
 
         pop     bc
 .skips
-        inc     ix
+        inc     c
         djnz    slots
 
         ld      a, '1'

@@ -14,11 +14,16 @@
 ::
 :: *************************************************************************************
 
+:: ensure that we have an up-to-date standard library
+cd ..\..\stdlib
+call makelib.bat
+cd ..\z88apps\epfetch
+
 :: compile EP-Fetch2 application from scratch
 :: (this compile script is located in /z88apps/epfetch)
 
 del *.obj *.bin *.map
-mpm -bg -I..\..\oz\def epfetch2
+mpm -bg -I..\..\oz\def -l../../stdlib/standard.lib epfetch2
 mpm -b romhdr
 
 # Create a 16K Rom Card with EP-Fetch2
