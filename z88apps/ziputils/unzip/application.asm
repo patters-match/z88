@@ -151,7 +151,7 @@ include "data.def"
         defb    $7f
         defm    "A", $83, " e", $85, "ion utility for ZIP", $8d, $7f
         defm    "(c) Garry Lancaster", $7f
-        defm    "v1.13 - 23rd October 2011", $7f, $7f
+        defm    "v1.14 - 13th March 2015", $7f, $7f
         defb    0
 
 .in_help_opts
