@@ -143,8 +143,10 @@
      XREF Message1, Message2, Message10, Message11, Message12, Message13, Message21, Message22
      XREF Message23, Message24, Message25, Message26, Message27, Message28, Message38
      XREF Message29, Message30, Message31, Message32, Message33, Message34, Message35, Message36
+     XREF Message39
      XREF Error_Message0, Error_Message1, Error_Message2, Error_Message3
      XREF Error_Message4, Error_Message5, Error_Message6
+
      XREF Serial_port, BaudRate, No_parameter, Yes_Parameter, EasyLinkVersion
      XREF Check_Synch, Send_Synch, GetByte, PutByte, Getbyte_ackn
      XREF FetchBytes
@@ -175,6 +177,7 @@
      XDEF ESC_Z_cmd, ESC_R_cmd, ESC_Y_cmd, ESC_W_cmd, ESC_O_cmd
      XDEF ESC_G_cmd2, ESC_M_cmd, ESC_P_cmd, ESC_E_cmd, ESC_M_cmd2
      XDEF UseHardwareHandshaking, UseSoftwareHandshaking
+     XDEF Get_Time, Msg_file_received
 
 IF DEBUGGING
 ; Run EazyLink Server inside Intuition debugger application
@@ -668,11 +671,11 @@ ENDIF
                LD   (PollHandshakeCounter),A      ; reset timeout counter for handshake check
                LD   A,SerportXonXoffMode          ; Pclink II protocol...
                LD   (SignalSerportMode),A         ; signal that software handshake is needed
-               CALL DisplayPclinkIIText           ; display a flashing 'PCLINK II' text in topic window
 
                CALL Send_synch                    ; acknowledge - B = length of synch
                RET  C                             ; return on system error
                JR   Z,Fetch_synch_loop            ; timeout - communication stopped
+               CALL DisplayPclinkIIText           ; display a flashing 'PCLINK II' text in topic window
                CALL Pclink_ESC_commands           ; synch sent - wait for commands
                RET  C                             ; return on system error
                CALL Z,RemovePclinkIIText
@@ -2245,6 +2248,60 @@ ENDIF
 
 
 ; ***********************************************************************
+;
+.Get_Time      
+               PUSH BC
+               PUSH DE
+               PUSH HL
+               LD   C,0
+               LD   DE,2
+               CALL_OZ(GN_Gmt)                    ; current internal machine time
+               LD   (timestamp),BC
+               LD   (timestamp+2),A               ; current machine time
+               POP  HL
+               POP  DE
+               POP  BC
+               RET
+
+
+; ***********************************************************************
+;
+.Display_Elapsedtime
+               PUSH AF
+               PUSH IX
+               LD   C,0
+               LD   DE,2
+               OZ   GN_Gmt                        ; current internal machine time in ABC
+               LD   H,B
+               LD   L,C
+               LD   BC,(timestamp)
+               SBC  HL,BC
+               LD   D,A
+               LD   A,(timestamp+2)               ; elapsed time = current - previous
+               LD   E,A
+               LD   A,D
+               SBC  A,E
+               LD   (timestamp),HL
+               LD   (timestamp+2),A               ; AHL = elapsed time in centiseconds
+
+               LD   HL, time1_msg
+               OZ   Gn_Sop               
+
+               LD   BC, NQ_OHN
+               OZ   Os_Nq                         ; get handle in IX for standard output for GN_Ptm
+
+               LD   DE,0                          ; write time to #5 window...
+               LD   HL, timestamp                 ; pointer to internal time
+               LD   A, @00110101
+               OZ   Gn_Ptm                        ; display elapsed time...
+               OZ   Gn_Nln
+               POP  IX
+               POP  AF
+               RET
+.time1_msg     DEFM " in ", 0
+
+
+; ***********************************************************************
 .Msg_File_open_error
                LD   HL, error_message1
                CALL Write_message
@@ -2276,3 +2333,15 @@ ENDIF
                LD   HL,error_message2
                CALL Write_message                 ; No flags will be changed...
                RET
+
+; ***********************************************************************
+.Msg_file_received
+               PUSH AF
+               LD   HL, vdulog
+               CALL_OZ (Gn_Sop)
+               LD   HL, message39
+               OZ   Gn_Sop               
+               CALL Display_Elapsedtime
+               POP  AF
+               RET
+

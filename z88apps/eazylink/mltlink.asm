@@ -34,9 +34,9 @@
     XREF SendString, Send_ESC, PutByte, GetByte
     XREF Get_wcard_handle, Find_Next_Match, Close_wcard_handler
     XREF Abort_file, Get_file_handle, Reset_buffer_ptrs, Flush_buffer, Close_file
-    XREF Write_buffer, Load_Buffer
+    XREF Write_buffer, Load_Buffer, Get_Time
     XREF Debug_message, Write_Message, Msg_Command_aborted, Msg_Protocol_error, Msg_File_aborted
-    XREF Msg_No_Room, Msg_file_open_error, System_Error
+    XREF Msg_file_received,Msg_No_Room, Msg_file_open_error, System_Error
     XREF Message3, Message4, Message5, Message6, Message7, Message14, Message15, Message16
     XREF Message17, Message18
     XREF Error_message6
@@ -307,6 +307,9 @@
                   CALL Restore_TraFlag
                   JR   C,abort_batch_receive
                   JR   Z,abort_batch_receive             ; timeout - communication stopped
+
+                  CALL Get_Time                          ; read system time, to know elapsed time of received file
+
                   LD   B,0
                   LD   HL,filename_buffer
                   CALL Write_message                     ; write filename to screen
@@ -335,6 +338,7 @@
 .close_rcvd_file                                     ; ESC 'E' received.
                   CALL Flush_buffer                  ; save contents of buffer...
                   CALL Close_file
+                  CALL Msg_file_received
                   JP   Batch_Receive_loop            ; new file coming?
 ; byte in A to file...
 .byte_to_file     CP   LF                            ; is it a line feed?
@@ -385,6 +389,7 @@
                   pop  hl                            ; file blown successfully to File Area
                   pop  bc
                   pop  af
+                  call nz,Msg_file_received
                   jp   nz,Batch_Receive              ; mark old file as deleted?
                   call FileEprDeleteFile             ; (BHL = old file Entry) Yes, so new "version" from serial port becomes the active one..
                   jp   Batch_Receive
