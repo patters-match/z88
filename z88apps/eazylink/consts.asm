@@ -37,7 +37,7 @@
     XDEF Message16, Message17, Message18, Message19, Message20, Message21, Message22
     XDEF Message23, Message24, Message25, Message26, Message27, Message28
     XDEF Message29, Message30, Message31, Message32, Message33, Message34
-    XDEF Message35, Message36, Message37, message38, message39
+    XDEF Message35, Message36, Message37, message38, message39, message40
     XDEF Error_Message0, Error_Message1, Error_Message2, Error_Message3
     XDEF Error_Message4, Error_Message5, Error_message6
     XDEF ESC_Z, ESC_F, ESC_N, ESC_E, ESC_Y, ESC_B, ESC_ESC, CRLF
@@ -108,6 +108,7 @@
 .message37          DEFM "File CRC-32", 0
 .message38          DEFM "Device Info", 0
 .message39          DEFM "File received", 0
+.message40          DEFM "File sent", 0
 
 .error_message0     DEFM "Escape pressed....", 0
 .error_message1     DEFM "File open error.", 0

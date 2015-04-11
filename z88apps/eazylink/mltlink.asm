@@ -36,7 +36,7 @@
     XREF Abort_file, Get_file_handle, Reset_buffer_ptrs, Flush_buffer, Close_file
     XREF Write_buffer, Load_Buffer, Get_Time
     XREF Debug_message, Write_Message, Msg_Command_aborted, Msg_Protocol_error, Msg_File_aborted
-    XREF Msg_file_received,Msg_No_Room, Msg_file_open_error, System_Error
+    XREF Msg_file_received, Msg_file_sent, Msg_No_Room, Msg_file_open_error, System_Error
     XREF Message3, Message4, Message5, Message6, Message7, Message14, Message15, Message16
     XREF Message17, Message18
     XREF Error_message6
@@ -428,6 +428,9 @@
 
                   LD   HL, filename_buffer
                   CALL Write_message
+
+                  CALL Get_Time                      ; read system time, to know elapsed time of received file
+
                   CALL Transfer_filename
                   JR   C, batch_send_aborted         ; transmission error...
                   JR   Z, batch_send_aborted
@@ -436,6 +439,7 @@
                   JR   C, batch_send_aborted         ; transmission error...
                   JR   Z, batch_send_aborted
 
+                  CALL Msg_file_sent
                   JR   find_files_loop
 .batch_send_aborted
                   CALL Close_wcard_handler
@@ -465,6 +469,13 @@
                   push    bc
                   push    hl                         ; preserve pointer to File Entry...
                   ld      hl,filename_buffer
+
+                  ld      hl, message17
+                  oz      GN_sop
+                  ld      hl, filename_buffer
+                  call    Write_message
+
+                  call    get_time                   ; read system time, to know elapsed time of sent file
                   call    Transfer_filename          ; First transmit filename
                   pop     hl
                   pop     bc
@@ -478,6 +489,8 @@
                   call    FileEprSendFile            ; transmit single File Entry image to serial port
                   jr      c,err_batch_send           ; transmission error...
                   jr      z,err_batch_send
+
+                  call    Msg_file_sent              ; display "file sent in xxx" elapsed time
 
                   call    Send_EscE
                   jr      c,err_batch_send           ; transmission error...

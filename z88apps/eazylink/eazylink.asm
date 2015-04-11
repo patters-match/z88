@@ -143,7 +143,7 @@
      XREF Message1, Message2, Message10, Message11, Message12, Message13, Message21, Message22
      XREF Message23, Message24, Message25, Message26, Message27, Message28, Message38
      XREF Message29, Message30, Message31, Message32, Message33, Message34, Message35, Message36
-     XREF Message39
+     XREF Message39, Message40
      XREF Error_Message0, Error_Message1, Error_Message2, Error_Message3
      XREF Error_Message4, Error_Message5, Error_Message6
 
@@ -177,7 +177,7 @@
      XDEF ESC_Z_cmd, ESC_R_cmd, ESC_Y_cmd, ESC_W_cmd, ESC_O_cmd
      XDEF ESC_G_cmd2, ESC_M_cmd, ESC_P_cmd, ESC_E_cmd, ESC_M_cmd2
      XDEF UseHardwareHandshaking, UseSoftwareHandshaking
-     XDEF Get_Time, Msg_file_received
+     XDEF Get_Time, Msg_file_received, Msg_file_sent
 
 IF DEBUGGING
 ; Run EazyLink Server inside Intuition debugger application
@@ -2345,3 +2345,13 @@ ENDIF
                POP  AF
                RET
 
+; ***********************************************************************
+.Msg_file_sent
+               PUSH AF
+               LD   HL, vdulog
+               CALL_OZ (Gn_Sop)
+               LD   HL, message40
+               OZ   Gn_Sop               
+               CALL Display_Elapsedtime
+               POP  AF
+               RET
