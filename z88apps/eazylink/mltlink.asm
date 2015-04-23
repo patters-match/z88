@@ -370,10 +370,10 @@
 
 .verify_write_filearea
                   call CheckFileAreaOfSlot           ; file area in slot A = "0", "1", "2" or "3" => C = slot number
-                  jr   c,FileEpr_create_error        ; this slot had no file area (no card)...
-                  jr   nz,FileEpr_create_error       ; this slot had no file area (card, but no file area)
+                  jr   c,filecard_error              ; this slot had no file area (no card)...
+                  jr   nz,filecard_error             ; this slot had no file area (card, but no file area)
                   call SlotWriteSupport              ; slot C writeable?
-                  jr   c,FileEpr_create_error
+                  jr   c,filecard_error
 
                   ld   de,filename_buffer+6          ; filename begins with "/" (skip ":EPR.x" device name)
                   call FileEprFindFile               ; filename already exists on file eprom?
@@ -397,6 +397,7 @@
                   pop  hl
                   pop  bc
                   pop  af
+.filecard_error
                   LD   HL, Error_message6            ; "File Card Write Error."
                   CALL Write_message
                   jr   void_file_loop                ; wait for end of file marker, then back to main loop
@@ -848,7 +849,7 @@
 
 
 ; ***********************************************************************
-; Path begins with ":XXX." 
+; Path begins with ":XXX."
 ;
 ; HL = pointer to path containing device / dir names
 ; DE = pointer to device name pattern
