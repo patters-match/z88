@@ -5,7 +5,7 @@ xdef RamTest
 ; IN:
 ;   B = banks to test in slot 3 (from $C0 + B-1)
 ; OUT:
-;   A = pass = $00, fail = pass number
+;   A = pass = $00, fail = pass number (1..4)
 ;   BHL = last testing extended address
 ;
 .RamTest
@@ -80,6 +80,7 @@ xdef RamTest
                     jr      setretrn       ;
 .failed
                     ld      a,e            ; return A = the pass number
+                    inc     a              ; failed on pass 1..4 (A=0 indicates no errors)
 .setretrn
                     ld      b,d            ; return BHL = last testing address
                     ex      af,af'         ; get the original bank for segment 2
