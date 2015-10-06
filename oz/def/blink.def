@@ -155,7 +155,7 @@ DEFC BL_STA    =    $B1                 ; Interrupt Status (Read)
      DEFC BB_STAUART     =    4         ; If set, an enabled UART interrupt is active
      DEFC BB_STABTL      =    3         ; If set, battery low pin is active
      DEFC BB_STAKEY      =    2         ; If set, a column has gone low in snooze (or coma)
-     DEFC BB_STATIME     =    1         ; If set, an enabled TIME interrupt is active
+     DEFC BB_STATIME     =    0         ; If set, an enabled TIME interrupt is active
      ; -       -                        ; none
      ; Bit masks
      DEFC BM_STAFLAPOPEN =    $80       ; If set, flap open else flap closed
@@ -164,7 +164,7 @@ DEFC BL_STA    =    $B1                 ; Interrupt Status (Read)
      DEFC BM_STAUART     =    $10       ; If set, an enabled UART interrupt is active
      DEFC BM_STABTL      =    $08       ; If set, battery low pin is active
      DEFC BM_STAKEY      =    $04       ; If set, a column has gone low in snooze (or coma)
-     DEFC BM_STATIME     =    $02       ; If set, an enabled TIME interrupt is active
+     DEFC BM_STATIME     =    $01       ; If set, an enabled TIME interrupt is active
 ; -----------------------------------------------------------------------------
 
 ; -----------------------------------------------------------------------------
@@ -376,7 +376,7 @@ DEFC BLSC_UMK  =    $04E5               ; its softcopy
      DEFC BB_UMKCTS      =    5         ; If set, CTS interrupts are enabled
      DEFC BB_UMKTDRE     =    4         ; If set, Transmit Data Register Empty Interrupt enabled
      ; bit 3                  -
-     DEFC BB_UMKRDRF     =    2         ; If set, Receive Data Register Empty Interrupt enabled
+     DEFC BB_UMKRDRF     =    2         ; If set, Receive Data Register Full Interrupt enabled
      ; bit 1                  -
      ; bit 0                  -
      ;
@@ -385,7 +385,7 @@ DEFC BLSC_UMK  =    $04E5               ; its softcopy
      DEFC BM_UMKCTS      =    $20       ; If set, CTS interrupts are enabled
      DEFC BM_UMKTDRE     =    $10       ; If set, Transmit Data Register Empty Interrupt enabled
      ; bit 3                  -
-     DEFC BM_UMKRDRF     =    $04       ; If set, Receive Data Register Empty Interrupt enabled
+     DEFC BM_UMKRDRF     =    $04       ; If set, Receive Data Register Full Interrupt enabled
 ; -----------------------------------------------------------------------------
 
 ; -----------------------------------------------------------------------------

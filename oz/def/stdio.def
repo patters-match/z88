@@ -39,14 +39,19 @@ IF !__STDIO_DEF__
      DEFC  OS_Out    = $27         ; write a byte to std. output
      DEFC  OS_Bout   = $90         ; send a block of bytes from local or extended address to std. output (OZ 4.2 or newer)
      DEFC  OS_Pout   = $93         ; send embedded string at (PC) to std. output (OZ 4.2 or newer)
-     DEFC  OS_Xin    = $30         ; examine input (e.g. check for pre-emption)
+     DEFC  OS_Hout   = $96         ; write a hexadecimal byte to std. output (OZ 4.5 or newer) 
      DEFC  GN_Nln    = $2E09       ; send newline (CR/LF) to std. output
      DEFC  GN_Sop    = $3A09       ; write string to std. output
      DEFC  GN_Soe    = $3C09       ; write string from extended address
      DEFC  GN_Sip    = $3809       ; system input line routine
-     DEFC  GN_Win    = $7A09       ; Create window (OZ 4.2 and newer)
+     DEFC  GN_Win    = $7A09       ; Create window (OZ 4.2 or newer)
      DEFC  OS_Pur    = $33         ; purge keyboard buffer (and reset timeout)
      DEFC  OS_Blp    = $D806       ; Bleep
+     DEFC  OS_Xin    = $30         ; examine input (e.g. check for pre-emption)
+     ; Arguments
+          DEFC XIN_KB    = 1       ; Keyboard Buffer has data
+          DEFC XIN_RX    = 2       ; Serial RX Buffer has data
+          DEFC XIN_CLI   = 4       ; CLI is active 
 
 ; Standard input key definitions (Returned by OS_IN, OS_TIN, GN_SIP)
 ;

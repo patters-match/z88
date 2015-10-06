@@ -33,12 +33,29 @@ DEFINE __MEMORY_DEF__
 
      INCLUDE "macros.def"
 
+; Memory allocation:
 
      DEFC Os_Mop = $4E             ; Open memory (allocate memory pool)
      DEFC Os_Mal = $54             ; Allocate memory
      DEFC Os_Axp = $D206           ; Allocate explicit page (internal OZ usage)
+     DEFC Os_Axm = $C206           ; Allocate explicit memory (OZ 4.6 and newer)
+     DEFC Os_Fxm = $C006           ; Free explicit memory (OZ 4.6 and newer)
      DEFC Os_Mfr = $57             ; Free memory
      DEFC Os_Mcl = $51             ; Close memory (free memory pool)
+     DEFC Os_Fma = $C406           ; Find Memory for Allocation (OZ 4.6 and newer)
+          DEFC FM_EVN   = $80      ; request even bank
+          DEFC FM_FIX   = $40      ; request fixed memory
+          DEFC FM_ANY   = $20      ; any slot
+          DEFC FM_NOF   = $10      ; no offset (offset calculated and returned by call)
+          DEFC FM_CI    = $00      ; internal memory (slot 0)
+          DEFC FM_C1    = $01      ; slot 1
+          DEFC FM_C2    = $02      ; slot 2
+          DEFC FM_C3    = $03      ; slot 3
+
+          DEFC FM_B_EVN = 7
+          DEFC FM_B_FIX = 6
+          DEFC FM_B_ANY = 5
+          DEFC FM_B_NOF = 4
 
 ; Memory information movement:
 

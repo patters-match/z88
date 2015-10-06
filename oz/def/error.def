@@ -83,6 +83,7 @@ IF !__ERROR_DEF__
      DEFC RC_VPL    = $70     ; Vpp Low Error
      DEFC RC_BWR    = $71     ; Write (byte) Error (Flash or UV Eprom)
      DEFC RC_BER    = $72     ; Flash Sector/Block Erasure Error
+     DEFC RC_EPNE   = $73     ; UV Eprom Not Erased (OZ V4.5 and later)
      DEFC RC_NFE    = $80     ; Flash not recognized
      DEFC RC_NOZ    = $81     ; Flash contains OZ ROM, cannot be erased
 

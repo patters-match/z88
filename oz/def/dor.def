@@ -29,9 +29,6 @@ lstoff
 IF !__DOR_DEF__
      DEFINE __DOR_DEF__
 
-     INCLUDE "macros.def"
-
-
      DEFC OS_Dor = $87             ; DOR interface
 
      ; DOR codes when using OS_Dor :
@@ -57,7 +54,7 @@ IF !__DOR_DEF__
 
           DEFC Dn_Fil    = $11     ; File type
           DEFC Dn_Dir    = $12     ; Directory type
-          DEFC Dn_Apl    = $13     ; Application front DOR type,
+          DEFC DN_Apl    = $13     ; Application front DOR type,
           DEFC Dn_Del    = $7F     ; Deleted Entry type.
 
      ; Record DOR types:
@@ -69,7 +66,6 @@ IF !__DOR_DEF__
           DEFC Dt_Atr    = $41     ; Not currently used
           DEFC Dt_Hlp    = $48     ; Help type
           DEFC Dt_Inf    = $40     ; Information
-
 
 ; Application type 1:
 
@@ -92,18 +88,37 @@ IF !__DOR_DEF__
      DEFC AT2_Icl = 2              ; (BIT 1) Set 'inverted' Caps Lock on creation entry
      DEFC AT2_Ie  = 128            ; (BIT 7) Ignore error returns (should be avoided).
 
-; MTH:
+; MTH Delimiters
 
-     defc TPCF_B_AN      = 0       ; bits 2, 3, 5, 6, 7 unused
-     defc TPCF_B_INFO    = 1
-     defc TPCF_B_HELP    = 4
+     defc TPC_MARK       = 0       ; beginning and end markers of a topic block
+     defc TPC_SEP        = 1       ; topic separator inside block
+     defc CMD_MARK       = 0       ; beginning and end markers of a command block
 
-     defc CMDF_B_COLUMN  = 0        ; bits 1, 5, 6, 7 unused
-     defc CMDF_B_HIDDEN  = 2
-     defc CMDF_B_SAFE    = 3
-     defc CMDF_B_HELP    = 4
+; MTH TOPIC FLAGS: (Bits 2, 3, 5, 6, 7 unused)
 
+     defc TPCF_B_AN      = 0       ; 'An ' instead 'A '
+     defc TPCF_B_INFO    = 1       ; Set for an INFO Topic
+     defc TPCF_B_HELP    = 4       ; has a help page
+
+     defc TPCF_AN        = $01
+     defc TPCF_INFO      = $02
+     defc TPCF_HELP      = $10
+
+; MTH COMMAND FLAGS: (Bits 1, 5, 6, 7 are unused)
+
+     defc CMDF_B_COLUMN  = 0        ; First entry in a new column
+     defc CMDF_B_HIDDEN  = 2        ; Command is hidden
+     defc CMDF_B_SAFE    = 3        ; Command is safe
+     defc CMDF_B_HELP    = 4        ; has a help page
+
+     defc CMDF_COLUMN    = $01
+     defc CMDF_HIDDEN    = $04
+     defc CMDF_SAFE      = $08
      defc CMDF_HELP      = $10
+
+IF !__MACROS_DEF__
+  INCLUDE "macros.def"
+ENDIF
 
 ENDIF
 

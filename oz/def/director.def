@@ -95,10 +95,7 @@ IF !__DIRECTOR_DEF__
      DEFC Os_Poll= $FC06           ; Poll for an application (internal)
      DEFC OS_Ploz= $C606           ; Poll for running OZ card usage                 (OZ 4.2 and newer)
      DEFC Os_Stk = $F806           ; Stack file current process (internal)
-     DEFC Os_Wait= $7E             ; Wait for event (internal)
-     ; arguments:
-          DEFC WT_ANY = $FF        ; infinite
-
+     DEFC OS_Uash= $BE06           ; Update application static handle (internal)    (OZ 4.6 and newer)
 
 ENDIF
 

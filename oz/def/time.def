@@ -44,6 +44,13 @@ IF !__TIME_DEF__
      DEFC Os_Dly = $D606      ; delay a given period
      DEFC Gn_Gdt = $0609      ; convert ASCII string to internal date
      DEFC Gn_Pdt = $0809      ; convert internal date to ASCII string
+     DEFC GN_Ldm = $8009      ; country localized date manipulation
+          ; arguments :
+          DEFC DM_DAY = $80   ; day of the week
+          DEFC DM_MONTH = $40 ; month name
+          DEFC DM_SHORT = $20 ; short string
+          DEFC DM_MMT = $10   ; moment (today, yesterday, tomorrow)
+
      DEFC Gn_Die = $1409      ; convert from internal to zoned format
      DEFC Gn_Dei = $1609      ; convert from zoned format to internal format
      DEFC Gn_Gmd = $1809      ; get current machine date in internal format

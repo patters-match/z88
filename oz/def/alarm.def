@@ -41,6 +41,8 @@ define __ALARM_DEF__
 ; *** INTERNAL OPERATING SYSTEM USAGE ONLY ***
 
      DEFC Gn_Alp  = $7009          ; Process an expired alarm
+     DEFC Gn_Gab  = $7E09          ; Get first alarm block
+
 
 ; Low level alarm call definitions:
      DEFC Os_Alm  = $81            ; Alarm manipulation

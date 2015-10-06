@@ -33,8 +33,18 @@ IF !__FILTER_DEF__
 
      INCLUDE "macros.def"
 
+     ; Filter Definition Table (FDT) Arguments :
+        DEFC    FL_ISO     = $80   ; table has ISO characters (top bit set)
+        DEFC    FL_NUM     = $40   ; table has numeric data
+        DEFC    FL_ALPHA   = $20   ; table has alphanumeric data
+        DEFC    FL_PUNCT   = $10   ; table has punctuation 
 
      DEFC Gn_Flo  = $2209          ; Open a filter
+     ; Arguments :
+        DEFC    FL_NOCASE  = 1     ; case equivalence
+        DEFC    FL_REVERSE = 2     ; reverse mode
+        DEFC    FL_MAXBUF  = 4     ; force maximum buffer of B size
+
      DEFC Gn_Flc  = $2409          ; Close a filter
      DEFC Gn_Flw  = $2609          ; Push character into filter
      DEFC Gn_Flr  = $2809          ; Read character from filter
