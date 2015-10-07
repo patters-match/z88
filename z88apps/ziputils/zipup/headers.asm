@@ -337,7 +337,7 @@ include "data.def"
 .skipdev
         inc     hl
         ld      a,(hl)
-        cp      '\'
+        cp      '\\'
         jr      z,nodevice
         cp      '/'
         jr      nz,skipdev
@@ -348,7 +348,7 @@ include "data.def"
         ld      a,(hl)
         cp      '/'
         jr      z,checkname
-        cp      '\'
+        cp      '\\'
         jr      z,checkname
         dec     de              ; if no leading '/' or '\', decrement DE
 .checkname
@@ -357,7 +357,7 @@ include "data.def"
         jr      z,endofname     ; move on if found end of name
         cp      '/'
         jr      z,isslash
-        cp      '\'
+        cp      '\\'
         jr      nz,notslash
 .isslash
         ld      d,h             ; set position of last slash
@@ -375,7 +375,7 @@ include "data.def"
         ld      a,(de)
         cp      '/'
         jr      z,ignslsh
-        cp      '\'
+        cp      '\\'
         jr      nz,noignslsh
 .ignslsh
         inc     de              ; skip past any leading slash
