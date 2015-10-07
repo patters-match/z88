@@ -22,14 +22,17 @@ lstoff
 ;
 ; (C) Jorma Oksanen (jorma.oksanen@aini.fi), 2003
 ; (C) Thierry Peycru (pek@users.sf.net), 2005-2007
-; (C) Gunther Strube (gbs@users.sf.net), 2005-2007
+; (C) Gunther Strube (gstrube@gmail.com), 2005-2007
 ;
 ; ***************************************************************************************************
 
 ; Screen control:
 
 IF !__SCREEN_DEF__
-define __SCREEN_DEF__
+     DEFINE __SCREEN_DEF__
+
+     INCLUDE "macros.def"
+     INCLUDE "oz.def"
 
      DEFC Os_Off  = $EC06          ; switch machine (screen) off
 
@@ -40,123 +43,6 @@ define __SCREEN_DEF__
           DEFC SC_HR0  = $03            ; HIRES0 (8K granularity)
           DEFC SC_HR1  = $04            ; HIRES1 (2K granularity)
           DEFC SC_SBR  = $05            ; screen base (2K granularity)
-
-; *** INTERNAL OPERATING SYSTEM USAGE ONLY ***
-
-         defc SBF_PAGE    = $78
-         defc SBF_ADDRESS = SBF_PAGE<<8
-
-; OZ window (hires chars)
-defc    LCD_ozrow1              =SBF_ADDRESS+$d2
-defc    LCD_ozrow2              =LCD_ozrow1+$100
-defc    LCD_ozrow3              =LCD_ozrow1+$200
-defc    LCD_ozrow4              =LCD_ozrow1+$300
-defc    LCD_ozrow5              =LCD_ozrow1+$400
-defc    LCD_ozrow6              =LCD_ozrow1+$500
-defc    LCD_ozrow7              =LCD_ozrow1+$600
-defc    LCD_ozrow8              =LCD_ozrow1+$700
-
-; windows
-defc    Wd1Frame                =SBF_ADDRESS+$e6
-
-defc    sbf_ActiveWd            =SBF_ADDRESS+$7e7
-
-defvars SBF_ADDRESS+$7e9
-        sbf_CtrlPrefix          ds.b    1
-        sbf_PrefixSeq           ds.b    1
-        sbf_PrefixLen           ds.b    1
-        sbf_VDUbuffer           ds.b    1
-        sbf_VDU1                ds.b    1
-        sbf_VDU2                ds.b    1
-        sbf_VDU3                ds.b    1
-        sbf_VDU4                ds.b    1
-        sbf_VDU5                ds.b    1
-        sbf_VDU6                ds.b    1
-enddef
-
-;       window - negative offsets
-
-defvars -14
-        wdf_f2                  ds.b    1
-        wdf_flagsHi             ds.b    1
-        wdf_OpenFlags           ds.b    1
-        wdf_flagsLo             ds.b    1
-        wdf_f6                  ds.b    1       ; !! unused, always zero
-        wdf_crsrattr            ds.b    1
-        wdf_crsrx               ds.b    1
-        wdf_crsry               ds.b    1
-        wdf_rmargin             ds.b    1
-        wdf_lmargin             ds.b    1
-        wdf_endx                ds.b    1
-        wdf_endy                ds.b    1
-        wdf_startx              ds.b    1
-        wdf_starty              ds.b    1
-enddef
-
-;       flags lo
-defc    WDFL_B_ULINE            =1
-defc    WDFL_B_GREY             =2
-defc    WDFL_B_FLASH            =3
-defc    WDFL_B_REVERSE          =4
-defc    WDFL_B_TINY             =6
-defc    WDFL_B_BOLD             =7
-
-defc    WDFL_ULINE              =$02
-defc    WDFL_GREY               =$04
-defc    WDFL_FLASH              =$08
-defc    WDFL_REVERSE            =$10
-defc    WDFL_TINY               =$40
-defc    WDFL_BOLD               =$80
-
-;       flags hi
-defc    WDFH_B_HSCROLL          =2
-defc    WDFH_B_DELAY            =3
-defc    WDFH_B_CAPS             =4
-defc    WDFH_B_VSCROLL          =5
-defc    WDFH_B_CURSORON         =6
-defc    WDFH_B_CURSOR           =7
-
-defc    WDFH_JUSTIFICATION      =$03
-defc    WDFH_HSCROLL            =$04
-defc    WDFH_DELAY              =$08
-defc    WDFH_CAPS               =$10
-defc    WDFH_VSCROLL            =$20
-defc    WDFH_CURSORON           =$40
-defc    WDFH_CURSOR             =$80
-
-;       flags f2 f4(fo)
-
-defc    WDF2_B_INITIALIZED      =7      ; other bits unused
-
-
-defc    WDFO_B_BORDERS          =0      ; left/right vertical bars
-defc    WDFO_B_BRACKETS         =1      ; shelf brackets
-defc    WDFO_B_UNGREY           =3      ; set during -G cls
-defc    WDFO_B_GREY             =4      ; set during +G cls
-defc    WDFO_B_5                =5
-defc    WDFO_B_6                =6
-
-;       LCD hardware attributes
-
-defc    LCDA_B_CH8              =0
-defc    LCDA_B_UNDERLINE        =1
-defc    LCDA_B_GREY             =2
-defc    LCDA_B_FLASH            =3
-defc    LCDA_B_REVERSE          =4
-defc    LCDA_B_HIRES            =5
-defc    LCDA_B_TINY             =7
-
-defc    LCDA_CH8                =$01
-defc    LCDA_UNDERLINE          =$02
-defc    LCDA_GREY               =$04
-defc    LCDA_FLASH              =$08
-defc    LCDA_REVERSE            =$10
-defc    LCDA_HIRES              =$20
-defc    LCDA_TINY               =$80    ; software flag
-
-defc    LCDA_SPECMASK           =$3C
-defc    LCDA_NULLCHAR           =$34
-defc    LCDA_LORESCURSOR        =$38
 
 ENDIF
 

@@ -17,8 +17,22 @@
 ::
 :: *************************************************************************************
 
+@echo off
+
 del *.obj *.sym *.bin *.map installer.c
+
+:: return version of Mpm to command line environment.
+:: Only V1.5 or later of Mpm supports macros
+mpm -version 2>nul >nul
+if ERRORLEVEL 15 goto COMPILE_INSTALLER
+echo Mpm version is less than V1.5, BASIC Installer compilation aborted.
+echo Mpm displays the following:
+mpm
+goto END
+
+:COMPILE_INSTALLER
 
 :: Assemble the BASIC installer codefile
 mpm -b -oinstaller.c -I..\..\oz\def -DBASINST @basinstaller.prj
 
+:END

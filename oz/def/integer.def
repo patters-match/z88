@@ -22,14 +22,16 @@ lstoff
 ;
 ; (C) Jorma Oksanen (jorma.oksanen@aini.fi), 2003
 ; (C) Thierry Peycru (pek@users.sf.net), 2005-2007
-; (C) Gunther Strube (gbs@users.sf.net), 2005-2007
+; (C) Gunther Strube (gstrube@gmail.com), 2005-2007
 ;
 ; ***************************************************************************************************
 
 ; Integer manipulation:
 
 IF !__INTEGER_DEF__
-define __INTEGER_DEF__
+DEFINE __INTEGER_DEF__
+
+INCLUDE "macros.def"
 
       DEFC Gn_M16  = $7209         ; Unsigned 16bit multiplication
       DEFC Gn_D16  = $7409         ; Unsigned 16bit division

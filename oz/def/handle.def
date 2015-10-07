@@ -22,14 +22,21 @@ lstoff
 ;
 ; (C) Jorma Oksanen (jorma.oksanen@aini.fi), 2003
 ; (C) Thierry Peycru (pek@users.sf.net), 2005-2007
-; (C) Gunther Strube (gbs@users.sf.net), 2005-2007
+; (C) Gunther Strube (gstrube@gmail.com), 2005-2007
 ;
+; ***************************************************************************************************
+
+; ***************************************************************************************************
+; ***                             INTERNAL OPERATING SYSTEM USAGE ONLY                            ***
 ; ***************************************************************************************************
 
 ; Handle functions:
 
 IF !__HANDLE_DEF__
-define __HANDLE_DEF__
+DEFINE __HANDLE_DEF__
+
+INCLUDE "macros.def"
+
 
 defc    Os_Fn                   =$7B            ; Miscellaneous OS functions (internal)
 
@@ -37,6 +44,8 @@ defc    Os_Fn                   =$7B            ; Miscellaneous OS functions (in
 defc    FN_AH                   =$01            ; allocate handle
 defc    FN_VH                   =$02            ; verify handle
 defc    FN_FH                   =$03            ; free handle
+defc    FN_GH                   =$04            ; get (find) handle (OZ 4.6 and newer)
+defc    FN_NH                   =$05            ; get next handle of same type (OZ 4.6 and newer)
 
 ; Tri-handle calls:
 defc    Os_Fth                  =$DE06          ; Free tri-handle (internal)
@@ -47,6 +56,19 @@ defc    Os_Vth                  =$E006          ; Verify tri-handle (internal)
 defc    TH_FILT                 =$F0            ; filter
 defc    TH_WMG                  =$F1            ; wildcard
 defc    TH_ALM                  =$F2            ; alarm
+
+
+; handle types:
+defc    HND_DEV                 =$01           ; device
+defc    HND_FILE                =$02           ; file/directory
+defc    HND_MEM                 =$03           ; memory
+defc    HND_PROC                =$04           ; process
+defc    HND_ALRM                =$05           ; alarm
+defc    HND_TRHN                =$06           ; tri-handle
+defc    HND_INST                =$07           ; installation (OZ 4.6 and newer)
+defc    HND_TEMP                =$FA           ; temporary
+
+defc    HND_B_DEV               =0
 
 ENDIF
 

@@ -20,5 +20,16 @@
 
 rm -f *.obj *.bin *.map
 
+# return version of Mpm to command line environment.
+# validate that MPM is V1.5 or later - only this version or later supports macros
+MPM_VERSIONTEXT=`mpm -version`
+
+if test $? -lt 15; then
+  echo Mpm version is less than V1.5, Unzip compilation aborted.
+  echo Mpm displays the following:
+  mpm
+  exit 1
+fi
+
 mpm -b -I../../../oz/def crctable.asm
 mpm -b -I../../../oz/def @unzip.prj

@@ -1,6 +1,6 @@
 :: *************************************************************************************
 :: FlashStore
-:: (C) Gunther Strube (gstrube@gmail.com) & Thierry Peycru (pek@users.sf.net), 1997-2012
+:: (C) Gunther Strube (gstrube@gmail.com) & Thierry Peycru (pek@users.sf.net), 1997-2014
 ::
 :: FlashStore is free software; you can redistribute it and/or modify it under the terms of the
 :: GNU General Public License as published by the Free Software Foundation;
@@ -15,14 +15,29 @@
 ::
 :: *************************************************************************************
 
+@echo off
+
 :: ensure that we have an up-to-date standard library
 cd ..\..\stdlib
 call makelib.bat
 cd ..\z88apps\flashstore
 
+:: return version of Mpm to command line environment.
+:: Only V1.5 or later of Mpm supports macros
+mpm -version 2>nul >nul
+if ERRORLEVEL 15 goto COMPILE_FLASHSTORE
+echo Mpm version is less than V1.5, FlashStore compilation aborted.
+echo Mpm displays the following:
+mpm
+goto END
+
+:COMPILE_FLASHSTORE
+
 del flashstore.63 flashstore.epr
-mpm -db -I..\..\oz\def -l..\..\stdlib\standard.lib @flashstore
-mpm -db romhdr
+mpm -b -I..\..\oz\def -l..\..\stdlib\standard.lib @flashstore
+mpm -b romhdr
 
 :: Create a 16K Rom Card with FlashStore
 z88card -f flashstore.loadmap
+
+:END

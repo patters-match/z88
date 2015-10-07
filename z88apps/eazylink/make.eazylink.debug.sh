@@ -2,7 +2,7 @@
 
 # *************************************************************************************
 # EazyLink application make script for Unix/Linux for Intuition debugging
-# (C) Gunther Strube (gstrube@gmail.com) 2005-2012
+# (C) Gunther Strube (gstrube@gmail.com) 2005-2014
 #
 # EazyLink is free software; you can redistribute it and/or modify it under the terms of the
 # GNU General Public License as published by the Free Software Foundation;
@@ -19,6 +19,17 @@
 
 # ensure that we have an up-to-date standard library
 cd ../../stdlib; ./makelib.sh; cd ../z88apps/eazylink
+
+# return version of Mpm to command line environment.
+# validate that MPM is V1.5 or later - only this version or later supports macros
+MPM_VERSIONTEXT=`mpm -version`
+
+if test $? -lt 15; then
+  echo Mpm version is less than V1.5, EazyLink compilation aborted.
+  echo Mpm displays the following:
+  mpm
+  exit 1
+fi
 
 # compile EazyLink application (debug version) from scratch
 rm -f *.obj *.bin *.map *.63 *.epr

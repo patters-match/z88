@@ -22,12 +22,15 @@ lstoff
 ;
 ; (C) Jorma Oksanen (jorma.oksanen@aini.fi), 2003
 ; (C) Thierry Peycru (pek@users.sf.net), 2005-2007
-; (C) Gunther Strube (gbs@users.sf.net), 2005-2007
+; (C) Gunther Strube (gstrube@gmail.com), 2005-2007
 ;
 ; ***************************************************************************************************
 
 IF !__TIME_DEF__
-define __TIME_DEF__
+     DEFINE __TIME_DEF__
+
+     INCLUDE "macros.def"
+
 
      DEFC Gn_Gmt = $1A09      ; get (read) machine time in internal format
      DEFC Gn_Pmt = $1E09      ; put (set) machine date
@@ -41,6 +44,13 @@ define __TIME_DEF__
      DEFC Os_Dly = $D606      ; delay a given period
      DEFC Gn_Gdt = $0609      ; convert ASCII string to internal date
      DEFC Gn_Pdt = $0809      ; convert internal date to ASCII string
+     DEFC GN_Ldm = $8009      ; country localized date manipulation
+          ; arguments :
+          DEFC DM_DAY = $80   ; day of the week
+          DEFC DM_MONTH = $40 ; month name
+          DEFC DM_SHORT = $20 ; short string
+          DEFC DM_MMT = $10   ; moment (today, yesterday, tomorrow)
+
      DEFC Gn_Die = $1409      ; convert from internal to zoned format
      DEFC Gn_Dei = $1609      ; convert from zoned format to internal format
      DEFC Gn_Gmd = $1809      ; get current machine date in internal format

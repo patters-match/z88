@@ -147,7 +147,7 @@ include "data.def"
 .validchar
         ld      a,(hl)          ; get char
         inc     hl
-        cp      '\'
+        cp      '\\'
         jr      nz,notbackslash
         ld      a,'/'
 .notbackslash

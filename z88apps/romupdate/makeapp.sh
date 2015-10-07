@@ -2,7 +2,7 @@
 
 # *************************************************************************************
 # RomUpdate - Popdown compile script
-# (C) Gunther Strube (gstrube@gmail.com) 2005-2012
+# (C) Gunther Strube (gstrube@gmail.com) 2005-2014
 #
 # RomUpdate is free software; you can redistribute it and/or modify it under the terms of the
 # GNU General Public License as published by the Free Software Foundation;
@@ -21,6 +21,18 @@
 cd ../../stdlib; ./makelib.sh; cd ../z88apps/romupdate
 
 rm -f *.obj *.bin *.map romupdate.epr
+
+# return version of Mpm to command line environment.
+# validate that MPM is V1.5 or later - only this version or later supports macros
+MPM_VERSIONTEXT=`mpm -version`
+
+if test $? -lt 15; then
+  echo Mpm version is less than V1.5, RomUpdate compilation aborted.
+  echo Mpm displays the following:
+  mpm
+  exit 1
+fi
+
 mpm -b -oromupdate.bin -DPOPDOWN -I../../oz/def -l../../stdlib/standard.lib @romupdate.popdown.prj
 mpm -b romhdr
 if test `find . -name '*.err' | wc -l` != 0; then

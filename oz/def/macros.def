@@ -1,0 +1,447 @@
+lstoff
+
+; **************************************************************************************************
+; Standard Z88 Operating System Macros
+;
+; This file is part of the Z88 operating system, OZ      0000000000000000      ZZZZZZZZZZZZZZZZZZZ
+;                                                       000000000000000000   ZZZZZZZZZZZZZZZZZZZ
+; OZ is free software; you can redistribute it and/    0000            0000              ZZZZZ
+; or modify it under the terms of the GNU General      0000            0000            ZZZZZ
+; Public License as published by the Free Software     0000            0000          ZZZZZ
+; Foundation; either version 2, or (at your option)    0000            0000        ZZZZZ
+; any later version. OZ is distributed in the hope     0000            0000      ZZZZZ
+; that it will be useful, but WITHOUT ANY WARRANTY;    0000            0000    ZZZZZ
+; without even the implied warranty of MERCHANTA-       000000000000000000   ZZZZZZZZZZZZZZZZZZZZ
+; BILITY or FITNESS FOR A PARTICULAR PURPOSE. See        0000000000000000  ZZZZZZZZZZZZZZZZZZZZ
+; the GNU General Public License for more details.
+; You should have received a copy of the GNU General Public License along with OZ; see the file
+; COPYING. If not, write to:
+;                                  Free Software Foundation, Inc.
+;                                  59 Temple Place-Suite 330,
+;                                  Boston, MA 02111-1307, USA.
+;
+; (C) Gunther Strube (gstrube@gmail.com), 2015
+;
+; ***************************************************************************************************
+
+
+IF !__MACROS_DEF__
+DEFINE __MACROS_DEF__
+
+; MTH Macros uses mnemonics from DOR definitions
+IF !__DOR_DEF__
+  INCLUDE "dor.def"
+ENDIF
+
+; --------------------------------------------------------------------------------------------------
+; OZ System Call Interface through RST 20H vector
+; (See https://cambridgez88.jira.com/wiki/x/WAAE)
+macro oz (syscall)
+  if \% > 0                                     ; only generate code if API Call is specified
+        rst     20h
+    if \$$ > 255
+        defw    \syscall                        ; OZ high level OS / Generic system call
+    else
+        defb    \syscall                        ; OZ low level system call
+    endif
+  else
+    error "Missing OZ API Call"
+  endif
+endmacro
+
+
+; alias for "oz" macro
+macro call_oz (syscall)
+        oz      \syscall
+endmacro
+
+
+; --------------------------------------------------------------------------------------------------
+; EXTCALL as integrated in OZ V4.5+
+; 24bit CALL to any address of the 4Mb addressable memory.
+; Instruction format:
+;     RST 28H, 24-bit address (low byte, highbyte)
+macro extcall (offset, bank)
+  if \% = 2                                     ; only generate code if offset and bank is specified
+        rst     28h                             ; EXTCALL <address>
+        defw    \offset
+        defb    \bank
+  else
+        error "EXTCALL: missing or incomplete address"
+  endif
+endmacro
+
+
+; --------------------------------------------------------------------------------------------------
+; OZ Floating Package System Call Interface through RST 18H vector
+; (See https://cambridgez88.jira.com/wiki/x/NgAq)
+macro fpp (functioncode)
+  if \% > 0                                     ; only generate code if API Call is specified
+        rst     18h
+        defb    \functioncode                   ; FPP function code
+  else
+        error "Missing OZ API Call"
+  endif
+endmacro
+
+
+; --------------------------------------------------------------------------------------------------
+; Package Call Interface through RST 08H vector
+; (Used by Installer system by Garry Lancaster)
+macro call_pkg (pkg)
+  if \% > 0                                     ; only generate code if API Call is specified
+        rst     08h
+        defw    \pkg
+  else
+        error "Missing CALL_PKG API Call"
+  endif
+endmacro
+
+
+
+; --------------------------------------------------------------------------------------------------
+; MTH macros
+; --------------------------------------------------------------------------------------------------
+
+; --------------------------------------------------------------------------------------------------
+; MTH Topic, See https://cambridgez88.jira.com/wiki/x/AIGD
+macro mthtpc (name, tpcattr = 0, helppage)
+.\tpcstart
+        defb \tpcend - \tpcstart+1
+if \$?[0]
+        defm \name                              ; Topic name, optionally null-terminated by high byte help page or attribute
+else
+  error "MTH Topic Name not specified"
+endif
+if \tpcattr & TPCF_HELP                         ; Topic has help page
+  if \$?[2]
+        defb \helppage / 256                    ; offset to page from application main help, high byte first (reverse order)
+        defb \helppage % 256
+  else
+      error "MTH Topic Help Page Offset not specified"
+  endif
+endif
+        defb \tpcattr                           ; $00-$1F act as a terminator too
+.\tpcend
+        defb \tpcend - \tpcstart+1
+endmacro
+
+; --------------------------------------------------------------------------------------------------
+; MTH Command, see https://cambridgez88.jira.com/wiki/x/AIGD
+macro mthcmd (ccode, kbsequence, name, cmdattr = 0, helppage)
+.\cmdstart
+        defb \cmdend - \cmdstart+1
+if \$?[0]
+        defb \ccode
+else
+        defb 0                                  ; No Command Code specified, identify Info Topic
+endif
+if \$?[1]
+        defm \kbsequence,0
+else
+        defb 0                                  ; no keyboard sequence
+endif
+if \$?[2]
+        defm \name                              ; Command name (or title of Info Topic), optionally null-terminated by high byte help page or attribute
+endif
+
+if \cmdattr & CMDF_HELP                         ; Command has help page
+  if \$?[4]
+        defb \helppage / 256                    ; offset to page from application main help, high byte first (reverse order)
+        defb \helppage % 256
+  else
+    error "MTH Command Help Page Offset not specified"
+  endif
+endif
+        defb \cmdattr                           ; $00-$1F act as a terminator too
+.\cmdend
+        defb \cmdend - \cmdstart+1
+endmacro
+
+
+
+; --------------------------------------------------------------------------------------------------
+; DOR macros
+;
+; See
+;     https://cambridgez88.jira.com/wiki/x/QAAq (DOR's)
+;     https://cambridgez88.jira.com/wiki/x/WgAE (Application Static Structures)
+; --------------------------------------------------------------------------------------------------
+
+
+; --------------------------------------------------------------------------------------------------
+; DOR Record Pointer Block (internal service macro for dorxxx macros)
+macro dt_ptr (prntoffset, prntbnk, brthroffset, brthrbnk, sonoffset, sonbnk)
+  if \% <> 6
+    error "DT_PTR: One or more extended pointer arguments missing"
+    exitmacro
+  endif
+        defw    \prntoffset
+        defb    \prntbnk
+        defw    \brthroffset
+        defb    \brthrbnk
+        defw    \sonoffset
+        defb    \sonbnk
+endmacro
+
+; --------------------------------------------------------------------------------------------------
+; DOR Record Help
+macro dt_hlp (topics, cmds, helppage, tokens, zerooffset, zerobnk)
+.\record
+        defb    Dt_Hlp
+        defb    \record_end - $-1
+
+  if \$?[0]
+        defp    \topics
+  else
+        defw    \zerooffset                     ; no topics pointer specified, point to three zeroes
+        defb    \zerobnk
+  endif
+  if \$?[1]
+        defp    \cmds
+  else
+        defw    \zerooffset                     ; no commands pointer specified, point to three zeroes
+        defb    \zerobnk
+  endif
+  if \$?[2]
+        defp    \helppage
+  else
+        defw    \zerooffset                     ; no application help page pointer specified, point to three zeroes
+        defb    \zerobnk
+  endif
+  if \$?[3]
+        defp    \tokens
+  else
+        defw    \zerooffset                     ; no tokens base pointer specified, point to three zeroes
+        defb    \zerobnk
+  endif
+
+.\record_end
+endmacro
+
+; --------------------------------------------------------------------------------------------------
+; DOR Record Name
+macro dt_nam (string)
+  if !\%
+    error "DT_NAM: Name not specified"
+    exitmacro
+  endif
+.\record
+        defb    Dt_Nam
+        defb    \record_end - $-1
+        defm    "\string",0
+.\record_end
+endmacro
+
+; --------------------------------------------------------------------------------------------------
+; DOR Record Info
+macro dt_inf (apptype, apptype2=0, key, entry, s0=0, s1=0, s2=0, s3, rampages=0, env=0, unsafews=0, safews=0)
+  if !\$?[0]
+    error "Dm_Inf: Application type not specified"
+    exitmacro
+  endif
+  if !\$?[2]
+    error "Dm_Inf: Application Key not specified"
+    exitmacro
+  endif
+  if !\$?[3]
+    error "Dm_Inf: Application Entry point not specified"
+    exitmacro
+  endif
+  if !\$?[7]
+    error "Dm_Inf: Application segment 3 bank binding not specified"
+    exitmacro
+  endif
+.\record
+        defb    Dt_Inf
+        defb    \record_end - $-1
+        defw    0                               ; reserved for future expansion
+        defb    \key
+        defb    \rampages
+        defw    \env                            ; estimate of environment overhead (default)
+        defw    \unsafews                       ; Unsafe workspace on stack (0 for none)
+        defw    \safews                         ; Safe workspace on stack (0 for none)
+        defw    \entry                          ; Entry point for application code (16bit local address)
+        defb    \s0, \s1, \s2, \s3              ; bank bindings into segments on entry
+        defb    \apptype
+        defb    \apptype2
+.\record_end
+endmacro
+
+; --------------------------------------------------------------------------------------------------
+; ROM (pseudo) DOR (Dm_Rom)
+macro dorrom (doroffset, dorbank, name)
+  if !\$?[0]
+    error "Dm_Rom: Application Front DOR offset (of pointer) not specified"
+    exitmacro
+  endif
+  if !\$?[1]
+    error "Dm_Rom: Application Front DOR bank (of pointer) not specified"
+    exitmacro
+  endif
+  if !\$?[2]
+    error "Dm_Rom: ROM.x slot name not specified"
+    exitmacro
+  endif
+.\start
+        dt_ptr  0,0, 0,0, \doroffset,\dorbank   ; pointer to appl. front Dor in slot X
+        defb    DM_ROM
+        defb    \end - $-1
+        dt_nam  \name
+        defb    $ff                             ; DOR Terminator
+.\end
+endmacro
+
+; --------------------------------------------------------------------------------------------------
+; Character Device (pseudo) DOR (Dm_Chd)
+macro dorchd (devhandle, name)
+  if !\$?[0]
+    error "Dm_CHD: Character Device handle not specified"
+    exitmacro
+  endif
+  if !\$?[1]
+    error "Dm_CHD: Character Device name not specified"
+    exitmacro
+  endif
+.\start
+        dt_ptr  \devhandle,0, 0,0, 0,0          ; device handle (OS_Nq)
+        defb    Dm_Chd
+        defb    \end - $-1
+        dt_nam  \name
+        defb    $ff                             ; DOR Terminator
+.\end
+endmacro
+
+; --------------------------------------------------------------------------------------------------
+; Help Front DOR (DN_Apl)
+macro dorhlpf (hlpdorptr)
+  if !\$?[0]
+    error "DN_APL: Help DOR pointer not specified"
+    exitmacro
+  endif
+.\start
+        dt_ptr  0,0, 0,0, \hlpdorptr            ; pointer to first Help DOR
+        defb    Dn_Apl
+        defb    \end - $-1
+        dt_nam  "HELP"
+        defb    $ff                             ; DOR Terminator
+.\end
+endmacro
+
+; --------------------------------------------------------------------------------------------------
+; Application Front DOR (DN_Apl)
+macro doraplf (appdorptr)
+  if !\$?[0]
+    error "DN_APL: Application DOR pointer not specified"
+    exitmacro
+  endif
+.\start
+        dt_ptr  0,0, 0,0, \appdorptr            ; pointer to first application DOR
+        defb    Dn_Apl
+        defb    \end - $-1
+        dt_nam  "APPL"
+        defb    $ff                             ; DOR Terminator
+.\end
+endmacro
+
+; --------------------------------------------------------------------------------------------------
+; Help DOR
+;
+; dorhelp (                                      \
+;            "Name",                             \ Appl. Name that is given help
+;            [ApplTopics,BANK_MTH & $3F],        \ topics (leave empty for none)
+;            [ApplCommands,BANK_MTH & $3F],      \ commands (leave empty for none)
+;            [ApplHelp,BANK_MTH & $3F],          \ help page (leave empty for none)
+;            [SysTokenBase,BANK_MTH & $3F],      \ token base (leave empty for none)
+;            BANK_DOR & $3F,                     \ Bank of this Help DOR
+;            [ApplDORoffset, ApplBANK & $3F]     \ ext. pointer to next help DOR (leave empty or [0,0] for none)
+;        )
+;
+;              0     1       2     3         4       5        6
+macro dorhelp (name, topics, cmds, helppage, tokens, dorbank, nexthelpdor)
+  if !\$?[0]
+    error "DORHELP: Application Name not specified"
+    exitmacro
+  endif
+  if !\$?[5]
+    error "DORHELP: Help DOR Bank not specified"
+    exitmacro
+  endif
+.\start
+  if \$?[6]
+        dt_ptr  0,0, \nexthelpdor, 0,0          ; pointer to next help DOR
+  else
+        dt_ptr  0,0, 0,0, 0,0                   ; no link to another application DOR
+  endif
+        defb    Dm_Rom
+        defb    \end - $-1
+
+        dt_hlp  [\topics], [\cmds], [\helppage], [\tokens], \start, \dorbank
+
+        dt_nam  \name
+        defb    $ff                             ; DOR Terminator
+.\end
+endmacro
+
+; --------------------------------------------------------------------------------------------------
+; Application DOR
+;
+; dorappl (                                      \
+;            "Name", 'K',                        \ Appl. Name and Key
+;            AT_Good|AT_Popd|AT_Ones, AT2_Cl,    \ Appl. type settings
+;            ORG_Appl,                           \ Appl. entry point
+;            0,0,0,BANK_APPL & $3F,              \ s0 - s3 bank binding on entry (slot-relative)
+;            0,                                  \ continous RAM pages (0 or leave empty for none)
+;            0,                                  \ estimate of environment overhead (0 or leave empty for none)
+;            UNSAFE_WS, SAFE_WS,                 \ appl. workspace on stack
+;            [ApplTopics,BANK_MTH & $3F],        \ topics (leave empty for none)
+;            [ApplCommands,BANK_MTH & $3F],      \ commands (leave empty for none)
+;            [ApplHelp,BANK_MTH & $3F],          \ help page (leave empty for none)
+;            [SysTokenBase,BANK_MTH & $3F],      \ token base (leave empty for none)
+;            BANK_DOR & $3F,                     \ Bank of this Application DOR
+;            [ApplDORoffset, ApplBANK & $3F]     \ ext. pointer to next appl. DOR (leave empty or [0,0] for none)
+;        )
+;
+;              0     1    2        3           4      5     6     7     8   9           10        11          12        13      14    15        16      17       18
+macro dorappl (name, key, apptype, apptype2=0, entry, s0=0, s1=0, s2=0, s3, rampages=0, estenv=0, unsafews=0, safews=0, topics, cmds, helppage, tokens, dorbank, nextappldor)
+  if !\$?[0]
+    error "DORAPPL: Application Name not specified"
+    exitmacro
+  endif
+  if !\$?[1]
+    error "DORAPPL: Application Key not specified"
+    exitmacro
+  endif
+  if !\$?[2]
+    error "DORAPPL: Application type not specified"
+    exitmacro
+  endif
+  if !\$?[4]
+    error "DORAPPL: Application Entry point not specified"
+    exitmacro
+  endif
+  if !\$?[8]
+    error "DORAPPL: Application segment 3 bank binding not specified"
+    exitmacro
+  endif
+.\start
+  if \$?[18]
+        dt_ptr  0,0, \nextappldor, 0,0          ; pointer to next application DOR
+  else
+        dt_ptr  0,0, 0,0, 0,0                   ; no link to another application DOR
+  endif
+        defb    Dm_Rom
+        defb    \end - $-1
+
+        dt_inf  \apptype, \apptype2, \key, \entry, \s0,\s1,\s2,\s3, \rampages, \estenv, \unsafews, \safews
+
+        dt_hlp  [\topics], [\cmds], [\helppage], [\tokens], \start, \dorbank
+
+        dt_nam  \name
+        defb    $ff                             ; DOR Terminator
+.\end
+endmacro
+
+ENDIF
+
+lston

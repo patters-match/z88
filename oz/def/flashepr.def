@@ -22,7 +22,7 @@ lstoff
 ;                                  Boston, MA 02111-1307, USA.
 ;
 ; (C) Thierry Peycru (pek@users.sf.net), 1995-2007
-; (C) Gunther Strube (gbs@users.sf.net), 1995-2007
+; (C) Gunther Strube (gstrube@gmail.com), 1995-2007
 ;
 ; ***************************************************************************************************
 
@@ -34,7 +34,10 @@ lstoff
 ; New OZ system call interface (introduced in 4.2) to Handle Intel, Amd & Stm Flash memory
 
 IF !__FLASHEPR_DEF__
-define __FLASHEPR_DEF__
+DEFINE __FLASHEPR_DEF__
+
+INCLUDE "macros.def"
+
 
 DEFC  OS_Fep  = $C806
         ; Reason code in A, arguments in BC, DE, HL & IX

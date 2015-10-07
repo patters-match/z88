@@ -38,7 +38,7 @@ DEFC debug=0
 ;   DEFC safe_ws = 1+1024+2+4+1+1+1
 ;   DEFC ram_vars  = $1FFE - safe_ws
     DEFC ram_vars  = $2000
-    
+
 DEFVARS ram_vars
 {
     fname_buf   ds.b 1
@@ -102,7 +102,7 @@ DEFC state_tx  = 2
     LD B,A
     LD HL,error_handler
     CALL_OZ(os_erh)
-;   LD A,sc_ena    
+;   LD A,sc_ena
 ;   CALL_OZ(os_esc)
     CALL app_main
 
@@ -111,7 +111,7 @@ DEFC state_tx  = 2
     CALL hw_close_com
     XOR A
     CALL_OZ(os_bye)
-    
+
 .error_handler
 ;err_fatal
     RET Z
@@ -119,13 +119,13 @@ DEFC state_tx  = 2
     CP rc_quit
     JR Z,kill
 ;err_esc
-;   CP rc_esc        
-;   JR NZ,err_susp   
-;   LD A,sc_ack      
-;   CALL_OZ(os_esc)  
-;   CALL file_close  
-;   LD A,rc_esc      
-;   JR ret_err       
+;   CP rc_esc
+;   JR NZ,err_susp
+;   LD A,sc_ack
+;   CALL_OZ(os_esc)
+;   CALL file_close
+;   LD A,rc_esc
+;   JR ret_err
 .err_susp
     CP rc_susp
     JR NZ,err_eof
@@ -135,10 +135,10 @@ DEFC state_tx  = 2
     JR NZ,report_err
     JR ret_err
 .report_err
-    CALL_OZ(gn_nln)      
-    CALL_OZ(gn_esp)      
-    CALL_OZ(gn_soe)      
-;   CALL_OZ(gn_nln)  
+    CALL_OZ(gn_nln)
+    CALL_OZ(gn_esp)
+    CALL_OZ(gn_soe)
+;   CALL_OZ(gn_nln)
 ;   CALL_OZ(gn_err)
 .ret_err
     CP A
@@ -146,8 +146,8 @@ DEFC state_tx  = 2
 
 .app_main
     if basic
-        LD HL,name_str                                         
-        call_oz(dc_nam)              ;name current application 
+        LD HL,name_str
+        call_oz(dc_nam)              ;name current application
     endif
 
     LD IY,state+state_prg
@@ -233,10 +233,10 @@ DEFC state_tx  = 2
 .read_char
     CALL_OZ(os_in)                ;read character from standard input
     JR C,read_char
-;   JR NC,read_ok 
-;   CP rc_esc     
-;   RET Z         
-;   JR read_char  
+;   JR NC,read_ok
+;   CP rc_esc
+;   RET Z
+;   JR read_char
 .read_ok
     CP esc
     JR Z,read_char      ;991217
@@ -258,18 +258,18 @@ DEFC state_tx  = 2
     RES ymodem,(IY+state_prg)
     call save_cfg
     JR main_menu
-.set_ymodem 
+.set_ymodem
     CP 'Y'
     JR NZ,toggle_crc
     SET ymodem,(IY+state_prg)
     call save_cfg
     JR main_menu
-; .toggle_ymodem 
-;   LD A,(state+state_prg) 
-;   XOR 2^ymodem 
-;   LD (state+state_prg),A 
+; .toggle_ymodem
+;   LD A,(state+state_prg)
+;   XOR 2^ymodem
+;   LD (state+state_prg),A
 ;   call save_cfg
-;   jp main_menu 
+;   jp main_menu
 .toggle_crc
     CP 'C'
     JR NZ,toggle_block1k
@@ -374,8 +374,8 @@ DEFC state_tx  = 2
     LD B,51                 ;length of input buffer
     CALL_OZ(gn_sip)         ;system input line routine
     JR NC,end_of_line
-;   CP rc_esc     
-;   JR Z,esc_line 
+;   CP rc_esc
+;   JR Z,esc_line
     CP rc_susp
     JR NZ,get_filename
     LD A,1
@@ -431,9 +431,9 @@ DEFC state_tx  = 2
     JP send_NAKs
 
 .receive_ymodem_header
-    LD A,(data_buf0)                                    
-    CP 0                                                
-    ;JP Z,quit_to_main          ;No filename - End of batch 
+    LD A,(data_buf0)
+    CP 0
+    ;JP Z,quit_to_main          ;No filename - End of batch
     ;JP Z,end_of_batch_quit_to_main
     JP Z,quit_to_main           ;No filename - End of batch     991216
     CALL reset_file_info
@@ -648,8 +648,8 @@ CALL calc_blocks_and_bytes
 
 .receive_block
     if debug
-        LD A,'1'        
-        CALL_OZ(os_out) 
+        LD A,'1'
+        CALL_OZ(os_out)
     endif
     RES block1k,(IY+state_rx)   ;?
     LD BC,128           ;reset buffer counter
@@ -670,8 +670,8 @@ CALL calc_blocks_and_bytes
 .receive_block_number
     ;RES end_of_file,(IY+state_prg) ;?
     if debug
-        LD A,'2'        
-        CALL_OZ(os_out) 
+        LD A,'2'
+        CALL_OZ(os_out)
     endif
     LD A,2
     call hw_rxbt
@@ -689,8 +689,8 @@ CALL calc_blocks_and_bytes
 ;   JP send_NAK
 .prev_block
     if debug
-        LD A,'3'        
-        CALL_OZ(os_out) 
+        LD A,'3'
+        CALL_OZ(os_out)
     endif
     LD A,2
     call hw_rxbt
@@ -705,8 +705,8 @@ CALL calc_blocks_and_bytes
 
 .receive_block_number_complement
     if debug
-        LD A,'4'        
-        CALL_OZ(os_out) 
+        LD A,'4'
+        CALL_OZ(os_out)
     endif
     LD A,2
     call hw_rxbt
@@ -720,7 +720,7 @@ CALL calc_blocks_and_bytes
     if debug
         ;EX AF,AF'
         LD A,'9'
-        CALL_OZ(os_out) 
+        CALL_OZ(os_out)
         ;EX AF,AF'
     endif
 
@@ -749,8 +749,8 @@ CALL calc_blocks_and_bytes
     JP PE,receive_char      ; 10
 ;.receive_checksum
     if debug
-        LD A,'6'        
-        CALL_OZ(os_out) 
+        LD A,'6'
+        CALL_OZ(os_out)
     endif
     LD A,2
     call hw_rxbt
@@ -760,8 +760,8 @@ CALL calc_blocks_and_bytes
     BIT crc,(IY+state_rx)   ;?
     JP Z,not_crc16
     if debug
-        LD A,'7'        
-        CALL_OZ(os_out) 
+        LD A,'7'
+        CALL_OZ(os_out)
     endif
     LD A,2
     call hw_rxbt
@@ -818,7 +818,7 @@ CALL calc_blocks_and_bytes
 .rec_3
     CP 3
     JR NZ,rec_5
-    LD A,'\'
+    LD A,'\\'
     JP show_rec
 .rec_5
     CP 5
@@ -875,8 +875,8 @@ CALL calc_blocks_and_bytes
 
 .file_receive_canceled
     if debug
-        LD A,'8'        
-        CALL_OZ(os_out) 
+        LD A,'8'
+        CALL_OZ(os_out)
     endif
     LD A,2                    ;timeout 1 second
     CALL hw_rxbt            ;get byte with timeout
@@ -887,10 +887,10 @@ CALL calc_blocks_and_bytes
 
 .purge
     LD A,1
-    CALL hw_rxbt 
+    CALL hw_rxbt
     JR NC,purge
     if debug
-        LD A,'0'        
+        LD A,'0'
         CALL_OZ(os_out)
     endif
     RET
@@ -899,13 +899,13 @@ CALL calc_blocks_and_bytes
     CALL purge
     LD B,8
 .can_again
-    LD A,can                 
-    CALL hw_txbt        ;CAN 
+    LD A,can
+    CALL hw_txbt        ;CAN
     RET C
     DJNZ,can_again
-    ;LD A,can                 
-    ;CALL hw_txbt       ;CAN 
-    RET                      
+    ;LD A,can
+    ;CALL hw_txbt       ;CAN
+    RET
 
 .update_retries
     LD A,11
@@ -974,7 +974,7 @@ CALL calc_blocks_and_bytes
 
     if debug
         LD A,'a'
-        CALL_OZ(os_out) 
+        CALL_OZ(os_out)
     endif
 
     LD HL,fname_buf     ;address of file name string
@@ -999,10 +999,10 @@ CALL calc_blocks_and_bytes
     LD (DE),A               ;Terminate filename
     INC DE
     LD (next_pos),DE        ;Where to write file length
-    
+
     if debug
         LD A,'b'
-        CALL_OZ(os_out) 
+        CALL_OZ(os_out)
     endif
 
     LD A,dr_rd             ;read DOR record
@@ -1015,7 +1015,7 @@ CALL calc_blocks_and_bytes
 ;   LD A,dr_fre            ;free DOR handle
 ;   CALL_OZ(os_dor)
 ;   JP quit_to_main
-; 
+;
 ; .ok_ram_device
 
     LD HL,filesize
@@ -1031,7 +1031,7 @@ CALL calc_blocks_and_bytes
 
     if debug
         LD A,'c'
-        CALL_OZ(os_out) 
+        CALL_OZ(os_out)
     endif
 
     LD A,dr_rd             ;read DOR record
@@ -1042,7 +1042,7 @@ CALL calc_blocks_and_bytes
 
     if debug
         LD A,'d'
-        CALL_OZ(os_out) 
+        CALL_OZ(os_out)
     endif
 
     LD A,dr_fre            ;free DOR handle
@@ -1050,7 +1050,7 @@ CALL calc_blocks_and_bytes
 
     if debug
         LD A,'e'
-        CALL_OZ(os_out) 
+        CALL_OZ(os_out)
     endif
 
     LD HL,(date+2)
@@ -1070,7 +1070,7 @@ CALL calc_blocks_and_bytes
 
     if debug
         LD A,'f'
-        CALL_OZ(os_out) 
+        CALL_OZ(os_out)
     endif
 
     LD DE,$0001             ;MSW
@@ -1083,7 +1083,7 @@ CALL calc_blocks_and_bytes
 
     if debug
         LD A,'g'
-        CALL_OZ(os_out) 
+        CALL_OZ(os_out)
     endif
 
     LD (seconds+2),HL       ;Store date
@@ -1109,7 +1109,7 @@ CALL calc_blocks_and_bytes
 
     if debug
         LD A,'h'
-        CALL_OZ(os_out) 
+        CALL_OZ(os_out)
     endif
 
     LD DE,(seconds+2)
@@ -1122,7 +1122,7 @@ CALL calc_blocks_and_bytes
 
     if debug
         LD A,'i'
-        CALL_OZ(os_out) 
+        CALL_OZ(os_out)
     endif
 
     EX DE,HL
@@ -1238,33 +1238,33 @@ CALL calc_blocks_and_bytes
     LD (oct+10),A
 
     ;EXX
-    ;EX DE,HL       ;Nessesary? 
+    ;EX DE,HL       ;Nessesary?
 
     if debug
         LD A,'j'
-        CALL_OZ(os_out) 
+        CALL_OZ(os_out)
     endif
 
-    LD HL,oct                               
-    LD DE,(next_pos)                        
+    LD HL,oct
+    LD DE,(next_pos)
     LD BC,11
-    LDIR                ;Move date and time 
+    LDIR                ;Move date and time
 
     if debug
         LD A,'k'
-        CALL_OZ(os_out) 
+        CALL_OZ(os_out)
     endif
 
-    PUSH DE                                      
-    POP HL                                       
-    LD (HL),0           ;Zero padd rest of frame 
-    INC DE                                       
-    LD BC,128           ;and a little more       
-    LDIR                                         
+    PUSH DE
+    POP HL
+    LD (HL),0           ;Zero padd rest of frame
+    INC DE
+    LD BC,128           ;and a little more
+    LDIR
 
     if debug
         LD A,'l'
-        CALL_OZ(os_out) 
+        CALL_OZ(os_out)
     endif
 
     CALL calc_blocks_and_bytes
@@ -1298,7 +1298,7 @@ CALL calc_blocks_and_bytes
 
     if debug
         LD A,'m'
-        CALL_OZ(os_out) 
+        CALL_OZ(os_out)
     endif
 
 .wait_for_NAK0
@@ -1319,7 +1319,7 @@ CALL calc_blocks_and_bytes
 
     if debug
         LD A,'n'
-        CALL_OZ(os_out) 
+        CALL_OZ(os_out)
     endif
 
 .not_ymodem_header
@@ -1329,8 +1329,8 @@ CALL calc_blocks_and_bytes
 
 .wait_for_NAK1
     if debug
-        LD A,'A'        
-        CALL_OZ(os_out) 
+        LD A,'A'
+        CALL_OZ(os_out)
     endif
     LD A,31                 ;timeout 60 seconds
     CALL hw_rxbt
@@ -1339,8 +1339,8 @@ CALL calc_blocks_and_bytes
     CP CAN
     JR NZ,is_NAK1
     if debug
-        LD A,'B'        
-        CALL_OZ(os_out) 
+        LD A,'B'
+        CALL_OZ(os_out)
     endif
     LD A,2                    ;timeout 1 second
     CALL hw_rxbt            ;get byte with timeout
@@ -1364,8 +1364,8 @@ CALL calc_blocks_and_bytes
 
 .wait_to_send
     if debug
-        LD A,'C'        
-        CALL_OZ(os_out) 
+        LD A,'C'
+        CALL_OZ(os_out)
     endif
     BIT g,(IY+state_prg)            ;20
     JR Z,not_g              ;Ymodem-G
@@ -1382,8 +1382,8 @@ CALL calc_blocks_and_bytes
     CP CAN
     JR NZ,is_NAK
     if debug
-        LD A,'D'        
-        CALL_OZ(os_out) 
+        LD A,'D'
+        CALL_OZ(os_out)
     endif
     LD A,2                    ;timeout 1 second
     CALL hw_rxbt            ;get byte with timeout
@@ -1404,9 +1404,9 @@ CALL calc_blocks_and_bytes
     ;JP Z,not_ymodem_header     ;991214
     JP NZ,not_ymodem_header
 
-;   LD A,(data_buf0)                                
-;   CP 0                                            
-;   JP Z,quit_to_main   ;No filename - End of batch 
+;   LD A,(data_buf0)
+;   CP 0
+;   JP Z,quit_to_main   ;No filename - End of batch
 
 .send_next_block
     BIT end_of_file,(IY+state_prg)          ;20 ;?
@@ -1510,8 +1510,8 @@ CALL calc_blocks_and_bytes
 
 .send_EOTs
 ;   CALL_OZ(gn_nln)            ;new line (AF)
-;   LD HL,clear_prog_ind 
-;   CALL_OZ(gn_sop)      
+;   LD HL,clear_prog_ind
+;   CALL_OZ(gn_sop)
     LD L,10
 
 .send_EOT
@@ -1519,8 +1519,8 @@ CALL calc_blocks_and_bytes
     CALL hw_txbt             ;send EOT
     JR C,timeout_to_main
     if debug
-        LD A,'E'        
-        CALL_OZ(os_out) 
+        LD A,'E'
+        CALL_OZ(os_out)
     endif
     LD A,4                 ;timeout 10 seconds
     CALL hw_rxbt
@@ -1555,7 +1555,7 @@ CALL calc_blocks_and_bytes
     RET C
     CPI
     JP PE,more_end_batch
-    CALL purge               
+    CALL purge
     RET
 
 
@@ -1642,7 +1642,7 @@ CALL calc_blocks_and_bytes
 .send_7
     CP 7
     JR NZ,send_even
-    LD A,'\'
+    LD A,'\\'
     JP show_send
 .send_even
     LD A,BS
@@ -1717,14 +1717,14 @@ CALL calc_blocks_and_bytes
     OR A
     RET
 
-;  .is_esc                                                 
-;   LD C,kbd                                               
-;   LD B,0                  ;@01111111          ;A15       
-;   IN A,(C)                                               
-;   CP @11011111            ;D5                            
-;   RET NZ                                                 
-;   SCF                                                    
-;   RET                     ;ESC                           
+;  .is_esc
+;   LD C,kbd
+;   LD B,0                  ;@01111111          ;A15
+;   IN A,(C)
+;   CP @11011111            ;D5
+;   RET NZ
+;   SCF
+;   RET                     ;ESC
 
 .hw_open_com
 
@@ -1735,50 +1735,50 @@ CALL calc_blocks_and_bytes
     LD (bc),a
     OUT (c),a
 
-;   XOR    A                                                                           
-;   DEC    A                                                                           
-;   OUT    (TXD),A         ;Clear TDRE interrupt                                       
-;                                                                                      
-;   LD     A,$BD           ;SET SHTW, UART RESET, ARTS, IRTS, BAUD=9600, RES LOOP      
-;       LD C,rxc                                                                       
-;   CALL update_port                                                                   
-;                                                                                      
-;   LD     A,$15           ;SET ATX, BAUD=9600, RES UTEST, IDCD, ICTS, ITX             
-;       LD C,txc                                                                       
-;   CALL update_port                                                                   
-;                                                                                      
-;   XOR    A                                                                           
-;   DEC    A                                                                           
-;   OUT    (UAK),A         ;Clear DCD, CTS interrupts                                  
-;                                                                                      
-;   IN     A,(RXD)         ;Clear RDRF interrupt                                       
-;                                                                                      
-;   XOR    A               ;DI DCDI, CTSI, TDRE, RDRF                                  
-;       LD C,umk                                                                       
-;   CALL update_port                                                                   
-;                                                                                      
-;   LD     A,$9D           ;SET SHTW, ARTS, IRTS, BAUD=9600, RES LOOP, UART RESET      
-;       LD C,rxc                                                                       
-;   CALL update_port                                                                   
+;   XOR    A
+;   DEC    A
+;   OUT    (TXD),A         ;Clear TDRE interrupt
+;
+;   LD     A,$BD           ;SET SHTW, UART RESET, ARTS, IRTS, BAUD=9600, RES LOOP
+;       LD C,rxc
+;   CALL update_port
+;
+;   LD     A,$15           ;SET ATX, BAUD=9600, RES UTEST, IDCD, ICTS, ITX
+;       LD C,txc
+;   CALL update_port
+;
+;   XOR    A
+;   DEC    A
+;   OUT    (UAK),A         ;Clear DCD, CTS interrupts
+;
+;   IN     A,(RXD)         ;Clear RDRF interrupt
+;
+;   XOR    A               ;DI DCDI, CTSI, TDRE, RDRF
+;       LD C,umk
+;   CALL update_port
+;
+;   LD     A,$9D           ;SET SHTW, ARTS, IRTS, BAUD=9600, RES LOOP, UART RESET
+;       LD C,rxc
+;   CALL update_port
 
-;       ld c,rxc      
-;       ld b,4        
-;       ld a,(bc)     
-;       set arts,a    
-;       ld (bc),a     
-;       out (c),a     
+;       ld c,rxc
+;       ld b,4
+;       ld a,(bc)
+;       set arts,a
+;       ld (bc),a
+;       out (c),a
 
     RET
 
 .di_tick
-;   LD C,tmk       
-;   LD B,4         
-;   LD A,(BC)      
-;   RES tick,A     
-;   RES sec,A      
-;   RES min,A      
-;   LD (BC),A      
-;   OUT (C),A      
+;   LD C,tmk
+;   LD B,4
+;   LD A,(BC)
+;   RES tick,A
+;   RES sec,A
+;   RES min,A
+;   LD (BC),A
+;   OUT (C),A
 
     LD C,BL_INT
     LD B,BLSC_PAGE
@@ -1789,14 +1789,14 @@ CALL calc_blocks_and_bytes
     RET
 
 .ei_tick
-;   LD C,tmk       
-;   LD B,4         
-;   LD A,(BC)      
-;   SET tick,A     
-;   SET sec,A      
-;   SET min,A      
-;   LD (BC),A      
-;   OUT (C),A      
+;   LD C,tmk
+;   LD B,4
+;   LD A,(BC)
+;   SET tick,A
+;   SET sec,A
+;   SET min,A
+;   LD (BC),A
+;   OUT (C),A
 
     LD C,BL_INT
     LD B,BLSC_PAGE
@@ -1807,18 +1807,18 @@ CALL calc_blocks_and_bytes
     RET
 
 ; .update_port
-;   LD B,4      
-;   LD (BC),A   
-;   OUT (C),A   
+;   LD B,4
+;   LD (BC),A
+;   OUT (C),A
 ;   RET
 
 .hw_close_com
-;   LD C,rxc    
-;   LD B,4      
-;   LD A,(bc)   
-;   RES arts,a  
-;   LD (bc),a   
-;   OUT (c),a   
+;   LD C,rxc
+;   LD B,4
+;   LD A,(bc)
+;   RES arts,a
+;   LD (bc),a
+;   OUT (c),a
 
     LD C,BL_INT
     LD B,BLSC_PAGE
@@ -1831,92 +1831,92 @@ CALL calc_blocks_and_bytes
     CALL_OZ(os_si)
     RET
 
-; .hw_rxbt                                              
-;   ;Receive byte with timeout using hardware directly. 
-;   ;In: 1<=A<=59, timeout=A+0-1 seconds.               
-;   ;Out: A=byte received, Fc=1 if unsuccesful.         
-;   ;Changed: AF....../..../.fbc....                    
-;   ;Min time:               64                         
-;   ;Cycle                   52                         
-;   EXX                     ; 4                         
-;   IN A,(uit)              ;11                         
-;   BIT rdrf,A              ; 8                         
-;   JR NZ,rx                ;12/7                       
-;   LD bc,$FFFF             ;10     Timeout             
-; .check_rdrf                                           
-;   IN A,(uit)              ;11                         
-;   BIT rdrf,A              ; 8                         
-;   JR NZ,rx                ;12/7                       
-;   CPI                     ;16                         
-;   JP PE,check_rdrf        ;10                         
-;   EXX                     ; 4                         
-;   SCF                     ; 4                         
-;   RET                     ;10                         
-; .rx                                                   
-;   EXX                     ; 4                         
-;   IN A,(rxd)              ;11                         
-;   OR A                    ; 4                         
-;   RET                     ;10                         
+; .hw_rxbt
+;   ;Receive byte with timeout using hardware directly.
+;   ;In: 1<=A<=59, timeout=A+0-1 seconds.
+;   ;Out: A=byte received, Fc=1 if unsuccesful.
+;   ;Changed: AF....../..../.fbc....
+;   ;Min time:               64
+;   ;Cycle                   52
+;   EXX                     ; 4
+;   IN A,(uit)              ;11
+;   BIT rdrf,A              ; 8
+;   JR NZ,rx                ;12/7
+;   LD bc,$FFFF             ;10     Timeout
+; .check_rdrf
+;   IN A,(uit)              ;11
+;   BIT rdrf,A              ; 8
+;   JR NZ,rx                ;12/7
+;   CPI                     ;16
+;   JP PE,check_rdrf        ;10
+;   EXX                     ; 4
+;   SCF                     ; 4
+;   RET                     ;10
+; .rx
+;   EXX                     ; 4
+;   IN A,(rxd)              ;11
+;   OR A                    ; 4
+;   RET                     ;10
 
 .hw_rxb
-    ;Receive byte without timeout using hardware directly. 
-    ;Out: A=byte received, Fc=1 if unsuccesful.         
-    ;Changed: AF....../..../.fbc....                    
+    ;Receive byte without timeout using hardware directly.
+    ;Out: A=byte received, Fc=1 if unsuccesful.
+    ;Changed: AF....../..../.fbc....
     ;Min time:
 
-    EXX                     ; 4                         
-    IN A,(BL_UIT)           ;11                         
-    BIT BB_UITRDRF,A        ; 8                         
+    EXX                     ; 4
+    IN A,(BL_UIT)           ;11
+    BIT BB_UITRDRF,A        ; 8
     JR Z,rx_fail
-    JR rx                                                   
+    JR rx
 
 .hw_rxbt
-    ;Receive byte with timeout using hardware directly. 
-    ;In: 1<=A<=59, timeout=A+0-1 seconds.               
-    ;Out: A=byte received, Fc=1 if unsuccesful.         
-    ;Changed: AF....../..../.fbc....                    
-    ;Min time:              (181) 68                    
+    ;Receive byte with timeout using hardware directly.
+    ;In: 1<=A<=59, timeout=A+0-1 seconds.
+    ;Out: A=byte received, Fc=1 if unsuccesful.
+    ;Changed: AF....../..../.fbc....
+    ;Min time:              (181) 68
     ;Cycle 79
 
-    EXX                     ; 4                         
+    EXX                     ; 4
     EX AF,AF'               ; 4
     LD b,0
 .rx_quick                   ;34
-    IN a,(BL_UIT)           ;11                         
-    BIT BB_UITRDRF,a        ; 8                         
-    JR NZ,rx                ;12/7                       
+    IN a,(BL_UIT)           ;11
+    BIT BB_UITRDRF,a        ; 8
+    JR NZ,rx                ;12/7
     DJNZ rx_quick           ;13/8
     EX AF,AF'               ; 4
     LD b,A                  ; 4     Timeout
-    CALL get_timeout_sec    ;17 + min 96                
+    CALL get_timeout_sec    ;17 + min 96
 .rx_check_timeout
-    IN A,(BL_TIM1)          ;11                         
-.rx_get_s_again                                          
-    LD c,A                  ; 4                          
-    IN A,(BL_TIM1)          ;11                          
-    CP c                    ; 4                          
-    JR NZ,rx_get_s_again    ;12/7                        
-    CP b                    ; 4                          
+    IN A,(BL_TIM1)          ;11
+.rx_get_s_again
+    LD c,A                  ; 4
+    IN A,(BL_TIM1)          ;11
+    CP c                    ; 4
+    JR NZ,rx_get_s_again    ;12/7
+    CP b                    ; 4
 ;   CALL check_timeout
-    JR Z,rx_fail            ;12/7                       
-.rx_kbd                                                    
-    LD c,BL_KBD             ; 7                              
-    IN A,(c)                ;12                              
-    CP $FF                  ; 7                              
-    JR NZ,rx_fail           ;12/7                        
-.check_rdrf                                           
-    IN A,(BL_UIT)           ;11                         
-    BIT BB_UITRDRF,A        ; 8                         
-    JR Z,rx_check_timeout   ;12/7                       
-.rx                                                   
-    EXX                     ; 4                         
-    IN A,(BL_RXD)           ;11                         
-    OR A                    ; 4                         
-    RET                     ;10                         
+    JR Z,rx_fail            ;12/7
+.rx_kbd
+    LD c,BL_KBD             ; 7
+    IN A,(c)                ;12
+    CP $FF                  ; 7
+    JR NZ,rx_fail           ;12/7
+.check_rdrf
+    IN A,(BL_UIT)           ;11
+    BIT BB_UITRDRF,A        ; 8
+    JR Z,rx_check_timeout   ;12/7
+.rx
+    EXX                     ; 4
+    IN A,(BL_RXD)           ;11
+    OR A                    ; 4
+    RET                     ;10
 .rx_fail
-    EXX                     ; 4                         
-    SCF                     ; 4                         
-    RET                     ;10                         
+    EXX                     ; 4
+    SCF                     ; 4
+    RET                     ;10
 
 .hw_txbt
     ;Transmit byte with timeout=31+0-1 seconds using hardware directly.
@@ -1936,20 +1936,20 @@ CALL calc_blocks_and_bytes
     LD b,31
     CALL get_timeout_sec
 .tx_check_timeout
-    IN A,(BL_TIM1)          ;11                         
-.tx_get_s_again                                          
-    LD c,A                  ; 4                          
-    IN A,(BL_TIM1)          ;11                          
-    CP c                    ; 4                          
-    JR NZ,tx_get_s_again    ;12/7                        
-    CP b                    ; 4                          
+    IN A,(BL_TIM1)          ;11
+.tx_get_s_again
+    LD c,A                  ; 4
+    IN A,(BL_TIM1)          ;11
+    CP c                    ; 4
+    JR NZ,tx_get_s_again    ;12/7
+    CP b                    ; 4
 ;   CALL check_timeout
     JR Z,tx_fail
 .tx_kbd
     LD c,BL_KBD             ; 7
     IN a,(c)                ;12
     CP $FF                  ; 7
-    JR NZ,tx_fail           ;12/7                       
+    JR NZ,tx_fail           ;12/7
 ;check_tdre
     IN a,(BL_UIT)
     BIT BB_UITTDRE,a
@@ -2024,15 +2024,15 @@ CALL calc_blocks_and_bytes
 .window_init
     ;Set window 1, left 1, top 0, width 80, height 8, left and right vertical bars on.
     DEFB $01,$37,$23,$31,$21,$20,$70,$28,$81
-    ;DEFB SOH,'7','#','1',' '+1,' '+0,' '+80,' '+8,129  
+    ;DEFB SOH,'7','#','1',' '+1,' '+0,' '+80,' '+8,129
 
     ;Select and clear window 1.
     DEFB $01,$32,$43,$31
-    ;DEFB SOH,'2','C','1'   
+    ;DEFB SOH,'2','C','1'
 
     ;Vertical scrolling and cursor on.
     DEFB $01,$33,$2B,$53,$43
-    ;DEFB SOH,'3','+'S','C' 
+    ;DEFB SOH,'3','+'S','C'
 
     DEFB $00
 .cursor_off
@@ -2110,13 +2110,13 @@ DEFS $25
 ;Changed nak retries from 9 to 10.
 ;Preserve partly entered filename over suspension.
 ;Try with ARTS for receiving at 38400.
-;Fixed bug preventing CRC mode receiving 
+;Fixed bug preventing CRC mode receiving
 ;introduced when implementing stepdown from CRC to checksum mode.
 ;Remove ARTS again. Transmission stops unreliably.
 ;Disabled tick interrupt on receive to handle 38400 bps.
 
 ;980808
-;Eliminated sending an empty last block when the file to 
+;Eliminated sending an empty last block when the file to
 ;send is an exact multiple of the current block size.
 ;Fixed bug regarding stepdown from CRC to checksum mode.
 ;Improved user interface when preserving partly entered filename over suspension.
@@ -2190,7 +2190,7 @@ DEFS $25
 ;Ymodem     Receive and send ~3000 cps
 ;Ymodem-1K Receive and send ~3300 cps
 
-;115K in 22 files (devnotes 3.0 alarms.pip to dors.pip) 
+;115K in 22 files (devnotes 3.0 alarms.pip to dors.pip)
 ;received in 1 minute and 16 seconds => 1550 cps.
 ;received in 1 minute and 27 seconds => 1350 cps.
 ;received in 1 minute and 21 seconds =>  cps.

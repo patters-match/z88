@@ -1,6 +1,6 @@
 :: *************************************************************************************
 :: Z88 Standard Library Makefile for DOS/Windows
-:: (C) Gunther Strube (gstrube@gmail.com) 1991-2012
+:: (C) Gunther Strube (gstrube@gmail.com) 1991-2014
 ::
 :: This is free software; you can redistribute it and/or modify it under the terms of the
 :: GNU General Public License as published by the Free Software Foundation;
@@ -19,7 +19,20 @@
 :: used by other applications that needs to statically link routines from this library).
 ::
 :: The standard library is located in /stdlib
-:: The Z80 assembler is located in /tools/mpm
 :: The OZ Manifests are located in /oz/def
 
+@echo off
+
+:: return version of Mpm to command line environment.
+:: Only V1.5 or later of Mpm supports macros
+mpm -version 2>nul >nul
+if ERRORLEVEL 15 goto COMPILE_STDLIB
+echo Mpm version is less than V1.5, Standard library compilation aborted.
+echo Mpm displays the following:
+mpm
+goto END
+
+:COMPILE_STDLIB
 mpm -I..\oz\def -d -xstandard.lib @standard
+
+:END
