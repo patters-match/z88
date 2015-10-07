@@ -27,7 +27,7 @@ if test $? -lt 15; then
   exit 1
 fi
 
-# compile EazyLink application from scratch
+# compile Ep-Fetch2 application from scratch
 rm -f *.obj *.bin *.map
 mpm -bg -I../../oz/def epfetch2
 mpm -b romhdr
