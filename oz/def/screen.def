@@ -32,7 +32,6 @@ IF !__SCREEN_DEF__
      DEFINE __SCREEN_DEF__
 
      INCLUDE "macros.def"
-     INCLUDE "oz.def"
 
      DEFC Os_Off  = $EC06          ; switch machine (screen) off
 
