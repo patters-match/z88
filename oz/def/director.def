@@ -22,14 +22,17 @@ lstoff
 ;
 ; (C) Jorma Oksanen (jorma.oksanen@aini.fi), 2003
 ; (C) Thierry Peycru (pek@users.sf.net), 2005-2007
-; (C) Gunther Strube (gbs@users.sf.net), 2005-2007
+; (C) Gunther Strube (gstrube@gmail.com), 2005-2007
 ;
 ; ***************************************************************************************************
 
 ; Director/CLI low level access:
 
 IF !__DIRECTOR_DEF__
-define __DIRECTOR_DEF__
+     DEFINE __DIRECTOR_DEF__
+
+     INCLUDE "macros.def"
+
 
      DEFC Dc_Alt = $1A0C           ; Pass an alternative character
      DEFC Dc_Bye = $080C           ; Exiting current application (internal)
@@ -92,10 +95,7 @@ define __DIRECTOR_DEF__
      DEFC Os_Poll= $FC06           ; Poll for an application (internal)
      DEFC OS_Ploz= $C606           ; Poll for running OZ card usage                 (OZ 4.2 and newer)
      DEFC Os_Stk = $F806           ; Stack file current process (internal)
-     DEFC Os_Wait= $7E             ; Wait for event (internal)
-     ; arguments:
-          DEFC WT_ANY = $FF        ; infinite
-
+     DEFC OS_Uash= $BE06           ; Update application static handle (internal)    (OZ 4.6 and newer)
 
 ENDIF
 

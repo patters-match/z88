@@ -15,16 +15,31 @@
 ::
 :: *************************************************************************************
 
-del *.obj *.sym *.bin *.map zetriz.epr
+@echo off
+
+del /S /Q *.obj *.sym *.bin *.map zetriz.epr 2>nul >nul
 
 :: ensure that we have an up-to-date standard library
 cd ..\..\stdlib
 call makelib.bat
 cd ..\z88apps\zetriz
 
+:: return version of Mpm to command line environment.
+:: Only V1.5 or later of Mpm supports macros
+mpm -version 2>nul >nul
+if ERRORLEVEL 15 goto COMPILE_ZETRIZ
+echo Mpm version is less than V1.5, Zetriz compilation aborted.
+echo Mpm displays the following:
+mpm
+goto END
+
+:COMPILE_ZETRIZ
+
 :: Compile the MTH and the application code
-mpm -b -I..\..\oz\def -l..\..\stdlib\standard.lib @zetriz
+mpm -b -I..\..\oz\def -l..\..\stdlib\standard.lib @zetriz.prj
 mpm -b -I..\..\oz\def romhdr
 
 :: Create a 16K Rom Card with ZetriZ to be blown by RomCombiner, Zprom or RomUpdate on real cards
 z88card -f zetriz.loadmap
+
+:END

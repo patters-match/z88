@@ -2,7 +2,7 @@
 
 # *************************************************************************************
 # DebugApp/Ozvm compile script for Unix/Linux.
-# (C) Gunther Strube (gstrube@gmail.com), 2004-2012
+# (C) Gunther Strube (gstrube@gmail.com), 2004-2014
 #
 # DebugApp is free software; you can redistribute it and/or modify it under the terms of the
 # GNU General Public License as published by the Free Software Foundation;
@@ -17,4 +17,15 @@
 #
 # *************************************************************************************
 
-mpm -I../../oz/def -tb debugapp.asm
+# return version of Mpm to command line environment.
+# validate that MPM is V1.5 or later - only this version or later supports macros
+MPM_VERSIONTEXT=`mpm -version`
+
+if test $? -lt 15; then
+  echo Mpm version is less than V1.5, DebugApp compilation aborted.
+  echo Mpm displays the following:
+  mpm
+  exit 1
+fi
+
+mpm -I../../oz/def -b debugapp.asm

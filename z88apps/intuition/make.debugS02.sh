@@ -2,7 +2,7 @@
 
 # *************************************************************************************
 # Intuition make script for UNIX/LINUX to build executable for segment 2 address space
-# (C) Gunther Strube (gstrube@gmail.com) 1991-2012
+# (C) Gunther Strube (gstrube@gmail.com) 1991-2014
 #
 # Intuition is free software; you can redistribute it and/or modify it under the terms of the
 # GNU General Public License as published by the Free Software Foundation;
@@ -23,4 +23,16 @@ cd ../../stdlib; ./makelib.sh; cd ../z88apps/intuition
 # compile Intuition code from scratch
 # Intuition uses segment 3 for bank switching (Intuition is located at $8000 - segment 2)
 rm -f *.err *.lst *.def *.obj *.bin *.map
+
+# return version of Mpm to command line environment.
+# validate that MPM is V1.5 or later - only this version or later supports macros
+MPM_VERSIONTEXT=`mpm -version`
+
+if test $? -lt 15; then
+  echo Mpm version is less than V1.5, Intuition compilation aborted.
+  echo Mpm displays the following:
+  mpm
+  exit 1
+fi
+
 mpm -b -DSEGMENT3 -r8000 -odebugS02.bin -I../../oz/def -l../../stdlib/standard.lib @debug

@@ -1,6 +1,6 @@
 :: *************************************************************************************
 :: Intuition make script (DOS/Windows) to build executable for upper 8K segment 0
-:: (C) Gunther Strube (gstrube@gmail.com) 1991-2012
+:: (C) Gunther Strube (gstrube@gmail.com) 1991-2014
 ::
 :: Intuition is free software; you can redistribute it and/or modify it under the terms of the
 :: GNU General Public License as published by the Free Software Foundation;
@@ -15,6 +15,8 @@
 ::
 :: *************************************************************************************
 
+@echo off
+
 :: ensure that we have an up-to-date standard library
 cd ..\..\stdlib
 call makelib.bat
@@ -22,7 +24,19 @@ cd ..\z88apps\intuition
 
 :: compile Intuition code from scratch
 :: Intuition uses segment 3 for bank switching (Intuition is located at $2000 - upper 8K of segment 0)
-del *.err *.def *.lst *.obj *.bin *.map
+del /S /Q *.err *.def *.lst *.obj *.bin *.map 2>nul >nul
+
+:: return version of Mpm to command line environment.
+:: Only V1.5 or later of Mpm supports macros
+mpm -version 2>nul >nul
+if ERRORLEVEL 15 goto COMPILE_INTUITION
+echo Mpm version is less than V1.5, Intuition compilation aborted.
+echo Mpm displays the following:
+mpm
+goto END
+
+:COMPILE_INTUITION
+
 mpm -b -g -DINT_SEGM0 -DSEGMENT3 -I..\..\oz\def -l..\..\stdlib\standard.lib @debug0b
 mpm -b -DINT_SEGM0 -DSEGMENT3 -I..\..\oz\def -l..\..\stdlib\standard.lib @debug0a
 
@@ -33,3 +47,5 @@ z88card debugS00.bin debug0a.bin 0000 debug0b.bin 2000
 
 :: delete the redundant output binaries
 del debug0a.bin debug0b.bin
+
+:END

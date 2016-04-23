@@ -20,36 +20,26 @@ lstoff
 ;                                  59 Temple Place-Suite 330,
 ;                                  Boston, MA 02111-1307, USA.
 ;
-; (C) Jorma Oksanen (jorma.oksanen@aini.fi), 2003
-; (C) Thierry Peycru (pek@users.sf.net), 2005-2007
-; (C) Gunther Strube (gstrube@gmail.com), 2005-2007
+; (C) Gunther Strube (gstrube@gmail.com), 2014
 ;
 ; ***************************************************************************************************
 
-; Filter manipulation:
+; Cyclic redundancy check for memory area, RAM files and File Entries on File Cards (CRC-32 algorithm)
+; Implementation is based on CRC-32 in UnZip / Zip appplications, (C) Garry Lancaster 1999-2006
 
-IF !__FILTER_DEF__
-     DEFINE __FILTER_DEF__
+IF !__CRC32_DEF__
+	DEFINE __CRC32_DEF__
 
-     INCLUDE "macros.def"
+    INCLUDE "macros.def"
 
-     ; Filter Definition Table (FDT) Arguments :
-        DEFC    FL_ISO     = $80   ; table has ISO characters (top bit set)
-        DEFC    FL_NUM     = $40   ; table has numeric data
-        DEFC    FL_ALPHA   = $20   ; table has alphanumeric data
-        DEFC    FL_PUNCT   = $10   ; table has punctuation 
 
-     DEFC Gn_Flo  = $2209          ; Open a filter
-     ; Arguments :
-        DEFC    FL_NOCASE  = 1     ; case equivalence
-        DEFC    FL_REVERSE = 2     ; reverse mode
-        DEFC    FL_MAXBUF  = 4     ; force maximum buffer of B size
-
-     DEFC Gn_Flc  = $2409          ; Close a filter
-     DEFC Gn_Flw  = $2609          ; Push character into filter
-     DEFC Gn_Flr  = $2809          ; Read character from filter
-     DEFC Gn_Flf  = $2A09          ; Flush filter
-     DEFC Gn_Fpb  = $2C09          ; Push back character into filter
+    defc Gn_Crc           = $7C09               ; CRC-32 main system call
+   	defc CRC_MEMA         = 0                   ; iterate CRC-32 on memory area
+   	defc CRC_FILE         = 1                   ; iterate CRC-32 on complete RAM File
+   	defc CRC_PARTFILEBYTE = 2                   ; iterate CRC-32 partially on RAM file (from file pointer onwards), using OS_Gb
+   	defc CRC_PARTFILEBUF  = 3                   ; Iterate CRC-32 partially (buffered) on RAM file (from file pointer onwards), using OS_Mv
+   	defc CRC_EPFILE       = 4                   ; iterate CRC-32 on File Entry in File (Area) Card
+   	defc CRC_PARTEPFILE   = 5                   ; Iterate CRC-32 partially on File Entry (File Card)
 
 ENDIF
 

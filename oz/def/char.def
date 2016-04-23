@@ -22,14 +22,17 @@ lstoff
 ;
 ; (C) Jorma Oksanen (jorma.oksanen@aini.fi), 2003
 ; (C) Thierry Peycru (pek@users.sf.net), 2005-2007
-; (C) Gunther Strube (gbs@users.sf.net), 2005-2007
+; (C) Gunther Strube (gstrube@gmail.com), 2005-2007
 ;
 ; ***************************************************************************************************
 
 ; Character management:
 
 IF !__CHAR_DEF__
-define __CHAR_DEF__
+     DEFINE __CHAR_DEF__
+
+     INCLUDE "macros.def"
+
 
      DEFC Gn_Cls  = $3009          ; Classify a character
      DEFC Gn_Skc  = $3209          ; Bypass a character in a sequense

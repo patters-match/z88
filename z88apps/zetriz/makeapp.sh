@@ -22,7 +22,19 @@ cd ../../stdlib; ./makelib.sh; cd ../z88apps/zetriz
 
 # Compile the MTH and the application code
 rm -f *.obj *.sym *.bin *.map zetriz.epr
-mpm -b -I../../oz/def -l../../stdlib/standard.lib @zetriz
+
+# return version of Mpm to command line environment.
+# validate that MPM is V1.5 or later - only this version or later supports macros
+MPM_VERSIONTEXT=`mpm -version`
+
+if test $? -lt 15; then
+  echo Mpm version is less than V1.5, Zetriz compilation aborted.
+  echo Mpm displays the following:
+  mpm
+  exit 1
+fi
+
+mpm -b -I../../oz/def -l../../stdlib/standard.lib @zetriz.prj
 mpm -b -I../../oz/def romhdr
 
 # Create a 16K Rom Card with ZetriZ to be blown by RomCombiner, Zprom or RomUpdate on real cards

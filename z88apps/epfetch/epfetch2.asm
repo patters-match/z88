@@ -86,7 +86,8 @@ defc    CMD_MEM         = 5
 .EPFetchDOR
 
         defp    0,0                             ; parent
-        defp    LINK_ADDR,LINK_BANK             ; brother
+        defw    LINK_ADDR
+        defb    LINK_BANK                       ; brother
         defp    0,0                             ; son
 
         defb    DM_ROM,46
@@ -104,9 +105,12 @@ defc    CMD_MEM         = 5
         defb    3                               ; inversed caps
 
         defb    'H',12
-        defp    sTopics, BANK
-        defp    sCommands, BANK
-        defp    sHelp, BANK
+        defw    sTopics
+        defb    BANK
+        defw    sCommands
+        defb    BANK
+        defw    sHelp
+        defb    BANK
         defp    0, 0
 
         defb    'N',10
@@ -1000,7 +1004,7 @@ defc    MAXFILENAMELEN  = PRINTWIDTH2C
         inc     hl
         cp      '/'
         jr      z, mn_3
-        cp      '\'
+        cp      '\\'
         jr      z, mn_3
         or      a
         jr      nz, mn_4
@@ -2018,7 +2022,7 @@ defc    MAXFILENAMELEN  = PRINTWIDTH2C
 .file_txt       defm    "file",0
 
 
-.Progress_txt   defm    "/-\|"
+.Progress_txt   defm    "/-\\|"
 .Move2XY_txt    defm    1,"3@",0
 
 .CursorOn_txt   defm    1,"2+C",0

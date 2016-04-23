@@ -22,7 +22,7 @@ lstoff
 ;
 ; (C) Jorma Oksanen (jorma.oksanen@aini.fi), 2003
 ; (C) Thierry Peycru (pek@users.sf.net), 2005-2007
-; (C) Gunther Strube (gbs@users.sf.net), 2005-2007
+; (C) Gunther Strube (gstrube@gmail.com), 2005-2007
 ;
 ; ***************************************************************************************************
 
@@ -30,7 +30,10 @@ lstoff
 ; Floating point package (FPP):
 
 IF !__FPP_DEF__
-define __FPP_DEF__
+     DEFINE __FPP_DEF__
+
+     INCLUDE "macros.def"
+
 
      DEFC FP_BAS = $A2             ; call Floating point package function
                                    ; (doesn't work properly)

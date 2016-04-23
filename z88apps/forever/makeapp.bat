@@ -16,12 +16,25 @@
 ::
 :: *************************************************************************************
 
+@echo off
+
 del /Q *.obj *.sym *.bin *.map *.6? forever.epr 2>nul >nul
 
 :: Ensure that we have an up-to-date standard library (needed for FreeRAM)
 cd ..\..\stdlib
 call makelib.bat
 cd ..\z88apps\forever
+
+:: return version of Mpm to command line environment.
+:: Only V1.5 or later of Mpm supports macros
+mpm -version 2>nul >nul
+if ERRORLEVEL 15 goto COMPILE_FOREVER
+echo Mpm version is less than V1.5, Forever compilation aborted.
+echo Mpm displays the following:
+mpm
+goto END
+
+:COMPILE_FOREVER
 
 :: Assemble the Public Domain ROM
 cd ..\pdrom
@@ -68,3 +81,5 @@ z88card -f forever.loadmap
 
 :: Create a 32K Rom Card for OZ v4.1+, omitting incompatible applications
 z88card -f forever4X.loadmap
+
+:END

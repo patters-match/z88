@@ -2,7 +2,7 @@
 
 # *************************************************************************************
 # Zprom + FlashTest make script
-# (C) Gunther Strube (gstrube@gmail.com) 2006-2012
+# (C) Gunther Strube (gstrube@gmail.com) 2006-2014
 #
 # Zprom & FlashTest is free software; you can redistribute it and/or modify it under
 # the terms of theGNU General Public License as published by the Free Software Foundation;
@@ -21,6 +21,18 @@ cd ../../stdlib; ./makelib.sh; cd ../z88apps/zprom
 
 # Compile the MTH and the application code
 rm -f *.obj *.bin *.map zprom.epr
+
+# return version of Mpm to command line environment.
+# validate that MPM is V1.5 or later - only this version or later supports macros
+MPM_VERSIONTEXT=`mpm -version`
+
+if test $? -lt 15; then
+  echo Mpm version is less than V1.5, Zprom compilation aborted.
+  echo Mpm displays the following:
+  mpm
+  exit 1
+fi
+
 mpm -b -I../../oz/def tokens
 mpm -bg -I../../oz/def mthzprom
 mpm -b -I../../oz/def -l../../stdlib/standard.lib @zprom

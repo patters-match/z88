@@ -26,18 +26,31 @@
 ::
 :: ******************************************************************************************************************
 
+@echo off
+
 :: ensure that we have an up-to-date standard library
 cd ..\..\stdlib
 call makelib.bat
 cd ..\z88apps\z80asm
 
 :: delete previously compiled files
-del *.obj *.bin *.map mth.def z80asm.epr z80asm.bn? z80asm.6?
+del /S /Q *.obj *.bin *.map mth.def z80asm.epr z80asm.bn? z80asm.6? 2>nul >nul
+
+:: return version of Mpm to command line environment.
+:: Only V1.5 or later of Mpm supports macros
+mpm -version 2>nul >nul
+if ERRORLEVEL 15 goto COMPILE_Z80ASM
+echo Mpm version is less than V1.5, Z80asm compilation aborted.
+echo Mpm displays the following:
+mpm
+goto END
+
+:COMPILE_Z80ASM
 
 :: Compile the MTH, application code and rom header
 mpm -b -I..\..\oz\def tokens
 mpm -bg -I..\..\oz\def mth
-mpm -bc -I..\..\oz\def -l..\..\stdlib\standard.lib @z80asm
+mpm -b -cz80 -I..\..\oz\def -l..\..\stdlib\standard.lib @z80asm.prj
 mpm -b -I..\..\oz\def romhdr
 
 :: Create a 64K image with Z80asm (required by MakeApp)

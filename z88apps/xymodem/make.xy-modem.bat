@@ -15,9 +15,23 @@
 ::
 :: *************************************************************************************
 
+@echo off
+
 :: compile XY-Modem popdown from scratch
 :: (this compile script is located in /z88apps/xymodem)
-del *.obj *.bin *.map *.63 *.epr
+del /S /Q *.obj *.bin *.map *.63 *.epr 2>nul >nul
+
+:: return version of Mpm to command line environment.
+:: Only V1.5 or later of Mpm supports macros
+mpm -version 2>nul >nul
+if ERRORLEVEL 15 goto COMPILE_XYMODEM
+echo Mpm version is less than V1.5, XY-Modem compilation aborted.
+echo Mpm displays the following:
+mpm
+goto END
+
+:COMPILE_XYMODEM
+
 mpm -b -I..\..\oz\def xy-modem.asm
 
 :: Create a 16K Rom Card with XY-Modem

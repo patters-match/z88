@@ -24,5 +24,16 @@
 # The Z80 assembler is located in /tools/mpm
 # The OZ Manifests are located in /oz/def
 
+# return version of Mpm to command line environment.
+# validate that MPM is V1.5 or later - only this version or later supports macros
+MPM_VERSIONTEXT=`mpm -version`
+
+if test $? -lt 15; then
+  echo Mpm version is less than V1.5, Standard library compilation aborted.
+  echo Mpm displays the following:
+  mpm
+  exit 1
+fi
+
 # compile only updated source files and build the standard.lib file
 mpm -I../oz/def -d -xstandard.lib @standard

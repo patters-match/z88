@@ -22,7 +22,7 @@ lstoff
 ;
 ; (C) Jorma Oksanen (jorma.oksanen@aini.fi), 2003
 ; (C) Thierry Peycru (pek@users.sf.net), 2005-2007
-; (C) Gunther Strube (gbs@users.sf.net), 2005-2007
+; (C) Gunther Strube (gstrube@gmail.com), 2005-2007
 ;
 ; ***************************************************************************************************
 
@@ -31,7 +31,9 @@ lstoff
 ; Codes marked with * are fatal errors
 
 IF !__ERROR_DEF__
-define __ERROR_DEF__
+     DEFINE __ERROR_DEF__
+
+     INCLUDE "macros.def"
 
 
      DEFC RC_OK     = $00
@@ -81,6 +83,7 @@ define __ERROR_DEF__
      DEFC RC_VPL    = $70     ; Vpp Low Error
      DEFC RC_BWR    = $71     ; Write (byte) Error (Flash or UV Eprom)
      DEFC RC_BER    = $72     ; Flash Sector/Block Erasure Error
+     DEFC RC_EPNE   = $73     ; UV Eprom Not Erased (OZ V4.5 and later)
      DEFC RC_NFE    = $80     ; Flash not recognized
      DEFC RC_NOZ    = $81     ; Flash contains OZ ROM, cannot be erased
 

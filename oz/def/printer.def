@@ -22,14 +22,17 @@ lstoff
 ;
 ; (C) Jorma Oksanen (jorma.oksanen@aini.fi), 2003
 ; (C) Thierry Peycru (pek@users.sf.net), 2005-2007
-; (C) Gunther Strube (gbs@users.sf.net), 2005-2007
+; (C) Gunther Strube (gstrube@gmail.com), 2005-2007
 ;
 ; ***************************************************************************************************
 
 ; Printer filter call:
 
 IF !__PRINTER_DEF__
-define __PRINTER_DEF__
+     DEFINE __PRINTER_DEF__
+
+     INCLUDE "macros.def"
+
 
      DEFC Os_Prt  = $24            ; Send character directly to printer filter (low level)
 
