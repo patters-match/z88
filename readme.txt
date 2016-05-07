@@ -61,10 +61,13 @@ Basic requirements
 The cross platform tools that is necessary to compile the Z88 software
 into executable form to be run on the Cambridge Z88 are downloaded 
 separately from our files area:
-http://sourceforge.net/projects/z88/files/Z88%20Assembler%20Workbench%20Tools/
+http://sourceforge.net/projects/z88/files/Z88%20Assembler%20Workbench/
 
-Tools to be installed on your desktop comoputer exists for Mac OS X, Linux 
+Tools to be installed on your desktop computer exists for Mac OS X, Linux 
 and Windows.
+
+Minimum requirement of Z88 AWB tools is release 2016.5
+(all source code projects require Mpm Macro Assembler V1.5 or later).
 
 The first requirement is to checkout the Git Master branch (main
 development or HEAD in CVS terms) you need to have a Git client
