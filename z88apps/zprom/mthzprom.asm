@@ -29,16 +29,21 @@
 
      MODULE MTH_Zprom
 
+     XDEF tokens_base
      XDEF Zprom_topics
      XDEF Zprom_commands
      XDEF Zprom_help
-     XDEF Zprom_MTH_END
+     XDEF Zprom_MTH_START,Zprom_MTH_END
 
      INCLUDE "applic.def"
      INCLUDE "stdio.def"
 
      ORG MTH_Zprom_ORG
 
+
+.Zprom_MTH_START
+
+     INCLUDE "tokens.asm"
 
 ; ********************************************************************************************************************
 ;

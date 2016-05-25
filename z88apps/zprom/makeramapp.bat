@@ -1,5 +1,5 @@
 :: *************************************************************************************
-:: Zprom
+:: Zprom - RAM Application
 :: (C) Gunther Strube (gstrube@gmail.com) 1993-2014
 ::
 :: Zprom is free software; you can redistribute it and/or modify it under the terms of the
@@ -23,7 +23,7 @@ call makelib.bat
 cd ..\z88apps\zprom
 
 :: Compile the MTH and the application code
-del /S /Q *.obj *.bin *.map zprom.epr 2>nul >nul
+del /S /Q *.obj *.bin *.map *.ap? 2>nul >nul
 
 :: return version of Mpm to command line environment.
 :: Only V1.5 or later of Mpm supports macros
@@ -36,9 +36,6 @@ goto END
 
 :COMPILE_ZPROM
 
-mpm -bg -I..\..\oz\def mthzprom
-mpm -b -I..\..\oz\def -l..\..\stdlib\standard.lib @zprom
-mpm -b -I..\..\oz\def romhdr
-
-:: Create a 32K Rom Card with Zprom ($3E contains MTH, $3F contains application code)
-z88card -szc 32 zprom.epr mthzprom.bin 3e0000 zprom.bin 3fc000 romhdr.bin 3f3fc0
+mpm -bg -ozprom.ap1 -I..\..\oz\def mthzprom
+mpm -b -ozprom.ap0 -I..\..\oz\def -l..\..\stdlib\standard.lib @zprom
+mpm -b -nMap -ozprom.app zpromramapp.asm

@@ -1,11 +1,4 @@
 
-     MODULE tokens
-
-     INCLUDE "applic.def"
-     INCLUDE "stdio.def"
-
-     ORG token_base
-
 ; 'Zprom' command, topic, help, token definitions:
 
 ; ******************************************************************************************************************
