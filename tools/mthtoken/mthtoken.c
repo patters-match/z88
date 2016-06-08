@@ -15,14 +15,20 @@
 
 
 
+    ==============================================================================
     compile with
         gcc -o mthtoken mthtoken.c
+    ==============================================================================
 
 
-
-    A token table structure is defined as follows:
 
     ==============================================================================
+    Tokens may be embedded in the help text or within the text for topic and command names.
+    The first token has a code of $80 and subsequent tokens count up from here. Recursive
+    tokens may contain tokens in their text. Tokens above the boundary level set by the
+    'first recursive token' may contain tokens themselves, providing those tokens are below
+    the boundary. The example below is in assembly format to improve clarity:
+
     .tok_base   defb $04                              ; recursive token boundary
                 defb $05                              ; number of tokens
                 defw tok0 - tok_base
@@ -276,10 +282,18 @@ AllocRawToken(tokentable_t *tkt, int tkid)
 token_t *
 AllocExpandedToken(tokentable_t *tkt, int tkid)
 {
-    int tklen;
+    int i;
     token_t *exptoken = AllocRawToken(tkt, (tkid & 0x7f)); /* internal token ID is 0 - 127 */
 
     /* TO DO: scan raw token string for recursive tokens and expand them inline, before returning */
+    if (exptoken != NULL) {
+        for (i=0; i<exptoken->len; i++) {
+            if (exptoken->str[i] >= 0x80) {
+                /* this token string contains a recursive token ID */
+            }
+        }
+
+    }
 
     return exptoken;
 }
