@@ -18,6 +18,28 @@
     compile with
         gcc -o mthtoken mthtoken.c
 
+
+
+    A token table structure is defined as follows:
+
+    ==============================================================================
+    .tok_base   defb $04                              ; recursive token boundary
+                defb $05                              ; number of tokens
+                defw tok0 - tok_base
+                defw tok1 - tok_base
+                defw tok2 - tok_base
+                defw tok3 - tok_base
+                defw tok4 - tok_base
+                defw end - tok_base
+
+    .tok0       defm "file"
+    .tok1       defm " the "
+    .tok2       defm "EPROM"
+    .tok3       defb $01, 'T'                         ; Tiny text token
+    .tok4       defm ' ', $80, "s "
+    .end
+    ==============================================================================
+
  -------------------------------------------------------------------------------------------------*/
 
 #include <stdio.h>
@@ -39,7 +61,7 @@ typedef
 struct token {
     int id;                         /* 0x80 - 0xFF */
     int len;                        /* length of token string */
-    unsigned char *str;             /* pointer to expanded token string */
+    unsigned char *str;             /* pointer to token string */
 } token_t;
 
 typedef
@@ -215,36 +237,51 @@ AllocTokenTable(void)
 }
 
 
-/* ------------------------------------------------------------------------------------------ */
-void
-GetRawTokenMetaData(tokentable_t *tkt, int tkid, unsigned char **strptr, int *length)
+/* ------------------------------------------------------------------------------------------
+    token_t *AllocRawToken(tokentable_t *tkt, int tkid)
+
+    Grab an allocated copy of the raw token from the table and return a pointer to it
+    NULL is returned if no memory on heap
+   ------------------------------------------------------------------------------------------ */
+token_t *
+AllocRawToken(tokentable_t *tkt, int tkid)
 {
-    unsigned char *tokenoffsetptr = tkt->tokens+2+(tkid*2); /* point token ID offset */
+    token_t *rawtoken = (token_t *) malloc (sizeof(token_t));
+    unsigned char *tokenoffsetptr = tkt->tokens+2+(tkid*2); /* point to token ID offset */
     unsigned char *nexttokenoffsetptr = tokenoffsetptr+2;
     int tokenoffset = tokenoffsetptr[0]+tokenoffsetptr[1]*256;
     int nexttokenoffset = nexttokenoffsetptr[0]+nexttokenoffsetptr[1]*256;
 
-    *length = nexttokenoffset-tokenoffset;
-    *strptr = tkt->tokens + tokenoffset;
+    if (rawtoken != NULL) {
+        rawtoken->id = 0x80 | tkid;
+        rawtoken->len = nexttokenoffset-tokenoffset;
+        rawtoken->str = AllocBuffer (rawtoken->len);
+        if (rawtoken->str != NULL) {
+            memcpy(rawtoken->str, tkt->tokens + tokenoffset, rawtoken->len);
+        } else {
+            free(rawtoken);
+            rawtoken = NULL;
+        }
+    }
+
+    if (rawtoken == NULL) {
+        ReportError (NULL, Err_Memory);
+    }
+
+    return rawtoken;
 }
 
 
 /* ------------------------------------------------------------------------------------------ */
-void
-AllocExpandedTokenString(tokentable_t *tkt, int tkid, unsigned char **strptr, int *length)
+token_t *
+AllocExpandedToken(tokentable_t *tkt, int tkid)
 {
     int tklen;
-    unsigned char *tkrawstr;
+    token_t *exptoken = AllocRawToken(tkt, (tkid & 0x7f)); /* internal token ID is 0 - 127 */
 
-    /* fetch length and pointer to raw token string */
-    GetRawTokenMetaData(tkt, (tkid & 0x7f), &tkrawstr, &tklen);
-    *strptr = AllocBuffer (tklen);
-    if (*strptr != NULL) {
-        memcpy(*strptr, tkrawstr, tklen);
-        *length = tklen;
-    } else {
-        *length = 0;
-    }
+    /* TO DO: scan raw token string for recursive tokens and expand them inline, before returning */
+
+    return exptoken;
 }
 
 
@@ -256,27 +293,13 @@ AllocExpandedTokenString(tokentable_t *tkt, int tkid, unsigned char **strptr, in
 token_t *
 AllocTokenInstance(tokentable_t *tkt, int tkid)
 {
-    token_t *token = (token_t *) malloc (sizeof(token_t));
-
     tkid &= 0x7f; /* internal token ID is 0 - 127 */
+    token_t *token = NULL;;
 
-    if (token != NULL) {
-        if (tkid > (tkt->totaltokens-1)) {
-            ReportError (NULL, Err_TokenNotFound);
-            free(token);
-            token = NULL;
-        } else {
-            token->id = 0x80 | tkid;
-
-            /* fetch length and pointer to expanded token string */
-            AllocExpandedTokenString(tkt, tkid, &token->str, &token->len);
-            if (token->str == NULL) {
-                free(token);
-                token = NULL;
-            }
-        }
+    if (tkid > (tkt->totaltokens-1)) {
+        ReportError (NULL, Err_TokenNotFound);
     } else {
-        ReportError (NULL, Err_Memory);
+        token = AllocExpandedToken(tkt, tkid);
     }
 
     return token;
@@ -354,9 +377,9 @@ LoadFile (char *filename)
 /* ------------------------------------------------------------------------------------------
     token_t **LoadTokenTable (char *filename)
 
-    Load the specified token table binary, and contruct it as an arry of tokens strings
+    Load the specified token table binary into memory, validated.
 
-    Returns pointer to the expanded token table.
+    Returns pointer to the loaded token table.
    ------------------------------------------------------------------------------------------ */
 tokentable_t *
 LoadTokenTable (char *filename)
@@ -441,7 +464,7 @@ ListExpandedTokens(tokentable_t *tkt)
                 }
             }
             fputc('\n',stdout);
-            free(token);
+            free(token); /* expanded token can now be discarded */
         } else {
             return;
         }
