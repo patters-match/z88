@@ -243,6 +243,50 @@ AllocTokenTable(void)
 }
 
 
+/* ------------------------------------------------------------------------------------------ */
+void
+ReleaseToken(token_t *tk)
+{
+    if (tk != NULL) {
+        if ( tk->str != NULL) {
+            free(tk->str);
+        }
+
+        free(tk);
+    }
+}
+
+
+/* ------------------------------------------------------------------------------------------ */
+void
+ReleaseTokenTable(tokentable_t *tkt)
+{
+    if (tkt != NULL) {
+        if ( tkt->tokens ) {
+            free(tkt->tokens);
+        }
+
+        free(tkt);
+    }
+}
+
+
+void
+ListString(unsigned char *str, int len)
+{
+    int l;
+
+    for (l=0; l<len; l++) {
+        if (str[l] < 32 || str[l] >= 127) {
+            fprintf(stdout,"$%02X", str[l]);
+        } else {
+            fputc(str[l],stdout);
+        }
+    }
+    fputc('\n',stdout);
+}
+
+
 /* ------------------------------------------------------------------------------------------
     token_t *AllocRawToken(tokentable_t *tkt, int tkid)
 
@@ -284,12 +328,38 @@ AllocExpandedToken(tokentable_t *tkt, int tkid)
 {
     int i;
     token_t *exptoken = AllocRawToken(tkt, (tkid & 0x7f)); /* internal token ID is 0 - 127 */
+    token_t *inserttoken;
 
-    /* TO DO: scan raw token string for recursive tokens and expand them inline, before returning */
     if (exptoken != NULL) {
         for (i=0; i<exptoken->len; i++) {
             if (exptoken->str[i] >= 0x80) {
-                /* this token string contains a recursive token ID */
+                /* this token string contains a recursive token ID, fetch it and replace it in the raw string */
+                inserttoken = AllocExpandedToken(tkt, exptoken->str[i]);
+                if (inserttoken != NULL) {
+                    /* make space for expanded token length - 1 (the token code already occupies 1 byte) */
+                    exptoken->str = realloc( exptoken->str, exptoken->len + inserttoken->len );
+                    if (exptoken->str != NULL) {
+                        /* insert space at token code - move right side of current raw string of len of new token, rightwards */
+                        memmove( exptoken->str + i + inserttoken->len, exptoken->str + i + 1, exptoken->len-i );
+                        /* replace token code with expanded text of it self */
+                        memcpy(exptoken->str+i, inserttoken->str, inserttoken->len);
+                        /* update the new length of the current token */
+                        exptoken->len = exptoken->len + inserttoken->len - 1;
+                        /* temporary token usage completed, discard it */
+                        ReleaseToken(inserttoken);
+                    } else {
+                        /* re-allocation failed, release allocated ressources here.. */
+                        ReleaseToken(inserttoken);
+                        ReleaseToken(exptoken);
+                        exptoken = NULL;
+                        break;
+                    }
+                } else {
+                    /* abort, no room */
+                    ReleaseToken(exptoken);
+                    exptoken = NULL;
+                    break;
+                }
             }
         }
 
@@ -317,20 +387,6 @@ AllocTokenInstance(tokentable_t *tkt, int tkid)
     }
 
     return token;
-}
-
-
-/* ------------------------------------------------------------------------------------------ */
-void
-ReleaseTokenTable(tokentable_t *tkt)
-{
-    if (tkt != NULL) {
-        if ( tkt->tokens ) {
-            free(tkt->tokens);
-        }
-
-        free(tkt);
-    }
 }
 
 
@@ -470,15 +526,8 @@ ListExpandedTokens(tokentable_t *tkt)
         token = AllocTokenInstance(tkt, i);
         if (token != NULL) {
             fprintf(stdout,"Token $%02X (Length %d) = ", token->id, token->len);
-            for (l=0; l<token->len; l++) {
-                if (token->str[l] < 32 || token->str[l] > 127) {
-                    fprintf(stdout,"$%02X", token->str[l]);
-                } else {
-                    fputc(token->str[l],stdout);
-                }
-            }
-            fputc('\n',stdout);
-            free(token); /* expanded token can now be discarded */
+            ListString(token->str, token->len);
+            ReleaseToken(token); /* expanded token can now be discarded */
         } else {
             return;
         }
