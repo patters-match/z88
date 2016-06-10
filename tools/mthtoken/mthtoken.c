@@ -283,7 +283,6 @@ ListString(unsigned char *str, int len)
             fputc(str[l],stdout);
         }
     }
-    fputc('\n',stdout);
 }
 
 
@@ -520,17 +519,26 @@ void
 ListExpandedTokens(tokentable_t *tkt)
 {
     int i,l;
-    token_t *token;
+    token_t *rawtoken, *exptoken;
 
     for (i=0; i < tkt->totaltokens; i++) {
-        token = AllocTokenInstance(tkt, i);
-        if (token != NULL) {
-            fprintf(stdout,"Token $%02X (Length %d) = ", token->id, token->len);
-            ListString(token->str, token->len);
-            ReleaseToken(token); /* expanded token can now be discarded */
-        } else {
-            return;
+        rawtoken = AllocRawToken(tkt, i);
+        exptoken = AllocTokenInstance(tkt, i);
+
+        if (rawtoken != NULL && exptoken != NULL) {
+            fprintf(stdout,"Token $%02X (Length %d) = ", exptoken->id, exptoken->len);
+            ListString(exptoken->str, exptoken->len);
+            if (exptoken->len > rawtoken->len) {
+                fprintf(stdout," (original token, length = %d, ", rawtoken->len);
+                ListString(rawtoken->str, rawtoken->len);
+                fputc(')',stdout);
+            }
+
+            fputc('\n',stdout);
         }
+
+        ReleaseToken(rawtoken);
+        ReleaseToken(exptoken);
     }
 }
 
