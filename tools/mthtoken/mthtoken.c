@@ -74,6 +74,7 @@
 #define MAX_NAME_SIZE 254
 #define MAX_LINE_BUFFER_SIZE 4096
 
+
 struct sourcefile;
 
 typedef
@@ -270,6 +271,13 @@ AllocTokenTable(void)
 }
 
 
+sourcefile_t *
+AllocFile (void)
+{
+    return (sourcefile_t *) malloc (sizeof (sourcefile_t));
+}
+
+
 /* ------------------------------------------------------------------------------------------ */
 void
 ReleaseToken(token_t *tk)
@@ -426,6 +434,233 @@ LoadFile (char *filename)
     }
 
     return bufptr;
+}
+
+
+/* ------------------------------------------------------------------------------------------
+    void ReleaseFileData (sourcefile_t *srcfile)
+
+        Release previously allocated file data ressource and reset variables to indicate
+        that no file data is cached.
+
+        srcfile->filedata = NULL
+        srcfile->memfileptr = NULL
+        srcfile->filesize = 0
+   ------------------------------------------------------------------------------------------ */
+void
+ReleaseFileData (sourcefile_t *srcfile)
+{
+    if (srcfile != NULL) {
+        srcfile->filesize = 0;
+        srcfile->eof = false;
+
+        if ( (srcfile->filedata != NULL) && (srcfile->includedfile == false) ) {
+            /* this memory file is not part of Include File Cache, so release ressource directly */
+            free (srcfile->filedata);
+
+            srcfile->filedata = NULL;
+            srcfile->memfileptr = NULL;
+        }
+    }
+}
+
+void ReleaseFile (sourcefile_t *srcfile);
+
+void
+ReleaseOwnedFile (usedsrcfile_t *ownedfile)
+{
+    /* Release first other files called by this file */
+    if (ownedfile->nextusedfile != NULL) {
+        ReleaseOwnedFile (ownedfile->nextusedfile);
+    }
+
+    /* Release first file owned by this file */
+    if (ownedfile->ownedsourcefile != NULL) {
+        ReleaseFile (ownedfile->ownedsourcefile);
+    }
+
+    free (ownedfile);             /* Then release this owned file */
+}
+
+
+/* ------------------------------------------------------------------------------------------
+    void ReleaseFile (sourcefile_t *srcfile)
+
+    Release all previously allocated ressources of file.
+   ------------------------------------------------------------------------------------------ */
+void
+ReleaseFile (sourcefile_t *srcfile)
+{
+    if (srcfile != NULL) {
+        if (srcfile->usedsourcefile != NULL) {
+            ReleaseOwnedFile (srcfile->usedsourcefile);
+        }
+
+        if (srcfile->stream != NULL) {
+            fclose(srcfile->stream);    /* In case a file wasn't closed in a abort situation */
+        }
+
+        ReleaseFileData(srcfile);
+
+        if (srcfile->fname != NULL) {
+            free (srcfile->fname);      /* Release allocated area for filename */
+        }
+
+        free (srcfile);                 /* Release file information record for this file */
+    }
+}
+
+
+/* ------------------------------------------------------------------------------------------
+    unsigned char *CacheFileData (sourcefile_t *srcfile, FILE *fd, size_t datasize)
+
+        Load the data of current file pointer of opened file stream <fd> of <datasize> into
+        specified source file <srcfile> as allocated ressource into srcfile->filedata.
+
+        srcfile->filedata is set to point to beginning of loaded ressource.
+        srcfile->memfileptr = srcfile->filedata
+        srcfile->filesize = <datasize> (used for EOF management)
+
+    Returns:
+        NULL if file was not found or contents could not be loaded (I/O error)
+        pointer to start of file data, if file contents was successfully loaded into buffer
+   ------------------------------------------------------------------------------------------ */
+unsigned char *
+CacheFileData (sourcefile_t *srcfile, FILE *fd, size_t datasize)
+{
+    unsigned char *fdbuffer = NULL;
+
+    if (srcfile == NULL) {
+        /* Nothing to do here... */
+        return NULL;
+    }
+
+    if (fd == NULL || srcfile->filedata != NULL) {
+        /* report error if file couldnt be opened or data has already been loaded */
+        ReportIOError (srcfile->fname);
+        return NULL;
+    }
+
+    if (datasize == 0) {
+        srcfile->filesize = 0;
+        srcfile->filedata = NULL;
+        srcfile->memfileptr = NULL;
+        srcfile->eof = false;
+    } else {
+        fdbuffer = (unsigned char *) calloc (datasize + 1, sizeof (char));
+        if (fdbuffer == NULL) {
+            ReportError (srcfile->fname, 0, Err_Memory);
+        } else {
+            if (fread (fdbuffer, sizeof (char), datasize, fd) != datasize) {    /* read file data into buffer */
+                ReportError (srcfile->fname, 0, Err_FileIO);
+                free (fdbuffer);
+                fdbuffer = NULL;
+            } else {
+                srcfile->filesize = (long) datasize;
+                srcfile->filedata = fdbuffer;
+                srcfile->memfileptr = fdbuffer;
+                srcfile->eof = false;
+            }
+        }
+    }
+
+    return fdbuffer;
+}
+
+
+/* ------------------------------------------------------------------------------------------
+    unsigned char *CacheFile (sourcefile_t *srcfile, FILE *fd)
+
+        Read the contents of specified source file <srcfile> into memory.
+
+        srcfile->filedata is set to point to beginning of loaded ressource.
+        srcfile->memfileptr = srcfile->filedata
+        srcfile->filesize = size of file (used for EOF management)
+
+    Returns:
+        NULL if file was not found or contents could not be loaded (I/O error)
+        pointer to start of file data, if file contents was successfully loaded into buffer
+   ------------------------------------------------------------------------------------------ */
+unsigned char *
+CacheFile (sourcefile_t *srcfile, FILE *fd)
+{
+    size_t filesize;
+
+    if (srcfile == NULL) {
+        /* Nothing to do here... */
+        return NULL;
+    }
+
+    if (fd == NULL || srcfile->filedata != NULL) {
+        /* report error if file couldnt be opened or data has already been loaded */
+        ReportIOError (srcfile->fname);
+        return NULL;
+    }
+
+    fseek(fd, 0L, SEEK_END); /* file pointer to end of file */
+    filesize = ftell(fd);
+    fseek(fd, 0L, SEEK_SET); /* file pointer back to start of file */
+
+    return CacheFileData (srcfile, fd, filesize);
+}
+
+
+sourcefile_t *
+Setfile (sourcefile_t *curfile,    /* pointer to record of current source file */
+         sourcefile_t *nfile,      /* pointer to record of new source file */
+         char *filename)           /* pointer to filename string */
+{
+    if (filename != NULL) {
+        if ((nfile->fname = (char *) AllocBuffer (strlen (filename) + 1)) == NULL) {
+            ReportError (NULL, 0, Err_Memory);
+            return nfile;
+        }
+
+        nfile->fname = strcpy (nfile->fname, filename);
+    } else {
+        nfile->fname = NULL;
+    }
+
+    nfile->prevsourcefile = curfile;
+    nfile->newsourcefile = NULL;
+    nfile->usedsourcefile = NULL;
+    nfile->lineptr = NULL;
+    nfile->lineno = 0;              /* Reset to 0 as line counter during parsing */
+    nfile->stream = NULL;
+    nfile->filesize = 0;
+    nfile->eol = false;
+    nfile->eof = false;
+    nfile->includedfile = false;
+    nfile->filedata = NULL;
+
+    return nfile;
+}
+
+
+sourcefile_t *
+Newfile (sourcefile_t *curfile, char *fname)
+{
+    sourcefile_t *nfile;
+
+    if (fname == NULL) {
+        /* Don't do anything ... */
+        return NULL;
+    }
+
+    if (curfile == NULL) {
+        /* file record has not yet been created */
+        if ((curfile = AllocFile ()) == NULL) {
+            ReportError (NULL, 0, Err_Memory);
+            return NULL;
+        } else {
+            return Setfile (NULL, curfile, fname);
+        }
+    } else if ((nfile = AllocFile ()) == NULL) {
+        ReportError (NULL, 0, Err_Memory);
+        return curfile;
+    } else {
+        return Setfile (curfile, nfile, fname);
+    }
 }
 
 
@@ -1411,6 +1646,9 @@ ProcessCommandline(int argc, char *argv[])
 {
     int argidx = 1;
     tokentable_t *tokentable = NULL;
+    sourcefile_t *asmfile;
+    FILE *fd;
+    bool processedStatus = true;
 
     /* Get command line arguments, if any... */
     if (argc == 1) {
@@ -1449,8 +1687,28 @@ ProcessCommandline(int argc, char *argv[])
         }
 
         if (argidx < argc) {
-            /* text file specified, tokenized it... */
-            fprintf(stderr,"Tokenize '%s' text file...\n", argv[argidx]);
+            /* text file specified */
+            asmfile = Newfile (NULL, argv[argidx]);   /* Allocate new file into memory */
+            if (asmfile != NULL) {
+                fd = fopen (AdjustPlatformFilename(argv[argidx]), "rb");
+                if (fd != NULL) {
+                    if (CacheFile (asmfile, fd) != NULL) {
+                        /* source code successfully loaded, start tokenizing... */
+                        fprintf(stderr,"Tokenize '%s' text file...\n", argv[argidx]);
+
+                        ReleaseFile(asmfile);
+                    } else {
+                        /* problems caching the file... */
+                        processedStatus = false;
+                    }
+                    fclose(fd);
+                } else {
+                    ReportIOError(argv[argidx]);
+                    processedStatus = false;
+                }
+            } else {
+                processedStatus = false;
+            }
         } else {
             /* just output the token table to stdout */
             puts("Contents of Token Table:");
@@ -1460,7 +1718,7 @@ ProcessCommandline(int argc, char *argv[])
         ReleaseTokenTable(tokentable);
     }
 
-    return true;
+    return processedStatus;
 }
 
 
