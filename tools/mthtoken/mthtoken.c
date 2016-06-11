@@ -1,6 +1,6 @@
 /* -------------------------------------------------------------------------------------------------
 
-    MthToken - tokenize Ascii text using default or specified token table
+    MthToken - Tokenize Z80 Assembler DEFM Ascii text using default or specified token table
     Copyright (C) 2016, Gunther Strube, gstrube@gmail.com
 
     MthToken is free software; you can redistribute it and/or modify
@@ -16,7 +16,7 @@
 
 
     ==============================================================================
-    compile with
+    MthToken is developed in Ansi C. Compile with GCC or similar:
         gcc -o mthtoken mthtoken.c
     ==============================================================================
 
@@ -48,10 +48,18 @@
 
  -------------------------------------------------------------------------------------------------*/
 
+#include <errno.h>
+#include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+
+
+
+/* ------------------------------------------------------------------------------------------
+    Constant and data structure declarations
+   ------------------------------------------------------------------------------------------ */
 
 #if MSDOS
 #define OS_ID "MSDOS"
@@ -62,6 +70,35 @@
 #define DIRSEP 0x2F         /* "/" */
 #define ENVPATHSEP 0x3A     /* ":" */
 #endif
+
+#define MAX_NAME_SIZE 254
+#define MAX_LINE_BUFFER_SIZE 4096
+
+struct sourcefile;
+
+typedef
+struct usedfile     {
+    struct usedfile    *nextusedfile;
+    struct sourcefile  *ownedsourcefile;
+} usedsrcfile_t;
+
+typedef
+struct sourcefile   {
+    struct sourcefile  *prevsourcefile;   /* pointer to previously parsed source file */
+    struct sourcefile  *newsourcefile;    /* pointer to new source file to be parsed */
+    usedsrcfile_t      *usedsourcefile;   /* list of pointers to used files owned by this file */
+    unsigned char      *lineptr;          /* pointer to beginning of current line being parsed */
+    int                lineno;            /* current line number of current source file */
+    char               *fname;            /* pointer to file name of current source file */
+    FILE               *stream;           /* stream handle of opened file (optional) */
+    long               filesize;          /* size of file in bytes */
+    unsigned char      *filedata;         /* pointer to complete copy of file content */
+    unsigned char      *memfileptr;       /* pointer to current character in memory file */
+    bool               eol;               /* indicate if End Of Line has been reached */
+    bool               eof;               /* indicate if End Of File has been reached */
+    bool               includedfile;      /* if this is an INCLUDE'd file or not */
+} sourcefile_t;
+
 
 typedef
 struct token {
@@ -76,12 +113,6 @@ struct tokentable {
     int totaltokens;                /* total tokens in table */
     unsigned char *tokens;          /* the raw token table */
 } tokentable_t;
-
-
-/* variables */
-char copyrightmsg[] = "MthToken V0.1";
-int totalerrors = 0, errornumber;
-
 
 typedef enum {
     Err_FileIO,                     /* 0,  "File open/read error" */
@@ -112,6 +143,31 @@ typedef enum {
     Err_ExprTooBig,                 /* 34, "Expression > 255 characters" */
     Err_totalMessages
 } error_t;
+
+enum symbols {
+    space, bin_and, dquote, squote, semicolon, comma, fullstop, strconq = fullstop, lparen, lcurly, lexpr, backslash,
+    rexpr, rcurly, rparen, plus, minus, multiply, divi, mod, bin_xor, assign, bin_or, bin_nor, colon = bin_nor,
+    bin_not, less, greater, log_not, cnstexpr, newline, power, lshift, rshift,
+    lessequal, greatequal, notequal, name, number, decmconst, hexconst, binconst, charconst, registerid,
+    negated, mod256, div256, nil, ifstatm, elsestatm, endifstatm, enddefstatm, colonlabel, asmfnname
+};
+
+enum symbols sym, ssym[] = {
+    space, bin_and, dquote, squote, semicolon, comma, fullstop,
+    lparen, lcurly, lexpr, backslash, rexpr, rcurly, rparen, plus, minus, multiply, divi, mod, bin_xor,
+    assign, bin_or, bin_nor, bin_not,less, greater, log_not, cnstexpr
+};
+
+const char copyrightmsg[] = "MthToken V0.1";
+const char separators[] = " &\"\';,.({[\\]})+-*/%^=|:~<>!#";
+
+/* Global text buffers, allocated by AllocateTextBuffers() during startup of Mpm */
+char *ident = NULL;
+unsigned char *line = NULL;
+unsigned char *codeptr = NULL;
+
+int totalerrors = 0, errornumber;
+bool cstyle_comment = false;
 
 char *errmsg[] = {
     "File open/read error",
@@ -155,7 +211,7 @@ ReportIOError (char *filename)
 
 /* ------------------------------------------------------------------------------------------ */
 void
-ReportError (char *filename, error_t errnum)
+ReportError (char *filename, int lineno, error_t errnum)
 {
     char  errstr[256], errflnmstr[128];
     char  *errline = NULL;
@@ -168,8 +224,13 @@ ReportError (char *filename, error_t errnum)
     if (filename != NULL) {
         sprintf (errflnmstr,"In file '%s', ", filename);
     }
-
     strcpy(errstr, errflnmstr);
+
+    if (lineno > 0) {
+        sprintf (errflnmstr,", at line %d, ", lineno);
+        strcat(errstr, errflnmstr);
+    }
+
     strcat(errstr, errmsg[errnum]);
 
     switch(errnum) {
@@ -183,40 +244,6 @@ ReportError (char *filename, error_t errnum)
     }
 
     ++totalerrors;
-}
-
-
-/* ------------------------------------------------------------------------------------------
-    char *AdjustPlatformFilename(char *filename)
-
-    Adjust filename to use the platform specific directory specifier, which is defined as
-    DIRSEP. Adjusting the filename at runtime enables the freedom to not worry
-    about paths in filenames when porting Z80 projects to Windows or Unix platforms.
-
-    Example: if a filename contains a '/' (Unix directory separator) it will be converted
-    to a '\' if mpm currently is compiling on Windows (or Dos).
-
-    Returns:
-    same pointer as argument (beginning of filename)
-   ------------------------------------------------------------------------------------------ */
-char *
-AdjustPlatformFilename(char *filename)
-{
-    char *flnmptr = filename;
-
-    if (filename == NULL) {
-        return NULL;
-    }
-
-    while(*flnmptr != '\0') {
-        if (*flnmptr == '/' || *flnmptr == '\\') {
-            *flnmptr = DIRSEP;
-        }
-
-        flnmptr++;
-    }
-
-    return filename;
 }
 
 
@@ -271,6 +298,880 @@ ReleaseTokenTable(tokentable_t *tkt)
 }
 
 
+/* ---------------------------------------------------------------------------
+   void FreeTextBuffers()
+
+   Release previously allocated dynamic memory for line and identifier buffers.
+   --------------------------------------------------------------------------- */
+void FreeTextBuffers()
+{
+    if ( ident != NULL ) {
+        free(ident);
+        ident = NULL;
+    }
+
+    if ( line != NULL ) {
+        free(line);
+        line = NULL;
+    }
+}
+
+
+/* ---------------------------------------------------------------------------
+   int AllocateTextBuffers()
+
+   Allocate dynamic memory for line and identifier buffers.
+
+   Return 1 if allocated, or 0 if no room in system
+   --------------------------------------------------------------------------- */
+int AllocateTextBuffers()
+{
+    if ( (ident = (char *) AllocBuffer(MAX_NAME_SIZE+1)) == NULL ) {
+        ReportError (NULL, 0, Err_Memory);
+        return 0;
+    }
+
+    if ( (line = AllocBuffer(MAX_LINE_BUFFER_SIZE+1)) == NULL ) {
+        ReportError (NULL, 0, Err_Memory);
+        FreeTextBuffers();
+        return 0;
+    }
+
+    return 1;
+}
+
+
+/* ------------------------------------------------------------------------------------------
+    char *AdjustPlatformFilename(char *filename)
+
+    Adjust filename to use the platform specific directory specifier, which is defined as
+    DIRSEP. Adjusting the filename at runtime enables the freedom to not worry
+    about paths in filenames when porting Z80 projects to Windows or Unix platforms.
+
+    Example: if a filename contains a '/' (Unix directory separator) it will be converted
+    to a '\' if mpm currently is compiling on Windows (or Dos).
+
+    Returns:
+    same pointer as argument (beginning of filename)
+   ------------------------------------------------------------------------------------------ */
+char *
+AdjustPlatformFilename(char *filename)
+{
+    char *flnmptr = filename;
+
+    if (filename == NULL) {
+        return NULL;
+    }
+
+    while(*flnmptr != '\0') {
+        if (*flnmptr == '/' || *flnmptr == '\\') {
+            *flnmptr = DIRSEP;
+        }
+
+        flnmptr++;
+    }
+
+    return filename;
+}
+
+
+/* ------------------------------------------------------------------------------------------ */
+size_t
+LengthOfFile(char *filename)
+{
+    FILE *binfile;
+    size_t filesize = 0;
+
+    if ((binfile = fopen (AdjustPlatformFilename(filename), "rb")) == NULL) {
+        ReportIOError (filename);
+    } else {
+        fseek(binfile, 0L, SEEK_END); /* file pointer to end of file */
+        filesize = ftell(binfile);
+        fclose (binfile);
+    }
+
+    return filesize;
+}
+
+
+/* ------------------------------------------------------------------------------------------
+    unsigned char *LoadFile (char *tokenfilename)
+
+    Load (binary) file into allocated heap memory
+
+    Returns:
+    pointer to allocated memory, or NULL (if no space in system or file I/O)
+   ------------------------------------------------------------------------------------------ */
+unsigned char *
+LoadFile (char *filename)
+{
+    FILE *binfile;
+    size_t filesize = LengthOfFile(filename);
+    unsigned char *bufptr = NULL;
+
+    if (filesize > 0) {
+        binfile = fopen (AdjustPlatformFilename(filename), "rb");
+        bufptr = AllocBuffer(filesize);
+        if (bufptr == NULL) {
+            ReportError (NULL, 0, Err_Memory);
+        } else {
+            if (fread (bufptr, sizeof (char), filesize, binfile) != filesize) {    /* read binary code */
+                ReportError (filename, 0, Err_FileIO);
+                free(bufptr);
+                bufptr = NULL;
+            }
+        }
+
+        fclose (binfile);
+    }
+
+    return bufptr;
+}
+
+
+/* ----------------------------------------------------------------
+    int MfGetc(sourcefile_t *file)
+
+        Reads the character from current memory file pointer
+        (auto-increased) and returns it as an unsigned char cast
+        to an int, or EOF on end of file.
+   ---------------------------------------------------------------- */
+int
+MfGetc(sourcefile_t *file)
+{
+    int memchar;
+    long boundsize = file->memfileptr - file->filedata;
+
+    if (file == NULL) {
+        /* file not specified! */
+        return EOF;
+    } else {
+        if (file->filedata == NULL || file->eof == true) {
+            return EOF;
+        } else {
+            if ( (boundsize >= file->filesize) || (boundsize < 0) ) {
+                /* memory pointer protection: ensure bounds-check before accessing memory... */
+                file->eof = true;
+                return EOF;
+            } else {
+                memchar = *file->memfileptr++;
+
+                if ( (++boundsize) >= file->filesize) {
+                    /* signal EOF - last character was just returned */
+                    file->eof = true;
+                }
+            }
+        }
+    }
+
+    return memchar;
+}
+
+
+/* ----------------------------------------------------------------
+    void MfUngetc(sourcefile_t *file)
+
+        "Push back" character in memory file; simply step-back
+        the memory file pointer one character.
+
+        If character is successfully pushed-back, the end-of-file
+        indicator for the memory file stream is cleared.
+        The file-position indicator of <file> is also decremented.
+   ---------------------------------------------------------------- */
+void
+MfUngetc(sourcefile_t *file)
+{
+    if (file != NULL) {
+        if (file->filedata != NULL) {
+            if (file->memfileptr > file->filedata) {
+                /* decrease character file pointer in memory file */
+                file->memfileptr--;
+                file->eof = false;
+            }
+        }
+    }
+}
+
+
+/* ----------------------------------------------------------------
+    int MfEof(sourcefile_t *file)
+
+    returns
+        End of File status (EOF, otherwise 0) of memory file
+   ---------------------------------------------------------------- */
+int
+MfEof(sourcefile_t *file)
+{
+    if (file == NULL) {
+        /* file not specified! */
+        return EOF;
+    } else {
+        if (file->filedata == NULL || file->eof == true) {
+            return EOF;
+        } else {
+            return 0;
+        }
+    }
+}
+
+
+/* ---------------------------------------------------------------------------
+   Evaluate the current [ident] buffer for integer constant. The following
+   type specifiers are recognized:
+
+        0xhhh , $hhhh   hex constant
+        @bbbb           binary constant
+
+        constant is evaluated by default as decimal, if no type specifier is used.
+
+   The evaluated constant is returned as a long integer.
+
+   *evalerr byref argument is set to 0 when constant was successfully evaluated,
+   otherwise 1.
+   --------------------------------------------------------------------------- */
+long
+GetConstant (char *evalerr)
+{
+    short size;
+    char *temp = NULL;
+    long lv;
+
+    errno = 0;            /* reset global error number */
+    lv = 0;
+    *evalerr = 0;         /* preset evaluation return code to no errors */
+    size = strlen (ident);
+
+    if ((sym != hexconst) && (sym != binconst) && (sym != decmconst)) {
+        *evalerr = 1;
+        return lv;       /* syntax error - illegal constant definition */
+    }
+
+    if ( ident[0] == '0' && toupper(ident[1]) == 'X') {
+        /* fetch hex constant specified as 0x... */
+        lv = (long) strtoll((ident + 2), &temp, 16);
+        if (*temp != '\0' || errno == ERANGE) {
+            *evalerr = 1;
+        }
+
+        return lv; /* returns 0 on error */
+    }
+
+    if ( ident[0] == '0' && toupper(ident[1]) == 'B' && toupper(ident[size-1] == 'H')) {
+        /* fetch hex constant specified as 0b..H (truncate 'H' specifier) */
+        ident[size-1] = '\0';
+        lv = (long) strtoll(ident, &temp, 16);
+        if (*temp != '\0' || errno == ERANGE) {
+            *evalerr = 1;
+        }
+
+        return lv; /* returns 0 on error */
+    }
+
+    if ( ident[0] == '0' && toupper(ident[1]) == 'B' && toupper(ident[size-1] != 'H')) {
+        /* fetch binary constant specified as 0b... */
+        lv = (long) strtoll((ident + 2), &temp, 2);
+        if (*temp != '\0' || errno == ERANGE) {
+            *evalerr = 1;
+        }
+
+        return lv; /* returns 0 on error */
+    }
+
+    if (sym != decmconst) {
+        if ((--size) == 0) { /* adjust size of non decimal constants without leading type specifier */
+            *evalerr = 1;
+            return lv;     /* syntax error - no constant specified */
+        }
+    }
+
+    switch (ident[0]) {
+    case '@':
+        /* Binary integer are identified with leading @ */
+        lv = (long) strtoll((ident + 1), &temp, 2);
+        if (*temp != '\0' || errno == ERANGE) {
+            *evalerr = 1;
+        }
+
+        return lv; /* returns 0 on error */
+
+    case '$':
+        /* Hexadecimal integers may be specified with leading $ */
+        lv = (long) strtoll((ident + 1), &temp, 16);
+        if (*temp != '\0' || errno == ERANGE) {
+            *evalerr = 1;
+        }
+
+        return lv; /* returns 0 on error */
+
+        /* Parse default decimal integers */
+    default:
+        lv = (long) strtoll(ident, &temp, 10);
+        if (*temp != '\0' || errno == ERANGE) {
+            *evalerr = 1;
+        }
+
+        return lv; /* returns 0 on error */
+    }
+}
+
+
+/* ----------------------------------------------------------------
+    int GetChar (sourcefile_t *file)
+
+    Return a character from current (cached) memory file with
+    CR/LF/CRLF parsing capability.
+
+    Handles continuous line '\' marker (skip physical EOL)
+    and returns value of escape sequences (\n, \\, \r, \t, \a, \b, \f, \', \")
+
+    '\n' byte is returned if a CR/LF/CRLF variation line feed is found.
+   ---------------------------------------------------------------- */
+int
+__gcLf (sourcefile_t *file) {
+    int c = MfGetc (file);
+    if (c == 13) {
+        /* Mac line feed found, poll for MSDOS line feed */
+        if ( MfGetc (file) != 10) {
+            MfUngetc (file);  /* push non-line-feed character back into file */
+        }
+        c = '\n';    /* always return UNIX line feed for CR or CRLF */
+    }
+
+    return c;
+}
+
+
+void
+SkipLine (sourcefile_t *file)
+{
+    int c;
+
+    if (file->eol == false) {
+        while (!MfEof (file)) {
+
+            c = MfGetc (file);
+            if (c == 13) {
+                /* Mac line feed found, poll for MSDOS line feed */
+                c = MfGetc (file);
+                if (c != 10) {
+                    MfUngetc(file);  /* push non-line-feed character back into file */
+                }
+
+                c = '\n'; /* always return the symbolic '\n' for line feed */
+            } else if (c == 10) {
+                c = '\n';    /* UNIX line feed */
+            }
+
+            if ((c == '\n') || (c == EOF)) {
+                break;    /* get to beginning of next line... */
+            }
+            if ( c == '*' ) {
+                c = MfGetc (file);
+                if ( c == '/' ) {
+                    if (cstyle_comment == true) {
+                        cstyle_comment = false;
+                        return;
+                    }
+                } else {
+                    MfUngetc (file);    /* puch character back for next read */
+                }
+            }
+        }
+
+        file->eol = true;
+    }
+}
+
+
+int
+GetChar (sourcefile_t *file)
+{
+    int c = __gcLf(file);
+
+    /* continuous line or escape sequence? */
+    if ( c == '\\' ) {
+            c = __gcLf(file);
+
+            /* Also handle escape sequences, http://en.wikipedia.org/wiki/Escape_sequences_in_C  */
+            switch(c) {
+                case '\n':
+                    /* There was an EOL just after the \, return a space and update line counter */
+                    c = 0x20;
+                    file->eol = false;
+                    break;
+                case '\\':
+                    c = '\\'; /* interpret \\ as \ */
+                    break;
+                case 'n':
+                    c = 0x0a; /* interpret as Ascii Line feed */
+                    break;
+                case 'r':
+                    c = 0x0d; /* interpret as Ascii Carriage return */
+                    break;
+                case 't':
+                    c = 0x09; /* interpret as Ascii horisontal tab */
+                    break;
+                case 'a':
+                    c = 0x07; /* interpret as Ascii Alarm */
+                    break;
+                case 'b':
+                    c = 0x08; /* interpret as Ascii Backspace */
+                    break;
+                case 'f':
+                    c = 0x0c; /* interpret as Ascii Formfeed */
+                    break;
+                case '\'':
+                    c = '\''; /* ' */
+                    break;
+                case '\"':
+                    c = '\"'; /* " */
+                    break;
+                default:
+                    /* continuous line marker, skip until EOL */
+                    MfUngetc(file);
+                    SkipLine(file);
+                    if (file->eol == true) {
+                        file->eol = false;
+                    }
+            }
+    }
+
+    return c; /* return all other characters */
+}
+
+
+void
+CharToIdent(const char c, const int index)
+{
+    if (index <= MAX_NAME_SIZE) {
+        ident[index] = c;
+    }
+}
+
+
+/* ---------------------------------------------------------------------------
+    char *substr(char *s, char *find)
+
+    Compare no more than N characters of S1 and S2,
+    returning less than, equal to or greater than zero
+    if S1 is lexicographically less than, equal to or
+    greater than S2.
+
+    Original algorithm, Copyright GNU LIBC, adapted with toupper()
+   --------------------------------------------------------------------------- */
+int
+strnicmp (const char *s1, const char *s2, size_t n)
+{
+  unsigned char c1 = '\0';
+  unsigned char c2 = '\0';
+
+  if (n >= 4)
+    {
+      size_t n4 = n >> 2;
+      do
+      {
+        c1 = toupper((unsigned char) *s1++);
+        c2 = toupper((unsigned char) *s2++);
+        if (c1 == '\0' || c1 != c2)
+          return c1 - c2;
+        c1 = toupper((unsigned char) *s1++);
+        c2 = toupper((unsigned char) *s2++);
+        if (c1 == '\0' || c1 != c2)
+          return c1 - c2;
+        c1 = toupper((unsigned char) *s1++);
+        c2 = toupper((unsigned char) *s2++);
+        if (c1 == '\0' || c1 != c2)
+          return c1 - c2;
+        c1 = toupper((unsigned char) *s1++);
+        c2 = toupper((unsigned char) *s2++);
+        if (c1 == '\0' || c1 != c2)
+          return c1 - c2;
+      } while (--n4 > 0);
+      n &= 3;
+    }
+
+  while (n > 0)
+    {
+      c1 = toupper((unsigned char) *s1++);
+      c2 = toupper((unsigned char) *s2++);
+      if (c1 == '\0' || c1 != c2)
+        return c1 - c2;
+      n--;
+    }
+
+  return c1 - c2;
+}
+
+
+/* ------------------------------------------------------------------------------------------
+    int CheckBaseType(int chcount)
+
+    Identify Hex-, binary and decimal constants in [ident] of
+        $xxxx or 0x or xxxxH (hex format)
+        0Bxxxxx or xxxxB     (binary format)
+        xxxxD                (decimal format)
+
+        and
+
+    Identify assembler functions as $ (converted to $PC) or $name
+    (which is not a legal hex constant)
+   ------------------------------------------------------------------------------------------ */
+int
+CheckBaseType(int chcount)
+{
+    int   i;
+
+    if (ident[0] == '$') {
+        if (strlen(ident) > 1) {
+            for (i = 1; i < chcount; i++) {
+                if (isxdigit (ident[i]) == 0) {
+                    sym = asmfnname;
+                    return chcount;
+                }
+            }
+
+            sym = hexconst;
+            return chcount;
+        }
+    }
+
+    /* If it's not a hex digit straight off then reject it */
+    if ( !isxdigit(ident[0]) || chcount < 2 ) {
+        return chcount;
+    }
+
+    /* C style hex number */
+    if ( chcount > 2 && strnicmp(ident,"0x",2) == 0 ) {
+        /* 0x hex constants are evaluated by GetConstant() */
+        sym = hexconst;
+        return chcount;
+    }
+
+    /* C style hex number, ambiguous constant 0bxxxH! */
+    if ( chcount > 2 && strnicmp(ident,"0b",2) == 0 && ident[chcount-1] == 'H') {
+        /* hex constants are evaluated by GetConstant() */
+        sym = hexconst;
+        return chcount;
+    }
+
+    /* C style binary number */
+    if ( chcount > 2 && strnicmp(ident,"0b",2) == 0 ) {
+        /* 0b binary constants are evaluated by GetConstant() */
+        sym = binconst;
+        return chcount;
+    }
+
+    /* Check for this to be a hex constant here */
+    for ( i=0; i < chcount; i++ ) {
+        if ( !isxdigit(ident[i])  ) {
+            break;
+        }
+    }
+
+    if ( i == (chcount-1) ) {
+        /* Convert xxxxH hex constants to $xxxxx */
+        if ( toupper(ident[i]) == 'H' ) {
+            for ( i = (chcount-1); i >= 0 ; i-- ) {
+                ident[i+1] = ident[i];
+            }
+            ident[0] = '$';
+            sym = hexconst;
+            return chcount;
+        } else {
+            /* If we reached end of hex digits and the last one wasn't a 'h', then something is wrong */
+            return chcount;
+        }
+    }
+
+    /* Check for binary constant (ends in b) */
+    for ( i = 0; i <  chcount ; i++ ) {
+        if ( ident[i] != '0' && ident[i] != '1'  ) {
+            break;
+        }
+    }
+
+    if ( i == (chcount-1) && toupper(ident[i]) == 'B' ) {
+        /* Convert xxxxB binary constants to @xxxx constants */
+        for ( i = (chcount-1); i >= 0 ; i-- ) {
+            ident[i+1] = ident[i];
+        }
+        ident[0] = '@';
+        sym = binconst;
+        return chcount;
+    }
+
+    /* Check for decimal (we default to it in anycase.. but */
+    for ( i = 0; i <  chcount ; i++ ) {
+        if ( !isdigit(ident[i]) ) {
+            break;
+        }
+    }
+    if ( i == (chcount-1) && toupper(ident[i]) == 'D' ) {
+        sym = decmconst;
+        return chcount-1; /* chop off the 'D' trailing specifier for decimals */
+    }
+
+    /* No hex, binary or decimal base types were recognized, return without change */
+    return chcount;
+}
+
+
+enum symbols
+GetSym (sourcefile_t *file)
+{
+    char *instr;
+    int c, chcount = 0, endbracket = 0;
+    unsigned char *ptr;
+
+    ident[0] = '\0';
+
+    if (file->eol == true) {
+        sym = newline;
+        return sym;
+    }
+
+    for (;;) {
+        /* Ignore leading white spaces, if any... */
+        if (MfEof (file)) {
+            sym = newline;
+            file->eol = true;
+            return newline;
+        } else {
+            c = GetChar (file);
+            if ((c == '\n') || (c == EOF) || (c == '\x1A')) {
+                sym = newline;
+                file->eol = true;
+                return newline;
+            } else if (!isspace (c)) {
+                break;
+            }
+        }
+    }
+
+    instr = strchr (separators, c);
+    if (instr != NULL) {
+        sym = ssym[instr - separators]; /* index of found char in separators[] */
+        if (sym == semicolon) {
+            SkipLine (file);        /* ';' or '#', ignore comment line, prepare for next line */
+            sym = newline;
+        }
+
+        switch (sym) {
+        case multiply:
+            c = GetChar (file);
+            if (c == '*') {
+                sym = power;    /* '**' */
+            } else if (c == '/') {
+                /* c-style end-comment, continue parsing after this marker */
+                cstyle_comment = false;
+                GetSym(file);
+            } else {
+                /* push this character back for next read */
+                MfUngetc(file);
+            }
+            break;
+
+        case divi:         /* c-style comment begin */
+            c = GetChar (file);
+            if (c == '*') {
+                cstyle_comment = true;
+                SkipLine (file);    /* ignore comment block */
+                GetSym(file);
+            } else {
+                /* push this character back for next read */
+                MfUngetc(file);
+            }
+            break;
+
+        case less:         /* '<' */
+            c = GetChar (file);
+            switch (c) {
+            case '<':
+                sym = lshift;       /* '<<' */
+                break;
+
+            case '>':
+                sym = notequal;    /* '<>' */
+                break;
+
+            case '=':
+                sym = lessequal;       /* '<=' */
+                break;
+
+            default:
+                /* '<' was found, push this character back for next read */
+                MfUngetc(file);
+                break;
+            }
+            break;
+
+        case greater:          /* '>' */
+            c = GetChar (file);
+            switch (c) {
+            case '>':
+                sym = rshift;       /* '>>' */
+                break;
+
+            case '=':
+                sym = greatequal;      /* '>=' */
+                break;
+
+            default:
+                /* '>' was found, push this character back for next read */
+                MfUngetc(file);
+                break;
+            }
+            break;
+
+        default:
+            break;
+        }
+
+        if (cstyle_comment == true) {
+            SkipLine (file);
+            return GetSym(file);
+        } else {
+            return sym;
+        }
+    }
+
+    /* before going deeper into symbol parsing, check if we're in a c-style comment block... */
+    if (cstyle_comment == true) {
+        SkipLine (file);
+        return GetSym(file);
+    }
+
+    CharToIdent((char) toupper (c), chcount++);
+    switch (c) {
+    case '$':
+        sym = hexconst;
+        break;
+
+    case '@':
+        sym = binconst;
+        break;
+
+    case '_':                   /* leading '_' allowed for name definitions */
+        sym = name;
+        break;
+
+    case '#':
+        sym = name;
+        break;
+
+    default:
+        if (isdigit (c)) {
+            sym = decmconst;  /* a decimal number found */
+        } else {
+            if (isalpha (c)) {
+                sym = name;   /* an identifier found */
+            } else {
+                sym = nil;    /* rubbish ... */
+            }
+        }
+        break;
+    }
+
+    /* Read identifier until space or legal separator is found */
+    if (sym == name) {
+        for (;;) {
+            if (MfEof (file)) {
+                break;
+            } else {
+                c = GetChar (file);
+                if ((c != EOF) && (!iscntrl (c)) && (strchr (separators, c) == NULL)) {
+                    if (!isalnum (c)) {
+                        if (c != '_') {
+                            sym = nil;
+                            break;
+                        } else {
+                            /* underscore in identifier */
+                            CharToIdent('_', chcount++);
+                        }
+                    } else {
+                        CharToIdent((char) toupper (c), chcount++);
+                    }
+                } else {
+                    if ( c != ':' ) {
+                        MfUngetc(file);   /* puch character back for next read */
+                    } else {
+                        sym = colonlabel;
+                    }
+                    break;
+                }
+            }
+        }
+    } else {
+        for (;;) {
+            if (MfEof (file)) {
+                break;
+            } else {
+                c = GetChar (file);
+                if ((c != EOF) && !iscntrl (c) && (strchr (separators, c) == NULL)) {
+                    CharToIdent((char) toupper (c), chcount++);
+                } else {
+                    MfUngetc(file);   /* puch character back for next read */
+
+                    CharToIdent(0, chcount);
+                    /* validate if ident might be a number constant as with a trailing h, d or b */
+                    chcount = CheckBaseType(chcount);
+                    break;
+                }
+            }
+        }
+    }
+
+    ident[chcount] = '\0';
+    return sym;
+}
+
+
+void
+DEFM(sourcefile_t *file)
+{
+    long constant;
+
+    do {
+        if (GetSym (file) == dquote) {
+            while (!MfEof (file)) {
+
+                constant = GetChar (file);
+                if (constant == EOF) {
+                    sym = newline;
+                    file->eol = true;
+                    ReportError (file->fname, file->lineno, Err_Syntax);
+                    return;
+                } else {
+                    if (constant != '\"') {
+                        *codeptr++ = (unsigned char) constant;
+                    } else {
+                        GetSym (file);
+
+                        if (sym != strconq && sym != comma && sym != newline && sym != semicolon) {
+                            ReportError (file->fname, file->lineno, Err_Syntax);
+                            return;
+                        }
+                        break;    /* get out of loop */
+                    }
+                }
+            }
+        } else {
+
+            /*
+            if (!ExprUnsigned8 (bytepos)) {
+                break;    syntax error - get next line from file...
+            }
+            */
+
+            if (sym != strconq && sym != comma && sym != newline && sym != semicolon) {
+                ReportError (file->fname, file->lineno, Err_Syntax);   /* expression separator not found */
+                break;
+            }
+        }
+    } while (sym != newline && sym != semicolon);
+}
+
+
 void
 ListString(unsigned char *str, int len)
 {
@@ -314,7 +1215,7 @@ AllocRawToken(tokentable_t *tkt, int tkid)
     }
 
     if (rawtoken == NULL) {
-        ReportError (NULL, Err_Memory);
+        ReportError (NULL, 0, Err_Memory);
     }
 
     return rawtoken;
@@ -380,66 +1281,12 @@ AllocTokenInstance(tokentable_t *tkt, int tkid)
     token_t *token = NULL;;
 
     if (tkid > (tkt->totaltokens-1)) {
-        ReportError (NULL, Err_TokenNotFound);
+        ReportError (NULL, 0, Err_TokenNotFound);
     } else {
         token = AllocExpandedToken(tkt, tkid);
     }
 
     return token;
-}
-
-
-/* ------------------------------------------------------------------------------------------ */
-size_t
-LengthOfFile(char *filename)
-{
-    FILE *binfile;
-    size_t filesize = 0;
-
-    if ((binfile = fopen (AdjustPlatformFilename(filename), "rb")) == NULL) {
-        ReportIOError (filename);
-    } else {
-        fseek(binfile, 0L, SEEK_END); /* file pointer to end of file */
-        filesize = ftell(binfile);
-        fclose (binfile);
-    }
-
-    return filesize;
-}
-
-
-/* ------------------------------------------------------------------------------------------
-    unsigned char *LoadFile (char *tokenfilename)
-
-    Load (binary) file into allocated heap memory
-
-    Returns:
-    pointer to allocated memory, or NULL (if no space in system or file I/O)
-   ------------------------------------------------------------------------------------------ */
-unsigned char *
-LoadFile (char *filename)
-{
-    FILE *binfile;
-    size_t filesize = LengthOfFile(filename);
-    unsigned char *bufptr = NULL;
-
-    if (filesize > 0) {
-        binfile = fopen (AdjustPlatformFilename(filename), "rb");
-        bufptr = AllocBuffer(filesize);
-        if (bufptr == NULL) {
-            ReportError (NULL, Err_Memory);
-        } else {
-            if (fread (bufptr, sizeof (char), filesize, binfile) != filesize) {    /* read binary code */
-                ReportError (filename, Err_FileIO);
-                free(bufptr);
-                bufptr = NULL;
-            }
-        }
-
-        fclose (binfile);
-    }
-
-    return bufptr;
 }
 
 
@@ -463,7 +1310,7 @@ LoadTokenTable (char *filename)
 
     if (tktsize < 5 || tktsize > 16384) {
         /* no offsets available, or too big (bank boundary is crossed) */
-        ReportError(filename, Err_NoTokenTable);
+        ReportError(filename, 0, Err_NoTokenTable);
         return NULL;
     }
 
@@ -477,7 +1324,7 @@ LoadTokenTable (char *filename)
     totaltokens = tokentablefile[1];
     if ( recursivetokenboundary > 128 || totaltokens > 128) {
         /* recursive token number and total tokens cannot be > 128 */
-        ReportError(filename, Err_NoTokenTable);
+        ReportError(filename, 0, Err_NoTokenTable);
         free(tokentablefile);
         return NULL;
     }
@@ -491,7 +1338,7 @@ LoadTokenTable (char *filename)
         nexttokenoffset = nexttokenptr[0] + nexttokenptr[1]*256;
         if ( (tokenoffset > tktsize) || (nexttokenoffset > tktsize) ) {
             /*  one of the offsets points beyond the end of the token table binary block size! */
-            ReportError(filename, Err_NoTokenTable);
+            ReportError(filename, 0, Err_NoTokenTable);
             free(tokentablefile);
             return NULL;
         }
@@ -502,7 +1349,7 @@ LoadTokenTable (char *filename)
 
     tokentable = AllocTokenTable();
     if ( tokentable == NULL ) {
-        ReportError(filename, Err_NoTokenTable);
+        ReportError(filename, 0, Err_NoTokenTable);
         free(tokentablefile);
     } else {
         tokentable->recursivetokenboundary = recursivetokenboundary;
@@ -623,15 +1470,20 @@ ProcessCommandline(int argc, char *argv[])
     MthToken command line entry
 
     Returns:
-        0, text file tokenized
+        0, text file tokenized and sent to stdout
         1, an error occurred during tokenization
    ------------------------------------------------------------------------------------------ */
 int
 main(int argc, char *argv[])
 {
-    if (ProcessCommandline(argc, argv) == true) {
-        return 0; // mission completed..
+    int status = 1; /* default as error status */
+
+    if ( AllocateTextBuffers() ) {
+        if (ProcessCommandline(argc, argv) == true) {
+            FreeTextBuffers();
+            status = 0; // mission completed..
+        }
     }
-    else
-        return 1; // signal error to command line
+
+    return status;
 }
