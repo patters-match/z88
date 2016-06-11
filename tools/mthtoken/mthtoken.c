@@ -228,7 +228,7 @@ ReportError (char *filename, int lineno, error_t errnum)
     strcpy(errstr, errflnmstr);
 
     if (lineno > 0) {
-        sprintf (errflnmstr,", at line %d, ", lineno);
+        sprintf (errflnmstr,"at line %d, ", lineno);
         strcat(errstr, errflnmstr);
     }
 
@@ -660,6 +660,28 @@ Newfile (sourcefile_t *curfile, char *fname)
         return curfile;
     } else {
         return Setfile (curfile, nfile, fname);
+    }
+}
+
+
+/* ----------------------------------------------------------------
+    int MfTell(sourcefile_t *file)
+
+    returns
+        The current file pointer of memory file
+   ---------------------------------------------------------------- */
+unsigned char *
+MfTell(sourcefile_t *file)
+{
+    if (file == NULL) {
+        /* file not specified! */
+        return NULL;
+    } else {
+        if (file->filedata == NULL) {
+            return NULL;
+        } else {
+            return file->memfileptr;
+        }
     }
 }
 
@@ -1362,9 +1384,10 @@ GetSym (sourcefile_t *file)
 
 
 void
-DEFM(sourcefile_t *file)
+defm(sourcefile_t *file)
 {
     long constant;
+    char evalerr;
 
     do {
         if (GetSym (file) == dquote) {
@@ -1392,11 +1415,13 @@ DEFM(sourcefile_t *file)
             }
         } else {
 
-            /*
-            if (!ExprUnsigned8 (bytepos)) {
-                break;    syntax error - get next line from file...
+            constant = GetConstant(&evalerr);
+            if (evalerr == 0) {
+                *codeptr++ = (unsigned char) constant;
+                GetSym (file);
+            } else {
+                ReportError (file->fname, file->lineno, Err_Syntax);   /* expression separator not found */
             }
-            */
 
             if (sym != strconq && sym != comma && sym != newline && sym != semicolon) {
                 ReportError (file->fname, file->lineno, Err_Syntax);   /* expression separator not found */
@@ -1404,6 +1429,56 @@ DEFM(sourcefile_t *file)
             }
         }
     } while (sym != newline && sym != semicolon);
+}
+
+
+void
+ParseLine (sourcefile_t *asmfile, bool interpret)
+{
+    line[0] = '\0';     /* preset line buffer to being empty */
+    codeptr = line;     /* prepare the pointer that collects fetched charecters from DEFM directive */
+
+    asmfile->lineptr = MfTell (asmfile); /* preserve the beginning of the current line, for reference */
+    ++asmfile->lineno;
+
+    asmfile->eol = false; /* reset END OF LINE flag */
+    GetSym (asmfile);     /* and fetch first symbol on line */
+
+    switch (sym) {
+        case name:
+            /* only DEFM is recognized... */
+            if (strcmp(ident, "DEFM") == 0) {
+                defm(asmfile);
+                SkipLine (asmfile);
+            } else {
+                ReportError (asmfile->fname, asmfile->lineno, Err_Syntax);
+            }
+            break;
+
+        case newline:
+            break;        /* empty line, get next... */
+
+        default:
+            if ( interpret == true ) { /* only report error if line parsing is enabled */
+                ReportError (asmfile->fname, asmfile->lineno, Err_Syntax);
+            }
+    }
+}
+
+
+bool
+ParseAsmTextFile (sourcefile_t *asmfile)
+{
+    while (!MfEof (asmfile)) {
+        ParseLine (asmfile, true);
+
+        /* If errors, return immediatly... */
+        if (totalerrors > 0) {
+            return false;
+        }
+    }
+
+    return true;
 }
 
 
@@ -1695,7 +1770,7 @@ ProcessCommandline(int argc, char *argv[])
                     if (CacheFile (asmfile, fd) != NULL) {
                         /* source code successfully loaded, start tokenizing... */
                         fprintf(stderr,"Tokenize '%s' text file...\n", argv[argidx]);
-
+                        processedStatus = ParseAsmTextFile (asmfile);
                         ReleaseFile(asmfile);
                     } else {
                         /* problems caching the file... */
