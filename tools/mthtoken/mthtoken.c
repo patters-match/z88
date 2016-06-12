@@ -121,9 +121,9 @@ typedef enum {
     Err_SymNotDefined,              /* 2,  "symbol not defined" */
     Err_Memory,                     /* 3,  "Not enough memory" */
     Err_IntegerRange,               /* 4,  "Integer out of range" */
-    Err_ExprSyntax,                 /* 5,  "Syntax error in expression" */
+    Err_ConstSyntax,                /* 5,  "Syntax error in constant" */
     Err_ExprBracket,                /* 6,  "Right bracket missing" */
-    Err_ExprOutOfRange,             /* 7,  "Out of range" */
+    Err_ConstOutOfRange,            /* 7,  "Constant Out of range" */
     Err_SrcfileMissing,             /* 8,  "Source filename missing" */
     Err_IllegalOption,              /* 9,  "Illegal option" */
     Err_UnknownIdent,               /* 10, "Unknown identifier" */
@@ -176,9 +176,9 @@ char *errmsg[] = {
     "symbol not defined",
     "Not enough memory",
     "Integer out of range",
-    "Syntax error in expression",
+    "Syntax error in constant",
     "Right bracket missing",
-    "Expression out of range",
+    "Constant out of range",
     "Source filename missing",
     "Illegal option",
     "Unknown identifier",
@@ -1417,10 +1417,14 @@ defm(sourcefile_t *file)
 
             constant = GetConstant(&evalerr);
             if (evalerr == 0) {
-                *codeptr++ = (unsigned char) constant;
+                if ( (constant >= 0) && (constant <= 255) ) {
+                    *codeptr++ = (unsigned char) constant;
+                } else {
+                    ReportError (file->fname, file->lineno, Err_ConstOutOfRange);   /* out of range */
+                }
                 GetSym (file);
             } else {
-                ReportError (file->fname, file->lineno, Err_Syntax);   /* expression separator not found */
+                ReportError (file->fname, file->lineno, Err_ConstOutOfRange);   /* the constant was not evaluable */
             }
 
             if (sym != strconq && sym != comma && sym != newline && sym != semicolon) {
@@ -1446,22 +1450,15 @@ ParseLine (sourcefile_t *asmfile, bool interpret)
 
     switch (sym) {
         case name:
-            /* only DEFM is recognized... */
+            /* only DEFM directive is identified and parsed... */
             if (strcmp(ident, "DEFM") == 0) {
                 defm(asmfile);
-                SkipLine (asmfile);
-            } else {
-                ReportError (asmfile->fname, asmfile->lineno, Err_Syntax);
             }
-            break;
-
-        case newline:
-            break;        /* empty line, get next... */
 
         default:
-            if ( interpret == true ) { /* only report error if line parsing is enabled */
-                ReportError (asmfile->fname, asmfile->lineno, Err_Syntax);
-            }
+            /* ignore other constructs of source line... get next line */
+            SkipLine (asmfile);
+            break;
     }
 }
 
