@@ -1480,16 +1480,43 @@ ParseAsmTextFile (sourcefile_t *asmfile)
 
 
 void
-ListString(unsigned char *str, int len)
+OutputString(unsigned char *str, int len)
 {
     int l;
+    bool ascii=false, hex=false;
 
     for (l=0; l<len; l++) {
         if (str[l] < 32 || str[l] >= 127) {
+            if (ascii == true) {
+                ascii = false;
+                /* terminate Ascii string, before outputting the hex constant */
+                fprintf(stdout,"\",");
+            }
+            if (hex == true) {
+                /* a hex byte was previously written, separate with comma for this one */
+                fprintf(stdout,",");
+            }
+
+            hex = true;
             fprintf(stdout,"$%02X", str[l]);
         } else {
+            if (hex == true) {
+                hex = false;
+                /* a hex byte was prev. output, prepare for Ascii string, before outputting the char(s) */
+                fprintf(stdout,",\"");
+            } else if (ascii == false) {
+                /* a hex byte was previously written or this is first byte of string */
+                fprintf(stdout,"\"");
+            }
+
+            ascii = true;
             fputc(str[l],stdout);
         }
+    }
+
+    if (ascii == true) {
+        /* terminate ascii string */
+        fprintf(stdout,"\"");
     }
 }
 
@@ -1681,10 +1708,10 @@ ListExpandedTokens(tokentable_t *tkt)
 
         if (rawtoken != NULL && exptoken != NULL) {
             fprintf(stdout,"Token $%02X (Length %d) = ", exptoken->id, exptoken->len);
-            ListString(exptoken->str, exptoken->len);
+            OutputString(exptoken->str, exptoken->len);
             if (exptoken->len > rawtoken->len) {
-                fprintf(stdout," (original token, length = %d, ", rawtoken->len);
-                ListString(rawtoken->str, rawtoken->len);
+                fprintf(stdout," (original token, length = %d: ", rawtoken->len);
+                OutputString(rawtoken->str, rawtoken->len);
                 fputc(')',stdout);
             }
 
