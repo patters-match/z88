@@ -1783,7 +1783,7 @@ ProcessCommandline(int argc, char *argv[])
             }
         } else {
             /* just output the token table to stdout */
-            puts("Contents of Token Table:");
+            fprintf(stderr,"Contents of Token Table:\n");
             ListExpandedTokens(tokentable);
         }
 
@@ -1810,10 +1810,10 @@ main(int argc, char *argv[])
 
     if ( AllocateTextBuffers() ) {
         if (ProcessCommandline(argc, argv) == true) {
-            FreeTextBuffers();
             status = 0; // mission completed..
         }
     }
+    FreeTextBuffers();
 
     return status;
 }
