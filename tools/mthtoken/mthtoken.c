@@ -85,63 +85,75 @@ struct usedfile     {
 
 typedef
 struct sourcefile   {
-    struct sourcefile  *prevsourcefile;   /* pointer to previously parsed source file */
-    struct sourcefile  *newsourcefile;    /* pointer to new source file to be parsed */
-    usedsrcfile_t      *usedsourcefile;   /* list of pointers to used files owned by this file */
-    unsigned char      *lineptr;          /* pointer to beginning of current line being parsed */
-    int                lineno;            /* current line number of current source file */
-    char               *fname;            /* pointer to file name of current source file */
-    FILE               *stream;           /* stream handle of opened file (optional) */
-    long               filesize;          /* size of file in bytes */
-    unsigned char      *filedata;         /* pointer to complete copy of file content */
-    unsigned char      *memfileptr;       /* pointer to current character in memory file */
-    bool               eol;               /* indicate if End Of Line has been reached */
-    bool               eof;               /* indicate if End Of File has been reached */
-    bool               includedfile;      /* if this is an INCLUDE'd file or not */
+    struct sourcefile  *prevsourcefile;     /* pointer to previously parsed source file */
+    struct sourcefile  *newsourcefile;      /* pointer to new source file to be parsed */
+    usedsrcfile_t      *usedsourcefile;     /* list of pointers to used files owned by this file */
+    unsigned char      *lineptr;            /* pointer to beginning of current line being parsed */
+    int                lineno;              /* current line number of current source file */
+    char               *fname;              /* pointer to file name of current source file */
+    FILE               *stream;             /* stream handle of opened file (optional) */
+    long               filesize;            /* size of file in bytes */
+    unsigned char      *filedata;           /* pointer to complete copy of file content */
+    unsigned char      *memfileptr;         /* pointer to current character in memory file */
+    bool               eol;                 /* indicate if End Of Line has been reached */
+    bool               eof;                 /* indicate if End Of File has been reached */
+    bool               includedfile;        /* if this is an INCLUDE'd file or not */
 } sourcefile_t;
 
+typedef
+struct defm {
+    int len;                                /* length of DEFM string */
+    unsigned char *str;                     /* pointer to DEFM string */
+    struct defm   *nextline;                /* pointer to next line */
+} defm_t;
+
+typedef
+struct sourcelines     {
+    defm_t              *firstline;         /* header of list of DEFM lines */
+    defm_t              *currentline;       /* point at current DEFM line */
+} sourcelines_t;
 
 typedef
 struct token {
-    int id;                         /* 0x80 - 0xFF */
-    int len;                        /* length of token string */
-    unsigned char *str;             /* pointer to token string */
+    int id;                                 /* 0x80 - 0xFF */
+    int len;                                /* length of token string */
+    unsigned char *str;                     /* pointer to token string */
 } token_t;
 
 typedef
 struct tokentable {
     int recursivetokenboundary;
-    int totaltokens;                /* total tokens in table */
-    unsigned char *tokens;          /* the raw token table */
+    int totaltokens;                        /* total tokens in table */
+    unsigned char *tokens;                  /* the raw token table */
 } tokentable_t;
 
 typedef enum {
-    Err_FileIO,                     /* 0,  "File open/read error" */
-    Err_Syntax,                     /* 1,  "Syntax error" */
-    Err_SymNotDefined,              /* 2,  "symbol not defined" */
-    Err_Memory,                     /* 3,  "Not enough memory" */
-    Err_IntegerRange,               /* 4,  "Integer out of range" */
-    Err_ConstSyntax,                /* 5,  "Syntax error in constant" */
-    Err_ExprBracket,                /* 6,  "Right bracket missing" */
-    Err_ConstOutOfRange,            /* 7,  "Constant Out of range" */
-    Err_SrcfileMissing,             /* 8,  "Source filename missing" */
-    Err_IllegalOption,              /* 9,  "Illegal option" */
-    Err_UnknownIdent,               /* 10, "Unknown identifier" */
-    Err_IllegalIdent,               /* 11, "Illegal label/identifier" */
-    Err_NoTokenTable,               /* 12, "Token table structure not recognized" */
-    Err_Status,                     /* 13, "errors occurred during processing" */
-    Err_TokenNotFound,              /* 14, "Token ID not available" */
-    Err_SymDeclLocal,               /* 18, "symbol already declared local" */
-    Err_SymDeclGlobal,              /* 19, "symbol already declared global" */
-    Err_SymDeclExtern,              /* 20, "symbol already declared external" */
-    Err_NoArguments,                /* 21, "No command line arguments" */
-    Err_IllegalSrcfile,             /* 22, "Illegal source filename" */
-    Err_SymDeclGlobalModule,        /* 23, "symbol declared global in another module" */
-    Err_SymRedeclaration,           /* 24, "Re-declaration not allowed" */
-    Err_SymResvName,                /* 28, "Reserved name" */
-    Err_EnvVariable,                /* 31, "Environment variable not defined" */
-    Err_IncludeFile,                /* 32, "Cannot include file recursively" */
-    Err_ExprTooBig,                 /* 34, "Expression > 255 characters" */
+    Err_FileIO,                             /* 0,  "File open/read error" */
+    Err_Syntax,                             /* 1,  "Syntax error" */
+    Err_SymNotDefined,                      /* 2,  "symbol not defined" */
+    Err_Memory,                             /* 3,  "Not enough memory" */
+    Err_IntegerRange,                       /* 4,  "Integer out of range" */
+    Err_ConstSyntax,                        /* 5,  "Syntax error in constant" */
+    Err_ExprBracket,                        /* 6,  "Right bracket missing" */
+    Err_ConstOutOfRange,                    /* 7,  "Constant Out of range" */
+    Err_SrcfileMissing,                     /* 8,  "Source filename missing" */
+    Err_IllegalOption,                      /* 9,  "Illegal option" */
+    Err_UnknownIdent,                       /* 10, "Unknown identifier" */
+    Err_IllegalIdent,                       /* 11, "Illegal label/identifier" */
+    Err_NoTokenTable,                       /* 12, "Token table structure not recognized" */
+    Err_Status,                             /* 13, "errors occurred during processing" */
+    Err_TokenNotFound,                      /* 14, "Token ID not available" */
+    Err_SymDeclLocal,                       /* 18, "symbol already declared local" */
+    Err_SymDeclGlobal,                      /* 19, "symbol already declared global" */
+    Err_SymDeclExtern,                      /* 20, "symbol already declared external" */
+    Err_NoArguments,                        /* 21, "No command line arguments" */
+    Err_IllegalSrcfile,                     /* 22, "Illegal source filename" */
+    Err_SymDeclGlobalModule,                /* 23, "symbol declared global in another module" */
+    Err_SymRedeclaration,                   /* 24, "Re-declaration not allowed" */
+    Err_SymResvName,                        /* 28, "Reserved name" */
+    Err_EnvVariable,                        /* 31, "Environment variable not defined" */
+    Err_IncludeFile,                        /* 32, "Cannot include file recursively" */
+    Err_ExprTooBig,                         /* 34, "Expression > 255 characters" */
     Err_totalMessages
 } error_t;
 
@@ -162,10 +174,11 @@ enum symbols sym, ssym[] = {
 const char copyrightmsg[] = "MthToken V0.1";
 const char separators[] = " &\"\';,.({[\\]})+-*/%^=|:~<>!#";
 
-/* Global text buffers, allocated by AllocateTextBuffers() during startup of Mpm */
+/* Global text buffers and data structures, allocated by AllocateTextFileStructures() during startup of MthToken */
 char *ident = NULL;
 unsigned char *line = NULL;
 unsigned char *codeptr = NULL;
+sourcelines_t *sourcelines = NULL;
 
 int totalerrors = 0, errornumber;
 bool cstyle_comment = false;
@@ -271,6 +284,7 @@ AllocTokenTable(void)
 }
 
 
+/* ------------------------------------------------------------------------------------------ */
 sourcefile_t *
 AllocFile (void)
 {
@@ -306,12 +320,111 @@ ReleaseTokenTable(tokentable_t *tkt)
 }
 
 
-/* ---------------------------------------------------------------------------
-   void FreeTextBuffers()
+/* ------------------------------------------------------------------------------------------ */
+void
+ReleaseSourceLine (defm_t *srcline)
+{
+    if (srcline == NULL) {
+        return;
+    } else {
+        if (srcline->str != NULL) {
+            free (srcline->str);
+        }
 
-   Release previously allocated dynamic memory for line and identifier buffers.
+        free (srcline);
+    }
+}
+
+
+/* ------------------------------------------------------------------------------------------ */
+void
+ReleaseSourceLines (sourcelines_t *srclines)
+{
+    defm_t *tmpline, *curline;
+
+    curline = srclines->firstline;
+    while (curline != NULL) {
+        tmpline = curline->nextline;
+        ReleaseSourceLine (curline);
+        curline = tmpline;
+    }
+
+    free (srclines);
+}
+
+
+/* ------------------------------------------------------------------------------------------ */
+sourcelines_t *
+AllocSourceLineHdr (void)
+{
+    return (sourcelines_t *) malloc (sizeof (sourcelines_t));
+}
+
+
+/* ------------------------------------------------------------------------------------------ */
+defm_t *
+AllocSourceLine (void)
+{
+    return (defm_t *) malloc (sizeof (defm_t));
+}
+
+
+/* ------------------------------------------------------------------------------------------
+    void AddSourceLine(defm_t *srcline)
+
+    Add (append) a source line to the linked list of source code lines. Adjust
+    the pointer to the first node and current (end of list) when necessary.
+
+    The linked list contains all found DEFM entries in parsed source code file
+   ------------------------------------------------------------------------------------------ */
+void
+AddSourceLine(defm_t *srcline)
+{
+    if (sourcelines->firstline == NULL) {
+        sourcelines->firstline = srcline;
+        sourcelines->currentline = srcline;              /* header points at first source line */
+    } else {
+        sourcelines->currentline->nextline = srcline;    /* Current node points to new source line node */
+        sourcelines->currentline = srcline;              /* Pointer to current source line node updated */
+    }
+}
+
+
+/* ------------------------------------------------------------------------------------------
+    defm_t *srcline CopySourceLine(unsigned char *linebuf, int length)
+
+    Copy the current parsed DEFM source line from the buffer to a dynamically allocated line.
+    Returns NULL if heap memory allocation failed.
+   ------------------------------------------------------------------------------------------ */
+defm_t *
+CopySourceLine(unsigned char *linebuf, int length)
+{
+    defm_t *srcline = AllocSourceLine();
+
+    if (srcline != NULL) {
+        srcline->len = length;
+        srcline->str = AllocBuffer(length);
+        srcline->nextline = NULL;
+
+        if (srcline->str != NULL) {
+            memcpy(srcline->str, linebuf, length);
+        } else {
+            ReportError (NULL, 0, Err_Memory);
+            ReleaseSourceLine(srcline);
+            srcline = NULL;
+        }
+    }
+
+    return srcline;
+}
+
+
+/* ---------------------------------------------------------------------------
+   void FreeTextFileStructures()
+
+   Release previously allocated dynamic memory for source file structures
    --------------------------------------------------------------------------- */
-void FreeTextBuffers()
+void FreeTextFileStructures()
 {
     if ( ident != NULL ) {
         free(ident);
@@ -322,17 +435,22 @@ void FreeTextBuffers()
         free(line);
         line = NULL;
     }
+
+    if (sourcelines != NULL) {
+        ReleaseSourceLines(sourcelines);
+        sourcelines = NULL;
+    }
 }
 
 
 /* ---------------------------------------------------------------------------
-   int AllocateTextBuffers()
+   int AllocateTextFileStructures()
 
-   Allocate dynamic memory for line and identifier buffers.
+   Allocate dynamic memory for line, identifier buffers and source file structures.
 
    Return 1 if allocated, or 0 if no room in system
    --------------------------------------------------------------------------- */
-int AllocateTextBuffers()
+int AllocateTextFileStructures()
 {
     if ( (ident = (char *) AllocBuffer(MAX_NAME_SIZE+1)) == NULL ) {
         ReportError (NULL, 0, Err_Memory);
@@ -341,7 +459,16 @@ int AllocateTextBuffers()
 
     if ( (line = AllocBuffer(MAX_LINE_BUFFER_SIZE+1)) == NULL ) {
         ReportError (NULL, 0, Err_Memory);
-        FreeTextBuffers();
+        FreeTextFileStructures();
+        return 0;
+    }
+
+    if ((sourcelines = AllocSourceLineHdr()) != NULL) {
+        sourcelines->firstline = NULL;
+        sourcelines->currentline = NULL;
+    } else {
+        ReportError (NULL, 0, Err_Memory);
+        FreeTextFileStructures();
         return 0;
     }
 
@@ -464,6 +591,8 @@ ReleaseFileData (sourcefile_t *srcfile)
     }
 }
 
+
+/* ------------------------------------------------------------------------------------------ */
 void ReleaseFile (sourcefile_t *srcfile);
 
 void
@@ -898,6 +1027,7 @@ __gcLf (sourcefile_t *file) {
 }
 
 
+/* ------------------------------------------------------------------------------------------ */
 void
 SkipLine (sourcefile_t *file)
 {
@@ -940,6 +1070,7 @@ SkipLine (sourcefile_t *file)
 }
 
 
+/* ------------------------------------------------------------------------------------------ */
 int
 GetChar (sourcefile_t *file)
 {
@@ -997,6 +1128,7 @@ GetChar (sourcefile_t *file)
 }
 
 
+/* ------------------------------------------------------------------------------------------ */
 void
 CharToIdent(const char c, const int index)
 {
@@ -1173,6 +1305,7 @@ CheckBaseType(int chcount)
 }
 
 
+/* ------------------------------------------------------------------------------------------ */
 enum symbols
 GetSym (sourcefile_t *file)
 {
@@ -1383,6 +1516,7 @@ GetSym (sourcefile_t *file)
 }
 
 
+/* ------------------------------------------------------------------------------------------ */
 void
 defm(sourcefile_t *file)
 {
@@ -1436,11 +1570,13 @@ defm(sourcefile_t *file)
 }
 
 
+/* ------------------------------------------------------------------------------------------ */
 void
 ParseLine (sourcefile_t *asmfile, bool interpret)
 {
     line[0] = '\0';     /* preset line buffer to being empty */
     codeptr = line;     /* prepare the pointer that collects fetched charecters from DEFM directive */
+    defm_t *newsrcline;
 
     asmfile->lineptr = MfTell (asmfile); /* preserve the beginning of the current line, for reference */
     ++asmfile->lineno;
@@ -1453,6 +1589,14 @@ ParseLine (sourcefile_t *asmfile, bool interpret)
             /* only DEFM directive is identified and parsed... */
             if (strcmp(ident, "DEFM") == 0) {
                 defm(asmfile);
+
+                if (totalerrors == 0) {
+                    /* DEFM directive successfully parsed, copy line and add to linked list of parsed source lines */
+                    newsrcline = CopySourceLine(line, codeptr-line);
+                    if (newsrcline != NULL) {
+                        AddSourceLine(newsrcline);
+                    }
+                }
             }
 
         default:
@@ -1463,6 +1607,7 @@ ParseLine (sourcefile_t *asmfile, bool interpret)
 }
 
 
+/* ------------------------------------------------------------------------------------------ */
 bool
 ParseAsmTextFile (sourcefile_t *asmfile)
 {
@@ -1479,6 +1624,7 @@ ParseAsmTextFile (sourcefile_t *asmfile)
 }
 
 
+/* ------------------------------------------------------------------------------------------ */
 void
 OutputString(unsigned char *str, int len)
 {
@@ -1505,7 +1651,7 @@ OutputString(unsigned char *str, int len)
                 /* a hex byte was prev. output, prepare for Ascii string, before outputting the char(s) */
                 fprintf(stdout,",\"");
             } else if (ascii == false) {
-                /* a hex byte was previously written or this is first byte of string */
+                /* this is first byte of output and it is part of a string */
                 fprintf(stdout,"\"");
             }
 
@@ -1517,6 +1663,22 @@ OutputString(unsigned char *str, int len)
     if (ascii == true) {
         /* terminate ascii string */
         fprintf(stdout,"\"");
+    }
+}
+
+
+/* ------------------------------------------------------------------------------------------ */
+void
+OutputTokenizedTextFile(void)
+{
+    defm_t *curline = sourcelines->firstline;;
+
+    while (curline != NULL) {
+        fprintf(stdout,"defm ");
+        OutputString(curline->str, curline->len);
+        fputc('\n',stdout);
+
+        curline = curline->nextline;
     }
 }
 
@@ -1795,6 +1957,10 @@ ProcessCommandline(int argc, char *argv[])
                         /* source code successfully loaded, start tokenizing... */
                         fprintf(stderr,"Tokenize '%s' text file...\n", argv[argidx]);
                         processedStatus = ParseAsmTextFile (asmfile);
+                        if (processedStatus == true) {
+                            OutputTokenizedTextFile();
+                        }
+
                         ReleaseFile(asmfile);
                     } else {
                         /* problems caching the file... */
@@ -1835,12 +2001,12 @@ main(int argc, char *argv[])
 {
     int status = 1; /* default as error status */
 
-    if ( AllocateTextBuffers() ) {
+    if ( AllocateTextFileStructures() ) {
         if (ProcessCommandline(argc, argv) == true) {
             status = 0; // mission completed..
         }
     }
-    FreeTextBuffers();
+    FreeTextFileStructures();
 
     return status;
 }
