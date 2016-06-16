@@ -1796,26 +1796,13 @@ InsertTokenId(defm_t *line, token_t *tk, unsigned char *position)
 {
     int lenRightStr = (line->str + line->len) - (position + tk->len);
 
-    /*
-    fprintf(stdout,"Right String, before: ");
-    OutputString(position, lenRightStr);
-    fputc('\n',stdout);
-    */
-
     *position = tk->id; /* apply token ID at first byte of found token text */
 
     /* left-shift rest of line next to token ID */
-
     memmove( position + 1, position + tk->len, lenRightStr);
 
     /* update total (reduced length of line) */
     line->len -= tk->len - 1;
-
-    /*
-    fprintf(stdout,"AFTER: ");
-    OutputString(line->str, line->len);
-    fputc('\n',stdout);
-    */
 }
 
 
