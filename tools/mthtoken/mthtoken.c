@@ -171,7 +171,7 @@ enum symbols sym, ssym[] = {
     assign, bin_or, bin_nor, bin_not,less, greater, log_not, cnstexpr
 };
 
-const char copyrightmsg[] = "MthToken V0.1";
+const char copyrightmsg[] = "MthToken V0.2";
 const char separators[] = " &\"\';,.({[\\]})+-*/%^=|:~<>!#";
 
 /* Global text buffers and data structures, allocated by AllocateTextFileStructures() during startup of MthToken */
@@ -1193,6 +1193,33 @@ strnicmp (const char *s1, const char *s2, size_t n)
 
 
 /* ------------------------------------------------------------------------------------------
+    unsigned char *MatchToken(defm_t *line, token_t *tk)
+
+    Try to match an expanded string token in the specified line (left to right scan)
+
+    Return pointer to first byte of string match in line, or NULL if not found.
+   ------------------------------------------------------------------------------------------ */
+unsigned char *
+MatchToken(defm_t *line, token_t *tk)
+{
+    int q = 0, c = 0;
+    int limit = line->len - tk->len;
+
+    while ( q < limit ) {
+        while ( line->str[q+c] == tk->str[c] ) {
+            if ( ++c == tk->len )
+                return line->str+q;
+        }
+
+        q += c+1;
+        c=0;
+    }
+
+    return NULL;
+}
+
+
+/* ------------------------------------------------------------------------------------------
     int CheckBaseType(int chcount)
 
     Identify Hex-, binary and decimal constants in [ident] of
@@ -1671,7 +1698,7 @@ OutputString(unsigned char *str, int len)
 void
 OutputTokenizedTextFile(void)
 {
-    defm_t *curline = sourcelines->firstline;;
+    defm_t *curline = sourcelines->firstline;
 
     while (curline != NULL) {
         fprintf(stdout,"defm ");
