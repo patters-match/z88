@@ -171,7 +171,7 @@ enum symbols sym, ssym[] = {
     assign, bin_or, bin_nor, bin_not,less, greater, log_not, cnstexpr
 };
 
-const char copyrightmsg[] = "MthToken V0.2";
+const char copyrightmsg[] = "MthToken V0.3";
 const char separators[] = " &\"\';,.({[\\]})+-*/%^=|:~<>!#";
 
 /* Global text buffers and data structures, allocated by AllocateTextFileStructures() during startup of MthToken */
@@ -1193,33 +1193,6 @@ strnicmp (const char *s1, const char *s2, size_t n)
 
 
 /* ------------------------------------------------------------------------------------------
-    unsigned char *MatchToken(defm_t *line, token_t *tk)
-
-    Try to match an expanded string token in the specified line (left to right scan)
-
-    Return pointer to first byte of string match in line, or NULL if not found.
-   ------------------------------------------------------------------------------------------ */
-unsigned char *
-MatchToken(defm_t *line, token_t *tk)
-{
-    int q = 0, c = 0;
-    int limit = line->len - tk->len;
-
-    while ( q < limit ) {
-        while ( line->str[q+c] == tk->str[c] ) {
-            if ( ++c == tk->len )
-                return line->str+q;
-        }
-
-        q += c+1;
-        c=0;
-    }
-
-    return NULL;
-}
-
-
-/* ------------------------------------------------------------------------------------------
     int CheckBaseType(int chcount)
 
     Identify Hex-, binary and decimal constants in [ident] of
@@ -1814,6 +1787,105 @@ AllocTokenInstance(tokentable_t *tkt, int tkid)
 
 
 /* ------------------------------------------------------------------------------------------
+    void InsertTokenId(defm_t *line, token_t *tk, unsigned char *position)
+
+    Replace expanded token text in line at <position> with token ID
+   ------------------------------------------------------------------------------------------ */
+void
+InsertTokenId(defm_t *line, token_t *tk, unsigned char *position)
+{
+    int lenRightStr = (line->str + line->len) - (position + tk->len);
+
+    /*
+    fprintf(stdout,"Right String, before: ");
+    OutputString(position, lenRightStr);
+    fputc('\n',stdout);
+    */
+
+    *position = tk->id; /* apply token ID at first byte of found token text */
+
+    /* left-shift rest of line next to token ID */
+
+    memmove( position + 1, position + tk->len, lenRightStr);
+
+    /* update total (reduced length of line) */
+    line->len -= tk->len - 1;
+
+    /*
+    fprintf(stdout,"AFTER: ");
+    OutputString(line->str, line->len);
+    fputc('\n',stdout);
+    */
+}
+
+
+/* ------------------------------------------------------------------------------------------
+    unsigned char *MatchToken(defm_t *line, token_t *tk)
+
+    Try to match an expanded string token in the specified line (left to right scan)
+
+    Return pointer to first byte of string match in line, or NULL if not found.
+   ------------------------------------------------------------------------------------------ */
+unsigned char *
+MatchToken(defm_t *line, token_t *tk)
+{
+    int q = 0, c = 0;
+    int limit = line->len - tk->len;
+
+    while ( q < limit ) {
+        while ( line->str[q+c] == tk->str[c] ) {
+            if ( ++c == tk->len )
+                return line->str+q;
+        }
+
+        q += c+1;
+        c=0;
+    }
+
+    return NULL;
+}
+
+
+/* ------------------------------------------------------------------------------------------ */
+void
+TokenizeLine(defm_t *line, token_t *tk)
+{
+    unsigned char *foundtoken;
+
+    while ( (foundtoken = MatchToken(line,tk)) ) {
+        /* expanded token string found in line, replace it with token ID */
+        InsertTokenId(line, tk, foundtoken);
+    }
+}
+
+
+/* ------------------------------------------------------------------------------------------
+    void TokenizeTextFile(tokentable_t *tkt)
+
+    Brute-force tokenize the text file with all tokens, sequentially from $80 onwards..
+   ------------------------------------------------------------------------------------------ */
+void
+TokenizeTextFile(tokentable_t *tkt)
+{
+    token_t *exptoken;
+    defm_t *curline;
+    int i;
+
+    for (i=0; i<tkt->totaltokens; i++) {
+        token_t *exptoken = AllocTokenInstance(tkt, i);
+        defm_t *curline = sourcelines->firstline;
+
+        while (curline != NULL) {
+            TokenizeLine(curline, exptoken);
+            curline = curline->nextline;
+        }
+
+        ReleaseToken(exptoken);
+    }
+}
+
+
+/* ------------------------------------------------------------------------------------------
     token_t **LoadTokenTable (char *filename)
 
     Load the specified token table binary into memory, validated.
@@ -1985,6 +2057,7 @@ ProcessCommandline(int argc, char *argv[])
                         fprintf(stderr,"Tokenize '%s' text file...\n", argv[argidx]);
                         processedStatus = ParseAsmTextFile (asmfile);
                         if (processedStatus == true) {
+                            TokenizeTextFile(tokentable);
                             OutputTokenizedTextFile();
                         }
 
