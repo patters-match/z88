@@ -2125,6 +2125,14 @@ ProcessCommandline(int argc, char *argv[])
         }
 
         if (argidx < argc) {
+            if (strcmp(argv[argidx],"-r") == 0) {
+                /* de-tokenize text option specified */
+                detokenize = true;
+                argidx++;
+            }
+        }
+
+        if (argidx < argc) {
             if (strcmp(argv[argidx],"-s") == 0) {
                 /* tokenize specified string, then exit. */
                 argidx++;
