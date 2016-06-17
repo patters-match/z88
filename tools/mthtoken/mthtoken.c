@@ -171,7 +171,7 @@ enum symbols sym, ssym[] = {
     assign, bin_or, bin_nor, bin_not,less, greater, log_not, cnstexpr
 };
 
-const char copyrightmsg[] = "MthToken V0.3";
+const char copyrightmsg[] = "MthToken V0.4";
 const char separators[] = " &\"\';,.({[\\]})+-*/%^=|:~<>!#";
 
 /* Global text buffers and data structures, allocated by AllocateTextFileStructures() during startup of MthToken */
@@ -1624,65 +1624,6 @@ ParseAsmTextFile (sourcefile_t *asmfile)
 }
 
 
-/* ------------------------------------------------------------------------------------------ */
-void
-OutputString(unsigned char *str, int len)
-{
-    int l;
-    bool ascii=false, hex=false;
-
-    for (l=0; l<len; l++) {
-        if (str[l] < 32 || str[l] >= 127) {
-            if (ascii == true) {
-                ascii = false;
-                /* terminate Ascii string, before outputting the hex constant */
-                fprintf(stdout,"\",");
-            }
-            if (hex == true) {
-                /* a hex byte was previously written, separate with comma for this one */
-                fprintf(stdout,",");
-            }
-
-            hex = true;
-            fprintf(stdout,"$%02X", str[l]);
-        } else {
-            if (hex == true) {
-                hex = false;
-                /* a hex byte was prev. output, prepare for Ascii string, before outputting the char(s) */
-                fprintf(stdout,",\"");
-            } else if (ascii == false) {
-                /* this is first byte of output and it is part of a string */
-                fprintf(stdout,"\"");
-            }
-
-            ascii = true;
-            fputc(str[l],stdout);
-        }
-    }
-
-    if (ascii == true) {
-        /* terminate ascii string */
-        fprintf(stdout,"\"");
-    }
-}
-
-
-/* ------------------------------------------------------------------------------------------ */
-void
-OutputTokenizedTextFile(void)
-{
-    defm_t *curline = sourcelines->firstline;
-
-    while (curline != NULL) {
-        fprintf(stdout,"defm ");
-        OutputString(curline->str, curline->len);
-        fputc('\n',stdout);
-
-        curline = curline->nextline;
-    }
-}
-
-
 /* ------------------------------------------------------------------------------------------
     token_t *AllocRawToken(tokentable_t *tkt, int tkid)
 
@@ -1783,6 +1724,142 @@ AllocTokenInstance(tokentable_t *tkt, int tkid)
     }
 
     return token;
+}
+
+
+/* ------------------------------------------------------------------------------------------
+    void OutputTokenizedString(unsigned char *str, int len, bool *ascii, bool *hex)
+
+    Output a string, also expanding tokens inline, reversing a tokenized string to "clear" text
+   ------------------------------------------------------------------------------------------ */
+void
+OutputTokenizedString(tokentable_t *tkt, unsigned char *str, int len, bool *ascii, bool *hex)
+{
+    int l;
+    token_t *exptoken;
+
+    for (l=0; l<len; l++) {
+        if ( (str[l] < 32) || (str[l] == 127) ) {
+            /* Display Ascii control character and MTH EOL as a hex constant */
+            if (*ascii == true) {
+                *ascii = false;
+                /* terminate Ascii string, before outputting the hex constant */
+                fprintf(stdout,"\",");
+            }
+            if (*hex == true) {
+                /* a hex byte was previously written, separate with comma for this one */
+                fprintf(stdout,",");
+            }
+
+            /* Display Ascii control character as hex constant */
+            *hex = true;
+            fprintf(stdout,"$%02X", str[l]);
+        } else if (str[l] > 127) {
+            /* token encountered, expand it inline, using current Ascii/Hex output settings */
+            exptoken = AllocTokenInstance(tkt, str[l]);
+            OutputTokenizedString(tkt, exptoken->str, exptoken->len, ascii, hex);
+            ReleaseToken(exptoken);
+        } else {
+            /* pure 7bit Ascii text... */
+            if (*ascii == false && *hex == false) {
+                fprintf(stdout,"\"");
+            }
+            if (*hex == true) {
+                /* a hex byte was previously written, separate with comma and start-of-string for this one */
+                fprintf(stdout,",\"");
+                *hex = false;
+            }
+
+            *ascii = true;
+            fputc(str[l],stdout);
+        }
+    }
+}
+
+
+/* ------------------------------------------------------------------------------------------ */
+void
+OutputRawString(unsigned char *str, int len)
+{
+    int l;
+    bool ascii=false, hex=false;
+
+    for (l=0; l<len; l++) {
+        if (str[l] < 32 || str[l] >= 127) {
+            if (ascii == true) {
+                ascii = false;
+                /* terminate Ascii string, before outputting the hex constant */
+                fprintf(stdout,"\",");
+            }
+            if (hex == true) {
+                /* a hex byte was previously written, separate with comma for this one */
+                fprintf(stdout,",");
+            }
+
+            hex = true;
+            fprintf(stdout,"$%02X", str[l]);
+        } else {
+            if (hex == true) {
+                hex = false;
+                /* a hex byte was prev. output, prepare for Ascii string, before outputting the char(s) */
+                fprintf(stdout,",\"");
+            } else if (ascii == false) {
+                /* this is first byte of output and it is part of a string */
+                fprintf(stdout,"\"");
+            }
+
+            ascii = true;
+            fputc(str[l],stdout);
+        }
+    }
+
+    if (ascii == true) {
+        /* terminate ascii string */
+        fprintf(stdout,"\"");
+    }
+}
+
+
+/* ------------------------------------------------------------------------------------------
+    void DeTokenizeTextFile(tokentable_t *tkt)
+
+    Output text file, de-tokinizing it in the process
+   ------------------------------------------------------------------------------------------ */
+void
+OutputDeTokenizedTextFile(tokentable_t *tkt)
+{
+    bool ascii, hex;
+    defm_t *curline = sourcelines->firstline;
+
+    while (curline != NULL) {
+        fprintf(stdout,"defm ");
+
+        ascii = hex = false;
+        OutputTokenizedString(tkt, curline->str, curline->len, &ascii, &hex);
+        if (ascii == true) {
+            /* terminate ascii string */
+            fprintf(stdout,"\"");
+        }
+        fputc('\n',stdout);
+
+        curline = curline->nextline;
+    }
+}
+
+
+/* ------------------------------------------------------------------------------------------ */
+void
+OutputTextFile(void)
+{
+    defm_t *curline = sourcelines->firstline;
+
+    while (curline != NULL) {
+        fprintf(stdout,"defm ");
+        OutputRawString(curline->str, curline->len);
+        fputc('\n',stdout);
+
+        curline = curline->nextline;
+    }
 }
 
 
@@ -1956,10 +2033,10 @@ ListExpandedTokens(tokentable_t *tkt)
 
         if (rawtoken != NULL && exptoken != NULL) {
             fprintf(stdout,"Token $%02X (Length %d) = ", exptoken->id, exptoken->len);
-            OutputString(exptoken->str, exptoken->len);
+            OutputRawString(exptoken->str, exptoken->len);
             if (exptoken->len > rawtoken->len) {
                 fprintf(stdout," (original token, length = %d: ", rawtoken->len);
-                OutputString(rawtoken->str, rawtoken->len);
+                OutputRawString(rawtoken->str, rawtoken->len);
                 fputc(')',stdout);
             }
 
@@ -1977,9 +2054,10 @@ void
 Prompt(void)
 {
     puts(copyrightmsg);
-    puts("mthtoken -tkt tokentablefile [<textfile>]\n");
+    puts("mthtoken [-r] -tkt tokentablefile [<textfile>]\n");
     puts("Tokenize specified textfile, using default 'systokens.bin' token table,");
     puts("or using specified tokens using -tkt option.");
+    puts("De-tokenize specified textfile using -r option.");
     puts("If <textfile> is omitted, expanded tokens are listed to stdout.");
     puts("Tokenized text is sent to stdout in assembler DEFM format.");
     puts("Redirect to file using:");
@@ -1996,6 +2074,7 @@ ProcessCommandline(int argc, char *argv[])
     sourcefile_t *asmfile;
     FILE *fd;
     bool processedStatus = true;
+    bool detokenize = false;
 
     /* Get command line arguments, if any... */
     if (argc == 1) {
@@ -2023,6 +2102,14 @@ ProcessCommandline(int argc, char *argv[])
             }
         }
 
+        if (argidx < argc) {
+            if (strcmp(argv[argidx],"-r") == 0) {
+                /* de-tokenize text option specified */
+                detokenize = true;
+                argidx++;
+            }
+        }
+
         if (tokentable == NULL) {
             /* explicit token table was not specified, try to load default "systokens.bin" token table file */
             tokentable = LoadTokenTable("systokens.bin");
@@ -2040,12 +2127,17 @@ ProcessCommandline(int argc, char *argv[])
                 fd = fopen (AdjustPlatformFilename(argv[argidx]), "rb");
                 if (fd != NULL) {
                     if (CacheFile (asmfile, fd) != NULL) {
-                        /* source code successfully loaded, start tokenizing... */
-                        fprintf(stderr,"Tokenize '%s' text file...\n", argv[argidx]);
+                        /* source code successfully loaded */
                         processedStatus = ParseAsmTextFile (asmfile);
                         if (processedStatus == true) {
-                            TokenizeTextFile(tokentable);
-                            OutputTokenizedTextFile();
+                            if (detokenize == true) {
+                                fprintf(stderr,"De-tokenize '%s' text file...\n", argv[argidx]);
+                                OutputDeTokenizedTextFile(tokentable);
+                            } else {
+                                fprintf(stderr,"Tokenize '%s' text file...\n", argv[argidx]);
+                                TokenizeTextFile(tokentable);
+                                OutputTextFile();
+                            }
                         }
 
                         ReleaseFile(asmfile);
@@ -2063,7 +2155,7 @@ ProcessCommandline(int argc, char *argv[])
             }
         } else {
             /* just output the token table to stdout */
-            fprintf(stderr,"Contents of Token Table:\n");
+            fprintf(stderr,"No text file specified. Output contents of Token Table:\n");
             ListExpandedTokens(tokentable);
         }
 
