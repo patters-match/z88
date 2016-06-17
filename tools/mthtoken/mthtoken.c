@@ -1907,7 +1907,7 @@ MatchToken(defm_t *line, token_t *tk)
     int q = 0, c = 0;
     int limit = line->len - tk->len;
 
-    while ( q < limit ) {
+    while ( q-1 < limit ) {
         while ( line->str[q+c] == tk->str[c] ) {
             if ( ++c == tk->len )
                 return line->str+q;
