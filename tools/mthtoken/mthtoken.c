@@ -171,7 +171,7 @@ enum symbols sym, ssym[] = {
     assign, bin_or, bin_nor, bin_not,less, greater, log_not, cnstexpr
 };
 
-const char copyrightmsg[] = "MthToken V0.4";
+const char copyrightmsg[] = "MthToken V0.5";
 const char separators[] = " &\"\';,.({[\\]})+-*/%^=|:~<>!#";
 
 /* Global text buffers and data structures, allocated by AllocateTextFileStructures() during startup of MthToken */
@@ -1624,6 +1624,17 @@ ParseAsmTextFile (sourcefile_t *asmfile)
 }
 
 
+/* ------------------------------------------------------------------------------------------ */
+void
+ParseCmdlineString(char *cmdlineArg)
+{
+    defm_t *strconst = CopySourceLine( (unsigned char *) cmdlineArg, strlen(cmdlineArg));
+    if (strconst != NULL) {
+        AddSourceLine(strconst);
+    }
+}
+
+
 /* ------------------------------------------------------------------------------------------
     token_t *AllocRawToken(tokentable_t *tkt, int tkid)
 
@@ -2054,10 +2065,11 @@ void
 Prompt(void)
 {
     puts(copyrightmsg);
-    puts("mthtoken [-r] -tkt tokentablefile [<textfile>]\n");
+    puts("mthtoken [-tkt tokentablefile] [-r] <textfile> | -s \"string constant\"\n");
     puts("Tokenize specified textfile, using default 'systokens.bin' token table,");
     puts("or using specified tokens using -tkt option.");
     puts("De-tokenize specified textfile using -r option.");
+    puts("As alternative, tokenize string constant with -s option.");
     puts("If <textfile> is omitted, expanded tokens are listed to stdout.");
     puts("Tokenized text is sent to stdout in assembler DEFM format.");
     puts("Redirect to file using:");
@@ -2102,14 +2114,6 @@ ProcessCommandline(int argc, char *argv[])
             }
         }
 
-        if (argidx < argc) {
-            if (strcmp(argv[argidx],"-r") == 0) {
-                /* de-tokenize text option specified */
-                detokenize = true;
-                argidx++;
-            }
-        }
-
         if (tokentable == NULL) {
             /* explicit token table was not specified, try to load default "systokens.bin" token table file */
             tokentable = LoadTokenTable("systokens.bin");
@@ -2117,6 +2121,24 @@ ProcessCommandline(int argc, char *argv[])
                 return false;
             } else {
                 fprintf(stderr,"Default 'systokens.bin' table were loaded\n");
+            }
+        }
+
+        if (argidx < argc) {
+            if (strcmp(argv[argidx],"-s") == 0) {
+                /* tokenize specified string, then exit. */
+                argidx++;
+                if (argidx < argc) {
+                    ParseCmdlineString(argv[argidx]);
+
+                    TokenizeTextFile(tokentable);
+                    OutputTextFile();
+                    ReleaseTokenTable(tokentable);
+                    return true;
+                } else {
+                    /* string not specified! */
+                    fprintf(stderr,"String constant not specified\n");
+                }
             }
         }
 
