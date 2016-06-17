@@ -1937,17 +1937,22 @@ TokenizeLine(defm_t *line, token_t *tk)
 /* ------------------------------------------------------------------------------------------
     void TokenizeTextFile(tokentable_t *tkt)
 
-    Brute-force tokenize the text file with all tokens, sequentially from $80 onwards..
+    Brute-force tokenize the text file with all tokens, as defined by priority sequence
    ------------------------------------------------------------------------------------------ */
 void
 TokenizeTextFile(tokentable_t *tkt)
 {
     token_t *exptoken;
     defm_t *curline;
-    int i;
+    int i = 0, tokenseq[] = {
 
-    for (i=0; i<tkt->totaltokens; i++) {
-        token_t *exptoken = AllocTokenInstance(tkt, i);
+        /* paste the list here, Mt T, in the format below */
+                                0x80, 0x81, 0xBA,
+                                0x85, 0x89, 0x00,
+                            };
+
+    while (tokenseq[i] != 0) {
+        token_t *exptoken = AllocTokenInstance(tkt, tokenseq[i]);
         defm_t *curline = sourcelines->firstline;
 
         while (curline != NULL) {
@@ -1956,6 +1961,7 @@ TokenizeTextFile(tokentable_t *tkt)
         }
 
         ReleaseToken(exptoken);
+        i++; /* next prioritized token... */
     }
 }
 
