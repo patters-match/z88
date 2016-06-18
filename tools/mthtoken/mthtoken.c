@@ -1954,7 +1954,7 @@ MatchToken(defm_t *line, token_t *tk)
                 return line->str+q;
         }
 
-        q += c+1;
+        q++;
         c=0;
     }
 
@@ -1968,7 +1968,7 @@ TokenizeLine(defm_t *line, token_t *tk)
 {
     unsigned char *foundtoken;
 
-    while ( (foundtoken = MatchToken(line,tk)) ) {
+    while ( (foundtoken = MatchToken(line,tk)) != NULL ) {
         /* expanded token string found in line, replace it with token ID */
         InsertTokenId(line, tk, foundtoken);
     }
@@ -1999,8 +1999,8 @@ TokenizeTextFile(tokentable_t *tkt)
                             };
 
     while (tokenseq[i] != 0) {
-        token_t *exptoken = AllocTokenInstance(tkt, tokenseq[i]);
-        defm_t *curline = sourcelines->firstline;
+        exptoken = AllocTokenInstance(tkt, tokenseq[i]);
+        curline = sourcelines->firstline;
 
         while (curline != NULL) {
             TokenizeLine(curline, exptoken);
