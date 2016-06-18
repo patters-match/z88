@@ -1524,7 +1524,6 @@ defm(sourcefile_t *file)
     char evalerr;
 
     do {
-        puts("!");
         if (GetSym (file) == dquote) {
             while (!MfEof (file)) {
 
