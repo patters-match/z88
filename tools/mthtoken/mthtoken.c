@@ -1899,6 +1899,22 @@ OutputTextFile(void)
 }
 
 
+/* ------------------------------------------------------------------------------------------ */
+int
+SizeOfTextFile(void)
+{
+    defm_t *curline = sourcelines->firstline;
+    int totalbytes = 0;
+
+    while (curline != NULL) {
+        totalbytes += curline->len;
+        curline = curline->nextline;
+    }
+
+    return totalbytes;
+}
+
+
 /* ------------------------------------------------------------------------------------------
     void InsertTokenId(defm_t *line, token_t *tk, unsigned char *position)
 
@@ -2120,7 +2136,7 @@ ProcessFile(tokentable_t *tokentable, bool detokenize, char *filename)
     sourcefile_t *asmfile;
     FILE *fd;
     bool processedStatus = true;
-    int totalBytesBefore, totalBytesAfter;
+    double ratio,totalBytesBefore, totalBytesAfter;
 
     asmfile = Newfile (NULL, filename);   /* Allocate new file into memory */
     if (asmfile != NULL) {
@@ -2135,8 +2151,13 @@ ProcessFile(tokentable_t *tokentable, bool detokenize, char *filename)
                         OutputDeTokenizedTextFile(tokentable);
                     } else {
                         fprintf(stderr,"Tokenize '%s' text file...\n", filename);
+                        totalBytesBefore = (double) SizeOfTextFile();
                         TokenizeTextFile(tokentable);
+                        totalBytesAfter = (double) SizeOfTextFile();
                         OutputTextFile();
+
+                        ratio = (1 - (totalBytesAfter/totalBytesBefore)) * 100;
+                        fprintf(stderr,"Bytes: %d (before), %d (after), compressed %.2f%%\n", (int) totalBytesBefore, (int) totalBytesAfter, ratio);
                     }
                 }
 
