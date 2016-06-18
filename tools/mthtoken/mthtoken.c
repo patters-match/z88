@@ -1784,11 +1784,21 @@ OutputTokenizedString(tokentable_t *tkt, unsigned char *str, int len, bool *asci
         } else {
             /* pure 7bit Ascii text... */
             if (*ascii == false && *hex == false) {
-                fprintf(stdout,"\"");
+                if (str[l] != '"') {
+                    fprintf(stdout,"\"");
+                } else {
+                    fprintf(stdout,"'\"'");
+                    continue;
+                }
             }
             if (*hex == true) {
                 /* a hex byte was previously written, separate with comma and start-of-string for this one */
-                fprintf(stdout,",\"");
+                if (str[l] != '"')
+                    fprintf(stdout,",\"");
+                else {
+                    fprintf(stdout,",'\"'");
+                    continue;
+                }
                 *hex = false;
             }
 
@@ -1830,10 +1840,21 @@ OutputRawString(unsigned char *str, int len)
             if (hex == true) {
                 hex = false;
                 /* a hex byte was prev. output, prepare for Ascii string, before outputting the char(s) */
-                fprintf(stdout,",\"");
+                if (str[l] != '"')
+                    fprintf(stdout,",\"");
+                else {
+                    fprintf(stdout,",'\"'");
+                    hex = true;
+                    continue;
+                }
             } else if (ascii == false) {
                 /* this is first byte of output and it is part of a string */
-                fprintf(stdout,"\"");
+                if (str[l] != '"')
+                    fprintf(stdout,"\"");
+                else {
+                    fprintf(stdout,"'\"'");
+                    continue;
+                }
             }
 
             ascii = true;
