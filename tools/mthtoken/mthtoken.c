@@ -1524,6 +1524,7 @@ defm(sourcefile_t *file)
     char evalerr;
 
     do {
+        puts("!");
         if (GetSym (file) == dquote) {
             while (!MfEof (file)) {
 
@@ -1538,33 +1539,44 @@ defm(sourcefile_t *file)
                         *codeptr++ = (unsigned char) constant;
                     } else {
                         GetSym (file);
-
-                        if (sym != strconq && sym != comma && sym != newline && sym != semicolon) {
-                            ReportError (file->fname, file->lineno, Err_Syntax);
-                            return;
-                        }
-                        break;    /* get out of loop */
+                        break;
                     }
                 }
             }
         } else {
+            switch (sym) {
+                case squote:
+                    *codeptr++ = (unsigned char) GetChar (file);
+                    if (GetSym (file) == squote) {
+                        GetSym (file); /* get ready for next defm element */
+                    }
+                    break;
 
-            constant = GetConstant(&evalerr);
-            if (evalerr == 0) {
-                if ( (constant >= 0) && (constant <= 255) ) {
-                    *codeptr++ = (unsigned char) constant;
-                } else {
-                    ReportError (file->fname, file->lineno, Err_ConstOutOfRange);   /* out of range */
-                }
-                GetSym (file);
-            } else {
-                ReportError (file->fname, file->lineno, Err_ConstOutOfRange);   /* the constant was not evaluable */
-            }
+                case hexconst:
+                case binconst:
+                case decmconst:
+                    constant = GetConstant(&evalerr);
+                    if (evalerr == 0) {
+                        if ( (constant >= 0) && (constant <= 255) ) {
+                            *codeptr++ = (unsigned char) constant;
+                        } else {
+                            ReportError (file->fname, file->lineno, Err_ConstOutOfRange);   /* out of range */
+                        }
+                        GetSym (file);
+                    } else {
+                        ReportError (file->fname, file->lineno, Err_ConstOutOfRange);   /* the constant was not evaluable */
+                    }
+                    break;
 
-            if (sym != strconq && sym != comma && sym != newline && sym != semicolon) {
-                ReportError (file->fname, file->lineno, Err_Syntax);   /* expression separator not found */
-                break;
+                default:
+                    fprintf(stdout,"[%s]{%c/%d}",ident,separators[sym],sym);
+                    ReportError (file->fname, file->lineno, Err_Syntax);   /* illegal constant in DEFM */
             }
+        }
+
+        if (sym != strconq && sym != comma && sym != newline && sym != semicolon) {
+            ReportError (file->fname, file->lineno, Err_Syntax);   /* expression separator not found */
+            break;
         }
     } while (sym != newline && sym != semicolon);
 }
@@ -2109,6 +2121,7 @@ ProcessFile(tokentable_t *tokentable, bool detokenize, char *filename)
     sourcefile_t *asmfile;
     FILE *fd;
     bool processedStatus = true;
+    int totalBytesBefore, totalBytesAfter;
 
     asmfile = Newfile (NULL, filename);   /* Allocate new file into memory */
     if (asmfile != NULL) {
