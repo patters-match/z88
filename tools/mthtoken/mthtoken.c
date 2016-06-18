@@ -2103,14 +2103,55 @@ Prompt(void)
 }
 
 
+bool
+ProcessFile(tokentable_t *tokentable, bool detokenize, char *filename)
+{
+    sourcefile_t *asmfile;
+    FILE *fd;
+    bool processedStatus = true;
+
+    asmfile = Newfile (NULL, filename);   /* Allocate new file into memory */
+    if (asmfile != NULL) {
+        fd = fopen (AdjustPlatformFilename(filename), "rb");
+        if (fd != NULL) {
+            if (CacheFile (asmfile, fd) != NULL) {
+                /* source code successfully loaded */
+                processedStatus = ParseAsmTextFile (asmfile);
+                if (processedStatus == true) {
+                    if (detokenize == true) {
+                        fprintf(stderr,"De-tokenize '%s' text file...\n", filename);
+                        OutputDeTokenizedTextFile(tokentable);
+                    } else {
+                        fprintf(stderr,"Tokenize '%s' text file...\n", filename);
+                        TokenizeTextFile(tokentable);
+                        OutputTextFile();
+                    }
+                }
+
+                ReleaseFile(asmfile);
+            } else {
+                /* problems caching the file... */
+                processedStatus = false;
+            }
+            fclose(fd);
+        } else {
+            ReportIOError(filename);
+            processedStatus = false;
+        }
+    } else {
+        processedStatus = false;
+    }
+
+    return processedStatus;
+}
+
+
 /* ------------------------------------------------------------------------------------------ */
 bool
 ProcessCommandline(int argc, char *argv[])
 {
     int argidx = 1;
     tokentable_t *tokentable = NULL;
-    sourcefile_t *asmfile;
-    FILE *fd;
     bool processedStatus = true;
     bool detokenize = false;
 
@@ -2177,38 +2218,8 @@ ProcessCommandline(int argc, char *argv[])
         }
 
         if (argidx < argc) {
-            /* text file specified */
-            asmfile = Newfile (NULL, argv[argidx]);   /* Allocate new file into memory */
-            if (asmfile != NULL) {
-                fd = fopen (AdjustPlatformFilename(argv[argidx]), "rb");
-                if (fd != NULL) {
-                    if (CacheFile (asmfile, fd) != NULL) {
-                        /* source code successfully loaded */
-                        processedStatus = ParseAsmTextFile (asmfile);
-                        if (processedStatus == true) {
-                            if (detokenize == true) {
-                                fprintf(stderr,"De-tokenize '%s' text file...\n", argv[argidx]);
-                                OutputDeTokenizedTextFile(tokentable);
-                            } else {
-                                fprintf(stderr,"Tokenize '%s' text file...\n", argv[argidx]);
-                                TokenizeTextFile(tokentable);
-                                OutputTextFile();
-                            }
-                        }
-
-                        ReleaseFile(asmfile);
-                    } else {
-                        /* problems caching the file... */
-                        processedStatus = false;
-                    }
-                    fclose(fd);
-                } else {
-                    ReportIOError(argv[argidx]);
-                    processedStatus = false;
-                }
-            } else {
-                processedStatus = false;
-            }
+            /* text file specified, [de-]tokenize it... */
+            processedStatus = ProcessFile(tokentable, detokenize, argv[argidx]);
         } else {
             /* just output the token table to stdout */
             fprintf(stderr,"No text file specified. Output contents of Token Table:\n");
