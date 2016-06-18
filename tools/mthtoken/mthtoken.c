@@ -1782,7 +1782,13 @@ OutputTokenizedString(tokentable_t *tkt, unsigned char *str, int len, bool *asci
             }
 
             *ascii = true;
-            fputc(str[l],stdout);
+            switch(str[l]) {
+                case '"':
+                    fprintf(stdout,"\",'\"',\"");
+                    break;
+                default:
+                    fputc(str[l],stdout);
+            }
         }
     }
 }
@@ -1820,7 +1826,15 @@ OutputRawString(unsigned char *str, int len)
             }
 
             ascii = true;
-            fputc(str[l],stdout);
+
+            switch(str[l]) {
+                case '"':
+                    fprintf(stdout,"\",'\"',\"");
+                    break;
+                default:
+                    fputc(str[l],stdout);
+            }
+
         }
     }
 
