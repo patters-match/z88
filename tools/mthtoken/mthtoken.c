@@ -178,6 +178,7 @@ const char separators[] = " &\"\';,.({[\\]})+-*/%^=|:~<>!#";
 char *ident = NULL;
 unsigned char *line = NULL;
 unsigned char *codeptr = NULL;
+unsigned char *tokensequence = NULL;
 sourcelines_t *sourcelines = NULL;
 
 int totalerrors = 0, errornumber;
@@ -316,6 +317,11 @@ ReleaseTokenTable(tokentable_t *tkt)
         }
 
         free(tkt);
+    }
+
+    if (tokensequence != NULL) {
+        /* release allocated memory of token sqan sequence */
+        free(tokensequence);
     }
 }
 
@@ -1997,39 +2003,46 @@ TokenizeLine(defm_t *line, token_t *tk)
 
 
 /* ------------------------------------------------------------------------------------------
-    void TokenizeTextFile(tokentable_t *tkt)
+    void TokenizeTextFile(tokentable_t *tkt, unsigned char *tokenseq)
 
-    Brute-force tokenize the text file with all tokens, as defined by priority sequence
+    Tokenize the current text file (beginning of file in sourcelines->firstline) using
+    specified token scanning sequence order, or if not specified, brute-force tokenize the
+    text file with all tokens in order of token table.
    ------------------------------------------------------------------------------------------ */
 void
-TokenizeTextFile(tokentable_t *tkt)
+TokenizeTextFile(tokentable_t *tkt, unsigned char *tokenseq)
 {
     token_t *exptoken;
     defm_t *curline;
-    int i = 0, tokenseq[] = {
-                                /* Order V1, >size & >freq, 18/06/2016 */
-                                0xD0,0xCD,0xF3,0xCF,0xF2,0xEA,0xAE,0x94,0xA7,0xDB,0xA8,0xAD,0xBE,0xEE,0x83,0x98,
-                                0xDA,0xE9,0xF9,0xB6,0xF6,0xFF,0x9C,0xD8,0xB8,0x99,0x96,0xCB,0xE3,0xA1,0xD4,0xD5,
-                                0xDF,0x81,0x9F,0xF0,0xF1,0xB5,0xC4,0xDC,0xE6,0xEC,0xB1,0xF8,0xE0,0xE5,0xFD,0x97,
-                                0xC2,0xD2,0xC5,0xD1,0xFE,0x8A,0xE7,0xF7,0x9B,0x92,0xBA,0x87,0xC0,0xF5,0xA9,0xB7,
-                                0xD3,0xF4,0xDE,0xE1,0xFA,0xAC,0xA0,0xB3,0x89,0xB0,0xBB,0xBD,0xCC,0xA3,0xDD,0xC3,
-                                0xEF,0xC7,0xCA,0x8E,0xB2,0x8C,0x93,0x8D,0x82,0x85,0x84,0x8F,0x86,0x9E,0x88,0xEB,
-                                0x95,0xA4,0xED,0xAF,0x8B,0x91,0x9D,0xA2,0xB4,0xBC,0xAA,0xD7,0xCE,0xC9,0xFC,0xC6,
-                                0xD6,0xE4,0x9A,0xC1,0xC8,0xD9,0xE2,0x90,0xA5,0xAB,0x80,0xE8,0xFB,0xB9,0xA6,0xBF,
-                                0x00 /* null-terminator */
-                            };
+    int i = 0;
 
-    while (tokenseq[i] != 0) {
-        exptoken = AllocTokenInstance(tkt, tokenseq[i]);
-        curline = sourcelines->firstline;
+    if (tokenseq != NULL) {
+        /* use specified token sequence to scan the file */
+        while (tokenseq[i] != 0) {
+            exptoken = AllocTokenInstance(tkt, tokenseq[i]);
+            curline = sourcelines->firstline;
 
-        while (curline != NULL) {
-            TokenizeLine(curline, exptoken);
-            curline = curline->nextline;
+            while (curline != NULL) {
+                TokenizeLine(curline, exptoken);
+                curline = curline->nextline;
+            }
+
+            ReleaseToken(exptoken);
+            i++; /* next prioritized token... */
         }
+    } else {
+        /* no sequence specified, just iterate the token table from beginning to end */
+        for (; i < tkt->totaltokens; i++) {
+            exptoken = AllocTokenInstance(tkt, i);
+            curline = sourcelines->firstline;
 
-        ReleaseToken(exptoken);
-        i++; /* next prioritized token... */
+            while (curline != NULL) {
+                TokenizeLine(curline, exptoken);
+                curline = curline->nextline;
+            }
+
+            ReleaseToken(exptoken);
+        }
     }
 }
 
@@ -2151,8 +2164,93 @@ Prompt(void)
 }
 
 
+/* ------------------------------------------------------------------------------------------ */
+unsigned char *
+ParseTokenSequenceFile (sourcefile_t *scanfile)
+{
+    long constant;
+    char evalerr;
+    line[0] = '\0';     /* preset line buffer to being empty */
+    codeptr = line;     /* prepare the pointer that collects fetched charecters from DEFM directive */
+    GetSym (scanfile);     /* and fetch first symbol on line */
+
+    while (!MfEof (scanfile)) {
+        scanfile->lineptr = MfTell (scanfile); /* preserve the beginning of the current line, for reference */
+        ++scanfile->lineno;
+
+        scanfile->eol = false; /* reset END OF LINE flag */
+
+        switch (sym) {
+            case hexconst:
+            case binconst:
+            case decmconst:
+                constant = GetConstant(&evalerr);
+                if (evalerr == 0) {
+                    if ( (constant >= 0) && (constant <= 255) ) {
+                        fprintf(stderr,"%02X", (unsigned int) constant);
+                        *codeptr++ = (unsigned char) constant;
+                    } else {
+                        ReportError (scanfile->fname, scanfile->lineno, Err_ConstOutOfRange);   /* out of range */
+                    }
+                    GetSym (scanfile);
+                } else {
+                    ReportError (scanfile->fname, scanfile->lineno, Err_ConstOutOfRange);   /* the constant was not evaluable */
+                }
+                break;
+
+            default:
+                /* ignore other constructs of source line... get next line */
+                SkipLine (scanfile);
+                break;
+
+        }
+
+        if (sym != comma && sym != newline && sym != semicolon) {
+            ReportError (scanfile->fname, scanfile->lineno, Err_Syntax);   /* expression separator not found */
+            break;
+        }
+
+        /* If errors, return immediately... */
+        if (totalerrors > 0) {
+            return NULL;
+        }
+    }
+
+    return NULL;
+}
+
+
+/* ------------------------------------------------------------------------------------------ */
+unsigned char *
+LoadTokenSequenceFile (char *filename)
+{
+    sourcefile_t *scanfile;
+    FILE *fd;
+    unsigned char *tokenseq = NULL;
+
+    scanfile = Newfile (NULL, filename);   /* Allocate new file into memory */
+    if (scanfile != NULL) {
+        fd = fopen (AdjustPlatformFilename(filename), "rb");
+        if (fd != NULL) {
+            if (CacheFile (scanfile, fd) != NULL) {
+                /* token sequence source code successfully loaded */
+                tokenseq = ParseTokenSequenceFile (scanfile);
+            }
+            fclose(fd);
+        } else {
+            ReportIOError(filename);
+        }
+
+        ReleaseFile(scanfile);
+    }
+
+    return tokenseq;
+}
+
+
+/* ------------------------------------------------------------------------------------------ */
 bool
-ProcessFile(tokentable_t *tokentable, bool detokenize, char *filename)
+ProcessFile(char *filename, tokentable_t *tokentable, unsigned char *tokenseq, bool detokenize)
 {
     sourcefile_t *asmfile;
     FILE *fd;
@@ -2173,7 +2271,7 @@ ProcessFile(tokentable_t *tokentable, bool detokenize, char *filename)
                     } else {
                         fprintf(stderr,"Tokenize '%s' text file...\n", filename);
                         totalBytesBefore = (double) SizeOfTextFile();
-                        TokenizeTextFile(tokentable);
+                        TokenizeTextFile(tokentable, tokenseq);
                         totalBytesAfter = (double) SizeOfTextFile();
                         OutputTextFile();
 
@@ -2181,8 +2279,6 @@ ProcessFile(tokentable_t *tokentable, bool detokenize, char *filename)
                         fprintf(stderr,"Bytes: %d (before), %d (after), compressed %.2f%%\n", (int) totalBytesBefore, (int) totalBytesAfter, ratio);
                     }
                 }
-
-                ReleaseFile(asmfile);
             } else {
                 /* problems caching the file... */
                 processedStatus = false;
@@ -2192,6 +2288,8 @@ ProcessFile(tokentable_t *tokentable, bool detokenize, char *filename)
             ReportIOError(filename);
             processedStatus = false;
         }
+
+        ReleaseFile(asmfile);
     } else {
         processedStatus = false;
     }
@@ -2243,6 +2341,14 @@ ProcessCommandline(int argc, char *argv[])
             } else {
                 fprintf(stderr,"Default 'systokens.bin' table were loaded\n");
             }
+
+            if (tokensequence == NULL) {
+                /* default "systokens.bin" loaded, also load default sequence */
+                tokensequence = LoadTokenSequenceFile("systokens.scan");
+                if (tokensequence != NULL) {
+                    fprintf(stderr,"Default 'systokens.scan' sequence were loaded\n");
+                }
+            }
         }
 
         if (argidx < argc) {
@@ -2260,7 +2366,7 @@ ProcessCommandline(int argc, char *argv[])
                 if (argidx < argc) {
                     ParseCmdlineString(argv[argidx]);
 
-                    TokenizeTextFile(tokentable);
+                    TokenizeTextFile(tokentable, NULL);
                     OutputTextFile();
                     ReleaseTokenTable(tokentable);
                     return true;
@@ -2273,7 +2379,7 @@ ProcessCommandline(int argc, char *argv[])
 
         if (argidx < argc) {
             /* text file specified, [de-]tokenize it... */
-            processedStatus = ProcessFile(tokentable, detokenize, argv[argidx]);
+            processedStatus = ProcessFile(argv[argidx], tokentable, NULL, detokenize);
         } else {
             /* just output the token table to stdout */
             fprintf(stderr,"No text file specified. Output contents of Token Table:\n");
