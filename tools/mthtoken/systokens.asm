@@ -1,9 +1,6 @@
 ; **************************************************************************************************
 ;
-; OZ System token table, used by MTH static structures in most standard OZ applications and popdowns.
-;
-; This table was extracted out of Font bitmap from original V4.0 ROM,
-; using FontBitMap tool that auto-generated the token table sources.
+; OZ v4.7+ System token table, used by MTH static structures in most standard OZ applications and popdowns.
 ;
 ; This file is part of the Z88 operating system, OZ.     0000000000000000      ZZZZZZZZZZZZZZZZZZZ
 ;                                                       000000000000000000   ZZZZZZZZZZZZZZZZZZZ
@@ -22,8 +19,6 @@
 ;                                  59 Temple Place-Suite 330,
 ;                                  Boston, MA 02111-1307, USA.
 ;
-;
-;
 ; compile this source code using
 ; Mpm Assembler (https://sourceforge.net/projects/z88/files/Z88%20Assembler%20Workbench/):
 ;
@@ -33,6 +28,7 @@
 
 module SystemToken
 
+xdef    SysTokenBase
 
 .SysTokenBase
         defb $80                                ; recursive token boundary
@@ -167,13 +163,13 @@ module SystemToken
         defw tokenFF-SysTokenBase
         defw end_tokens-SysTokenBase
 .token80
-        defm $01, "T"
+        defm $01,"T"
 .token81
-        defm $DC, " "                           ; "Cursor "
+        defm "ou"
 .token82
         defm "e "
 .token83
-        defm " returns "
+        defm " ",$8D,"turn",$8E                 ; " returns " (19)
 .token84
         defm "t "
 .token85
@@ -203,223 +199,223 @@ module SystemToken
 .token91
         defm "at"
 .token92
-        defm $88, $82                           ; "the "
+        defm $88,$82                            ; "the "
 .token93
-        defm "an"                               ; "and " = $93 + $B2
+        defm "an"                               ; ("and " = $93 + $B2)
 .token94
-        defm $DE,"r",$CC,$84,"(C) "
+        defm $DE,"r",$CC,$84,"(C) "             ; "Copyright (C) " (3)
 .token95
         defm "al"
 .token96
-        defm "De", $8B, "t", $82                ; "Delete "
+        defm "De",$8B,"t",$82                   ; "Delete "
 .token97
-        defm "Nex", $84                         ; "Next "
+        defm "Nex",$84                          ; "Next "
 .token98
-        defm "P", $8D, "viou", $8E              ; "Previous "
+        defm "P",$8D,"vi",$81,$8E               ; "Previous "
 .token99
-        defm "h", $8C, "act", $86               ; "haracter"
+        defm "h",$8C,"act",$86                  ; "haracter"
 .token9A
-        defm ".", $7F
+        defm ".",$7F
 .token9B
-        defm "Ins", $86                         ; "Inser"                                                                       (never used, only in $CB)
+        defm "mo"
 .token9C
-        defm "Func", $87                        ; "Function"
+        defm "F",$D0,"c",$87                    ; "Function"
 .token9D
         defm "ow"
 .token9E
         defm "to"
 .token9F
-        defm "radi", $93, "s"                   ; "radians"
+        defm $E2,"di",$93,"s"                   ; "radians" (7)
 .tokenA0
-        defm "list"
+        defm "l",$F4,"t"                        ; "list"
 .tokenA1
-        defm "numb", $86, " "                   ; "number "
+        defm "numb",$86," "                     ; "number "
 .tokenA2
         defm "en"
 .tokenA3
-        defm $85, " "                           ; "in "
+        defm $85," "                            ; "in " (18)
 .tokenA4
         defm ", "
 .tokenA5
         defm "lo"
 .tokenA6
-        defm "Fi"                               ;                                                                               (used 2 times and in $BA, $F8)
+        defm "Fi"                               ; "Fi" (5)
 .tokenA7
-        defm $81, "R", $90, "ht"                ; "Cursor Right"
+        defm $DC," ","R",$90,"ht"               ; "Cursor Right"
 .tokenA8
-        defm $81, "Left"                        ; "Cursor Left"
+        defm $DC," ","Left"                     ; "Cursor Left"
 .tokenA9
-        defm "L", $85, "e"                      ; "Line"
+        defm "L",$85,"e"                        ; "Line"
 .tokenAA
         defm ": "
 .tokenAB
-        defm "Co"                               ;                                                                               (used 7 times and in $DE)
+        defm "Co"                               ; "Co" (9)
 .tokenAC
-        defm "D", $9D, "n"                      ; "Down"
+        defm "D",$9D,"n"                        ; "Down"
 .tokenAD
-        defm "Activ", $82, "D",$FB              ; "Active Day"                                                                  (used 4 times)
+        defm "Activ",$82,"D",$FB                ; "Active Day" (4)
 .tokenAE
-        defm ")", $83, $92
+        defm "il"
 .tokenAF
         defm "te"
 .tokenB0
-        defm '"', $9A                           ; ""." + $7F
+        defm '"',$9A                            ; ""." + $7F (14)
 .tokenB1
-        defm "ESCAPE"
+        defm "ESCAPE"                           ; "ESCAPE" (5)
 .tokenB2
         defm "d "
 .tokenB3
-        defm "v", $95, "u"                      ; "valu"
+        defm "ke"
 .tokenB4
         defm "ch"
 .tokenB5
-        defm "C", $8A                           ; "Column"
+        defm "C",$8A                            ; "Column"
 .tokenB6
-        defm "Di", $8D, "ct", $8F, "y"          ; "Directory"
+        defm "Di",$8D,"ct",$8F,"y"              ; "Directory" (4)
 .tokenB7
-        defm " i", $8E                          ; " is "
+        defm " i",$8E                           ; " is "
 .tokenB8
-        defm "Logic", $95, " "                  ; "Logical "
+        defm "Logic",$95," "                    ; "Logical " (4)
 .tokenB9
         defm "Up"
 .tokenBA
-        defm $A6, $8B                           ; "File"
+        defm $A6,$8B                            ; "File"
 .tokenBB
-        defm $9E, " "                           ; "to "
+        defm $9E," "                            ; "to "
 .tokenBC
         defm "on"
 .tokenBD
-        defm "Sav"                              ; "Save " = $BD + $82
+        defm "S",$F9                            ; "Sav" ("Save " = $BD + $82)
 .tokenBE
-        defm $82, "Posi", $87                   ; "e Position"                                                                  (used 4 times)
+        defm $82,"Po",$F3,$87                   ; "e Position" (4)
 .tokenBF
-        defm "Op"
+        defm "p",$D9,"ica",$87                  ; "pplication"
 .tokenC0
-        defm $85, "g "                          ; "ing "
+        defm $85,"g "                           ; "ing "
 .tokenC1
-        defm "(n"
+        defm "(n)"                              ; "(n)" (9)
 .tokenC2
-        defm $89, '"', "n"
+        defm ".",$00                            ; ".",$00 (39)
 .tokenC3
         defm $91, "e"                           ; "ate"
 .tokenC4
-        defm "devi",$c9                         ; "device"
+        defm "devi",$c9                         ; "device" (10)
 .tokenC5
-        defm "B", $A5, "ck"                     ; "Block"
+        defm "B",$A5,"ck"                       ; "Block"
 .tokenC6
         defm "ur"
 .tokenC7
-        defm "e", $8B                           ; "ele"
+        defm "e",$8B                            ; "ele"
 .tokenC8
         defm "Re"
 .tokenC9
         defm "ce"
 .tokenCA
-        defm "s", $84                           ; "st "
+        defm "s",$84                            ; "st "
 .tokenCB
-        defm $9B, $84                           ; "Insert "                                                                     (used 9 times)
+        defm "Ins",$86,$84                      ; "Insert "  (9)
 .tokenCC
         defm $90, "h"                           ; "igh"
 .tokenCD
-        defm "cos", $85, "e", $A4, "s", $85, $82, $8F, " t", $93, "g", $A2, $84         ; "cosine, sine or tangent"             (used 2 times)
+        defm "ma"
 .tokenCE
         defm ". "
 .tokenCF
-        defm "s", $A5, "t", $8E, $A3, '"', $A0, $B0                                     ; "slots in "list" + $7F                (used 3 times)
+        defm "la"
 .tokenD0
-        defm " ", $A1, $A3, "whi", $B4, " i", $84, "i", $8E, "e", $B3, $C3, "d"         ; " number in which it is evaluated"    (used 2 times)
+        defm "un"
 .tokenD1
-        defm "Al", $90, "n"                     ; "Align"
+        defm "Al",$90,"n"                       ; "Align"
 .tokenD2
         defm "ENTER"
 .tokenD3
-        defm "W", $8F, "d"                      ; "Word"
+        defm "W",$8F,"d"                        ; "Word"
 .tokenD4
-        defm "Sc", $8D, $A2, " "                ; "Screen "
+        defm "Sc",$8D,$A2," "                   ; "Screen "
 .tokenD5
-        defm "qu", $95, " ", $9E                ; "qual to"
+        defm "qu",$95," ",$9E                   ; "qual to" (4)
 .tokenD6
         defm "y "
 .tokenD7
         defm "m "
 .tokenD8
-        defm "comm", $93, "ds"                  ; "commands"
+        defm "c",$E9,"m",$93,"ds"               ; "commands"
 .tokenD9
         defm "pl"
 .tokenDA
-        defm $81, $B9                           ; "Cursor Up"
+        defm $DC," ",$B9                        ; "Cursor Up"
 .tokenDB
-        defm $81, $AC                           ; "Cursor Down"
+        defm $DC," ",$AC                        ; "Cursor Down"
 .tokenDC
-        defm "C", $C6, "s", $8F                 ; "Cursor"
+        defm "C",$C6,"s",$8F                    ; "Cursor"
 .tokenDD
-        defm "M", $8C                           ; "Mar"
+        defm "M",$8C                            ; "Mar" (7)
 .tokenDE
-        defm $AB, "py"                          ; "Copy"
+        defm $AB,"py"                           ; "Copy"
 .tokenDF
-        defm "En", $B2, $89                     ; "End of "
+        defm "En",$B2,$89                       ; "End of "
 .tokenE0
-        defm "Rubout"
+        defm "Rub",$81,"t"                      ; "Rubout"
 .tokenE1
         defm "Load"
 .tokenE2
         defm "ra"
 .tokenE3
-        defm "S", $C7, "c", $84                 ; "Select "
+        defm "S",$C7,"c",$84                    ; "Select "
 .tokenE4
         defm "de"
 .tokenE5
-        defm "(", $A0, ")"                      ; "(list)"                                      (used 3 times)
+        defm "hi"
 .tokenE6
-        defm $B3, $82                           ; "value "
+        defm "v",$95,"u",$82                    ; "value "
 .tokenE7
-        defm "r", $93, "ge"                     ; "range"
+        defm "r",$93,"ge"                       ; "range"
 .tokenE8
         defm "Ex"
 .tokenE9
-        defm "C", $99                           ; "Character"                                   (used 6 times)
+        defm "om"
 .tokenEA
-        defm $9B, "t/Ov", $86, "type"           ; "Insert/Overtype"                             (used 2 times)
+        defm "Ins",$86,"t/Ov",$86,"type"        ; "Insert/Overtype" (2)
 .tokenEB
         defm "se"
 .tokenEC
-        defm $BF, $87                           ; "Option"
+        defm "Op",$87                           ; "Option"
 .tokenED
         defm "am"
 .tokenEE
-        defm $BA, " C", $8C, "d"                ; "File Card"                                   (used 14 times)
+        defm $BA," C",$8C,"d"                   ; "File Card" (14)
 .tokenEF
-        defm $86, " "                           ; "er "
+        defm $86," "                            ; "er "
 .tokenF0
-        defm $7F, $8D, "t", $C6, "n"            ; "return"
+        defm "st"
 .tokenF1
-        defm $E4, "g", $8D, "es"                ; "degrees"
+        defm "pr"
 .tokenF2
-        defm '"', " c", $BC, "v", $86, $AF, $B2, $85, $BB       ; "" converted into"            (used 2 times)
+        defm " c"
 .tokenF3
-        defm $E5, $B7, "i", $AF, $D7, "wi", $88, " m"           ; "(list) is item with m"       (used 2 times)
+        defm "si"
 .tokenF4
-        defm $A3, '"'                           ; "in ""
+        defm "is"
 .tokenF5
-        defm "d", $C3                           ; "date"
+        defm "d",$C3                            ; "date"
 .tokenF6
-        defm $BF, $86, $91, $8F, "s"            ; "Operators"
+        defm "Op",$86,$91,$8F,"s"               ; "Operators" (3)
 .tokenF7
-        defm "M", $91, $B4                      ; "March"
+        defm "M",$91,$B4                        ; "Match" (3)
 .tokenF8
-        defm $A6, "r", $CA                      ; "First "
+        defm $A6,"r",$CA                        ; "First "
 .tokenF9
-        defm "(", $9F, ")"                      ; "(radians)"                                   (used 4 times)
+        defm "av"
 .tokenFA
-        defm "S", $A5, "t"                      ; "Slot"
+        defm "S",$A5,"t"                        ; "Slot"
 .tokenFB
         defm "ay"
 .tokenFC
         defm "it"
 .tokenFD
-        defm $BA, "s"                           ; "Files"
+        defm $BA,"s"                            ; "Files"
 .tokenFE
-        defm "Pr", $85, "t"                     ; "Print"
+        defm "Pr",$85,"t"                       ; "Print"
 .tokenFF
-        defm "Swap Ca", $EB                     ; "Swap Case"                                   (used 2 times)
+        defm "Swap Ca",$EB                      ; "Swap Case" (2)
 .end_tokens
