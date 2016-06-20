@@ -2162,16 +2162,26 @@ Prompt(void)
 }
 
 
-/* ------------------------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------------------------
+    unsigned char *ParseTokenSequenceFile (sourcefile_t *scanfile)
+
+    Parse the token sequence file and return a pointer to the list of tokens ID.
+
+    Returns:
+        NULL, a syntax error appeared in the *.scan file
+        pointer to allocated token sequence, last byte in sequence is 0
+   ------------------------------------------------------------------------------------------ */
 unsigned char *
 ParseTokenSequenceFile (sourcefile_t *scanfile)
 {
     long constant;
     char evalerr;
-    line[0] = '\0';     /* preset line buffer to being empty */
-    codeptr = line;     /* prepare the pointer that collects fetched charecters from DEFM directive */
+    unsigned char *newtokseq;
 
-    GetSym (scanfile);     /* and fetch first symbol on line */
+    codeptr = line;     /* prepare the pointer that collects fetched charecters from DEFM directive */
+    scanfile->lineno = 1;
+
+    GetSym (scanfile);     /* fetch first symbol in scan file */
 
     while (!MfEof (scanfile)) {
 
@@ -2179,6 +2189,7 @@ ParseTokenSequenceFile (sourcefile_t *scanfile)
             case hexconst:
             case binconst:
             case decmconst:
+                /* a token ID was collected */
                 constant = GetConstant(&evalerr);
                 if (evalerr == 0) {
                     if ( (constant >= 0) && (constant <= 255) ) {
@@ -2191,12 +2202,9 @@ ParseTokenSequenceFile (sourcefile_t *scanfile)
                     ReportError (scanfile->fname, scanfile->lineno, Err_ConstOutOfRange);   /* the constant was not evaluable */
                 }
                 break;
-            case comma:
-                GetSym (scanfile);     /* and fetch first symbol on line */
-                break;
 
-            case semicolon:
-                SkipLine (scanfile);
+            case comma:
+                GetSym (scanfile);     /* fetch next token ID on line */
                 break;
 
             case newline:
@@ -2204,12 +2212,11 @@ ParseTokenSequenceFile (sourcefile_t *scanfile)
                 ++scanfile->lineno;
 
                 scanfile->eol = false; /* reset END OF LINE flag */
-                SkipLine (scanfile);
+                GetSym (scanfile);     /* fetch first token ID on new line */
                 break;
 
             default:
-                /* ignore other constructs of source line... get next line */
-                GetSym (scanfile);     /* and fetch first symbol on line */
+                ReportError (scanfile->fname, scanfile->lineno, Err_Syntax);
                 break;
         }
 
@@ -2219,7 +2226,15 @@ ParseTokenSequenceFile (sourcefile_t *scanfile)
         }
     }
 
-    return NULL;
+    /* token sequence collected successfully from scan file, create it as a new variable and return pointer to it */
+    newtokseq = AllocBuffer(codeptr-line);
+    if (newtokseq != NULL) {
+        memcpy(newtokseq, line, codeptr-line);
+    } else {
+        ReportError (NULL, 0, Err_Memory);
+    }
+
+    return newtokseq;
 }
 
 
