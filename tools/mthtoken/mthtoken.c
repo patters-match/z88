@@ -229,7 +229,6 @@ void
 ReportError (char *filename, int lineno, error_t errnum)
 {
     char  errstr[256], errflnmstr[128];
-    char  *errline = NULL;
 
     errornumber = errnum;      /* set the global error variable for general error trapping */
 
@@ -322,6 +321,7 @@ ReleaseTokenTable(tokentable_t *tkt)
     if (tokensequence != NULL) {
         /* release allocated memory of token sqan sequence */
         free(tokensequence);
+        tokensequence = NULL;
     }
 }
 
@@ -1316,8 +1316,7 @@ enum symbols
 GetSym (sourcefile_t *file)
 {
     char *instr;
-    int c, chcount = 0, endbracket = 0;
-    unsigned char *ptr;
+    int c, chcount = 0;
 
     ident[0] = '\0';
 
@@ -1589,7 +1588,7 @@ defm(sourcefile_t *file)
 
 /* ------------------------------------------------------------------------------------------ */
 void
-ParseLine (sourcefile_t *asmfile, bool interpret)
+ParseLine (sourcefile_t *asmfile)
 {
     line[0] = '\0';     /* preset line buffer to being empty */
     codeptr = line;     /* prepare the pointer that collects fetched charecters from DEFM directive */
@@ -1629,7 +1628,7 @@ bool
 ParseAsmTextFile (sourcefile_t *asmfile)
 {
     while (!MfEof (asmfile)) {
-        ParseLine (asmfile, true);
+        ParseLine (asmfile);
 
         /* If errors, return immediatly... */
         if (totalerrors > 0) {
@@ -2058,12 +2057,11 @@ tokentable_t *
 LoadTokenTable (char *filename)
 {
     size_t tktsize = LengthOfFile(filename);
+    size_t tokenoffset,nexttokenoffset;
     unsigned char *tokentablefile = NULL, *tokenptr, *nexttokenptr;
-    token_t *newtoken;
     tokentable_t *tokentable = NULL;
 
-    int i,tokenidx = 0, totaltokens, recursivetokenboundary, tokenoffset, nexttokenoffset;
-    int sizeoftokenstr;
+    int i,totaltokens, recursivetokenboundary;
 
     if (tktsize < 5 || tktsize > 16384) {
         /* no offsets available, or too big (bank boundary is crossed) */
@@ -2122,7 +2120,7 @@ LoadTokenTable (char *filename)
 void
 ListExpandedTokens(tokentable_t *tkt)
 {
-    int i,l;
+    int i;
     token_t *rawtoken, *exptoken;
 
     for (i=0; i < tkt->totaltokens; i++) {
@@ -2172,13 +2170,10 @@ ParseTokenSequenceFile (sourcefile_t *scanfile)
     char evalerr;
     line[0] = '\0';     /* preset line buffer to being empty */
     codeptr = line;     /* prepare the pointer that collects fetched charecters from DEFM directive */
+
     GetSym (scanfile);     /* and fetch first symbol on line */
 
     while (!MfEof (scanfile)) {
-        scanfile->lineptr = MfTell (scanfile); /* preserve the beginning of the current line, for reference */
-        ++scanfile->lineno;
-
-        scanfile->eol = false; /* reset END OF LINE flag */
 
         switch (sym) {
             case hexconst:
@@ -2187,7 +2182,6 @@ ParseTokenSequenceFile (sourcefile_t *scanfile)
                 constant = GetConstant(&evalerr);
                 if (evalerr == 0) {
                     if ( (constant >= 0) && (constant <= 255) ) {
-                        fprintf(stderr,"%02X", (unsigned int) constant);
                         *codeptr++ = (unsigned char) constant;
                     } else {
                         ReportError (scanfile->fname, scanfile->lineno, Err_ConstOutOfRange);   /* out of range */
@@ -2197,17 +2191,26 @@ ParseTokenSequenceFile (sourcefile_t *scanfile)
                     ReportError (scanfile->fname, scanfile->lineno, Err_ConstOutOfRange);   /* the constant was not evaluable */
                 }
                 break;
+            case comma:
+                GetSym (scanfile);     /* and fetch first symbol on line */
+                break;
 
-            default:
-                /* ignore other constructs of source line... get next line */
+            case semicolon:
                 SkipLine (scanfile);
                 break;
 
-        }
+            case newline:
+                scanfile->lineptr = MfTell (scanfile); /* preserve the beginning of the current line, for reference */
+                ++scanfile->lineno;
 
-        if (sym != comma && sym != newline && sym != semicolon) {
-            ReportError (scanfile->fname, scanfile->lineno, Err_Syntax);   /* expression separator not found */
-            break;
+                scanfile->eol = false; /* reset END OF LINE flag */
+                SkipLine (scanfile);
+                break;
+
+            default:
+                /* ignore other constructs of source line... get next line */
+                GetSym (scanfile);     /* and fetch first symbol on line */
+                break;
         }
 
         /* If errors, return immediately... */
