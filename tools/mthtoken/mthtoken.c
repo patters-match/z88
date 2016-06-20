@@ -2150,9 +2150,10 @@ void
 Prompt(void)
 {
     puts(copyrightmsg);
-    puts("mthtoken [-tkt tokentablefile] [-r] <textfile> | -s \"string constant\"\n");
+    puts("mthtoken [-tkt tokentablefile] [-scan tokensequensefile] [-r] <textfile> | -s \"string constant\"\n");
     puts("Tokenize specified textfile, using default 'systokens.bin' token table,");
     puts("or using specified tokens using -tkt option.");
+    puts("Specify -scan to use preset token ID scan sequence in text file or string.");
     puts("De-tokenize specified textfile using -r option.");
     puts("As alternative, tokenize string constant with -s option.");
     puts("If <textfile> is omitted, expanded tokens are listed to stdout.");
@@ -2178,7 +2179,7 @@ ParseTokenSequenceFile (sourcefile_t *scanfile)
     char evalerr;
     unsigned char *newtokseq;
 
-    codeptr = line;     /* prepare the pointer that collects fetched charecters from DEFM directive */
+    codeptr = line;     /* prepare the pointer that collects token ID's */
     scanfile->lineno = 1;
 
     GetSym (scanfile);     /* fetch first symbol in scan file */
@@ -2365,6 +2366,21 @@ ProcessCommandline(int argc, char *argv[])
                 tokensequence = LoadTokenSequenceFile("systokens.scan");
                 if (tokensequence != NULL) {
                     fprintf(stderr,"Default 'systokens.scan' sequence were loaded\n");
+                }
+            }
+        }
+
+        if (argidx < argc) {
+            if (strcmp(argv[argidx],"-scan") == 0) {
+                /* token sequense file option specified */
+                argidx++;
+                if (argidx < argc) {
+                    tokensequence = LoadTokenSequenceFile(argv[argidx]);
+                    if (tokensequence != NULL) {
+                        fprintf(stderr,"'%s' sequence file were loaded\n", argv[argidx]);
+                    }
+
+                    argidx++;
                 }
             }
         }
