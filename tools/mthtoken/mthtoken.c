@@ -2401,7 +2401,7 @@ ProcessCommandline(int argc, char *argv[])
                 if (argidx < argc) {
                     ParseCmdlineString(argv[argidx]);
 
-                    TokenizeTextFile(tokentable, NULL);
+                    TokenizeTextFile(tokentable, tokensequence);
                     OutputTextFile();
                     ReleaseTokenTable(tokentable);
                     return true;
@@ -2414,7 +2414,7 @@ ProcessCommandline(int argc, char *argv[])
 
         if (argidx < argc) {
             /* text file specified, [de-]tokenize it... */
-            processedStatus = ProcessFile(argv[argidx], tokentable, NULL, detokenize);
+            processedStatus = ProcessFile(argv[argidx], tokentable, tokensequence, detokenize);
         } else {
             /* just output the token table to stdout */
             fprintf(stderr,"No text file specified. Output contents of Token Table:\n");
