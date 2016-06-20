@@ -2228,9 +2228,10 @@ ParseTokenSequenceFile (sourcefile_t *scanfile)
     }
 
     /* token sequence collected successfully from scan file, create it as a new variable and return pointer to it */
-    newtokseq = AllocBuffer(codeptr-line);
+    newtokseq = AllocBuffer(codeptr-line+1);
     if (newtokseq != NULL) {
-        memcpy(newtokseq, line, codeptr-line);
+        *codeptr = 0; /* null-terminate, in case the sequense was not null-terminated in sequense */
+        memcpy(newtokseq, line, codeptr-line+1);
     } else {
         ReportError (NULL, 0, Err_Memory);
     }
