@@ -171,7 +171,7 @@ enum symbols sym, ssym[] = {
     assign, bin_or, bin_nor, bin_not,less, greater, log_not, cnstexpr
 };
 
-const char copyrightmsg[] = "MthToken V0.5";
+const char copyrightmsg[] = "MthToken V0.6";
 const char separators[] = " &\"\';,.({[\\]})+-*/%^=|:~<>!#";
 
 /* Global text buffers and data structures, allocated by AllocateTextFileStructures() during startup of MthToken */
