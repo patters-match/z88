@@ -26,10 +26,6 @@
 ;
 ; ***************************************************************************************************
 
-module SystemToken
-
-xdef    SysTokenBase
-
 .SysTokenBase
         defb $80                                ; recursive token boundary
         defb $80                                ; number of tokens
@@ -295,7 +291,7 @@ xdef    SysTokenBase
 .tokenC1
         defm "(n)"                              ; "(n)" (9)
 .tokenC2
-        defm ".",$00                            ; ".",$00 (39)
+        defm "sp"
 .tokenC3
         defm $91, "e"                           ; "ate"
 .tokenC4
