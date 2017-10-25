@@ -149,8 +149,7 @@
 
 ; ************************************************************************************************************
 ;
-.z80asm_entry       LD   HL, z80asm_name
-                    CALL_OZ(Dc_Nam)                    ; Name z80asm with 'InterLogic'
+.z80asm_entry
                     CALL InitVars                      ; reset variables, pointers...
                     CALL z80asm_windows                ; Display Z80 assembler windows
 ;                    CALL Intuition_init                ; activate Intuition (resided in segment 0)
@@ -860,7 +859,7 @@
 .break_msg          DEFM 1, "2H5Use ", 1, "B", 1, SD_SQUA, 1, "B ", 1, SD_ESC
                     DEFM " to abort assembly or linking.", 13, 10, 0
 
-.z80asm_name        DEFM "InterLogic", 0
+.z80asm_name        DEFM "z80asm", 0
 .Z88_ident          DEFM 3, "Z88", 0
 .asmPC_ident        DEFM 5, "ASMPC", 0
 .empty_msg          DEFM 1, "2H5", 13, 10, 0
@@ -868,7 +867,7 @@
 .pass1_msg          DEFM 1, "2H5Pass1...", 0
 .pass2_msg          DEFM 1, "2H5Pass2...", 0
 .totalline_msg      DEFM 1, "2H5Assembled lines: ", 0
-.cdefile            DEFM ":ram.-/temp.buf", 0
+.cdefile            DEFM ":RAM.-/temp.buf", 0
 .objext             DEFM "obj"
 .defext             DEFM "def"
 .errext             DEFM "err"

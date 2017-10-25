@@ -35,7 +35,7 @@
      XREF Open_file, Close_file, Delete_file, fseek, Write_string     ; fileio.asm
      XREF Copy_file                                                   ;
 
-     XDEF InitRelocTable, RelocationPrefix
+     XDEF InitRelocTable, RelocationPrefix, reloctablefile, bufferfile
 
 
      INCLUDE "stdio.def"
@@ -163,9 +163,6 @@
                               CALL Copy_file                     ; fwrite(cdefile, buff, ABC)
                               LD   HL, tmpfilehandle
                               CALL Close_file
-                              LD   B,0
-                              LD   HL, bufferfile
-                              CALL Delete_file                   ; remove(":ram.-/buf")
 
                               LD   HL, relocmsg
                               CALL_OZ(GN_Sop)                    ; puts("Size of relocation header is ")

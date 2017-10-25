@@ -34,6 +34,8 @@
 
      XREF FlushBuffer                                       ; bytesio.asm
      XREF ReportError_NULL                                  ; errors.asm
+     XREF reloctablefile, bufferfile                        ; reloc.asm
+     XREF cdefile                                           ; z80asm.asm
 
 ; global procedures in this module:
      XDEF Read_fptr, Write_fptr, Read_string, Write_string
@@ -344,27 +346,14 @@
 
 
 ; ****************************************************************************************
-;
+; Delete any temporary buffer files, before z80asm is completed.
 .Delete_bufferfiles LD   B,0
-                    LD   HL, buffer_wildcard
-                    LD   A,1
-                    CALL_OZ(GN_Opw)
-                    RET  C                   ; probably insufficient room
-
-.delete_loop        LD   DE, stringconst
-                    LD   C, 127
-                    CALL_OZ(GN_Wfn)
-                    JR   C, eof_buffernames
-                         LD   B,0
-                         LD   HL, stringconst
-                         CALL Delete_file    ; delete file from :RAM.-
-                    JR   delete_loop
-
-.eof_buffernames    CALL_OZ(GN_Wcl)
-                    RET
-.buffer_wildcard    DEFM ":RAM.-/*", 0
-
-
+                    LD   HL, reloctablefile
+                    CALL Delete_file         ; delete ":RAM.-/reloctable", if it exists...
+                    LD   HL, bufferfile
+                    CALL Delete_file         ; delete ":RAM.-/buf", if it exists...
+                    LD   HL, cdefile
+                    JP   Delete_file         ; delete ":RAM.-/temp.buf", if it exists...
 
 
 ; ****************************************************************************************
