@@ -25,6 +25,7 @@
      DEFC POOL_OPEN = 0, POOL_CLOSED = $FF
 
      INCLUDE "memory.def"
+     INCLUDE "error.def"
 
 
 ; **********************************************************************************
@@ -131,11 +132,12 @@
                     LD   B,A
                     LD   H,A
                     LD   L,A                        ; NULL pointer
+                    LD   A,RC_Room
                     SCF                             ; ups, no room for another pool entity
 
-.exit_malloc        LD   A,B
+.exit_malloc        LD   D,B
                     POP  BC                         ; original C restored
-                    LD   B,A
+                    LD   B,D
                     POP  DE                         ; original DE restored
                     POP  IX                         ; original IX restored
                     POP  IY                         ; original IY restored
