@@ -37,6 +37,7 @@ IF !__TIME_DEF__
      DEFC Gn_Msc = $2009      ; Miscellaneous time operations
           DEFC MT_CVT = $00   ; convert source time to elapsed time
           DEFC MT_UBT = $01   ; update base time over a soft reset (internal OZ usage)
+          DEFC MT_UPT = $02   ; convert uptime (internal OZ usage, OZ 5.0 and newer)
           
      DEFC Gn_Gtm = $0A09      ; convert ASCII string to internal time format
      DEFC Gn_Ptm = $0C09      ; convert internal time to ASCII string
@@ -60,6 +61,7 @@ IF !__TIME_DEF__
           DEFC HT_RES = $01   ; reset hardware timer
           DEFC HT_RD  = $02   ; read hardware timer
           DEFC HT_MDT = $03   ; read monthy/date/time address
+          DEFC HT_UPT = $04   ; read current uptime (OZ 5.0 and newer)
 
      DEFC Os_Ust = $78        ; update small timer (internal)
 

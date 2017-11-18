@@ -92,8 +92,8 @@
 .memory_banner      DEFM "Runtime Memory Usage", 0
 .message_banner     DEFM "Messages", 0
 
-.copyright_msg      DEFM "Z80 Module Assembler V1.0.3", 13, 10
-                    DEFM "(c) Gunther Strube 1995-2006", 13, 10, 0
+.copyright_msg      DEFM "Z80 Module Assembler V1.0.4B", 13, 10
+                    DEFM "(c) Gunther Strube 1995-2017", 13, 10, 0
 
 .window             defm 1, "7#1", 32, 32, 32+94, 32+8, 128
                     defm 1, "2C1", 0

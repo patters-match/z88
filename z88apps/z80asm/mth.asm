@@ -309,7 +309,7 @@
 ;
 ; Help pages for topics and commands:
 ;
-.z80asm_help        DEFM $81, "Z80 Module Assembler V1.0.3 - ", $90, " ", $C8, " development", $81, $7F
+.z80asm_help        DEFM $81, "Z80 Module Assembler V1.0.4B - ", $90, " ", $C8, " development", $81, $7F
                     DEFM $B6, $7F
                     DEFM $B7, $7F
                     DEFM $80

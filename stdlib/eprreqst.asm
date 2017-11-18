@@ -366,7 +366,7 @@
                     POP  BC
                     JR   Z,exit_valozwtmrk   ; 0 was written at $(3FFE) and 'oz' was still returned!
 
-                    LD   A,$FE               ; we might have written to a RAM card,
+                    LD   A,$02               ; we might have written to a RAM card,
                     CALL MemWriteWord        ; restore original values to ($3FxE)
 .exit_valozwtmrk
                     POP  DE                  ; return D = size of area (if file area found)

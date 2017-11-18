@@ -225,7 +225,7 @@
 .tokB4def           DEFM "P", $98                     ; 'Program'
 .tokB5def           DEFM "p", $98                     ; 'program'
 .tokB6def           DEFM "Design, ", $B4, "m", $CE, " by Gunther Strube"
-.tokB7def           DEFM "Copyright (C) Int", $FE, "Logic 1995-2006"
+.tokB7def           DEFM "Copyright (C) 1995-2017"
 .tokB8def           DEFM "pplica", $CD                ; 'pplication'
 .tokB9def           DEFM "C", $E0                     ; 'Command'
 .tokBAdef           DEFM "c", $E0                     ; 'command'

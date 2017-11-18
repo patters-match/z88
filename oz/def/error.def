@@ -67,6 +67,7 @@ IF !__ERROR_DEF__
      DEFC RC_Bank   = $34     ; Bad bank  *
      DEFC RC_Frm    = $35     ; Frame error  *
      DEFC RC_Par    = $36     ; Parity error
+     DEFC RC_Btl    = $37     ; Batt Low condition (OZ 4.7 and newer)
      DEFC RC_Dvz    = $46     ; Division by zero
      DEFC RC_Tbg    = $47     ; Too big
      DEFC RC_Nvr    = $48     ; Negative root

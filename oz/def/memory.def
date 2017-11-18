@@ -67,6 +67,7 @@ DEFINE __MEMORY_DEF__
 ; Memory comparison:
 
     DEFC Gn_Cme  = $4209           ; compare null-terminated strings
+    DEFC Gn_Lut  = $8E09           ; lookup table (OZ 5.0 and newer)
 
 ; Memory/bank binding:
 

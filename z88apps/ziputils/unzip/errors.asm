@@ -206,6 +206,10 @@ include "data.def"
 
 ; Subroutines to close files
 ; Enter at closefiles for all, closeoutput otherwise
+; Due to a possible bug in OZ, we close the output input handle
+; before the output handle; doing it the other way around can lead to
+; an internal error closing the output file if a no room error occurred
+; when writing to it.
 
 .closefiles
         ld      a,(openfiles)
@@ -219,21 +223,21 @@ include "data.def"
 .closeoutput
         ld      a,(openfiles)
         ld      b,a             ; save open files flag
+        and     4
+        jr      z,closeout      ; move on if output input closed
+        ld      ix,(oihandle)
+        call    oz_gn_cl
+        ld      a,b
+        and     3               ; clear output input open flag
+        ld      b,a
+.closeout
+        ld      a,b
         and     2
-        jr      z,closeoi       ; move on if output closed
+        jr      z,endclose      ; move on if oi closed
         ld      ix,(outhandle)
         call    oz_gn_cl
         ld      a,b
         and     5               ; clear output open flag
-        ld      b,a
-.closeoi
-        ld      a,b
-        and     4
-        jr      z,endclose      ; move on if oi closed
-        ld      ix,(oihandle)
-        call    oz_gn_cl
-        ld      a,b
-        and     3               ; clear oi open flag
         ld      b,a
 .endclose
         ld      a,b

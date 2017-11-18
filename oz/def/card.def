@@ -31,6 +31,8 @@ lstoff
 IF !__CARD_DEF__
 define __CARD_DEF__
 
+;   ROM / EPROM card header
+
         DEFC CH_TAG          =  $3FFE           ; card header tag
                 DEFC CT_ROM  =  'Z'<<8 | 'O'    ; "OZ" application ROM watermark
                 DEFC CT_EPR  =  'z'<<8 | 'o'    ; "oz" storage EPROM watermark
@@ -52,10 +54,20 @@ define __CARD_DEF__
         DEFC CH_ID           =  $3FF8           ; 24 bits unique ID for application card
                                                            ; 32 bits random ID for storage card
 
+        DEFC CH_HOOK         =  $BFF8           ; OZ in slot 1 hook entry
+
         DEFC CH_EXT          =  $3FFB           ; external ID for application card
                 DEFC CX_APL  =  $80                     ; external application ID
                 DEFC CX_OS   =  $81                     ; operating system
 
+;   RAM card header
+
+        DEFC CR_TAG          =  $0000           ; Ram tag offset
+                DEFC CT_RAM  =  $A55A           ; RAM memory card (at $0000)
+        
+        DEFC CR_SIZ          =  $0002           ; Size in banks offset
+        DEFC CR_MAT          =  $0100           ; MAT address
+        
 ENDIF
 
 lston

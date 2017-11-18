@@ -30,10 +30,10 @@
 ; Bank $3E:    Token base, Zprom MTH
 ; Bank $3F:    Zprom application, Front DOR & ROM Header
 
-DEFC Zprom_MTH_bank = $3E, tokens_bank = Zprom_MTH_bank, Zprom_bank = $3F
+DEFC Zprom_MTH_bank = $3E, Zprom_Tokens_bank = Zprom_MTH_bank, Zprom_bank = $3F
 
-DEFC MTH_Zprom_ORG = $0400
-DEFC Token_base = $0000
+DEFC MTH_Zprom_ORG = $0000
+DEFC Zprom_Token_Base = $0000
 
 DEFC Zprom_DOR = $C000, Zprom_workspace = 256
 

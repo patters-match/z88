@@ -34,9 +34,9 @@
     XREF SendString, Send_ESC, PutByte, GetByte
     XREF Get_wcard_handle, Find_Next_Match, Close_wcard_handler
     XREF Abort_file, Get_file_handle, Reset_buffer_ptrs, Flush_buffer, Close_file
-    XREF Write_buffer, Load_Buffer
+    XREF Write_buffer, Load_Buffer, Get_Time
     XREF Debug_message, Write_Message, Msg_Command_aborted, Msg_Protocol_error, Msg_File_aborted
-    XREF Msg_No_Room, Msg_file_open_error, System_Error
+    XREF Msg_file_received, Msg_file_sent, Msg_No_Room, Msg_file_open_error, System_Error
     XREF Message3, Message4, Message5, Message6, Message7, Message14, Message15, Message16
     XREF Message17, Message18
     XREF Error_message6
@@ -307,6 +307,9 @@
                   CALL Restore_TraFlag
                   JR   C,abort_batch_receive
                   JR   Z,abort_batch_receive             ; timeout - communication stopped
+
+                  CALL Get_Time                          ; read system time, to know elapsed time of received file
+
                   LD   B,0
                   LD   HL,filename_buffer
                   CALL Write_message                     ; write filename to screen
@@ -335,6 +338,7 @@
 .close_rcvd_file                                     ; ESC 'E' received.
                   CALL Flush_buffer                  ; save contents of buffer...
                   CALL Close_file
+                  CALL Msg_file_received
                   JP   Batch_Receive_loop            ; new file coming?
 ; byte in A to file...
 .byte_to_file     CP   LF                            ; is it a line feed?
@@ -366,10 +370,10 @@
 
 .verify_write_filearea
                   call CheckFileAreaOfSlot           ; file area in slot A = "0", "1", "2" or "3" => C = slot number
-                  jr   c,FileEpr_create_error        ; this slot had no file area (no card)...
-                  jr   nz,FileEpr_create_error       ; this slot had no file area (card, but no file area)
+                  jr   c,filecard_error              ; this slot had no file area (no card)...
+                  jr   nz,filecard_error             ; this slot had no file area (card, but no file area)
                   call SlotWriteSupport              ; slot C writeable?
-                  jr   c,FileEpr_create_error
+                  jr   c,filecard_error
 
                   ld   de,filename_buffer+6          ; filename begins with "/" (skip ":EPR.x" device name)
                   call FileEprFindFile               ; filename already exists on file eprom?
@@ -385,6 +389,7 @@
                   pop  hl                            ; file blown successfully to File Area
                   pop  bc
                   pop  af
+                  call nz,Msg_file_received
                   jp   nz,Batch_Receive              ; mark old file as deleted?
                   call FileEprDeleteFile             ; (BHL = old file Entry) Yes, so new "version" from serial port becomes the active one..
                   jp   Batch_Receive
@@ -392,6 +397,7 @@
                   pop  hl
                   pop  bc
                   pop  af
+.filecard_error
                   LD   HL, Error_message6            ; "File Card Write Error."
                   CALL Write_message
                   jr   void_file_loop                ; wait for end of file marker, then back to main loop
@@ -423,6 +429,9 @@
 
                   LD   HL, filename_buffer
                   CALL Write_message
+
+                  CALL Get_Time                      ; read system time, to know elapsed time of received file
+
                   CALL Transfer_filename
                   JR   C, batch_send_aborted         ; transmission error...
                   JR   Z, batch_send_aborted
@@ -431,6 +440,7 @@
                   JR   C, batch_send_aborted         ; transmission error...
                   JR   Z, batch_send_aborted
 
+                  CALL Msg_file_sent
                   JR   find_files_loop
 .batch_send_aborted
                   CALL Close_wcard_handler
@@ -460,6 +470,13 @@
                   push    bc
                   push    hl                         ; preserve pointer to File Entry...
                   ld      hl,filename_buffer
+
+                  ld      hl, message17
+                  oz      GN_sop
+                  ld      hl, filename_buffer
+                  call    Write_message
+
+                  call    get_time                   ; read system time, to know elapsed time of sent file
                   call    Transfer_filename          ; First transmit filename
                   pop     hl
                   pop     bc
@@ -473,6 +490,8 @@
                   call    FileEprSendFile            ; transmit single File Entry image to serial port
                   jr      c,err_batch_send           ; transmission error...
                   jr      z,err_batch_send
+
+                  call    Msg_file_sent              ; display "file sent in xxx" elapsed time
 
                   call    Send_EscE
                   jr      c,err_batch_send           ; transmission error...
@@ -830,7 +849,7 @@
 
 
 ; ***********************************************************************
-; Path begins with ":XXX." 
+; Path begins with ":XXX."
 ;
 ; HL = pointer to path containing device / dir names
 ; DE = pointer to device name pattern

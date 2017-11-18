@@ -13,16 +13,16 @@
 ; **************************************************************************************************
 ; This file is part of Zprom.
 ;
-; Zprom is free software; you can redistribute it and/or modify it under 
+; Zprom is free software; you can redistribute it and/or modify it under
 ; the terms of the GNU General Public License as published by the Free Software Foundation;
 ; either version 2, or (at your option) any later version.
 ; Zprom is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
 ; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ; See the GNU General Public License for more details.
-; You should have received a copy of the GNU General Public License along with the Zprom; 
+; You should have received a copy of the GNU General Public License along with the Zprom;
 ; see the file COPYING. If not, write to the
 ; Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
-; 
+;
 ;
 ;***************************************************************************************************
 
@@ -67,8 +67,8 @@
                     DEFB Zprom_MTH_bank                 ; point to commands
                     DEFW Zprom_help
                     DEFB Zprom_MTH_bank                 ; point to help
-                    DEFW token_base
-                    DEFB tokens_bank                    ; point to token base
+                    DEFW Zprom_token_base
+                    DEFB Zprom_tokens_bank              ; point to token base
                     DEFB 'N'                            ; Key to name section
                     DEFB NameEnd1-NameStart1            ; length of name
 .NameStart1         DEFM "Zprom", 0

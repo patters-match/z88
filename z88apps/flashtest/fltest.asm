@@ -104,7 +104,7 @@ IF !DEBUG
                     DEFM $7F
 endif
 .progversion_msg
-                    DEFM "Release V1.4.1, (C) G. Strube, Apr 2010", 0
+                    DEFM "Release V1.4.2, (C) G. Strube, Aug 2015", 0
 
 ; ******************************************************************************
 ;

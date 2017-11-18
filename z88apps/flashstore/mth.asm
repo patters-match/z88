@@ -229,10 +229,10 @@
 ; *******************************************************************************************************************
 ;
 .FlashStoreHelp
-                    DEFM 12, "FlashStore V1.9.2 (Jan 2011)", $7F, $7F
+                    DEFM 12, "FlashStore V1.9.4 (Nov 2017)", $7F, $7F
                     DEFM "Manage files on Rakewell Flash Cards and RAM.", $7F, $7F
                     DEFM "Developed by", $7F
-                    DEFM "T.Peycru, G.Strube & V.Gerhardi, (C) 1997-2007, GPL licence", $7F, $7F
+                    DEFM "T.Peycru, G.Strube & V.Gerhardi, (C) 1997-2017, GPL licence", $7F, $7F
                     DEFM "Get updates from ", 1, "Bz88.sf.net", 1, "B or ", 1, "Bwww.rakewell.com", 1, "B", 0
 
 .cmd_sc_help

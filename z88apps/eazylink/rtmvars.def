@@ -57,6 +57,7 @@ DEFVARS $2000                      ; big work space buffers
     Update_date          ds.b 6    ; Temp store of a file's update date
     file_ptr             ds.l 1
     directory_ptr        ds.w 1
+    timestamp            ds.b 3    ; time measurement
     Filename_buffer      ds.b 256  ; Buffer for filenames
 
     File_buffer          ds.b FileBufferSize ; Receive/transmit Buffer for serial port communication

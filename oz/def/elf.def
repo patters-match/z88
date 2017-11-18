@@ -20,25 +20,25 @@ lstoff
 ;                                  59 Temple Place-Suite 330,
 ;                                  Boston, MA 02111-1307, USA.
 ;
-; (C) Jorma Oksanen (jorma.oksanen@aini.fi), 2003
-; (C) Thierry Peycru (pek@users.sf.net), 2005-2007
-; (C) Gunther Strube (gstrube@gmail.com), 2005-2007
+; (C) Thierry Peycru (pek@users.sf.net), 2005-2017
+; (C) Gunther Strube (gstrube@gmail.com), 2005-2017
 ;
 ; ***************************************************************************************************
 
+IF !__ELF_DEF__
+DEFINE __ELF_DEF__
 
-; Token manipulation:
+; ***************************************************************************************************
+;
+; 32 bits ELF for OZ
+;
+; ***************************************************************************************************
 
-IF !__TOKENS_DEF__
-     DEFINE __TOKENS_DEF__
+; API
 
-     INCLUDE "macros.def"
-
-
-     DEFC Os_Wrt  = $CC06          ; Write token
-     DEFC Os_Wtb  = $CA06          ; Write token base
-     DEFC OS_Wts  = $BC06          ; Write token string (OZ 5.0 and newer)
+        defc    GN_Elf          = $8209         ; execute ELF binary (OZ 5.0 and newer)
 
 ENDIF
 
 lston
+

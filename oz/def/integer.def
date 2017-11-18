@@ -39,6 +39,8 @@ INCLUDE "macros.def"
       DEFC Gn_D24  = $7809         ; Unsigned 24bit division
       DEFC Gn_Gdn  = $1009         ; ASCII (decimal) to integer (binary) conversion
       DEFC Gn_Pdn  = $1209         ; Integer (binary) to ASCII (decimal) conversion
+      DEFC GN_Ghn  = $8409         ; ASCII (hexadecimal) to integer (binary) conversion (OZ 5.0 and newer)
+      DEFC GN_Phn  = $8609         ; Integer (binary) to ASCII (hexadecimal) conversion (OZ 5.0 and newer)
 
 ENDIF
 

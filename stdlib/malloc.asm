@@ -3,7 +3,7 @@
 ; **************************************************************************************************
 ; This file is part of the Z88 Standard Library.
 ;
-; The Z88 Standard Library is free software; you can redistribute it and/or modify it under 
+; The Z88 Standard Library is free software; you can redistribute it and/or modify it under
 ; the terms of the GNU General Public License as published by the Free Software Foundation;
 ; either version 2, or (at your option) any later version.
 ; The Z88 Standard Library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
@@ -12,7 +12,7 @@
 ; You should have received a copy of the GNU General Public License along with the
 ; Z88 Standard Library; see the file COPYING. If not, write to the
 ; Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
-; 
+;
 ;
 ;***************************************************************************************************
 
@@ -25,6 +25,7 @@
      DEFC POOL_OPEN = 0, POOL_CLOSED = $FF
 
      INCLUDE "memory.def"
+     INCLUDE "error.def"
 
 
 ; **********************************************************************************
@@ -126,15 +127,17 @@
                     LD   (pool_index),A             ; update last pool index
                     JR   pool_loop                  ; allocate memory in new pool instead
 
-.pool_limit_reached XOR  A
+.pool_limit_reached POP  AF                         ; get rid of BC (total bytes to allocate)
+                    XOR  A
                     LD   B,A
                     LD   H,A
                     LD   L,A                        ; NULL pointer
+                    LD   A,RC_Room
                     SCF                             ; ups, no room for another pool entity
 
-.exit_malloc        LD   A,B
+.exit_malloc        LD   D,B
                     POP  BC                         ; original C restored
-                    LD   B,A
+                    LD   B,D
                     POP  DE                         ; original DE restored
                     POP  IX                         ; original IX restored
                     POP  IY                         ; original IY restored

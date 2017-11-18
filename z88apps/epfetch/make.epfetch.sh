@@ -16,20 +16,12 @@
 #
 # *************************************************************************************
 
-# return version of Mpm to command line environment.
-# validate that MPM is V1.5 or later - only this version or later supports macros
-MPM_VERSIONTEXT=`mpm -version`
+# ensure that we have an up-to-date standard library
+cd ../../stdlib; ./makelib.sh; cd ../z88apps/epfetch
 
-if test $? -lt 15; then
-  echo Mpm version is less than V1.5, Ep-Fetch2 compilation aborted.
-  echo Mpm displays the following:
-  mpm
-  exit 1
-fi
-
-# compile Ep-Fetch2 application from scratch
+# compile EazyLink application from scratch
 rm -f *.obj *.bin *.map
-mpm -bg -I../../oz/def epfetch2
+mpm -bg -I../../oz/def -l../../stdlib/standard.lib epfetch2
 mpm -b romhdr
 
 # Create a 16K Rom Card with EP-Fetch2

@@ -36,10 +36,13 @@ IF !__STDIO_DEF__
 
      DEFC  OS_In     = $2A         ; read a byte from std. input (keyboard)
      DEFC  OS_Tin    = $2D         ; read a byte from std. input, with timeout
+     DEFC  OS_Kin    = $9C         ; direct read of byte from keyboard, no pre-emption, with timeout (OZ 5.0 or newer)
      DEFC  OS_Out    = $27         ; write a byte to std. output
      DEFC  OS_Bout   = $90         ; send a block of bytes from local or extended address to std. output (OZ 4.2 or newer)
      DEFC  OS_Pout   = $93         ; send embedded string at (PC) to std. output (OZ 4.2 or newer)
-     DEFC  OS_Hout   = $96         ; write a hexadecimal byte to std. output (OZ 4.5 or newer) 
+     DEFC  OS_Hout   = $96         ; write a hexadecimal byte to std. output (OZ 4.5 or newer)
+     DEFC  OS_Sout   = $99         ; write string to std. output (OZ 5.0 or newer)
+     DEFC  OS_Nln    = $9F         ; send newline (CR/LF) to std. output (OZ 5.0 or newer)
      DEFC  GN_Nln    = $2E09       ; send newline (CR/LF) to std. output
      DEFC  GN_Sop    = $3A09       ; write string to std. output
      DEFC  GN_Soe    = $3C09       ; write string from extended address
