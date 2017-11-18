@@ -45,7 +45,7 @@ defc    FN_AH                   =$01            ; allocate handle
 defc    FN_VH                   =$02            ; verify handle
 defc    FN_FH                   =$03            ; free handle
 defc    FN_GH                   =$04            ; get (find) handle (OZ 4.6 and newer)
-defc    FN_NH                   =$05            ; get next handle of same type (OZ 4.6 and newer)
+defc    FN_CH                   =$05            ; change handle type (OZ 5.0 and newer)
 
 ; Tri-handle calls:
 defc    Os_Fth                  =$DE06          ; Free tri-handle (internal)
@@ -57,8 +57,23 @@ defc    TH_FILT                 =$F0            ; filter
 defc    TH_WMG                  =$F1            ; wildcard
 defc    TH_ALM                  =$F2            ; alarm
 
+; structure:
+defc    NUMHANDLES              = 16*6          ; 16 handles by page starting at 'Handles' in sysvar.def
+defc    hnd_SIZEOF              = 16            ; each handle is 16 bytes length
+
+; special handles:
+defc    phnd_Khn                =$01            ; keyboard handle
+defc    phnd_Shn                =$02            ; screen handle
+defc    phnd_Phn                =$03            ; indirect printer handle
+defc    phnd_Nhn                =$04            ; null handle
+defc    phnd_Com                =$05            ; comms handle
+defc    phnd_Ihn                =$06            ; IN handle
+defc    phnd_Ohn                =$07            ; OUT handle
+defc    phnd_Rhn                =$08            ; direct printer handle
+defc    phnd_Last               = phnd_Rhn      ; for verification in IsSpecialHandle
 
 ; handle types:
+defc    HND_FREE                =$00           ; handle is free when type is zero
 defc    HND_DEV                 =$01           ; device
 defc    HND_FILE                =$02           ; file/directory
 defc    HND_MEM                 =$03           ; memory
@@ -66,9 +81,10 @@ defc    HND_PROC                =$04           ; process
 defc    HND_ALRM                =$05           ; alarm
 defc    HND_TRHN                =$06           ; tri-handle
 defc    HND_INST                =$07           ; installation (OZ 4.6 and newer)
-defc    HND_TEMP                =$FA           ; temporary
-
-defc    HND_B_DEV               =0
+defc    HND_ELF                 =$08           ; ELF (OZ 5.0 and newer)
+defc    HND_ELFS                =$09           ; ELF son for memory configuration, not implemented (OZ 5.0 and newer)
+defc    HND_DBG                 =$0A           ; debug (OZ 5.0 and newer)
+defc    HND_TEMP                =$0B           ; temporary
 
 ENDIF
 

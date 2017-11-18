@@ -43,7 +43,7 @@ define __BASTOKEN_DEF__
 	DEFC	BAS_TAB		 = 138		;TAB(
 	DEFC	BAS_ELSE	 = 139
 	DEFC	BAS_THEN	 = 140
-
+	DEFC	BAS_LINENO	 = 141		;token for line number
 	DEFC	BAS_OPENIN	 = 142
 	DEFC	BAS_PTR_G	 = 143		;Used to Get pseudo variable value
 	DEFC	BAS_PAGE_G	 = 144		;Used to Get pseudo variable value
@@ -100,7 +100,7 @@ define __BASTOKEN_DEF__
 	DEFC	BAS_STR		 = 195		;STR$
 	DEFC	BAS_STRING	 = 196		;STRING$(
 	DEFC	BAS_EOF		 = 197
-	DEFC	BAS_AUTO	 = 198
+	DEFC	BAS_AUTO	 = 198		; $C6 : start of command Tokens
 	DEFC	BAS_DELETE	 = 199
 	DEFC	BAS_LOAD	 = 200
 	DEFC	BAS_LIST	 = 201
@@ -159,6 +159,26 @@ define __BASTOKEN_DEF__
 	DEFC	BAS_WIDTH	 = 254
 	DEFC	BAS_OSCLI	 = 255
 
+;	Basic error messages:
+
+	DEFC	BE_NoRoom		= 0
+	DEFC	BE_OutOfRange	= 1
+	DEFC	BE_Byte			= 2
+	DEFC	BE_Index		= 3
+	DEFC	BE_Mistake		= 4
+	DEFC	BE_Missing		= 5
+	DEFC	BE_TypeMismatch = 6
+	DEFC	BE_NoFN			= 7
+	DEFC	BE_DollarRange 	= 8
+	DEFC	BE_MissingStar	= 9
+	DEFC	BE_BadDIM		= 10
+	DEFC	BE_DIMspace		= 11
+	DEFC	BE_NotLocal		= 12
+	DEFC	BE_NoPROC		= 13
+	DEFC	BE_Array 		= 14
+
+	DEFC	BE_BadMode		= 153
+	
 ENDIF
 
 lston

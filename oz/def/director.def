@@ -55,6 +55,8 @@ IF !__DIRECTOR_DEF__
           DEFC DQ_Tot    = $18     ; Get output-T handle
           DEFC DQ_Tpr    = $1B     ; Get printer-T handle
           DEFC DQ_Chn    = $1E     ; Reset serial port and get NQ_Chn
+          DEFC DQ_Prc    = $21     ; Get process env. with Pid A                    (OZ 5.0 and newer)
+          DEFC DQ_Fmh    = $24     ; Get filesystem memory handle                   (OZ 5.0 and newer)
 
      DEFC Dc_Out = $100C           ; Write to CLI (internal)
      DEFC Dc_Pol = $220C           ; Poll for card usage (internal)
@@ -69,7 +71,7 @@ IF !__DIRECTOR_DEF__
           DEFC RB_OPT = $04        ; output stream T - copy of output
           DEFC RB_PTT = $05        ; printer stream T -  copy of output
 
-     DEFC Dc_Scn = $240C           ; Scan for card usage (internal)
+     DEFC Dc_Upd = $240C           ; Operating system update (internal)             (OZ 4.7 and newer)
      DEFC Dc_Sp  = $180C           ; Handle Director/CLI settings (internal)
 
      DEFC Dc_Xin = $1E0C           ; Examine CLI input (internal)
@@ -81,6 +83,7 @@ IF !__DIRECTOR_DEF__
 
      DEFC Os_Cli = $84             ; CLI interface (internal)
      ; arguments:
+          DEFC CL_CNT = $00        ; get CLI use count
           DEFC CL_RIM = $01        ; get raw input
           DEFC CL_MBC = $02        ; meta/base to character conversion
           DEFC CL_CMB = $03        ; character to meta/base conversion

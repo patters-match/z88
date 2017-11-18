@@ -34,9 +34,6 @@ IF !__FPP_DEF__
 
      INCLUDE "macros.def"
 
-
-     DEFC FP_BAS = $A2             ; call Floating point package function
-                                   ; (doesn't work properly)
 ; function codes:
           DEFC FP_AND = $21        ; bitwise AND
           DEFC FP_IDV = $24        ; integer division
@@ -81,7 +78,52 @@ IF !__FPP_DEF__
           DEFC FP_TST = $99        ; test number for zero and sign
           DEFC FP_CMP = $9C        ; compare two numbers
           DEFC FP_NEG = $9F        ; negate number
+          DEFC FP_BAS = $A2        ; call Floating point package function
 
+               ; arguments
+               DEFC FB_AND = 0     ; bitwise AND
+               DEFC FB_IDV = 1     ; integer division
+               DEFC FB_EOR = 2     ; bitwise XOR
+               DEFC FB_MOD = 3     ; integer remainder
+               DEFC FB_OR  = 4     ; bitwise OR
+               DEFC FB_LEQ = 5     ; less than or equal to
+               DEFC FB_NEQ = 6     ; not equal to
+               DEFC FB_GEQ = 7     ; greater than or equal to
+               DEFC FB_LT  = 8     ; less than
+               DEFC FB_EQ  = 9     ; equal
+               DEFC FB_MUL = 10    ; multiply
+               DEFC FB_ADD = 11    ; add
+               DEFC FB_GT  = 12    ; greater than
+               DEFC FB_SUB = 13    ; subtract
+               DEFC FB_PWR = 14    ; raise to the power
+               DEFC FB_DIV = 15    ; divide
+               DEFC FB_ABS = 16    ; absolute value
+               DEFC FB_ACS = 17    ; arc cosine
+               DEFC FB_ASN = 18    ; arc sine
+               DEFC FB_ATN = 19    ; arc tangent
+               DEFC FB_COS = 20    ; cosine
+               DEFC FB_DEG = 21    ; radians to degrees
+               DEFC FB_EXP = 22    ; exponential
+               DEFC FB_INT = 23    ; integer value
+               DEFC FB_LN  = 24    ; base e (natural) logarithm
+               DEFC FB_LOG = 25    ; base 10 (common) logarithmn
+               DEFC FB_NOT = 26    ; bitwise NOT
+               DEFC FB_RAD = 27    ; degrees to radians
+               DEFC FB_SGN = 28    ; sign
+               DEFC FB_SIN = 29    ; sinus
+               DEFC FB_SQR = 30    ; square root
+               DEFC FB_TAN = 31    ; tangent
+               DEFC FB_ZER = 32    ; zero
+               DEFC FB_ONE = 33    ; one
+               DEFC FB_TRU = 34    ; true (-1)
+               DEFC FB_PI  = 35    ; PI
+               DEFC FB_VAL = 36    ; numeric value of string
+               DEFC FB_STR = 37    ; string value of a number
+               DEFC FB_FIX = 38    ; truncate a float to an integer
+               DEFC FB_FLT = 39    ; integer to float conversion
+               DEFC FB_TST = 40    ; test number for zero and sign
+               DEFC FB_CMP = 41    ; compare two numbers
+               DEFC FB_NEG = 42    ; negate number
 ENDIF
 
 lston

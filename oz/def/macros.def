@@ -65,7 +65,7 @@ macro extcall (offset, bank)
   if \% = 2                                     ; only generate code if offset and bank is specified
         rst     28h                             ; EXTCALL <address>
         defw    \offset
-        defb    \bank
+        defw    \bank
   else
         error "EXTCALL: missing or incomplete address"
   endif
@@ -286,6 +286,34 @@ macro dorrom (doroffset, dorbank, name)
 .\start
         dt_ptr  0,0, 0,0, \doroffset,\dorbank   ; pointer to appl. front Dor in slot X
         defb    DM_ROM
+        defb    \end - $-1
+        dt_nam  \name
+        defb    $ff                             ; DOR Terminator
+.\end
+endmacro
+
+; --------------------------------------------------------------------------------------------------
+; Device (pseudo) DOR
+macro dordev (doroffset, dorbank, name, type)
+  if !\$?[0]
+    error "Device Front DOR offset (of pointer) not specified"
+    exitmacro
+  endif
+  if !\$?[1]
+    error "Device Front DOR bank (of pointer) not specified"
+    exitmacro
+  endif
+  if !\$?[2]
+    error "Device Front DOR name not specified"
+    exitmacro
+  endif
+  if !\$?[3]
+    error "Device Front DOR type not specified"
+    exitmacro
+  endif
+.\start
+        dt_ptr  0,0, 0,0, \doroffset,\dorbank   ; pointer to device front Dor in slot X
+        defb    \type
         defb    \end - $-1
         dt_nam  \name
         defb    $ff                             ; DOR Terminator

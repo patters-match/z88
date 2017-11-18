@@ -57,10 +57,16 @@ IF !__EPROM_DEF__
           DEFC  EP_New    = $36    ; Return pointer to future new entry in File Area    (OZ 4.2 and newer)
           DEFC  EP_SvFl   = $39    ; Save RAM file to Flash or UV Eprom to slot C       (OZ 4.2 and newer)
           DEFC  EP_Delete = $3c    ; Mark File Entry as deleted on Flash or UV Eprom    (OZ 4.2 and newer)
-          DEFC  EP_Format = $3f    ; Create File Area in UV Eprom in slot 3             (OZ 4.2 and newer)
+          DEFC  EP_Format = $3f    ; Create File Area in UV Eprom / Flash in slot C     (OZ 4.2 and newer)
           DEFC  EP_NewFile= $42    ; Write file to slot C                               (OZ 4.2 and newer)
           DEFC  EP_WrBlk  = $45    ; Write a block of bytes to UV Eprom in slot 3       (OZ 4.2 and newer)
           DEFC  EP_Fptr   = $48    ; Get file pointer via offset into file entry image  (OZ 4.5 and newer)
+          DEFC  EP_Empty  = $4b    ; Poll for empty file area in slot number C          (OZ 4.5 and newer)
+          DEFC  EP_SvAs   = $4e    ; Stream opened RAM file to Flash,UV Eprom to slot C (OZ 4.7 and newer)
+          DEFC  EP_FndAt  = $50    ; Find active File(name) at file entry, forwards     (OZ 4.7 and newer)
+          DEFC  EP_Mount  = $53    ; Mount :EPR filesystem                              (OZ 5.0 and newer)
+          DEFC  EP_Umnt   = $56    ; Unmount :EPR filesystem                            (OZ 5.0 and newer)
+          DEFC  EP_Node   = $59    ; Add EPR filesystem node                            (OZ 5.0 and newer)
 
 ENDIF
 

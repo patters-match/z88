@@ -21,8 +21,8 @@ lstoff
 ;                                  Boston, MA 02111-1307, USA.
 ;
 ; (C) Jorma Oksanen (jorma.oksanen@aini.fi), 2003
-; (C) Thierry Peycru (pek@users.sf.net), 2005-2007
-; (C) Gunther Strube (gstrube@gmail.com), 2005-2007
+; (C) Thierry Peycru (pek@users.sf.net), 2005-2017
+; (C) Gunther Strube (gstrube@gmail.com), 2005-2017
 ;
 ; ***************************************************************************************************
 
@@ -48,44 +48,55 @@ IF !__FILEIO_DEF__
 
      ; Various file/stream manipulation calls:
 
-          DEFC  Gn_Ren = $6609     ; rename filename
-          DEFC  Os_Ren = $E406     ; file rename (internal)
-          DEFC  Gn_Del = $6409     ; delete file
-          DEFC  Os_Del = $E606     ; delete file (internal)
-          DEFC  Gn_Cl  = $6209     ; close file/stream
-          DEFC  Os_Cl  = $E806     ; close file/stream (internal)
+      DEFC  Gn_Ren = $6609     ; rename filename
+      DEFC  Os_Ren = $E406     ; file rename (internal)
+      DEFC  Gn_Del = $6409     ; delete file
+      DEFC  Os_Del = $E606     ; delete file (internal)
+      DEFC  Gn_Cl  = $6209     ; close file/stream
+      DEFC  Os_Cl  = $E806     ; close file/stream (internal)
 
-          DEFC  Os_Gb  = $39       ; get byte from file or device
-          DEFC  Os_Gbt = $3F       ; - with timeout
-          DEFC  Os_Pb  = $3C       ; put byte to file or device
-          DEFC  Os_Pbt = $42       ; - with timeout
-          DEFC  Os_Ugb = $36       ; unget byte (not implemented).
-          DEFC  Os_Mv  = $45       ; move bytes between stream and memory
+      DEFC  Os_Gb  = $39       ; get byte from file or device
+      DEFC  Os_Gbt = $3F       ; - with timeout
+      DEFC  Os_Pb  = $3C       ; put byte to file or device
+      DEFC  Os_Pbt = $42       ; - with timeout
+      DEFC  Os_Ugb = $36       ; unget byte (not implemented).
+      DEFC  Os_Mv  = $45       ; move bytes between stream and memory
+      DEFC  Os_Fdp = $BA06     ; File duplicate (OZ 5.0 and newer)
 
-          DEFC  Os_Frm = $48       ; File read miscellaneous
-          DEFC  Os_Fwm = $4B       ; File write miscellaneous
+      DEFC  Os_Frm = $48       ; File read miscellaneous
+      DEFC  Os_Fwm = $4B       ; File write miscellaneous
 
-     ; File status codes, when using OS_Frm or OS_Fwm:
+     ; Reason codes, when using OS_Frm or OS_Fwm:
+           DEFC  FA_PTR = $01       ; Get sequential file pointer
+           DEFC  FA_EXT = $02       ; Get length (Extent) of sequential file
+           DEFC  FA_EOF = $03       ; End Of File enquiry
+           DEFC  FA_BST = $04       ; Buffer status (system use only)
 
-          DEFC  FA_PTR = $01       ; Get sequential file pointer
-          DEFC  FA_EXT = $02       ; Get length (Extent) of sequential file
-          DEFC  FA_EOF = $03       ; End Of File enquiry
-          DEFC  FA_BST = $04       ; Buffer status (system use only)
+      DEFC  GN_Dir = $8809     ; Create directory path (OZ 5.0 and newer)
+      DEFC  GN_Mov = $8A09     ; Move file (OZ 5.0 and newer)
+     ; Reason codes for GN_Cpy and GN_Mov:
+           DEFC  MV_TODIR  = $00    ; Move file to directory
+           DEFC  MV_TOFILE = $01    ; Move as new file
+
+      DEFC  GN_Cpy = $8C09     ; Copy file (OZ 5.0 and newer)
+     ; Reason codes for GN_Cpy:
+           DEFC  CP_TODIR  = $00  ; Copy file to directory
+           DEFC  CP_TOFILE = $01  ; Copy as new file
 
      ; Various calls to process filenames:
 
-          DEFC  GN_Pfs = $5A09     ; parse filename segment
-          DEFC  GN_Prs = $5809     ; parse filename
-          DEFC  GN_Fcm = $4E09     ; compress a filename
-          DEFC  GN_Fex = $5009     ; expand a filename
-          DEFC  GN_Esa = $5E09     ; read/write filename segments
+      DEFC  GN_Pfs = $5A09     ; parse filename segment
+      DEFC  GN_Prs = $5809     ; parse filename
+      DEFC  GN_Fcm = $4E09     ; compress a filename
+      DEFC  GN_Fex = $5009     ; expand a filename
+      DEFC  GN_Esa = $5E09     ; read/write filename segments
 
      ; Calls on wildcards, searching for files, parsing filenames:
 
-          DEFC  GN_Opw = $5209     ; open wildcard handler
-          DEFC  GN_Wcl = $5409     ; close wildcard handler
-          DEFC  GN_Wfn = $5609     ; get next filename match from wc.handler
-          DEFC  GN_Wsm = $5C09     ; match filename segment to wildcard string
+      DEFC  GN_Opw = $5209     ; open wildcard handler
+      DEFC  GN_Wcl = $5409     ; close wildcard handler
+      DEFC  GN_Wfn = $5609     ; get next filename match from wc.handler
+      DEFC  GN_Wsm = $5C09     ; match filename segment to wildcard string
 
 ENDIF
 

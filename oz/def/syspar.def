@@ -59,7 +59,8 @@ IF !__SYSPAR_DEF__
 
      DEFC NQ_Mfs   = $8900    ; read free space information
      DEFC NQ_Slt   = $8903    ; read slot type information
-     DEFC Nq_Mfp   = $8906    ; read free RAM space for specified slot, in pages, where 1 page = 256 bytes  (OZ 4.2 and newer)
+     DEFC NQ_Mfp   = $8906    ; read free RAM space for specified slot, in pages, where 1 page = 256 bytes  (OZ 4.2 and newer)
+     DEFC NQ_Mup   = $8909    ; read RAM used by pool, in pages (OZ 5.0 and newer)
 
      DEFC NQ_Dev   = $8C00    ; fetch current device
      DEFC NQ_Dir   = $8C03    ; fetch current directory
@@ -72,6 +73,8 @@ IF !__SYSPAR_DEF__
      DEFC NQ_Tot   = $8C18    ; read output-T handle
      DEFC NQ_Tpr   = $8C1B    ; read printer-T stream handle
      DEFC NQ_Chn   = $8C1E    ; read comms handle
+     DEFC NQ_Prc   = $8C21    ; get process environment (OZ 5.0 and newer)
+     DEFC NQ_Fmh   = $8C24    ; fetch Filesystem special memory handle (OZ 5.0 and newer)
 
 ; Specifies, set by OS_Sp:
 
@@ -153,7 +156,7 @@ IF !__SYSPAR_DEF__
           DEFC PA_Tr8    = $8056   ;              B
           DEFC PA_Tr9    = $8058   ;              C
 
-          ; ISO translations 1 - 28:
+          ; ISO translations 1 - 32:
 
           DEFC PA_Tr10   = $8080   ; Row 1, Entry 1    (ISO 1)
           DEFC PA_Tr11   = $8082   ;              2    (ISO 2)
@@ -162,27 +165,31 @@ IF !__SYSPAR_DEF__
           DEFC PA_Tr14   = $8088   ;              5
           DEFC PA_Tr15   = $808A   ;              6
           DEFC PA_Tr16   = $808C   ;              7
-          DEFC PA_Tr17   = $808E   ; Row 2, Entry 1
-          DEFC PA_Tr18   = $8090   ;              2
-          DEFC PA_Tr19   = $8092   ;              3
-          DEFC PA_Tr20   = $8094   ;              4
-          DEFC PA_Tr21   = $8096   ;              5
-          DEFC PA_Tr22   = $8098   ;              6
-          DEFC PA_Tr23   = $809A   ;              7
-          DEFC PA_Tr24   = $809C   ; Row 3, Entry 1
-          DEFC PA_Tr25   = $809E   ;              2
-          DEFC PA_Tr26   = $80A0   ;              3
-          DEFC PA_Tr27   = $80A2   ;              4
-          DEFC PA_Tr28   = $80A4   ;              5
-          DEFC PA_Tr29   = $80A6   ;              6
-          DEFC PA_Tr30   = $80A8   ;              7
-          DEFC PA_Tr31   = $80AA   ; Row 4, Entry 1
-          DEFC PA_Tr32   = $80AC   ;              2
-          DEFC PA_Tr33   = $80AE   ;              3
-          DEFC PA_Tr34   = $80B0   ;              4
-          DEFC PA_Tr35   = $80B2   ;              5    ...
-          DEFC PA_Tr36   = $80B4   ;              6    ...
-          DEFC PA_Tr37   = $80B6   ;              7    (ISO 28)
+          DEFC PA_Tr17   = $808E   ;              8
+          DEFC PA_Tr18   = $8090   ; Row 2, Entry 1
+          DEFC PA_Tr19   = $8092   ;              2
+          DEFC PA_Tr20   = $8094   ;              3
+          DEFC PA_Tr21   = $8096   ;              4
+          DEFC PA_Tr22   = $8098   ;              5
+          DEFC PA_Tr23   = $809A   ;              6
+          DEFC PA_Tr24   = $809C   ;              7
+          DEFC PA_Tr25   = $809E   ;              8
+          DEFC PA_Tr26   = $80A0   ; Row 3, Entry 1
+          DEFC PA_Tr27   = $80A2   ;              2
+          DEFC PA_Tr28   = $80A4   ;              3
+          DEFC PA_Tr29   = $80A6   ;              4
+          DEFC PA_Tr30   = $80A8   ;              5
+          DEFC PA_Tr31   = $80AA   ;              6
+          DEFC PA_Tr32   = $80AC   ;              7
+          DEFC PA_Tr33   = $80AE   ;              8
+          DEFC PA_Tr34   = $80B0   ; Row 4, Entry 1
+          DEFC PA_Tr35   = $80B2   ;              2    ...
+          DEFC PA_Tr36   = $80B4   ;              3    ...
+          DEFC PA_Tr37   = $80B6   ;              4    (ISO 28)
+          DEFC PA_Tr38   = $80B8   ;              5    (ISO 29)
+          DEFC PA_Tr39   = $80BA   ;              6    (ISO 30)
+          DEFC PA_Tr40   = $80BC   ;              7    (ISO 31)
+          DEFC PA_Tr41   = $80BE   ;              8    (ISO 32)
 
     ; File system parameters:
 

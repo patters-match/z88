@@ -29,64 +29,76 @@ lstoff
 IF !__DOR_DEF__
      DEFINE __DOR_DEF__
 
-     DEFC OS_Dor = $87             ; DOR interface
+     defc OS_Dor = $87             ; DOR interface
 
      ; DOR codes when using OS_Dor :
-          DEFC DR_Get    = $01     ; Get handle for a DOR name (internal use)
-          DEFC DR_Dup    = $02     ; Duplicate DOR
-          DEFC DR_Sib    = $03     ; Return brother DOR
-          DEFC DR_Son    = $04     ; Return child DOR
-          DEFC DR_Fre    = $05     ; Free (release) DOR handle
-          DEFC DR_Cre    = $06     ; Create blank DOR
-          DEFC DR_Del    = $07     ; Delete DOR
-          DEFC DR_Ins    = $08     ; Insert DOR
-          DEFC DR_Rd     = $09     ; Read DOR record
-          DEFC DR_Wr     = $0A     ; Write DOR record
-          DEFC DR_Rd2    = $0B     ; System entry (internal use)
+     
+          defc DR_Get    = $01     ; Get handle for a DOR name (internal use)
+          defc DR_Dup    = $02     ; Duplicate DOR
+          defc DR_Sib    = $03     ; Return brother DOR
+          defc DR_Son    = $04     ; Return child DOR
+          defc DR_Fre    = $05     ; Free (release) DOR handle
+          defc DR_Cre    = $06     ; Create blank DOR
+          defc DR_Del    = $07     ; Delete DOR
+          defc DR_Ins    = $08     ; Insert DOR
+          defc DR_Rd     = $09     ; Read DOR record
+          defc DR_Wr     = $0A     ; Write DOR record
+          defc DR_Op     = $0B     ; Get handle for an explicit filename (OZ 5.0 and newer)
+          defc DR_Frr    = $0C     ; File record read (OZ 5.0 and newer)
+          defc DR_Frw    = $0D     ; File record write (OZ 5.0 and newer)
+          defc DR_Use    = $0E     ; Handle in use (OZ 5.0 and newer)
 
      ; Major DOR types:
 
-          DEFC Dm_Dev    = $81     ; File Device
-          DEFC Dm_Chd    = $82     ; Character Device
-          DEFC Dm_Rom    = $83     ; ROM information
+          defc Dm_Dev    = $81     ; File Device
+          defc Dm_Chd    = $82     ; Character Device
+          defc Dm_Rom    = $83     ; ROM information
+          defc Dm_Epr    = $84     ; EPR Device
 
      ; Minor DOR types:
 
-          DEFC Dn_Fil    = $11     ; File type
-          DEFC Dn_Dir    = $12     ; Directory type
-          DEFC DN_Apl    = $13     ; Application front DOR type,
-          DEFC Dn_Del    = $7F     ; Deleted Entry type.
+          defc Dn_Fil    = $11     ; File type
+          defc Dn_Dir    = $12     ; Directory type
+          defc Dn_Apl    = $13     ; Application front DOR type
+          defc Dn_Epr    = $14     ; Eprom entry type
+          defc Dn_Del    = $7F     ; Deleted Entry type
 
      ; Record DOR types:
 
-          DEFC Dt_Nam    = $4E     ; filename
-          DEFC Dt_Cre    = $43     ; creation time
-          DEFC Dt_Upd    = $55     ; update time
-          DEFC Dt_Ext    = $58     ; Extent (length of file)
-          DEFC Dt_Atr    = $41     ; Not currently used
-          DEFC Dt_Hlp    = $48     ; Help type
-          DEFC Dt_Inf    = $40     ; Information
+          defc Dt_Nam    = $4E     ; filename
+          defc Dt_Cre    = $43     ; creation time
+          defc Dt_Upd    = $55     ; update time
+          defc Dt_Ext    = $58     ; Extent (length of file)
+          defc Dt_Atr    = $41     ; Not currently used
+          defc Dt_Hlp    = $48     ; Help type
+          defc Dt_Inf    = $40     ; Information
+          defc Dt_Efs    = 'E'     ; Eprom file entry
 
 ; Application type 1:
 
-     DEFC AT_Good = 1              ; (BIT 0) well behaved
-     DEFC AT_Bad  = 2              ; (BIT 1) not well behaved, not killed on pre-emption
-     DEFC AT_Ugly = 4              ; (BIT 2) not well behaved, killed on pre-emption
-     DEFC AT_Popd = 8              ; (BIT 3) popdown (if not set then an application)
-     DEFC AT_Ones = 16             ; (BIT 4) only one application instance allowed
-     DEFC AT_Draw = 32             ; (BIT 5) OZ to redraw screen is possible (2K file)
-     DEFC AT_Film = 64             ; (BIT 6) File Manager Application (internal usage)
-     DEFC AT_Boot = 128            ; (BIT 7) Application Auto Boot (after soft reset)
+     defc AT_Good = 1              ; (BIT 0) well behaved
+     defc AT_Bad  = 2              ; (BIT 1) not well behaved, not killed on pre-emption
+     defc AT_Ugly = 4              ; (BIT 2) not well behaved, killed on pre-emption
+     defc AT_Popd = 8              ; (BIT 3) popdown (if not set then an application)
+     defc AT_Ones = 16             ; (BIT 4) only one application instance allowed
+     defc AT_Draw = 32             ; (BIT 5) OZ to redraw screen is possible (2K file)
+     defc AT_Film = 64             ; (BIT 6) File Manager Application (internal usage)
+     defc AT_Boot = 128            ; (BIT 7) Application Auto Boot (after soft reset)
 
      defc AT_B_Boot = 7
+     defc AT_B_Film = 6
      defc AT_B_Draw = 5
+     defc AT_B_Ones = 4
      defc AT_B_Popd = 3
+     defc AT_B_Ugly = 2
+     defc AT_B_Bad  = 1
+     defc AT_B_Good = 0
 
 ; Application type 2: (Bits 3 - 6 are ignored - should be reset)
 
-     DEFC AT2_Cl  = 1              ; (BIT 0) Set Caps Lock on creation entry
-     DEFC AT2_Icl = 2              ; (BIT 1) Set 'inverted' Caps Lock on creation entry
-     DEFC AT2_Ie  = 128            ; (BIT 7) Ignore error returns (should be avoided).
+     defc AT2_Cl  = 1              ; (BIT 0) Set Caps Lock on creation entry
+     defc AT2_Icl = 2              ; (BIT 1) Set 'inverted' Caps Lock on creation entry
+     defc AT2_Ie  = 128            ; (BIT 7) Ignore error returns (should be avoided).
 
 ; MTH Delimiters
 
