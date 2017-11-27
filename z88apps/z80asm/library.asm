@@ -31,15 +31,114 @@
 ; external procedures:
      LIB malloc, mfree
      LIB Set_pointer, Read_pointer, Set_word, Set_long
+     LIB AllocVarPointer
 
-     XREF GetPointer, GetVarPointer          ; varptr.asm
+     XREF GetPointer, GetVarPointer                    ; varptr.asm
+     XREF ReportError, ReportError_NULL                ; errors.asm
+     XREF GetFileName                                  ; cmdline.asm
+     XREF Open_file                                    ; fileio.asm
+     XREF CheckFileHeader                              ; chckfhdr.asm
+     XREF CreateLibFile                                ; creatlib.asm
 
 ; global procedures:
-     XDEF NewLibrary
+     XDEF UseLibrary, CreateLibrary, NewLibrary
 
 
+     INCLUDE "fileio.def"
      INCLUDE "rtmvars.def"
      INCLUDE "symbol.def"
+
+
+
+; **************************************************************************************************
+;
+; Use library file during linking, specified from command line as -ifilename .
+;
+; HL points at first char of filename
+;
+.UseLibrary         CALL GetFileName                   ; collect filename into buffer
+                    LD   A,(DE)                        ; DE now points at start of filename
+                    CP   0                             ; zero length means no filename specified.
+                    CALL Z, default_libfile            ; use default filename.
+                    CALL CreateLibFile
+                    RET  C
+                    PUSH BC
+                    PUSH HL                            ; preserve pointer to library filename
+                    INC  HL
+                    LD   A,OP_IN
+                    CALL Open_file                     ; open file to check for "Z80LMF" header
+                    POP  HL
+                    POP  BC
+                    CALL C, ReportError_NULL
+                    RET  C
+                    PUSH BC
+                    PUSH HL
+                    LD   HL, libheader
+                    CALL CheckFileHeader               ; check file to be a true library (with header)
+                    PUSH AF
+                    CALL_OZ(Gn_Cl)                     ; close library file
+                    POP  AF
+                    POP  HL
+                    POP  BC                            ; {pointer to library filename}
+                    JR   NZ, not_libfile               ; if ( checkfileheader() == 0 )
+                         LD   C,B                           ; CHL points at library filename
+                         PUSH HL
+                         PUSH BC
+                         CALL NewLibrary                    ; libfile = NewLibrary()
+                         LD   A,B
+                         POP  BC
+                         LD   B,A                           ; BHL = library record
+                         POP  DE                            ; CDE = library filename
+                         RET  C
+                         LD   A, libfile_filename
+                         CALL Set_pointer                   ; libfile->filename = CDE
+                         SET  library,(IY + RTMflags)       ; library = ON
+                         CP   A
+                         RET
+                                                       ; else
+.not_libfile        LD   A, ERR_not_libfile
+                    LD   DE,0
+                    CALL ReportError                        ; ReportError(libfilename, 0, ERR_not_libfile)
+                    SCF
+                    RET
+
+.libheader          DEFM "Z80LMF01"
+
+
+; **************************************************************************************************
+;
+; Create library file, specified from command line as -xfilename .
+;
+; HL points at first char of filename
+;
+.CreateLibrary      CALL GetFileName                   ; get library filename from command line
+                    CALL CreateLibFile                 ; create library file
+                    RET  C
+                    LD   C,B
+                    EX   DE,HL                         ; preserve library filename in CDE
+                    LD   HL, libfilename
+                    CALL AllocVarPointer
+                    JP   C, ReportError_NULL
+                    XOR  A                             ; BHL = pointer to pointer variable
+                    CALL Set_pointer                   ; libfilename = CDE
+                    SET  createlib,(IY + RTMflags)     ; indicate library to be created...
+                    return
+
+
+; ******************************************************************************
+;
+;    Copy default library filename to cdebuffer, DE = pointer.
+;
+.default_libfile    PUSH DE
+                    LD   HL, stdlibfile
+                    LD   B,0
+                    LD   C,(HL)
+                    INC  BC
+                    INC  BC                       ; copy filename & null-terminator...
+                    LDIR
+                    POP  DE
+                    RET
+.stdlibfile         DEFM 20, ":RAM.*//standard.lib", 0
 
 
 
@@ -140,6 +239,7 @@
                     LD   C,B
                     SCF                                ; return NULL
                     RET
+
 
 ; ***********************************************************************************************
 ;
