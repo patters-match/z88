@@ -47,6 +47,7 @@
      XREF CurrentModule, NewModule, ReleaseModules          ; module.asm
      XREF CurrentFile, CurrentFileName                      ; currfile.asm
      XREF NewFile                                           ; srcfile.asm
+     XREF GetFileName                                       ; crtflnm.asm
      XREF Display_filename                                  ; dispflnm.asm
      XREF Open_file                                         ; fileio.asm
      XREF z80asm_ERH                                        ; ehandler.asm
@@ -56,7 +57,7 @@
      XREF GetOrigin                                         ; deforig.asm
      XREF DefineDefSym                                      ; symbols.asm
 
-     XDEF Command_line, Parse_cmdline, GetFileName
+     XDEF Command_line, Parse_cmdline
      XDEF Display_status
 
 
@@ -343,42 +344,6 @@
 
 .RTMflag            DEFB 's', 'b', 'm', 'g', 'd'
 .RTMflag_bits       DEFB 2**symtable, 2**z80bin, 2**mapref, 2**globaldef, 2**datestamp
-
-
-
-; *********************************************************************************************
-;
-;    IN:  HL = pointer to first char of filename in command line
-;    OUT: DE = pointer to first char of collected filename in another buffer (length id)
-;
-;    Read filename into cdebuffer, length prefixed and null-terminated.
-;
-.GetFileName        LD   DE,cdebuffer
-                    LD   BC, cdebuffer+1
-                    XOR  A
-                    LD   (DE),A
-.fetchname_loop     CP   253                      ; max. length of name?
-                    JR   Z, flnm_fetched
-                    LD   A,(HL)
-                    CP   0
-                    JR   Z, flnm_fetched
-                    CP   ' '
-                    JR   Z, flnm_fetched
-                    INC  HL
-                    LD   (BC),A
-                    INC  BC
-                    EX   DE,HL
-                    INC  (HL)                     ; update length of filename
-                    LD   A,(HL)
-                    EX   DE,HL
-                    JR   fetchname_loop
-
-.flnm_fetched       XOR  A
-                    LD   (BC),A                   ; null-terminate filename
-                    LD   (lineptr),HL             ; update variable
-                    RET
-
-
 
 
 ; *********************************************************************************************
