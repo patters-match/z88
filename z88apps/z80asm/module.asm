@@ -30,19 +30,116 @@
 
 ; external procedures:
      LIB malloc, mfree
-     LIB Set_pointer, Read_pointer, Set_word, Set_long
+     LIB GetPointer, Set_pointer, Read_pointer, Set_word, Set_long
 
-     XREF GetVarPointer                      ; varptr.asm
-     XREF CurrentModule                      ; module.asm
-     XREF RemovePfixList                     ; parsexpr.asm
+     XREF GetVarPointer                                ; varptr.asm
+     XREF CurrentModule                                ; module.asm
+     XREF RemovePfixList                               ; parsexpr.asm
+     XREF Display_filename                             ; dispflnm.asm
+     XREF Open_file                                    ; fileio.asm
+     XREF CurrentFile, CurrentFileName                 ; currfile.asm
+     XREF NewFile                                      ; srcfile.asm
+     XREF ReportError, ReportError_NULL                ; errors.asm
 
 ; global procedures:
-     XDEF NewModule, ReleaseExpressions
+     XDEF CreateModule, NewModule
+     XDEF ReleaseExpressions
 
-
+     INCLUDE "fileio.def"
+     INCLUDE "error.def"
      INCLUDE "rtmvars.def"
      INCLUDE "symbol.def"
 
+
+; *********************************************************************************************
+;
+; Create new module for file name
+;
+; IN:     None.
+; OUT:    Fc = 0, module created with file name
+;         Fc = 1, no room for module, illegal file name or file not found
+;
+.CreateModule       CALL NewModule
+                    RET  C                             ; Ups - no room
+                    LD   HL, CURMODULE
+                    CALL GetPointer
+                    XOR  A                             ; {CDE = pointer to new module}
+                    CALL Set_pointer                   ; CURRENTMODULE = NewModule()
+
+                    CALL CreateSrcFilename             ; add '.asm' extension to file name
+                    INC  HL                            ; point at first char in file name
+                    CALL Display_filename
+                    LD   A, OP_IN
+                    CALL Open_file                     ; open file to get expanded file name
+                    JR   C, module_operr               ; DE points at explicit filename
+                    CALL_OZ(Gn_Cl)
+                    CALL ModuleFileName                ; create extended OZ file name
+                    CP   A                             ; signal success
+                    RET
+
+.module_operr       CP   RC_Ivf                        ; if ( error != RC_ivf )
+                    JR   Z, bad_filename
+                         BIT  datestamp,(IY + RTMflags)     if ( !datestamp )
+                         JR   NZ, use_shortname
+                              CALL ReportError_NULL              ; report open error if no date stamping...
+                              SCF                                ; then return to caller
+                              RET                           ; else
+.use_shortname           LD   DE, cdebuffer                      ; file couldn't be opened, but use
+                         CALL ModuleFileName                     ; non-extended file name
+                         CP   A
+                         RET                           ; else
+.bad_filename       CALL ReportError_NULL                   ; report error
+                    SCF
+                    RET
+
+
+; *********************************************************************************************
+;
+; Add extension to file name
+;
+; IN:     None.
+;
+; OUT:    HL = pointer to new local file name,
+;         D = 0
+;         E = length of new file name
+;
+; Registers changed after return:
+;    ......../IXIY  same
+;    AFBCDEHL/....  different
+;
+.CreateSrcFileName  LD   DE, srcext
+                    LD   HL, cdebuffer                 ; local pointer to filename
+                    PUSH HL
+                    LD   B,0
+                    LD   C,(HL)                        ; length of file name
+                    INC  HL                            ; point at first char
+                    ADD  HL,BC                         ; point at null-terminator
+                    PUSH BC                            ; preserve length
+                    LD   C,4
+                    EX   DE,HL                         ; HL points to extension...
+                    LDIR                               ; add extension to file name
+                    XOR  A
+                    LD   (DE),A                        ; null-terminate file name
+                    LD   HL,4
+                    POP  BC
+                    ADD  HL,BC                         ; length inclusive extension
+                    EX   DE,HL
+                    POP  HL
+                    LD   (HL),E                        ; new length stored
+                    RET
+.srcext             DEFM ".asm"
+
+
+; *********************************************************************************************
+;
+;    IN:  DE = local pointer to filename
+;
+.ModuleFileName     CALL CurrentFile                   ; BHL = NULL
+                    CALL NewFile                       ; return pointer to file record in CDE
+                    CALL CurrentModule
+                    LD   A, module_cfile
+                    CALL Set_pointer                   ; CURRENTMODULE->cfile = NewFile(NULL, textfile)
+                    RET
 
 
 ; **************************************************************************************************
