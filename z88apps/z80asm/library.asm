@@ -138,7 +138,7 @@
                     LDIR
                     POP  DE
                     RET
-.stdlibfile         DEFM 20, ":RAM.*//standard.lib", 0
+.stdlibfile         DEFM 20, ":*.*//standard.lib", 0
 
 
 
