@@ -16,7 +16,7 @@
 # (C) Gunther Strube (gstrube@gmail.com) 2017
 #
 # --------------------------------------------------------------------------------------------------------------------
-# compile script for azm shell commands for OZ V5
+# compile script for azm shell commands used in OZ V5
 # --------------------------------------------------------------------------------------------------------------------
 #
 # Z80asm is free software; you can redistribute it and/or modify it under the terms of the

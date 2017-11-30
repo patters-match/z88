@@ -29,6 +29,7 @@
 z80asm
 cmdline
 prscmdline
+asmsrcfiles
 z80pass1
 z80pass2
 linkmod

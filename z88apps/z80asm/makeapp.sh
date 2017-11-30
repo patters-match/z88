@@ -13,8 +13,11 @@
 #   ZZZZZZZZZZZZZZZZZZZZZ  88888888888888888    0000000000000     AAAA      AAAA           SSSSS   MMMM       MMMM
 # ZZZZZZZZZZZZZZZZZZZZZ      8888888888888       00000000000     AAAA        AAAA  SSSSSSSSSSS     MMMM       MMMM
 #
-# Z80asm compile script for Linux/Unix
 # (C) Gunther Strube (gstrube@gmail.com) 1995-2006
+#
+# --------------------------------------------------------------------------------------------------------------------
+# Z80asm application compile script for Linux/Unix
+# --------------------------------------------------------------------------------------------------------------------
 #
 # Z80asm is free software; you can redistribute it and/or modify it under the terms of the
 # GNU General Public License as published by the Free Software Foundation;
@@ -47,9 +50,15 @@ fi
 
 # Compile the MTH, application code and rom header
 mpm -b -I../../oz/def tokens
-mpm -bg -I../../oz/def mth
-mpm -b -cz80 -I../../oz/def -l../../stdlib/standard.lib @z80asm.prj
-mpm -b -I../../oz/def romhdr
 
-# Create an image with Z80asm application
-z88card -f z80asm.loadmap
+mpm -bg -I../../oz/def mth
+if test $? -eq 0; then
+    mpm -b -cz80 -I../../oz/def -l../../stdlib/standard.lib @z80asm.prj
+    if test $? -eq 0; then
+        mpm -b -I../../oz/def romhdr
+
+        # Create an image with Z80asm application
+        z88card -f z80asm.loadmap
+    fi
+fi
+

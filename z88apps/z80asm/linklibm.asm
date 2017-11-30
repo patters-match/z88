@@ -45,7 +45,6 @@
      XREF GetPointer, GetVarPointer, FreeVarPointer         ; varptr.asm
      XREF CopyId, FindSymbol                                ; symbols.asm
      XREF CreateFileName                                    ; crtflnm.asm
-     XREF CheckObjfile                                      ; chckfhdr.asm
      XREF DefineOrigin                                      ; deforig.asm
      XREF Add32bit                                          ; add32bit.asm
      XREF ReadNames                                         ; readname.asm
