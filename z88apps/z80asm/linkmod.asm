@@ -39,7 +39,7 @@
      XREF ReportError, ReportError_NULL                     ; errors.asm
      XREF GetSym                                            ; prsline.asm
      XREF CurrentFile                                       ; srcfile.asm
-     XREF CurrentModule                                     ; currmod.asm
+     XREF CurrentModule                                     ; module.asm
      XREF GetPointer, GetVarPointer, FreeVarPointer         ; varptr.asm
      XREF CopyId                                            ; symbols.asm
      XREF CreateFileName                                    ; crtflnm.asm
@@ -51,7 +51,7 @@
      XREF LinkLibModules                                    ; linklibm.asm
      XREF ModuleExpressions                                 ; readexpr.asm
 
-     XREF CreateasmPC_ident                                ; z80asm.asm
+     XREF CreateasmPC_ident                                 ; z80asm.asm
      XREF Keyboard_Interrupt                                ;
 
      XREF Display_integer                                   ; z80pass1.asm

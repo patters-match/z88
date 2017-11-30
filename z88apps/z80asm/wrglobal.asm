@@ -41,7 +41,7 @@
      INCLUDE "symbol.def"
 
 
-     XREF CurrentModule                                     ; currmod.asm
+     XREF CurrentModule                                     ; module.asm
      XREF Write_string                                      ; fileio.asm
      XREF GetVarPointer                                     ; varptr.asm
 

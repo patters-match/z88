@@ -47,7 +47,7 @@
      LIB Set_pointer, Read_pointer
      LIB Read_long
 
-     XREF CurrentModule                                     ; currmod.asm
+     XREF CurrentModule                                     ; module.asm
      XREF Write_string                                      ; fileio.asm
      XREF GetPointer, GetVarPointer                         ; varptr.asm
      XREF ReportError_NULL                                  ; asmerror.asm

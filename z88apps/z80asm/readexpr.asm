@@ -36,7 +36,7 @@
      XREF ReportError, ReportError_NULL                     ; errors.asm
      XREF GetSym                                            ; prsline.asm
      XREF CurrentFileName                                   ; srcfile.asm
-     XREF CurrentModule                                     ; currmod.asm
+     XREF CurrentModule                                     ; module.asm
      XREF ParseNumExpr, RemovePfixList                      ; parsexpr.asm
      XREF EvalPfixExpr                                      ; evalexpr.asm
      XREF GetPointer, GetVarPointer                         ; varptr.asm

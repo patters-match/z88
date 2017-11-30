@@ -33,7 +33,6 @@
      LIB GetPointer, Set_pointer, Read_pointer, Set_word, Set_long
 
      XREF GetVarPointer                                ; varptr.asm
-     XREF CurrentModule                                ; module.asm
      XREF RemovePfixList                               ; parsexpr.asm
      XREF Display_filename                             ; dispflnm.asm
      XREF Open_file                                    ; fileio.asm
@@ -42,6 +41,7 @@
      XREF ReportError, ReportError_NULL                ; errors.asm
 
 ; global procedures:
+     XDEF CurrentModule
      XDEF NewModule, CreateModule, CreateModules
      XDEF ReleaseExpressions
 
@@ -50,6 +50,17 @@
      INCLUDE "error.def"
      INCLUDE "rtmvars.def"
      INCLUDE "symbol.def"
+
+
+; **************************************************************************************************
+;
+; Return pointer (in BHL) to current module
+;
+.CurrentModule      PUSH AF
+                    LD   HL,CURMODULE
+                    CALL GetVarPointer
+                    POP  AF
+                    RET
 
 
 ; *********************************************************************************************

@@ -23,7 +23,6 @@
 ; see the file COPYING. If not, write to the
 ; Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 ;
-;
 ; ********************************************************************************************************************
 
      MODULE z80asm_Main
@@ -42,9 +41,8 @@
      XREF Z80pass1, Display_integer                         ; Z80pass1.asm
      XREF Z80pass2                                          ; Z80pass2.asm
      XREF LinkModules                                       ; linkmod.asm
-     XREF NewModule, ReleaseExpressions                     ; module.asm
+     XREF CurrentModule, NewModule, ReleaseExpressions      ; module.asm
      XREF NewFile, Display_filename                         ; srcfile.asm
-     XREF CurrentModule                                     ; currmod.asm
      XREF CurrentFile, CurrentFileName                      ; currfile.asm
      XREF Init_CDEbuffer, FlushBuffer                       ; bytesIO.asm
      XREF ReportError, ReportError_NULL, ReportError_STD    ; ASMERROR.asm

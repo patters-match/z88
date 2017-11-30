@@ -56,7 +56,6 @@ prsline
 getconst
 symbols
 varptr
-currmod
 currfile
 parsexpr
 evalexpr

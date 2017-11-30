@@ -32,7 +32,7 @@
 
      XREF ReportError_NULL                             ; ASMERROR.asm
      XREF CreateFilename                               ; crtflnm.asm
-     XREF CurrentModule                                ; currmod.asm
+     XREF CurrentModule                                ; module.asm
      XREF CheckObjFile                                 ; Chckfhdr.asm
      XREF Add32bit                                     ; add32bit.asm
 

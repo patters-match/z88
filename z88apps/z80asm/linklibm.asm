@@ -36,12 +36,11 @@
      LIB Set_pointer, Read_long, Set_long, Set_byte
 
      XREF LinkModule                                        ; linkmod.asm
-     XREF NewModule                                         ; module.asm
+     XREF CurrentModule, NewModule                          ; module.asm
      XREF NewFile                                           ; srcfile.asm
      XREF ReportError, ReportError_NULL                     ; errors.asm
      XREF GetSym                                            ; prsline.asm
      XREF CurrentFile                                       ; srcfile.asm
-     XREF CurrentModule                                     ; currmod.asm
      XREF EvalPfixExpr                                      ; evalexpr.asm
      XREF GetPointer, GetVarPointer, FreeVarPointer         ; varptr.asm
      XREF CopyId, FindSymbol                                ; symbols.asm

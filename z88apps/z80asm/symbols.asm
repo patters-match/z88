@@ -39,7 +39,7 @@
      LIB Find
      LIB copy, memcpy, strcpy
 
-     XREF CurrentModule                                          ; z80asm.asm
+     XREF CurrentModule                                          ; module.asm
      XREF ReportError_STD, ReportError_NULL                      ; errors.asm
      XREF GetVarPointer                                          ; z80asm.asm
      XREF GetPointer                                             ; varptr.asm
