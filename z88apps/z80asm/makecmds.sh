@@ -35,7 +35,7 @@
 cd ../../stdlib; ./makelib.sh; cd ../z88apps/z80asm
 
 # delete previously compiled files
-rm -f *.obj *.bin *.elf *.map
+rm -f *.obj *.bin azm z80 zln zlb *.map
 
 # return version of Mpm to command line environment.
 # validate that MPM is V1.5 or later - only this version or later supports macros

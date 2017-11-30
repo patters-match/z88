@@ -41,7 +41,7 @@
      XREF Open_file                                         ; fileio.asm
      XREF UseLibrary, CreateLibrary, NewLibrary             ; library.asm
      XREF GetFileName                                       ; crtflnm.asm
-     XREF CurrentModule, CreateModule, NewModule            ; module.asm
+     XREF CreateModule, CreateModules                       ; module.asm
      XREF ReportError, ReportError_NULL                     ; errors.asm
      XREF DefineDefSym                                      ; symbols.asm
      XREF GetOrigin                                         ; deforig.asm
@@ -259,70 +259,3 @@
 .RTMflag            DEFB 's', 'b', 'm', 'g', 'd'
 .RTMflag_bits       DEFB 2**symtable, 2**z80bin, 2**mapref, 2**globaldef, 2**datestamp
 
-
-
-; *********************************************************************************************
-;
-; Open modules file and create modules for each specified file name in modules file
-;
-.CreateModules      LD   B,0
-                    LD   HL, cdebuffer+1                    ; point at first char of filename
-                    LD   A, OP_IN
-                    CALL Open_file
-                    JP   C, ReportError_NULL
-.fetch_modname           LD   B, 252
-                         LD   HL, cdebuffer
-                         LD   DE, cdebuffer+1
-.read_name               CALL_OZ(Os_Gb)
-                         JR   C, createmodules_end          ; EOF occurred...
-                         CALL Check_EOL
-                         JR   Z, filename_fetched
-                         LD   (DE),A
-                         INC  DE
-                         DJNZ read_name
-
-.filename_fetched        XOR  A
-                         LD   (DE),A                        ; null-terminate filename
-                         LD   A, 252
-                         SUB  B                             ; length of file name
-                         LD   (HL),A
-                         PUSH IX                            ; preserve handle of modules file
-                         CALL CreateModule                  ; create new module for file
-                         POP  IX
-                         JR   C, createmodules_err          ; error occurred
-                         JR   fetch_modname                 ; read next module file...
-
-.createmodules_end  CP   A
-.createmodules_err  PUSH AF
-                    CALL_OZ(Gn_Cl)                     ; close module file
-                    POP  AF
-                    RET
-
-.Check_EOL          CP   LF
-                    RET  Z                             ; LF = EOL
-                    CP   CR
-                    RET  NZ                            ; filename byte
-
-                    PUSH HL                            ; CR fetched, check for
-                    PUSH DE                            ; trailing LF
-                    PUSH BC                            ; {preserve main registers first}
-                    LD   A, FA_PTR
-                    LD   DE,0
-                    CALL_OZ(Os_Frm)                    ; file pointer in DEBC
-                    CALL_OZ(OS_Gb)                     ; get next byte from file
-                    JR   C, eol_reached                ; EOF reached...
-                         CP   LF
-                         JR   Z, eol_reached           ; trailing LF fetched...
-                              PUSH DE                       ; Ups - first byte of new filename
-                              PUSH BC                       ; unget byte (restore previous filep.)
-                              LD   HL,0
-                              ADD  HL,SP                    ; HL points at file pointer
-                              LD   A, FA_PTR
-                              CALL_OZ(OS_Fwm)               ; restore file pointer at CR
-                              POP  BC
-                              POP  DE                       ; remove redundant file pointer
-.eol_reached        CP   A
-                    POP  BC                            ; return Fz = 1 to indicate EOL
-                    POP  DE
-                    POP  HL                            ; original BC, DE, HL restored
-                    RET
