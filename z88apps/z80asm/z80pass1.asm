@@ -50,7 +50,6 @@
      XREF CurrentModule                                     ; module.asm
      XREF fseek                                             ; fileio.asm
      XREF Disp_allocmem                                     ; dispmem.asm
-     XREF Keyboard_interrupt                                ; z80asm.asm
 
 ; routines accessible in this module:
      XDEF Z80pass1, IFstatement
@@ -82,9 +81,6 @@
                     RET  NZ
                     BIT  abort,A                       ; {
                     RET  NZ
-
-                         CALL Keyboard_interrupt       ;    Keyboard_interrupt()
-                         RET  Z                             ; abort-keys pressed, return...
 
                          LD   A, flag_ON
                          CALL ParseLine                     ; parseline(ON)

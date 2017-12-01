@@ -43,7 +43,6 @@
      XREF ModuleBaseAddr                                    ; modlink.asm
      XREF Add32bit                                          ; add32bit.asm
      XREF Display_integer                                   ; z80pass1.asm
-     XREF Keyboard_Interrupt                                ; z80asm.asm
 
      XREF Open_file, ftell, fseek, Read_fptr, Write_fptr    ; fileio.asm
      XREF Close_file, Read_string
@@ -92,8 +91,7 @@
                     LD   (IX+1),H
                     LD   (IX+2),B                           ; curlink = linkhdr->firstlink
 
-.eval_modules_loop  CALL Keyboard_Interrupt                 ; Keyboard_Interrupt()
-                    JP   Z, exit_evalexprs                  ; abort-keys pressed, abort linking...
+.eval_modules_loop
                     PUSH BC
                     PUSH HL
                     LD   A, linkedmod_module

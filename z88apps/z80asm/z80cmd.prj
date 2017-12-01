@@ -31,3 +31,38 @@
 
 z80cmd.asm      : z80cmd.inc workspace.def stdio.def fileio.def syspar.def saverst.def error.def time.def integer.def
 cmdwspace.asm   : z80cmd.inc
+initvars.asm
+asmsrcfiles.asm
+z80pass1.asm
+z80pass2.asm
+fileio.asm
+bytesio.asm
+wrsymbol.asm
+wrglobal.asm
+z80instr.asm
+ldinstr.asm
+bitinstr.asm
+jmpinstr.asm
+accinstr.asm
+asmdrctv.asm
+prsident.asm
+getsym.asm
+prsline.asm
+getconst.asm
+symbols.asm
+varptr.asm
+currfile.asm
+parsexpr.asm
+evalexpr.asm
+exprs.asm
+tstrange.asm
+module.asm
+loadname.asm
+srcfile.asm
+crtflnm.asm
+datestmp.asm
+chckfhdr.asm
+asmerror.asm
+stderror.asm
+dispmem.asm
+dispflnm.asm

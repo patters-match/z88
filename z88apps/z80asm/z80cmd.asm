@@ -39,10 +39,21 @@ include "time.def"
 include "integer.def"
 
 include "z80cmd.inc"                            ; zELF shell command definition and constants
+INCLUDE "rtmvars.def"
 include "cmdwspace.def"                         ; zELF shell command workspace variable references
 
 
 org EXEC_ORG
+
+LIB init_malloc, release_pools
+
+xref initvars,initpointers, AsmSourceFiles, close_files
+xref initfiles
+
+; global variables - these declarations MUST be declared global static libraries
+
+XDEF pool_index, pool_handles, MAX_POOLS
+XDEF allocated_mem
 
 
 ; ******************************************************************************
@@ -91,7 +102,7 @@ org EXEC_ORG
         call    getargvstr                      ; get first argument, DE will point at options argument (if any), HL points at next argument index
         ld      a,(de)
         cp      '-'                             ; options specified?
-        jr      nz, init_parse_path             ; no, its 1st argument
+        jr      nz, eval_arg                    ; no, its 1st argument
         call    parseoptions                    ; yes, parse option flags, define bit variables, adjust first argment pointer & count
         ld      a,(argc)
         or      a
@@ -101,7 +112,16 @@ org EXEC_ORG
 
 .get_1starg
         call    getargvstr                      ; get first argument (after options) in DE
-.init_parse_path
+.eval_arg
+
+        ; ...
+        call    initvars                        ; reset variables, pointers...
+        call    init_malloc
+        call    initpointers                    ; initialize memory allocation in segment 1.
+        call    initfiles                       ; and clear file variables
+
+        call    AsmSourceFiles
+        call    close_files
 
 
 ; ******************************************************************************

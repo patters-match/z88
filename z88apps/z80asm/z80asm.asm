@@ -35,6 +35,7 @@
      LIB Read_word, Set_word
      LIB GetVarPointer, AllocVarPointer
 
+     XREF InitVars, InitFiles, InitPointers                 ; initvars.asm
      XREF Command_line                                      ; cmdline.asm
      XREF AsmSourceFiles                                    ; asmsrcfiles.asm
      XREF LinkModules                                       ; linkmod.asm
@@ -53,15 +54,13 @@
      XREF MakeLibrary                                       ; makelib.asm
      XREF Close_files                                       ; fileIO.asm
      XREF Delete_bufferfiles                                ; fileIO.asm
+     XREF DeleteRelocTblFile                                ; reloc.asm
 
 ; global variables - these declarations MUST be declared global:
 ; ( "defs_h" defines their address constants )
 
      XDEF pool_index, pool_handles, MAX_POOLS
      XDEF allocated_mem
-
-; global procedures:
-     XDEF Keyboard_interrupt
 
      INCLUDE "stdio.def"
      INCLUDE "fileio.def"
@@ -139,8 +138,6 @@
                     JR   C, z80asm_loop                     ; Ups - syntax error or no modules, try again...
                                                        ; while ( modulehdr == NULL )
                     CALL Get_time
-                    LD   HL, break_msg
-                    CALL_OZ(Gn_Sop)                    ; "Use []ESC to abort assembly or linking"
 
                     CALL AsmSourceFiles                ; AsmSourceFiles()
                     CALL Close_files                   ; close any open files...
@@ -157,51 +154,15 @@
                          CALL NZ, WriteMapFile              ; Write address map file of relocated machine code
 
 .assembly_completed CALL Delete_bufferfiles            ; delete any redundant files in :RAM.-
+
+                    BIT  autorelocate, (IY + RTMflags2)
+                    jr   z,cont_completed
+                    CALL DeleteRelocTblFile
+.cont_completed
                     CALL Disp_allocmem                 ; first display amount of RTM memory
                     CALL Release_pools                 ; then free RTM memory
                     CALL DisplayErrors                 ; display error status, if necessary...
                     JR   z80asm_loop
-
-
-; *****************************************************************************
-;
-; Read the keyboard and check if <SQUARE><ESC> is pressed.
-; If pressed (the binary pattern in register A is 0 at the keys pressed down),
-; the current compiling process instructions is stopped and the command
-; line is re-entered.
-;
-; Register status after return:
-;
-;       ..BCDEHL/IXIYPC  same
-;       AF....../......  different
-;
-; Fz = 1, when abort keys pressed, otherwise Fz = 0.
-;
-.Keyboard_interrupt PUSH BC
-                    LD   BC,$7FB2                 ; port $B2, keyboard row A15
-                    IN   A,(C)                    ; scan A15...
-                    POP  BC
-                    AND  @01100000                ; <SQU><ESC> pressed?
-                    RET  NZ                       ; no, continue assembler processing
-
-                    PUSH BC
-                    PUSH DE
-                    PUSH HL
-                    PUSH IX
-                    SET  abort,(IY + RtmFlags3)
-                    SET  ASMERROR,(IY + RtmFlags3)
-                    LD   A, ERR_keyboard_abort
-                    CALL z80asm_errmsg            ; HL points to error message
-                    CALL Get_stdoutp_handle       ; IX contains handle to std. output
-                    CALL Write_stdmessage         ; display "Assembly aborted from keyboard"
-                    CALL_OZ(Gn_Nln)
-                    POP  IX
-                    POP  HL
-                    POP  DE
-                    POP  BC
-                    CP   A                        ; signal keyboard abortion!
-                    RET
-
 
 ; *****************************************************************************************
 ;
@@ -224,70 +185,3 @@
                     RET  NC
                     CALL z80asm_ERH                    ; act upon system error
                     RET
-
-
-; ****************************************************************************************
-;
-; Setup IY register to base of variables and preset runtime flags.
-;
-.InitVars           LD   HL, z80asm_vars
-                    PUSH HL
-                    POP  IY                            ; IY points at base of variable
-                    LD   (HL), 2**datestamp | 2**mapref | 2**z80bin | 2**symtable
-                               ; datestamp, map file,   linking,   symbol file
-                    INC  HL
-                    LD   (HL), @00000000               ; reset RTMflags2
-                    INC  HL
-                    LD   (HL), @00000000               ; reset RTMflags3
-                    RET
-
-
-; ****************************************************************************************
-;
-;    Reset Area for filename pointers and handles
-;
-.InitFiles          LD   BC, end_file_area - file_area
-                    LD   HL, objfilename
-.clear_handles      LD   (HL),0
-                    INC  HL
-                    DEC  BC
-                    LD   A,B
-                    OR   C
-                    JR   NZ, clear_handles
-                    RET
-
-
-; ****************************************************************************************
-;
-.InitPointers       LD   HL, modulehdr                 ; allocate room for 'modulehdr' variable
-                    CALL AllocVarPointer
-                    RET  C                             ; Ups - no room...
-                    LD   HL, libraryhdr                ; allocate room for 'libraryhdr' variable
-                    CALL AllocVarPointer
-                    RET  C
-                    LD   HL, linkhdr                   ; allocate room for 'linkhdr' variable
-                    CALL AllocVarPointer
-                    RET  C
-                    LD   HL, CURMODULE                 ; allocate room for 'CURMODULE' variable
-                    CALL AllocVarPointer
-                    RET  C
-                    LD   HL, CURLIBRARY                ; allocate room for 'CURLIBRARY' variable
-                    CALL AllocVarPointer
-                    RET  C                             ; Ups - no room...
-                    LD   HL, LASTMODULE                ; allocate room for 'LASTMODULE' variable
-                    CALL AllocVarPointer
-                    RET  C
-                    LD   HL, globalroot                ; allocate room for 'globalroot' pointer variable
-                    CALL AllocVarPointer
-                    RET  C                             ; Ups - no room...
-                    LD   HL, staticroot                ; allocate room for 'staticroot' pointer variable
-                    CALL AllocVarPointer
-                    LD   HL, asm_pc_ptr                ; allocate room for 'asm_pc_ptr' pointer variable
-                    CALL AllocVarPointer
-                    RET  C                             ; Ups - no room...
-                    RET
-
-
-.break_msg          DEFM 1, "2H5Use ", 1, "B", 1, SD_SQUA, 1, "B ", 1, SD_ESC
-                    DEFM " to abort assembly or linking.", 13, 10, 0
-

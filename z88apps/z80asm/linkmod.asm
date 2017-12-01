@@ -52,7 +52,6 @@
      XREF ModuleExpressions                                 ; readexpr.asm
 
      XREF CreateasmPC_ident                                 ; z80asm.asm
-     XREF Keyboard_Interrupt                                ;
 
      XREF Display_integer                                   ; z80pass1.asm
      XREF InitRelocTable, RelocationPrefix                  ; reloc.asm
@@ -148,13 +147,9 @@
 
                     LD   HL,0
                     LD   (asm_pc),HL
-                    CALL CreateasmPC_ident                 ; DefineDefSym( "ASMPC", 0, &globalroot)
-
+                    CALL CreateasmPC_ident                  ; DefineDefSym( "ASMPC", 0, &globalroot)
                                                             ; do
 .modlink_loop
-                         CALL Keyboard_Interrupt                 ; Keyboard_Interrupt()
-                         JP   Z,linkmodules_err2                 ; abort-keys pressed, stop linking...
-
 .begin_modlink_loop      BIT  library, (IY + RTMflags)           if ( library )
                          JR   Z, modlink_loop_continue
                               LD   HL, libraryhdr
@@ -329,9 +324,7 @@
 ;    ......../IXIY  same
 ;    AFBCDEHL/....  different
 ;
-.LinkModule         CALL Keyboard_Interrupt                 ; Keyboard_Interrupt()
-                    RET  Z                                  ; abort-keys pressed, stop linking...
-
+.LinkModule
                     PUSH IX
                     EXX
                     LD   HL,0

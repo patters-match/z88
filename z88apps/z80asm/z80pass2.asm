@@ -51,7 +51,6 @@
      XREF GetVarPointer                                     ; z80asm.asm
      XREF CurrentModule                                     ; module.asm
      XREF DefineOrigin                                      ; deforig.asm
-     XREF Keyboard_Interrupt                                ; z80asm.asm
 
      XREF StoreExpr, Test_7bit_range, Test_8bit_range       ; exprs.asm
      XREF Test_16bit_range, Test_32bit_Range                ;

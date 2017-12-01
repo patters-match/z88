@@ -33,10 +33,10 @@
      XREF ReportError_NULL                                            ; stderror.asm
 
      XREF Open_file, Close_file, Delete_file, fseek, Write_string     ; fileio.asm
-     XREF Copy_file                                                   ;
+     XREF bufferfile, Copy_file                                       ;
 
-     XDEF InitRelocTable, RelocationPrefix, reloctablefile, bufferfile
-
+     XDEF InitRelocTable, RelocationPrefix
+     XDEF DeleteRelocTblFile
 
      INCLUDE "stdio.def"
      INCLUDE "fileio.def"
@@ -68,8 +68,12 @@
                     LD   (curroffset),HL               ; curroffset = 0
                     LD   (size_reloctable),HL          ; size_reloctable = 0
                     RET
-.reloctablefile     DEFM ":RAM.-/reloctable", 0
-.reloctablehdr      DEFB 0, 0, 0, 0
+
+
+; **************************************************************************************************
+.DeleteRelocTblFile
+                    LD   HL, reloctablefile
+                    CALL Delete_file                   ; delete ":RAM.-/reloctable", if it exists...
 
 
 ; **************************************************************************************************
@@ -177,5 +181,7 @@
 .exit_relocprefix   LD   HL, relocfilehandle
                     CALL Close_file                    ; fclose(relocfilehandle)
                     RET
-.bufferfile         DEFM ":RAM.-/buf", 0
+
+.reloctablefile     DEFM ":RAM.-/reloctable", 0
+.reloctablehdr      DEFB 0, 0, 0, 0
 .relocmsg           DEFM 1, "2H5Size of relocation header is ", 0
