@@ -83,9 +83,7 @@
 ;    ......../IXIY  same
 ;    AFBCDEHL/....  different
 ;
-.LinkLibModules          BIT  abort,(IY + RtmFlags3)             ; if (keyboard_break) return
-                         RET  NZ
-
+.LinkLibModules
 .read_libname_loop       LD   L,(IX+0)                           ; do
                          LD   H,(IX+1)
                          LD   B,(IX+2)

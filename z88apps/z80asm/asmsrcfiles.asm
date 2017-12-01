@@ -58,9 +58,9 @@
      XREF CurrentFile, CurrentFileName                      ; currfile.asm
      XREF Display_filename                                  ; srcfile.asm
 
-
      XDEF Init_Sourcefile, AsmSourceFiles
      XDEF CreateasmPC_ident
+     XDEF empty_msg
 
 ; global variables:
      XDEF cdefile
@@ -101,9 +101,6 @@
                     BIT  globaldef, (IY + RTMflags)
                     CALL NZ, CreateDefFile        ; deffile = fopen( "xxx.def", "w")
                     JP   C, ReportError_NULL
-
-                    RES  abort,(IY + RtmFlags3)   ; reset keyboard abort status
-
 .asmfiles_loop                                    ; do
                     RES  EOF,(IY + RtmFlags3)          ; clear file flag
                     RES  ASMERROR,(IY + RtmFlags3)     ; reset to no errors for this module
@@ -180,7 +177,7 @@
                     CP   C
                     JP   NZ, asmfiles_loop        ; while ( CURRENTMODULE != NULL )
 
-.end_asmsrcfiles    CALL Disp_totallines          ; disptotallines()
+.end_asmsrcfiles
                     LD   HL,deffilehandle
                     CALL Close_file               ; fclose(deffile) {if previously opened}
                     RET
@@ -565,22 +562,12 @@
 ;
 .Disp_pass1         LD   HL, pass1_msg
                     CALL_OZ(Gn_Sop)
-                    CALL_OZ(Gn_Nln)
                     RET
 
 
 ; ****************************************************************************************
 ;
 .Disp_pass2         LD   HL, pass2_msg
-                    CALL_OZ(Gn_Sop)
-                    CALL_OZ(GN_Nln)
-                    RET
-
-.Disp_totallines    LD   HL, totalline_msg
-                    CALL_OZ(Gn_Sop)
-                    LD   BC,(totallines)
-                    CALL Display_integer
-                    LD   HL, empty_msg
                     CALL_OZ(Gn_Sop)
                     RET
 
@@ -592,9 +579,8 @@
 .symext             DEFM "sym"
 
 .cdefile            DEFM ":RAM.-/temp.buf", 0
-.pass1_msg          DEFM 1, "2H5Pass1...", 0
-.pass2_msg          DEFM 1, "2H5Pass2...", 0
-.totalline_msg      DEFM 1, "2H5Assembled lines: ", 0
+.pass1_msg          DEFM 1, "2H5Pass1...", CR,LF,0
+.pass2_msg          DEFM 1, "2H5Pass2...", CR,LF,0
 .Z88_ident          DEFM 3, "Z88", 0
 .asmPC_ident        DEFM 5, "ASMPC", 0
 .empty_msg          DEFM 1, "2H5", 13, 10, 0
