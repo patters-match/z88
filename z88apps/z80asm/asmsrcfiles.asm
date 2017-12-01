@@ -99,8 +99,9 @@
                     CALL Create_Z88_ident         ; DefineDefSym( "Z88", -1, &staticroot )
 
                     BIT  globaldef, (IY + RTMflags)
-                    CALL NZ, CreateDefFile        ; deffile = fopen( "xxx.def", "w")
-                    JP   C, ReportError_NULL
+                    CALL NZ, CreateDefFileName    ; deffile = CreateDefFileName(CurrentFile)
+                    JP   C, ReportError_NULL      ; (global def file will be created after assembly)
+
 .asmfiles_loop                                    ; do
                     RES  EOF,(IY + RtmFlags3)          ; clear file flag
                     RES  ASMERROR,(IY + RtmFlags3)     ; reset to no errors for this module
@@ -121,12 +122,11 @@
                     LD   HL, objfilename
                     LD   DE, objext                    ; Create oject file name from current
                     CALL CreateFilename                ; source file name
-                    CALL C, ReportError_NULL
-                    JR   C, end_asmsrcfiles
+                    JP   C, ReportError_NULL
 
                     CALL TestAsmFile                   ; flag = Test.asmFile()
                     CP   -1
-                    JR   Z, end_asmsrcfiles            ; if ( flag == -1 ) return
+                    RET  Z                             ; if ( flag == -1 ) return
                     CP   1
                     CALL Z, AsmSourceFile              ; if ( flag == 1 ) .asmSourceFile()
                     CALL Close_files                   ; close any open module files
@@ -176,10 +176,6 @@
                     XOR  A
                     CP   C
                     JP   NZ, asmfiles_loop        ; while ( CURRENTMODULE != NULL )
-
-.end_asmsrcfiles
-                    LD   HL,deffilehandle
-                    CALL Close_file               ; fclose(deffile) {if previously opened}
                     RET
 
 
@@ -237,9 +233,7 @@
                          CALL Z80pass2                      ; Pass2: Expression evaluation & patching...
                     BIT  globaldef,(IY + RTMflags)
                     JR   Z, write_symfile              ; if ( globaldef )
-                         LD   HL, globalroot
-                         CALL GetVarPointer
-                         CALL WriteGlobals                  ; WriteGlobals(globalroot)
+                         CALL WriteGlobals                  ; WriteGlobals()
 .write_symfile      BIT  symtable,(IY + RTMflags)
                     JR   Z, finish_assembly             ; if ( symtable )
                          CALL WriteSymbols                  ; WriteSymbols
@@ -487,22 +481,19 @@
 
 ; ****************************************************************************************
 ;
-; Create global definition file, but only if source can be opened...
+; Create global definition filename, but only if source can be opened...
 ;
-.CreateDefFile      CALL CurrentFileName
+.CreateDefFileName  CALL CurrentFileName
                     INC  HL
                     LD   A, OP_IN
                     CALL Open_file                     ; try to open source file of current module
                     RET  C                             ; Ups - not possible...
+                    CALL_OZ(Gn_Cl)
+
                     LD   HL, deffilename
                     LD   DE, defext
                     CALL CreateFilename
                     JP   C, ReportError_NULL
-                    INC  HL                            ; point at first char in filename
-                    LD   A, OP_OUT
-                    CALL Open_file
-                    JP   C, ReportError_NULL
-                    LD   (deffilehandle),IX            ; global definitions symbol file created...
                     RET
 
 

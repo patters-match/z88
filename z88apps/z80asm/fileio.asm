@@ -273,9 +273,6 @@
                     RET
 
 
-
-
-
 ; ****************************************************************************************
 ;
 ; IN BHL = pointer to filename
@@ -300,7 +297,7 @@
 
 ; ****************************************************************************************
 ;
-; IN HL * local pointer to file handle
+; IN HL = local pointer to file handle
 ;
 ; OUT: (HL) = 0, no handle available
 ;
@@ -341,11 +338,8 @@
                     CALL Close_file
                     LD   HL,symfilehandle
                     CALL Close_file
-                    LD   HL,deffilehandle
-                    CALL Close_file
                     LD   HL,relocfilehandle
-                    CALL Close_file
-                    RET
+                    JP   Close_file
 
 
 ; ****************************************************************************************
