@@ -37,7 +37,8 @@
 
      XREF InitVars, InitFiles, InitPointers                 ; initvars.asm
      XREF Command_line                                      ; cmdline.asm
-     XREF AsmSourceFiles                                    ; asmsrcfiles.asm
+     XREF AsmSourceFiles,empty_msg                          ; asmsrcfiles.asm
+     XREF Display_integer                                   ; z80pass1.asm
      XREF LinkModules                                       ; linkmod.asm
      XREF ReportError, ReportError_NULL, ReportError_STD    ; ASMERROR.asm
 
@@ -140,6 +141,7 @@
                     CALL Get_time
 
                     CALL AsmSourceFiles                ; AsmSourceFiles()
+                    CALL Disp_totallines               ; disptotallines()
                     CALL Disp_allocmem
                     CALL Close_files                   ; close any open files...
 
@@ -174,6 +176,17 @@
                     CALL ReportError_NULL
                     CALL Wait_key
                     RET
+
+
+; ****************************************************************************************
+.Disp_totallines    LD   HL, totalline_msg
+                    CALL_OZ(Gn_Sop)
+                    LD   BC,(totallines)
+                    CALL Display_integer
+                    LD   HL, empty_msg
+                    CALL_OZ(Gn_Sop)
+                    RET
+.totalline_msg      DEFM 1, "2H5Assembled lines: ", 0
 
 
 ; ****************************************************************************************

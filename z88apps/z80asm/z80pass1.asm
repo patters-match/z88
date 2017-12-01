@@ -70,11 +70,9 @@
 ;
 .Z80pass1
 .readfile_loop
-                    LD   A,(IY + RtmFlags3)            ; while( !eof(z80asmfile) || !keyboard_break)
+                    LD   A,(IY + RtmFlags3)            ; while( !eof(z80asmfile) )
                     BIT  EOF,A
-                    RET  NZ
-                    BIT  abort,A                       ; {
-                    RET  NZ
+                    RET  NZ                            ; {
 
                          LD   A, flag_ON
                          CALL ParseLine                     ; parseline(ON)
@@ -94,9 +92,7 @@
 ;
 ; IN: A = Interpret flag ( -1 = ON, 0 = OFF ). Flag MUST be local due to recursion
 ;
-.ParseLine          BIT  abort,(IY + RtmFlags3)             ; if (keyboard_break) return
-                    RET  NZ
-
+.ParseLine
                     PUSH AF                                 ; preserve interpret flag
 
                     LD   HL,(totallines)
