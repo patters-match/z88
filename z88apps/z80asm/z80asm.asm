@@ -140,6 +140,7 @@
                     CALL Get_time
 
                     CALL AsmSourceFiles                ; AsmSourceFiles()
+                    CALL Disp_allocmem
                     CALL Close_files                   ; close any open files...
 
                     BIT  createlib, (IY + RTMflags)

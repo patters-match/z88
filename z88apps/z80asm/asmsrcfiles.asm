@@ -48,7 +48,6 @@
      XREF Open_file, Close_file, Close_files, fseek         ; fileIO.asm
      XREF Read_fptr, Read_string, Delete_file               ; fileIO.asm
      XREF FreeVarPointer                                    ; varptr.asm
-     XREF Disp_allocmem                                     ; dispmem.asm
      XREF Init_CDEbuffer, FlushBuffer                       ; bytesIO.asm
      XREF Z80pass1, Display_integer                         ; Z80pass1.asm
      XREF Z80pass2                                          ; Z80pass2.asm
@@ -167,7 +166,6 @@
                     POP  IY
 
                     CALL ReleaseExpressions            ; ReleaseExpressions()
-                    CALL Disp_allocmem
 
                     CALL CurrentModule
                     LD   A, module_next
@@ -239,9 +237,7 @@
 .continue_asm       BIT  ASMERROR,(IY + RtmFlags3)
                     JR   NZ, finish_assembly           ; if ( !ASMERROR )
                          CALL disp_pass2
-                         CALL Disp_allocmem                 ; display amount of allocated memory
                          CALL Z80pass2                      ; Pass2: Expression evaluation & patching...
-                         CALL Disp_allocmem                 ; display amount of allocated memory
                     BIT  globaldef,(IY + RTMflags)
                     JR   Z, write_symfile              ; if ( globaldef )
                          LD   HL, globalroot

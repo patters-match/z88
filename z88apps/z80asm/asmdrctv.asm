@@ -39,7 +39,6 @@
      LIB AllocIdentifier, CmpPtr, memcompare
      LIB mfree
 
-     XREF Disp_allocmem
      XREF ReportError_STD, STDerr_syntax, STDerr_ill_ident  ; errors.asm
      XREF ReportError, ReportError_NULL                     ;
 
@@ -150,7 +149,6 @@
                          CALL Display_filename         ; puts(CURRENTFILE->fname)
 
                          CALL Z80pass1                 ; Z80pass1()
-                         CALL Disp_allocmem
                          CALL PrevFile                 ; pfile = PrevFile()
                          CALL CurrentModule
                          LD   A, module_cfile

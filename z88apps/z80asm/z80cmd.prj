@@ -64,5 +64,4 @@ datestmp.asm
 chckfhdr.asm
 asmerror.asm
 stderror.asm
-dispmem.asm
 dispflnm.asm

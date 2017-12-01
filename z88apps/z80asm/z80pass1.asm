@@ -28,11 +28,6 @@
 
      MODULE Z80pass1
 
-
-; external variables:
-     XREF separators
-     XREF select_win4, bytes_msg
-
 ; library procedures:
      LIB Read_word, Read_long, Read_byte, Read_pointer
      LIB Set_word, Set_long, Set_byte, Set_pointer
@@ -49,7 +44,6 @@
      XREF Write_fptr                                        ; modlink.asm
      XREF CurrentModule                                     ; module.asm
      XREF fseek                                             ; fileio.asm
-     XREF Disp_allocmem                                     ; dispmem.asm
 
 ; routines accessible in this module:
      XDEF Z80pass1, IFstatement
@@ -74,7 +68,7 @@
 ;    ......../..IY  same
 ;    AFBCDEHL/IX..  different
 ;
-.Z80pass1           CALL Disp_allocmem
+.Z80pass1
 .readfile_loop
                     LD   A,(IY + RtmFlags3)            ; while( !eof(z80asmfile) || !keyboard_break)
                     BIT  EOF,A
