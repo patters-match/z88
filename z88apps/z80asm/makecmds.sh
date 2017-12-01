@@ -48,7 +48,7 @@ if test $? -lt 15; then
   exit 1
 fi
 
-mpm -b -rz80 -I../../oz/def -l../../stdlib/standard.lib @z80cmd.prj
+mpm -vb -I../../oz/def -l../../stdlib/standard.lib @z80cmd.prj
 if test $? -eq 0; then
     # program compiled successfully, apply leading Z80 ELF header
     mpm -b -nMap -I../../oz/def -oz80 z80cmd-elf.asm

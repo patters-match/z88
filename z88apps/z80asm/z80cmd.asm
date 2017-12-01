@@ -213,7 +213,7 @@ XDEF allocated_mem
         jp      exit_z80cmd
 
 .setopt_datestmp
-        set     LS_B_LONG,(iy + options)        ; -d
+        set     opt_datestamp,(iy + options)    ; -d
         ret
 
 

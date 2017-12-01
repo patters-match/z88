@@ -29,8 +29,7 @@
 ;
 ; ********************************************************************************************************************
 
-defc    EXEC_ORG = 0                            ; Identify as relocatable code for ELF
+defc    EXEC_ORG = $8000                        ; ELF executable for S3 (currently S2, because codesize problems)
 defc    SIZEOF_Workspace = 0                    ; Workspace is statically allocated as part of Elf binary (see workspace.asm)
 
-defc    LS_B_LONG       = 0                     ; -l option bit
-defc    LS_B_RCRS       = 1                     ; -R option bit
+defc    opt_datestamp    = 0                    ; -d option bit
