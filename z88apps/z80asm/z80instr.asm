@@ -143,8 +143,7 @@
 
 .Onebyte_instr      CALL WriteByte
                     LD   HL, asm_pc
-                    CALL Add16bit_1                         ; ++asm_pc
-                    RET
+                    JP   Add16bit_1                         ; ++asm_pc
 
 
 ; ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -252,23 +251,17 @@
 
 .Twobyte_instr      CALL WriteWord
                     LD   HL, asm_pc
-                    CALL Add16bit_2                         ; asm_pc += 2
-                    RET
+                    JP   Add16bit_2                         ; asm_pc += 2
 
 
 ; **************************************************************************************************
 ;
 .POP_fn             LD   C,193
-                    CALL PushPop_instr
-                    RET
-
+                    JR   PushPop_instr
 
 ; **************************************************************************************************
 ;
 .PUSH_fn            LD   C,197
-                    CALL PushPop_instr
-                    RET
-
 
 ; **************************************************************************************************
 ;
@@ -297,8 +290,7 @@
                          JR   Z, case_pushpop_5
                          CP   6
                          JR   Z, case_pushpop_6
-.default_pushpop         CALL STDerr_ill_ident
-                         RET
+.default_pushpop         JP   STDerr_ill_ident
 
 .case_qq                 RLCA                                               ; {PUSH/POP BC,DE,HL}
                          RLCA
@@ -308,16 +300,14 @@
                          LD   C,A
                          CALL WriteByte                                    ; *codeptr++ = opcode + qq*16
                          LD   HL, asm_pc
-                         CALL Add16bit_1                                   ; ++PC
-                         RET
+                         JP   Add16bit_1                                   ; ++PC
 
 .case_pushpop_4          LD   A,C                                          ; {PUSH/POP AF}
                          ADD  A,48
                          LD   C,A
                          CALL WriteByte                                    ; *codeptr++ = opcode + 48
                          LD   HL, asm_pc
-                         CALL Add16bit_1                                   ; ++PC
-                         RET
+                         JP   Add16bit_1                                   ; ++PC
 
 .case_pushpop_5          LD   B,C
                          LD   C,221
@@ -327,8 +317,7 @@
                          LD   C,A
                          CALL WriteByte                                    ; *codeptr++ = opcode + 32
                          LD   HL, asm_pc
-                         CALL Add16bit_2                                   ; PC += 2
-                         RET
+                         JP   Add16bit_2                                   ; PC += 2
 
 .case_pushpop_6          LD   B,C
                          LD   C,253
@@ -338,9 +327,7 @@
                          LD   C,A
                          CALL WriteByte                                    ; *codeptr++ = opcode + 32
                          LD   HL, asm_pc
-                         CALL Add16bit_2                                   ; PC += 2
-                         RET
-
+                         JP   Add16bit_2                                   ; PC += 2
 
 
 ; **************************************************************************************************
@@ -375,9 +362,7 @@
 
                                                             ; default: ReportError( *, *, 1)
 .end_RET            LD   HL, asm_pc
-                    CALL Add16bit_1                    ; PC++
-                    RET
-
+                    JP   Add16bit_1                    ; PC++
 
 
 ; **************************************************************************************************
@@ -412,24 +397,21 @@
                                                        LD   C, 227                        ; case 2: {EX (SP),HL}
                                                        CALL WriteByte                               ; *codeptr++ = 227
                                                        LD   HL, asm_pc
-                                                       CALL Add16Bit_1                              ; ++PC
-                                                       RET
+                                                       JP   Add16Bit_1                              ; ++PC
 
 .ex_check_case1_index1                            CP   5
                                                   JR   NZ, ex_check_case1_index2
                                                        LD   BC, $E3DD                     ; case 5: {EX (SP),IX}
                                                        CALL WriteWord                               ; *codeptr++ = 221;
                                                        LD   HL, asm_pc                               ; *codeptr++ = 227;
-                                                       CALL Add16Bit_2                              ; PC += 2
-                                                       RET
+                                                       JP   Add16Bit_2                              ; PC += 2
 
 .ex_check_case1_index2                            CP   6
                                                   JP   NZ, STDerr_ill_ident
                                                        LD   BC, $E3FD                     ; case 6: {EX (SP),IY}
                                                        CALL WriteWord                               ; *codeptr++ = 253;
                                                        LD   HL, asm_pc                               ; *codeptr++ = 227;
-                                                       CALL Add16Bit_2                              ; PC += 2
-                                                       RET
+                                                       JP   Add16Bit_2                              ; PC += 2
                                                                                           ; default:
                                                                                                ; reporterror(*, *, 11)
                                                        ; else
@@ -450,8 +432,7 @@
                                              LD   C, 235
                                              CALL WriteByte                                    ; *codeptr++ = 235
                                              LD   HL, asm_pc
-                                             CALL Add16Bit_1                                   ; ++PC
-                                             RET
+                                             JP   Add16Bit_1                                   ; ++PC
 .ex_case2_af_reg         CP   4
                          JP   NZ, STDerr_ill_ident                    ; case 4:  {EX  AF,AF'}
                               CALL Getsym
@@ -466,8 +447,7 @@
                                              LD   C, 8
                                              CALL WriteByte                                    ; *codeptr++ = 8
                                              LD   HL, asm_pc
-                                             CALL Add16Bit_1                                   ; ++PC
-                                             RET
+                                             JP   Add16Bit_1                                   ; ++PC
 
 
 
@@ -513,8 +493,7 @@
                                              LD   C, $ED                                  ; {OUT (C),r}
                                              CALL WriteWord                               ; *codeptr++ = 237
                                              LD   HL, asm_pc                               ; *codeptr++ = 65 + reg*8
-                                             CALL Add16Bit_2                              ; PC += 2
-                                             RET
+                                             JP   Add16Bit_2                              ; PC += 2
                                                        ; else
 .out_check_reg      LD   C, 211                             ; *codeptr++ = 211  {OUT (n),A}
                     CALL WriteByte
@@ -581,8 +560,7 @@
                               LD   C,A
                               CALL WriteByte                                         ; *codeptr++ = 64 + inreg*8
                               LD   HL, asm_pc
-                              CALL Add16bit_2                                        ; PC += 2
-                              RET
+                              JP   Add16bit_2                                        ; PC += 2
 
 .in_unknown_reg          CP   -1                                                ; case -1: {IN  A,(n)}
                          JP   NZ, STDerr_ill_ident
@@ -598,9 +576,7 @@
                                    CP   sym_rparen
                                    JP   NZ, STDerr_syntax                                           ; reporterror()
                               LD   HL, asm_pc
-                              CALL Add16bit_2                                             ; PC += 2
-                              RET
-
+                              JP   Add16bit_2                                             ; PC += 2
 
 
 ; **************************************************************************************************
@@ -649,9 +625,7 @@
                          CALL Add16bit_2                         ; PC += 2
                          POP  HL
                          POP  BC                                 ; {restore postfixexpr pointer}
-.im_end                  CALL RemovePfixlist                     ; RemovePfixlist(postfixexpr)
-                    RET
-
+.im_end                  JP RemovePfixlist                     ; RemovePfixlist(postfixexpr)
 
 
 ; **************************************************************************************************
@@ -695,8 +669,7 @@
                                    CALL ReportError_STD                    ; reporterror(*, *, 4)
 .rst_remv_pfixexpr            POP  HL
                               POP  BC                                 ; {restore postfixexpr pointer}
-.rst_end                 CALL RemovePfixlist                     ; RemovePfixlist(postfixexpr)
-                    RET
+.rst_end                 JP RemovePfixlist                     ; RemovePfixlist(postfixexpr)
 
 
 
@@ -751,9 +724,7 @@
                                    CALL ReportError_STD                    ; reporterror(*, *, 4)
 .calloz_remv_pfixexpr         POP  HL
                               POP  BC                                 ; {restore postfixexpr pointer}
-.calloz_end              CALL RemovePfixlist                     ; RemovePfixlist(postfixexpr)
-                    RET
-
+.calloz_end              JP   RemovePfixlist                     ; RemovePfixlist(postfixexpr)
 
 
 ; **************************************************************************************************
@@ -803,5 +774,4 @@
                                    CALL ReportError_STD                    ; reporterror(*, *, 4)
 .FPP_remv_pfixexpr            POP  HL
                               POP  BC                                 ; {restore postfixexpr pointer}
-.FPP_end                 CALL RemovePfixlist                     ; RemovePfixlist(postfixexpr)
-                    RET
+.FPP_end                 JP   RemovePfixlist                     ; RemovePfixlist(postfixexpr)

@@ -59,7 +59,7 @@
      XREF ReportError_STD, STDerr_syntax, STDerr_ill_ident  ; errors.asm
 
      XREF WriteByte, WriteWord                              ; writebytes.asm
-     XREF Add16bit_1, Add16bit_2, Add16bit_4                ; z80asm.asm
+     XREF Add16bit_2, Add16bit_4                            ; expr.asm
      XREF Test_8bit_range                                   ;
 
      XREF ParseNumExpr, EvalPfixExpr, RemovePfixlist        ; exprprsr.asm
@@ -302,8 +302,7 @@
                               LD   C,$CB                                   ; *codeptr++ = 203
                               CALL WriteWord                               ; *codeptr++ = opcode * 8 + 6
                               LD   HL,asm_pc
-                              CALL Add16bit_2                              ; PC += 2
-                              RET
+                              JP   Add16bit_2                              ; PC += 2
 
 .rot_case_5              CP   5                                       ; case 5:
                          JR   NZ, rot_case_6
@@ -326,8 +325,7 @@
                               LD   C,A
                               CALL WriteByte                               ; *codeptr++ = opcode * 8 + 6
                               LD   HL, asm_pc
-                              CALL Add16bit_4                              ; PC += 4
-                              RET
+                              JP   Add16bit_4                              ; PC += 4
                                                             ; else
 .rot_reg                 CALL CheckRegister8                     ; reg = CheckRegister8
                          CP   6                                  ; switch(reg)
@@ -349,5 +347,4 @@
                          LD   B,A
                          CALL WriteWord                               ; *codeptr++ = opcode * 8 + reg
                          LD   HL, asm_pc
-                         CALL Add16bit_2                              ; PC += 2
-                         RET
+                         JP   Add16bit_2                              ; PC += 2

@@ -45,7 +45,7 @@
      XREF CheckRegister8, IndirectRegisters                 ;
 
      XREF WriteByte, WriteWord                              ; writebytes.asm
-     XREF Add16bit_1, Add16bit_2, Add16bit_3, Add16bit_4    ; z80asm.asm
+     XREF Add16bit_1, Add16bit_2, Add16bit_3, Add16bit_4    ; exprs.asm
 
      XREF FlushBuffer                                       ; bytesio.asm
 
@@ -96,8 +96,7 @@
                                         LD   C,2
                                         CALL WriteByte                     ; *codeptr++ = 2
                                         LD   HL, asm_pc
-                                        CALL Add16bit_1                    ; ++PC
-                                        RET
+                                        JP   Add16bit_1                    ; ++PC
 
 .ld_switch1_1            CP   1                             ; case 1:  /* LD  (DE),A  */
                          JR   NZ, ld_switch1_7
@@ -111,8 +110,7 @@
                                         LD   C,18
                                         CALL WriteByte                     ; *codeptr++ = 18
                                         LD   HL, asm_pc
-                                        CALL Add16bit_1                    ; ++PC
-                                        RET
+                                        JP   Add16bit_1                    ; ++PC
 
 .ld_switch1_7            CP   7                             ; case 7:  /* LD  (nn),rr; LD (nn),A */
                          JP   NZ, STderr_syntax
@@ -143,8 +141,7 @@
                                         LD   BC,$47ED                      ; *codeptr++ = 237
                                         CALL WriteWord                     ; *codeptr++ = 71
                                         LD   HL, asm_pc
-                                        CALL Add16bit_2                    ; PC += 2
-                                        RET
+                                        JP   Add16bit_2                    ; PC += 2
 
 .ld_switch2_9            CP   9                             ; case 9:  /* LD  R, */
                          JR   NZ, ld_switch2_default
@@ -158,8 +155,7 @@
                                         LD   BC,$4FED                      ; *codeptr++ = 237
                                         CALL WriteWord                     ; *codeptr++ = 71
                                         LD   HL, asm_pc
-                                        CALL Add16bit_2                    ; PC += 2
-                                        RET
+                                        JP   Add16bit_2                    ; PC += 2
                                                             ; default:
 .ld_switch2_default      CALL Getsym
                          CP   sym_comma                          ; if ( Getsym() == comma )
@@ -183,16 +179,14 @@
                                              LD   BC,$57ED                                ; /* LD  A,I */
                                              CALL WriteWord
                                              LD   HL,asm_pc
-                                             CALL Add16bit_2                              ; PC += 2
-                                             RET
+                                             JP   Add16bit_2                              ; PC += 2
 
 .ld_switch3_9                      CP   9                                       ; case 9:
                                    JR   NZ, ld_switch3_notf
                                         LD   BC,$5FED                                ; /* LD A,R */
                                         CALL WriteWord
                                         LD   HL,asm_pc
-                                        CALL Add16bit_2                              ; PC += 2
-                                        RET
+                                        JP   Add16bit_2                              ; PC += 2
 
 .ld_switch3_notf                   CP   -1                                      ; case -1: /* LD  r,n */
                                    JR   NZ, ld_switch3_default
@@ -210,8 +204,7 @@
                                         CALL WriteByte                               ; *codeptr++ = destreg*8 + 6
                                         CALL ExprUnsigned8                           ; ExprUnsigned8(1)
                                         LD   HL,asm_pc
-                                        CALL Add16bit_2                              ; PC += 2
-                                        RET
+                                        JP   Add16bit_2                              ; PC += 2
                                                                                 ; default:  /* LD  r,r */
 .ld_switch3_default                OR   C
                                    AND  16+8
@@ -228,8 +221,7 @@
                                         LD   C,A
                                         CALL WriteByte                               ; *codeptr++ = 64 + destreg*8 + sourcereg
                                         LD   HL, asm_pc
-                                        CALL Add16bit_1
-                    RET
+                                        JP   Add16bit_1
 
 
 ; **************************************************************************************************
@@ -263,16 +255,13 @@
                               CALL WriteByte                     ; *codeptr++ = 54
                               CALL ExprUnsigned8                 ; ExprUnsigned8(1)
                               LD   HL,asm_pc
-                              CALL Add16bit_2                    ; PC += 2
-                              RET
+                              JP   Add16bit_2                    ; PC += 2
                                                             ; default:
 .hl8bit_default               ADD  A,112
                               LD   C,A
                               CALL WriteByte                     ; *codeptr++ = 112 + sourcereg
                               LD   HL,asm_pc
-                              CALL Add16bit_1                    ; ++PC
-                    RET
-
+                              JP   Add16bit_1                    ; ++PC
 
 
 ; **************************************************************************************************
@@ -310,15 +299,12 @@
                          JR   NZ, ld_index8bit_default
                               CALL ExprUnsigned8                 ; ExprUnsigned8(3)
                               LD   HL,asm_pc
-                              CALL Add16bit_4                    ; PC += 4
-                              RET
+                              JP   Add16bit_4                    ; PC += 4
 
 .ld_index8bit_default         ADD  A,112
                               LD   (IX+0),A                 ; *opcodeptr = 112 + sourcereg  /* LD (IX|IY+d),r */
                               LD   HL,asm_pc
-                              CALL Add16bit_3               ; PC += 3
-                              RET
-
+                              JP   Add16bit_3               ; PC += 3
 
 
 ; **************************************************************************************************
@@ -340,8 +326,7 @@
                          LD   C,A
                          CALL WriteByte                     ; *codeptr++ = 64 + destreg*8 + 6
                          LD   HL,asm_pc
-                         CALL Add16bit_1                    ; ++PC
-                         RET
+                         JP   Add16bit_1                    ; ++PC
 
 .ld_r_8bit_case_5   CP   5                             ; case 5: /* LD r,(IX+d) */
                     JR   NZ,ld_r_8bit_case_6
@@ -361,8 +346,7 @@
                          CALL WriteWord                     ; *codeptr++ = 64 + destreg*8 + 6
                          CALL ExprSigned8                   ; ExprSigned8(2)
                          LD   HL,asm_pc
-                         CALL Add16bit_3                    ; PC += 3
-                         RET
+                         JP   Add16bit_3                    ; PC += 3
 
 .ld_r_8bit_case_7   CP   7                             ; case 7: /* LD  A,(nn) */
                     JR   NZ, ld_r_8bit_case_0
@@ -373,8 +357,7 @@
                               CALL WriteByte                     ; *codeptr++ = 58
                               CALL ExprAddress                   ; ExprAddress(1)
                               LD   HL,asm_pc
-                              CALL Add16bit_3                    ; PC += 3
-                              RET
+                              JP   Add16bit_3                    ; PC += 3
 
 .ld_r_8bit_case_0   CP   0                             ; case 0: /* LD A,(BC) */
                     JR   NZ,ld_r_8bit_case_1
@@ -384,8 +367,7 @@
                               LD   C,10
                               CALL WriteByte                     ; *codeptr++ = 10
                               LD   HL,asm_pc
-                              CALL Add16bit_1                    ; ++PC
-                              RET
+                              JP   Add16bit_1                    ; ++PC
 
 .ld_r_8bit_case_1   CP   1                             ; case 1: /* LD A,(DE) */
                     JP   NZ, STDerr_ill_ident
@@ -395,9 +377,7 @@
                               LD   C,26
                               CALL WriteByte                     ; *codeptr++ = 26
                               LD   HL,asm_pc
-                              CALL Add16bit_1                    ; ++PC
-                              RET
-
+                              JP   Add16bit_1                    ; ++PC
 
 
 ; **************************************************************************************************
@@ -469,9 +449,7 @@
                     CALL Getsym                   ; Getsym()
                     CALL ExprAddress              ; ExprAddress(bytepos)
                     LD   HL,asm_pc
-                    CALL Add16bit_2               ; PC += 2
-                    RET
-
+                    JP   Add16bit_2               ; PC += 2
 
 
 ; **************************************************************************************************
@@ -528,8 +506,7 @@
 .ld_16bit_parseadr1                CALL Getsym                        ; Getsym()
                                    CALL ExprAddress                   ; ExprAddr(bytepos)
                                    LD   HL,asm_pc
-                                   CALL Add16bit_2                    ; PC += 2
-                                   RET
+                                   JP   Add16bit_2                    ; PC += 2
                                                             ; else
 .get_16bit_reg                     CALL CheckRegister16          ; sourcereg = CheckRegister16()
                                    LD   B,A                      ; {sourcereg preserved in B}
@@ -565,8 +542,7 @@
 
 .ld_16bit_parseadr3                     CALL ExprAddress                   ; ExprAddr(bytepos)
                                         LD   HL,asm_pc
-                                        CALL Add16bit_2                    ; PC += 2
-                                        RET
+                                        JP   Add16bit_2                    ; PC += 2
 
 .ld_16bit_switch2_2                CP   2                             ; case 2: /* LD  SP,HL */
                                    JR   NZ, ld_16bit_switch2_5
@@ -576,8 +552,7 @@
                                              LD   C,249
                                              CALL WriteByte                     ; *codeptr++ = 249
                                              LD   HL,asm_pc
-                                             CALL Add16bit_1
-                                             RET
+                                             JP   Add16bit_1
 .ld_16bit_switch2_5                CP   5
                                    JP   NZ,ld_16bit_switch2_6         ; case 5: /* LD  SP,IX */
                                         LD   A,C
@@ -593,8 +568,7 @@
                                              LD   B,249
                                              CALL WriteWord                     ; *codeptr++ = 249
                                              LD   HL, asm_pc
-                                             CALL Add16bit_2                    ; PC += 2
-                                             RET
+                                             JP   Add16bit_2                    ; PC += 2
 
 
 ; ******************************************************************************

@@ -30,7 +30,7 @@
      MODULE WriteBytes
 
 ; external procedures:
-     XREF Add16bit_1, Add16bit_2, Add16bit_4                ; z80asm.asm
+     XREF Add16bit_1, Add16bit_2, Add16bit_4                ; exprs.asm
 
 ; global procedures:
      XDEF WriteByte, WriteWord, WriteLong

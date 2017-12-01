@@ -73,7 +73,7 @@
 
      XREF WriteByte, WriteWord                              ; writebytes.asm
 
-     XREF Add16bit_1, Add16bit_2, Add16bit_3                ; z80asm.asm
+     XREF Add16bit_1, Add16bit_2, Add16bit_3                ; exprs.asm
      XREF Test_8bit_range                                   ;
 
      XREF ExprUnsigned8, ExprSigned8                        ; exprprsr.asm
@@ -159,8 +159,7 @@
                                    LD   C,A
                                    CALL WriteByte                          ; *codeptr++ = 9 + reg16*16
                                    LD   HL, asm_pc
-                                   CALL Add16bit_1                         ; ++PC
-                                   RET
+                                   JP   Add16bit_1                         ; ++PC
 .add_case_5         CP   5                                  ; case 5:
                     JR   NZ, add_case_6
                          LD   C,221                              ; *codeptr++ = 221
@@ -198,8 +197,7 @@
                               LD   C,A
                               CALL WriteByte                          ; *codeptr++ = 9 + reg16*16
                               LD   HL, asm_pc
-                              CALL Add16bit_2                         ; PC += 2
-                              RET
+                              JP   Add16bit_2                         ; PC += 2
 
 .add_default        LD   A, ERR_unkn_ident                  ; default:
                     CALL ReportError_STD
@@ -236,8 +234,7 @@
                                    LD   C,237                              ; *codeptr++ = 237
                                    CALL WriteWord                          ; *codeptr++ = 74 + reg16*16
                                    LD   HL, asm_pc
-                                   CALL Add16bit_2                         ; PC += 2
-                    RET
+                                   JP   Add16bit_2                         ; PC += 2
 
 
 ; **************************************************************************************************
@@ -270,8 +267,7 @@
                                    LD   C,237                              ; *codeptr++ = 237
                                    CALL WriteWord                          ; *codeptr++ = 74 + reg16*16
                                    LD   HL, asm_pc
-                                   CALL Add16bit_2                         ; PC += 2
-                    RET
+                                   JP   Add16bit_2                         ; PC += 2
 
 
 ; **************************************************************************************************
@@ -287,9 +283,7 @@
                               CALL Getsym
                               CP   sym_comma                ; if ( Getsym() == comma )
                               JP   NZ,STDerr_syntax
-                                   CALL ArithLog8_instr
-                    RET
-
+                                   JP ArithLog8_instr
 
 
 ; **************************************************************************************************
@@ -311,8 +305,7 @@
                               LD   C,A
                               CALL WriteByte                     ; *codeptr++ = 128 + opcode*8 + 6
                               LD   HL,asm_pc
-                              CALL Add16bit_1
-                              RET
+                              JP   Add16bit_1
 .indirect_case_5         CP   5
                          JR   NZ, indirect_case_6
                               LD   B,221
@@ -330,8 +323,7 @@
                               CALL WriteWord                     ; *codeptr++ = 128 + opcode*8 + 6
                               CALL ExprSigned8                   ; ExprSigned8(2)
                               LD   HL,asm_pc
-                              CALL Add16bit_3                    ; PC += 3
-                              RET
+                              JP   Add16bit_3                    ; PC += 3
                                                   ; else
 .get_8bit_reg       CALL CheckRegister8                ; switch( reg = CheckRegister8() )
                     CP   -1                                 ; case -1:
@@ -345,8 +337,7 @@
                          CALL WriteByte                          ; *codeptr++ = 192 + opcode*8 + 6
                          CALL ExprUnsigned8                      ; ExprUnsigend8(1)
                          LD   HL,asm_pc
-                         CALL Add16bit_2
-                         RET
+                         JP   Add16bit_2
 
 .direct_case_8      CP   6
                     JP   Z, STDerr_ill_ident                ; case 6:
@@ -371,8 +362,7 @@
                     LD   C,A
                     CALL WriteByte                               ; *codeptr++ = 128 + opcode*8 + reg
                     LD   HL,asm_pc
-                    CALL Add16bit_1                              ; ++ PC
-                    RET
+                    JP   Add16bit_1                              ; ++ PC
 
 
 ; **************************************************************************************************
@@ -396,8 +386,7 @@
                          LD   BC,$23FD                                ; *codeptr++ = 253
 .inc_index               CALL WriteWord
                          LD   HL, asm_pc
-                         CALL Add16bit_2                              ; PC += 2
-                         RET
+                         JP   Add16bit_2                              ; PC += 2
 
 .inc_default             RLCA                                    ; default:
                          RLCA
@@ -407,9 +396,7 @@
                          LD   C,A
                          CALL WriteByte
                          LD   HL,asm_pc
-                         CALL Add16bit_1                              ; ++PC
-                         RET
-
+                         JP   Add16bit_1                              ; ++PC
 
 
 ; **************************************************************************************************
@@ -433,8 +420,7 @@
                          LD   BC,$2BFD                                ; *codeptr++ = 253
 .dec_index               CALL WriteWord
                          LD   HL, asm_pc
-                         CALL Add16bit_2                              ; PC += 2
-                         RET
+                         JP   Add16bit_2                              ; PC += 2
 
 .dec_default        RLCA                                         ; default:
                     RLCA
@@ -444,9 +430,7 @@
                     LD   C,A
                     CALL WriteByte
                     LD   HL,asm_pc
-                    CALL Add16bit_1                                   ; ++PC
-                    RET
-
+                    JP   Add16bit_1                                   ; ++PC
 
 
 ; **************************************************************************************************
@@ -464,8 +448,7 @@
                               LD   C,A
                               CALL WriteByte                               ; *codeptr++ = 48 + opcode
                               LD   HL, asm_pc                               ; ++PC
-                              CALL Add16bit_1
-                              RET
+                              JP   Add16bit_1
 
 .incdec_case_5           CP   5                                       ; case 5:
                          JR   NZ, incdec_case_6
@@ -481,8 +464,7 @@
                               CALL WriteWord
                               CALL ExprSigned8                             ; ExprSigned8(2)
                               LD   HL, asm_pc
-                              CALL Add16bit_3                              ; PC += 3
-                              RET
+                              JP   Add16bit_3                              ; PC += 3
                                                             ; else
 .incdec_directadr        CALL CheckRegister8                     ; switch( reg = CheckRegister8() )
                          CP   6
@@ -503,5 +485,4 @@
                               LD   C,A
                               CALL WriteByte                               ; *codeptr++ = reg*8 + opcode
                               LD   HL, asm_pc
-                              CALL Add16bit_1
-                    RET
+                              JP   Add16bit_1

@@ -102,8 +102,7 @@
                               LD   C,233                                        ; *codeptr++ = 233
                               CALL WriteByte
                               LD   HL,asm_pc                                     ; ++PC
-                              CALL Add16bit_1
-                              RET
+                              JP   Add16bit_1
 
 .jp_case_5               CP   5                                       ; case 5:
                          JR   NZ, jp_case_6                                     ; { JP (IX) }
@@ -115,17 +114,14 @@
                               LD   BC,$E9FD                                     ; *codeptr++ = 253
 .jp_index_6                   CALL WriteWord                                    ; *codeptr++ = 233
                               LD   HL,asm_pc                                     ; PC += 2
-                              CALL Add16bit_2
-                              RET
+                              JP   Add16bit_2
 
 .jp_case_notf            CP   -1                                      ; case -1: reporterror(1)
                          JP   Z, STDerr_syntax
                          JP   STDerr_ill_ident                        ; default: reporterror(11)
                                                             ; else
 .jp_subr_nn              LD   (lineptr),DE                       ; lineptr = startexpr
-                         CALL Subroutine_cc                      ; Subroutine(opc0, opc)
-                    RET
-
+                         JP   Subroutine_cc                      ; Subroutine(opc0, opc)
 
 
 ; **************************************************************************************************
@@ -153,9 +149,7 @@
                          CALL WriteByte                          ; *codeptr++ = opcode0
 .read_expr          CALL ExprAddress                        ; ExprAddress(1)
                     LD   HL, asm_pc
-                    CALL Add16bit_3                         ; PC += 3
-                    RET
-
+                    JP   Add16bit_3                         ; PC += 3
 
 
 ; **************************************************************************************************
@@ -193,7 +187,6 @@
 .jr_addr_expr       LD   HL,asm_pc
                     CALL Add16bit_2                         ; PC+=2
                     JR   djnz_continue                      ; parse JR expression...
-
 
 
 ; **************************************************************************************************

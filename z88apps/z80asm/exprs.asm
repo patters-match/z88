@@ -99,12 +99,12 @@
                                    CALL RemovePfixList                     ; RemovePfixList(postfixexpr)
                                    CP   A
                                    RET
-.end_exprlong       LD   BC,0
-                    LD   DE,0
-                    CALL WriteLong                          ; codeptr += 4
-                    CP   A
-                    RET
-
+.end_exprlong       XOR  A
+                    LD   B,A
+                    LD   C,A
+                    LD   D,A
+                    LD   E,A
+                    JP   WriteLong                          ; codeptr += 4
 
 
 ; **************************************************************************************************
@@ -153,10 +153,10 @@
                                    CALL RemovePfixList                     ; RemovePfixList(postfixexpr)
                                    CP   A
                                    RET
-.end_expraddr       LD   BC,0
-                    CALL WriteWord                          ; codeptr += 2
-                    CP   A
-                    RET
+.end_expraddr       XOR  A                                  ; Fc = 0, A = 0
+                    LD   B,A
+                    LD   C,A
+                    JP   WriteWord                          ; codeptr += 2
 
 
 ; **************************************************************************************************
@@ -205,10 +205,9 @@
                                    CALL RemovePfixList                     ; RemovePfixList(postfixexpr)
                                    CP   A
                                    RET
-.end_exprusgn       LD   C,0
-                    CALL WriteByte                          ; codeptr++
-                    CP   A
-                    RET
+.end_exprusgn       XOR  A                                  ; Fc = 0, A = 0
+                    LD   C,A
+                    JP   WriteByte                          ; codeptr++
 
 
 ; **************************************************************************************************
@@ -257,10 +256,9 @@
                                    CALL RemovePfixList                     ; RemovePfixList(postfixexpr)
                                    CP   A
                                    RET
-.end_exprsign       LD   C,0
-                    CALL WriteByte                          ; codeptr++
-                    CP   A
-                    RET
+.end_exprsign       XOR  A                                  ; Fc = 0, A = 0
+                    LD   C,A
+                    JP   WriteByte                          ; codeptr++
 
 
 ; **************************************************************************************************
@@ -318,7 +316,6 @@
                     RET
 
 
-
 ; ========================================================================================
 ;
 ; 16bit add+1
@@ -334,7 +331,9 @@
                     RET  NZ
                     INC  HL
                     INC  (HL)
+                    DEC  HL
                     RET
+
 
 ; ========================================================================================
 ;
@@ -342,19 +341,11 @@
 ;
 ; Registers changed after return:
 ;
-;    A.BCDE../IXIY  same
-;    .F....HL/....  different
+;    AFBCDE../IXIY  same
+;    ......HL/....  different
 ;
-.Add16bit_2         PUSH AF
-                    LD   A,(HL)
-                    ADD  A,2
-                    LD   (HL),A
-                    JR   NC, end_add16bit_2
-                    INC  HL
-                    INC  (HL)
-.end_add16bit_2     POP  AF
-                    RET
-
+.Add16bit_2         CALL Add16bit_1
+                    JP   Add16bit_1
 
 ; ========================================================================================
 ;
@@ -362,19 +353,11 @@
 ;
 ; Registers changed after return:
 ;
-;    A.BCDE../IXIY  same
-;    .F....HL/....  different
+;    AFBCDE../IXIY  same
+;    ......HL/....  different
 ;
-.Add16bit_3         PUSH AF
-                    LD   A,(HL)
-                    ADD  A,3
-                    LD   (HL),A
-                    JR   NC, end_add16bit_3
-                    INC  HL
-                    INC  (HL)
-.end_add16bit_3     POP  AF
-                    RET
-
+.Add16bit_3         CALL Add16bit_2
+                    JP   Add16bit_1
 
 ; ========================================================================================
 ;
@@ -382,15 +365,8 @@
 ;
 ; Registers changed after return:
 ;
-;    A.BCDE../IXIY  same
-;    .F....HL/....  different
+;    AFBCDE../IXIY  same
+;    ......HL/....  different
 ;
-.Add16bit_4         PUSH AF
-                    LD   A,(HL)
-                    ADD  A,4
-                    LD   (HL),A
-                    JR   NC, end_add16bit_4
-                    INC  HL
-                    INC  (HL)
-.end_add16bit_4     POP  AF
-                    RET
+.Add16bit_4         CALL Add16bit_2
+                    JP   Add16bit_2
