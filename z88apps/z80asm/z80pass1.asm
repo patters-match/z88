@@ -304,8 +304,8 @@
                          LD   A, expression_first
                          CALL Set_pointer                   ; CURRENTMODULE->mexpr->firstexpr = pfixexpr
                          LD   A, expression_curr
-                         CALL Set_pointer                   ; CURRENTMODULE->mexpr->currexpr = pfixexpr
-                         RET                           ; else
+                         JP   Set_pointer                   ; CURRENTMODULE->mexpr->currexpr = pfixexpr
+                                                       ; else
 .pass2info_addexpr       PUSH BC
                          PUSH HL                            ; {preserve CURRENTMODULE->mexpr}
                          LD   A, expression_curr
@@ -315,10 +315,7 @@
                          POP  HL
                          POP  BC
                          LD   A, expression_curr
-                         CALL Set_pointer                   ; CURRENTMODULE->mexpr->currexpr = pfixexpr
-                    RET
-
-
+                         JP   Set_pointer                   ; CURRENTMODULE->mexpr->currexpr = pfixexpr
 
 
 ; ******************************************************************************

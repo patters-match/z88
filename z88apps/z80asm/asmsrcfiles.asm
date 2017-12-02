@@ -290,7 +290,6 @@
                     CALL GetPointer
                     XOR  A
                     CALL Set_pointer                        ; asm_pc_ptr = FindSymbol(.asmpc_ident, globalroot)
-                    CP   A
                     JR   exit_create_asmpc
 
 .err_create_asmpc   LD   A, Err_no_room

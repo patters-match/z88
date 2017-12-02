@@ -557,7 +557,8 @@
                     LD   L,E
                     XOR  A
                     CALL Read_pointer             ; {*stackptr}
-                    CP   B
+                    INC  B
+                    DEC  B
                     JR   NZ, clearstack_end       ; while ( *stackptr != NULL )
                          CALL PopItem                  ; PopItem(stackptr)
                     JR   clearstack_loop

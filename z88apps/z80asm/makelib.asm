@@ -195,16 +195,14 @@
                          JP   NZ, makelib_loop    ; while ( CURRENTMODULE == NULL )
 
                     LD   HL, libfilehandle
-                    CALL Close_file
-                    RET
+                    JP   Close_file
 
 .err_makelibrary    LD   HL, libfilehandle
                     CALL Close_file               ; fclose(libfile)
                     LD   HL, libfilename
                     CALL GetVarPointer
                     INC  HL
-                    CALL Delete_file              ; remove(libfilename)
-                    RET
+                    JP   Delete_file              ; remove(libfilename)
 
 .Z80Libheader       DEFM "Z80LMF01"
 .creatlib_msg       DEFM 1, "2H5Creating library...", 13, 10, 0

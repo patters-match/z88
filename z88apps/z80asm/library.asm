@@ -30,7 +30,7 @@
 
 ; external procedures:
      LIB malloc, mfree
-     LIB Set_pointer, Read_pointer, Set_word, Set_long
+     LIB Set_pointer, Read_pointer, Set_long
      LIB AllocVarPointer
 
      XREF GetPointer, GetVarPointer                    ; varptr.asm
@@ -93,7 +93,6 @@
                          LD   A, libfile_filename
                          CALL Set_pointer                   ; libfile->filename = CDE
                          SET  library,(IY + RTMflags)       ; library = ON
-                         CP   A
                          RET
                                                        ; else
 .not_libfile        LD   A, ERR_not_libfile
@@ -122,7 +121,7 @@
                     XOR  A                             ; BHL = pointer to pointer variable
                     CALL Set_pointer                   ; libfilename = CDE
                     SET  createlib,(IY + RTMflags)     ; indicate library to be created...
-                    return
+                    RET
 
 
 ; ******************************************************************************
@@ -254,8 +253,7 @@
 ;    AFB...HL/....  different
 ;
 .AllocLibraryHdr    LD   A, SIZEOF_libraries
-                    CALL malloc
-                    RET
+                    JP   malloc
 
 
 ; **************************************************************************************************
@@ -271,5 +269,4 @@
 ;    AFB...HL/....  different
 ;
 .AllocLibrary       LD   A, SIZEOF_libfile
-                    CALL malloc
-                    RET
+                    JP   malloc

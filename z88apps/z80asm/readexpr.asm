@@ -30,7 +30,7 @@
 
 ; external procedures:
 
-     LIB Read_word, Read_pointer, Set_word, Read_byte
+     LIB Read_word, Read_pointer, Read_byte
      LIB Set_pointer, Read_long, Set_long, Set_byte
 
      XREF ReportError, ReportError_NULL                     ; errors.asm

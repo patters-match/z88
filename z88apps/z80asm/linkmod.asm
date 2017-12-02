@@ -653,8 +653,7 @@
                                    LD   A, linklist_firstmod
                                    CALL Set_pointer                   ;    linkhdr->firstmod = newl
                                    LD   A, linklist_lastmod
-                                   CALL Set_pointer                   ;    linkhdr->lastmod = newl
-                                   JR   end_newlinkedmod
+                                   JP   Set_pointer                   ;    linkhdr->lastmod = newl
                                                                  ; else
 .append_module                PUSH BC
                               PUSH HL                                 ;    { preserve linkhdr }
@@ -665,11 +664,8 @@
                               POP  HL
                               POP  BC
                               LD   A, linklist_lastmod
-                              CALL Set_pointer                        ;    linkhdr->lastmod = newl
-
-.end_newlinkedmod   XOR  A                             ; return CDE = newm
-                    RET                                ; indicate succes...
-
+                              JP   Set_pointer                        ;    linkhdr->lastmod = newl
+                                                                      ;    return CDE = newm (Fc = 0)
 .newl_nullptr       POP  BC
                     POP  HL
                     POP  DE

@@ -32,7 +32,7 @@
      LIB memcompare, CmpPtr
      LIB Bind_bank_s1
      LIB AllocIdentifier, mfree
-     LIB Read_word, Read_pointer, Set_word, Read_byte
+     LIB Read_word, Read_pointer, Read_byte
      LIB Set_pointer, Read_long, Set_long, Set_byte
 
      XREF LinkModule                                        ; linkmod.asm
@@ -201,7 +201,8 @@
                               CALL GetPointer
                               XOR  A
                               CALL Set_pointer                        ; CURRENTLIB = CURRENTLIB->nextlib
-                              CP   C
+                              INC  C
+                              DEC  C
                               JR   Z, search_nextlib                  ; if ( CURRENTLIB != NULL )
                                    LD   B,C
                                    EX   DE,HL                              ; BHL = CURRENTLIB
@@ -250,7 +251,7 @@
                          CALL Set_long                           ; CURRENTLIB->nextobjfile = 8
                          POP  DE
                          POP  BC
-                         JR   searchlibs_loop               ; FOR loop...
+                         JP   searchlibs_loop               ; FOR loop...
 
 .exit_searchlibs    POP  BC                                 ; {remove loop counter}
                     RET

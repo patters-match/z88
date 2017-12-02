@@ -112,5 +112,4 @@
                     LD   HL,modulehdr
                     CALL GetPointer                    ; &modulehdr
                     XOR  A
-                    CALL Set_pointer                   ; modulehdr = NULL
-                    RET
+                    JP   Set_pointer                   ; modulehdr = NULL

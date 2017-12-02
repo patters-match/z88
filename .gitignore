@@ -16,3 +16,7 @@ z88apps/z80asm/romupdate\.cfg
 *.61
 
 *.bin
+
+*.obj
+
+*.lib

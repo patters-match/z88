@@ -28,7 +28,7 @@
 
      MODULE GetVarPointer
 
-     LIB Mfree, Read_pointer, Set_pointer
+     LIB Mfree
      LIB GetPointer, GetVarPointer
 
      XDEF FreeVarPointer

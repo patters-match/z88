@@ -36,7 +36,7 @@
      INCLUDE "director.def"
      INCLUDE "error.def"
 
-     LIB Release_pools, Set_pointer
+     LIB Release_pools
      LIB Bind_bank_s1, GetVarPointer
      LIB IsAlpha
 

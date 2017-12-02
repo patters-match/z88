@@ -37,7 +37,7 @@
      LIB mfree
      LIB CmpPtr
      LIB Read_word, Read_long, Read_byte, Read_pointer
-     LIB Set_word, Set_long, Set_byte, Set_pointer
+     LIB Set_word, Set_byte, Set_pointer
      LIB ascorder
 
      XREF Open_file                                         ; fileio.asm
@@ -326,7 +326,6 @@
                          POP  BC
                          LD   A, module_jraddr
                          CALL Set_pointer                        ; CURRENTMODULE->JRaddr = NULL
-
 .no_pass2exprs
 .manipulate_objfile LD   IX,(objfilehandle)
                     CALL ftell

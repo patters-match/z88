@@ -63,7 +63,7 @@
      XREF CurrentModule                                     ; module.asm
      XREF Open_file, Close_file, Copy_file, ftell, fseek    ; fileio.asm
      XREF Z80pass1, FetchLine                               ; z80pass1.asm
-     XREF Init_sourcefile                                   ; z80asm.asm
+     XREF Init_sourcefile                                   ; asmsrcfiles.asm
 
 ; global procedures:
      XDEF DEFS_fn, ORG_fn, BINARY_fn, DeclModule
@@ -129,8 +129,8 @@
                          CALL CurrentFile
                          CALL Init_sourcefile
                          LD   DE, srcfile_filepointer
-                         CALL fseek                    ; fseek(z80asmfile, CURRENTFILE->filepointer, SEEK_SET)
-                         RET                      ; else
+                         JP   fseek                    ; fseek(z80asmfile, CURRENTFILE->filepointer, SEEK_SET)
+                                                 ; else
 
 .inclfile_opened         LD   (srcfilehandle),IX       ; {DE points at explicit filename}
                          CALL CurrentFile              ; sourcefile_open = 1
@@ -657,8 +657,7 @@
                                    CALL ReportError_STD
 .end_org                 POP  HL
                          POP  BC
-                         CALL RemovePfixList                     ; RemovePfixList(postfixexpr)
-                    RET
+                         JP   RemovePfixList                     ; RemovePfixList(postfixexpr)
 
 
 
@@ -942,18 +941,16 @@
                               LD   C,A                           ; {BHL= CURRENTMODULE, CDE = id}
                               JR   C, mname_no_room              ; if ( id != NULL )
                                    LD   A, module_mname
-                                   CALL Set_pointer                   ; CURRENTMODULE->mname = id
-                                   RET                           ; else
+                                   JP   Set_pointer                   ; CURRENTMODULE->mname = id
+                                                                 ; else
 .mname_no_room                     LD   A, ERR_no_room
-                                   CALL reportError_STD               ; ReportError(3)
-                                   RET                      ; else
+                                   JP   reportError_STD               ; ReportError(3)
+                                                            ; else
                                                                  ; reporterror(11)
 .mname_Declared     POP  HL                            ; else
                     POP  BC
                     LD   A, ERR_modname_defined
-                    CALL ReportError_STD                    ; Reporterror(15)
-                    RET
-
+                    JP   ReportError_STD                    ; Reporterror(15)
 
 
 ; **************************************************************************************************

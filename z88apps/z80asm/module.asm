@@ -344,8 +344,7 @@
                          LD   A, modules_first
                          CALL Set_pointer              ;    modulehdr->first = newm
                          LD   A, modules_last
-                         CALL Set_pointer              ;    modulehdr->current = newm
-                         JR   end_newmodule
+                         JP   Set_pointer              ;    modulehdr->current = newm (Fc = 0)
                                                        ; else
 .append_module      PUSH BC
                     PUSH HL                            ;    { preserve modulehdr }
@@ -356,10 +355,8 @@
                     POP  HL
                     POP  BC
                     LD   A, modules_last
-                    CALL Set_pointer                   ;    modulehdr->current = newm
-
-.end_newmodule      XOR  A                             ; return CDE = newm
-                    RET                                ; indicate succes...
+                    JP   Set_pointer                   ;    modulehdr->current = newm
+                                                       ; return CDE = newm (Fc = 0)
 
 ; nor room for JD address header, free <newm->mexpr> and <newm>.
 .JRaddr_no_room     POP  HL
@@ -397,8 +394,8 @@
                     PUSH HL                       ; { preserve exprhdr }
                     LD   A, expression_first
                     CALL Read_pointer             ; curexpr = exprhdr->first
-                    XOR  A
-                    CP   B
+                    INC  B
+                    DEC  B
                     JR   Z, release_exprhdr       ; if ( curexpr != NULL )
 .relexpr_loop            PUSH BC                       ; do
                          PUSH HL
@@ -426,9 +423,7 @@
                     LD   A, module_mexpr
                     LD   C,0
                     LD   DE,0
-                    CALL Set_pointer              ; CURRENTMODULE->mexpr = NULL
-                    RET
-
+                    JP   Set_pointer              ; CURRENTMODULE->mexpr = NULL
 
 
 ; **************************************************************************************************
@@ -444,8 +439,7 @@
 ;    AFB...HL/....  different
 ;
 .AllocModuleHdr     LD   A, SIZEOF_modules
-                    CALL malloc
-                    RET
+                    JP   malloc
 
 
 ; **************************************************************************************************
@@ -461,8 +455,7 @@
 ;    AFB...HL/....  different
 ;
 .AllocModule        LD   A, SIZEOF_module
-                    CALL malloc
-                    RET
+                    JP   malloc
 
 
 ; **************************************************************************************************
@@ -478,8 +471,7 @@
 ;    AFB...HL/....  different
 ;
 .AllocExprHdr       LD   A, SIZEOF_expression
-                    CALL malloc
-                    RET
+                    JP   malloc
 
 
 ; **************************************************************************************************
@@ -495,5 +487,4 @@
 ;    AFB...HL/....  different
 ;
 .AllocJRaddrHdr     LD   A, SIZEOF_jrpcexpr
-                    CALL malloc
-                    RET
+                    JP   malloc

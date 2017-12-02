@@ -34,7 +34,7 @@
 
 ; external procedures:
      LIB malloc, mfree, AllocIdentifier
-     LIB Read_byte, Set_byte, Read_long, Set_word, Set_long, Read_pointer
+     LIB Read_byte, Set_byte, Read_long, Set_long, Read_pointer
      LIB Set_pointer, Bind_bank_s1
      LIB memcpy
 
@@ -78,7 +78,6 @@
                          LD   A,ERR_no_room
                          CALL ReportError_STD          ; ReportError(3)
                          CALL NULL_pointer             ; return NULL
-                         SCF
                          JP   end_parse_expr     ; else
 
 .init_pfixhdr            LD   C,0
@@ -149,7 +148,6 @@
                                                   ; else
 .error_parse_expr        CALL RemovePfixList           ; RemovePfixList(pfixhdr)
                          CALL NULL_pointer             ; return NULL
-                         SCF
 
 .end_parse_expr     POP  DE
                     LD   A,B
@@ -659,8 +657,8 @@
                     PUSH HL
                     LD   A, expr_pfixlist_first
                     CALL Read_pointer
-                    XOR  A
-                    CP   B                        ; if ( pfixexpr->firstnode != NULL )
+                    INC  B
+                    DEC  B                        ; if ( pfixexpr->firstnode != NULL )
                     POP  HL
                     POP  BC
                     JR   NZ, newpfix_add
@@ -815,8 +813,8 @@
                     LD   A,expr_pfixlist_first
                     CALL Read_pointer             ; node = pfixexpr->firstnode
 
-.remv_nodes_loop    XOR  A
-                    CP   B
+.remv_nodes_loop    INC  B
+                    DEC  B
                     JR   Z, end_remv_pfixlist     ; while ( node != NULL )
                          PUSH BC
                          PUSH HL                       ; {preserve node}

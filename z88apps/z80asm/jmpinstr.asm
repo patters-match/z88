@@ -246,8 +246,8 @@
 .NewJRaddr          CALL AllocJrPC                          ; { allocate room rom new JRPC node }
                     JR   NC,newjr_init                      ; if ( (newJRPC=AllocJrPC()) == NULL )
                          LD   A, ERR_no_room                     ; Reporterror(3)
-                         CALL ReportError_STD                    ; return
-                         RET                                ; else
+                         JP   ReportError_STD                    ; return
+                                                            ; else
 .newjr_init              LD   A, jrpc_next
                          LD   C,0
                          LD   D,C
@@ -273,8 +273,8 @@
                          LD   A, jrpcexpr_first
                          CALL Set_pointer                        ; CURRENTMODULE->JRaddr->firstref = newJRPC
                          LD   A, jrpcexpr_last
-                         CALL Set_pointer                        ; CURRENTMODULE->JRaddr->lastref = newJRPC
-                         RET                                ; else
+                         JP   Set_pointer                        ; CURRENTMODULE->JRaddr->lastref = newJRPC
+                                                            ; else
 .newjr_addlist      POP  HL
                     POP  BC
                     PUSH HL
@@ -286,12 +286,10 @@
                     POP  BC
                     POP  HL
                     LD   A, jrpcexpr_last                        ; CURRENTMODULE->JRaddr->lastref = newJRPC
-                    CALL Set_pointer
-                    RET
+                    JP   Set_pointer
 
 
 ; **************************************************************************************************
 ;
 .AllocJrPC          LD   A,SIZEOF_JrPC
-                    CALL malloc
-                    RET
+                    JP   malloc
