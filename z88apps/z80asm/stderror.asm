@@ -179,8 +179,7 @@
                     CALL_OZ(Gn_Pdn)
                     POP  AF
 .write_errmsg       CALL z80asm_errmsg
-                    CALL Write_stdmessage              ; write z80asm errors message to file...
-                    RET
+                    JP   Write_stdmessage              ; write z80asm errors message to file...
 
 
 ; ==================================================================================================
@@ -205,9 +204,6 @@
 .Write_stdmessage   LD   B,0
                     LD   C,(HL)
                     INC  HL
-                    CALL Write_message
-                    RET
-
 
 ; ==================================================================================================
 ;

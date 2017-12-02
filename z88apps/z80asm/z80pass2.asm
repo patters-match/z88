@@ -463,9 +463,7 @@
                     LD   HL, fptr_libnames
                     CALL Write_fptr                              ; WriteLong(fptr_libnames, objfile)
                     LD   HL, fptr_modcode
-                    CALL Write_fptr                              ; WriteLong(fptr_modcode, objfile)
-                    RET
-
+                    JP   Write_fptr                              ; WriteLong(fptr_modcode, objfile)
 
 
 ; **************************************************************************************************
@@ -556,9 +554,7 @@
                     LD   (curJR_ptr+2),A          ; curJR = curJR->nextref
                     POP  HL
                     POP  BC
-                    CALL mfree                    ; free(prevJR)
-                    RET
-
+                    JP   mfree                    ; free(prevJR)
 
 
 ; **************************************************************************************************
@@ -657,8 +653,7 @@
                          LD   C,A
                          INC  C
                          LD   DE,0
-                         CALL Write_string                  ; fwrite( symnode->symname, objfile)
-                    RET
+                         JP   Write_string                  ; fwrite( symnode->symname, objfile)
 
 
 
@@ -684,5 +679,4 @@
                          LD   C,A
                          INC  C
                          LD   DE,0
-                         CALL Write_string             ; fwrite( symnode->symname, objfile)
-.libref_finished    RET
+                         JP   Write_string             ; fwrite( symnode->symname, objfile)

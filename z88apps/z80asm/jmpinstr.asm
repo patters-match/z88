@@ -74,17 +74,7 @@
 
 ; ******************************************************************************
 ;
-.CALL_fn            LD   BC,$CDC4                 ; standard instruction opcodes
-                    CALL Subroutine_cc
-                    RET
-
-
-; ******************************************************************************
-;
 .JP_fn              LD   BC,$C3C2                 ; standard instruction opcodes
-                    CALL JP_instr
-                    RET
-
 
 ; **************************************************************************************************
 ;
@@ -121,7 +111,7 @@
                          JP   STDerr_ill_ident                        ; default: reporterror(11)
                                                             ; else
 .jp_subr_nn              LD   (lineptr),DE                       ; lineptr = startexpr
-                         JP   Subroutine_cc                      ; Subroutine(opc0, opc)
+                                                                 ; Subroutine(opc0, opc)
 
 
 ; **************************************************************************************************
@@ -150,6 +140,12 @@
 .read_expr          CALL ExprAddress                        ; ExprAddress(1)
                     LD   HL, asm_pc
                     JP   Add16bit_3                         ; PC += 3
+
+; ******************************************************************************
+;
+.CALL_fn            LD   BC,$CDC4                 ; standard instruction opcodes
+                    JR   Subroutine_cc
+
 
 
 ; **************************************************************************************************
@@ -234,9 +230,7 @@
                                    CALL ReportError_STD                    ; reporterror(7)
 .djnz_end           POP  HL
                     POP  BC
-                    CALL RemovePfixlist                          ; RemovePfixlist(postfixexpr)
-                    RET
-
+                    JP   RemovePfixlist                          ; RemovePfixlist(postfixexpr)
 
 
 ; **************************************************************************************************

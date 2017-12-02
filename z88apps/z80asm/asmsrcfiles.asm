@@ -101,7 +101,6 @@
                     BIT  globaldef, (IY + RTMflags)
                     CALL NZ, CreateDefFileName    ; deffile = CreateDefFileName(CurrentFile)
                     JP   C, ReportError_NULL      ; (global def file will be created after assembly)
-
 .asmfiles_loop                                    ; do
                     RES  EOF,(IY + RtmFlags3)          ; clear file flag
                     RES  ASMERROR,(IY + RtmFlags3)     ; reset to no errors for this module
@@ -251,8 +250,7 @@
                     CALL FreeVarPointer                ; release pointer variable back to OZ memory
 
                     LD   HL, symfilename
-                    CALL FreeVarPointer                ; release pointer variable back to OZ memory
-                    RET
+                    JP   FreeVarPointer                ; release pointer variable back to OZ memory
 
 
 ; *****************************************************************************************
@@ -327,8 +325,7 @@
 
                     POP  HL
                     POP  BC
-                    CALL mfree                              ; free(tmpident)
-                    RET
+                    JP   mfree                              ; free(tmpident)
 
 
 ; *****************************************************************************************
@@ -522,10 +519,9 @@
                     LD   (longint+2),DE
                     LD   B,0
                     LD   HL, longint
-                    CALL fseek                         ; set file pointer at end of objfile
-                    CP   A
-                    RET
-.objcreate_err      POP  HL
+                    JP   fseek                         ; set file pointer at end of objfile
+.objcreate_err
+                    POP  HL
                     POP  BC
                     RET
 .Z80header          DEFM "Z80RMF01oomodnexprnamelibnmodc"

@@ -682,7 +682,6 @@
                     RET
 
 
-
 ; **************************************************************************************************
 ;
 ; Get separator defined from symbol
@@ -704,7 +703,6 @@
                     POP  BC
                     POP  HL
                     RET
-
 
 
 ; **************************************************************************************************
@@ -738,7 +736,6 @@
                     POP  BC
                     POP  DE
                     RET
-
 
 
 ; **************************************************************************************************
@@ -784,7 +781,6 @@
                     POP  DE                       ;
                     POP  BC                       ; pfixexpr-ptr restored, ident-ptr restored
                     RET
-
 
 
 ; **************************************************************************************************
@@ -857,15 +853,12 @@
                     RET
 
 
-
 ; ****************************************************************************************
 ;
 ; Allocate memory for new node of postfix expression list
 ;
 .AllocPfixSymbol    LD   A,SIZEOF_pfixlist
-                    CALL malloc
-                    RET
-
+                    JP   malloc
 
 
 ; ****************************************************************************************
@@ -873,8 +866,7 @@
 ; Allocate memory for header of postfix expression
 ;
 .AllocExpr          LD   A,SIZEOF_expr
-                    CALL malloc
-                    RET
+                    JP   malloc
 
 
 ; ****************************************************************************************
@@ -882,5 +874,4 @@
 ; Allocate memory for new node of postfix expression evaluation stack
 ;
 .AllocInfixExpr     LD   A, SIZEOF_infixexpr
-                    CALL malloc
-                    RET
+                    JP   malloc

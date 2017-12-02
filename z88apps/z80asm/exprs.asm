@@ -96,9 +96,7 @@
                                         CALL ReportError_STD                    ; Reporterror(4)
 .exprlong_remvexpr                 POP  BC
                                    POP  HL
-                                   CALL RemovePfixList                     ; RemovePfixList(postfixexpr)
-                                   CP   A
-                                   RET
+                                   JP   RemovePfixList                     ; RemovePfixList(postfixexpr)
 .end_exprlong       XOR  A
                     LD   B,A
                     LD   C,A
@@ -150,9 +148,7 @@
                                         CALL ReportError_STD                    ; Reporterror(4)
 .expraddr_remvexpr                 POP  BC
                                    POP  HL
-                                   CALL RemovePfixList                     ; RemovePfixList(postfixexpr)
-                                   CP   A
-                                   RET
+                                   JP   RemovePfixList                     ; RemovePfixList(postfixexpr)
 .end_expraddr       XOR  A                                  ; Fc = 0, A = 0
                     LD   B,A
                     LD   C,A
@@ -202,9 +198,7 @@
                                         CALL ReportError_STD                    ; Reporterror(4)
 .exprusgn_remvexpr                 POP  BC
                                    POP  HL
-                                   CALL RemovePfixList                     ; RemovePfixList(postfixexpr)
-                                   CP   A
-                                   RET
+                                   JP   RemovePfixList                     ; RemovePfixList(postfixexpr)
 .end_exprusgn       XOR  A                                  ; Fc = 0, A = 0
                     LD   C,A
                     JP   WriteByte                          ; codeptr++
@@ -253,9 +247,7 @@
                                         CALL ReportError_STD                    ; Reporterror(4)
 .exprsign_remvexpr                 POP  BC
                                    POP  HL
-                                   CALL RemovePfixList                     ; RemovePfixList(postfixexpr)
-                                   CP   A
-                                   RET
+                                   JP   RemovePfixList                     ; RemovePfixList(postfixexpr)
 .end_exprsign       XOR  A                                  ; Fc = 0, A = 0
                     LD   C,A
                     JP   WriteByte                          ; codeptr++

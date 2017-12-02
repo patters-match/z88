@@ -419,9 +419,7 @@
 .end_calcexpr       CALL C,ReportError_STD
                     POP  BC
                     POP  DE
-                    CALL PushItem            ; PushItem(result, stackptr)
-                    RET
-
+                    JP   PushItem            ; PushItem(result, stackptr)
 
 
 ; **********************************************************************************
@@ -483,9 +481,7 @@
                          RET
 
 .push_no_room       LD   A,ERR_no_room
-                    CALL ReportError_STD
-                    RET
-
+                    JP   ReportError_STD
 
 
 ; **********************************************************************************
@@ -538,7 +534,6 @@
                     RET
 
 
-
 ; ******************************************************************************************
 ;
 ; Remove evaluation stack from memory
@@ -573,5 +568,4 @@
 ; Allocate memory for new node of postfix expression evaluation stack
 ;
 .AllocStackItem     LD   A,SIZEOF_pfixstack
-                    CALL malloc
-                    RET
+                    JP   malloc

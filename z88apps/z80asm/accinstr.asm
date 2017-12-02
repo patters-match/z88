@@ -93,40 +93,35 @@
 ;
 ;
 .AND_fn             LD   C,4
-                    CALL ArithLog8_instr
-                    RET
+                    JP   ArithLog8_instr
 
 
 ; **************************************************************************************************
 ;
 ;
 .OR_fn              LD   C,6
-                    CALL ArithLog8_instr
-                    RET
+                    JP   ArithLog8_instr
 
 
 ; **************************************************************************************************
 ;
 ;
 .CP_fn              LD   C,7
-                    CALL ArithLog8_instr
-                    RET
+                    JP   ArithLog8_instr
 
 
 ; **************************************************************************************************
 ;
 ;
 .SUB_fn             LD   C,2
-                    CALL ArithLog8_instr
-                    RET
+                    JP   ArithLog8_instr
 
 
 ; **************************************************************************************************
 ;
 ;
 .XOR_fn             LD   C,5
-                    CALL ArithLog8_instr
-                    RET
+                    JP   ArithLog8_instr
 
 
 ; **************************************************************************************************
@@ -138,8 +133,7 @@
                     CP   -1                                 ; case -1:
                     JR   NZ, add_case_2
                          LD   C,0
-                         CALL Parse_Acc                          ; Parse_Acc(0)  {ADD A,}
-                         RET
+                         JP    Parse_Acc                          ; Parse_Acc(0)  {ADD A,}
 .add_case_2         CP   2                                  ; case 2:
                     JR   NZ, add_case_5
                          CALL Getsym
@@ -200,8 +194,7 @@
                               JP   Add16bit_2                         ; PC += 2
 
 .add_default        LD   A, ERR_unkn_ident                  ; default:
-                    CALL ReportError_STD
-                    RET
+                    JP   ReportError_STD
 
 
 ; **************************************************************************************************
@@ -212,8 +205,7 @@
                     CP   -1                                 ; case -1:
                     JR   NZ, adc_case_2
                          LD   C,1
-                         CALL Parse_Acc                          ; Parse_Acc(1)  {ADC A,}
-                         RET
+                         JP   Parse_Acc                          ; Parse_Acc(1)  {ADC A,}
 .adc_case_2         CP   2                                  ; case 2:
                     JP   NZ, STDerr_ill_ident
                          CALL Getsym
@@ -245,8 +237,7 @@
                     CP   -1                                 ; case -1:
                     JR   NZ, sbc_case_2
                          LD   C,3
-                         CALL Parse_Acc                          ; Parse_Acc(3)  { SBC A, }
-                         RET
+                         JP   Parse_Acc                          ; Parse_Acc(3)  { SBC A, }
 .sbc_case_2         CP   2                                  ; case 2:
                     JP   NZ, STDerr_ill_ident
                          CALL Getsym
@@ -373,8 +364,7 @@
                     CP   -1                                      ; case -1:
                     JR   NZ,inc_case_4
                          LD   C,4
-                         CALL IncDec_8bit_instr                       ; IncDec_8bit_instr(4)
-                         RET
+                         JP   IncDec_8bit_instr                       ; IncDec_8bit_instr(4)
 .inc_case_4         CP   4                                       ; case 4:
                     JP   Z, STDerr_ill_ident                          ; Reporterror(11)
                     CP   5                                       ; case 5:
@@ -407,8 +397,7 @@
                     CP   -1                                      ; case -1:
                     JR   NZ,dec_case_4
                          LD   C,5
-                         CALL IncDec_8bit_instr                       ; IncDec_8bit_instr(5)
-                         RET
+                         JP   IncDec_8bit_instr                       ; IncDec_8bit_instr(5)
 .dec_case_4         CP   4                                       ; case 4:
                     JP   Z, STDerr_ill_ident                          ; Reporterror(11)
                     CP   5                                       ; case 5:

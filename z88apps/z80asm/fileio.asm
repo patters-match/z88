@@ -137,7 +137,7 @@
 ;         AF....../....  different
 ;
 .Write_fptr         LD   A,B
-                    CP   0
+                    OR   A
                     JR   Z, write_longint
                     CALL Bind_bank_s1
                     PUSH AF
@@ -146,8 +146,7 @@
                     CALL write_longint
                     POP  HL
                     POP  AF
-                    CALL Bind_bank_s1
-                    RET
+                    JP   Bind_bank_s1
 
 .write_longint      PUSH BC
                     PUSH HL
@@ -174,7 +173,7 @@
 ;         AF....../....  different
 ;
 .Read_fptr          LD   A,B
-                    CP   0
+                    OR   A
                     JR   Z, read_longint
                     CALL Bind_bank_s1
                     PUSH AF
@@ -183,8 +182,8 @@
                     CALL read_longint
                     POP  HL
                     POP  AF
-                    CALL Bind_bank_s1
-                    RET
+                    JP   Bind_bank_s1
+
 .read_longint       PUSH BC
                     PUSH DE
                     PUSH HL
@@ -213,7 +212,7 @@
 ;         AF....../....  different
 ;
 .Write_string       LD   A,B
-                    CP   0
+                    OR   A
                     JR   Z, write_str
                     CALL Bind_bank_s1
                     PUSH AF
@@ -222,8 +221,8 @@
                     CALL write_str
                     POP  HL
                     POP  AF
-                    CALL Bind_bank_s1
-                    RET
+                    JP   Bind_bank_s1
+
 .write_str          PUSH BC
                     PUSH DE
                     PUSH HL
@@ -251,15 +250,15 @@
 ;         AF....HL/....  different
 ;
 .Read_string        LD   A,B
-                    CP   0
+                    OR   A
                     JR   Z, read_str
                     CALL Bind_bank_s1
                     PUSH AF
                     ADD  HL,DE                    ; add offset to pointer
                     CALL read_str
                     POP  AF
-                    CALL Bind_bank_s1
-                    RET
+                    JP   Bind_bank_s1
+
 .read_str           PUSH BC
                     PUSH DE
                     LD   B,0                      ; BC = length of string
@@ -349,6 +348,7 @@
                     CALL Delete_file         ; delete ":RAM.-/buf", if it exists...
                     LD   HL, cdefile
                     JP   Delete_file         ; delete ":RAM.-/temp.buf", if it exists...
+
 
 ; ****************************************************************************************
 ;

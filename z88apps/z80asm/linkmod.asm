@@ -281,8 +281,7 @@
                     LD   HL, binfilename
                     CALL GetVarPointer
                     INC  HL
-                    CALL Delete_file                        ; remove(binfilename)
-                    RET
+                    JP   Delete_file                        ; remove(binfilename)
 
 .link_msg           DEFM 1, "2H5", 10, 13, "linking module(s)...", 10, 13, "Pass1...", 10, 13, 0
 .errext             DEFM "err"
@@ -709,8 +708,7 @@
 ;    AFB...HL/....  different
 ;
 .Alloclinkhdr       LD   A, SIZEOF_linklist
-                    CALL malloc
-                    RET
+                    JP   malloc
 
 
 ; **************************************************************************************************
@@ -726,5 +724,4 @@
 ;    AFB...HL/....  different
 ;
 .AllocTracedModule  LD   A, SIZEOF_linkedmod
-                    CALL malloc
-                    RET
+                    JP   malloc

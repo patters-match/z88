@@ -108,22 +108,20 @@
                          CALL Test_16bit_Range    ; range must be [0; 65535]
                          RET  NC
 .org_range               LD   A, ERR_range
-                         CALL OriginError
                          SCF
-                         RET
+                         JR   OriginError
 .illegal_origin          LD   A, ERR_syntax
-                         CALL OriginError
                          SCF
-                         RET
-
 
 ; ******************************************************************************
 ;
 ;    IN:  A = error code
 ;
-.OriginError             PUSH IX
+.OriginError             PUSH AF
+                         PUSH IX
                          CALL Get_stdoutp_handle  ; handle for standard output
                          CALL Display_error       ; display error message
                          CALL_OZ(Gn_Nln)          ; but don't affect z80asm error system
                          POP  IX
+                         POP  AF
                          RET

@@ -120,7 +120,6 @@
                     POP  HL
                     POP  BC
                     LD   B,C                           ; BHL points at filename...
-                    CP   A
                     RET
 .err_createfname    POP  HL
                     POP  DE

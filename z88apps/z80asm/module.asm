@@ -91,18 +91,18 @@
 
 .module_operr       CP   RC_Ivf                        ; if ( error != RC_ivf )
                     JR   Z, bad_filename
-                         BIT  datestamp,(IY + RTMflags)     if ( !datestamp )
+                         BIT  datestamp,(IY + RTMflags)     ; if ( !datestamp )
                          JR   NZ, use_shortname
-                              CALL ReportError_NULL              ; report open error if no date stamping...
-                              SCF                                ; then return to caller
-                              RET                           ; else
+                              SCF
+                              JP   ReportError_NULL              ; report open error if no date stamping...
+                                                                 ; then return to caller
+                                                            ; else
 .use_shortname           LD   DE, cdebuffer                      ; file couldn't be opened, but use
                          CALL ModuleFileName                     ; non-extended file name
                          CP   A
                          RET                           ; else
-.bad_filename       CALL ReportError_NULL                   ; report error
-                    SCF
-                    RET
+.bad_filename       SCF
+                    JP   ReportError_NULL                   ; report error
 
 
 ; *********************************************************************************************
@@ -217,8 +217,7 @@
                     CALL NewFile                       ; return pointer to file record in CDE
                     CALL CurrentModule
                     LD   A, module_cfile
-                    CALL Set_pointer                   ; CURRENTMODULE->cfile = NewFile(NULL, textfile)
-                    RET
+                    JP   Set_pointer                   ; CURRENTMODULE->cfile = NewFile(NULL, textfile)
 
 
 ; **************************************************************************************************

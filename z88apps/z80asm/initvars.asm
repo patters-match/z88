@@ -90,7 +90,5 @@ XDEF InitVars, InitFiles, InitPointers
                     LD   HL, staticroot                ; allocate room for 'staticroot' pointer variable
                     CALL AllocVarPointer
                     LD   HL, asm_pc_ptr                ; allocate room for 'asm_pc_ptr' pointer variable
-                    CALL AllocVarPointer
-                    RET  C                             ; Ups - no room...
-                    RET
+                    JP   AllocVarPointer
 

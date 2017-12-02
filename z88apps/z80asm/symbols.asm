@@ -275,10 +275,9 @@
 .found_defsym       POP  HL                  ; else
                     POP  BC
                     POP  AF
-                    LD   A, ERR_sym_defined       ; Symbol already defined
-                    CALL ReportError_STD          ; ReportError(CURRENTFILE->fname, CURRENTFILE->line, 14);
                     SCF
-                    RET
+                    LD   A, ERR_sym_defined       ; Symbol already defined
+                    JP   ReportError_STD          ; ReportError(CURRENTFILE->fname, CURRENTFILE->line, 14);
 
 
 
@@ -466,9 +465,9 @@
                                                        ; else
 .localsym_defined             CALL ReleaseID                ; {release redundant search ID}
                               LD   A, ERR_sym_decl_local
-                              CALL ReportError_STD          ; Reporterror(14)
                               SCF
-                              RET
+                              JP   ReportError_STD          ; Reporterror(14)
+
 .end_deflocal       CALL ReleaseID                ; {release redundant search ID}
                     CP   A
                     RET

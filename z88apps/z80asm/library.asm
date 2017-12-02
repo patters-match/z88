@@ -90,16 +90,14 @@
                          LD   B,A                           ; BHL = library record
                          POP  DE                            ; CDE = library filename
                          RET  C
-                         LD   A, libfile_filename
-                         CALL Set_pointer                   ; libfile->filename = CDE
                          SET  library,(IY + RTMflags)       ; library = ON
-                         RET
+                         LD   A, libfile_filename
+                         JP   Set_pointer                   ; libfile->filename = CDE
                                                        ; else
-.not_libfile        LD   A, ERR_not_libfile
-                    LD   DE,0
-                    CALL ReportError                        ; ReportError(libfilename, 0, ERR_not_libfile)
+.not_libfile        LD   DE,0
                     SCF
-                    RET
+                    LD   A, ERR_not_libfile
+                    JP   ReportError                        ; ReportError(libfilename, 0, ERR_not_libfile)
 
 .libheader          DEFM "Z80LMF01"
 
@@ -118,10 +116,9 @@
                     LD   HL, libfilename
                     CALL AllocVarPointer
                     JP   C, ReportError_NULL
-                    XOR  A                             ; BHL = pointer to pointer variable
-                    CALL Set_pointer                   ; libfilename = CDE
                     SET  createlib,(IY + RTMflags)     ; indicate library to be created...
-                    RET
+                    XOR  A                             ; BHL = pointer to pointer variable
+                    JP   Set_pointer                   ; libfilename = CDE
 
 
 ; ******************************************************************************

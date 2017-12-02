@@ -136,8 +136,7 @@
                          POP  BC                  ; remove redundant codeblocknum variable
                          CALL ReportError_NULL
                          LD   HL, cdefilehandle
-                         CALL Close_file
-                         RET
+                         JP   Close_file
 
 .Use16K                  LD   H,B
                          LD   L,C

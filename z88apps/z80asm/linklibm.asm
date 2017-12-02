@@ -130,8 +130,8 @@
                          CALL AllocIdentifier                         ; modname = AllocId(name)
                          JR   NC, search_globalroot                   ; if ( modname == NULL )
                               LD   A, ERR_no_room
-                              CALL ReportError_NULL                        ; ReportError(3)
-                              RET                                          ; return 0
+                              JP   ReportError_NULL                        ; ReportError(3)
+                                                                           ; return 0
 
 .search_globalroot       LD   C,B
                          EX   DE,HL                                   ; {CDE = modname}
@@ -157,7 +157,7 @@
                          LD   D,(IX+7)                                ; {end_libnames}
                          SBC  HL,DE
                          JR   C, exit_linklibmod
-                         JR   Z, exit_linklibmod
+                         RET  Z
                          JP   read_libname_loop                  ; while ( nextlibname < end_libnames )
 
 .exit_linklibmod    CP   A                                       ; return 1
@@ -515,7 +515,6 @@
                     LD   B,A                           ; {BHL = &CURRENTMODULE, CDE = tmpmodule}
                     XOR  A
                     CALL Set_pointer                   ; CURRENTMODULE = tmpmodule
-
                     POP  AF
                     RET                                ; return flag
 

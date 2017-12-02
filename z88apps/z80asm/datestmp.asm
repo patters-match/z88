@@ -58,7 +58,6 @@
                     CALL_OZ(Os_Dor)
                     LD   A, Dr_Fre
                     CALL_OZ(OS_Dor)
-                    CP   A
                     RET
 
 

@@ -72,8 +72,7 @@
                          CALL IndirectRegisters        ; switch( destreg = IndirectRegisters() )
                          CP   2                             ; case 2: /* LD  (HL), */
                          JR   NZ, ld_switch1_5
-                              CALL LD_hl8bit_indrct                   ; LD_HL8bit_indrct()
-                              RET
+                              JP  LD_hl8bit_indrct                   ; LD_HL8bit_indrct()
 
 .ld_switch1_5            LD   C,221
                          CP   5                             ; case 5:  /* LD  (IX|IY+d), */
@@ -81,8 +80,7 @@
                          CP   6                             ; case 6:
                          JR   NZ, ld_switch1_0                        ; LD_index8bit_indrct(destreg)
                               LD   C,253
-.ld_switch1_6x                CALL LD_index8bit_indrct
-                              RET
+.ld_switch1_6x                JP   LD_index8bit_indrct
 
 .ld_switch1_0            CP   0                             ; case 0:  /* LD  (BC),A  */
                          JR   NZ, ld_switch1_1
@@ -114,16 +112,14 @@
 
 .ld_switch1_7            CP   7                             ; case 7:  /* LD  (nn),rr; LD (nn),A */
                          JP   NZ, STderr_syntax
-                              CALL LD_address_indrct                  ; LD_address_indrct()
-                              RET
+                              JP   LD_address_indrct                  ; LD_address_indrct()
                                                             ; default: Reporterror(1)
                                                   ; else
 .ld_check_8bitreg        CALL CheckRegister8           ; switch( destreg = CheckRegister8() )
                          LD   C,A                           ; {destreg=C}
                          CP   -1                            ; case -1: /* LD  rr,(nn); LD  rr,nn; LD  SP,HL|IX|IY */
                          JR   NZ, ld_switch2_6
-                              CALL LD_16bit_reg                       ; LD_16bit_reg()
-                              RET
+                              JP   LD_16bit_reg                       ; LD_16bit_reg()
 
 .ld_switch2_6            CP   6
                          JR   NZ, ld_switch2_8              ; case 6: ReportError(11) /* LD F, x */
@@ -163,8 +159,8 @@
                               CALL Getsym
                               CP   sym_lparen                         ; if ( Getsym == lparen )
                               JR   NZ, ld_8bit_source
-                                   CALL LD_r_8bit_indrct                   ; LD_r_8bit_indrct(destreg)  {C=destreg}
-                                   RET                                ; else
+                                   JP   LD_r_8bit_indrct                   ; LD_r_8bit_indrct(destreg)  {C=destreg}
+                                                                      ; else
 .ld_8bit_source                    CALL CheckRegister8                     ; switch( sourcereg = CheckRegister8() )
                                    LD   B,A                                     ; {B=sourcereg}
                                    CP   6

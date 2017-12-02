@@ -28,10 +28,7 @@
 
      MODULE Getsym
 
-
      LIB IsSpace, IsAlpha, IsAlNum, IsDigit, StrChr, ToUpper
-
-     XREF select_win5
 
      XDEF disp_ident
      XDEF GetSym, separators

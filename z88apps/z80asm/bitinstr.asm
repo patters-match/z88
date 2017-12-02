@@ -77,78 +77,18 @@
 ; ******************************************************************************
 ;
 .BIT_fn             LD   C,64                     ; standard instruction opcode
-                    CALL BitTest_instr
-                    RET
+                    JR   BitTest_instr
 
 
 ; ******************************************************************************
 ;
 .RES_fn             LD   C,128                    ; standard instruction opcode
-                    CALL BitTest_instr
-                    RET
+                    JR   BitTest_instr
 
 
 ; ******************************************************************************
 ;
 .SET_fn             LD   C,192                    ; standard instruction opcode
-                    CALL BitTest_instr
-                    RET
-
-
-; ******************************************************************************
-;
-.RL_fn              LD   C,2                      ; standard instruction opcode
-                    CALL Rotshift_instr
-                    RET
-
-
-; ******************************************************************************
-;
-.RLC_fn             LD   C,0                      ; standard instruction opcode
-                    CALL Rotshift_instr
-                    RET
-
-
-; ******************************************************************************
-;
-.RR_fn              LD   C,3                      ; standard instruction opcode
-                    CALL Rotshift_instr
-                    RET
-
-
-; ******************************************************************************
-;
-.RRC_fn             LD   C,1                      ; standard instruction opcode
-                    CALL Rotshift_instr
-                    RET
-
-
-; ******************************************************************************
-;
-.SLA_fn             LD   C,4                      ; standard instruction opcode
-                    CALL Rotshift_instr
-                    RET
-
-
-; ******************************************************************************
-;
-.SRA_fn             LD   C,5                      ; standard instruction opcode
-                    CALL Rotshift_instr
-                    RET
-
-
-; ******************************************************************************
-;
-.SLL_fn             LD   C,6                      ; standard instruction opcode
-                    CALL Rotshift_instr
-                    RET
-
-
-; ******************************************************************************
-;
-.SRL_fn             LD   C,7                      ; standard instruction opcode
-                    CALL Rotshift_instr
-                    RET
 
 
 ; **************************************************************************************************
@@ -172,7 +112,7 @@
                          JR   Z, bit_evalexpr
                               LD   A, ERR_not_defined
                               CALL ReportError_STD                    ; reporterror(*, *, 2)
-                              JP   bit_end                        ; else
+                              JP   RemovePfixlist                ; else
 .bit_evalexpr                 PUSH BC
                               PUSH HL                                 ; {preserve postfixexpr pointer}
                               CALL EvalPfixExpr                       ; bitno = EvalPfixExpr(postfixexpr) {returned in HLhlC}
@@ -274,9 +214,55 @@
 
 .bit_remv_pfixexpr       POP  HL
                          POP  BC                                 ; {restore postfixexpr pointer}
-.bit_end                 CALL RemovePfixlist                     ; RemovePfixlist(postfixexpr)
-                    RET
+                         JP   RemovePfixlist                     ; RemovePfixlist(postfixexpr)
 
+
+
+; ******************************************************************************
+;
+.RL_fn              LD   C,2                      ; standard instruction opcode
+                    JR   Rotshift_instr
+
+
+; ******************************************************************************
+;
+.RLC_fn             LD   C,0                      ; standard instruction opcode
+                    JR   Rotshift_instr
+
+
+; ******************************************************************************
+;
+.RR_fn              LD   C,3                      ; standard instruction opcode
+                    JR   Rotshift_instr
+
+
+; ******************************************************************************
+;
+.RRC_fn             LD   C,1                      ; standard instruction opcode
+                    JR   Rotshift_instr
+
+
+; ******************************************************************************
+;
+.SLA_fn             LD   C,4                      ; standard instruction opcode
+                    JR   Rotshift_instr
+
+
+; ******************************************************************************
+;
+.SRA_fn             LD   C,5                      ; standard instruction opcode
+                    JR   Rotshift_instr
+
+
+; ******************************************************************************
+;
+.SLL_fn             LD   C,6                      ; standard instruction opcode
+                    JR   Rotshift_instr
+
+
+; ******************************************************************************
+;
+.SRL_fn             LD   C,7                      ; standard instruction opcode
 
 
 ; **************************************************************************************************

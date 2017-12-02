@@ -73,7 +73,6 @@
                     LD   A,(IY + RtmFlags3)            ; while( !eof(z80asmfile) )
                     BIT  EOF,A
                     RET  NZ                            ; {
-
                          LD   A, flag_ON
                          CALL ParseLine                     ; parseline(ON)
 
