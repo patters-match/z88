@@ -30,32 +30,26 @@
 
 
 ; external variables:
-     XREF separators                                        ; getsym.asm
      XREF cdefile                                           ; z80asm.asm
 
 ; external procedures:
      LIB mfree
      LIB CmpPtr
-     LIB Read_word, Read_long, Read_byte, Read_pointer
-     LIB Set_word, Set_byte, Set_pointer
+     LIB Read_word, Read_byte, Read_pointer
+     LIB Set_word, Set_pointer
      LIB ascorder
 
      XREF Open_file                                         ; fileio.asm
-     XREF GetSym                                            ; prsline.asm
-     XREF PrsIdent                                          ; prsident.asm
      XREF ReportError, ReportError_NULL                     ; errors.asm
-     XREF DefineSymbol                                      ; symbols.asm
-     XREF CurrentFile, CurrentFileName, CurrentFileLine     ; srcfile.asm
      XREF RemovePfixList                                    ; parsexpr.asm
      XREF EvalPfixExpr                                      ; evalexpr.asm
      XREF GetVarPointer                                     ; z80asm.asm
      XREF CurrentModule                                     ; module.asm
-     XREF DefineOrigin                                      ; deforig.asm
 
      XREF StoreExpr, Test_7bit_range, Test_8bit_range       ; exprs.asm
      XREF Test_16bit_range, Test_32bit_Range                ;
 
-     XREF Read_fptr, Write_fptr, ftell, fseek, Copy_file    ; fileio.asm
+     XREF Write_fptr, ftell, fseek, Copy_file               ; fileio.asm
      XREF Write_string                                      ;
 
 
