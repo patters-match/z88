@@ -29,9 +29,6 @@
      MODULE Z80pass2
 
 
-; external variables:
-     XREF cdefile                                           ; z80asm.asm
-
 ; external procedures:
      LIB mfree
      LIB CmpPtr
@@ -70,12 +67,7 @@
 ;
 ; Try to evaluate expressions that contained undefined symbols in pass1 (forward referenced symbols)
 ;
-.Z80pass2           LD   A, OP_UP
-                    LD   B,0
-                    LD   HL, cdefile
-                    CALL Open_file
-                    JP   C, ReportError_NULL
-                    LD   (cdefilehandle),IX
+.Z80pass2
                     CALL CurrentModule
                     LD   A, module_mexpr
                     CALL Read_pointer

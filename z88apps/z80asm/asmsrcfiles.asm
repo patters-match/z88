@@ -229,7 +229,14 @@
 .continue_asm       BIT  ASMERROR,(IY + RtmFlags3)
                     JR   NZ, finish_assembly           ; if ( !ASMERROR )
                          CALL disp_pass2
+                         LD   A, OP_UP
+                         LD   B,0
+                         LD   HL, cdefile
+                         CALL Open_file
+                         JP   C, ReportError_NULL
+                         LD   (cdefilehandle),IX
                          CALL Z80pass2                      ; Pass2: Expression evaluation & patching...
+
                     BIT  globaldef,(IY + RTMflags)
                     JR   Z, write_symfile              ; if ( globaldef )
                          CALL WriteGlobals                  ; WriteGlobals()
