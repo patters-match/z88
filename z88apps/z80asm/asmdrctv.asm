@@ -48,7 +48,8 @@
 
      XREF ExprUnsigned8, ExprAddress, ExprLong              ; exprs.asm
      XREF Test_16bit_range                                  ;
-     XREF Add16bit_1, Add16bit_2, Add16bit_4                ;
+
+     XREF asm_pc_p1, asm_pc_p2, asm_pc_p4                   ; z80pass1.asm
 
      XREF DefineSymbol, DefineDefSym, NULL_pointer          ; symbols.asm
      XREF DeclSymExtern, DeclSymGlobal, cmpIDstr            ;
@@ -660,8 +661,7 @@
 .defb_loop          CALL Getsym                             ; Getsym()
                     CALL ExprUnsigned8
                     RET  C                                  ; if ( !ExprUnsigned8(bytepos) ) break
-                         LD   HL,asm_pc
-                         CALL Add16bit_1                    ; ++PC
+                         CALL asm_pc_p1                     ; ++PC
                          LD   A, (sym)                      ; if (sym == newline || sym == semicolon)
                          CP   sym_semicolon
                          RET  Z
@@ -683,9 +683,7 @@
 .defw_loop          CALL Getsym                             ; Getsym()
                     CALL ExprAddress
                     RET  C                                  ; if ( !ExprAddress(bytepos) ) break
-                         LD   HL,asm_pc
-                         CALL Add16bit_2                    ; PC += 2
-
+                         CALL asm_pc_p2                     ; PC += 2
                          LD   A, (sym)                      ; if (sym == newline || sym == semicolon)
                          CP   sym_semicolon
                          RET  Z
@@ -707,8 +705,7 @@
 .defl_loop          CALL Getsym                             ; Getsym()
                     CALL ExprLong
                     RET  C                                  ; if ( !ExprLong(bytepos) ) break
-                         LD   HL,asm_pc
-                         CALL Add16bit_4                    ; PC += 4
+                         CALL asm_pc_p4                     ; PC += 4
 
                          LD   A, (sym)                      ; if (sym == newline || sym == semicolon)
                          CP   sym_semicolon
@@ -743,8 +740,7 @@
                          JR   Z, next_defm_expr
                               LD   C,A
                               CALL WriteByte                          ; *codeptr++ = const
-                              LD   HL, asm_pc
-                              CALL Add16bit_1                         ; ++PC
+                              CALL asm_pc_p1                          ; ++PC
                               JR   defm_string_loop
 .next_defm_expr          CALL Getsym                             ; Getsym()
                          JR   check_defm_expr                    ; if ( sym!=strconq && sym!=newline && sym!=lf && sym!=semicolon )
@@ -752,8 +748,8 @@
                                                                       ; return
 .defm_expr               CALL ExprUnsigned8                 ; else
                          RET  C                                  ; if ( !ExprUnsigned8(bytepos) ) break
-                         LD   HL, asm_pc                               ; ++bytepos
-                         CALL Add16bit_1                              ; ++PC
+                                                                      ; ++bytepos
+                         CALL asm_pc_p1                               ; ++PC
 .check_defm_Expr         LD   A,(sym)
                          CP   sym_strconq
                          JR   Z, defm_loop

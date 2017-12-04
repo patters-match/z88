@@ -50,14 +50,10 @@
      XREF CheckRegister8                                    ;
 
      XREF WriteByte, WriteWord                              ; writebytes.asm
-
-     XREF Add16bit_1, Add16bit_2, Add16bit_3                ; z80asm.asm
-     XREF Test_7bit_range                                   ;
-
+     XREF asm_pc_p1, asm_pc_p2, asm_pc_p3                   ; z80pass1.asm
+     XREF Test_7bit_range                                   ; tstrange.asm
      XREF CurrentModule                                     ; module.asm
-
      XREF Pass2Info                                         ; z80pass.asm
-
      XREF ReportError_STD, STDerr_syntax, STDerr_ill_ident  ; errors.asm
 
      XREF ParseNumExpr, EvalPfixExpr, RemovePfixlist        ; exprprsr.asm
@@ -74,7 +70,7 @@
 
 ; ******************************************************************************
 ;
-.JP_fn              LD   BC,$C3C2                 ; standard instruction opcodes
+.JP_fn              LD   BC,$C3C2                           ; standard instruction opcodes
 
 ; **************************************************************************************************
 ;
@@ -91,8 +87,8 @@
                          JR   NZ, jp_case_5                           ; case 2: { JP (HL) }
                               LD   C,233                                        ; *codeptr++ = 233
                               CALL WriteByte
-                              LD   HL,asm_pc                                     ; ++PC
-                              JP   Add16bit_1
+                              JP   asm_pc_p1                                     ; ++PC
+
 
 .jp_case_5               CP   5                                       ; case 5:
                          JR   NZ, jp_case_6                                     ; { JP (IX) }
@@ -103,8 +99,7 @@
                          JR   NZ, jp_case_notf                                  ; { JP (IY) }
                               LD   BC,$E9FD                                     ; *codeptr++ = 253
 .jp_index_6                   CALL WriteWord                                    ; *codeptr++ = 233
-                              LD   HL,asm_pc                                     ; PC += 2
-                              JP   Add16bit_2
+                              JP   asm_pc_p2                                     ; PC += 2
 
 .jp_case_notf            CP   -1                                      ; case -1: reporterror(1)
                          JP   Z, STDerr_syntax
@@ -138,8 +133,7 @@
                          LD   C,B                                ; <instr> nn
                          CALL WriteByte                          ; *codeptr++ = opcode0
 .read_expr          CALL ExprAddress                        ; ExprAddress(1)
-                    LD   HL, asm_pc
-                    JP   Add16bit_3                         ; PC += 3
+                    JP   asm_pc_p3                          ; PC += 3
 
 ; ******************************************************************************
 ;
@@ -180,8 +174,8 @@
                               LD   C,24                                    ; codeptr++ = 24 { JR n }
                               CALL WriteByte                               ; break
                                                                       ; default: reporterror(1)
-.jr_addr_expr       LD   HL,asm_pc
-                    CALL Add16bit_2                         ; PC+=2
+.jr_addr_expr
+                    CALL asm_pc_p2                          ; PC+=2
                     JR   djnz_continue                      ; parse JR expression...
 
 
@@ -190,8 +184,7 @@
 ;
 .DJNZ_fn            LD   C,16
                     CALL WriteByte                          ; *codeptr++ = 16
-                    LD   HL,asm_pc
-                    CALL Add16bit_2                         ; PC+=2
+                    CALL asm_pc_p2                          ; PC+=2
                     CALL Getsym
                     CP   sym_comma                          ; if ( Getsym() == comma )
                     JR   NZ, djnz_continue

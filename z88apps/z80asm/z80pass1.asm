@@ -48,7 +48,8 @@
 ; routines accessible in this module:
      XDEF Z80pass1, IFstatement
      XDEF Pass2Info, FetchLine
-
+     XDEF Add16bit_1, Add16bit_2, Add16bit_3, Add16bit_4
+     XDEF asm_pc_p1, asm_pc_p2, asm_pc_p3, asm_pc_p4
 
      INCLUDE "stdio.def"
      INCLUDE "fileio.def"
@@ -508,3 +509,80 @@
                     INC  BC                       ; no. of bytes NOT searched
                     INC  HL                       ; point after <CR><LF>...
                     RET
+
+
+
+; ========================================================================================
+; (asm_pc)++
+.asm_pc_p1
+                    LD   HL,asm_pc
+
+; ========================================================================================
+;
+; 16bit add+1
+;
+; IN: HL local pointer to word
+;
+; Registers changed after return:
+;
+;    A.BCDE../IXIY  same
+;    .F....HL/....  different
+;
+.Add16bit_1         INC  (HL)
+                    RET  NZ
+                    INC  HL
+                    INC  (HL)
+                    DEC  HL
+                    RET
+
+; ========================================================================================
+; (asm_pc) += 2
+.asm_pc_p2
+                    LD   HL,asm_pc
+
+; ========================================================================================
+;
+; 16bit add+2
+;
+; Registers changed after return:
+;
+;    AFBCDE../IXIY  same
+;    ......HL/....  different
+;
+.Add16bit_2         CALL Add16bit_1
+                    JP   Add16bit_1
+
+
+; ========================================================================================
+; (asm_pc) += 3
+.asm_pc_p3
+                    LD   HL,asm_pc
+
+; ========================================================================================
+;
+; 16bit add+3
+;
+; Registers changed after return:
+;
+;    AFBCDE../IXIY  same
+;    ......HL/....  different
+;
+.Add16bit_3         CALL Add16bit_2
+                    JP   Add16bit_1
+
+; ========================================================================================
+; (asm_pc) += 4
+.asm_pc_p4
+                    LD   HL,asm_pc
+
+; ========================================================================================
+;
+; 16bit add+4
+;
+; Registers changed after return:
+;
+;    AFBCDE../IXIY  same
+;    ......HL/....  different
+;
+.Add16bit_4         CALL Add16bit_2
+                    JP   Add16bit_2

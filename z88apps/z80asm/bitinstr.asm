@@ -59,8 +59,8 @@
      XREF ReportError_STD, STDerr_syntax, STDerr_ill_ident  ; errors.asm
 
      XREF WriteByte, WriteWord                              ; writebytes.asm
-     XREF Add16bit_2, Add16bit_4                            ; expr.asm
-     XREF Test_8bit_range                                   ;
+     XREF asm_pc_p2, asm_pc_p4                              ; z80pass1.asm
+     XREF Test_8bit_range                                   ; tstrange.asm
 
      XREF ParseNumExpr, EvalPfixExpr, RemovePfixlist        ; exprprsr.asm
      XREF ExprSigned8                                       ;
@@ -146,8 +146,7 @@
                                                   LD   B,A
                                                   LD   C,$CB                                   ; *codeptr++ = 203
                                                   CALL WriteWord                               ; *codeptr++ = opcode + bitno*8 + 6
-                                                  LD   HL,asm_pc
-                                                  CALL Add16bit_2                              ; PC += 2
+                                                  CALL asm_pc_p2                               ; PC += 2
                                                   JR   bit_remv_pfixexpr
 
                .bit_case_5                   CP   5                                       ; case 5:
@@ -173,8 +172,7 @@
                                                   ADD  A,C
                                                   LD   C,A
                                                   CALL WriteByte                               ; *codeptr++ = opcode + bitno*8 + 6
-                                                  LD   HL, asm_pc
-                                                  CALL Add16bit_4                              ; PC += 4
+                                                  CALL asm_pc_p4                               ; PC += 4
                                                   JR   bit_remv_pfixexpr
                .bit_default1                 CALL STDerr_syntax                           ; default:
                                              JR   bit_remv_pfixexpr                            ; reporterror(*, *, 1)
@@ -202,8 +200,7 @@
                                              LD   C,$CB
                                              LD   B,A
                                              CALL WriteWord                               ; *codeptr++ = opcode + bitno*8 + reg
-                                             LD   HL, asm_pc
-                                             CALL Add16bit_2                              ; PC += 2
+                                             CALL asm_pc_p2                               ; PC += 2
                                              JR   bit_remv_pfixexpr
                                                                            ; else
 .bit_syntax_err                    CALL STDerr_syntax
@@ -287,8 +284,7 @@
                               LD   B,A
                               LD   C,$CB                                   ; *codeptr++ = 203
                               CALL WriteWord                               ; *codeptr++ = opcode * 8 + 6
-                              LD   HL,asm_pc
-                              JP   Add16bit_2                              ; PC += 2
+                              JP   asm_pc_p2                               ; PC += 2
 
 .rot_case_5              CP   5                                       ; case 5:
                          JR   NZ, rot_case_6
@@ -310,8 +306,7 @@
                               ADD  A,6                                     ; + 6
                               LD   C,A
                               CALL WriteByte                               ; *codeptr++ = opcode * 8 + 6
-                              LD   HL, asm_pc
-                              JP   Add16bit_4                              ; PC += 4
+                              JP   asm_pc_p4                               ; PC += 4
                                                             ; else
 .rot_reg                 CALL CheckRegister8                     ; reg = CheckRegister8
                          CP   6                                  ; switch(reg)
@@ -332,5 +327,4 @@
                          LD   C,$CB
                          LD   B,A
                          CALL WriteWord                               ; *codeptr++ = opcode * 8 + reg
-                         LD   HL, asm_pc
-                         JP   Add16bit_2                              ; PC += 2
+                         JP   asm_pc_p2                               ; PC += 2

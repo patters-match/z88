@@ -44,7 +44,6 @@
      XDEF StoreExpr
      XDEF ExprLong, ExprAddress
      XDEF ExprSigned8, ExprUnsigned8
-     XDEF Add16bit_1, Add16bit_2, Add16bit_3, Add16bit_4
 
      INCLUDE "fileio.def"
 
@@ -306,59 +305,3 @@
                     POP  DE
                     POP  IX
                     RET
-
-
-; ========================================================================================
-;
-; 16bit add+1
-;
-; IN: HL local pointer to word
-;
-; Registers changed after return:
-;
-;    A.BCDE../IXIY  same
-;    .F....HL/....  different
-;
-.Add16bit_1         INC  (HL)
-                    RET  NZ
-                    INC  HL
-                    INC  (HL)
-                    DEC  HL
-                    RET
-
-
-; ========================================================================================
-;
-; 16bit add+2
-;
-; Registers changed after return:
-;
-;    AFBCDE../IXIY  same
-;    ......HL/....  different
-;
-.Add16bit_2         CALL Add16bit_1
-                    JP   Add16bit_1
-
-; ========================================================================================
-;
-; 16bit add+3
-;
-; Registers changed after return:
-;
-;    AFBCDE../IXIY  same
-;    ......HL/....  different
-;
-.Add16bit_3         CALL Add16bit_2
-                    JP   Add16bit_1
-
-; ========================================================================================
-;
-; 16bit add+4
-;
-; Registers changed after return:
-;
-;    AFBCDE../IXIY  same
-;    ......HL/....  different
-;
-.Add16bit_4         CALL Add16bit_2
-                    JP   Add16bit_2
