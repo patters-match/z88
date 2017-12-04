@@ -92,10 +92,12 @@
 .ParseLine
                     PUSH AF                                 ; preserve interpret flag
 
-                    LD   HL,(totallines)
+                    LD   HL,totallines
+                    INC  (HL)
+                    JR   NC, init_asmpc
                     INC  HL
-                    LD   (totallines),HL                    ; ++totallines
-
+                    INC  (HL)                               ; ++totallines
+.init_asmpc
                     LD   HL, asm_pc_ptr
                     CALL GetVarPointer
                     INC  B
