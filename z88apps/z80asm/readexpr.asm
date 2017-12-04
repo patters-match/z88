@@ -42,7 +42,6 @@
      XREF GetPointer, GetVarPointer                         ; varptr.asm
      XREF ModuleBaseAddr                                    ; modlink.asm
      XREF Add32bit                                          ; add32bit.asm
-     XREF Display_integer                                   ; z80pass1.asm
 
      XREF Open_file, ftell, fseek, Read_fptr, Write_fptr    ; fileio.asm
      XREF Close_file, Read_string
@@ -435,8 +434,7 @@
                          LD   B,(IX+7)
                          INC  BC
                          LD   (IX+6),C
-                         LD   (IX+7),B
-                         CALL Display_integer               ; display total number of expressions evaluated.
+                         LD   (IX+7),B                      ; total no. of expressions evaluated
 
                          LD   A,(IX+5)
                          CP   (IX+2)

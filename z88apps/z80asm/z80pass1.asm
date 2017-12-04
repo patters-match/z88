@@ -48,7 +48,6 @@
 ; routines accessible in this module:
      XDEF Z80pass1, IFstatement
      XDEF Pass2Info, FetchLine
-     XDEF Display_integer
 
 
      INCLUDE "stdio.def"
@@ -82,7 +81,6 @@
                          CP   ERR_max_codesize                   ; case ..: return
                          RET  Z
                     JR   readfile_loop                 ; }
-
 
 
 ; **************************************************************************************************
@@ -264,7 +262,6 @@
                     RET
 
 
-
 ; **************************************************************************************************
 ;
 ;    IN:  BHL = pfixexpr, pointer to postfix expression
@@ -418,10 +415,6 @@
                     LD   A, srcfile_line
                     CALL Set_word                 ; ++CURRENTFILE->line
 
-                    LD   B,D
-                    LD   C,E
-                    CALL Display_integer          ; display current line number to window "5"
-
 .exit_fetchline     POP  HL
                     POP  DE
                     POP  BC
@@ -513,51 +506,3 @@
                     INC  BC                       ; no. of bytes NOT searched
                     INC  HL                       ; point after <CR><LF>...
                     RET
-
-
-; ******************************************************************************
-;
-;    Display integer (current line number, etc.) to window "5"
-;    Each line number is terminated by a CR to move the cursor back to the
-;    start of the current line.
-;
-;    IN:  BC = number to display
-;    OUT: None.
-;
-;    Registers changed after return:
-;         ....DEHL/IXIY  same
-;         AFBC..../....  different
-;
-.Display_integer    PUSH DE
-                    PUSH HL
-                    PUSH IX
-
-                    LD   IX,-10
-                    ADD  IX,SP
-                    LD   SP,IX                    ; make 10 byte buffer on stack
-                    LD   HL,2                     ; BC contains integer...
-                    PUSH IX
-                    POP  DE                       ; write ASCII string to buffer
-                    LD   A,@01010101              ; 5 character wide number, no leading spaces, use trailing spaces...
-                    CALL_OZ(Gn_Pdn)               ; convert
-                    LD   A, CR
-                    LD   (DE),A                   ; trailing CR (cursor to start of line)
-                    INC  DE
-                    XOR  A
-                    LD   (DE),A                   ; then null-terminate string.
-
-                    LD   HL, select_win5
-                    CALL_OZ(Gn_Sop)               ; select message window
-                    PUSH IX
-                    POP  HL
-                    CALL_OZ(Gn_Sop)               ; and display number.
-
-                    LD   HL,10
-                    ADD  HL,SP
-                    LD   SP,HL                    ; restore SP
-
-                    POP  IX
-                    POP  HL
-                    POP  DE                       ; original registers restored.
-                    RET
-.select_win5        DEFM 1, "2H5", 0              ; select window "5"

@@ -49,7 +49,7 @@
      XREF Read_fptr, Read_string, Delete_file               ; fileIO.asm
      XREF FreeVarPointer                                    ; varptr.asm
      XREF Init_CDEbuffer, FlushBuffer                       ; bytesIO.asm
-     XREF Z80pass1, Display_integer                         ; Z80pass1.asm
+     XREF Z80pass1                                          ; Z80pass1.asm
      XREF Z80pass2                                          ; Z80pass2.asm
      XREF CheckObjfile                                      ; chckfhdr.asm
      XREF GetFileStamp, CheckDateStamps                     ; datestmp.asm

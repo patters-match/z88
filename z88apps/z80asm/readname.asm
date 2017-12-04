@@ -43,7 +43,6 @@
 	XREF	ModuleBaseAddr									; modlink.asm
 	XREF	LoadName										; loadname.asm
 	XREF	Add32bit										; add32bit.asm
-	XREF	Display_integer									; z80pass1.asm
 
 	XREF	AllocIdentifier, InsertSym, FindSymbol			; symbols.asm
 	XREF	CmpIDstr
@@ -363,7 +362,6 @@
 				INC	BC
 				LD	(IX+6),C
 				LD	(IX+7),B
-				CALL	Display_integer		; display	total number of loaded module	names in window "5"
 
 				LD	A,(IX+5)
 				CP	(IX+2)
