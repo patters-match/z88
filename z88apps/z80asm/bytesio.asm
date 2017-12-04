@@ -166,7 +166,7 @@
 ; Registers changed after return:
 ;
 ;    AFBCDEHL/IXIY  same
-;    ......../....  different
+;    ......../....  differents
 ;
 .WriteLong          PUSH HL
                     PUSH BC
@@ -175,7 +175,6 @@
                     LD   B,D
                     LD   C,E
                     CALL WriteWord ; write high word to buffer
-                    LD   HL, codeptr
                     POP  AF
                     POP  BC
                     POP  HL
