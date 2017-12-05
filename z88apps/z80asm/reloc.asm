@@ -73,7 +73,7 @@
 ; **************************************************************************************************
 .DeleteRelocTblFile
                     LD   HL, reloctablefile
-                    CALL Delete_file                   ; delete ":RAM.-/reloctable", if it exists...
+                    JP   Delete_file                   ; delete ":RAM.-/reloctable", if it exists...
 
 
 ; **************************************************************************************************
@@ -179,8 +179,8 @@
                               CALL_OZ(GN_Nln)
 
 .exit_relocprefix   LD   HL, relocfilehandle
-                    CALL Close_file                    ; fclose(relocfilehandle)
-                    RET
+                    JP   Close_file                    ; fclose(relocfilehandle)
+
 
 .reloctablefile     DEFM ":RAM.-/reloctable", 0
 .reloctablehdr      DEFB 0, 0, 0, 0
