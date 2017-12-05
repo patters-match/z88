@@ -96,7 +96,7 @@ XDEF allocated_mem
         ld      (argv0),hl                      ; remember index pointer to first argument
         jr      nz, get_1stargopt
         call    disp_usage                      ; no command line arguments specified, display usage.
-        jr      exit_z80cmd
+        jr      exit_zlncmd
 
 .get_1stargopt
         call    getargvstr                      ; get first argument, DE will point at options argument (if any), HL points at next argument index
@@ -115,7 +115,7 @@ XDEF allocated_mem
 .eval_arg
         ; ...
         call    init_malloc
-        
+
 
 ; ******************************************************************************
 ; command exit

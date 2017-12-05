@@ -45,7 +45,7 @@
      XREF FindSymbol, CopyStaticLocal                       ; symbols.asm
      XREF CurrentModule, ReleaseExpressions                 ; module.asm
      XREF CreateFilename                                    ; crtflnm.asm
-     XREF Open_file, Close_file, Close_files, fseek         ; fileIO.asm
+     XREF Open_file, Close_file, fseek                      ; fileIO.asm
      XREF Read_fptr, Read_string, Delete_file               ; fileIO.asm
      XREF FreeVarPointer                                    ; varptr.asm
      XREF Init_CDEbuffer, FlushBuffer                       ; bytesIO.asm
@@ -58,7 +58,7 @@
      XREF CurrentFile, CurrentFileName                      ; currfile.asm
      XREF Display_filename                                  ; srcfile.asm
 
-     XDEF Init_Sourcefile, AsmSourceFiles
+     XDEF Init_Sourcefile, AsmSourceFiles, Close_files
      XDEF CreateasmPC_ident
      XDEF empty_msg
 
@@ -549,6 +549,22 @@
                     CALL Delete_file                   ; remove(filename)
 .exit_delfile       POP  AF
                     RET
+
+
+; ****************************************************************************************
+;
+.Close_files        LD   HL,srcfilehandle
+                    CALL Close_file
+                    LD   HL,cdefilehandle
+                    CALL Close_file
+                    LD   HL,objfilehandle
+                    CALL Close_file
+                    LD   HL,errfilehandle
+                    CALL Close_file
+                    LD   HL,symfilehandle
+                    CALL Close_file
+                    LD   HL,relocfilehandle
+                    JP   Close_file
 
 
 ; ****************************************************************************************

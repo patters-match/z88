@@ -129,8 +129,7 @@
                          LD   HL, binfilename
                          CALL GetVarPointer
                          INC  HL
-                         CALL Delete_file         ; remove(binfilename)
-                         RET
+                         JP   Delete_file         ; remove(binfilename)
 
 .err_codefile            POP  BC                  ; remove redundant codeblock variable
                          POP  BC                  ; remove redundant codeblocknum variable

@@ -47,7 +47,7 @@ org EXEC_ORG
 
 LIB init_malloc, release_pools
 
-xref initvars,initpointers, AsmSourceFiles, close_files
+xref initvars,initpointers, AsmSourceFiles
 xref initfiles
 
 ; global variables - these declarations MUST be declared global static libraries
@@ -121,8 +121,6 @@ XDEF allocated_mem
         call    initfiles                       ; and clear file variables
 
         call    AsmSourceFiles
-        call    close_files
-
 
 ; ******************************************************************************
 ; command exit

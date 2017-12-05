@@ -26,57 +26,40 @@
 ;
 ; ********************************************************************************************************************
 
-     MODULE Error_handler
-
-     LIB Release_pools
-
-     XREF z80asm_windows, Display_status                    ; windows.asm
-
-     XREF Close_files                                       ; asmsrcfiles.asm
-     XREF Delete_bufferfiles                                ;
-
-     XDEF z80asm_ERH
+     MODULE GetFilename
 
      INCLUDE "rtmvars.def"
-     INCLUDE "symbol.def"
-     INCLUDE "error.def"
-     INCLUDE "director.def"
+
+     XDEF GetFileName
 
 
-; ******************************************************************************************
+; *********************************************************************************************
 ;
-; z80asm error handler
+;    IN:  HL = pointer to first char of filename in command line
+;    OUT: DE = pointer to first char of collected filename in another buffer (length id)
 ;
-.z80asm_ERH         CP   RC_SUSP
-                    RET  Z
-                    CP   RC_DRAW                        ; application screen corrupted
-                    JR   Z,corrupt_scr
-                    CP   RC_QUIT
-                    JR   Z,z80asm_suicide
-                    CP   RC_ESC
-                    JR   Z, ackn_esc
-                    JR   return_ERH
-
-.corrupt_scr        PUSH BC
-                    PUSH DE
-                    PUSH HL
-                    PUSH IX
-                    CALL z80asm_windows                 ; redraw screen before suspension
-                    CALL Display_status
-                    POP  IX
-                    POP  HL
-                    POP  DE
-                    POP  BC
-                    LD   A,-1
-                    JR   return_ERH
-
-.ackn_esc           CALL_OZ(Os_Esc)                     ; acknowledge ESC key
-                    LD   A, $1B                         ; ESC were pressed
-.return_ERH         OR   A                              ; Fc = 0, Fz = 0
-                    RET
-
-.z80asm_suicide     CALL Close_files                    ; close any open files...
-                    CALL Delete_bufferfiles
-                    CALL Release_pools                  ; free any open memory pools back to OZ...
+;    Read filename into cdebuffer, length prefixed and null-terminated.
+;
+.GetFileName        LD   DE,cdebuffer
+                    LD   BC, cdebuffer+1
                     XOR  A
-                    CALL_OZ(Os_Bye)                     ; kill Zprom and return to Index
+                    LD   (DE),A
+.fetchname_loop     CP   253                      ; max. length of name?
+                    JR   Z, flnm_fetched
+                    LD   A,(HL)
+                    CP   0
+                    JR   Z, flnm_fetched
+                    CP   ' '
+                    JR   Z, flnm_fetched
+                    INC  HL
+                    LD   (BC),A
+                    INC  BC
+                    EX   DE,HL
+                    INC  (HL)                     ; update length of filename
+                    LD   A,(HL)
+                    EX   DE,HL
+                    JR   fetchname_loop
+
+.flnm_fetched       XOR  A
+                    LD   (BC),A                   ; null-terminate filename
+                    RET

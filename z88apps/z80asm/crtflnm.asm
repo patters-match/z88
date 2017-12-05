@@ -33,45 +33,11 @@
      LIB Bind_bank_s1, Set_pointer
      LIB AllocVarPointer
 
-     XREF CurrentFile, CurrentFileName                      ; currfile.asm
+     XREF CurrentFileName                                   ; currfile.asm
      XREF CopyID                                            ; symbols.asm
      XREF ReportError_NULL                                  ; asmerror.asm
 
-     XDEF CreateFilename, GetFileName
-
-
-; *********************************************************************************************
-;
-;    IN:  HL = pointer to first char of filename in command line
-;    OUT: DE = pointer to first char of collected filename in another buffer (length id)
-;
-;    Read filename into cdebuffer, length prefixed and null-terminated.
-;
-.GetFileName        LD   DE,cdebuffer
-                    LD   BC, cdebuffer+1
-                    XOR  A
-                    LD   (DE),A
-.fetchname_loop     CP   253                      ; max. length of name?
-                    JR   Z, flnm_fetched
-                    LD   A,(HL)
-                    CP   0
-                    JR   Z, flnm_fetched
-                    CP   ' '
-                    JR   Z, flnm_fetched
-                    INC  HL
-                    LD   (BC),A
-                    INC  BC
-                    EX   DE,HL
-                    INC  (HL)                     ; update length of filename
-                    LD   A,(HL)
-                    EX   DE,HL
-                    JR   fetchname_loop
-
-.flnm_fetched       XOR  A
-                    LD   (BC),A                   ; null-terminate filename
-                    LD   (lineptr),HL             ; update variable
-                    RET
-
+     XDEF CreateFilename
 
 
 ; *****************************************************************************************

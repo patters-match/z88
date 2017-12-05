@@ -43,7 +43,7 @@
 ; global procedures in this module:
      XDEF Read_fptr, Write_fptr, Read_string, Write_string
      XDEF ftell, fsize, fseek
-     XDEF Open_file, Close_file, Close_files, Copy_file
+     XDEF Open_file, Close_file, Copy_file
      XDEF Delete_file
      XDEF Delete_bufferfiles
 
@@ -323,22 +323,6 @@
                     POP  BC
                     POP  AF
                     RET
-
-
-; ****************************************************************************************
-;
-.Close_files        LD   HL,srcfilehandle
-                    CALL Close_file
-                    LD   HL,cdefilehandle
-                    CALL Close_file
-                    LD   HL,objfilehandle
-                    CALL Close_file
-                    LD   HL,errfilehandle
-                    CALL Close_file
-                    LD   HL,symfilehandle
-                    CALL Close_file
-                    LD   HL,relocfilehandle
-                    JP   Close_file
 
 
 ; ****************************************************************************************

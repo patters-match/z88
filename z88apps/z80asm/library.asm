@@ -84,7 +84,7 @@
                          LD   C,B                           ; CHL points at library filename
                          PUSH HL
                          PUSH BC
-                         CALL NewLibrary                    ; libfile = NewLibrary()
+                         CALL AppendNewLibrary              ; libfile = NewLibrary()
                          LD   A,B
                          POP  BC
                          LD   B,A                           ; BHL = library record
@@ -151,7 +151,7 @@
 ;    ......../IXIY  same
 ;    AFBCDEHL/....  different
 ;
-.NewLibrary         LD   HL, libraryhdr
+.AppendNewLibrary   LD   HL, libraryhdr
                     CALL GetVarPointer                 ; get pointer to library pointer
                     XOR  A
                     CP   B

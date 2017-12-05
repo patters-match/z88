@@ -39,7 +39,7 @@
 
      XREF Getsym                                            ; getsym.asm
      XREF Open_file                                         ; fileio.asm
-     XREF UseLibrary, CreateLibrary, NewLibrary             ; library.asm
+     XREF UseLibrary, CreateLibrary                         ; library.asm
      XREF GetFileName                                       ; crtflnm.asm
      XREF CreateModule, CreateModules                       ; module.asm
      XREF ReportError, ReportError_NULL                     ; errors.asm
@@ -72,6 +72,7 @@
                     JR   Z, read_modulefile
                     DEC  HL
                     CALL GetFileName
+                    LD   (lineptr),HL
                     CALL CreateModule                       ; CreateModule(ident)
                     JR   NC, parse_loop                ; else
                     JR   cmdline_error                      ; release memory and abort command line
