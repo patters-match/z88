@@ -34,5 +34,10 @@ cmdwspace.asm   : zlncmd.inc
 linkmod
 linklibm
 reloc.asm
+asmpcid
+symbols
+fileio.asm
 crtflnm.asm
 spltfile.asm
+asmerror
+stderror

@@ -30,6 +30,7 @@ z80asm
 initvars
 cmdline
 prscmdline
+asmpcid
 asmsrcfiles
 z80pass1
 z80pass2

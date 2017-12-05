@@ -57,9 +57,9 @@
      XREF WriteGlobals                                      ; wrglobal.asm
      XREF CurrentFile, CurrentFileName                      ; currfile.asm
      XREF Display_filename                                  ; srcfile.asm
+     XREF CreateasmPC_ident                                 ; asmpcid.asm
 
      XDEF Init_Sourcefile, AsmSourceFiles, Close_files
-     XDEF CreateasmPC_ident
      XDEF empty_msg
 
 ; global variables:
@@ -258,55 +258,6 @@
 
                     LD   HL, symfilename
                     JP   FreeVarPointer                ; release pointer variable back to OZ memory
-
-
-; *****************************************************************************************
-;
-;    Create the standard "ASMPC" identifier in the global variable area.
-;    The z80asm runtime variable asm_pc_ptr holds the pointer to the created symbol.
-;
-.CreateasmPC_ident  LD   HL, asmpc_ident
-                    CALL AllocIdentifier                    ; tmpident to extended memory, BHL = asmpc_ident
-                    JP   C, ReportError_NULL
-                    LD   C,B
-                    EX   DE,HL                              ; .asmpc_ident in CDE
-                    PUSH BC
-                    PUSH DE                                 ; preserve pointer to temporary identifier
-                    EXX
-                    LD   BC,0
-                    LD   D,B
-                    LD   E,C
-                    EXX
-                    LD   HL, globalroot
-                    CALL GetPointer                         ; &globalroot in BHL
-                    LD   A,0
-                    CALL DefineDefSym                       ; DefineDefSym(asmpc_tmpident, 0, 0, &globalroot)
-                    JR   C, err_create_asmpc
-                    POP  DE
-                    POP  BC
-                    PUSH BC
-                    PUSH DE
-                    LD   HL, globalroot
-                    CALL GetVarPointer                      ; globalroot in BHL
-                    CALL FindSymbol
-                    EX   DE,HL
-                    LD   C,B
-                    LD   HL,asm_pc_ptr
-                    CALL GetPointer
-                    XOR  A
-                    CALL Set_pointer                        ; asm_pc_ptr = FindSymbol(.asmpc_ident, globalroot)
-                    JR   exit_create_asmpc
-
-.err_create_asmpc   LD   A, Err_no_room
-                    CALL ReportError_NULL
-
-.exit_create_asmpc  POP  HL
-                    POP  BC
-                    LD   B,C
-                    PUSH AF
-                    CALL mfree                              ; free(tmpident)
-                    POP  AF
-                    RET
 
 
 ; *****************************************************************************************
@@ -591,6 +542,5 @@
 .pass1_msg          DEFM 1, "2H5Pass1...", CR,LF,0
 .pass2_msg          DEFM 1, "2H5Pass2...", CR,LF,0
 .Z88_ident          DEFM 3, "Z88", 0
-.asmPC_ident        DEFM 5, "ASMPC", 0
 .empty_msg          DEFM 1, "2H5", 13, 10, 0
 .using_msg          DEFM 1, "2H5", "Using ", 0

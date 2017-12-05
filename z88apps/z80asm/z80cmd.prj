@@ -33,6 +33,7 @@ z80cmd.asm      : z80cmd.inc workspace.def stdio.def fileio.def syspar.def saver
 cmdwspace.asm   : z80cmd.inc
 initvars.asm
 asmsrcfiles.asm
+asmpcid
 z80pass1.asm
 z80pass2.asm
 fileio.asm
