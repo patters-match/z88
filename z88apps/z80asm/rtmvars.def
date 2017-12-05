@@ -177,6 +177,6 @@ lstoff
      DEFC ERR_not_relfile     = $9A
      DEFC ERR_reserved_name   = $9B
      DEFC ERR_not_libfile     = $9C
-     DEFC ERR_keyboard_abort  = $9D
+     DEFC ERR_Org_not_defined = $9D
 
 lston

@@ -38,13 +38,15 @@
      LIB GetPointer, GetVarPointer
 
      XREF Getsym                                            ; getsym.asm
+     XREF GetConstant                                       ; getconst.asm
      XREF Open_file                                         ; fileio.asm
      XREF UseLibrary, CreateLibrary                         ; library.asm
      XREF GetFileName                                       ; crtflnm.asm
      XREF CreateModule, CreateModules                       ; module.asm
      XREF ReportError, ReportError_NULL                     ; errors.asm
+     XREF Get_stdoutp_handle,Display_error                  ; stderror.asm
      XREF DefineDefSym                                      ; symbols.asm
-     XREF GetOrigin                                         ; deforig.asm
+     XREF Test_16bit_range                                  ; tstrange.asm
 
      XDEF Parse_cmdline
 
@@ -226,6 +228,42 @@
                     CP   B                             ; else
                     JP   Z, cmdline_error                   return 1
                     RET
+
+
+; ******************************************************************************
+;
+;    Get ORIGIN constant
+;    (Ident) contains constant (previously read with Getsym).
+;
+;    return ORG integer in alternate HL, Fc = 0 (successfully fetched),
+;    otherwise Fc = 1.
+;
+.GetOrigin          CALL GetConstant              ; and convert to integer
+                    JR   C, illegal_origin        ; syntax error, illegal constant
+                         EXX                      ; constant returned in alternate DEBC
+                         PUSH DE
+                         PUSH BC
+                         POP  HL
+                         EXX
+                         POP  HL
+                         LD   C,0                 ; convert constant to HLhlC format
+                         CALL Test_16bit_Range    ; range must be [0; 65535]
+                         RET  NC
+
+.org_range               LD   A, ERR_range
+                         SCF
+                         JR   OriginError
+.illegal_origin          LD   A, ERR_syntax
+                         SCF
+
+.OriginError             PUSH AF
+                         PUSH IX
+                         CALL Get_stdoutp_handle  ; handle for standard output
+                         CALL Display_error       ; display error message
+                         CALL_OZ(Gn_Nln)          ; but don't affect z80asm error system
+                         POP  IX
+                         POP  AF
+                         RET
 
 
 ; **********************************************************************************

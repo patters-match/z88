@@ -35,10 +35,9 @@
      XREF FlushBuffer                                       ; bytesio.asm
      XREF ReportError_NULL                                  ; errors.asm
      XREF reloctablefile                                    ; reloc.asm
-     XREF cdefile                                           ; z80asm.asm
 
 ; global constants
-     XDEF bufferfile
+     XDEF bufferfile, cdefile
 
 ; global procedures in this module:
      XDEF Read_fptr, Write_fptr, Read_string, Write_string
@@ -452,3 +451,5 @@
                     RET
 
 .bufferfile         DEFM ":RAM.-/buf", 0
+.cdefile            DEFM ":RAM.-/temp.buf", 0
+

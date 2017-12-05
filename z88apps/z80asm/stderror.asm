@@ -314,5 +314,5 @@
 .errmsg26           DEFM errmsg27 - $PC - 1, "Not an object file"
 .errmsg27           DEFM errmsg28 - $PC - 1, "Reserved name"
 .errmsg28           DEFM errmsg29 - $PC - 1, "Not a library file"
-.errmsg29           DEFM errmsg30 - $PC - 1, "Assembly aborted from keyboard"
+.errmsg29           DEFM errmsg30 - $PC - 1, "ORG not defined"
 .errmsg30

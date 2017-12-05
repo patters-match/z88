@@ -41,7 +41,6 @@ creatlib
 makelib
 readname
 loadname
-deforig
 readexpr
 spltfile
 wrsymbol

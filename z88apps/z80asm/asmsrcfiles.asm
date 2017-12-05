@@ -63,7 +63,7 @@
      XDEF empty_msg
 
 ; global variables:
-     XDEF cdefile
+     XREF cdefile
 
 ; ********************************************************************************************************************
 ;
@@ -538,7 +538,6 @@
 .errext             DEFM "err"
 .symext             DEFM "sym"
 
-.cdefile            DEFM ":RAM.-/temp.buf", 0
 .pass1_msg          DEFM 1, "2H5Pass1...", CR,LF,0
 .pass2_msg          DEFM 1, "2H5Pass2...", CR,LF,0
 .Z88_ident          DEFM 3, "Z88", 0

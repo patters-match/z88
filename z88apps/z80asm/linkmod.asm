@@ -212,7 +212,8 @@
                                         JR   NZ, set_origin
                                         CP   E
                                         JR   NZ, set_origin                     ; if ( CURRENTMODULE->origin == 65535U )
-                                             CALL DefineOrigin                       ; DefineOrigin()
+                                             LD   A,ERR_Org_not_defined
+                                             CALL ReportError_NULL                   ; ReportError_NULL(ERR_Org_not_defined)
 .set_origin                        LD   A, module_origin
                                    CALL Set_word
                               CALL Display_ORG                        ; display_ORG (CURRENTMODULE->origin)
