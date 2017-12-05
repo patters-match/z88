@@ -223,10 +223,11 @@
 ; ******************************************************************************
 ;
 .check_modules      LD   HL, modulehdr
-                    CALL GetVarPointer                 ; if ( modulehdr == NULL )
-                    XOR  A                                  return 0
-                    CP   B                             ; else
-                    JP   Z, cmdline_error                   return 1
+                    CALL GetVarPointer                 ; if ( modulehdr != NULL )
+                    INC  B                                  return 1
+                    DEC  B                             ; else
+                    JP   Z, cmdline_error                   return 0
+                    CP   A
                     RET
 
 
