@@ -66,3 +66,4 @@ chckfhdr.asm
 asmerror.asm
 stderror.asm
 dispflnm.asm
+dispint.asm

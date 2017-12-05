@@ -31,13 +31,22 @@
 
 zlncmd.asm      : zlncmd.inc workspace.def stdio.def fileio.def syspar.def saverst.def error.def time.def integer.def
 cmdwspace.asm   : zlncmd.inc
-linkmod
-linklibm
+module.asm
+linkmod.asm
+linklibm.asm
+readexpr.asm
+parsexpr.asm
+evalexpr.asm
 reloc.asm
-asmpcid
-symbols
+asmpcid.asm
+symbols.asm
+currfile.asm
 fileio.asm
+srcfile.asm
+chckfhdr.asm
 crtflnm.asm
 spltfile.asm
-asmerror
-stderror
+asmerror.asm
+stderror.asm
+dispflnm.asm
+dispint.asm

@@ -76,6 +76,7 @@ bytesio
 comptime
 dispmem
 dispflnm
+dispint
 windows
 reloc
 relocate

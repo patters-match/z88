@@ -35,7 +35,6 @@
      LIB CmpPtr
      LIB IntHex
 
-     XREF Disp_allocmem                                     ; dispmem.asm
      XREF ReportError, ReportError_NULL                     ; errors.asm
      XREF GetSym                                            ; prsline.asm
      XREF CurrentFile                                       ; srcfile.asm
@@ -367,8 +366,6 @@
                     CALL Read_fptr                               ; fptr_modcode = ReadLong(objfile)
                     POP  IX
 
-                    CALL Disp_allocmem                           ; display amount of allocated OZ memory
-
                     LD   A,(fptr_modcode+3)
                     CP   -1
                     JP   Z, read_modnames                        ; if ( fptr_modcode != -1 )
@@ -519,8 +516,6 @@
                     LD   D,(IX+4)
                     LD   C,(IX+5)                           ; CDE = fptr_base
                     CALL LinkTracedModule                   ; flag = LinkTracedModule(filename, fptr_base)
-
-                    CALL Disp_allocmem                      ; display amount of allocated OZ memory
 
 .exit_linkmod       POP  HL                                 ; get SP for .LinkModule entry
                     LD   SP,HL                              ; point at RETurn address
