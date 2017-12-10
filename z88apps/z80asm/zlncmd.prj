@@ -39,6 +39,7 @@ loadname.asm
 readexpr.asm
 parsexpr.asm
 evalexpr.asm
+rmpfixlist.asm
 add32bit.asm
 tstrange.asm
 reloc.asm

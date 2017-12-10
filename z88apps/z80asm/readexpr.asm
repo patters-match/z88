@@ -37,8 +37,9 @@
      XREF GetSym                                            ; prsline.asm
      XREF CurrentFileName                                   ; srcfile.asm
      XREF CurrentModule                                     ; module.asm
-     XREF ParseNumExpr, RemovePfixList                      ; parsexpr.asm
+     XREF ParseNumExpr                                      ; parsexpr.asm
      XREF EvalPfixExpr                                      ; evalexpr.asm
+     XREF RemovePfixlist                                    ; rmpfixlist.asm
      XREF GetPointer, GetVarPointer                         ; varptr.asm
      XREF ModuleBaseAddr                                    ; modlink.asm
      XREF Add32bit                                          ; add32bit.asm

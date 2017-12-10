@@ -33,7 +33,7 @@
      LIB GetPointer, Set_pointer, Read_pointer, Set_word, Set_long
 
      XREF GetVarPointer                                ; varptr.asm
-     XREF RemovePfixList                               ; parsexpr.asm
+     XREF RemovePfixList                               ; rmpfixlist.asm
      XREF Display_filename                             ; dispflnm.asm
      XREF Open_file                                    ; fileio.asm
      XREF CurrentFile, CurrentFileName                 ; currfile.asm

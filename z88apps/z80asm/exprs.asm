@@ -31,8 +31,9 @@
 ; external procedures:
      LIB Read_byte, Set_byte, Read_word, Read_pointer, Bind_bank_s1
 
-     XREF ParseNumExpr, RemovePfixList                                ; parsexpr.asm
+     XREF ParseNumExpr                                                ; parsexpr.asm
      XREF EvalPfixExpr                                                ; evalexpr.asm
+     XREF RemovePfixlist                                              ; rmpfixlist.asm
      XREF WriteLong, WriteWord, WriteByte                             ; bytesio.asm
      XREF Write_string                                                ; fileio.asm
      XREF Pass2Info                                                   ; z80pass1.asm

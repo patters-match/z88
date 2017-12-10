@@ -38,7 +38,7 @@
 
      XREF Open_file                                         ; fileio.asm
      XREF ReportError, ReportError_NULL                     ; errors.asm
-     XREF RemovePfixList                                    ; parsexpr.asm
+     XREF RemovePfixList                                    ; rmpfixlist.asm
      XREF EvalPfixExpr                                      ; evalexpr.asm
      XREF GetVarPointer                                     ; z80asm.asm
      XREF CurrentModule                                     ; module.asm
@@ -50,7 +50,7 @@
      XREF Write_string                                      ;
 
 
-; routines accissible in this module:
+; routines accessible in this module:
      XDEF Z80pass2
 
 

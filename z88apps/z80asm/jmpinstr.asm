@@ -56,7 +56,9 @@
      XREF Pass2Info                                         ; z80pass.asm
      XREF ReportError_STD, STDerr_syntax, STDerr_ill_ident  ; errors.asm
 
-     XREF ParseNumExpr, EvalPfixExpr, RemovePfixlist        ; exprprsr.asm
+     XREF ParseNumExpr                                      ; parsexpr.asm
+     XREF EvalPfixExpr                                      ; evalexpr.asm
+     XREF RemovePfixlist                                    ; rmpfixlist.asm
      XREF ExprAddress                                       ;
 
 ; global procedures:

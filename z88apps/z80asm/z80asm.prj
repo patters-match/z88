@@ -61,6 +61,7 @@ varptr
 currfile
 parsexpr
 evalexpr
+rmpfixlist
 add32bit
 tstrange
 exprs

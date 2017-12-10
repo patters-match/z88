@@ -48,7 +48,9 @@
      XREF asm_pc_p1, asm_pc_p2                              ; z80pass1.asm
      XREF Test_8bit_range                                   ;
 
-     XREF ParseNumExpr, EvalPfixExpr, RemovePfixlist        ; exprprsr.asm
+     XREF ParseNumExpr                                      ; parsexpr.asm
+     XREF EvalPfixExpr                                      ; evalexpr.asm
+     XREF RemovePfixlist                                    ; rmpfixlist.asm
      XREF ExprUnsigned8                                     ;
 
 

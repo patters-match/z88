@@ -49,7 +49,9 @@
 
      XREF FlushBuffer                                       ; bytesio.asm
 
-     XREF ParseNumExpr, EvalPfixExpr, RemovePfixlist        ; exprprsr.asm
+     XREF ParseNumExpr                                      ; parsexpr.asm
+     XREF EvalPfixExpr                                      ; evalexpr.asm
+     XREF RemovePfixlist                                    ; rmpfixlist.asm
      XREF ExprUnsigned8, ExprSigned8, ExprAddress           ;
 
 

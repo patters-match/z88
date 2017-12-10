@@ -58,8 +58,9 @@
      XREF Getsym, CheckRegister8, IndirectRegisters         ; prsline.asm
      XREF SearchID                                          ; prsident.asm
      XREF WriteByte, WriteWord, Flushbuffer                 ; bytesio.asm
-     XREF ParseNumExpr, RemovePfixlist                      ; parsexpr.asm
+     XREF ParseNumExpr                                      ; parsexpr.asm
      XREF EvalPfixExpr                                      ; evalexpr.asm
+     XREF RemovePfixlist                                    ; rmpfixlist.asm
      XREF GetVarPointer                                     ; z80asm.asm
      XREF CurrentModule                                     ; module.asm
      XREF Open_file, Close_file, Copy_file, ftell, fseek    ; fileio.asm

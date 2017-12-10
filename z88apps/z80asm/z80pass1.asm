@@ -40,7 +40,9 @@
      XREF STDerr_ill_ident, STDerr_syntax, ReportError_STD  ; errors.asm
      XREF DefineSymbol                                      ; symbols.asm
      XREF CurrentFile, CurrentFileName, CurrentFileLine     ; srcfile.asm
-     XREF ParseNumExpr, EvalPfixExpr, RemovePfixList        ; exprprsr.asm
+     XREF ParseNumExpr                                      ; parsexpr.asm
+     XREF EvalPfixExpr                                      ; evalexpr.asm
+     XREF RemovePfixList                                    ; rmpfixlist.asm
      XREF Write_fptr                                        ; modlink.asm
      XREF CurrentModule                                     ; module.asm
      XREF fseek                                             ; fileio.asm

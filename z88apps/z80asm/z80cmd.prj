@@ -55,6 +55,7 @@ varptr.asm
 currfile.asm
 parsexpr.asm
 evalexpr.asm
+rmpfixlist.asm
 exprs.asm
 tstrange.asm
 module.asm

@@ -62,7 +62,9 @@
      XREF asm_pc_p2, asm_pc_p4                              ; z80pass1.asm
      XREF Test_8bit_range                                   ; tstrange.asm
 
-     XREF ParseNumExpr, EvalPfixExpr, RemovePfixlist        ; exprprsr.asm
+     XREF ParseNumExpr                                      ; parsexpr.asm
+     XREF EvalPfixExpr                                      ; evalexpr.asm
+     XREF RemovePfixlist                                    ; rmpfixlist.asm
      XREF ExprSigned8                                       ;
 
 

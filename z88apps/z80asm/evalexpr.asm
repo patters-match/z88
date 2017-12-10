@@ -37,7 +37,6 @@
      LIB Read_long, Set_long, Read_pointer, Set_pointer
      LIB Read_byte, Set_byte
 
-     XREF Getsym                                                      ; prsline.asm
      XREF CurrentModule                                               ; module.asm
      XREF GetSymPtr, FindSymbol                                       ; symbols.asm
      XREF GetVarPointer                                               ; z80asm.asm
