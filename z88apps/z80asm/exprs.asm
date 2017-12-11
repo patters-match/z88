@@ -29,24 +29,21 @@
      MODULE Expressions
 
 ; external procedures:
-     LIB Read_byte, Set_byte, Read_word, Read_pointer, Bind_bank_s1
+     LIB Read_byte
 
      XREF ParseNumExpr                                                ; parsexpr.asm
      XREF EvalPfixExpr                                                ; evalexpr.asm
+     XREF StoreExpr                                                   ; storexpr.asm
      XREF RemovePfixlist                                              ; rmpfixlist.asm
      XREF WriteLong, WriteWord, WriteByte                             ; bytesio.asm
-     XREF Write_string                                                ; fileio.asm
      XREF Pass2Info                                                   ; z80pass1.asm
      XREF ReportError_STD                                             ; errors.asm
      XREF Test_7bit_range, Test_8bit_range
      XREF Test_16bit_range, Test_32bit_range
 
 ; global procedures:
-     XDEF StoreExpr
      XDEF ExprLong, ExprAddress
      XDEF ExprSigned8, ExprUnsigned8
-
-     INCLUDE "fileio.def"
 
      INCLUDE "rtmvars.def"
      INCLUDE "symbol.def"
@@ -251,58 +248,3 @@
 .end_exprsign       XOR  A                                  ; Fc = 0, A = 0
                     LD   C,A
                     JP   WriteByte                          ; codeptr++
-
-
-; **************************************************************************************************
-;
-; Store infix expression to object file
-;
-; IN:     A   = range
-;         BHL = pfixexpr pointer
-;
-; Registers changed after return:
-;    ..BCDEHL/IXIY  same
-;    AF....../....  different
-;
-.StoreExpr          PUSH IX
-                    PUSH DE
-                         LD   IX,(objfilehandle)            ; {get handle for object file}
-                         CALL_OZ(Os_Pb)                     ; fputc(range, objfile)
-                         LD   A, expr_codepos
-                         CALL Read_word                     ; pfixexpr->codepos
-                         LD   A,E                           ;
-                         CALL_OZ(Os_Pb)                     ; fputc(codepos%256, objfile)
-                         LD   A,D
-                         CALL_OZ(Os_Pb)                     ; fputc(codepos%256, objfile)
-
-                         PUSH HL
-                         PUSH BC
-                         LD   C,-1
-                         LD   A, expr_stored
-                         CALL Set_byte                      ; pfixexpr->stored = ON
-                         LD   A,expr_infixexpr
-                         CALL Read_pointer                  ; pfixexpr->infixexpr
-                         LD   A,B
-                         CALL Bind_bank_s1                  ; make sure that expression is paged in
-                         PUSH AF                            ; preserve old bank binding
-                         PUSH HL
-                         XOR  A
-                         LD   C,SIZEOF_infixexpr            ; search max. characters for null-terminator
-                         PUSH HL
-                         CPIR                               ; {find null-terminator}
-                         POP  DE
-                         SBC  HL,DE
-                         LD   A,L
-                         LD   C,L                           ; b = strlen(pfixexpr->infixexpr) + 1
-                         DEC  A
-                         CALL_OZ(Os_Pb)                     ; fputc( strlen(pfixexpr->infixexpr), objfile)
-                         LD   DE,0
-                         POP  HL
-                         POP  AF
-                         CALL Bind_bank_s1                  ; {pfixexpr->infixexpr in BHL}
-                         CALL Write_string                  ; fwrite(pfixexpr->infixexpr, 1, b, objfile)
-                         POP  BC
-                         POP  HL
-                    POP  DE
-                    POP  IX
-                    RET

@@ -57,6 +57,7 @@ parsexpr.asm
 evalexpr.asm
 rmpfixlist.asm
 exprs.asm
+storexpr.asm
 tstrange.asm
 currmodule.asm
 module.asm

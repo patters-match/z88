@@ -43,7 +43,8 @@
      XREF EvalPfixExpr                                      ; evalexpr.asm
      XREF CurrentModule                                     ; module.asm
 
-     XREF StoreExpr, Test_7bit_range, Test_8bit_range       ; exprs.asm
+     XREF StoreExpr                                         ; storexpr.asm
+     XREF Test_7bit_range, Test_8bit_range                  ; tstrange.asm
      XREF Test_16bit_range, Test_32bit_Range                ;
 
      XREF Write_fptr, ftell, fseek, Copy_file               ; fileio.asm
