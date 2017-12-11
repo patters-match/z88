@@ -40,13 +40,13 @@
      LIB Find
      LIB copy, memcpy, strcpy
 
-     XREF CurrentModule                                          ; module.asm
+     XREF CurrentModule                                          ; currmodule.asm
+     XREF GetSymPtr, FindSymbol, NULL_pointer                    ; findsym.asm
      XREF ReportError_STD, ReportError_NULL                      ; errors.asm
 
 ; global procedures in this module:
-     XDEF NULL_pointer, CmpIDstr, CmpIDval
+     XDEF CmpIDstr, CmpIDval
      XDEF DefineSymbol, DefineDefSym, InsertSym
-     XDEF GetSymPtr, FindSymbol
      XDEF FreeSym
      XDEF DeclSymExtern, DeclSymGlobal
      XDEF CopyId, ReleaseId
@@ -58,90 +58,6 @@
 
      INCLUDE "rtmvars.def"
      INCLUDE "symbol.def"
-
-
-; **************************************************************************************************
-;
-; GetSymPtr - get pointer to found symbol in avltree.
-;
-;    IN:  CDE = pointer to identifier
-;   OUT:  BHL = pointer to found symbol, otherwise NULL.
-;
-; Registers changed after return:
-;
-;    ...CDE../....  same
-;    AFB...HL/IXIY  different
-;
-.GetSymPtr          CALL CurrentModule       ; pointer to current module in BHL...
-                    LD   A, module_localroot
-                    CALL Read_pointer        ; get pointer to root of local symbols in BHL
-                    CALL FindSymbol
-                    RET  NC                  ; if ( Findsymbol(id, CURRENTMODULE->localroot) == NULL )
-.find_globalsym          LD   HL, globalroot
-                         CALL GetVarPointer       ; if ( Findsymbol(id, globalroot != NULL )
-                         CALL FindSymbol               ; return symptr;
-                         RET  NC                  ; else
-                              JP   NULL_pointer        ; return NULL (Fc = 1)
-
-
-; **************************************************************************************************
-;
-; FindSymbol - get pointer to found symbol in either local or global avltree.
-;
-;    IN:  BHL = pointer to current search node
-;         CDE = pointer to identifier
-;   OUT:  BHL = pointer to found symbol node , Fc = 0
-;               otherwise NULL, Fc = 1,
-;
-; Registers changed after return:
-;
-;    ...CDE../IXIY  same
-;    AFB...HL/....  different
-;
-.FindSymbol         INC  B
-                    DEC  B                   ; if ( avlptr == NULL )
-                    JR   NZ, examine_node
-                         SCF                      ; Fz = 1, Fc = 1, return NULL;
-                         RET
-                                             ; else
-.examine_node       PUSH IY
-                    LD   IY, compidentifier
-                    CALL Find                     ; found = find(avlptr, identifier, compidentifier)
-                    POP  IY
-                    JR   NC, found_node           ; if ( found == NULL )
-                    RET                                ; return NULL
-                                                  ; else
-.found_node         PUSH BC
-                    LD   A, symtree_type               ; symptr->type |= SYMTOUCHED
-                    CALL Read_byte
-                    SET  SYMTOUCHED,A
-                    LD   C,A
-                    LD   A, symtree_type
-                    CALL Set_byte
-                    POP  BC                            ; return symptr (Fc = 0)
-                    RET
-
-
-; **************************************************************************************************
-;
-;    Compare service routine for .FindSymbol
-;
-;    IN: CDE = search key (main caller parameter)
-;        BHL = pointer to current AVL node
-;
-;    OUT:
-;         Fz = 0; Fc = 0:     A > B
-;         Fz = 1; Fc = 0:     A = B
-;         Fz = 0; Fc = 1:     A < B
-;
-; Registers changed after return:
-;
-;    ...CDE../IXIY  same
-;    AFB...HL/....  different
-;
-.compidentifier     LD   A, symtree_symname
-                    CALL Read_pointer        ;      get pointer to symbol identfier (string)
-                    JP   Strcmp              ;      retur strcmp(symptr->symname, identifier)
 
 
 ; **************************************************************************************************
@@ -803,24 +719,6 @@
 .sym_notalloc       CALL ReportError_NULL
                     POP  AF
                     POP  AF                  ; return NULL - symbol not copied.
-                    SCF
-                    RET
-
-
-
-; **************************************************************************************************
-;
-; return NULL pointer in BHL, Fc = 1
-;
-; Registers changed after return:
-;
-;    ...CDE../IXIY  same
-;    AFB...HL/....  different
-;
-.NULL_pointer       XOR  A
-                    LD   B,A
-                    LD   H,A
-                    LD   L,A
                     SCF
                     RET
 

@@ -38,7 +38,8 @@
      LIB Set_pointer, Bind_bank_s1
      LIB memcpy
 
-     XREF NULL_pointer, GetSymPtr, ReleaseId                          ; symbols.asm
+     XREF NULL_pointer, GetSymPtr                                     ; findsym.asm
+     XREF ReleaseId                                                   ; symbols.asm
      XREF Getsym                                                      ; getsym.asm
      XREF GetConstant                                                 ; getconst.asm
      XREF RemovePfixList                                              ; rmpfixlist.asm

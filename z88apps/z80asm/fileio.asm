@@ -32,9 +32,7 @@
 ; external procedures:
      LIB Bind_bank_s1
 
-     XREF FlushBuffer                                       ; bytesio.asm
      XREF ReportError_NULL                                  ; errors.asm
-     XREF reloctablefile                                    ; reloc.asm
 
 ; global constants
      XDEF bufferfile, cdefile

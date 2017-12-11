@@ -56,6 +56,7 @@ prsident
 getsym
 prsline
 getconst
+findsym
 symbols
 varptr
 currfile

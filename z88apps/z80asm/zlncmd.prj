@@ -46,6 +46,7 @@ tstrange.asm
 reloc.asm
 relocate.asm
 asmpcid.asm
+findsym.asm
 symbols.asm
 varptr.asm
 currfile.asm

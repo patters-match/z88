@@ -50,6 +50,7 @@ prsident.asm
 getsym.asm
 prsline.asm
 getconst.asm
+findsym.asm
 symbols.asm
 varptr.asm
 currfile.asm

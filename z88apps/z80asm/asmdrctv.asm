@@ -51,7 +51,8 @@
 
      XREF asm_pc_p1, asm_pc_p2, asm_pc_p4                   ; z80pass1.asm
 
-     XREF DefineSymbol, DefineDefSym, NULL_pointer          ; symbols.asm
+     XREF NULL_pointer                                      ; findsym.asm
+     XREF DefineSymbol, DefineDefSym                        ; symbols.asm
      XREF DeclSymExtern, DeclSymGlobal, cmpIDstr            ;
 
      XREF GetConstant                                       ; getconst.asm
