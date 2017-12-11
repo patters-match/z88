@@ -34,6 +34,7 @@
      LIB AllocIdentifier, mfree
      LIB Read_word, Read_pointer, Read_byte
      LIB Set_pointer, Read_long, Set_long, Set_byte
+     LIB GetVarPointer
 
      XREF LinkModule                                        ; linkmod.asm
      XREF CurrentModule, NewModule                          ; module.asm
@@ -42,7 +43,7 @@
      XREF GetSym                                            ; prsline.asm
      XREF CurrentFile                                       ; srcfile.asm
      XREF EvalPfixExpr                                      ; evalexpr.asm
-     XREF GetPointer, GetVarPointer, FreeVarPointer         ; varptr.asm
+     XREF GetPointer, FreeVarPointer                        ; varptr.asm
      XREF CopyId, FindSymbol                                ; symbols.asm
      XREF CreateFileName                                    ; crtflnm.asm
      XREF Add32bit                                          ; add32bit.asm

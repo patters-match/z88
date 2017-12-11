@@ -32,7 +32,6 @@
      LIB init_malloc, release_pools, mfree
      LIB Bind_bank_s1
      LIB Read_pointer, Set_pointer
-     LIB GetVarPointer, AllocVarPointer
 
      XREF InitVars, InitFiles, InitPointers                 ; initvars.asm
      XREF Command_line                                      ; cmdline.asm

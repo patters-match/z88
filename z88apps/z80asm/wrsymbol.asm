@@ -30,6 +30,7 @@
 
      LIB ascorder
      LIB Inthex
+     LIB GetVarPointer
 
      INCLUDE "fileio.def"
 
@@ -42,7 +43,6 @@
 
      XREF CurrentModule                                     ; currmod.asm
      XREF Write_string                                      ; fileio.asm
-     XREF GetVarPointer                                     ; varptr.asm
 
 ; global procedures:
      XDEF WriteSymbols

@@ -31,9 +31,9 @@
 ; external procedures:
      LIB malloc, mfree
      LIB Set_pointer, Read_pointer, Set_long
-     LIB AllocVarPointer
+     LIB AllocVarPointer, GetVarPointer
 
-     XREF GetPointer, GetVarPointer                    ; varptr.asm
+     XREF GetPointer                                   ; varptr.asm
      XREF ReportError, ReportError_NULL                ; errors.asm
      XREF GetFileName                                  ; cmdline.asm
      XREF Open_file                                    ; fileio.asm

@@ -34,13 +34,13 @@
      LIB CmpPtr
      LIB Read_word, Read_byte, Read_pointer
      LIB Set_word, Set_pointer
+     LIB GetVarPointer
      LIB ascorder
 
      XREF Open_file                                         ; fileio.asm
      XREF ReportError, ReportError_NULL                     ; errors.asm
      XREF RemovePfixList                                    ; rmpfixlist.asm
      XREF EvalPfixExpr                                      ; evalexpr.asm
-     XREF GetVarPointer                                     ; z80asm.asm
      XREF CurrentModule                                     ; module.asm
 
      XREF StoreExpr, Test_7bit_range, Test_8bit_range       ; exprs.asm

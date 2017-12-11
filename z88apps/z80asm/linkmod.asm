@@ -31,6 +31,7 @@
 ; external procedures:
      LIB Read_word, Read_pointer, Set_word, Read_byte
      LIB Set_pointer, Set_long, Set_byte
+     LIB GetVarPointer
      LIB malloc
      LIB CmpPtr
      LIB IntHex
@@ -39,7 +40,7 @@
      XREF GetSym                                            ; prsline.asm
      XREF CurrentFile                                       ; srcfile.asm
      XREF CurrentModule                                     ; module.asm
-     XREF GetPointer, GetVarPointer, FreeVarPointer         ; varptr.asm
+     XREF GetPointer, FreeVarPointer         ; varptr.asm
      XREF CopyId                                            ; symbols.asm
      XREF CreateFileName                                    ; crtflnm.asm
      XREF Display_filename                                  ; dispflnm.asm

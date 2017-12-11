@@ -30,6 +30,7 @@
 
      LIB transfer, reorder, ascorder
      LIB Inthex
+     LIB GetPointer, GetVarPointer
 
      XREF SIZEOF_relocator
 
@@ -49,7 +50,6 @@
 
      XREF CurrentModule                                     ; module.asm
      XREF Write_string                                      ; fileio.asm
-     XREF GetPointer, GetVarPointer                         ; varptr.asm
      XREF ReportError_NULL                                  ; asmerror.asm
      XREF CreateFileName                                    ; crtflnm.asm
      XREF Open_file, Close_file, Delete_file                ; fileio.asm

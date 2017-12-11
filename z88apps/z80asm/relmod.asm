@@ -28,7 +28,8 @@
 
      MODULE ReleaseModules
 
-     Lib deleteall
+     LIB deleteall
+     LIB GetVarPointer
 
 ; **************************************************************************************************
 ;

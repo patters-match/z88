@@ -26,46 +26,20 @@
 ;
 ; ********************************************************************************************************************
 
-     MODULE Create_libary_file
+MODULE CurrentModulePtr
 
-     LIB AllocIdentifier
+LIB GetVarPointer
 
-     XREF ReportError_NULL                             ; asmerror.asm
-     XREF Open_file, fseek                             ; fileio.asm
+INCLUDE "rtmvars.def"
 
-     XDEF CreateLibFile
+XDEF CurrentModule
 
-     INCLUDE "rtmvars.def"
-     INCLUDE "fileio.def"
-     INCLUDE "error.def"
-
-
-; ****************************************************************************************
+; ********************************************************************************************************************
 ;
-;    Create library file from filename stored at (DE)
-;    The '.lib' extension will be added, if not present.
+; Return pointer (in BHL) to current module
 ;
-;    IN:  (DE) = filename
-;    OUT: BHL = pointer to library filename (length prefixed & null-terminated)
-;
-.CreateLibFile      PUSH DE
-                    INC  DE
-                    LD   HL, libext                    ; pointer 'lib' extension
-                    LD   B, -1                         ; write extension (and create current path)
-                    LD   C, MAX_IDLENGTH
-                    LD   A, @10000001
-                    CALL_OZ(Gn_Esa)                    ; write '.lib' extension
-                    POP  HL
-                    JP   C, ReportError_NULL
-                    PUSH HL
-                    INC  HL
-                    EX   DE,HL
-                    SBC  HL,DE                         ; length of filename
-                    EX   DE,HL                         ; in E
-                    POP  HL                            ; point at length identifier of filename
-                    LD   (HL),E                        ; store length of filename
-                    CALL AllocIdentifier
-                    JP   C, ReportError_NULL
+.CurrentModule      PUSH AF
+                    LD   HL,CURMODULE
+                    CALL GetVarPointer
+                    POP  AF
                     RET
-
-.libext             DEFM "lib"

@@ -65,6 +65,7 @@ rmpfixlist
 add32bit
 tstrange
 exprs
+currmodule
 module
 srcfile
 getflnm

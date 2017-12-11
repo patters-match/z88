@@ -37,7 +37,7 @@
      LIB Read_byte, Read_word, Set_word, Read_pointer
      LIB Set_pointer, Set_long, Read_long
      LIB AllocIdentifier, CmpPtr, memcompare
-     LIB mfree
+     LIB GetVarPointer, mfree
 
      XREF ReportError_STD, STDerr_syntax, STDerr_ill_ident  ; errors.asm
      XREF ReportError, ReportError_NULL                     ;
@@ -61,7 +61,6 @@
      XREF ParseNumExpr                                      ; parsexpr.asm
      XREF EvalPfixExpr                                      ; evalexpr.asm
      XREF RemovePfixlist                                    ; rmpfixlist.asm
-     XREF GetVarPointer                                     ; z80asm.asm
      XREF CurrentModule                                     ; module.asm
      XREF Open_file, Close_file, Copy_file, ftell, fseek    ; fileio.asm
      XREF Z80pass1, FetchLine                               ; z80pass1.asm

@@ -34,6 +34,7 @@
      LIB Compare, CmpPtr, StrCmp
      LIB Read_pointer, Set_pointer
      LIB Read_byte, Set_byte, Insert
+     LIB GetPointer,GetVarPointer
      LIB Read_long, Set_long
      LIB Bind_bank_s1
      LIB Find
@@ -41,8 +42,6 @@
 
      XREF CurrentModule                                          ; module.asm
      XREF ReportError_STD, ReportError_NULL                      ; errors.asm
-     XREF GetVarPointer                                          ; z80asm.asm
-     XREF GetPointer                                             ; varptr.asm
 
 ; global procedures in this module:
      XDEF NULL_pointer, CmpIDstr, CmpIDval

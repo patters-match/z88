@@ -59,3 +59,5 @@ if test $? -eq 0; then
     # program compiled successfully, apply leading Z80 ELF header
     mpm -b -nMap -I../../oz/def -ozln zlncmd-elf.asm
 fi
+
+mpm -vb -rz80 -I../../oz/def -l../../stdlib/standard.lib @z80p2.prj

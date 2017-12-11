@@ -36,10 +36,10 @@
      LIB malloc, mfree
      LIB Read_long, Set_long, Read_pointer, Set_pointer
      LIB Read_byte, Set_byte
+     LIB GetVarPointer
 
      XREF CurrentModule                                               ; module.asm
      XREF GetSymPtr, FindSymbol                                       ; symbols.asm
-     XREF GetVarPointer                                               ; z80asm.asm
      XREF ReportError_STD                                             ; errors.asm
 
 ; global procedures:

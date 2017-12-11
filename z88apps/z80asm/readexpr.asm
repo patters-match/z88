@@ -32,6 +32,7 @@
 
      LIB Read_word, Read_pointer, Read_byte
      LIB Set_pointer, Read_long, Set_long, Set_byte
+     LIB GetPointer, GetVarPointer
 
      XREF ReportError, ReportError_NULL                     ; errors.asm
      XREF GetSym                                            ; prsline.asm
@@ -40,7 +41,6 @@
      XREF ParseNumExpr                                      ; parsexpr.asm
      XREF EvalPfixExpr                                      ; evalexpr.asm
      XREF RemovePfixlist                                    ; rmpfixlist.asm
-     XREF GetPointer, GetVarPointer                         ; varptr.asm
      XREF ModuleBaseAddr                                    ; modlink.asm
      XREF Add32bit                                          ; add32bit.asm
 

@@ -29,6 +29,7 @@
      MODULE Make_library
 
      LIB IntHex, Read_pointer, Set_pointer
+     LIB GetVarPointer
 
      XREF ReportError_NULL                             ; ASMERROR.asm
      XREF CreateFilename                               ; crtflnm.asm
@@ -39,7 +40,7 @@
      XREF Open_file, fseek, ftell, fsize, Close_file   ; fileio.asm
      XREF Write_fptr, Copy_file, Delete_file
 
-     XREF AllocVarPointer, GetPointer, GetVarPointer   ; varptr.asm
+     XREF AllocVarPointer, GetPointer   ; varptr.asm
      XREF FreeVarPointer
 
      XDEF MakeLibrary

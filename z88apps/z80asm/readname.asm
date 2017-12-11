@@ -32,13 +32,13 @@
 
 	LIB Read_word, Read_pointer, Read_byte
 	LIB Set_pointer, Set_long, Set_byte
+	LIB GetPointer, GetVarPointer
 	LIB InsertSymbol
 
 	XREF	ReportError, ReportError_NULL					; errors.asm
 	XREF	GetSym											; prsline.asm
 	XREF	CurrentFile										; srcfile.asm
 	XREF	CurrentModule									; module.asm
-	XREF	GetPointer, GetVarPointer						; varptr.asm
 	XREF	ftell, fseek, Read_fptr,	Write_fptr			; fileio.asm
 	XREF	ModuleBaseAddr									; modlink.asm
 	XREF	LoadName										; loadname.asm

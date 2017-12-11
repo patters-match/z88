@@ -29,6 +29,7 @@
      MODULE Write_globals
 
 ; external procedures:
+     LIB GetVarPointer
      LIB Inthex
      LIB CmpPtr
      LIB Read_word, Read_long, Read_byte, Read_pointer
@@ -43,7 +44,6 @@
 
      XREF CurrentModule                                     ; module.asm
      XREF Write_string                                      ; fileio.asm
-     XREF GetVarPointer                                     ; varptr.asm
      XREF Open_file,Close_file                              ; fileio.asm
      XREF ReportError_NULL                                  ; asmerror.asm
 

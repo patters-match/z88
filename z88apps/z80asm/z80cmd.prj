@@ -58,6 +58,7 @@ evalexpr.asm
 rmpfixlist.asm
 exprs.asm
 tstrange.asm
+currmodule.asm
 module.asm
 loadname.asm
 srcfile.asm
