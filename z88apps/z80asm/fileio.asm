@@ -40,7 +40,7 @@
 ; global procedures in this module:
      XDEF Read_fptr, Write_fptr, Read_string, Write_string
      XDEF ftell, fsize, fseek
-     XDEF Open_file, Close_file, Copy_file
+     XDEF Open_file, Close_file
      XDEF Delete_file
      XDEF Delete_bufferfiles
 
@@ -329,114 +329,6 @@
                     CALL Delete_file         ; delete ":RAM.-/buf", if it exists...
                     LD   HL, cdefile
                     JP   Delete_file         ; delete ":RAM.-/temp.buf", if it exists...
-
-
-; ****************************************************************************************
-;
-; IN:     HL = srcfile, local pointer to input file handle
-;         DE = dstfile, local pointer to output file handle
-;         ABC = no. of bytes to copy (24bit file size ~ 1.67MB)
-;
-; OUT:    Fc = 1, file IO error occurred during copy
-;         Fc = 0, file copied successfully
-;
-; Local variables on stack:
-;    (IX+0,IX+1)    = handle of sourcefile
-;    (IX+2,IX+3)    = handle of destfile
-;    (IX+4,IX+6)    = remaining bytes to copy
-;
-; Registers changed after return:
-;    ......../IXIY  same
-;    AFBCDEHL/....  different
-;
-.Copy_file          PUSH IY
-                    PUSH IX
-                    LD   IX,0
-                    ADD  IX,SP
-                    LD   IY, -7
-                    ADD  IY,SP               ; allocate 7 bytes room on stack
-                    LD   SP,IY               ; IY points at base...
-                    PUSH IX                  ; preserve pointer to original IY below variable area
-
-                    PUSH AF                  ; preserve high byte of file copy size
-                    LD   A,(HL)
-                    LD   (IY+0),A
-                    INC  HL
-                    LD   A,(HL)
-                    LD   (IY+1),A            ; handle for srcfile...
-                    EX   DE,HL
-                    LD   A,(HL)
-                    LD   (IY+2),A
-                    INC  HL
-                    LD   A,(HL)
-                    LD   (IY+3),A            ; handle for dstfile...
-                    LD   (IY+4),C
-                    LD   (IY+5),B
-                    POP  AF
-                    LD   (IY+6),A            ; bytes to copy is saved...
-
-                    CALL CpyFile_64K         ; cpyfile(remainbytes MOD 65536)
-
-.copy_loop          XOR  A
-                    CP   (IY+6)              ; while(remainbytes DIV 65536)
-                    JR   Z, end_copyfile
-                         DEC  (IY+6)
-                         LD   (IY+5),$80
-                         CALL CpyFile_64K         ; cpyfile(32768)
-                         JR   C, err_copyfile
-                         LD   (IY+5),$80
-                         CALL CpyFile_64K         ; cpyfile(32768)
-                    JR   NC, copy_loop
-
-.err_copyfile       CALL ReportError_NULL         ; reporterror(NULL; 0, ERR)
-.end_copyfile       POP  HL                       ; get pointer to original IY
-                    LD   SP,HL                    ; restore stack pointer
-                    POP  IX                       ; restore original IX
-                    POP  IY                       ; restore original IY
-                    RET
-
-; ****************************************************************************************************
-;
-; Copy file in 64K boundary blocks
-;
-.CpyFile_64K
-.cpy_loop           LD   A,(IY+4)
-                    OR   (IY+5)                   ; while (remainbytes != 0)
-                    RET  Z
-                         LD   L,(IY+0)
-                         LD   H,(IY+1)                 ; {srcfile}
-                         PUSH HL
-                         POP  IX
-                         LD   HL,lineptr-linebuffer    ; bufsize
-                         LD   C,(IY+4)
-                         LD   B,(IY+5)
-                         CP   A                        ; if ( bufsize > remainbytes )
-                         SBC  HL,BC                         ; bufsize = remainbytes
-                         JR   NC, copy_chunk
-                              LD   BC,lineptr-linebuffer
-.copy_chunk              LD   HL,0
-                         LD   DE,linebuffer            ; bufferstart
-                         PUSH BC
-                         CALL_OZ(Os_Mv)                ; bytesread = read(srcfile, linebuffer, bufsize)
-                         POP  HL
-                         CP   A                        ; ignore EOF, if encountered (Fc = 1)
-                         SBC  HL,BC
-                         LD   B,H
-                         LD   C,L                      ; {BC = bytesread}
-                         LD   L,(IY+4)
-                         LD   H,(IY+5)
-                         SBC  HL,BC
-                         LD   (IY+4),L
-                         LD   (IY+5),H                 ; remainbytes -= bytesread
-                         LD   L,(IY+2)
-                         LD   H,(IY+3)
-                         PUSH HL
-                         POP  IX                       ; {dstfile}
-                         LD   DE,0
-                         LD   HL,linebuffer
-                         CALL_OZ(Os_Mv)                ; byteswritten = write(dstfile, linebuffer, bufsize)
-                         RET  C
-                    JR   cpy_loop
 
 
 ; ****************************************************************************************************

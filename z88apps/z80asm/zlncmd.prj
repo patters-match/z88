@@ -51,6 +51,7 @@ symbols.asm
 varptr.asm
 currfile.asm
 fileio.asm
+copyfile.asm
 srcfile.asm
 chckfhdr.asm
 crtflnm.asm

@@ -47,8 +47,8 @@
      XREF Test_7bit_range, Test_8bit_range                  ; tstrange.asm
      XREF Test_16bit_range, Test_32bit_Range                ;
 
-     XREF Write_fptr, ftell, fseek, Copy_file               ; fileio.asm
-     XREF Write_string                                      ;
+     XREF Write_fptr, ftell, fseek, Write_string            ; fileio.asm
+     XREF Copy_file                                         ; copyfile.asm
 
 
 ; routines accessible in this module:
@@ -376,6 +376,7 @@
                          CALL_OZ(Os_Pb)                               ; fputc(codeptr%256, objfile)
                          LD   A,B
                          CALL_OZ(Os_Pb)                               ; fputc(codeptr/256, objfile)
+
                          LD   DE,0
                          LD   (longint),DE
                          LD   (longint+2),DE

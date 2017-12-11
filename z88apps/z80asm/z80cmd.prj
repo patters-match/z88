@@ -37,6 +37,7 @@ asmpcid
 z80pass1.asm
 z80pass2.asm
 fileio.asm
+copyfile.asm
 bytesio.asm
 wrsymbol.asm
 wrglobal.asm

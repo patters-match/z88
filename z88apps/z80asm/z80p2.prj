@@ -39,5 +39,6 @@ storexpr.asm
 findsym.asm
 currfile.asm
 fileio.asm
+copyfile.asm
 asmerror.asm
 stderror.asm
