@@ -48,16 +48,19 @@ if test $? -lt 15; then
   exit 1
 fi
 
+# z80 assembler command
 mpm -b -I../../oz/def -l../../stdlib/standard.lib @z80cmd.prj
 if test $? -eq 0; then
     # program compiled successfully, apply leading Z80 ELF header
     mpm -b -Map -I../../oz/def -oz80 z80cmd-elf.asm
 fi
 
+# z80 pass2 far function call (dynamically loaded from z80cmd)
+mpm -b -rz80 -oz80p2 -I../../oz/def -l../../stdlib/standard.lib @z80p2.prj
+
+# z80 linker command
 mpm -b -rz80 -I../../oz/def -l../../stdlib/standard.lib @zlncmd.prj
 if test $? -eq 0; then
     # program compiled successfully, apply leading Z80 ELF header
     mpm -b -nMap -I../../oz/def -ozln zlncmd-elf.asm
 fi
-
-mpm -vb -rz80 -I../../oz/def -l../../stdlib/standard.lib @z80p2.prj
