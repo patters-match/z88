@@ -54,7 +54,6 @@
      XREF CreateFileName                                    ; crtflnm.asm
      XREF Open_file, Close_file, Delete_file                ; fileio.asm
      XREF InsertSym, CmpIDstr, CmpIDval                     ; symbols.asm
-     XREF Disp_allocmem                                     ; crtflnm.asm
 
 ; global procedures:
      XDEF WriteMapFile
@@ -200,7 +199,6 @@
 ;
 .WriteMapSymbols    PUSH IX
                     PUSH IY
-                    LD   IX, $0001                     ; memory message each 8th symbol...
                     LD   IY, writemapsym
                     CALL ascorder                      ; ascorder(maproot, Writemapsym)
                     POP  IY
@@ -217,16 +215,6 @@
                     CALL Read_byte
                     BIT  SYMADDR,A
                     RET  Z                             ; if ( !(node->type & SYMADDR) ) return
-
-                    PUSH IX
-                    EX   (SP),HL
-                    XOR  A
-                    ADD  HL,HL
-                    CALL C, Disp_allocmem              ; display memory message for each 16th map address written
-                    RLA
-                    OR   L
-                    LD   L,A                           ; transfer Fc to bit 0 if overflow occurred
-                    EX   (SP),HL
 
                     LD   IX,(mapfilehandle)
                     PUSH BC
