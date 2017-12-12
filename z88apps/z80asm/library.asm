@@ -204,8 +204,8 @@
                     PUSH HL                            ; { preserve modulehdr }
                     LD   A, liblist_first
                     CALL Read_pointer                  ; { BHL = liblist->first }
-                    XOR  A
-                    CP   B
+                    INC  B
+                    DEC  B
                     POP  HL                            ; { restore libraryhdr }
                     POP  BC
                     JR   NZ, append_library            ; if ( libraryhdr->first == NULL )

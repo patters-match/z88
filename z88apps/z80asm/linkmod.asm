@@ -641,8 +641,8 @@
                               PUSH HL
                               LD   A, linklist_firstmod
                               CALL Read_pointer                  ; { BHL = linkhdr->firstmod }
-                              XOR  A
-                              CP   B
+                              INC  B
+                              DEC  B
                               POP  HL                            ; { restore linkhdr }
                               POP  BC
                               JR   NZ, append_module             ; if ( linkhdr->firstmod == NULL )

@@ -139,8 +139,8 @@
                          CALL CurrentModule
                          LD   A, module_next
                          CALL Read_pointer
-                         XOR  A
-                         CP   B
+                         INC  B
+                         DEC  B
                          JR   NZ, another_module       ; if ( CURRENTMODULE->nextmodule == NULL )
                               LD   HL, -1
                               LD   (longint),HL             ; fptr_nextmodule = -1

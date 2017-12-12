@@ -324,8 +324,8 @@
                     PUSH HL                            ; { preserve modulehdr }
                     LD   A, modules_first
                     CALL Read_pointer                  ; { BHL = modulehdr->first }
-                    XOR  A
-                    CP   B
+                    INC  B
+                    DEC  B
                     POP  HL                            ; { restore modulehdr }
                     POP  BC
                     JR   NZ, append_module             ; if ( modulehdr->first == NULL )
@@ -374,8 +374,8 @@
 .ReleaseExpressions CALL CurrentModule
                     LD   A, module_mexpr
                     CALL Read_pointer             ; exprhdr = CURRENTMODULE->mexpr
-                    XOR  A
-                    CP   B
+                    INC  B
+                    DEC  B
                     RET  Z                        ; if ( exprhdr == NULL ) return
 
                     PUSH BC
@@ -400,8 +400,8 @@
                          POP  HL
                          POP  BC
                          LD   B,C                           ; curexpr = tmpexpr
-                         XOR  A
-                         CP   B
+                         INC  B
+                         DEC  B
                     JR   NZ, relexpr_loop              ; while (curexpr != NULL)
 
 .release_exprhdr    POP  HL

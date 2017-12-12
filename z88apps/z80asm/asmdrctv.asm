@@ -901,8 +901,8 @@
                     PUSH HL
                     LD   A, module_mname
                     CALL Read_pointer
-                    XOR  A
-                    CP   B
+                    INC  B
+                    DEC  B
                     JR   NZ, mname_declared            ; if ( CURRENTMODULE->mname == NULL )
                          POP  HL
                          POP  BC

@@ -254,8 +254,8 @@
                     PUSH HL                                 ; {preserve pointer}
                     LD   A, jrpcexpr_first
                     CALL Read_pointer                       ; CURRENTMODULE->JRaddr->firstref
-                    XOR  A
-                    CP   B                                  ; IF ( firstref == NULL )
+                    INC  B
+                    DEC  B                                  ; IF ( firstref == NULL )
                     JR   NZ, newjr_addlist
                          POP  HL
                          POP  BC

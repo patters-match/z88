@@ -297,8 +297,8 @@
                     PUSH HL                            ; {preserve CURRENTMODULE->mexpr}
                     LD   A, expression_first
                     CALL Read_pointer                  ; {CURRENTMODULE->mexpr->first}
-                    XOR  A
-                    CP   B
+                    INC  B
+                    DEC  B
                     POP  HL
                     POP  BC
                     JR   NZ, pass2info_addexpr         ; if (CURRENTMODULE->mexpr->firstexpr == NULL)

@@ -74,8 +74,8 @@
                     CALL Read_pointer
                     LD   A, expression_first           ; pass2expr = CURRENTMODULE->mexpr->firstexpr
                     CALL Read_pointer                  ; if ( pass2expr != NULL )
-                    XOR  A
-                    CP   B
+                    INC  B
+                    DEC  B
                     JP   Z, no_pass2exprs
                          CALL Store_pass2exprptr
                          CALL CurrentModule

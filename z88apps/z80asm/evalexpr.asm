@@ -289,8 +289,8 @@
                     PUSH HL
                     XOR  A
                     CALL Read_pointer
-                    XOR  A
-                    CP   B                   ; if ( *stackptr != NULL )
+                    INC  B
+                    DEC  B                   ; if ( *stackptr != NULL )
                     POP  DE
                     POP  BC
                     LD   C,B                      ; {CDE=**stackptr}

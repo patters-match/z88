@@ -77,8 +77,8 @@ XDEF RemovePfixList
                          PUSH HL
                          LD   A,pfixlist_ident
                          CALL Read_pointer             ; {BHL = node->id}
-                         XOR  A
-                         CP   B
+                         INC  B
+                         DEC  B
                          CALL NZ, mfree                ; if ( node->id != NULL) free(node->id)
                          POP  HL
                          POP  BC
@@ -93,8 +93,8 @@ XDEF RemovePfixList
                     PUSH HL
                     LD   A, expr_infixexpr
                     CALL Read_pointer
-                    XOR  A
-                    CP   B
+                    INC  B
+                    DEC  B
                     CALL NZ, mfree                ; if ( pfixexpr->infixexpr != NULL ) free(pfixexpr->infixexpr)
                     POP  HL
                     POP  BC
