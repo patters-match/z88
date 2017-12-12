@@ -3,7 +3,7 @@
 ; **************************************************************************************************
 ; This file is part of the Z88 Standard Library.
 ;
-; The Z88 Standard Library is free software; you can redistribute it and/or modify it under 
+; The Z88 Standard Library is free software; you can redistribute it and/or modify it under
 ; the terms of the GNU General Public License as published by the Free Software Foundation;
 ; either version 2, or (at your option) any later version.
 ; The Z88 Standard Library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
@@ -12,7 +12,7 @@
 ; You should have received a copy of the GNU General Public License along with the
 ; Z88 Standard Library; see the file COPYING. If not, write to the
 ; Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
-; 
+;
 ;
 ;***************************************************************************************************
 
@@ -51,8 +51,8 @@
                     PUSH HL
                     LD   A, avltree_left          ; (*n)->left
                     CALL Read_pointer
-                    XOR  A
-                    CP   B                        ; if ( (*n)->left == NULL )
+                    INC  B
+                    DEC  B                        ; if ( (*n)->left == NULL )
                     JR   NZ, fix_get_leftheight
                          LD   D,-1                ;    leftheight = -1
                          JR   fix_tst_rightsubtree; else
@@ -66,8 +66,8 @@
                     PUSH BC                       ; preserve *n ...
                     LD   A,avltree_right
                     CALL Read_pointer
-                    XOR  A
-                    CP   B
+                    INC  B
+                    DEC  B
                     JR   NZ, fix_get_rightheight  ; if ( (*n)->right == NULL )
                          LD   E,-1                ;    rightheight = -1
                          JR   fix_height          ; else

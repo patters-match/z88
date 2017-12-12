@@ -3,7 +3,7 @@
 ; **************************************************************************************************
 ; This file is part of the Z88 Standard Library.
 ;
-; The Z88 Standard Library is free software; you can redistribute it and/or modify it under 
+; The Z88 Standard Library is free software; you can redistribute it and/or modify it under
 ; the terms of the GNU General Public License as published by the Free Software Foundation;
 ; either version 2, or (at your option) any later version.
 ; The Z88 Standard Library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
@@ -12,7 +12,7 @@
 ; You should have received a copy of the GNU General Public License along with the
 ; Z88 Standard Library; see the file COPYING. If not, write to the
 ; Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
-; 
+;
 ;
 ;***************************************************************************************************
 
@@ -64,7 +64,8 @@
                     PUSH HL
                     XOR  A
                     CALL Read_pointer        ; *n
-                    CP   B
+                    INC  B
+                    DEC  B
                     JR   NZ,find_new_node    ; if ( *n == NULL )
                          CALL Create_AVLnode      ; newnode = CreateAVLnode()
                          JR   C, err_insert       ; if ( newnode != NULL )
@@ -74,8 +75,8 @@
                          POP  BC                       ; BHL = n
                          LD   C,A                      ; CDE = pointer to new AVL noe
                          XOR  A
-                         CALL Set_pointer              ; *n = newnode
-                         RET                           ; return 0
+                         JP   Set_pointer              ; *n = newnode
+                                                       ; return 0
 .err_insert              POP  HL                  else
                          POP  BC                       ; return -1;
                          RET
