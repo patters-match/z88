@@ -338,9 +338,8 @@
                     LD   A, OP_IN
                     CALL Open_file
                     JP   C, objfile_error              ; if ( (objfile = fopen(objfilename, "rb") != NULL )
-                         CALL CheckObjfile
-                         CP   -1                            ; if ( CheckObjfile() == -1 )
-                         JR   NZ, read_objfile
+                         CALL CheckObjfile                  ; if ( CheckObjfile() == -1 )
+                         JR   Z, read_objfile
                               CALL_OZ(Gn_Cl)                     ; fclose(objfile)
                               LD   A,-1                          ; return -1;
                               RET

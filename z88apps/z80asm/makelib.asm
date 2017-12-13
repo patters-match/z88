@@ -98,8 +98,7 @@
                          JP   C, err_makelibrary
                          LD   (objfilehandle),IX
                          CALL CheckObjfile
-                         CP   -1
-                         JR   NZ, copy_objfile
+                         JR   Z, copy_objfile
                               LD   HL, objfilehandle
                               CALL Close_file               ; fclose(objfile)
                               JP   err_makelibrary
