@@ -97,8 +97,8 @@
 ;    ..BCDEHL/IXIY  same
 ;    AF....../....  different
 ;
-.fseek              XOR  A
-                    CP   B
+.fseek              INC  B
+                    DEC  B
                     JR   Z, set_fpointer
                          PUSH BC
                          PUSH HL
@@ -133,9 +133,10 @@
 ;         ..BCDEHL/IXIY  same
 ;         AF....../....  different
 ;
-.Write_fptr         LD   A,B
-                    OR   A
+.Write_fptr         INC  B
+                    DEC  B
                     JR   Z, write_longint
+                    LD   A,B
                     CALL Bind_bank_s1
                     PUSH AF
                     PUSH HL
@@ -169,9 +170,10 @@
 ;         ..BCDEHL/IXIY  same
 ;         AF....../....  different
 ;
-.Read_fptr          LD   A,B
-                    OR   A
+.Read_fptr          INC  B
+                    DEC  B
                     JR   Z, read_longint
+                    LD   A,B
                     CALL Bind_bank_s1
                     PUSH AF
                     PUSH HL
@@ -215,6 +217,7 @@
 .Write_string       INC  B
                     DEC  B
                     JR   Z, write_str             ; local address
+                    LD   A,B
                     CALL Bind_bank_s1
                     LD   B,A                      ; B = old bank binding
                     PUSH HL
@@ -254,9 +257,10 @@
 ;         ..BCDE../IXIY  same
 ;         AF....HL/....  different
 ;
-.Read_string        LD   A,B
-                    OR   A
+.Read_string        INC  B
+                    DEC  B
                     JR   Z, read_str
+                    LD   A,B
                     CALL Bind_bank_s1
                     PUSH AF
                     ADD  HL,DE                    ; add offset to pointer
