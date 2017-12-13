@@ -26,14 +26,14 @@
 ;
 ; ********************************************************************************************************************
 
-     MODULE Create_libary_file
+     MODULE mCreateLibFileName
 
      LIB AllocIdentifier
 
      XREF ReportError_NULL                             ; asmerror.asm
      XREF Open_file, fseek                             ; fileio.asm
 
-     XDEF CreateLibFile
+     XDEF CreateLibFileName
 
      INCLUDE "rtmvars.def"
      INCLUDE "fileio.def"
@@ -48,22 +48,16 @@
 ;    IN:  (DE) = filename
 ;    OUT: BHL = pointer to library filename (length prefixed & null-terminated)
 ;
-.CreateLibFile      PUSH DE
+.CreateLibFileName  PUSH DE
                     INC  DE
                     LD   HL, libext                    ; pointer 'lib' extension
                     LD   B, -1                         ; write extension (and create current path)
                     LD   C, MAX_IDLENGTH
                     LD   A, @10000001
                     CALL_OZ(Gn_Esa)                    ; write '.lib' extension
-                    POP  HL
-                    JP   C, ReportError_NULL
-                    PUSH HL
-                    INC  HL
-                    EX   DE,HL
-                    SBC  HL,DE                         ; length of filename
-                    EX   DE,HL                         ; in E
                     POP  HL                            ; point at length identifier of filename
-                    LD   (HL),E                        ; store length of filename
+                    JP   C, ReportError_NULL
+                    LD   (HL),C                        ; store length of filename
                     CALL AllocIdentifier
                     JP   C, ReportError_NULL
                     RET

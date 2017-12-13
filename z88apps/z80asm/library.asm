@@ -38,10 +38,10 @@
      XREF GetFileName                                  ; cmdline.asm
      XREF Open_file                                    ; fileio.asm
      XREF CheckLibfile                                 ; chckfhdr.asm
-     XREF CreateLibFile                                ; creatlib.asm
+     XREF CreateLibFileName                            ; creatlib.asm
 
 ; global procedures:
-     XDEF UseLibrary, CreateLibrary, NewLibrary
+     XDEF UseLibrary, DefineLibFileName, NewLibrary
 
 
      INCLUDE "fileio.def"
@@ -54,13 +54,12 @@
 ;
 ; Use library file during linking, specified from command line as -ifilename .
 ;
-; HL points at first char of filename
+; DE points at first char of filename
 ;
-.UseLibrary         CALL GetFileName                   ; collect filename into buffer
-                    LD   A,(DE)                        ; DE now points at start of filename
+.UseLibrary         LD   A,(DE)                        ; DE now points at start of filename
                     OR   A                             ; zero length means no filename specified.
                     CALL Z, default_libfile            ; use default filename.
-                    CALL CreateLibFile
+                    CALL DefineLibFileName
                     RET  C
                     PUSH BC
                     PUSH HL                            ; preserve pointer to library filename
@@ -103,10 +102,11 @@
 ;
 ; Create library file, specified from command line as -xfilename .
 ;
-; HL points at first char of filename
+; DE points at first char of filename
+; returns BHL = allocated pointer to filename string
 ;
-.CreateLibrary      CALL GetFileName                   ; get library filename from command line
-                    CALL CreateLibFile                 ; create library file
+.DefineLibFileName
+                    CALL CreateLibFileName             ; create library filename, returned in BHL
                     RET  C
                     LD   C,B
                     EX   DE,HL                         ; preserve library filename in CDE
@@ -115,7 +115,10 @@
                     JP   C, ReportError_NULL
                     SET  createlib,(IY + RTMflags)     ; indicate library to be created...
                     XOR  A                             ; BHL = pointer to pointer variable
-                    JP   Set_pointer                   ; libfilename = CDE
+                    CALL Set_pointer                   ; libfilename = CDE
+                    LD   B,C
+                    EX   DE,HL                         ; return BHL to library filename (option wild card) string
+                    RET
 
 
 ; ******************************************************************************
@@ -131,7 +134,7 @@
                     LDIR
                     POP  DE
                     RET
-.stdlibfile         DEFM 20, ":*.*//standard.lib", 0
+.stdlibfile         DEFM 19, ":*.*//standard.lib", 0
 
 
 

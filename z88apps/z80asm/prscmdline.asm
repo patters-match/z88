@@ -40,7 +40,7 @@
      XREF Getsym                                            ; getsym.asm
      XREF GetConstant                                       ; getconst.asm
      XREF Open_file                                         ; fileio.asm
-     XREF UseLibrary, CreateLibrary                         ; library.asm
+     XREF UseLibrary, DefineLibFileName                     ; library.asm
      XREF GetFileName                                       ; crtflnm.asm
      XREF CreateModule, CreateModules                       ; module.asm
      XREF ReportError, ReportError_NULL                     ; errors.asm
@@ -142,7 +142,9 @@
 
 
 ; **************************************************************************************************
-.use_library        CALL UseLibrary
+.use_library        CALL GetFileName                   ; collect filename at (HL) into buffer
+                    LD   (lineptr),HL
+                    CALL UseLibrary
                     JR   C, cmdline_error              ; release memory and abort command line
                     JP   parse_loop
 
@@ -153,7 +155,9 @@
 ;
 ; HL points at first char of filename
 ;
-.create_library     CALL CreateLibrary
+.create_library     CALL GetFileName                   ; get library filename from command line
+                    LD   (lineptr),HL
+                    CALL DefineLibFileName
                     JR   C, cmdline_error              ; release memory and abort command line
                     JP   parse_loop
 

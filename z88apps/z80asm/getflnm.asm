@@ -36,7 +36,9 @@
 ; *********************************************************************************************
 ;
 ;    IN:  HL = pointer to first char of filename in command line
-;    OUT: DE = pointer to first char of collected filename in another buffer (length id)
+;    OUT:
+;         HL = pointer at next char or EOL of command line
+;         DE = pointer to first char of collected filename in another buffer (length id)
 ;
 ;    Read filename into cdebuffer, length prefixed and null-terminated.
 ;
@@ -47,7 +49,7 @@
 .fetchname_loop     CP   253                      ; max. length of name?
                     JR   Z, flnm_fetched
                     LD   A,(HL)
-                    CP   0
+                    OR   A
                     JR   Z, flnm_fetched
                     CP   ' '
                     JR   Z, flnm_fetched
