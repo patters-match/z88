@@ -58,7 +58,7 @@
 ;
 .UseLibrary         CALL GetFileName                   ; collect filename into buffer
                     LD   A,(DE)                        ; DE now points at start of filename
-                    CP   0                             ; zero length means no filename specified.
+                    OR   A                             ; zero length means no filename specified.
                     CALL Z, default_libfile            ; use default filename.
                     CALL CreateLibFile
                     RET  C

@@ -40,8 +40,8 @@ XDEF InitVars, InitFiles, InitPointers
 .InitVars           LD   HL, z80asm_vars
                     PUSH HL
                     POP  IY                            ; IY points at base of variable
-                    LD   (HL), 2**datestamp | 2**mapref | 2**z80bin | 2**symtable
-                               ; datestamp, map file,   linking,   symbol file
+                    LD   (HL), 2**datestamp | 2**z80bin
+                               ; datestamp,   linking
                     INC  HL
                     LD   (HL), @00000000               ; reset RTMflags2
                     INC  HL
