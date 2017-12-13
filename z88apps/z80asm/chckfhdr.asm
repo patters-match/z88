@@ -31,10 +31,10 @@
 
      LIB memcompare, GetVarPointer
 
-     XREF Read_string              ; fileio.asm
-     XREF ReportError              ; asmerror.asm
+     XREF fseek, Read_string                    ; fileio.asm
+     XREF ReportError                           ; asmerror.asm
 
-     XDEF CheckObjfile, CheckFileHeader
+     XDEF CheckFileHeader, CheckObjfile, CheckLibfile
 
      INCLUDE "rtmvars.def"
 
@@ -51,7 +51,7 @@
 ;
 .ReadFileHeader     PUSH HL
                     LD   BC,8
-                    LD   HL, Ident                ; read header at (ident)
+                    LD   HL, Ident              ; read header at (ident)
                     PUSH HL
                     CALL Read_string
                     POP  DE
@@ -79,9 +79,28 @@
 .CheckFileHeader    CALL ReadFileHeader
                     CALL memcompare
                     LD   A,-1
-                    RET  NZ                            ; A = -1 if not equal
-                    XOR  A                             ; otherwise A = 0
+                    RET  NZ                     ; A = -1 if not equal
+                    XOR  A                      ; otherwise A = 0
                     RET
+
+
+; *********************************************************************************
+;
+; Check Library file header (Z80 & MPM)
+;
+;    OUT: A = 0, if header present
+;         A = -1, if header not present.
+;
+;    Registers changed after return
+;         ......../IXIY  same
+;         AFBCDEHL/....  different
+;
+.CheckLibfile       LD   HL, libz80header
+                    CALL CheckFileHeader
+                    RET  Z
+                    CALL startoffile            ; rewind to start of current file, then try again
+                    LD   HL, libmpmheader
+                    JP   CheckFileHeader
 
 
 ; *********************************************************************************
@@ -102,7 +121,22 @@
                     LD   HL, objfilename
                     CALL GetVarPointer
                     LD   DE,0
-                    CALL ReportError              ; ReportError( objfilename, 0, 26)
-                    LD   A,-1                     ; header is illegal
+                    CALL ReportError            ; ReportError( objfilename, 0, 26)
+                    LD   A,-1                   ; header is illegal
                     RET
+
+
+; *********************************************************************************
+; Rewind file pointer of current file to first byte
+;
+.startoffile
+                    LD   HL,0
+                    LD   (longint),HL
+                    LD   (longint+2),HL
+                    LD   B,H                    ; {local pointer}
+                    LD   HL, longint
+                    JP   fseek                  ; fseek(IX, 0, SEEK_SET)
+
 .objheader          DEFM "Z80RMF01"
+.libz80header       DEFM "Z80LMF01"
+.libmpmheader       DEFM "MPMLMF01"

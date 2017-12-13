@@ -37,7 +37,7 @@
      XREF ReportError, ReportError_NULL                ; errors.asm
      XREF GetFileName                                  ; cmdline.asm
      XREF Open_file                                    ; fileio.asm
-     XREF CheckFileHeader                              ; chckfhdr.asm
+     XREF CheckLibfile                                 ; chckfhdr.asm
      XREF CreateLibFile                                ; creatlib.asm
 
 ; global procedures:
@@ -73,8 +73,7 @@
                     RET  C
                     PUSH BC
                     PUSH HL
-                    LD   HL, libheader
-                    CALL CheckFileHeader               ; check file to be a true library (with header)
+                    CALL CheckLibfile                  ; check file to be a true library (with header)
                     PUSH AF
                     CALL_OZ(Gn_Cl)                     ; close library file
                     POP  AF
@@ -98,8 +97,6 @@
                     SCF
                     LD   A, ERR_not_libfile
                     JP   ReportError                        ; ReportError(libfilename, 0, ERR_not_libfile)
-
-.libheader          DEFM "Z80LMF01"
 
 
 ; **************************************************************************************************
