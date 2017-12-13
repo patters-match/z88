@@ -178,8 +178,7 @@
                               JP   C, linkmodules_err
                               LD   (objfilehandle),IX            ; object file opened...
                               CALL CheckObjfile
-                              CP   -1                            ; if ( CheckObjFile() == -1 )
-                              JR   NZ, modlink_loop_continue2
+                              JR   Z, modlink_loop_continue2     ; if ( CheckObjFile() == -1 )
                                    LD   HL,objfilehandle
                                    CALL Close_file                    ; fclose(objfile)
                                    JP   linkmodules_err2              ; return

@@ -117,12 +117,13 @@
 .CheckObjfile       LD   HL, objheader
                     CALL CheckFileHeader
                     RET  Z
+                    PUSH AF
                     LD   A, ERR_not_relfile
                     LD   HL, objfilename
                     CALL GetVarPointer
                     LD   DE,0
                     CALL ReportError            ; ReportError( objfilename, 0, 26)
-                    LD   A,-1                   ; header is illegal
+                    POP  AF                     ; header is illegal
                     RET
 
 
