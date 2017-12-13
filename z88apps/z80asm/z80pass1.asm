@@ -43,7 +43,6 @@
      XREF ParseNumExpr                                      ; parsexpr.asm
      XREF EvalPfixExpr                                      ; evalexpr.asm
      XREF RemovePfixList                                    ; rmpfixlist.asm
-     XREF Write_fptr                                        ; modlink.asm
      XREF CurrentModule                                     ; module.asm
      XREF fseek                                             ; fileio.asm
 

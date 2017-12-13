@@ -58,7 +58,7 @@
 
      XREF Test_32bit_range, Test_16bit_range                ; exprs.asm
 
-     XREF Open_file, ftell, fseek, Read_fptr, Write_fptr    ; fileio.asm
+     XREF Open_file, ftell, fseek, Read_fptr                ; fileio.asm
      XREF Close_file, Copy_file, Delete_file                ;
 
 ; routines accessible in this module:

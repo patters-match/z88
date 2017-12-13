@@ -147,13 +147,8 @@
                     JP   Bind_bank_s1
 
 .write_longint      PUSH BC
-                    PUSH HL
-                    LD   B,4
-.write_long         LD   A,(HL)
-                    CALL_OZ(Os_Pb)
-                    INC  HL
-                    DJNZ write_long
-                    POP  HL
+                    LD   C,4
+                    CALL write_str                ; write long int in LSB->MSB sequence
                     POP  BC
                     RET
 
@@ -187,7 +182,8 @@
                     PUSH DE
                     PUSH HL
                     LD   BC,4
-                    LD   DE,0
+                    LD   D,B
+                    LD   E,B                      ; DE = 0
                     EX   DE,HL
                     CALL_OZ(Os_Mv)                ; read long int...
                     CALL C, ReportError_NULL
@@ -235,7 +231,8 @@
                     PUSH DE
                     PUSH HL
                     LD   B,0                      ; BC = length of string
-                    LD   DE,0
+                    LD   D,B
+                    LD   E,B                      ; DE = 0
                     CALL_OZ(Os_Mv)                ; write string...
                     CALL C, ReportError_NULL
                     POP  HL
@@ -271,7 +268,8 @@
 .read_str           PUSH BC
                     PUSH DE
                     LD   B,0                      ; BC = length of string
-                    LD   DE,0
+                    LD   D,B
+                    LD   E,B                      ; DE = 0
                     EX   DE,HL                    ; HL = 0...
                     CALL_OZ(Os_Mv)                ; read string into memory...
                     CALL C, ReportError_NULL

@@ -36,13 +36,13 @@
      LIB InsertSymbol
 
      XREF ReportError, ReportError_NULL                     ; errors.asm
-     XREF GetSym                                                      ; prsline.asm
-     XREF CurrentFile                                                 ; srcfile.asm
-     XREF CurrentModule                                          ; module.asm
-     XREF ftell, fseek, Read_fptr, Write_fptr               ; fileio.asm
-     XREF ModuleBaseAddr                                         ; modlink.asm
-     XREF LoadName                                               ; loadname.asm
-     XREF Add32bit                                               ; add32bit.asm
+     XREF GetSym                                            ; prsline.asm
+     XREF CurrentFile                                       ; srcfile.asm
+     XREF CurrentModule                                     ; module.asm
+     XREF ftell, fseek, Read_fptr                           ; fileio.asm
+     XREF ModuleBaseAddr                                    ; modlink.asm
+     XREF LoadName                                          ; loadname.asm
+     XREF Add32bit                                          ; add32bit.asm
 
      XREF AllocIdentifier, InsertSym, FindSymbol            ; symbols.asm
      XREF CmpIDstr
