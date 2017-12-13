@@ -60,7 +60,6 @@
 
      XREF Open_file, ftell, fseek, Read_fptr, Write_fptr    ; fileio.asm
      XREF Close_file, Copy_file, Delete_file                ;
-     XREF Write_string                                      ;
 
 ; routines accessible in this module:
      XDEF LinkModules, LinkModule

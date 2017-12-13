@@ -76,7 +76,8 @@
                     PUSH HL
 
                     LD   (ASSEMBLE_ERROR),A            ; save current error code
-                    SET  ASMERROR,(IY + RtmFlags3)     ; indicate error
+                    LD   HL,RtmFlags3
+                    SET  ASMERROR,(HL)                 ; indicate error (use HL, since IY might used by stdlib)
 
                     LD   HL,(errfilehandle)
                     PUSH HL
@@ -147,7 +148,6 @@
 .Display_error      BIT  7,A
                     JR   NZ, z80asm_error
                                                        ; write system error message
-                    CP   A                             ; Fc = 0
                     CALL_OZ(Gn_Esp)                    ; get pointer to system error message
                     LD   A,B
                     CALL Bind_bank_s1                  ; bind error message into segment 1

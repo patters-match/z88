@@ -202,23 +202,31 @@
 ;    IN:  IX   = handle of file
 ;         BHL  = pointer to string (B=0 means local pointer)
 ;         C    = length of string
-;         DE   = offset (if extended pointer)
+;         DE   = offset (if extended pointer, otherwise not used)
+;
+;    OUT:
+;         Fc   = 0, successfully written string to file
+;         Fc   = 1, I/O error
 ;
 ;    Registers changed after return
 ;         ..BCDEHL/IXIY  same
 ;         AF....../....  different
 ;
-.Write_string       LD   A,B
-                    OR   A
-                    JR   Z, write_str
+.Write_string       INC  B
+                    DEC  B
+                    JR   Z, write_str             ; local address
                     CALL Bind_bank_s1
-                    PUSH AF
+                    LD   B,A                      ; B = old bank binding
                     PUSH HL
                     ADD  HL,DE                    ; add offset to pointer
                     CALL write_str
                     POP  HL
+                    PUSH AF                       ; preserve errors status
+                    LD   A,B
+                    CALL Bind_bank_s1
+                    LD   B,A                      ; restored original B from pointer
                     POP  AF
-                    JP   Bind_bank_s1
+                    RET
 
 .write_str          PUSH BC
                     PUSH DE

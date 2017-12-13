@@ -210,11 +210,19 @@
 
 
 ; **************************************************************************************************
+; IN:
+;     BHL = pointer to node in Avltree
+;     IY  = pointer to this routine (used by ascorder stdlib routine
 ;
 .Writemapsym        LD   A, symtree_type
                     CALL Read_byte
                     BIT  SYMADDR,A
                     RET  Z                             ; if ( !(node->type & SYMADDR) ) return
+
+                    LD   DE,RtmFlags3                  ; HL & IY are used, so DE is our best friend...
+                    LD   A,(DE)
+                    BIT  ASMERROR,A
+                    RET  NZ                            ; abort mission, error condition is enabled..
 
                     LD   IX,(mapfilehandle)
                     PUSH BC
@@ -232,6 +240,7 @@
                     CALL Write_string                  ; fwrite( "\t= ", symbolfile)
                     POP  HL
                     POP  BC                            ; symnode
+                    RET  C                             ; Write_string reports I/O error or No Room
 
                     PUSH BC
                     PUSH HL
@@ -262,6 +271,7 @@
                     CALL Write_string                  ; fwrite( ", ", mapfile)
                     POP  HL
                     POP  BC                            ; symnode
+                    RET  C                             ; Write_string reports I/O error or No Room
 
                     PUSH BC
                     PUSH HL
@@ -273,11 +283,14 @@
                     JR   write_symscope           ; else
 .symscope_global    LD   A,'G'                         ; fputc('G', mapfile)
 .write_symscope     CALL_OZ(Os_Pb)
+                    CALL C, ReportError_NULL
                     LD   BC,2
                     LD   HL, separator3
                     CALL Write_string                  ; fwrite( ": ", mapfile)
                     POP  HL
                     POP  BC                            ; symnode
+                    RET  C                             ; Write_string reports I/O error or No Room
+
                     LD   A, symtree_modowner
                     CALL Read_pointer
                     LD   A, module_mname
@@ -288,9 +301,10 @@
                     LD   C,A
                     LD   DE, 0
                     CALL Write_string                  ; fwrite( "%s", symnode->owner->mname)
+                    RET  C
                     LD   A, 13
                     CALL_OZ(Os_Pb)                     ; {terminate line}
-                    POP  IX
+                    CALL C, ReportError_NULL
                     RET
 
 .separator          DEFM 9, "= "
