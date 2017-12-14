@@ -110,7 +110,7 @@
                     LD   (codeptr),HL                  ; codeptr = 0
                     LD   (asm_pc),HL                   ; asm_pc = 0
 
-                    CALL CreateasmPC_ident            ; create "ASMPC" in globalroot
+                    CALL CreateasmPC_ident             ; create "ASMPC" in globalroot
                     CALL CopyStaticLocal               ; copy static symbols to current local variables
 
                     CALL CurrentModule
@@ -162,7 +162,6 @@
                     POP  IY
 
                     CALL ReleaseExpressions            ; ReleaseExpressions()
-
                     CALL CurrentModule
                     LD   A, module_next
                     CALL Read_pointer
@@ -172,8 +171,8 @@
                     CALL GetPointer
                     XOR  A
                     CALL Set_pointer                   ; CURRENTMODULE = CURRENTMODULE->next
-                    XOR  A
-                    CP   C
+                    INC  C
+                    DEC  C
                     JP   NZ, asmfiles_loop        ; while ( CURRENTMODULE != NULL )
                     RET
 
@@ -218,8 +217,8 @@
                     CALL CurrentModule
                     LD   A, module_mname
                     CALL Read_pointer
-                    XOR  A
-                    CP   B
+                    INC  B
+                    DEC  B
                     JR   NZ, continue_asm              ; if ( CURRENTMODULE->mname == NULL )
                          CALL CurrentFileName
                          LD   DE,0

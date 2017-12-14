@@ -68,11 +68,12 @@
                     LD   IX,(cdefilehandle)
                     LD   HL,cdebuffer                       ; pointer to start of buffer
                     LD   A,(cdebufsize)
-                    CP   0
+                    OR   A
                     JR   Z, end_flushbuffer                 ; nothing to flush...
                     LD   B,0
                     LD   C,A                                ; length of buffer
-                    LD   DE,0                               ; memory to file...
+                    LD   D,B                                ; DE=0, memory to file...
+                    LD   E,B
                     CALL_OZ(Os_Mv)
                     LD   A,0                                ; new length of buffer
                     LD   HL,cdebuffer
@@ -128,30 +129,11 @@
 ;    AFBCDEHL/IXIY  same
 ;    ......../....  different
 ;
-.WriteWord          PUSH HL
-                    PUSH DE
-                    PUSH AF
-                    LD   HL,(cdebufferptr)
-                    LD   DE,cdebufsize
-                    LD   A,(DE)
-                    CP   255                                ; buffer full?
-                    CALL Z,FlushBuffer                      ; Yes - write to file...
-                    LD   (HL),C                             ; write low byte of word to buffer
-                    INC  HL
-                    INC  A
-                    LD   (DE),A                             ; preserve length for next write
-                    CP   255                                ; buffer full?
-                    CALL Z,FlushBuffer                      ; Yes - write to file...
-                    LD   (HL),B                             ; write high byte of word to buffer
-                    INC  HL
-                    INC  A
-                    LD   (cdebufferptr),HL                  ; preserve pointer for next write
-                    LD   (DE),A                             ; preserve length for next write
-                    LD   HL, codeptr
-                    CALL Add16bit_2                         ; codeptr += 2
-                    POP  AF
-                    POP  DE
-                    POP  HL
+.WriteWord          PUSH BC
+                    CALL WriteByte
+                    LD   C,B
+                    CALL WriteByte
+                    POP  BC
                     RET
 
 
@@ -168,14 +150,10 @@
 ;    AFBCDEHL/IXIY  same
 ;    ......../....  differents
 ;
-.WriteLong          PUSH HL
-                    PUSH BC
-                    PUSH AF
-                    CALL WriteWord ; write low word to buffer
+.WriteLong          PUSH BC
+                    CALL WriteWord              ; write BC to buffer
                     LD   B,D
                     LD   C,E
-                    CALL WriteWord ; write high word to buffer
-                    POP  AF
+                    CALL WriteWord              ; write DE to buffer
                     POP  BC
-                    POP  HL
                     RET
