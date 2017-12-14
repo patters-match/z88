@@ -58,7 +58,7 @@
      XREF GetConstant                                       ; getconst.asm
      XREF Getsym, CheckRegister8, IndirectRegisters         ; prsline.asm
      XREF SearchID                                          ; prsident.asm
-     XREF WriteByte, WriteWord, Flushbuffer                 ; bytesio.asm
+     XREF WriteByte, Flushbuffer                            ; bytesio.asm
      XREF ParseNumExpr                                      ; parsexpr.asm
      XREF EvalPfixExpr                                      ; evalexpr.asm
      XREF RemovePfixlist                                    ; rmpfixlist.asm

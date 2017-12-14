@@ -43,8 +43,6 @@
      XREF Getsym                                                      ; getsym.asm
      XREF GetConstant                                                 ; getconst.asm
      XREF RemovePfixList                                              ; rmpfixlist.asm
-
-     XREF WriteLong, WriteWord, WriteByte                             ; bytesio.asm
      XREF ReportError_STD                                             ; errors.asm
 
 ; global procedures:
