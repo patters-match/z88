@@ -195,7 +195,9 @@
                          JP   NZ, makelib_loop    ; while ( CURRENTMODULE == NULL )
 
                     LD   HL, libfilehandle
-                    JP   Close_file
+                    CALL Close_file
+                    RES  createlib, (IY + RTMflags)
+                    RET                           ; library created, it's single functionality (option disabled)
 
 .err_makelibrary    LD   HL, libfilehandle
                     CALL Close_file               ; fclose(libfile)
