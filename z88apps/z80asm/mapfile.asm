@@ -66,7 +66,7 @@
 ;         (IX+3,5) = **maproot
 ;
 .WriteMapFile       LD   A, (TOTALERRORS)
-                    CP   0
+                    OR   A
                     RET  NZ                            ; if ( TOTALERRORS != 0 ) RETurn
 
                     LD   HL,0
@@ -219,7 +219,7 @@
                     BIT  SYMADDR,A
                     RET  Z                             ; if ( !(node->type & SYMADDR) ) return
 
-                    LD   DE,RtmFlags3                  ; HL & IY are used, so DE is our best friend...
+                    LD   DE,RuntimeFlags3              ; HL & IY are used, so DE is our best friend...
                     LD   A,(DE)
                     BIT  ASMERROR,A
                     RET  NZ                            ; abort mission, error condition is enabled..

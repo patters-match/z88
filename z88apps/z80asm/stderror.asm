@@ -76,7 +76,7 @@
                     PUSH HL
 
                     LD   (ASSEMBLE_ERROR),A            ; save current error code
-                    LD   HL,RtmFlags3
+                    LD   HL,RuntimeFlags3
                     SET  ASMERROR,(HL)                 ; indicate error (use HL, since IY might used by stdlib)
 
                     LD   HL,(errfilehandle)

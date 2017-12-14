@@ -56,7 +56,7 @@
 ;    If no errors, make library file from object module files, previously compiled
 ;
 .MakeLibrary        LD   A,(TOTALERRORS)
-                    CP   0
+                    OR   A
                     RET  NZ
                          LD   HL, creatlib_msg         ; "Creating library..."
                          CALL_OZ(Gn_Sop)
