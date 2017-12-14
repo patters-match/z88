@@ -169,12 +169,11 @@
 ; *****************************************************************************************
 ;
 .DisplayErrors      LD   A,(TOTALERRORS)
-                    CP   0
-                    JP   Z, Display_AsmTime       ; display time used to assemble file (if no errors)
+                    OR   A
+                    JP   Z, Display_AsmTime            ; display time used to assemble file (if no errors)
                     LD   A, ERR_totalerrors
                     CALL ReportError_NULL
-                    CALL Wait_key
-                    RET
+                    JP   Wait_key
 
 
 ; ****************************************************************************************

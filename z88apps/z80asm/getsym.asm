@@ -75,8 +75,7 @@
                     JR   Z, newline_symbol   ; CR or CRLF as newline
                     CP   LF
                     JR   Z, newline_symbol   ; LF as newline
-
-                    CP   0
+                    OR   A
                     JR   Z, nonspace_found   ; EOL reached
                     CALL IsSpace
                     JR   NZ, nonspace_found

@@ -64,7 +64,7 @@
 .parse_loop         LD   HL,(lineptr)
 .skip_spaces        LD   A,(HL)
                     INC  HL
-                    CP   0
+                    OR   A
                     JP   Z, check_modules
                     CP   ' '
                     JR   Z, skip_spaces
@@ -97,7 +97,7 @@
 .flag_loop          LD   A,(HL)
                     INC  HL
                     LD   (lineptr),HL
-                    CP   0
+                    OR   A
                     JP   Z, check_modules
                     CP   ' '
                     JR   Z, skip_spaces

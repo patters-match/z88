@@ -51,11 +51,11 @@
 ; **************************************************************************************************
 ;
 .WriteSymbols       LD   A, (TOTALERRORS)
-                    CP   0
+                    OR   A
                     RET  NZ                            ; if ( TOTALERRORS == 0 )
                          LD   IX,(symfilehandle)
                          LD   HL, sym1_msg
-                         LD   B,0
+                         LD   B,A
                          LD   C,(HL)
                          INC  HL
                          CALL Write_string                  ; "Local Module symbols:"

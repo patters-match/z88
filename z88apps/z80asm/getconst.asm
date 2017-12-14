@@ -65,7 +65,7 @@
                     INC  HL
                     INC  HL                       ; point at first binary digit
                     DEC  A                        ; binary digits minus binary id '@'
-                    CP   0
+                    OR   A
                     JR   Z, illegal_constant
                     CP   9                        ; max 8bit binary number
                     JR   NC, illegal_constant
@@ -91,7 +91,7 @@
 .eval_hexconstant   LD   A,(HL)                   ; get length of identifier
                     INC  HL
                     DEC  A
-                    CP   0
+                    OR   A
                     JR   Z, illegal_constant
                     CP   9
                     JR   NC, illegal_constant     ; max 8 hex digits (signed long)

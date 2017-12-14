@@ -278,7 +278,7 @@
                     CP   sym_name                           ; if ( Getsym() == name )
                     JP   NZ, STDerr_syntax
                          CALL CheckRegister16                    ; qq = CheckRegister16()
-                         CP   0                                  ; switch(qq)
+                         OR   A                                  ; switch(qq)
                          JR   Z, case_qq                              ; case 0:
                          CP   1
                          JR   Z, case_qq                              ; case 1:
@@ -592,7 +592,7 @@
                               EXX
                               LD   A,L                                ; switch(const)
                               EXX
-                              CP   0                                       ; case 0:
+                              OR   A                                       ; case 0:
                               JR   NZ, im_case_1
                                    LD   BC,$46ED                                ; *codeptr++ = 237; *codeptr++ = 70
                                    CALL WriteWord
