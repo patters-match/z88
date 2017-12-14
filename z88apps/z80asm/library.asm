@@ -70,14 +70,18 @@
                     POP  BC
                     CALL C, ReportError_NULL
                     RET  C
+                    CALL DefineLibFileName             ; register explicit filename of library for error messaging.
+                    JR   C,close_libfile
                     PUSH BC
                     PUSH HL
                     CALL CheckLibfile                  ; check file to be a true library (with header)
+.close_libfile
                     PUSH AF
                     CALL_OZ(Gn_Cl)                     ; close library file
                     POP  AF
                     POP  HL
                     POP  BC                            ; {pointer to library filename}
+                    RET  C                             ; abort if specified file was not a validated library
                     JR   NZ, not_libfile               ; if ( checkfileheader() == 0 )
                          LD   C,B                           ; CHL points at library filename
                          PUSH HL

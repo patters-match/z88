@@ -57,6 +57,7 @@
                     CALL_OZ(Gn_Esa)                    ; write '.lib' extension
                     POP  HL                            ; point at length identifier of filename
                     JP   C, ReportError_NULL
+                    DEC  C
                     LD   (HL),C                        ; store length of filename
                     CALL AllocIdentifier
                     JP   C, ReportError_NULL
