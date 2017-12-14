@@ -113,7 +113,6 @@
                     LD   HL, libfilename
                     CALL AllocVarPointer
                     JP   C, ReportError_NULL
-                    SET  createlib,(IY + RTMflags)     ; indicate library to be created...
                     XOR  A                             ; BHL = pointer to pointer variable
                     CALL Set_pointer                   ; libfilename = CDE
                     LD   B,C

@@ -158,6 +158,7 @@
 .create_library     CALL GetFileName                   ; get library filename from command line
                     LD   (lineptr),HL
                     CALL DefineLibFileName
+                    SET  createlib,(IY + RTMflags)     ; indicate library to be created (compiled modules generate lib file) ...
                     JR   C, cmdline_error              ; release memory and abort command line
                     JP   parse_loop
 
