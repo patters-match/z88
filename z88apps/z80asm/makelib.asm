@@ -106,7 +106,7 @@
 .copy_objfile            LD   HL,0
                          LD   (longint),HL
                          LD   (longint+2),HL
-                         LD   B,0
+                         LD   B,H
                          LD   HL, longint
                          CALL fseek                    ; point at start of object file
 
@@ -190,8 +190,8 @@
                          XOR  A
                          CALL Set_pointer              ; CURRENTMODULE = CURRENTMODULE->nextmodule
 
-                         XOR  A
-                         CP   C
+                         INC  C
+                         DEC  C
                          JP   NZ, makelib_loop    ; while ( CURRENTMODULE == NULL )
 
                     LD   HL, libfilehandle

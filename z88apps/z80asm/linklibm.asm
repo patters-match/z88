@@ -186,8 +186,8 @@
 
 .nextlib_loop            LD   HL, CURLIBRARY                     ; while ( CURRENTLIB != NULL )
                          CALL GetVarPointer
-                         XOR  A
-                         CP   B
+                         INC  B
+                         DEC  B
                          JR   Z, get_firstlib
                               CALL SearchLibFile
                               JR   NC, exit_searchlibs                ; if ( SearchLibFile( CURRENTLIB, modname ) ) return
