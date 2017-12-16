@@ -63,11 +63,9 @@ define __CARD_DEF__
 ;   RAM card header
 
         DEFC CR_TAG          =  $0000           ; Ram tag offset
-                DEFC CT_RAM  =  $A55A           ; RAM memory card (at $0000)
-        
         DEFC CR_SIZ          =  $0002           ; Size in banks offset
         DEFC CR_MAT          =  $0100           ; MAT address
-        
+
 ENDIF
 
 lston
