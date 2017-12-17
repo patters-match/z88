@@ -40,7 +40,7 @@
      XREF GetSym                                            ; prsline.asm
      XREF CurrentFile                                       ; srcfile.asm
      XREF CurrentModule                                     ; module.asm
-     XREF GetPointer, FreeVarPointer         ; varptr.asm
+     XREF GetPointer, FreeVarPointer                        ; varptr.asm
      XREF CopyId                                            ; symbols.asm
      XREF CreateFileName                                    ; crtflnm.asm
      XREF Display_filename                                  ; dispflnm.asm
@@ -58,7 +58,7 @@
 
      XREF Test_32bit_range, Test_16bit_range                ; exprs.asm
 
-     XREF Open_file, ftell, fseek, Read_fptr                ; fileio.asm
+     XREF Open_file, ftell, fseek, fseek_fwm, Read_fptr     ; fileio.asm
      XREF Close_file, Copy_file, Delete_file                ;
 
 ; routines accessible in this module:
@@ -353,7 +353,7 @@
                     LD   BC,10
                     LD   DE,0
                     CALL Add32bit
-                    CALL fseek                                   ; fseek(objfile, fptr_base+10, SEEK_SET)
+                    CALL fseek_fwm                               ; fseek(objfile, fptr_base+10, SEEK_SET)
                     LD   HL, fptr_modname
                     CALL Read_fptr                               ; fptr_modname = ReadLong(objfile)
                     LD   HL, fptr_exprdecl
@@ -377,8 +377,7 @@
                          CALL Add32bit                                ; fptr_modcode += fptr_base
                          PUSH IX
                          LD   IX,(objfilehandle)
-                         LD   B,0                                     ; {local pointer}
-                         CALL fseek                                   ; fseek( objfile, fptr_modcode+fptr_base, SEEK_SET)
+                         CALL fseek_fwm                               ; fseek( objfile, fptr_modcode+fptr_base, SEEK_SET)
                          CALL_OZ(OS_Gb)
                          LD   C,A                                     ; lowbyte = fgetc(objfile)
                          CALL_OZ(OS_Gb)
@@ -458,8 +457,7 @@
                          CALL Add32bit
                          PUSH IX                                      ; {preserve pointer to local variables}
                          LD   IX,(objfilehandle)
-                         LD   B,0                                     ; {local pointer}
-                         CALL fseek                                   ; fseek( fptr_base + fptr_namedecl, objfile, SEEK_SET)
+                         CALL fseek_fwm                               ; fseek( fptr_base + fptr_namedecl, objfile, SEEK_SET)
                          POP  IX
 
                          LD   A,(fptr_libnames+3)

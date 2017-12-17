@@ -37,7 +37,7 @@
      XREF CheckObjFile                                 ; Chckfhdr.asm
      XREF Add32bit                                     ; add32bit.asm
 
-     XREF Open_file, fseek, fseek0, ftell, fsize       ; fileio.asm
+     XREF Open_file, fseek0, ftell, fsize              ; fileio.asm
      XREF Close_file, Write_fptr, Copy_file, Delete_file
 
      XREF AllocVarPointer, GetPointer   ; varptr.asm

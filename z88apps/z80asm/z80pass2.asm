@@ -47,7 +47,7 @@
      XREF Test_7bit_range, Test_8bit_range                  ; tstrange.asm
      XREF Test_16bit_range, Test_32bit_Range                ;
 
-     XREF Write_fptr, ftell, fseek, fseek0, Write_string    ; fileio.asm
+     XREF Write_fptr, ftell, fseek, fseek0, fseek64k, Write_string    ; fileio.asm
      XREF Copy_file                                         ; copyfile.asm
 
 
@@ -402,12 +402,8 @@
                               CALL Set_word                                ; CURRENTMODULE->origin = EXPLICIT_ORIGIN
 
 .write_origin       LD   IX,(objfilehandle)
-                    LD   BC,8
-                    LD   DE,0
-                    LD   (longint),BC
-                    LD   (longint+2),DE
-                    LD   HL, longint
-                    CALL fseek                                   ; fseek(objfile, 8, SEEK_SET)
+                    LD   HL,8
+                    CALL fseek64k                                ; fseek(objfile, 8, SEEK_SET)
                     CALL CurrentModule
                     LD   A, module_origin
                     CALL Read_word                               ; {CURRENTMODULE->origin}

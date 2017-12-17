@@ -32,7 +32,7 @@
      XREF relocator, SIZEOF_relocator
      XREF ReportError_NULL                                            ; stderror.asm
 
-     XREF Open_file, Close_file, Delete_file, fseek, fseek0           ; fileio.asm
+     XREF Open_file, Close_file, Delete_file, fseek0                  ; fileio.asm
      XREF Write_string, bufferfile, Copy_file
 
      XDEF InitRelocTable, RelocationPrefix

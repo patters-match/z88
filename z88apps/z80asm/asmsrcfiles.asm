@@ -45,7 +45,7 @@
      XREF FindSymbol, CopyStaticLocal                       ; symbols.asm
      XREF CurrentModule, ReleaseExpressions                 ; module.asm
      XREF CreateFilename                                    ; crtflnm.asm
-     XREF Open_file, Close_file, fseek                      ; fileIO.asm
+     XREF Open_file, Close_file, fseek_fwm, fseek64k        ; fileIO.asm
      XREF Read_fptr, Read_string, Delete_file               ; fileIO.asm
      XREF FreeVarPointer                                    ; varptr.asm
      XREF Init_CDEbuffer, FlushBuffer                       ; bytesIO.asm
@@ -343,19 +343,14 @@
                               LD   A,-1                          ; return -1;
                               RET
 
-.read_objfile            LD   HL,0
-                         LD   (longint+2),HL
-                         LD   L,26
-                         LD   (longint),HL
-                         LD   B,H                           ; {local pointer}
-                         LD   HL, longint
-                         CALL fseek                         ; fseek(objfile, 26, SEEK_SET)
+.read_objfile            LD   HL,26
+                         CALL fseek64k                      ; fseek(objfile, 26, SEEK_SET)
                          LD   HL, fptr_modcode
                          CALL Read_fptr                     ; fptr_modcode = ReadLong(objfile)
                          LD   A,(fptr_modcode+3)
                          CP   -1
                          JR   Z, end_moduleinfo             ; if ( fptr_modcode != -1 )
-                              CALL fseek                         ; fseek(objfile, fptr_modcode, SEEK_SET)
+                              CALL fseek_fwm                     ; fseek(objfile, fptr_modcode, SEEK_SET)
                               CALL_OZ(Os_Gb)
                               LD   E,A
                               CALL_OZ(Os_Gb)
@@ -378,16 +373,11 @@
                               ADD  HL,DE
                               LD   (codesize),HL                 ; CODESIZE += size
 
-.get_module_name         LD   HL,0
-                         LD   (longint+2),HL
-                         LD   L,10
-                         LD   (longint),HL
-                         LD   B,H                           ; {local pointer}
-                         LD   HL, longint
-                         CALL fseek                         ; fseek(objfile, 10, SEEK_SET)
+.get_module_name         LD   HL,10
+                         CALL fseek64k                      ; fseek(objfile, 10, SEEK_SET)
                          LD   HL, fptr_modname
                          CALL Read_fptr                     ; fptr_modname = ReadLong(objfile)
-                         CALL fseek                         ; fseek(objfile, fptr_modname, SEEK_SET)
+                         CALL fseek_fwm                     ; fseek(objfile, fptr_modname, SEEK_SET)
                          CALL LoadName                      ; Loadname(objfile)
                          CALL AllocIdentifier               ; if ( (m = AllocIdentifier(size+1)) == NULL )
                          JR   NC, define_modname
@@ -459,7 +449,7 @@
                     LD   A, OP_OUT
                     CALL Open_file
                     JR   C, objcreate_err
-                    LD   BC, 30
+                    LD   BC,30
                     LD   DE,0
                     LD   HL, Z80header
                     CALL_OZ(Os_Mv)                     ; write header to objfile
@@ -469,13 +459,8 @@
                     LD   A, OP_UP
                     CALL Open_file
                     LD   (objfilehandle),IX            ; store file handle
-                    LD   DE,30
-                    LD   (longint),DE
-                    LD   E,0
-                    LD   (longint+2),DE
-                    LD   B,0
-                    LD   HL, longint
-                    JP   fseek                         ; set file pointer at end of objfile
+                    LD   HL,30
+                    JP   fseek64k                      ; set file pointer at end of objfile
 .objcreate_err
                     POP  HL
                     POP  BC

@@ -31,7 +31,7 @@
 
      LIB memcompare, GetVarPointer
 
-     XREF fseek, fseek0, Read_string            ; fileio.asm
+     XREF fseek0, Read_string                   ; fileio.asm
      XREF ReportError                           ; asmerror.asm
 
      XDEF CheckFileHeader, CheckObjfile, CheckLibfile
