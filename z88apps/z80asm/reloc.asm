@@ -32,8 +32,8 @@
      XREF relocator, SIZEOF_relocator
      XREF ReportError_NULL                                            ; stderror.asm
 
-     XREF Open_file, Close_file, Delete_file, fseek, Write_string     ; fileio.asm
-     XREF bufferfile, Copy_file                                       ;
+     XREF Open_file, Close_file, Delete_file, fseek, fseek0           ; fileio.asm
+     XREF Write_string, bufferfile, Copy_file
 
      XDEF InitRelocTable, RelocationPrefix
      XDEF DeleteRelocTblFile
@@ -95,9 +95,7 @@
                     OR   L
                     JP   Z, exit_relocprefix           ; if (totaladdr != 0)
                          LD   IX,(relocfilehandle)
-                         LD   B,0
-                         LD   HL, reloctablehdr             ; point at four zeroes
-                         CALL fseek                         ; move file pointer to start of table
+                         CALL fseek0                        ; move file pointer to start of table
                          LD   HL,(totaladdr)
                          LD   A,L
                          CALL_OZ(OS_Pb)                     ; fputc(reloctable, totaladdr % 256)
@@ -111,9 +109,7 @@
                          CALL_OZ(OS_Pb)                     ; fputc(reloctable, size_reloctable / 256)
                          ADD  HL,BC
                          LD   (size_reloctable),HL          ; size_reloctable += 4
-                         LD   B,0
-                         LD   HL, reloctablehdr             ; point at four zeroes
-                         CALL fseek                         ; move file pointer to start of table
+                         CALL fseek0                        ; move file pointer to start of table
 
                          LD   A, OP_OUT
                          LD   HL, bufferfile
@@ -133,9 +129,7 @@
                               CALL Copy_file                     ; fwrite(buff, reloctable, size_reloctable)
 
                               LD   IX,(cdefilehandle)
-                              LD   B,0
-                              LD   HL, reloctablehdr             ; point at four zeroes
-                              CALL fseek                         ; move file pointer to start of linked machine code
+                              CALL fseek0                        ; move file pointer to start of linked machine code
                               LD   HL, cdefilehandle
                               LD   DE, tmpfilehandle
                               XOR  A
@@ -144,9 +138,7 @@
                               LD   HL, tmpfilehandle
                               CALL Close_file                    ; fclose(buff)
                               LD   IX,(cdefilehandle)
-                              LD   B,0
-                              LD   HL, reloctablehdr             ; point at four zeroes
-                              CALL fseek                         ; move file pointer to start of linked machine code
+                              CALL fseek0                        ; move file pointer to start of linked machine code
 
                               LD   A, OP_IN
                               LD   B,0

@@ -39,7 +39,7 @@
 
 ; global procedures in this module:
      XDEF Read_fptr, Write_fptr, Read_string, Write_string
-     XDEF ftell, fsize, fseek
+     XDEF ftell, fsize, fseek, fseek0
      XDEF Open_file, Close_file
      XDEF Delete_file
      XDEF Delete_bufferfiles
@@ -88,7 +88,7 @@
 ; Set file pointer
 ;
 ;    IN:    IX = file handle
-;          BHL = pointer to vektor (B=0 is local pointer)
+;          BHL = pointer to 32bit file position (B=0 is local pointer)
 ;           DE = offset, if extended pointer
 ;
 ;   OUT:   None.
@@ -119,6 +119,30 @@
                     CALL_OZ(Os_Fwm)
                     RET
 
+
+; ****************************************************************************************
+;
+; Reset file pointer to beginning of file
+;
+;    IN:    IX = file handle
+;   OUT:    Fc = 0 (success)
+;           Fc = 1, A = RC_xxx (I/O error related)
+;
+; Registers changed after return:
+;    ..BCDEHL/IXIY  same
+;    AF....../....  different
+;
+.fseek0             PUSH BC
+                    PUSH HL                       ; preserve original BC,HL
+                    LD   HL,0
+                    LD   B,H                      ; B=0, indicate local pointer for fseek()
+                    PUSH HL
+                    PUSH HL
+                    ADD  HL,SP                    ; HL points to $00000000 on system stack
+                    CALL fseek                    ; reset file pointer to beginning of file
+                    POP  HL
+                    POP  BC
+                    RET
 
 
 ; **************************************************************************************************

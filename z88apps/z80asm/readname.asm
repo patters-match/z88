@@ -39,7 +39,7 @@
      XREF GetSym                                            ; prsline.asm
      XREF CurrentFile                                       ; srcfile.asm
      XREF CurrentModule                                     ; module.asm
-     XREF ftell, fseek, Read_fptr                           ; fileio.asm
+     XREF ftell, Read_fptr                                  ; fileio.asm
      XREF ModuleBaseAddr                                    ; modlink.asm
      XREF LoadName                                          ; loadname.asm
      XREF Add32bit                                          ; add32bit.asm

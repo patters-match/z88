@@ -37,8 +37,8 @@
      XREF CheckObjFile                                 ; Chckfhdr.asm
      XREF Add32bit                                     ; add32bit.asm
 
-     XREF Open_file, fseek, ftell, fsize, Close_file   ; fileio.asm
-     XREF Write_fptr, Copy_file, Delete_file
+     XREF Open_file, fseek, fseek0, ftell, fsize       ; fileio.asm
+     XREF Close_file, Write_fptr, Copy_file, Delete_file
 
      XREF AllocVarPointer, GetPointer   ; varptr.asm
      XREF FreeVarPointer
@@ -103,12 +103,7 @@
                               CALL Close_file               ; fclose(objfile)
                               JP   err_makelibrary
 
-.copy_objfile            LD   HL,0
-                         LD   (longint),HL
-                         LD   (longint+2),HL
-                         LD   B,H
-                         LD   HL, longint
-                         CALL fseek                    ; point at start of object file
+.copy_objfile            CALL fseek0                   ; point at start of object file
 
                          LD   IX,(libfilehandle)
                          CALL ftell

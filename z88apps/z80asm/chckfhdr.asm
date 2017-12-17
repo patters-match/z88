@@ -31,7 +31,7 @@
 
      LIB memcompare, GetVarPointer
 
-     XREF fseek, Read_string                    ; fileio.asm
+     XREF fseek, fseek0, Read_string            ; fileio.asm
      XREF ReportError                           ; asmerror.asm
 
      XDEF CheckFileHeader, CheckObjfile, CheckLibfile
@@ -98,7 +98,7 @@
 .CheckLibfile       LD   HL, libz80header
                     CALL CheckFileHeader
                     RET  Z
-                    CALL startoffile            ; rewind to start of current file, then try again
+                    CALL fseek0                 ; rewind to start of current file, then try again
                     LD   HL, libmpmheader
                     JP   CheckFileHeader
 
@@ -126,17 +126,6 @@
                     POP  AF                     ; header is illegal
                     RET
 
-
-; *********************************************************************************
-; Rewind file pointer of current file to first byte
-;
-.startoffile
-                    LD   HL,0
-                    LD   (longint),HL
-                    LD   (longint+2),HL
-                    LD   B,H                    ; {local pointer}
-                    LD   HL, longint
-                    JP   fseek                  ; fseek(IX, 0, SEEK_SET)
 
 .objheader          DEFM "Z80RMF01"
 .libz80header       DEFM "Z80LMF01"

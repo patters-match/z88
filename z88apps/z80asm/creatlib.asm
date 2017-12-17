@@ -31,7 +31,7 @@
      LIB AllocIdentifier
 
      XREF ReportError_NULL                             ; asmerror.asm
-     XREF Open_file, fseek                             ; fileio.asm
+     XREF Open_file                                    ; fileio.asm
 
      XDEF CreateLibFileName
 

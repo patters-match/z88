@@ -47,7 +47,7 @@
      XREF Test_7bit_range, Test_8bit_range                  ; tstrange.asm
      XREF Test_16bit_range, Test_32bit_Range                ;
 
-     XREF Write_fptr, ftell, fseek, Write_string            ; fileio.asm
+     XREF Write_fptr, ftell, fseek, fseek0, Write_string    ; fileio.asm
      XREF Copy_file                                         ; copyfile.asm
 
 
@@ -377,13 +377,8 @@
                          LD   A,B
                          CALL_OZ(Os_Pb)                               ; fputc(codeptr/256, objfile)
 
-                         LD   DE,0
-                         LD   (longint),DE
-                         LD   (longint+2),DE
-                         LD   B,0                                     ; {local pointer}
-                         LD   HL, longint
                          LD   IX,(cdefilehandle)
-                         CALL fseek                                   ; fseek(cdefile, 0, SEEK_SET)
+                         CALL fseek0                                  ; fseek(cdefile, 0, SEEK_SET)
 
                          LD   BC,(codeptr)
                          XOR  A                                       ; ABC = SIZEOF(cdefile)
