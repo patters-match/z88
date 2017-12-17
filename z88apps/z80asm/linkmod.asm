@@ -58,7 +58,7 @@
 
      XREF Test_32bit_range, Test_16bit_range                ; exprs.asm
 
-     XREF Open_file, ftell, fseekptr, fseek_fwm, Read_fptr  ; fileio.asm
+     XREF Open_file, ftell, fseekptr, fseekfwm, Read_fptr  ; fileio.asm
      XREF Close_file, Copy_file, Delete_file                ;
 
 ; routines accessible in this module:
@@ -353,7 +353,7 @@
                     LD   BC,10
                     LD   DE,0
                     CALL Add32bit
-                    CALL fseek_fwm                               ; fseek(objfile, fptr_base+10, SEEK_SET)
+                    CALL fseekfwm                                ; fseek(objfile, fptr_base+10, SEEK_SET)
                     LD   HL, fptr_modname
                     CALL Read_fptr                               ; fptr_modname = ReadLong(objfile)
                     LD   HL, fptr_exprdecl
@@ -377,7 +377,7 @@
                          CALL Add32bit                                ; fptr_modcode += fptr_base
                          PUSH IX
                          LD   IX,(objfilehandle)
-                         CALL fseek_fwm                               ; fseek( objfile, fptr_modcode+fptr_base, SEEK_SET)
+                         CALL fseekfwm                               ; fseek( objfile, fptr_modcode+fptr_base, SEEK_SET)
                          CALL_OZ(OS_Gb)
                          LD   C,A                                     ; lowbyte = fgetc(objfile)
                          CALL_OZ(OS_Gb)
@@ -457,7 +457,7 @@
                          CALL Add32bit
                          PUSH IX                                      ; {preserve pointer to local variables}
                          LD   IX,(objfilehandle)
-                         CALL fseek_fwm                               ; fseek( fptr_base + fptr_namedecl, objfile, SEEK_SET)
+                         CALL fseekfwm                                ; fseek( fptr_base + fptr_namedecl, objfile, SEEK_SET)
                          POP  IX
 
                          LD   A,(fptr_libnames+3)

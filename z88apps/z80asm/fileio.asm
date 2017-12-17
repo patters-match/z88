@@ -39,7 +39,7 @@
 
 ; global procedures in this module:
      XDEF Read_fptr, Write_fptr, Read_string, Write_string
-     XDEF ftell, fsize, fseekptr, fseek_fwm, fseek0, fseek64k
+     XDEF ftell, fsize, fseekptr, fseekfwm, fseek0, fseek64k
      XDEF Open_file, Close_file
      XDEF Delete_file
      XDEF Delete_bufferfiles
@@ -89,7 +89,7 @@
 ;
 ;    IN:    IX = file handle
 ;          BHL = pointer to 32bit file position
-;           DE = offset, if extended pointer
+;           DE = offset
 ;
 ;   OUT:   None.
 ;
@@ -103,7 +103,7 @@
                     LD   A,B
                     CALL Bind_bank_s1        ; bind in file pointer information
                     LD   B,A                 ; old bank binding in B
-                    CALL fseek_fwm
+                    CALL fseekfwm
                     PUSH AF                  ; preserve error flag from OS_FWM
                     LD   A,B
                     CALL Bind_bank_s1        ; restore prev. bank binding
@@ -123,7 +123,7 @@
 ;    ..BCDEHL/IXIY  same
 ;    AF....../....  different
 ;
-.fseek_fwm          LD   A, FA_PTR
+.fseekfwm           LD   A, FA_PTR
                     CALL_OZ(Os_Fwm)
                     RET
 
@@ -166,7 +166,7 @@
                     PUSH HL                       ; 16bit file on stack is XXXX0000
                     LD   HL,0
                     ADD  HL,SP                    ; HL points to XXXX0000 on system stack
-                    CALL fseek_fwm                ; reset file pointer to XXXX0000
+                    CALL fseekfwm                 ; reset file pointer to XXXX0000
                     POP  HL
                     INC  SP
                     INC  SP                       ; ignore $0000 on stack

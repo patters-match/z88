@@ -45,7 +45,7 @@
      XREF FindSymbol, CopyStaticLocal                       ; symbols.asm
      XREF CurrentModule, ReleaseExpressions                 ; module.asm
      XREF CreateFilename                                    ; crtflnm.asm
-     XREF Open_file, Close_file, fseek_fwm, fseek64k        ; fileIO.asm
+     XREF Open_file, Close_file, fseekfwm, fseek64k         ; fileIO.asm
      XREF Read_fptr, Read_string, Delete_file               ; fileIO.asm
      XREF FreeVarPointer                                    ; varptr.asm
      XREF Init_CDEbuffer, FlushBuffer                       ; bytesIO.asm
@@ -350,7 +350,7 @@
                          LD   A,(fptr_modcode+3)
                          CP   -1
                          JR   Z, end_moduleinfo             ; if ( fptr_modcode != -1 )
-                              CALL fseek_fwm                     ; fseek(objfile, fptr_modcode, SEEK_SET)
+                              CALL fseekfwm                      ; fseek(objfile, fptr_modcode, SEEK_SET)
                               CALL_OZ(Os_Gb)
                               LD   E,A
                               CALL_OZ(Os_Gb)
@@ -377,7 +377,7 @@
                          CALL fseek64k                      ; fseek(objfile, 10, SEEK_SET)
                          LD   HL, fptr_modname
                          CALL Read_fptr                     ; fptr_modname = ReadLong(objfile)
-                         CALL fseek_fwm                     ; fseek(objfile, fptr_modname, SEEK_SET)
+                         CALL fseekfwm                     ; fseek(objfile, fptr_modname, SEEK_SET)
                          CALL LoadName                      ; Loadname(objfile)
                          CALL AllocIdentifier               ; if ( (m = AllocIdentifier(size+1)) == NULL )
                          JR   NC, define_modname
