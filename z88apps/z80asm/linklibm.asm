@@ -52,7 +52,7 @@
 
      XREF Test_32bit_range, Test_16bit_range                ; exprs.asm
 
-     XREF Open_file, fseek, fseek_fwm, Read_fptr            ; fileio.asm
+     XREF Open_file, fseekptr, fseek_fwm, Read_fptr         ; fileio.asm
      XREF Close_file
 
 ; routines accessible in this module:
@@ -313,7 +313,7 @@
 .find_avail_module       PUSH IX                                      ; do
                          LD   IX, (objfilehandle)
                          LD   DE, libfile_nextobjfile
-                         CALL fseek                                        ; fseek(objfile, curlib->nextobjfile, SEEK_SET)
+                         CALL fseekptr                                     ; fseek(objfile, curlib->nextobjfile, SEEK_SET)
                          LD   A, libfile_nextobjfile
                          CALL Read_long
                          EXX

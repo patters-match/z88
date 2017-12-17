@@ -44,7 +44,7 @@
      XREF EvalPfixExpr                                      ; evalexpr.asm
      XREF RemovePfixList                                    ; rmpfixlist.asm
      XREF CurrentModule                                     ; module.asm
-     XREF fseek                                             ; fileio.asm
+     XREF fseekptr                                          ; fileio.asm
 
 ; routines accessible in this module:
      XDEF Z80pass1, IFstatement
@@ -336,7 +336,7 @@
                     LD   IX,(srcfilehandle)       ; get file handle
                     CALL CurrentFile
                     LD   DE, srcfile_filepointer
-                    CALL fseek                    ; fseek(z80asmfile, CURRENTFILE->filepointer, SEEK_SET)
+                    CALL fseekptr                 ; fseek(z80asmfile, CURRENTFILE->filepointer, SEEK_SET)
 
                     LD   BC, SIZEOF_LINEBUFFER-1  ; read max. bytes into buffer, if possible
                     LD   HL,0

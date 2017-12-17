@@ -63,7 +63,7 @@
      XREF EvalPfixExpr                                      ; evalexpr.asm
      XREF RemovePfixlist                                    ; rmpfixlist.asm
      XREF CurrentModule                                     ; module.asm
-     XREF Open_file, Close_file, Copy_file, ftell, fseek    ; fileio.asm
+     XREF Open_file, Close_file, Copy_file, ftell, fseekptr ; fileio.asm
      XREF Z80pass1, FetchLine                               ; z80pass1.asm
      XREF Init_sourcefile                                   ; asmsrcfiles.asm
 
@@ -131,7 +131,7 @@
                          CALL CurrentFile
                          CALL Init_sourcefile
                          LD   DE, srcfile_filepointer
-                         JP   fseek                    ; fseek(z80asmfile, CURRENTFILE->filepointer, SEEK_SET)
+                         JP   fseekptr                 ; fseek(z80asmfile, CURRENTFILE->filepointer, SEEK_SET)
                                                  ; else
 
 .inclfile_opened         LD   (srcfilehandle),IX       ; {DE points at explicit filename}
@@ -180,7 +180,7 @@
                               LD   (srcfilehandle),IX       ; sourcefile_open = 1
                               CALL CurrentFile
                               LD   DE, srcfile_filepointer
-                              CALL fseek                    ; fseek(z80asmfile, CURRENTFILE->filepointer, SEEK_SET)
+                              CALL fseekptr                 ; fseek(z80asmfile, CURRENTFILE->filepointer, SEEK_SET)
 .end_include        LD   A,sym_newline
                     LD   (sym),A
                     RES  EOF,(IY + RTMflags3)

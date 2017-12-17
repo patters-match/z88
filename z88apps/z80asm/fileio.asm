@@ -39,7 +39,7 @@
 
 ; global procedures in this module:
      XDEF Read_fptr, Write_fptr, Read_string, Write_string
-     XDEF ftell, fsize, fseek, fseek_fwm, fseek0, fseek64k
+     XDEF ftell, fsize, fseekptr, fseek_fwm, fseek0, fseek64k
      XDEF Open_file, Close_file
      XDEF Delete_file
      XDEF Delete_bufferfiles
@@ -85,11 +85,11 @@
 
 ; ****************************************************************************************
 ;
-; Set file pointer
+; Set file pointer via ext.address
 ;
 ;    IN:    IX = file handle
-;          BHL = pointer to 32bit file position (B=0 is local pointer)
-;           DE = offset, if extended pointer (otherwise ignored)
+;          BHL = pointer to 32bit file position
+;           DE = offset, if extended pointer
 ;
 ;   OUT:   None.
 ;
@@ -97,23 +97,20 @@
 ;    ..BCDEHL/IXIY  same
 ;    AF....../....  different
 ;
-.fseek              INC  B
-                    DEC  B
-                    JR   Z, fseek_fwm
-                         PUSH BC
-                         PUSH HL
-                         ADD  HL,DE               ; add offset to extended pointer
-                         LD   A,B
-                         CALL Bind_bank_s1        ; bind in file pointer information
-                         LD   B,A                 ; old bank binding in B
-                         CALL fseek_fwm
-                         PUSH AF                  ; preserve error flag from OS_FWM
-                         LD   A,B
-                         CALL Bind_bank_s1        ; restore prev. bank binding
-                         POP  AF
-                         POP  HL
-                         POP  BC
-                         RET
+.fseekptr           PUSH BC
+                    PUSH HL
+                    ADD  HL,DE               ; add offset to extended pointer
+                    LD   A,B
+                    CALL Bind_bank_s1        ; bind in file pointer information
+                    LD   B,A                 ; old bank binding in B
+                    CALL fseek_fwm
+                    PUSH AF                  ; preserve error flag from OS_FWM
+                    LD   A,B
+                    CALL Bind_bank_s1        ; restore prev. bank binding
+                    POP  AF
+                    POP  HL
+                    POP  BC
+                    RET
 
 ; ****************************************************************************************
 ;

@@ -47,7 +47,7 @@
      XREF Test_7bit_range, Test_8bit_range                  ; tstrange.asm
      XREF Test_16bit_range, Test_32bit_Range                ;
 
-     XREF Write_fptr, ftell, fseek, fseek0, fseek64k, Write_string    ; fileio.asm
+     XREF Write_fptr, ftell, fseekptr, fseek0, fseek64k, Write_string    ; fileio.asm
      XREF Copy_file                                         ; copyfile.asm
 
 
@@ -179,7 +179,7 @@
                                              EXX
                                              CALL Get_pass2exprptr                   ; {pass2expr}
                                              LD   DE, expr_codepos
-                                             CALL fseek                              ; patchptr
+                                             CALL fseekptr                           ; patchptr
                                              POP  HL
                                              LD   A,L                                ; *patchptr = const
                                              CALL_OZ(Os_Pb)
@@ -205,7 +205,7 @@
                                              JP   C, pass2_range_err
                                                   CALL Get_pass2exprptr                   ; {pass2expr}
                                                   LD   DE, expr_codepos
-                                                  CALL fseek                              ; patchptr
+                                                  CALL fseekptr                           ; patchptr
                                                   LD   A,(longint)                        ; *patchptr = const
                                                   CALL_OZ(Os_Pb)                     ; else
                                              JP   pass2_endwhile                          ; reporterror(7)
@@ -225,7 +225,7 @@
                                              JR   C, pass2_range_err
                                                   CALL Get_pass2exprptr                   ; {pass2expr}
                                                   LD   DE, expr_codepos
-                                                  CALL fseek                              ; patchptr
+                                                  CALL fseekptr                           ; patchptr
                                                   LD   A,(longint)                        ; *patchptr = const
                                                   CALL_OZ(Os_Pb)                     ; else
                                              JR   pass2_endwhile                          ; reporterror(7)
@@ -245,7 +245,7 @@
                                              JR   C, pass2_range_err
                                                   CALL Get_pass2exprptr                   ; {pass2expr}
                                                   LD   DE, expr_codepos
-                                                  CALL fseek                              ; patchptr
+                                                  CALL fseekptr                           ; patchptr
                                                   LD   HL,(longint)                       ; *patchptr = const
                                                   LD   A,L
                                                   CALL_OZ(Os_Pb)
@@ -267,7 +267,7 @@
                                         JR   C, pass2_range_err
                                              CALL Get_pass2exprptr                        ; {pass2expr}
                                              LD   DE, expr_codepos
-                                             CALL fseek                                   ; patchptr
+                                             CALL fseekptr                                ; patchptr
                                              LD   B,0                                     ; (local ptr)
                                              LD   HL,longint                              ; *patchptr = const
                                              CALL write_fptr                         ; else

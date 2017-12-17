@@ -58,7 +58,7 @@
 
      XREF Test_32bit_range, Test_16bit_range                ; exprs.asm
 
-     XREF Open_file, ftell, fseek, fseek_fwm, Read_fptr     ; fileio.asm
+     XREF Open_file, ftell, fseekptr, fseek_fwm, Read_fptr  ; fileio.asm
      XREF Close_file, Copy_file, Delete_file                ;
 
 ; routines accessible in this module:
@@ -407,7 +407,7 @@
                               LD   IX, (cdefilehandle)
                               CALL CurrentModule
                               LD   DE, module_startoffset                  ; set file pointer for module code
-                              CALL fseek                                   ; fseek(binfile, CURRENTMODULE->startoffset, SEEK_SET)
+                              CALL fseekptr                                ; fseek(binfile, CURRENTMODULE->startoffset, SEEK_SET)
                               POP  IX
                               LD   HL, objfilehandle                       ; from object file
                               LD   DE, cdefilehandle                       ; to binary file
