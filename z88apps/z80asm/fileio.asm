@@ -199,8 +199,13 @@
                     JP   Bind_bank_s1
 
 .write_longint      PUSH BC
-                    LD   C,4
-                    CALL write_str                ; write long int in LSB->MSB sequence
+                    PUSH HL
+                    LD   B,4
+.write_long         LD   A,(HL)
+                    CALL_OZ(Os_Pb)                ; write file pointer with OS_Pb, not OS_Mv
+                    INC  HL
+                    DJNZ write_long
+                    POP  HL
                     POP  BC
                     RET
 
