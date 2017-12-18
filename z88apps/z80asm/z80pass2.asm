@@ -37,7 +37,7 @@
      LIB GetVarPointer
      LIB ascorder
 
-     XREF Open_file                                         ; fileio.asm
+     XREF Open_file, fsize                                  ; fileio.asm
      XREF ReportError, ReportError_NULL                     ; errors.asm
      XREF RemovePfixList                                    ; rmpfixlist.asm
      XREF EvalPfixExpr                                      ; evalexpr.asm
@@ -402,8 +402,19 @@
                               CALL Set_word                                ; CURRENTMODULE->origin = EXPLICIT_ORIGIN
 
 .write_origin       LD   IX,(objfilehandle)
+
+; ----------------------------------
+; at this point file content of isspace.obj is bigger than 30 bytes, get actual size via fsize in DEBC to validate
+                    CALL fsize
+; first breakpoint is set here, right after fsize call, DEBC contains current file size of object file
+; ----------------------------------
+
+; ----------------------------------
+; final part of of object file is to update the header file pointers, rewind to position 8 (after watermark 'Z80RMF01')
                     LD   HL,8
                     CALL fseek64k                                ; fseek(objfile, 8, SEEK_SET)
+; ----------------------------------
+
                     CALL CurrentModule
                     LD   A, module_origin
                     CALL Read_word                               ; {CURRENTMODULE->origin}
@@ -432,18 +443,32 @@
                     LD   HL, fptr_libnames                       ; if ( fptr_modname == fptr_libnames )
                     CALL DefineDeclaration                            ; fptr_libnames = -1
 
+; ----------------------------------
                     LD   B,0
                     LD   HL, fptr_modname
-                    CALL Write_fptr                              ; WriteLong(fptr_modname, objfile)
+; here, it actually happens, the file contents get truncated to file pointer when OS_MV finished writing a 4 byte file pointer
+                    CALL Write_fptr                              ; WriteLong(fptr_modname, objfile) - see fileio.asm, line 201
+
+; the proof: get "new" file size (file size and content from line 409 is now lost)
+                    CALL fsize
+
+; ----------------------------------
                     LD   HL, fptr_exprdecl
+; next breakpoint is here, showing DEBC file size, just 14 ($0E) bytes!
+; ----------------------------------
                     CALL Write_fptr                              ; WriteLong(fptr_exprdecl, objfile)
                     LD   HL, fptr_namedecl
                     CALL Write_fptr                              ; WriteLong(fptr_namedecl, objfile)
                     LD   HL, fptr_libnames
                     CALL Write_fptr                              ; WriteLong(fptr_libnames, objfile)
                     LD   HL, fptr_modcode
-                    JP   Write_fptr                              ; WriteLong(fptr_modcode, objfile)
+                    CALL Write_fptr                              ; WriteLong(fptr_modcode, objfile)
 
+; ----------------------------------
+; new final size of file is 30 ($1E) bytes
+                    CALL fsize
+; ----------------------------------
+                    RET
 
 ; **************************************************************************************************
 ;
