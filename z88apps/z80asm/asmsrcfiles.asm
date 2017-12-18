@@ -452,6 +452,7 @@
                     LD   BC,30
                     LD   HL, Z80header
                     CALL Write_string                  ; write header to objfile
+                    JR   C,objcreate_err
                     CALL_OZ(Gn_Cl)
                     POP  HL
                     POP  BC
