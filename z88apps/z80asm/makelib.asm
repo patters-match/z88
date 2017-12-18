@@ -37,8 +37,9 @@
      XREF CheckObjFile                                 ; Chckfhdr.asm
      XREF Add32bit                                     ; add32bit.asm
 
-     XREF Open_file, fseek0, ftell, fsize              ; fileio.asm
-     XREF Close_file, Write_fptr, Copy_file, Delete_file
+     XREF fseek0, ftell, fsize                         ; fileio.asm
+     XREF Open_file, Close_file, Copy_file, Delete_file 
+     XREF Write_fptr, Write_String
 
      XREF AllocVarPointer, GetPointer   ; varptr.asm
      XREF FreeVarPointer
@@ -69,10 +70,8 @@
                          JP   C, ReportError_NULL
                          LD   (libfilehandle),IX            ; store handle of library file
                          LD   BC,8
-                         LD   DE,0
                          LD   HL, Z80Libheader
-                         CALL_OZ(Os_Mv)                     ; write header to library file
-                         CALL C, ReportError_NULL
+                         CALL Write_String                  ; write header to library file
                          JP   C, err_makelibrary
 
                          LD   HL, modulehdr

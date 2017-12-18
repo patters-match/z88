@@ -35,7 +35,7 @@
 
      XREF RemovePfixList                               ; rmpfixlist.asm
      XREF Display_filename                             ; dispflnm.asm
-     XREF Open_file                                    ; fileio.asm
+     XREF Open_file, ftell, fseek64k                   ; fileio.asm
      XREF CurrentFile, CurrentFileName                 ; currfile.asm
      XREF CurrentModule                                ; currmodule.asm
      XREF NewFile                                      ; srcfile.asm
@@ -139,21 +139,14 @@
                     PUSH HL                            ; CR fetched, check for
                     PUSH DE                            ; trailing LF
                     PUSH BC                            ; {preserve main registers first}
-                    LD   A, FA_PTR
-                    LD   DE,0
-                    CALL_OZ(Os_Frm)                    ; file pointer in DEBC
+                    CALL ftell                         ; file pointer in DEBC
                     CALL_OZ(OS_Gb)                     ; get next byte from file
                     JR   C, eol_reached                ; EOF reached...
                          CP   LF
                          JR   Z, eol_reached           ; trailing LF fetched...
-                              PUSH DE                       ; Ups - first byte of new filename
-                              PUSH BC                       ; unget byte (restore previous filep.)
-                              LD   HL,0
-                              ADD  HL,SP                    ; HL points at file pointer
-                              LD   A, FA_PTR
-                              CALL_OZ(OS_Fwm)               ; restore file pointer at CR
-                              POP  BC
-                              POP  DE                       ; remove redundant file pointer
+                              LD   H,B
+                              LD   L,C                      ; file pointer in HL (module files are always less than 64K)
+                              CALL fseek64k                 ; restore file pointer at CR
 .eol_reached        CP   A
                     POP  BC                            ; return Fz = 1 to indicate EOL
                     POP  DE
@@ -410,7 +403,8 @@
                     CALL CurrentModule
                     LD   A, module_mexpr
                     LD   C,0
-                    LD   DE,0
+                    LD   D,C
+                    LD   E,C
                     JP   Set_pointer              ; CURRENTMODULE->mexpr = NULL
 
 
