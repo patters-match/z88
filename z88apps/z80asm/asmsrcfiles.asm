@@ -46,7 +46,7 @@
      XREF CurrentModule, ReleaseExpressions                 ; module.asm
      XREF CreateFilename                                    ; crtflnm.asm
      XREF Open_file, Close_file, fseekfwm, fseek64k         ; fileIO.asm
-     XREF Read_fptr, Read_string, Delete_file               ; fileIO.asm
+     XREF Read_fptr, Read_string, Write_string, Delete_file ; fileIO.asm
      XREF FreeVarPointer                                    ; varptr.asm
      XREF Init_CDEbuffer, FlushBuffer                       ; bytesIO.asm
      XREF Z80pass1                                          ; Z80pass1.asm
@@ -377,7 +377,7 @@
                          CALL fseek64k                      ; fseek(objfile, 10, SEEK_SET)
                          LD   HL, fptr_modname
                          CALL Read_fptr                     ; fptr_modname = ReadLong(objfile)
-                         CALL fseekfwm                     ; fseek(objfile, fptr_modname, SEEK_SET)
+                         CALL fseekfwm                      ; fseek(objfile, fptr_modname, SEEK_SET)
                          CALL LoadName                      ; Loadname(objfile)
                          CALL AllocIdentifier               ; if ( (m = AllocIdentifier(size+1)) == NULL )
                          JR   NC, define_modname
@@ -450,14 +450,14 @@
                     CALL Open_file
                     JR   C, objcreate_err
                     LD   BC,30
-                    LD   DE,0
                     LD   HL, Z80header
-                    CALL_OZ(Os_Mv)                     ; write header to objfile
+                    CALL Write_string                  ; write header to objfile
                     CALL_OZ(Gn_Cl)
                     POP  HL
                     POP  BC
                     LD   A, OP_UP
                     CALL Open_file
+                    RET  C
                     LD   (objfilehandle),IX            ; store file handle
                     LD   HL,30
                     JP   fseek64k                      ; set file pointer at end of objfile
