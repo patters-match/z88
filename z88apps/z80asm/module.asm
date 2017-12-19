@@ -69,7 +69,6 @@
 
                     CALL CreateSrcFilename             ; add '.asm' extension to file name
                     INC  HL                            ; point at first char in file name
-                    CALL Display_filename
                     LD   A, OP_IN
                     CALL Open_file                     ; open file to get expanded file name
                     JR   C, module_operr               ; DE points at explicit filename

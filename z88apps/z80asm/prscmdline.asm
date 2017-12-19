@@ -80,9 +80,12 @@
                     JR   cmdline_error                      ; release memory and abort command line
 
 .read_modulefile    CALL GetFileName                        ; {get ident}
+                    LD   HL,modfilemsg
+                    CALL_OZ(GN_Sop)
                     CALL CreateModules                      ; CreateModules(ident)
                     JP   NC, check_modules
-                    JR   C, cmdline_error                   ; release memory and abort command line
+                    JR   cmdline_error                      ; release memory and abort command line
+.modfilemsg         DEFM 1, "2H5Parsing project file...",CR,LF,0
                                                             ; else
 .nonsense           LD   A, ERR_syntax
                     CALL ReportError_NULL

@@ -118,10 +118,10 @@
                     CALL CheckFileHeader
                     RET  Z
                     PUSH AF
-                    LD   A, ERR_not_relfile
                     LD   HL, objfilename
                     CALL GetVarPointer
                     LD   DE,0
+                    LD   A, ERR_not_relfile
                     CALL ReportError            ; ReportError( objfilename, 0, 26)
                     POP  AF                     ; header is illegal
                     RET
