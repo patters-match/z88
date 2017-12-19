@@ -74,7 +74,6 @@
 ;    Local variables on stack, defined by IX:
 ;         (IX+0,2) = nextname
 ;         (IX+3,5) = endnames
-;         (IX+6,7) = loaded name counter
 ;
 ;    Registers changed after return:
 ;         ......../IXIY  same
@@ -95,9 +94,6 @@
                     LD   (IX+3),E
                     LD   (IX+4),D
                     LD   (IX+5),C                 ; preserve endnames filepointer
-                    LD   (IX+6),0
-                    LD   (IX+7),0                 ; name counter = 0
-
                                                   ; do
 .while_readnames    PUSH IX                            ; {preserve pointer to local variables}
                     LD   IX,(objfilehandle)
@@ -357,12 +353,7 @@
                                    POP  BC
                                    POP  DE
                                    CALL Redefined_msg
-.end_symcreate      LD   C,(IX+6)
-                    LD   B,(IX+7)
-                    INC  BC
-                    LD   (IX+6),C
-                    LD   (IX+7),B
-
+.end_symcreate
                     LD   A,(IX+5)
                     CP   (IX+2)
                     JR   C, exit_readnames
