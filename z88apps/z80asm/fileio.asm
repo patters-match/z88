@@ -38,7 +38,7 @@
      XDEF bufferfile, cdefile
 
 ; global procedures in this module:
-     XDEF Read_fptr, Write_fptr, Read_string, Write_string
+     XDEF Read_fptr, read_longint, Write_fptr, Read_string, Write_string
      XDEF ftell, fsize, fseekptr, fseekfwm, fseek0, fseek64k
      XDEF Open_file, Close_file
      XDEF Delete_file

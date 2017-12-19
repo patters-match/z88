@@ -46,7 +46,7 @@
      XREF CurrentModule, ReleaseExpressions                 ; module.asm
      XREF CreateFilename                                    ; crtflnm.asm
      XREF Open_file, Close_file, fseekfwm, fseek64k         ; fileIO.asm
-     XREF Read_fptr, Read_string, Write_string, Delete_file ; fileIO.asm
+     XREF read_longint, Read_string, Write_string, Delete_file ; fileIO.asm
      XREF FreeVarPointer                                    ; varptr.asm
      XREF Init_CDEbuffer, FlushBuffer                       ; bytesIO.asm
      XREF Z80pass1                                          ; Z80pass1.asm
@@ -346,7 +346,7 @@
 .read_objfile            LD   HL,26
                          CALL fseek64k                      ; fseek(objfile, 26, SEEK_SET)
                          LD   HL, fptr_modcode
-                         CALL Read_fptr                     ; fptr_modcode = ReadLong(objfile)
+                         CALL read_longint                  ; fptr_modcode = ReadLong(objfile)
                          LD   A,(fptr_modcode+3)
                          CP   -1
                          JR   Z, end_moduleinfo             ; if ( fptr_modcode != -1 )
@@ -376,7 +376,7 @@
 .get_module_name         LD   HL,10
                          CALL fseek64k                      ; fseek(objfile, 10, SEEK_SET)
                          LD   HL, fptr_modname
-                         CALL Read_fptr                     ; fptr_modname = ReadLong(objfile)
+                         CALL read_longint                  ; fptr_modname = ReadLong(objfile)
                          CALL fseekfwm                      ; fseek(objfile, fptr_modname, SEEK_SET)
                          CALL LoadName                      ; Loadname(objfile)
                          CALL AllocIdentifier               ; if ( (m = AllocIdentifier(size+1)) == NULL )
