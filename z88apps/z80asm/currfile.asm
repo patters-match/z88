@@ -30,7 +30,8 @@
 
      LIB Read_pointer, Read_word
 
-     XREF CurrentModule
+     XREF CurrentModule                           ; module.asm
+
      XDEF CurrentFile, CurrentFileName, CurrentFileLine
 
      INCLUDE "rtmvars.def"

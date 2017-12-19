@@ -38,6 +38,119 @@ DEFINE __ELF_DEF__
 
         defc    GN_Elf          = $8209         ; execute ELF binary (OZ 5.0 and newer)
 
+
+; -----------------------------------------------------------------------------
+; ELF Header (EH)
+; -----------------------------------------------------------------------------
+
+defvars 0
+        e_ident         ds.b    16              ; identification
+        e_type          ds.w    1               ; elf type
+        e_machine       ds.w    1               ; machine architecture
+        e_version       ds.l    1               ; always CURRENT
+        e_entry         ds.l    1               ; entry address
+        e_phoff         ds.l    1               ; program header offset
+        e_shoff         ds.l    1               ; section header offset
+        e_flags         ds.l    1               ; processor specific flags
+        e_ehsize        ds.w    1               ; elf header size in bytes (52)
+        e_phentsize     ds.w    1               ; program header entry size (32)
+        e_phnum         ds.w    1               ; number of program header entries
+        e_shentsize     ds.w    1               ; section header entry size (40)
+        e_shnum         ds.w    1               ; number of section header entries
+        e_shstrndx      ds.w    1               ; section name string index
+enddef
+
+;   sizeof
+defc    EH_SIZEOF       = 52                    ; always
+
+;   e_ident
+defc    ELFMAG0         = $7F                   ; magic                 e_ident[EI_MAG0]
+defc    ELFMAG1         = 'E'                   ;                       e_ident[EI_MAG1]
+defc    ELFMAG2         = 'L'                   ;                       e_ident[EI_MAG2]
+defc    ELFMAG3         = 'F'                   ;                       e_ident[EI_MAG3]
+defc    ELFCLASS32      = 1                     ; 32-bit objects        e_ident[EI_CLASS]
+defc    ELFDATA2LSB     = 1                     ; little endian         e_ident[EI_DATA]
+defc    ELFOSABI_NONE   = 0                     ; unspecified           e_ident[EI_OSABI]
+defc    ELFOSABI_OZ     = 88                    ; OZ specific
+defc    ELFABIVERSION   = 0                     ; unspecified
+defc    EI_NIDENT       = 16                    ; sizeof e_ident
+
+;   e_type
+defc    ET_NONE         = 0                     ; No file type
+defc    ET_REL          = 1                     ; Relocatable file
+defc    ET_EXEC         = 2                     ; Executable file
+defc    ET_DYN          = 3                     ; Shared object file
+defc    ET_CORE         = 4                     ; Core file
+
+;   e_machine
+defc    EM_Z80          = 220                   ; Zilog Z80
+
+;   e_version
+defc    EV_NONE         = 0                     ; Invalid version
+defc    EV_CURRENT      = 1                     ; Current version
+
+;   e_shstrndx
+defc    SHN_UNDEF       = 0                     ; no section name
+
+; -----------------------------------------------------------------------------
+; Program Header Table (PHT)
+; This header refers to a binary part of the program
+; -----------------------------------------------------------------------------
+
+defvars 0
+        p_type          ds.l    1               ; program type (see below)
+        p_offset        ds.l    1               ; offset in the file
+        p_vaddr         ds.l    1               ; virtual address
+        p_paddr         ds.l    1               ; physical address
+        p_filesz        ds.l    1               ; program size
+        p_memsz         ds.l    1               ; requested memory size
+        p_flags         ds.l    1               ; flags (see below)
+        p_align         ds.l    1               ; alignement ($4000 always)
+enddef
+
+;   sizeof
+defc    PHT_SIZEOF      = 32                    ; always
+
+;   p_type
+defc    PT_NULL         = 0                     ; ignored entry
+defc    PT_LOAD         = 1                     ; load segment to memory
+defc    PT_DYNAMIC      = 2                     ; dynamic linking information
+defc    PT_INTERP       = 3                     ; location of interpreter
+defc    PT_NOTE         = 4                     ; auxiliary information
+defc    PT_SHLIB        = 5                     ; reserved (not conform)
+defc    PT_PHDR         = 6                     ; location the PHT itself (duplicate), only once in a file
+defc    PT_TLS          = 7                     ; Thread-Local Storage template
+
+;   p_flags (ORed)
+defc    PF_X            = 1                     ; Execute
+defc    PF_W            = 2                     ; Write
+defc    PF_R            = 4                     ; Read
+
+;   relocatable code
+defc    Reloc_Sizeof    = $49
+
+; -----------------------------------------------------------------------------
+; Sections Header Table (SHT)
+; This header refers to a section
+; -----------------------------------------------------------------------------
+
+defvars 0
+        sh_name         ds.l    1
+        sh_type         ds.l    1
+        sh_flags        ds.l    1
+        sh_addr         ds.l    1
+        sh_offset       ds.l    1
+        sh_size         ds.l    1
+        sh_link         ds.l    1
+        sh_info         ds.l    1
+        sh_addralign    ds.l    1
+        sh_entsize      ds.l    1
+enddef
+
+;   sizeof
+defc    SHT_SIZEOF      = 40                    ; always
+
+
 ENDIF
 
 lston

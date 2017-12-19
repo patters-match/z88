@@ -50,17 +50,15 @@
      XREF CheckRegister8                                    ;
 
      XREF WriteByte, WriteWord                              ; writebytes.asm
-
-     XREF Add16bit_1, Add16bit_2, Add16bit_3                ; z80asm.asm
-     XREF Test_7bit_range                                   ;
-
+     XREF asm_pc_p1, asm_pc_p2, asm_pc_p3                   ; z80pass1.asm
+     XREF Test_7bit_range                                   ; tstrange.asm
      XREF CurrentModule                                     ; module.asm
-
      XREF Pass2Info                                         ; z80pass.asm
-
      XREF ReportError_STD, STDerr_syntax, STDerr_ill_ident  ; errors.asm
 
-     XREF ParseNumExpr, EvalPfixExpr, RemovePfixlist        ; exprprsr.asm
+     XREF ParseNumExpr                                      ; parsexpr.asm
+     XREF EvalPfixExpr                                      ; evalexpr.asm
+     XREF RemovePfixlist                                    ; rmpfixlist.asm
      XREF ExprAddress                                       ;
 
 ; global procedures:
@@ -74,17 +72,7 @@
 
 ; ******************************************************************************
 ;
-.CALL_fn            LD   BC,$CDC4                 ; standard instruction opcodes
-                    CALL Subroutine_cc
-                    RET
-
-
-; ******************************************************************************
-;
-.JP_fn              LD   BC,$C3C2                 ; standard instruction opcodes
-                    CALL JP_instr
-                    RET
-
+.JP_fn              LD   BC,$C3C2                           ; standard instruction opcodes
 
 ; **************************************************************************************************
 ;
@@ -101,9 +89,8 @@
                          JR   NZ, jp_case_5                           ; case 2: { JP (HL) }
                               LD   C,233                                        ; *codeptr++ = 233
                               CALL WriteByte
-                              LD   HL,asm_pc                                     ; ++PC
-                              CALL Add16bit_1
-                              RET
+                              JP   asm_pc_p1                                     ; ++PC
+
 
 .jp_case_5               CP   5                                       ; case 5:
                          JR   NZ, jp_case_6                                     ; { JP (IX) }
@@ -114,18 +101,14 @@
                          JR   NZ, jp_case_notf                                  ; { JP (IY) }
                               LD   BC,$E9FD                                     ; *codeptr++ = 253
 .jp_index_6                   CALL WriteWord                                    ; *codeptr++ = 233
-                              LD   HL,asm_pc                                     ; PC += 2
-                              CALL Add16bit_2
-                              RET
+                              JP   asm_pc_p2                                     ; PC += 2
 
 .jp_case_notf            CP   -1                                      ; case -1: reporterror(1)
                          JP   Z, STDerr_syntax
                          JP   STDerr_ill_ident                        ; default: reporterror(11)
                                                             ; else
 .jp_subr_nn              LD   (lineptr),DE                       ; lineptr = startexpr
-                         CALL Subroutine_cc                      ; Subroutine(opc0, opc)
-                    RET
-
+                                                                 ; Subroutine(opc0, opc)
 
 
 ; **************************************************************************************************
@@ -152,9 +135,12 @@
                          LD   C,B                                ; <instr> nn
                          CALL WriteByte                          ; *codeptr++ = opcode0
 .read_expr          CALL ExprAddress                        ; ExprAddress(1)
-                    LD   HL, asm_pc
-                    CALL Add16bit_3                         ; PC += 3
-                    RET
+                    JP   asm_pc_p3                          ; PC += 3
+
+; ******************************************************************************
+;
+.CALL_fn            LD   BC,$CDC4                 ; standard instruction opcodes
+                    JR   Subroutine_cc
 
 
 
@@ -190,10 +176,9 @@
                               LD   C,24                                    ; codeptr++ = 24 { JR n }
                               CALL WriteByte                               ; break
                                                                       ; default: reporterror(1)
-.jr_addr_expr       LD   HL,asm_pc
-                    CALL Add16bit_2                         ; PC+=2
+.jr_addr_expr
+                    CALL asm_pc_p2                          ; PC+=2
                     JR   djnz_continue                      ; parse JR expression...
-
 
 
 ; **************************************************************************************************
@@ -201,8 +186,7 @@
 ;
 .DJNZ_fn            LD   C,16
                     CALL WriteByte                          ; *codeptr++ = 16
-                    LD   HL,asm_pc
-                    CALL Add16bit_2                         ; PC+=2
+                    CALL asm_pc_p2                          ; PC+=2
                     CALL Getsym
                     CP   sym_comma                          ; if ( Getsym() == comma )
                     JR   NZ, djnz_continue
@@ -241,9 +225,7 @@
                                    CALL ReportError_STD                    ; reporterror(7)
 .djnz_end           POP  HL
                     POP  BC
-                    CALL RemovePfixlist                          ; RemovePfixlist(postfixexpr)
-                    RET
-
+                    JP   RemovePfixlist                          ; RemovePfixlist(postfixexpr)
 
 
 ; **************************************************************************************************
@@ -253,8 +235,8 @@
 .NewJRaddr          CALL AllocJrPC                          ; { allocate room rom new JRPC node }
                     JR   NC,newjr_init                      ; if ( (newJRPC=AllocJrPC()) == NULL )
                          LD   A, ERR_no_room                     ; Reporterror(3)
-                         CALL ReportError_STD                    ; return
-                         RET                                ; else
+                         JP   ReportError_STD                    ; return
+                                                            ; else
 .newjr_init              LD   A, jrpc_next
                          LD   C,0
                          LD   D,C
@@ -272,16 +254,16 @@
                     PUSH HL                                 ; {preserve pointer}
                     LD   A, jrpcexpr_first
                     CALL Read_pointer                       ; CURRENTMODULE->JRaddr->firstref
-                    XOR  A
-                    CP   B                                  ; IF ( firstref == NULL )
+                    INC  B
+                    DEC  B                                  ; IF ( firstref == NULL )
                     JR   NZ, newjr_addlist
                          POP  HL
                          POP  BC
                          LD   A, jrpcexpr_first
                          CALL Set_pointer                        ; CURRENTMODULE->JRaddr->firstref = newJRPC
                          LD   A, jrpcexpr_last
-                         CALL Set_pointer                        ; CURRENTMODULE->JRaddr->lastref = newJRPC
-                         RET                                ; else
+                         JP   Set_pointer                        ; CURRENTMODULE->JRaddr->lastref = newJRPC
+                                                            ; else
 .newjr_addlist      POP  HL
                     POP  BC
                     PUSH HL
@@ -293,12 +275,10 @@
                     POP  BC
                     POP  HL
                     LD   A, jrpcexpr_last                        ; CURRENTMODULE->JRaddr->lastref = newJRPC
-                    CALL Set_pointer
-                    RET
+                    JP   Set_pointer
 
 
 ; **************************************************************************************************
 ;
 .AllocJrPC          LD   A,SIZEOF_JrPC
-                    CALL malloc
-                    RET
+                    JP   malloc

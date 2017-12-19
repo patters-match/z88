@@ -32,29 +32,27 @@
      LIB memcompare, CmpPtr
      LIB Bind_bank_s1
      LIB AllocIdentifier, mfree
-     LIB Read_word, Read_pointer, Set_word, Read_byte
+     LIB Read_word, Read_pointer, Read_byte
      LIB Set_pointer, Read_long, Set_long, Set_byte
+     LIB GetVarPointer
 
      XREF LinkModule                                        ; linkmod.asm
-     XREF NewModule                                         ; module.asm
+     XREF CurrentModule, NewModule                          ; module.asm
      XREF NewFile                                           ; srcfile.asm
      XREF ReportError, ReportError_NULL                     ; errors.asm
      XREF GetSym                                            ; prsline.asm
      XREF CurrentFile                                       ; srcfile.asm
-     XREF CurrentModule                                     ; currmod.asm
      XREF EvalPfixExpr                                      ; evalexpr.asm
-     XREF GetPointer, GetVarPointer, FreeVarPointer         ; varptr.asm
+     XREF GetPointer, FreeVarPointer                        ; varptr.asm
      XREF CopyId, FindSymbol                                ; symbols.asm
      XREF CreateFileName                                    ; crtflnm.asm
-     XREF CheckObjfile                                      ; chckfhdr.asm
-     XREF DefineOrigin                                      ; deforig.asm
      XREF Add32bit                                          ; add32bit.asm
      XREF ReadNames                                         ; readname.asm
      XREF LoadName                                          ; loadname.asm
 
      XREF Test_32bit_range, Test_16bit_range                ; exprs.asm
 
-     XREF Open_file, fseek, Read_fptr, Write_fptr           ; fileio.asm
+     XREF Open_file, fseekptr, fseekfwm, Read_fptr          ; fileio.asm
      XREF Close_file
 
 ; routines accessible in this module:
@@ -85,9 +83,7 @@
 ;    ......../IXIY  same
 ;    AFBCDEHL/....  different
 ;
-.LinkLibModules          BIT  abort,(IY + RtmFlags3)             ; if (keyboard_break) return
-                         RET  NZ
-
+.LinkLibModules
 .read_libname_loop       LD   L,(IX+0)                           ; do
                          LD   H,(IX+1)
                          LD   B,(IX+2)
@@ -111,8 +107,7 @@
                          CALL Add32bit                                ; longint = fptr_base + nextlibname
                          PUSH IX
                          LD   IX,(objfilehandle)
-                         LD   B,0                                     ; {local pointer}
-                         CALL fseek                                   ; fseek( fptr_base + nextlibname, objfile, SEEK_SET)
+                         CALL fseekfwm                                ; fseek( fptr_base + nextlibname, objfile, SEEK_SET)
                          CALL LoadName                                ; LoadName(objfile)
                          POP  IX                                      ; restore pointer to parameter block
                          PUSH HL
@@ -134,8 +129,8 @@
                          CALL AllocIdentifier                         ; modname = AllocId(name)
                          JR   NC, search_globalroot                   ; if ( modname == NULL )
                               LD   A, ERR_no_room
-                              CALL ReportError_NULL                        ; ReportError(3)
-                              RET                                          ; return 0
+                              JP   ReportError_NULL                        ; ReportError(3)
+                                                                           ; return 0
 
 .search_globalroot       LD   C,B
                          EX   DE,HL                                   ; {CDE = modname}
@@ -161,7 +156,7 @@
                          LD   D,(IX+7)                                ; {end_libnames}
                          SBC  HL,DE
                          JR   C, exit_linklibmod
-                         JR   Z, exit_linklibmod
+                         RET  Z
                          JP   read_libname_loop                  ; while ( nextlibname < end_libnames )
 
 .exit_linklibmod    CP   A                                       ; return 1
@@ -190,8 +185,8 @@
 
 .nextlib_loop            LD   HL, CURLIBRARY                     ; while ( CURRENTLIB != NULL )
                          CALL GetVarPointer
-                         XOR  A
-                         CP   B
+                         INC  B
+                         DEC  B
                          JR   Z, get_firstlib
                               CALL SearchLibFile
                               JR   NC, exit_searchlibs                ; if ( SearchLibFile( CURRENTLIB, modname ) ) return
@@ -205,7 +200,8 @@
                               CALL GetPointer
                               XOR  A
                               CALL Set_pointer                        ; CURRENTLIB = CURRENTLIB->nextlib
-                              CP   C
+                              INC  C
+                              DEC  C
                               JR   Z, search_nextlib                  ; if ( CURRENTLIB != NULL )
                                    LD   B,C
                                    EX   DE,HL                              ; BHL = CURRENTLIB
@@ -254,7 +250,7 @@
                          CALL Set_long                           ; CURRENTLIB->nextobjfile = 8
                          POP  DE
                          POP  BC
-                         JR   searchlibs_loop               ; FOR loop...
+                         JP   searchlibs_loop               ; FOR loop...
 
 .exit_searchlibs    POP  BC                                 ; {remove loop counter}
                     RET
@@ -317,7 +313,7 @@
 .find_avail_module       PUSH IX                                      ; do
                          LD   IX, (objfilehandle)
                          LD   DE, libfile_nextobjfile
-                         CALL fseek                                        ; fseek(objfile, curlib->nextobjfile, SEEK_SET)
+                         CALL fseekptr                                     ; fseek(objfile, curlib->nextobjfile, SEEK_SET)
                          LD   A, libfile_nextobjfile
                          CALL Read_long
                          EXX
@@ -365,8 +361,8 @@
                               LD   DE,0
                               LD   HL, longint
                               CALL Add32bit
-                              LD   IX,(objfilehandle)                      ; {B=0, local pointer}
-                              CALL fseek                                   ; fseek(objfile, currentlibmodule+4+4+8+2, SEEK_SET)
+                              LD   IX,(objfilehandle)
+                              CALL fseekfwm                                ; fseek(objfile, currentlibmodule+4+4+8+2, SEEK_SET)
                               CALL Read_fptr                               ; fptr_mname = ReadLong(objfile), fileptr. at  (longint)
                               POP  BC
                               POP  DE
@@ -376,7 +372,7 @@
                               LD   BC,4+4
                               LD   DE,0
                               CALL Add32bit                                ; {fptr_mname += 4+4}
-                              CALL fseek                                   ; fseek(objfile, fptr_mname, SEEK_SET)
+                              CALL fseekfwm                                ; fseek(objfile, fptr_mname, SEEK_SET)
                               CALL LoadName                                ; mname = Loadname(objfile)
                               POP  BC
                               POP  DE
@@ -518,7 +514,6 @@
                     LD   B,A                           ; {BHL = &CURRENTMODULE, CDE = tmpmodule}
                     XOR  A
                     CALL Set_pointer                   ; CURRENTMODULE = tmpmodule
-
                     POP  AF
                     RET                                ; return flag
 

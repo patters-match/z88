@@ -29,6 +29,7 @@
      MODULE Write_globals
 
 ; external procedures:
+     LIB GetVarPointer
      LIB Inthex
      LIB CmpPtr
      LIB Read_word, Read_long, Read_byte, Read_pointer
@@ -41,9 +42,10 @@
      INCLUDE "symbol.def"
 
 
-     XREF CurrentModule                                     ; currmod.asm
+     XREF CurrentModule                                     ; module.asm
      XREF Write_string                                      ; fileio.asm
-     XREF GetVarPointer                                     ; varptr.asm
+     XREF Open_file,Close_file                              ; fileio.asm
+     XREF ReportError_NULL                                  ; asmerror.asm
 
 ; global procedures:
      XDEF WriteGlobals
@@ -53,15 +55,30 @@
 ;
 ; Write Global address definitions to ".def" file. Only touched definitions will be written.
 ;
-;    IN:  BHL = pointer to current node of symbol tree
-;
-.WriteGlobals       PUSH IY
+.WriteGlobals
+                    LD   HL, deffilename
+                    CALL GetVarPointer
+                    INC  HL                            ; point at first char in filename
+                    LD   A, OP_OUT
+                    CALL Open_file
+                    JP   C, ReportError_NULL
+                    LD   (deffilehandle),IX            ; global definitions symbol file created...
+
+                    LD   HL, globalroot
+                    CALL GetVarPointer
+
+                    PUSH IY
                     LD   IY, WriteGlobal
                     CALL ascorder
                     POP  IY
-                    RET
+
+                    LD   HL,deffilehandle
+                    JP   Close_file
+
 
 ; **************************************************************************************************
+; This function is called on each node of the AVL-tree by ascorder library routine.
+; IN: BHL points to node of AVL-tree
 ;
 .WriteGlobal        LD   A, symtree_type
                     CALL Read_byte

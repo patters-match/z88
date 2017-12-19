@@ -30,16 +30,114 @@
 
 ; external procedures:
      LIB malloc, mfree
-     LIB Set_pointer, Read_pointer, Set_word, Set_long
+     LIB Set_pointer, Read_pointer, Set_long
+     LIB AllocVarPointer, GetVarPointer
 
-     XREF GetPointer, GetVarPointer          ; varptr.asm
+     XREF GetPointer                                   ; varptr.asm
+     XREF ReportError, ReportError_NULL                ; errors.asm
+     XREF GetFileName                                  ; cmdline.asm
+     XREF Open_file                                    ; fileio.asm
+     XREF CheckLibfile                                 ; chckfhdr.asm
+     XREF CreateLibFileName                            ; creatlib.asm
 
 ; global procedures:
-     XDEF NewLibrary
+     XDEF UseLibrary, DefineLibFileName, NewLibrary
 
 
+     INCLUDE "fileio.def"
      INCLUDE "rtmvars.def"
      INCLUDE "symbol.def"
+
+
+
+; **************************************************************************************************
+;
+; Use library file during linking, specified from command line as -ifilename .
+;
+; DE points at first char of filename
+;
+.UseLibrary         LD   A,(DE)                        ; DE now points at start of filename
+                    OR   A                             ; zero length means no filename specified.
+                    CALL Z, default_libfile            ; use default filename.
+                    CALL DefineLibFileName
+                    RET  C
+                    PUSH BC
+                    PUSH HL                            ; preserve pointer to library filename
+                    INC  HL
+                    LD   A,OP_IN
+                    CALL Open_file                     ; open file to check for "Z80LMF" header
+                    POP  HL
+                    POP  BC
+                    CALL C, ReportError_NULL
+                    RET  C
+                    CALL DefineLibFileName             ; register explicit filename of library for error messaging.
+                    JR   C,close_libfile
+                    PUSH BC
+                    PUSH HL
+                    CALL CheckLibfile                  ; check file to be a true library (with header)
+.close_libfile
+                    PUSH AF
+                    CALL_OZ(Gn_Cl)                     ; close library file
+                    POP  AF
+                    POP  HL
+                    POP  BC                            ; {pointer to library filename}
+                    RET  C                             ; abort if specified file was not a validated library
+                    JR   NZ, not_libfile               ; if ( checkfileheader() == 0 )
+                         LD   C,B                           ; CHL points at library filename
+                         PUSH HL
+                         PUSH BC
+                         CALL AppendNewLibrary              ; libfile = NewLibrary()
+                         LD   A,B
+                         POP  BC
+                         LD   B,A                           ; BHL = library record
+                         POP  DE                            ; CDE = library filename
+                         RET  C
+                         SET  library,(IY + RTMflags)       ; library = ON
+                         LD   A, libfile_filename
+                         JP   Set_pointer                   ; libfile->filename = CDE
+                                                       ; else
+.not_libfile        LD   DE,0
+                    SCF
+                    LD   A, ERR_not_libfile
+                    JP   ReportError                        ; ReportError(libfilename, 0, ERR_not_libfile)
+
+
+; **************************************************************************************************
+;
+; Create library file, specified from command line as -xfilename .
+;
+; DE points at first char of filename
+; returns BHL = allocated pointer to filename string
+;
+.DefineLibFileName
+                    CALL CreateLibFileName             ; create library filename, returned in BHL
+                    RET  C
+                    LD   C,B
+                    EX   DE,HL                         ; preserve library filename in CDE
+                    LD   HL, libfilename
+                    CALL AllocVarPointer
+                    JP   C, ReportError_NULL
+                    XOR  A                             ; BHL = pointer to pointer variable
+                    CALL Set_pointer                   ; libfilename = CDE
+                    LD   B,C
+                    EX   DE,HL                         ; return BHL to library filename (option wild card) string
+                    RET
+
+
+; ******************************************************************************
+;
+;    Copy default library filename to cdebuffer, DE = pointer.
+;
+.default_libfile    PUSH DE
+                    LD   HL, stdlibfile
+                    LD   B,0
+                    LD   C,(HL)
+                    INC  BC
+                    INC  BC                       ; copy filename & null-terminator...
+                    LDIR
+                    POP  DE
+                    RET
+.stdlibfile         DEFM 19, ":*.*//standard.lib", 0
 
 
 
@@ -56,7 +154,7 @@
 ;    ......../IXIY  same
 ;    AFBCDEHL/....  different
 ;
-.NewLibrary         LD   HL, libraryhdr
+.AppendNewLibrary   LD   HL, libraryhdr
                     CALL GetVarPointer                 ; get pointer to library pointer
                     XOR  A
                     CP   B
@@ -109,8 +207,8 @@
                     PUSH HL                            ; { preserve modulehdr }
                     LD   A, liblist_first
                     CALL Read_pointer                  ; { BHL = liblist->first }
-                    XOR  A
-                    CP   B
+                    INC  B
+                    DEC  B
                     POP  HL                            ; { restore libraryhdr }
                     POP  BC
                     JR   NZ, append_library            ; if ( libraryhdr->first == NULL )
@@ -141,6 +239,7 @@
                     SCF                                ; return NULL
                     RET
 
+
 ; ***********************************************************************************************
 ;
 ;    Allocate memory for module header record
@@ -154,8 +253,7 @@
 ;    AFB...HL/....  different
 ;
 .AllocLibraryHdr    LD   A, SIZEOF_libraries
-                    CALL malloc
-                    RET
+                    JP   malloc
 
 
 ; **************************************************************************************************
@@ -171,5 +269,4 @@
 ;    AFB...HL/....  different
 ;
 .AllocLibrary       LD   A, SIZEOF_libfile
-                    CALL malloc
-                    RET
+                    JP   malloc

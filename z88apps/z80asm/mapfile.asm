@@ -30,6 +30,7 @@
 
      LIB transfer, reorder, ascorder
      LIB Inthex
+     LIB GetPointer, GetVarPointer
 
      XREF SIZEOF_relocator
 
@@ -47,14 +48,12 @@
      LIB Set_pointer, Read_pointer
      LIB Read_long
 
-     XREF CurrentModule                                     ; currmod.asm
+     XREF CurrentModule                                     ; module.asm
      XREF Write_string                                      ; fileio.asm
-     XREF GetPointer, GetVarPointer                         ; varptr.asm
      XREF ReportError_NULL                                  ; asmerror.asm
      XREF CreateFileName                                    ; crtflnm.asm
      XREF Open_file, Close_file, Delete_file                ; fileio.asm
      XREF InsertSym, CmpIDstr, CmpIDval                     ; symbols.asm
-     XREF Disp_allocmem                                     ; crtflnm.asm
 
 ; global procedures:
      XDEF WriteMapFile
@@ -67,7 +66,7 @@
 ;         (IX+3,5) = **maproot
 ;
 .WriteMapFile       LD   A, (TOTALERRORS)
-                    CP   0
+                    OR   A
                     RET  NZ                            ; if ( TOTALERRORS != 0 ) RETurn
 
                     LD   HL,0
@@ -200,7 +199,6 @@
 ;
 .WriteMapSymbols    PUSH IX
                     PUSH IY
-                    LD   IX, $0001                     ; memory message each 8th symbol...
                     LD   IY, writemapsym
                     CALL ascorder                      ; ascorder(maproot, Writemapsym)
                     POP  IY
@@ -212,21 +210,19 @@
 
 
 ; **************************************************************************************************
+; IN:
+;     BHL = pointer to node in Avltree
+;     IY  = pointer to this routine (used by ascorder stdlib routine
 ;
 .Writemapsym        LD   A, symtree_type
                     CALL Read_byte
                     BIT  SYMADDR,A
                     RET  Z                             ; if ( !(node->type & SYMADDR) ) return
 
-                    PUSH IX
-                    EX   (SP),HL
-                    XOR  A
-                    ADD  HL,HL
-                    CALL C, Disp_allocmem              ; display memory message for each 16th map address written
-                    RLA
-                    OR   L
-                    LD   L,A                           ; transfer Fc to bit 0 if overflow occurred
-                    EX   (SP),HL
+                    LD   DE,RuntimeFlags3              ; HL & IY are used, so DE is our best friend...
+                    LD   A,(DE)
+                    BIT  ASMERROR,A
+                    RET  NZ                            ; abort mission, error condition is enabled..
 
                     LD   IX,(mapfilehandle)
                     PUSH BC
@@ -244,6 +240,7 @@
                     CALL Write_string                  ; fwrite( "\t= ", symbolfile)
                     POP  HL
                     POP  BC                            ; symnode
+                    RET  C                             ; Write_string reports I/O error or No Room
 
                     PUSH BC
                     PUSH HL
@@ -274,6 +271,7 @@
                     CALL Write_string                  ; fwrite( ", ", mapfile)
                     POP  HL
                     POP  BC                            ; symnode
+                    RET  C                             ; Write_string reports I/O error or No Room
 
                     PUSH BC
                     PUSH HL
@@ -285,11 +283,14 @@
                     JR   write_symscope           ; else
 .symscope_global    LD   A,'G'                         ; fputc('G', mapfile)
 .write_symscope     CALL_OZ(Os_Pb)
+                    CALL C, ReportError_NULL
                     LD   BC,2
                     LD   HL, separator3
                     CALL Write_string                  ; fwrite( ": ", mapfile)
                     POP  HL
                     POP  BC                            ; symnode
+                    RET  C                             ; Write_string reports I/O error or No Room
+
                     LD   A, symtree_modowner
                     CALL Read_pointer
                     LD   A, module_mname
@@ -300,9 +301,10 @@
                     LD   C,A
                     LD   DE, 0
                     CALL Write_string                  ; fwrite( "%s", symnode->owner->mname)
+                    RET  C
                     LD   A, 13
                     CALL_OZ(Os_Pb)                     ; {terminate line}
-                    POP  IX
+                    CALL C, ReportError_NULL
                     RET
 
 .separator          DEFM 9, "= "

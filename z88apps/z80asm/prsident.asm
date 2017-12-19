@@ -102,8 +102,8 @@
                          CP   34                                      ; case IF_statement:
                          JR   NZ, check_elsendif
                               POP  AF                                      ; {get interpret flag}
-                              CALL IFstatement                             ; ifstatement(interpret)
-                              RET                                          ; break
+                              JP   IFstatement                             ; ifstatement(interpret)
+                                                                           ; break
 
 .check_elsendif          CP   28                                      ; case ELSE_statement:
                          JR   Z, case_elsendif
@@ -162,8 +162,6 @@
                     RET
 .str_not_equal      POP  BC
                     RET
-
-
 
 
 ; ********************************************************************************************

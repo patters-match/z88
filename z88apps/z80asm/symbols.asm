@@ -34,20 +34,19 @@
      LIB Compare, CmpPtr, StrCmp
      LIB Read_pointer, Set_pointer
      LIB Read_byte, Set_byte, Insert
+     LIB GetPointer,GetVarPointer
      LIB Read_long, Set_long
      LIB Bind_bank_s1
      LIB Find
      LIB copy, memcpy, strcpy
 
-     XREF CurrentModule                                          ; z80asm.asm
+     XREF CurrentModule                                          ; currmodule.asm
+     XREF GetSymPtr, FindSymbol, NULL_pointer                    ; findsym.asm
      XREF ReportError_STD, ReportError_NULL                      ; errors.asm
-     XREF GetVarPointer                                          ; z80asm.asm
-     XREF GetPointer                                             ; varptr.asm
 
 ; global procedures in this module:
-     XDEF NULL_pointer, CmpIDstr, CmpIDval
+     XDEF CmpIDstr, CmpIDval
      XDEF DefineSymbol, DefineDefSym, InsertSym
-     XDEF GetSymPtr, FindSymbol
      XDEF FreeSym
      XDEF DeclSymExtern, DeclSymGlobal
      XDEF CopyId, ReleaseId
@@ -59,98 +58,6 @@
 
      INCLUDE "rtmvars.def"
      INCLUDE "symbol.def"
-
-
-; **************************************************************************************************
-;
-; GetSymPtr - get pointer to found symbol in avltree.
-;
-;    IN:  CDE = pointer to identifier
-;   OUT:  BHL = pointer to found symbol, otherwise NULL.
-;
-; Registers changed after return:
-;
-;    ...CDE../....  same
-;    AFB...HL/IXIY  different
-;
-.GetSymPtr          CALL CurrentModule       ; pointer to current module in BHL...
-                    LD   A, module_localroot
-                    CALL Read_pointer        ; get pointer to root of local symbols in BHL
-                    CALL FindSymbol
-                    JR   NC, found_sym       ; if ( Findsymbol(id, CURRENTMODULE->localroot) == NULL )
-.find_globalsym          LD   HL, globalroot
-                         CALL GetVarPointer
-                         CALL FindSymbol
-                         JR   NC, found_sym       ; if ( Findsymbol(id, globalroot == NULL )
-                              CALL NULL_pointer        ; return NULL
-                              SCF
-                              RET                 ; else
-.found_sym          CP   A                             ; return symptr;
-                    RET
-
-
-
-; **************************************************************************************************
-;
-; FindSymbol - get pointer to found symbol in either local or global avltree.
-;
-;    IN:  BHL = pointer to current search node
-;         CDE = pointer to identifier
-;   OUT:  BHL = pointer to found symbol node , Fc = 0
-;               otherwise NULL, Fc = 1,
-;
-; Registers changed after return:
-;
-;    ...CDE../IXIY  same
-;    AFB...HL/....  different
-;
-.FindSymbol         XOR  A
-                    CP   B                   ; if ( avlptr == NULL )
-                    JR   NZ, examine_node
-                         SCF                      ; return NULL;
-                         RET
-                                             ; else
-.examine_node       PUSH IY
-                    LD   IY, compidentifier
-                    CALL Find                     ; found = find(avlptr, identifier, compidentifier)
-                    POP  IY
-                    JR   NC, found_node           ; if ( found == NULL )
-                    RET                                ; return NULL
-                                                  ; else
-.found_node         PUSH BC
-                    LD   A, symtree_type               ; symptr->type |= SYMTOUCHED
-                    CALL Read_byte
-                    SET  SYMTOUCHED,A
-                    LD   C,A
-                    LD   A, symtree_type
-                    CALL Set_byte
-                    POP  BC
-                    CP   A                             ; return symptr
-                    RET
-
-
-; **************************************************************************************************
-;
-;    Compare service routine for .FindSymbol
-;
-;    IN: CDE = search key (main caller parameter)
-;        BHL = pointer to current AVL node
-;
-;    OUT:
-;         Fz = 0; Fc = 0:     A > B
-;         Fz = 1; Fc = 0:     A = B
-;         Fz = 0; Fc = 1:     A < B
-;
-; Registers changed after return:
-;
-;    ...CDE../IXIY  same
-;    AFB...HL/....  different
-;
-.compidentifier     LD   A, symtree_symname
-                    CALL Read_pointer        ;      get pointer to symbol identfier (string)
-                    CALL Strcmp              ;      retur strcmp(symptr->symname, identifier)
-                    RET
-
 
 
 ; **************************************************************************************************
@@ -279,16 +186,13 @@
                          POP  AF                  ; symboltype
                          SET  SYMDEF,A
                          SET  SYMDEFINED,A        ; symboltype |= SYMDEF | SYMDEFINED
-                         CALL InsertSym           ; InsertSym(identifier, value, symboltype, root, modowner, symcmp)
-                         RET
-
+                         JP   InsertSym           ; InsertSym(identifier, value, symboltype, root, modowner, symcmp)
 .found_defsym       POP  HL                  ; else
                     POP  BC
                     POP  AF
-                    LD   A, ERR_sym_defined       ; Symbol already defined
-                    CALL ReportError_STD          ; ReportError(CURRENTFILE->fname, CURRENTFILE->line, 14);
                     SCF
-                    RET
+                    LD   A, ERR_sym_defined       ; Symbol already defined
+                    JP   ReportError_STD          ; ReportError(CURRENTFILE->fname, CURRENTFILE->line, 14);
 
 
 
@@ -367,8 +271,7 @@
                     POP  DE
                     POP  BC                  ; get long integer
                     EXX
-                    CALL DefLocalSymbol      ; create local symbol
-                    RET
+                    JP   DefLocalSymbol      ; create local symbol
 
 .glbsym_defined     LD   A, ERR_sym_defined
                     CALL ReportError_STD     ; report to error file...
@@ -477,9 +380,9 @@
                                                        ; else
 .localsym_defined             CALL ReleaseID                ; {release redundant search ID}
                               LD   A, ERR_sym_decl_local
-                              CALL ReportError_STD          ; Reporterror(14)
                               SCF
-                              RET
+                              JP   ReportError_STD          ; Reporterror(14)
+
 .end_deflocal       CALL ReleaseID                ; {release redundant search ID}
                     CP   A
                     RET
@@ -588,10 +491,7 @@
                     POP  AF
                     POP  DE
                     POP  BC                       ; restore pointer to id
-                    CALL NULL_pointer             ; return NULL
-                    SCF                           ; signal error
-                    RET
-
+                    JP   NULL_pointer             ; return NULL, Fc = 1
 
 
 ; **************************************************************************************************
@@ -655,14 +555,11 @@
                               CALL CmpPtr                   ; if ( foundsym->owner == CURRENTMODULE )
                               RET  NZ
                                    LD   A, ERR_redecl_not_allw
-                                   CALL ReportError_STD          ; ReportError(23)
-                                   RET
+                                   JP   ReportError_STD          ; ReportError(23)
                                                   ; else
 .extern_decl_local       CALL ReleaseID                ; {release redundant search id}
                          LD   A, ERR_sym_decl_local
-                         CALL ReportError_STD          ; ReportError(17)
-                    RET
-
+                         JP   ReportError_STD          ; ReportError(17)
 
 
 ; **************************************************************************************************
@@ -713,8 +610,7 @@
                               CALL InsertSym                ; InsertSymbol( ... )
                               LD   A, ERR_no_room
                               CALL C, ReportError_STD
-                              CALL ReleaseID                ; {release redundant search id}
-                              RET
+                              JP   ReleaseID                ; {release redundant search id}
                                                        ; else
 .global_redecl                CALL ReleaseID                ; {release redundant search id}
                               PUSH BC
@@ -750,21 +646,17 @@
                                         POP  BC
                                         LD   C,A
                                         LD   A, symtree_modowner
-                                        CALL Set_pointer         ; foundsym->owner = CURRENTMODULE
-                                        RET                 ; else
-
+                                        JP   Set_pointer         ; foundsym->owner = CURRENTMODULE
+                                                            ; else
 .global_already                         LD   A, ERR_sym_glob_module
-                                        CALL ReportError_STD     ; ReportError(22)
-                                        RET
+                                        JP   ReportError_STD     ; ReportError(22)
                                                             ; else
 .global_redecl_err                 LD   A, ERR_redecl_not_allw
-                                   CALL ReportError_STD          ; ReportError(23)
-                                   RET
+                                   JP   ReportError_STD          ; ReportError(23)
                                                   ; else
 .global_decl_local       CALL ReleaseID                ; {release redundant search id}
                          LD   A, ERR_sym_decl_local
-                         CALL ReportError_STD          ; ReportError(17)
-                    RET
+                         JP   ReportError_STD          ; ReportError(17)
 
 
 ; **************************************************************************************************
@@ -822,29 +714,12 @@
                          LD   B,C
                          LD   C,A                 ; BHL = dstptr, CDE = symname_cpy
                          LD   A, symtree_symname
-                         CALL Set_pointer         ; dstptr->symname = symname_copy
-                         RET                      ; return dstptr
-
+                         JP   Set_pointer         ; dstptr->symname = symname_copy
+                                                  ; return dstptr
 .sym_notalloc       CALL ReportError_NULL
                     POP  AF
                     POP  AF                  ; return NULL - symbol not copied.
-                    RET
-
-
-
-; **************************************************************************************************
-;
-; return NULL pointer in BHL.
-;
-; Registers changed after return:
-;
-;    ...CDE../IXIY  same
-;    AFB...HL/....  different
-;
-.NULL_pointer       XOR  A
-                    LD   B,A
-                    LD   H,A
-                    LD   L,A
+                    SCF
                     RET
 
 
@@ -874,8 +749,7 @@
                     LD   A,B
                     POP  BC
                     LD   C,A                      ; BHL = src_string, CDE = dst_string
-                    CALL strcpy                   ; strcpy(dst_string, src_string)
-                    RET
+                    JP   strcpy                   ; strcpy(dst_string, src_string)
 
 .alloc_no_room      CALL ReportError_NULL
                     POP  HL
@@ -924,16 +798,14 @@
                     PUSH HL                            ; {preserve node}
                     LD   A, symtree_symname
                     CALL Read_pointer
-                    XOR  A
-                    CP   B
+                    INC  B
+                    DEC  B
                     JR   Z, rel_symnode                ; if ( node->symname != NULL )
                          CALL mfree                         ; free(node->symname)
 
 .rel_symnode        POP  HL
                     POP  BC
-                    CALL mfree                         ; free(node)
-                    RET
-
+                    JP   mfree                         ; free(node)
 
 
 ; **************************************************************************************************
@@ -949,5 +821,4 @@
 ;    AFB...HL/....  different
 ;
 .AllocSymbol        LD   A, SIZEOF_symboltree
-                    CALL malloc
-                    RET
+                    JP   malloc

@@ -37,9 +37,8 @@
      LIB Read_byte, Read_word, Set_word, Read_pointer
      LIB Set_pointer, Set_long, Read_long
      LIB AllocIdentifier, CmpPtr, memcompare
-     LIB mfree
+     LIB GetVarPointer, mfree
 
-     XREF Disp_allocmem
      XREF ReportError_STD, STDerr_syntax, STDerr_ill_ident  ; errors.asm
      XREF ReportError, ReportError_NULL                     ;
 
@@ -49,22 +48,24 @@
 
      XREF ExprUnsigned8, ExprAddress, ExprLong              ; exprs.asm
      XREF Test_16bit_range                                  ;
-     XREF Add16bit_1, Add16bit_2, Add16bit_4                ;
 
-     XREF DefineSymbol, DefineDefSym, NULL_pointer          ; symbols.asm
+     XREF asm_pc_p1, asm_pc_p2, asm_pc_p4                   ; z80pass1.asm
+
+     XREF NULL_pointer                                      ; findsym.asm
+     XREF DefineSymbol, DefineDefSym                        ; symbols.asm
      XREF DeclSymExtern, DeclSymGlobal, cmpIDstr            ;
 
      XREF GetConstant                                       ; getconst.asm
      XREF Getsym, CheckRegister8, IndirectRegisters         ; prsline.asm
      XREF SearchID                                          ; prsident.asm
-     XREF WriteByte, WriteWord, Flushbuffer                 ; bytesio.asm
-     XREF ParseNumExpr, RemovePfixlist                      ; parsexpr.asm
+     XREF WriteByte, Flushbuffer                            ; bytesio.asm
+     XREF ParseNumExpr                                      ; parsexpr.asm
      XREF EvalPfixExpr                                      ; evalexpr.asm
-     XREF GetVarPointer                                     ; z80asm.asm
+     XREF RemovePfixlist                                    ; rmpfixlist.asm
      XREF CurrentModule                                     ; module.asm
-     XREF Open_file, Close_file, Copy_file, ftell, fseek    ; fileio.asm
+     XREF Open_file, Close_file, Copy_file, ftell, fseekptr ; fileio.asm
      XREF Z80pass1, FetchLine                               ; z80pass1.asm
-     XREF Init_sourcefile                                   ; z80asm.asm
+     XREF Init_sourcefile                                   ; asmsrcfiles.asm
 
 ; global procedures:
      XDEF DEFS_fn, ORG_fn, BINARY_fn, DeclModule
@@ -130,8 +131,8 @@
                          CALL CurrentFile
                          CALL Init_sourcefile
                          LD   DE, srcfile_filepointer
-                         CALL fseek                    ; fseek(z80asmfile, CURRENTFILE->filepointer, SEEK_SET)
-                         RET                      ; else
+                         JP   fseekptr                 ; fseek(z80asmfile, CURRENTFILE->filepointer, SEEK_SET)
+                                                 ; else
 
 .inclfile_opened         LD   (srcfilehandle),IX       ; {DE points at explicit filename}
                          CALL CurrentFile              ; sourcefile_open = 1
@@ -150,7 +151,6 @@
                          CALL Display_filename         ; puts(CURRENTFILE->fname)
 
                          CALL Z80pass1                 ; Z80pass1()
-                         CALL Disp_allocmem
                          CALL PrevFile                 ; pfile = PrevFile()
                          CALL CurrentModule
                          LD   A, module_cfile
@@ -180,12 +180,11 @@
                               LD   (srcfilehandle),IX       ; sourcefile_open = 1
                               CALL CurrentFile
                               LD   DE, srcfile_filepointer
-                              CALL fseek                    ; fseek(z80asmfile, CURRENTFILE->filepointer, SEEK_SET)
+                              CALL fseekptr                 ; fseek(z80asmfile, CURRENTFILE->filepointer, SEEK_SET)
 .end_include        LD   A,sym_newline
                     LD   (sym),A
                     RES  EOF,(IY + RTMflags3)
                     RET
-
 
 
 ; **************************************************************************************************
@@ -232,8 +231,8 @@
                                         JR   Z, evaluate_enumconst
                                              LD   A, ERR_not_defined
                                              CALL ReportError_STD                    ; reporterror(*, *, 2)
-                                             CALL RemovePfixList
-                                             RET                                ; else
+                                             JP   RemovePfixList
+                                                                                ; else
 .evaluate_enumconst                          PUSH BC
                                              PUSH HL
                                              CALL EvalPfixExpr                       ; enumconst = EvalPfixExpr(postfixexpr) {returned in HLhlC}
@@ -262,7 +261,6 @@
                     RET  Z                             ; if ( sym == rcurly ) return
                     CALL FetchLine
                     JR   fetchgroup_loop
-
 
 
 ; **************************************************************************************************
@@ -330,8 +328,8 @@
                          JR   Z, defvars_evalexpr
                               LD   A, ERR_not_defined                 ; reporterror(*, *, 2)
                               CALL ReportError_STD                    ; break
-                              CALL RemovePfixList
-                              RET                                ; else
+                              JP   RemovePfixList
+                                                                 ; else
 .defvars_evalexpr             PUSH BC
                               PUSH HL                                 ; {preserve postfixexpr pointer}
                               CALL EvalPfixExpr                       ; const = EvalPfixExpr(postfixexpr) {returned in HLhlC}
@@ -410,9 +408,9 @@
 ;    OUT: BC = field size.
 ;
 .Parsevarsize       CALL Check_DS_ident                ; if ( strcmp(ident, "DS") != 0 ) reporterror(11)
-                    JR   NZ, illegal_ident             ; else
+                    JP   NZ, STDerr_ill_ident          ; else
                          CALL DS_fn                         ; if ( (varsize = DS()) == -1 )
-                         JR   NZ, illegal_ident                  ; ReportError(11)
+                         JP   NZ, STDerr_ill_ident               ; ReportError(11)
                               LD   D,0                      ; else
                               LD   E,A                           ; { varsize in DE }
                               CALL Getsym                        ; Getsym()
@@ -424,8 +422,8 @@
                                    JR   Z, fieldsize_evalexpr
                                         LD   A, ERR_not_defined
                                         CALL ReportError_STD                    ; reporterror(*, *, 2)
-                                        CALL RemovePfixList
-                                        RET                                ; else
+                                        JP   RemovePfixList
+                                                                           ; else
 .fieldsize_evalexpr                     PUSH DE                                 ; { preserse varsize }
                                         PUSH BC
                                         PUSH HL                                 ; {preserve postfixexpr pointer}
@@ -444,10 +442,6 @@
                     LD   C,L                           ; return fieldsize
                     RET
 
-.illegal_ident      CALL STDerr_ill_ident
-                    RET
-
-
 
 ; **************************************************************************************************
 ;
@@ -464,8 +458,7 @@
                          JR   Z, ds_evalexpr
                               LD   A, ERR_not_defined
                               CALL ReportError_STD                    ; reporterror(*, *, 2)
-                              CALL RemovePfixList
-                              RET                                ; else
+                              JP   RemovePfixList                ; else
 .ds_evalexpr                  PUSH BC
                               PUSH HL                                 ; {preserve postfixexpr pointer}
                               CALL EvalPfixExpr                       ; const = EvalPfixExpr(postfixexpr) {returned in HLhlC}
@@ -488,12 +481,9 @@
                                         CALL WriteByte                     ; *codeptr++ = 0
                                         DEC  DE
                                    JR   ds_loop
-
 .end_ds                  POP  HL
                          POP  BC
-                         CALL RemovePfixList                     ; RemovePfixList(postfixexpr)
-                    RET
-
+                         JP   RemovePfixList                     ; RemovePfixList(postfixexpr)
 
 
 ; **************************************************************************************************
@@ -519,8 +509,8 @@
                                    JR   Z, defc_evalexpr
                                         LD   A, ERR_not_defined                 ; reporterror(*, *, 2)
                                         CALL ReportError_STD                    ; break
-                                        CALL RemovePfixList
-                                        RET                                ; else
+                                        JP   RemovePfixList
+                                                                           ; else
 .defc_evalexpr                          PUSH BC
                                         PUSH HL                                 ; {preserve postfixexpr pointer}
                                         CALL EvalPfixExpr                       ; const = EvalPfixExpr(postfixexpr) {returned in HLhlC}
@@ -560,7 +550,6 @@
                     POP  DE
                     POP  HL
                     RET
-
 
 
 ; **************************************************************************************************
@@ -616,8 +605,8 @@
                          JR   Z, org_evalexpr
                               LD   A, ERR_not_defined
                               CALL ReportError_STD                    ; reporterror(*, *, 2)
-                              CALL RemovePfixList
-                              RET                                ; else
+                              JP   RemovePfixList
+                                                                 ; else
 .org_evalexpr                 PUSH BC
                               PUSH HL                                 ; {preserve postfixexpr pointer}
                               CALL EvalPfixExpr                       ; const = EvalPfixExpr(postfixexpr) {returned in HLhlC}
@@ -659,8 +648,7 @@
                                    CALL ReportError_STD
 .end_org                 POP  HL
                          POP  BC
-                         CALL RemovePfixList                     ; RemovePfixList(postfixexpr)
-                    RET
+                         JP   RemovePfixList                     ; RemovePfixList(postfixexpr)
 
 
 
@@ -674,9 +662,7 @@
 .defb_loop          CALL Getsym                             ; Getsym()
                     CALL ExprUnsigned8
                     RET  C                                  ; if ( !ExprUnsigned8(bytepos) ) break
-                         LD   HL,asm_pc
-                         CALL Add16bit_1                    ; ++PC
-
+                         CALL asm_pc_p1                     ; ++PC
                          LD   A, (sym)                      ; if (sym == newline || sym == semicolon)
                          CP   sym_semicolon
                          RET  Z
@@ -698,9 +684,7 @@
 .defw_loop          CALL Getsym                             ; Getsym()
                     CALL ExprAddress
                     RET  C                                  ; if ( !ExprAddress(bytepos) ) break
-                         LD   HL,asm_pc
-                         CALL Add16bit_2                    ; PC += 2
-
+                         CALL asm_pc_p2                     ; PC += 2
                          LD   A, (sym)                      ; if (sym == newline || sym == semicolon)
                          CP   sym_semicolon
                          RET  Z
@@ -722,8 +706,7 @@
 .defl_loop          CALL Getsym                             ; Getsym()
                     CALL ExprLong
                     RET  C                                  ; if ( !ExprLong(bytepos) ) break
-                         LD   HL,asm_pc
-                         CALL Add16bit_4                    ; PC += 4
+                         CALL asm_pc_p4                     ; PC += 4
 
                          LD   A, (sym)                      ; if (sym == newline || sym == semicolon)
                          CP   sym_semicolon
@@ -758,8 +741,7 @@
                          JR   Z, next_defm_expr
                               LD   C,A
                               CALL WriteByte                          ; *codeptr++ = const
-                              LD   HL, asm_pc
-                              CALL Add16bit_1                         ; ++PC
+                              CALL asm_pc_p1                          ; ++PC
                               JR   defm_string_loop
 .next_defm_expr          CALL Getsym                             ; Getsym()
                          JR   check_defm_expr                    ; if ( sym!=strconq && sym!=newline && sym!=lf && sym!=semicolon )
@@ -767,8 +749,8 @@
                                                                       ; return
 .defm_expr               CALL ExprUnsigned8                 ; else
                          RET  C                                  ; if ( !ExprUnsigned8(bytepos) ) break
-                         LD   HL, asm_pc                               ; ++bytepos
-                         CALL Add16bit_1                              ; ++PC
+                                                                      ; ++bytepos
+                         CALL asm_pc_p1                               ; ++PC
 .check_defm_Expr         LD   A,(sym)
                          CP   sym_strconq
                          JR   Z, defm_loop
@@ -795,8 +777,7 @@
                     CALL Open_file                ; binfile = open( ident, O_RDONLY, 0 )
                     JR   NC, binary_continue      ; if ( binfile == NULL )
                          LD   A,ERR_file_open          ; ReportError(0)
-                         CALL ReportError_STD          ; return
-                         RET
+                         JP   ReportError_STD          ; return
 .binary_continue    LD   (tmpfilehandle),IX
                     LD   A,FA_EXT
                     LD   DE,0
@@ -806,7 +787,7 @@
                     PUSH BC
                     EXX
                     POP  DE
-                    LD   HL,(asm_pc)               ; HLhlC = asm_pc
+                    LD   HL,(asm_pc)              ; HLhlC = asm_pc
                     EXX                           ; DEdeB = filestatus.st_size
                     PUSH BC
                     LD   BC,0
@@ -817,8 +798,7 @@
                          LD   A,ERR_max_codesize
                          CALL ReportError_STD          ; ReportError(12)
                          LD   HL, tmpfilehandle
-                         CALL Close_file               ; close(binfile)
-                         RET
+                         JP   Close_file               ; close(binfile)
 
 .binary_continue2   PUSH BC
                     EXX
@@ -834,9 +814,7 @@
                     LD   DE, cdefilehandle
                     CALL Copy_file                ; copy(binfile, cdefile, filestatus.st_size)
                     LD   HL, tmpfilehandle
-                    CALL Close_file               ; close(binfile)
-                    RET
-
+                    JP   Close_file               ; close(binfile)
 
 
 ; ************************************************************************************
@@ -874,8 +852,7 @@
                               RET
 
 .missing_dquote     POP  HL                            ; {remove this subroutine RET address}
-                    CALL STDerr_syntax                 ; reporterror(1)
-                    RET
+                    JP   STDerr_syntax                 ; reporterror(1)
 
 
 ; **************************************************************************************************
@@ -910,8 +887,7 @@
 ;    AFBCDEHL/IX..
 ;
 .DeclModule         CALL Getsym                   ; Getsym()
-                    CALL DeclModuleName           ; DeclModuleName()
-                    RET
+                    JP   DeclModuleName           ; DeclModuleName()
 
 
 ; **************************************************************************************************
@@ -925,8 +901,8 @@
                     PUSH HL
                     LD   A, module_mname
                     CALL Read_pointer
-                    XOR  A
-                    CP   B
+                    INC  B
+                    DEC  B
                     JR   NZ, mname_declared            ; if ( CURRENTMODULE->mname == NULL )
                          POP  HL
                          POP  BC
@@ -944,18 +920,16 @@
                               LD   C,A                           ; {BHL= CURRENTMODULE, CDE = id}
                               JR   C, mname_no_room              ; if ( id != NULL )
                                    LD   A, module_mname
-                                   CALL Set_pointer                   ; CURRENTMODULE->mname = id
-                                   RET                           ; else
+                                   JP   Set_pointer                   ; CURRENTMODULE->mname = id
+                                                                 ; else
 .mname_no_room                     LD   A, ERR_no_room
-                                   CALL reportError_STD               ; ReportError(3)
-                                   RET                      ; else
+                                   JP   reportError_STD               ; ReportError(3)
+                                                            ; else
                                                                  ; reporterror(11)
 .mname_Declared     POP  HL                            ; else
                     POP  BC
                     LD   A, ERR_modname_defined
-                    CALL ReportError_STD                    ; Reporterror(15)
-                    RET
-
+                    JP   ReportError_STD                    ; Reporterror(15)
 
 
 ; **************************************************************************************************
@@ -982,7 +956,6 @@
 .ENDIF_fn           LD   A,sym_endifstatm
                     LD   (sym),A
                     RET
-
 
 
 ; **************************************************************************************************
@@ -1020,10 +993,9 @@
                     JP   NZ, STDerr_syntax        ; if ( Getsym() == name
                          CALL DeclModuleName           ; DeclModuleName();
                          LD   A, 2**SYMDEF
-                         CALL DeclSymGlobal            ; DeclSymGlobal(SYMDEF)
+                         JP   DeclSymGlobal            ; DeclSymGlobal(SYMDEF)
                                                   ; else
                                                        ; reporterror(1)
-                    RET
 
 
 ; **************************************************************************************************

@@ -28,11 +28,6 @@
 
      MODULE Z80pass1
 
-
-; external variables:
-     XREF separators
-     XREF select_win4, bytes_msg
-
 ; library procedures:
      LIB Read_word, Read_long, Read_byte, Read_pointer
      LIB Set_word, Set_long, Set_byte, Set_pointer
@@ -45,18 +40,17 @@
      XREF STDerr_ill_ident, STDerr_syntax, ReportError_STD  ; errors.asm
      XREF DefineSymbol                                      ; symbols.asm
      XREF CurrentFile, CurrentFileName, CurrentFileLine     ; srcfile.asm
-     XREF ParseNumExpr, EvalPfixExpr, RemovePfixList        ; exprprsr.asm
-     XREF Write_fptr                                        ; modlink.asm
+     XREF ParseNumExpr                                      ; parsexpr.asm
+     XREF EvalPfixExpr                                      ; evalexpr.asm
+     XREF RemovePfixList                                    ; rmpfixlist.asm
      XREF CurrentModule                                     ; module.asm
-     XREF fseek                                             ; fileio.asm
-     XREF Disp_allocmem                                     ; dispmem.asm
-     XREF Keyboard_interrupt                                ; z80asm.asm
+     XREF fseekptr                                          ; fileio.asm
 
 ; routines accessible in this module:
      XDEF Z80pass1, IFstatement
      XDEF Pass2Info, FetchLine
-     XDEF Display_integer
-
+     XDEF Add16bit_1, Add16bit_2, Add16bit_3, Add16bit_4
+     XDEF asm_pc_p1, asm_pc_p2, asm_pc_p3, asm_pc_p4
 
      INCLUDE "stdio.def"
      INCLUDE "fileio.def"
@@ -75,17 +69,11 @@
 ;    ......../..IY  same
 ;    AFBCDEHL/IX..  different
 ;
-.Z80pass1           CALL Disp_allocmem
+.Z80pass1
 .readfile_loop
-                    LD   A,(IY + RtmFlags3)            ; while( !eof(z80asmfile) || !keyboard_break)
+                    LD   A,(IY + RtmFlags3)            ; while( !eof(z80asmfile) )
                     BIT  EOF,A
-                    RET  NZ
-                    BIT  abort,A                       ; {
-                    RET  NZ
-
-                         CALL Keyboard_interrupt       ;    Keyboard_interrupt()
-                         RET  Z                             ; abort-keys pressed, return...
-
+                    RET  NZ                            ; {
                          LD   A, flag_ON
                          CALL ParseLine                     ; parseline(ON)
 
@@ -97,22 +85,21 @@
                     JR   readfile_loop                 ; }
 
 
-
 ; **************************************************************************************************
 ;
 ; Parse current source line
 ;
 ; IN: A = Interpret flag ( -1 = ON, 0 = OFF ). Flag MUST be local due to recursion
 ;
-.ParseLine          BIT  abort,(IY + RtmFlags3)             ; if (keyboard_break) return
-                    RET  NZ
-
+.ParseLine
                     PUSH AF                                 ; preserve interpret flag
 
-                    LD   HL,(totallines)
+                    LD   HL,totallines
+                    INC  (HL)
+                    JR   NC, init_asmpc
                     INC  HL
-                    LD   (totallines),HL                    ; ++totallines
-
+                    INC  (HL)                               ; ++totallines
+.init_asmpc
                     LD   HL, asm_pc_ptr
                     CALL GetVarPointer
                     INC  B
@@ -279,7 +266,6 @@
                     RET
 
 
-
 ; **************************************************************************************************
 ;
 ;    IN:  BHL = pfixexpr, pointer to postfix expression
@@ -310,16 +296,16 @@
                     PUSH HL                            ; {preserve CURRENTMODULE->mexpr}
                     LD   A, expression_first
                     CALL Read_pointer                  ; {CURRENTMODULE->mexpr->first}
-                    XOR  A
-                    CP   B
+                    INC  B
+                    DEC  B
                     POP  HL
                     POP  BC
                     JR   NZ, pass2info_addexpr         ; if (CURRENTMODULE->mexpr->firstexpr == NULL)
                          LD   A, expression_first
                          CALL Set_pointer                   ; CURRENTMODULE->mexpr->firstexpr = pfixexpr
                          LD   A, expression_curr
-                         CALL Set_pointer                   ; CURRENTMODULE->mexpr->currexpr = pfixexpr
-                         RET                           ; else
+                         JP   Set_pointer                   ; CURRENTMODULE->mexpr->currexpr = pfixexpr
+                                                       ; else
 .pass2info_addexpr       PUSH BC
                          PUSH HL                            ; {preserve CURRENTMODULE->mexpr}
                          LD   A, expression_curr
@@ -329,10 +315,7 @@
                          POP  HL
                          POP  BC
                          LD   A, expression_curr
-                         CALL Set_pointer                   ; CURRENTMODULE->mexpr->currexpr = pfixexpr
-                    RET
-
-
+                         JP   Set_pointer                   ; CURRENTMODULE->mexpr->currexpr = pfixexpr
 
 
 ; ******************************************************************************
@@ -353,7 +336,7 @@
                     LD   IX,(srcfilehandle)       ; get file handle
                     CALL CurrentFile
                     LD   DE, srcfile_filepointer
-                    CALL fseek                    ; fseek(z80asmfile, CURRENTFILE->filepointer, SEEK_SET)
+                    CALL fseekptr                 ; fseek(z80asmfile, CURRENTFILE->filepointer, SEEK_SET)
 
                     LD   BC, SIZEOF_LINEBUFFER-1  ; read max. bytes into buffer, if possible
                     LD   HL,0
@@ -435,10 +418,6 @@
                     INC  DE
                     LD   A, srcfile_line
                     CALL Set_word                 ; ++CURRENTFILE->line
-
-                    LD   B,D
-                    LD   C,E
-                    CALL Display_integer          ; display current line number to window "5"
 
 .exit_fetchline     POP  HL
                     POP  DE
@@ -533,49 +512,78 @@
                     RET
 
 
-; ******************************************************************************
-;
-;    Display integer (current line number, etc.) to window "5"
-;    Each line number is terminated by a CR to move the cursor back to the
-;    start of the current line.
-;
-;    IN:  BC = number to display
-;    OUT: None.
-;
-;    Registers changed after return:
-;         ....DEHL/IXIY  same
-;         AFBC..../....  different
-;
-.Display_integer    PUSH DE
-                    PUSH HL
-                    PUSH IX
 
-                    LD   IX,-10
-                    ADD  IX,SP
-                    LD   SP,IX                    ; make 10 byte buffer on stack
-                    LD   HL,2                     ; BC contains integer...
-                    PUSH IX
-                    POP  DE                       ; write ASCII string to buffer
-                    LD   A,@01010101              ; 5 character wide number, no leading spaces, use trailing spaces...
-                    CALL_OZ(Gn_Pdn)               ; convert
-                    LD   A, CR
-                    LD   (DE),A                   ; trailing CR (cursor to start of line)
-                    INC  DE
-                    XOR  A
-                    LD   (DE),A                   ; then null-terminate string.
+; ========================================================================================
+; (asm_pc)++
+.asm_pc_p1
+                    LD   HL,asm_pc
 
-                    LD   HL, select_win5
-                    CALL_OZ(Gn_Sop)               ; select message window
-                    PUSH IX
-                    POP  HL
-                    CALL_OZ(Gn_Sop)               ; and display number.
-
-                    LD   HL,10
-                    ADD  HL,SP
-                    LD   SP,HL                    ; restore SP
-
-                    POP  IX
-                    POP  HL
-                    POP  DE                       ; original registers restored.
+; ========================================================================================
+;
+; 16bit add+1
+;
+; IN: HL local pointer to word
+;
+; Registers changed after return:
+;
+;    A.BCDE../IXIY  same
+;    .F....HL/....  different
+;
+.Add16bit_1         INC  (HL)
+                    RET  NZ
+                    INC  HL
+                    INC  (HL)
+                    DEC  HL
                     RET
-.select_win5        DEFM 1, "2H5", 0              ; select window "5"
+
+; ========================================================================================
+; (asm_pc) += 2
+.asm_pc_p2
+                    LD   HL,asm_pc
+
+; ========================================================================================
+;
+; 16bit add+2
+;
+; Registers changed after return:
+;
+;    AFBCDE../IXIY  same
+;    ......HL/....  different
+;
+.Add16bit_2         CALL Add16bit_1
+                    JP   Add16bit_1
+
+
+; ========================================================================================
+; (asm_pc) += 3
+.asm_pc_p3
+                    LD   HL,asm_pc
+
+; ========================================================================================
+;
+; 16bit add+3
+;
+; Registers changed after return:
+;
+;    AFBCDE../IXIY  same
+;    ......HL/....  different
+;
+.Add16bit_3         CALL Add16bit_2
+                    JP   Add16bit_1
+
+; ========================================================================================
+; (asm_pc) += 4
+.asm_pc_p4
+                    LD   HL,asm_pc
+
+; ========================================================================================
+;
+; 16bit add+4
+;
+; Registers changed after return:
+;
+;    AFBCDE../IXIY  same
+;    ......HL/....  different
+;
+.Add16bit_4         CALL Add16bit_2
+                    JP   Add16bit_2

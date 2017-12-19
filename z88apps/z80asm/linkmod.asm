@@ -31,16 +31,16 @@
 ; external procedures:
      LIB Read_word, Read_pointer, Set_word, Read_byte
      LIB Set_pointer, Set_long, Set_byte
+     LIB GetVarPointer
      LIB malloc
      LIB CmpPtr
      LIB IntHex
 
-     XREF Disp_allocmem                                     ; dispmem.asm
      XREF ReportError, ReportError_NULL                     ; errors.asm
      XREF GetSym                                            ; prsline.asm
      XREF CurrentFile                                       ; srcfile.asm
-     XREF CurrentModule                                     ; currmod.asm
-     XREF GetPointer, GetVarPointer, FreeVarPointer         ; varptr.asm
+     XREF CurrentModule                                     ; module.asm
+     XREF GetPointer, FreeVarPointer                        ; varptr.asm
      XREF CopyId                                            ; symbols.asm
      XREF CreateFileName                                    ; crtflnm.asm
      XREF Display_filename                                  ; dispflnm.asm
@@ -51,17 +51,15 @@
      XREF LinkLibModules                                    ; linklibm.asm
      XREF ModuleExpressions                                 ; readexpr.asm
 
-     XREF CreateasmPC_ident                                ; z80asm.asm
-     XREF Keyboard_Interrupt                                ;
+     XREF CreateasmPC_ident                                 ; z80asm.asm
 
      XREF Display_integer                                   ; z80pass1.asm
      XREF InitRelocTable, RelocationPrefix                  ; reloc.asm
 
      XREF Test_32bit_range, Test_16bit_range                ; exprs.asm
 
-     XREF Open_file, ftell, fseek, Read_fptr, Write_fptr    ; fileio.asm
+     XREF Open_file, ftell, fseekptr, fseekfwm, Read_fptr  ; fileio.asm
      XREF Close_file, Copy_file, Delete_file                ;
-     XREF Write_string                                      ;
 
 ; routines accessible in this module:
      XDEF LinkModules, LinkModule
@@ -148,13 +146,9 @@
 
                     LD   HL,0
                     LD   (asm_pc),HL
-                    CALL CreateasmPC_ident                 ; DefineDefSym( "ASMPC", 0, &globalroot)
-
+                    CALL CreateasmPC_ident                  ; DefineDefSym( "ASMPC", 0, &globalroot)
                                                             ; do
 .modlink_loop
-                         CALL Keyboard_Interrupt                 ; Keyboard_Interrupt()
-                         JP   Z,linkmodules_err2                 ; abort-keys pressed, stop linking...
-
 .begin_modlink_loop      BIT  library, (IY + RTMflags)           if ( library )
                          JR   Z, modlink_loop_continue
                               LD   HL, libraryhdr
@@ -184,8 +178,7 @@
                               JP   C, linkmodules_err
                               LD   (objfilehandle),IX            ; object file opened...
                               CALL CheckObjfile
-                              CP   -1                            ; if ( CheckObjFile() == -1 )
-                              JR   NZ, modlink_loop_continue2
+                              JR   Z, modlink_loop_continue2     ; if ( CheckObjFile() == -1 )
                                    LD   HL,objfilehandle
                                    CALL Close_file                    ; fclose(objfile)
                                    JP   linkmodules_err2              ; return
@@ -218,7 +211,8 @@
                                         JR   NZ, set_origin
                                         CP   E
                                         JR   NZ, set_origin                     ; if ( CURRENTMODULE->origin == 65535U )
-                                             CALL DefineOrigin                       ; DefineOrigin()
+                                             LD   A,ERR_Org_not_defined
+                                             CALL ReportError_NULL                   ; ReportError_NULL(ERR_Org_not_defined)
 .set_origin                        LD   A, module_origin
                                    CALL Set_word
                               CALL Display_ORG                        ; display_ORG (CURRENTMODULE->origin)
@@ -286,8 +280,7 @@
                     LD   HL, binfilename
                     CALL GetVarPointer
                     INC  HL
-                    CALL Delete_file                        ; remove(binfilename)
-                    RET
+                    JP   Delete_file                        ; remove(binfilename)
 
 .link_msg           DEFM 1, "2H5", 10, 13, "linking module(s)...", 10, 13, "Pass1...", 10, 13, 0
 .errext             DEFM "err"
@@ -329,9 +322,7 @@
 ;    ......../IXIY  same
 ;    AFBCDEHL/....  different
 ;
-.LinkModule         CALL Keyboard_Interrupt                 ; Keyboard_Interrupt()
-                    RET  Z                                  ; abort-keys pressed, stop linking...
-
+.LinkModule
                     PUSH IX
                     EXX
                     LD   HL,0
@@ -362,7 +353,7 @@
                     LD   BC,10
                     LD   DE,0
                     CALL Add32bit
-                    CALL fseek                                   ; fseek(objfile, fptr_base+10, SEEK_SET)
+                    CALL fseekfwm                                ; fseek(objfile, fptr_base+10, SEEK_SET)
                     LD   HL, fptr_modname
                     CALL Read_fptr                               ; fptr_modname = ReadLong(objfile)
                     LD   HL, fptr_exprdecl
@@ -375,8 +366,6 @@
                     CALL Read_fptr                               ; fptr_modcode = ReadLong(objfile)
                     POP  IX
 
-                    CALL Disp_allocmem                           ; display amount of allocated OZ memory
-
                     LD   A,(fptr_modcode+3)
                     CP   -1
                     JP   Z, read_modnames                        ; if ( fptr_modcode != -1 )
@@ -388,8 +377,7 @@
                          CALL Add32bit                                ; fptr_modcode += fptr_base
                          PUSH IX
                          LD   IX,(objfilehandle)
-                         LD   B,0                                     ; {local pointer}
-                         CALL fseek                                   ; fseek( objfile, fptr_modcode+fptr_base, SEEK_SET)
+                         CALL fseekfwm                               ; fseek( objfile, fptr_modcode+fptr_base, SEEK_SET)
                          CALL_OZ(OS_Gb)
                          LD   C,A                                     ; lowbyte = fgetc(objfile)
                          CALL_OZ(OS_Gb)
@@ -419,7 +407,7 @@
                               LD   IX, (cdefilehandle)
                               CALL CurrentModule
                               LD   DE, module_startoffset                  ; set file pointer for module code
-                              CALL fseek                                   ; fseek(binfile, CURRENTMODULE->startoffset, SEEK_SET)
+                              CALL fseekptr                                ; fseek(binfile, CURRENTMODULE->startoffset, SEEK_SET)
                               POP  IX
                               LD   HL, objfilehandle                       ; from object file
                               LD   DE, cdefilehandle                       ; to binary file
@@ -469,8 +457,7 @@
                          CALL Add32bit
                          PUSH IX                                      ; {preserve pointer to local variables}
                          LD   IX,(objfilehandle)
-                         LD   B,0                                     ; {local pointer}
-                         CALL fseek                                   ; fseek( fptr_base + fptr_namedecl, objfile, SEEK_SET)
+                         CALL fseekfwm                                ; fseek( fptr_base + fptr_namedecl, objfile, SEEK_SET)
                          POP  IX
 
                          LD   A,(fptr_libnames+3)
@@ -527,8 +514,6 @@
                     LD   D,(IX+4)
                     LD   C,(IX+5)                           ; CDE = fptr_base
                     CALL LinkTracedModule                   ; flag = LinkTracedModule(filename, fptr_base)
-
-                    CALL Disp_allocmem                      ; display amount of allocated OZ memory
 
 .exit_linkmod       POP  HL                                 ; get SP for .LinkModule entry
                     LD   SP,HL                              ; point at RETurn address
@@ -652,16 +637,15 @@
                               PUSH HL
                               LD   A, linklist_firstmod
                               CALL Read_pointer                  ; { BHL = linkhdr->firstmod }
-                              XOR  A
-                              CP   B
+                              INC  B
+                              DEC  B
                               POP  HL                            ; { restore linkhdr }
                               POP  BC
                               JR   NZ, append_module             ; if ( linkhdr->firstmod == NULL )
                                    LD   A, linklist_firstmod
                                    CALL Set_pointer                   ;    linkhdr->firstmod = newl
                                    LD   A, linklist_lastmod
-                                   CALL Set_pointer                   ;    linkhdr->lastmod = newl
-                                   JR   end_newlinkedmod
+                                   JP   Set_pointer                   ;    linkhdr->lastmod = newl
                                                                  ; else
 .append_module                PUSH BC
                               PUSH HL                                 ;    { preserve linkhdr }
@@ -672,11 +656,8 @@
                               POP  HL
                               POP  BC
                               LD   A, linklist_lastmod
-                              CALL Set_pointer                        ;    linkhdr->lastmod = newl
-
-.end_newlinkedmod   XOR  A                             ; return CDE = newm
-                    RET                                ; indicate succes...
-
+                              JP   Set_pointer                        ;    linkhdr->lastmod = newl
+                                                                      ;    return CDE = newm (Fc = 0)
 .newl_nullptr       POP  BC
                     POP  HL
                     POP  DE
@@ -720,8 +701,7 @@
 ;    AFB...HL/....  different
 ;
 .Alloclinkhdr       LD   A, SIZEOF_linklist
-                    CALL malloc
-                    RET
+                    JP   malloc
 
 
 ; **************************************************************************************************
@@ -737,5 +717,4 @@
 ;    AFB...HL/....  different
 ;
 .AllocTracedModule  LD   A, SIZEOF_linkedmod
-                    CALL malloc
-                    RET
+                    JP   malloc

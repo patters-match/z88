@@ -32,11 +32,11 @@
      XREF relocator, SIZEOF_relocator
      XREF ReportError_NULL                                            ; stderror.asm
 
-     XREF Open_file, Close_file, Delete_file, fseek, Write_string     ; fileio.asm
-     XREF Copy_file                                                   ;
+     XREF Open_file, Close_file, Delete_file, fseek0                  ; fileio.asm
+     XREF Write_string, bufferfile, Copy_file
 
-     XDEF InitRelocTable, RelocationPrefix, reloctablefile, bufferfile
-
+     XDEF InitRelocTable, RelocationPrefix
+     XDEF DeleteRelocTblFile
 
      INCLUDE "stdio.def"
      INCLUDE "fileio.def"
@@ -68,8 +68,12 @@
                     LD   (curroffset),HL               ; curroffset = 0
                     LD   (size_reloctable),HL          ; size_reloctable = 0
                     RET
-.reloctablefile     DEFM ":RAM.-/reloctable", 0
-.reloctablehdr      DEFB 0, 0, 0, 0
+
+
+; **************************************************************************************************
+.DeleteRelocTblFile
+                    LD   HL, reloctablefile
+                    JP   Delete_file                   ; delete ":RAM.-/reloctable", if it exists...
 
 
 ; **************************************************************************************************
@@ -91,9 +95,7 @@
                     OR   L
                     JP   Z, exit_relocprefix           ; if (totaladdr != 0)
                          LD   IX,(relocfilehandle)
-                         LD   B,0
-                         LD   HL, reloctablehdr             ; point at four zeroes
-                         CALL fseek                         ; move file pointer to start of table
+                         CALL fseek0                        ; move file pointer to start of table
                          LD   HL,(totaladdr)
                          LD   A,L
                          CALL_OZ(OS_Pb)                     ; fputc(reloctable, totaladdr % 256)
@@ -107,9 +109,7 @@
                          CALL_OZ(OS_Pb)                     ; fputc(reloctable, size_reloctable / 256)
                          ADD  HL,BC
                          LD   (size_reloctable),HL          ; size_reloctable += 4
-                         LD   B,0
-                         LD   HL, reloctablehdr             ; point at four zeroes
-                         CALL fseek                         ; move file pointer to start of table
+                         CALL fseek0                        ; move file pointer to start of table
 
                          LD   A, OP_OUT
                          LD   HL, bufferfile
@@ -129,9 +129,7 @@
                               CALL Copy_file                     ; fwrite(buff, reloctable, size_reloctable)
 
                               LD   IX,(cdefilehandle)
-                              LD   B,0
-                              LD   HL, reloctablehdr             ; point at four zeroes
-                              CALL fseek                         ; move file pointer to start of linked machine code
+                              CALL fseek0                        ; move file pointer to start of linked machine code
                               LD   HL, cdefilehandle
                               LD   DE, tmpfilehandle
                               XOR  A
@@ -140,9 +138,7 @@
                               LD   HL, tmpfilehandle
                               CALL Close_file                    ; fclose(buff)
                               LD   IX,(cdefilehandle)
-                              LD   B,0
-                              LD   HL, reloctablehdr             ; point at four zeroes
-                              CALL fseek                         ; move file pointer to start of linked machine code
+                              CALL fseek0                        ; move file pointer to start of linked machine code
 
                               LD   A, OP_IN
                               LD   B,0
@@ -175,7 +171,9 @@
                               CALL_OZ(GN_Nln)
 
 .exit_relocprefix   LD   HL, relocfilehandle
-                    CALL Close_file                    ; fclose(relocfilehandle)
-                    RET
-.bufferfile         DEFM ":RAM.-/buf", 0
+                    JP   Close_file                    ; fclose(relocfilehandle)
+
+
+.reloctablefile     DEFM ":RAM.-/reloctable", 0
+.reloctablehdr      DEFB 0, 0, 0, 0
 .relocmsg           DEFM 1, "2H5Size of relocation header is ", 0

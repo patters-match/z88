@@ -27,7 +27,11 @@
 ; ********************************************************************************************************************
 
 z80asm
+initvars
 cmdline
+prscmdline
+asmpcid
+asmsrcfiles
 z80pass1
 z80pass2
 linkmod
@@ -37,7 +41,6 @@ creatlib
 makelib
 readname
 loadname
-deforig
 readexpr
 spltfile
 wrsymbol
@@ -53,25 +56,31 @@ prsident
 getsym
 prsline
 getconst
+findsym
 symbols
 varptr
-currmod
 currfile
 parsexpr
 evalexpr
+rmpfixlist
 add32bit
 tstrange
 exprs
+storexpr
+currmodule
 module
 srcfile
+getflnm
 crtflnm
 datestmp
 chckfhdr
 fileio
+copyfile
 bytesio
 comptime
 dispmem
 dispflnm
+dispint
 windows
 reloc
 relocate

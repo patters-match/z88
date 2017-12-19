@@ -29,17 +29,19 @@
      MODULE Make_library
 
      LIB IntHex, Read_pointer, Set_pointer
+     LIB GetVarPointer
 
      XREF ReportError_NULL                             ; ASMERROR.asm
      XREF CreateFilename                               ; crtflnm.asm
-     XREF CurrentModule                                ; currmod.asm
+     XREF CurrentModule                                ; module.asm
      XREF CheckObjFile                                 ; Chckfhdr.asm
      XREF Add32bit                                     ; add32bit.asm
 
-     XREF Open_file, fseek, ftell, fsize, Close_file   ; fileio.asm
-     XREF Write_fptr, Copy_file, Delete_file
+     XREF fseek0, ftell, fsize                         ; fileio.asm
+     XREF Open_file, Close_file, Copy_file, Delete_file 
+     XREF Write_fptr, Write_String
 
-     XREF AllocVarPointer, GetPointer, GetVarPointer   ; varptr.asm
+     XREF AllocVarPointer, GetPointer   ; varptr.asm
      XREF FreeVarPointer
 
      XDEF MakeLibrary
@@ -55,7 +57,7 @@
 ;    If no errors, make library file from object module files, previously compiled
 ;
 .MakeLibrary        LD   A,(TOTALERRORS)
-                    CP   0
+                    OR   A
                     RET  NZ
                          LD   HL, creatlib_msg         ; "Creating library..."
                          CALL_OZ(Gn_Sop)
@@ -68,10 +70,8 @@
                          JP   C, ReportError_NULL
                          LD   (libfilehandle),IX            ; store handle of library file
                          LD   BC,8
-                         LD   DE,0
                          LD   HL, Z80Libheader
-                         CALL_OZ(Os_Mv)                     ; write header to library file
-                         CALL C, ReportError_NULL
+                         CALL Write_String                  ; write header to library file
                          JP   C, err_makelibrary
 
                          LD   HL, modulehdr
@@ -97,18 +97,12 @@
                          JP   C, err_makelibrary
                          LD   (objfilehandle),IX
                          CALL CheckObjfile
-                         CP   -1
-                         JR   NZ, copy_objfile
+                         JR   Z, copy_objfile
                               LD   HL, objfilehandle
                               CALL Close_file               ; fclose(objfile)
                               JP   err_makelibrary
 
-.copy_objfile            LD   HL,0
-                         LD   (longint),HL
-                         LD   (longint+2),HL
-                         LD   B,0
-                         LD   HL, longint
-                         CALL fseek                    ; point at start of object file
+.copy_objfile            CALL fseek0                   ; point at start of object file
 
                          LD   IX,(libfilehandle)
                          CALL ftell
@@ -138,8 +132,8 @@
                          CALL CurrentModule
                          LD   A, module_next
                          CALL Read_pointer
-                         XOR  A
-                         CP   B
+                         INC  B
+                         DEC  B
                          JR   NZ, another_module       ; if ( CURRENTMODULE->nextmodule == NULL )
                               LD   HL, -1
                               LD   (longint),HL             ; fptr_nextmodule = -1
@@ -190,21 +184,21 @@
                          XOR  A
                          CALL Set_pointer              ; CURRENTMODULE = CURRENTMODULE->nextmodule
 
-                         XOR  A
-                         CP   C
+                         INC  C
+                         DEC  C
                          JP   NZ, makelib_loop    ; while ( CURRENTMODULE == NULL )
 
                     LD   HL, libfilehandle
                     CALL Close_file
-                    RET
+                    RES  createlib, (IY + RTMflags)
+                    RET                           ; library created, it's single functionality (option disabled)
 
 .err_makelibrary    LD   HL, libfilehandle
                     CALL Close_file               ; fclose(libfile)
                     LD   HL, libfilename
                     CALL GetVarPointer
                     INC  HL
-                    CALL Delete_file              ; remove(libfilename)
-                    RET
+                    JP   Delete_file              ; remove(libfilename)
 
 .Z80Libheader       DEFM "Z80LMF01"
 .creatlib_msg       DEFM 1, "2H5Creating library...", 13, 10, 0

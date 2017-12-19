@@ -42,8 +42,7 @@
 ; ReportError( CURRENTFILE->fname, CURRENTFILE->line, <Syntax error> )
 ;
 .STDerr_syntax      LD   A, ERR_syntax
-                    CALL ReportError_STD
-                    RET
+                    JR   ReportError_STD
 
 
 ; ========================================================================================
@@ -51,8 +50,6 @@
 ; ReportError( CURRENTFILE->fname,CURRENTFILE->line, <Illegal Ident> )
 ;
 .STDerr_ill_ident   LD   A, ERR_ill_ident
-                    CALL ReportError_STD
-                    RET
 
 
 ; ========================================================================================

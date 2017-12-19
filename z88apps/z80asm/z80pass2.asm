@@ -29,38 +29,29 @@
      MODULE Z80pass2
 
 
-; external variables:
-     XREF separators                                        ; getsym.asm
-     XREF cdefile                                           ; z80asm.asm
-
 ; external procedures:
      LIB mfree
      LIB CmpPtr
-     LIB Read_word, Read_long, Read_byte, Read_pointer
-     LIB Set_word, Set_long, Set_byte, Set_pointer
+     LIB Read_word, Read_byte, Read_pointer
+     LIB Set_word, Set_pointer
+     LIB GetVarPointer
      LIB ascorder
 
      XREF Open_file                                         ; fileio.asm
-     XREF GetSym                                            ; prsline.asm
-     XREF PrsIdent                                          ; prsident.asm
      XREF ReportError, ReportError_NULL                     ; errors.asm
-     XREF DefineSymbol                                      ; symbols.asm
-     XREF CurrentFile, CurrentFileName, CurrentFileLine     ; srcfile.asm
-     XREF RemovePfixList                                    ; parsexpr.asm
+     XREF RemovePfixList                                    ; rmpfixlist.asm
      XREF EvalPfixExpr                                      ; evalexpr.asm
-     XREF GetVarPointer                                     ; z80asm.asm
      XREF CurrentModule                                     ; module.asm
-     XREF DefineOrigin                                      ; deforig.asm
-     XREF Keyboard_Interrupt                                ; z80asm.asm
 
-     XREF StoreExpr, Test_7bit_range, Test_8bit_range       ; exprs.asm
+     XREF StoreExpr                                         ; storexpr.asm
+     XREF Test_7bit_range, Test_8bit_range                  ; tstrange.asm
      XREF Test_16bit_range, Test_32bit_Range                ;
 
-     XREF Read_fptr, Write_fptr, ftell, fseek, Copy_file    ; fileio.asm
-     XREF Write_string                                      ;
+     XREF Write_fptr, ftell, fseekptr, fseek0, fseek64k, Write_string    ; fileio.asm
+     XREF Copy_file                                         ; copyfile.asm
 
 
-; routines accissible in this module:
+; routines accessible in this module:
      XDEF Z80pass2
 
 
@@ -77,19 +68,14 @@
 ;
 ; Try to evaluate expressions that contained undefined symbols in pass1 (forward referenced symbols)
 ;
-.Z80pass2           LD   A, OP_UP
-                    LD   B,0
-                    LD   HL, cdefile
-                    CALL Open_file
-                    JP   C, ReportError_NULL
-                    LD   (cdefilehandle),IX
+.Z80pass2
                     CALL CurrentModule
                     LD   A, module_mexpr
                     CALL Read_pointer
                     LD   A, expression_first           ; pass2expr = CURRENTMODULE->mexpr->firstexpr
                     CALL Read_pointer                  ; if ( pass2expr != NULL )
-                    XOR  A
-                    CP   B
+                    INC  B
+                    DEC  B
                     JP   Z, no_pass2exprs
                          CALL Store_pass2exprptr
                          CALL CurrentModule
@@ -193,7 +179,7 @@
                                              EXX
                                              CALL Get_pass2exprptr                   ; {pass2expr}
                                              LD   DE, expr_codepos
-                                             CALL fseek                              ; patchptr
+                                             CALL fseekptr                           ; patchptr
                                              POP  HL
                                              LD   A,L                                ; *patchptr = const
                                              CALL_OZ(Os_Pb)
@@ -219,7 +205,7 @@
                                              JP   C, pass2_range_err
                                                   CALL Get_pass2exprptr                   ; {pass2expr}
                                                   LD   DE, expr_codepos
-                                                  CALL fseek                              ; patchptr
+                                                  CALL fseekptr                           ; patchptr
                                                   LD   A,(longint)                        ; *patchptr = const
                                                   CALL_OZ(Os_Pb)                     ; else
                                              JP   pass2_endwhile                          ; reporterror(7)
@@ -239,7 +225,7 @@
                                              JR   C, pass2_range_err
                                                   CALL Get_pass2exprptr                   ; {pass2expr}
                                                   LD   DE, expr_codepos
-                                                  CALL fseek                              ; patchptr
+                                                  CALL fseekptr                           ; patchptr
                                                   LD   A,(longint)                        ; *patchptr = const
                                                   CALL_OZ(Os_Pb)                     ; else
                                              JR   pass2_endwhile                          ; reporterror(7)
@@ -259,7 +245,7 @@
                                              JR   C, pass2_range_err
                                                   CALL Get_pass2exprptr                   ; {pass2expr}
                                                   LD   DE, expr_codepos
-                                                  CALL fseek                              ; patchptr
+                                                  CALL fseekptr                           ; patchptr
                                                   LD   HL,(longint)                       ; *patchptr = const
                                                   LD   A,L
                                                   CALL_OZ(Os_Pb)
@@ -281,7 +267,7 @@
                                         JR   C, pass2_range_err
                                              CALL Get_pass2exprptr                        ; {pass2expr}
                                              LD   DE, expr_codepos
-                                             CALL fseek                                   ; patchptr
+                                             CALL fseekptr                                ; patchptr
                                              LD   B,0                                     ; (local ptr)
                                              LD   HL,longint                              ; *patchptr = const
                                              CALL write_fptr                         ; else
@@ -327,7 +313,6 @@
                          POP  BC
                          LD   A, module_jraddr
                          CALL Set_pointer                        ; CURRENTMODULE->JRaddr = NULL
-
 .no_pass2exprs
 .manipulate_objfile LD   IX,(objfilehandle)
                     CALL ftell
@@ -391,13 +376,9 @@
                          CALL_OZ(Os_Pb)                               ; fputc(codeptr%256, objfile)
                          LD   A,B
                          CALL_OZ(Os_Pb)                               ; fputc(codeptr/256, objfile)
-                         LD   DE,0
-                         LD   (longint),DE
-                         LD   (longint+2),DE
-                         LD   B,0                                     ; {local pointer}
-                         LD   HL, longint
+
                          LD   IX,(cdefilehandle)
-                         CALL fseek                                   ; fseek(cdefile, 0, SEEK_SET)
+                         CALL fseek0                                  ; fseek(cdefile, 0, SEEK_SET)
 
                          LD   BC,(codeptr)
                          XOR  A                                       ; ABC = SIZEOF(cdefile)
@@ -421,12 +402,8 @@
                               CALL Set_word                                ; CURRENTMODULE->origin = EXPLICIT_ORIGIN
 
 .write_origin       LD   IX,(objfilehandle)
-                    LD   BC,8
-                    LD   DE,0
-                    LD   (longint),BC
-                    LD   (longint+2),DE
-                    LD   HL, longint
-                    CALL fseek                                   ; fseek(objfile, 8, SEEK_SET)
+                    LD   HL,8
+                    CALL fseek64k                                ; fseek(objfile, 8, SEEK_SET)
                     CALL CurrentModule
                     LD   A, module_origin
                     CALL Read_word                               ; {CURRENTMODULE->origin}
@@ -465,9 +442,7 @@
                     LD   HL, fptr_libnames
                     CALL Write_fptr                              ; WriteLong(fptr_libnames, objfile)
                     LD   HL, fptr_modcode
-                    CALL Write_fptr                              ; WriteLong(fptr_modcode, objfile)
-                    RET
-
+                    JP   Write_fptr                              ; WriteLong(fptr_modcode, objfile)
 
 
 ; **************************************************************************************************
@@ -558,9 +533,7 @@
                     LD   (curJR_ptr+2),A          ; curJR = curJR->nextref
                     POP  HL
                     POP  BC
-                    CALL mfree                    ; free(prevJR)
-                    RET
-
+                    JP   mfree                    ; free(prevJR)
 
 
 ; **************************************************************************************************
@@ -659,8 +632,7 @@
                          LD   C,A
                          INC  C
                          LD   DE,0
-                         CALL Write_string                  ; fwrite( symnode->symname, objfile)
-                    RET
+                         JP   Write_string                  ; fwrite( symnode->symname, objfile)
 
 
 
@@ -686,5 +658,4 @@
                          LD   C,A
                          INC  C
                          LD   DE,0
-                         CALL Write_string             ; fwrite( symnode->symname, objfile)
-.libref_finished    RET
+                         JP   Write_string             ; fwrite( symnode->symname, objfile)

@@ -1,3 +1,4 @@
+
 ; ********************************************************************************************************************
 ;
 ;     ZZZZZZZZZZZZZZZZZZZZ    8888888888888       00000000000
@@ -11,7 +12,11 @@
 ;    ZZZZZZZZZZZZZZZZZZZZZ  88888888888888888    0000000000000     AAAA      AAAA           SSSSS   MMMM       MMMM
 ;  ZZZZZZZZZZZZZZZZZZZZZ      8888888888888       00000000000     AAAA        AAAA  SSSSSSSSSSS     MMMM       MMMM
 ;
-; Copyright (C) Gunther Strube, 1995-2006
+; Copyright (C) Gunther Strube (gstrube@gmail.com), 1995-2017
+;
+; --------------------------------------------------------------------------------------------------------------------
+; Workspace variables for azm,z80,zln,zlb shell commands
+; --------------------------------------------------------------------------------------------------------------------
 ;
 ; Z80asm is free software; you can redistribute it and/or modify it under the terms of the
 ; GNU General Public License as published by the Free Software Foundation;
@@ -23,28 +28,28 @@
 ; see the file COPYING. If not, write to the
 ; Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 ;
-;
 ; ********************************************************************************************************************
 
+module CmdWorkspace
 
-     MODULE CurrentModule
+xdef Workspace
+xdef options
+xdef stackptr
+xdef totalargc
+xdef argc
+xdef argv
+xdef argv0
 
-     LIB Read_pointer
-     XREF GetVarPointer
+; Workspace for variables allocated statically (Shell command is running in RAM)
+.Workspace
 
-     XDEF CurrentModule
+.stackptr           defw 0                      ; Elf entry stack pointer
+.optionflags        defb 0                      ; option flag bits
+.totalargc          defb 0                      ; total arguments available for command
+.argc               defb 0                      ; remaining argument counter
+.argv               defw 0                      ; array index pointer of current argument
+.argv0              defw 0                      ; array pointer to options or real file argument of command
 
-     INCLUDE "rtmvars.def"
-     INCLUDE "symbol.def"
+.eof_Workspace
 
-
-
-; **************************************************************************************************
-;
-; Return pointer (in BHL) to current module
-;
-.CurrentModule      PUSH AF
-                    LD   HL,CURMODULE
-                    CALL GetVarPointer
-                    POP  AF
-                    RET
+defc options = optionflags-Workspace            ; IY relative offset

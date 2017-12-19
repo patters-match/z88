@@ -62,7 +62,6 @@ lstoff
      DEFC            EOF = 1                      ; @00000010
      DEFC   srcfile_open = 2                      ; @00000100
      DEFC       applname = 3                      ; @00001000
-     DEFC          abort = 4                      ; @00010000
 
      DEFVARS z80asm_vars      ; z80asm variable area:
           RuntimeFlags1       ds.b 1         ; first runtime flags group
@@ -178,6 +177,6 @@ lstoff
      DEFC ERR_not_relfile     = $9A
      DEFC ERR_reserved_name   = $9B
      DEFC ERR_not_libfile     = $9C
-     DEFC ERR_keyboard_abort  = $9D
+     DEFC ERR_Org_not_defined = $9D
 
 lston

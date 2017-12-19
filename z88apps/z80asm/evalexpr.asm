@@ -36,11 +36,10 @@
      LIB malloc, mfree
      LIB Read_long, Set_long, Read_pointer, Set_pointer
      LIB Read_byte, Set_byte
+     LIB GetVarPointer
 
-     XREF Getsym                                                      ; prsline.asm
      XREF CurrentModule                                               ; module.asm
      XREF GetSymPtr, FindSymbol                                       ; symbols.asm
-     XREF GetVarPointer                                               ; z80asm.asm
      XREF ReportError_STD                                             ; errors.asm
 
 ; global procedures:
@@ -290,8 +289,8 @@
                     PUSH HL
                     XOR  A
                     CALL Read_pointer
-                    XOR  A
-                    CP   B                   ; if ( *stackptr != NULL )
+                    INC  B
+                    DEC  B                   ; if ( *stackptr != NULL )
                     POP  DE
                     POP  BC
                     LD   C,B                      ; {CDE=**stackptr}
@@ -419,9 +418,7 @@
 .end_calcexpr       CALL C,ReportError_STD
                     POP  BC
                     POP  DE
-                    CALL PushItem            ; PushItem(result, stackptr)
-                    RET
-
+                    JP   PushItem            ; PushItem(result, stackptr)
 
 
 ; **********************************************************************************
@@ -483,9 +480,7 @@
                          RET
 
 .push_no_room       LD   A,ERR_no_room
-                    CALL ReportError_STD
-                    RET
-
+                    JP   ReportError_STD
 
 
 ; **********************************************************************************
@@ -538,7 +533,6 @@
                     RET
 
 
-
 ; ******************************************************************************************
 ;
 ; Remove evaluation stack from memory
@@ -557,7 +551,8 @@
                     LD   L,E
                     XOR  A
                     CALL Read_pointer             ; {*stackptr}
-                    CP   B
+                    INC  B
+                    DEC  B
                     JR   NZ, clearstack_end       ; while ( *stackptr != NULL )
                          CALL PopItem                  ; PopItem(stackptr)
                     JR   clearstack_loop
@@ -572,5 +567,4 @@
 ; Allocate memory for new node of postfix expression evaluation stack
 ;
 .AllocStackItem     LD   A,SIZEOF_pfixstack
-                    CALL malloc
-                    RET
+                    JP   malloc

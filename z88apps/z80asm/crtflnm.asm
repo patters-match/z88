@@ -28,13 +28,14 @@
 
      MODULE CreateFilename
 
+     INCLUDE "rtmvars.def"
+
      LIB Bind_bank_s1, Set_pointer
      LIB AllocVarPointer
 
-     XREF CurrentFile, CurrentFileName                      ; currfile.asm
+     XREF CurrentFileName                                   ; currfile.asm
      XREF CopyID                                            ; symbols.asm
      XREF ReportError_NULL                                  ; asmerror.asm
-
 
      XDEF CreateFilename
 
@@ -85,7 +86,6 @@
                     POP  HL
                     POP  BC
                     LD   B,C                           ; BHL points at filename...
-                    CP   A
                     RET
 .err_createfname    POP  HL
                     POP  DE

@@ -30,6 +30,7 @@
 
      LIB ascorder
      LIB Inthex
+     LIB GetVarPointer
 
      INCLUDE "fileio.def"
 
@@ -42,7 +43,6 @@
 
      XREF CurrentModule                                     ; currmod.asm
      XREF Write_string                                      ; fileio.asm
-     XREF GetVarPointer                                     ; varptr.asm
 
 ; global procedures:
      XDEF WriteSymbols
@@ -51,11 +51,11 @@
 ; **************************************************************************************************
 ;
 .WriteSymbols       LD   A, (TOTALERRORS)
-                    CP   0
+                    OR   A
                     RET  NZ                            ; if ( TOTALERRORS == 0 )
                          LD   IX,(symfilehandle)
                          LD   HL, sym1_msg
-                         LD   B,0
+                         LD   B,A
                          LD   C,(HL)
                          INC  HL
                          CALL Write_string                  ; "Local Module symbols:"
@@ -82,8 +82,7 @@
                          LD   IY, WriteSymbol
                          CALL ascorder                      ; ascorder(globalroot, WriteSymbol)
                          POP  IY
-                         CALL Write_endmsg                  ; if ( counter == 0 ) fputs("None.", symbolfile)
-                    RET
+                         JP   Write_endmsg                  ; if ( counter == 0 ) fputs("None.", symbolfile)
 
 .sym1_msg           DEFM msg1_end-sym1_msg-1, 13, "Local Module Symbols:", 13
 .msg1_end
@@ -101,8 +100,7 @@
                     LD   IX,(symfilehandle)
                     LD   HL, sym3_msg
                     LD   BC,6
-                    CALL Write_string
-                    RET
+                    JP   Write_string
 .sym3_msg           DEFM "None.", 13
 
 

@@ -30,19 +30,175 @@
 
 ; external procedures:
      LIB malloc, mfree
+     LIB GetPointer, GetVarPointer
      LIB Set_pointer, Read_pointer, Set_word, Set_long
 
-     XREF GetVarPointer                      ; varptr.asm
-     XREF CurrentModule                      ; module.asm
-     XREF RemovePfixList                     ; parsexpr.asm
+     XREF RemovePfixList                               ; rmpfixlist.asm
+     XREF Display_filename                             ; dispflnm.asm
+     XREF Open_file, ftell, fseek64k                   ; fileio.asm
+     XREF CurrentFile, CurrentFileName                 ; currfile.asm
+     XREF CurrentModule                                ; currmodule.asm
+     XREF NewFile                                      ; srcfile.asm
+     XREF ReportError, ReportError_NULL                ; errors.asm
 
 ; global procedures:
-     XDEF NewModule, ReleaseExpressions
+     XDEF NewModule, CreateModule, CreateModules
+     XDEF ReleaseExpressions
 
-
+     INCLUDE "stdio.def"
+     INCLUDE "fileio.def"
+     INCLUDE "error.def"
      INCLUDE "rtmvars.def"
      INCLUDE "symbol.def"
 
+
+; *********************************************************************************************
+;
+; Create new module for file name
+;
+; IN:     None.
+; OUT:    Fc = 0, module created with file name
+;         Fc = 1, no room for module, illegal file name or file not found
+;
+.CreateModule       CALL NewModule
+                    RET  C                             ; Ups - no room
+                    LD   HL, CURMODULE
+                    CALL GetPointer
+                    XOR  A                             ; {CDE = pointer to new module}
+                    CALL Set_pointer                   ; CURRENTMODULE = NewModule()
+
+                    CALL CreateSrcFilename             ; add '.asm' extension to file name
+                    INC  HL                            ; point at first char in file name
+                    LD   A, OP_IN
+                    CALL Open_file                     ; open file to get expanded file name
+                    JR   C, module_operr               ; DE points at explicit filename
+                    CALL_OZ(Gn_Cl)
+                    CALL ModuleFileName                ; create extended OZ file name
+                    CP   A                             ; signal success
+                    RET
+
+.module_operr       CP   RC_Ivf                        ; if ( error != RC_ivf )
+                    JR   Z, bad_filename
+                         BIT  datestamp,(IY + RTMflags)     ; if ( !datestamp )
+                         JR   NZ, use_shortname
+                              SCF
+                              JP   ReportError_NULL              ; report open error if no date stamping...
+                                                                 ; then return to caller
+                                                            ; else
+.use_shortname           LD   DE, cdebuffer                      ; file couldn't be opened, but use
+                         CALL ModuleFileName                     ; non-extended file name
+                         CP   A
+                         RET                           ; else
+.bad_filename       SCF
+                    JP   ReportError_NULL                   ; report error
+
+
+; *********************************************************************************************
+;
+; Open modules file and create modules for each specified file name in modules file
+;
+.CreateModules      LD   B,0
+                    LD   HL, cdebuffer+1                    ; point at first char of filename
+                    LD   A, OP_IN
+                    CALL Open_file
+                    JP   C, ReportError_NULL
+.fetch_modname           LD   B, 252
+                         LD   HL, cdebuffer
+                         LD   DE, cdebuffer+1
+.read_name               CALL_OZ(Os_Gb)
+                         JR   C, createmodules_end          ; EOF occurred...
+                         CALL Check_EOL
+                         JR   Z, filename_fetched
+                         LD   (DE),A
+                         INC  DE
+                         DJNZ read_name
+
+.filename_fetched        XOR  A
+                         LD   (DE),A                        ; null-terminate filename
+                         LD   A, 252
+                         SUB  B                             ; length of file name
+                         LD   (HL),A
+                         PUSH IX                            ; preserve handle of modules file
+                         CALL CreateModule                  ; create new module for file
+                         POP  IX
+                         JR   C, createmodules_err          ; error occurred
+                         JR   fetch_modname                 ; read next module file...
+
+.createmodules_end  CP   A
+.createmodules_err  PUSH AF
+                    CALL_OZ(Gn_Cl)                     ; close module file
+                    POP  AF
+                    RET
+
+.Check_EOL          CP   LF
+                    RET  Z                             ; LF = EOL
+                    CP   CR
+                    RET  NZ                            ; filename byte
+
+                    PUSH HL                            ; CR fetched, check for
+                    PUSH DE                            ; trailing LF
+                    PUSH BC                            ; {preserve main registers first}
+                    CALL ftell                         ; file pointer in DEBC
+                    CALL_OZ(OS_Gb)                     ; get next byte from file
+                    JR   C, eol_reached                ; EOF reached...
+                         CP   LF
+                         JR   Z, eol_reached           ; trailing LF fetched...
+                              LD   H,B
+                              LD   L,C                      ; file pointer in HL (module files are always less than 64K)
+                              CALL fseek64k                 ; restore file pointer at CR
+.eol_reached        CP   A
+                    POP  BC                            ; return Fz = 1 to indicate EOL
+                    POP  DE
+                    POP  HL                            ; original BC, DE, HL restored
+                    RET
+
+
+; *********************************************************************************************
+;
+; Add extension to file name
+;
+; IN:     None.
+;
+; OUT:    HL = pointer to new local file name,
+;         D = 0
+;         E = length of new file name
+;
+; Registers changed after return:
+;    ......../IXIY  same
+;    AFBCDEHL/....  different
+;
+.CreateSrcFileName  LD   DE, srcext
+                    LD   HL, cdebuffer                 ; local pointer to filename
+                    PUSH HL
+                    LD   B,0
+                    LD   C,(HL)                        ; length of file name
+                    INC  HL                            ; point at first char
+                    ADD  HL,BC                         ; point at null-terminator
+                    PUSH BC                            ; preserve length
+                    LD   C,4
+                    EX   DE,HL                         ; HL points to extension...
+                    LDIR                               ; add extension to file name
+                    XOR  A
+                    LD   (DE),A                        ; null-terminate file name
+                    LD   HL,4
+                    POP  BC
+                    ADD  HL,BC                         ; length inclusive extension
+                    EX   DE,HL
+                    POP  HL
+                    LD   (HL),E                        ; new length stored
+                    RET
+.srcext             DEFM ".asm"
+
+
+; *********************************************************************************************
+;
+;    IN:  DE = local pointer to filename
+;
+.ModuleFileName     CALL CurrentFile                   ; BHL = NULL
+                    CALL NewFile                       ; return pointer to file record in CDE
+                    CALL CurrentModule
+                    LD   A, module_cfile
+                    JP   Set_pointer                   ; CURRENTMODULE->cfile = NewFile(NULL, textfile)
 
 
 ; **************************************************************************************************
@@ -160,16 +316,15 @@
                     PUSH HL                            ; { preserve modulehdr }
                     LD   A, modules_first
                     CALL Read_pointer                  ; { BHL = modulehdr->first }
-                    XOR  A
-                    CP   B
+                    INC  B
+                    DEC  B
                     POP  HL                            ; { restore modulehdr }
                     POP  BC
                     JR   NZ, append_module             ; if ( modulehdr->first == NULL )
                          LD   A, modules_first
                          CALL Set_pointer              ;    modulehdr->first = newm
                          LD   A, modules_last
-                         CALL Set_pointer              ;    modulehdr->current = newm
-                         JR   end_newmodule
+                         JP   Set_pointer              ;    modulehdr->current = newm (Fc = 0)
                                                        ; else
 .append_module      PUSH BC
                     PUSH HL                            ;    { preserve modulehdr }
@@ -180,10 +335,8 @@
                     POP  HL
                     POP  BC
                     LD   A, modules_last
-                    CALL Set_pointer                   ;    modulehdr->current = newm
-
-.end_newmodule      XOR  A                             ; return CDE = newm
-                    RET                                ; indicate succes...
+                    JP   Set_pointer                   ;    modulehdr->current = newm
+                                                       ; return CDE = newm (Fc = 0)
 
 ; nor room for JD address header, free <newm->mexpr> and <newm>.
 .JRaddr_no_room     POP  HL
@@ -213,16 +366,16 @@
 .ReleaseExpressions CALL CurrentModule
                     LD   A, module_mexpr
                     CALL Read_pointer             ; exprhdr = CURRENTMODULE->mexpr
-                    XOR  A
-                    CP   B
+                    INC  B
+                    DEC  B
                     RET  Z                        ; if ( exprhdr == NULL ) return
 
                     PUSH BC
                     PUSH HL                       ; { preserve exprhdr }
                     LD   A, expression_first
                     CALL Read_pointer             ; curexpr = exprhdr->first
-                    XOR  A
-                    CP   B
+                    INC  B
+                    DEC  B
                     JR   Z, release_exprhdr       ; if ( curexpr != NULL )
 .relexpr_loop            PUSH BC                       ; do
                          PUSH HL
@@ -239,8 +392,8 @@
                          POP  HL
                          POP  BC
                          LD   B,C                           ; curexpr = tmpexpr
-                         XOR  A
-                         CP   B
+                         INC  B
+                         DEC  B
                     JR   NZ, relexpr_loop              ; while (curexpr != NULL)
 
 .release_exprhdr    POP  HL
@@ -249,10 +402,9 @@
                     CALL CurrentModule
                     LD   A, module_mexpr
                     LD   C,0
-                    LD   DE,0
-                    CALL Set_pointer              ; CURRENTMODULE->mexpr = NULL
-                    RET
-
+                    LD   D,C
+                    LD   E,C
+                    JP   Set_pointer              ; CURRENTMODULE->mexpr = NULL
 
 
 ; **************************************************************************************************
@@ -268,8 +420,7 @@
 ;    AFB...HL/....  different
 ;
 .AllocModuleHdr     LD   A, SIZEOF_modules
-                    CALL malloc
-                    RET
+                    JP   malloc
 
 
 ; **************************************************************************************************
@@ -285,8 +436,7 @@
 ;    AFB...HL/....  different
 ;
 .AllocModule        LD   A, SIZEOF_module
-                    CALL malloc
-                    RET
+                    JP   malloc
 
 
 ; **************************************************************************************************
@@ -302,8 +452,7 @@
 ;    AFB...HL/....  different
 ;
 .AllocExprHdr       LD   A, SIZEOF_expression
-                    CALL malloc
-                    RET
+                    JP   malloc
 
 
 ; **************************************************************************************************
@@ -319,5 +468,4 @@
 ;    AFB...HL/....  different
 ;
 .AllocJRaddrHdr     LD   A, SIZEOF_jrpcexpr
-                    CALL malloc
-                    RET
+                    JP   malloc

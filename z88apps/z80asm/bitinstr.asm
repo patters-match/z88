@@ -59,10 +59,12 @@
      XREF ReportError_STD, STDerr_syntax, STDerr_ill_ident  ; errors.asm
 
      XREF WriteByte, WriteWord                              ; writebytes.asm
-     XREF Add16bit_1, Add16bit_2, Add16bit_4                ; z80asm.asm
-     XREF Test_8bit_range                                   ;
+     XREF asm_pc_p2, asm_pc_p4                              ; z80pass1.asm
+     XREF Test_8bit_range                                   ; tstrange.asm
 
-     XREF ParseNumExpr, EvalPfixExpr, RemovePfixlist        ; exprprsr.asm
+     XREF ParseNumExpr                                      ; parsexpr.asm
+     XREF EvalPfixExpr                                      ; evalexpr.asm
+     XREF RemovePfixlist                                    ; rmpfixlist.asm
      XREF ExprSigned8                                       ;
 
 
@@ -77,78 +79,18 @@
 ; ******************************************************************************
 ;
 .BIT_fn             LD   C,64                     ; standard instruction opcode
-                    CALL BitTest_instr
-                    RET
+                    JR   BitTest_instr
 
 
 ; ******************************************************************************
 ;
 .RES_fn             LD   C,128                    ; standard instruction opcode
-                    CALL BitTest_instr
-                    RET
+                    JR   BitTest_instr
 
 
 ; ******************************************************************************
 ;
 .SET_fn             LD   C,192                    ; standard instruction opcode
-                    CALL BitTest_instr
-                    RET
-
-
-; ******************************************************************************
-;
-.RL_fn              LD   C,2                      ; standard instruction opcode
-                    CALL Rotshift_instr
-                    RET
-
-
-; ******************************************************************************
-;
-.RLC_fn             LD   C,0                      ; standard instruction opcode
-                    CALL Rotshift_instr
-                    RET
-
-
-; ******************************************************************************
-;
-.RR_fn              LD   C,3                      ; standard instruction opcode
-                    CALL Rotshift_instr
-                    RET
-
-
-; ******************************************************************************
-;
-.RRC_fn             LD   C,1                      ; standard instruction opcode
-                    CALL Rotshift_instr
-                    RET
-
-
-; ******************************************************************************
-;
-.SLA_fn             LD   C,4                      ; standard instruction opcode
-                    CALL Rotshift_instr
-                    RET
-
-
-; ******************************************************************************
-;
-.SRA_fn             LD   C,5                      ; standard instruction opcode
-                    CALL Rotshift_instr
-                    RET
-
-
-; ******************************************************************************
-;
-.SLL_fn             LD   C,6                      ; standard instruction opcode
-                    CALL Rotshift_instr
-                    RET
-
-
-; ******************************************************************************
-;
-.SRL_fn             LD   C,7                      ; standard instruction opcode
-                    CALL Rotshift_instr
-                    RET
 
 
 ; **************************************************************************************************
@@ -172,7 +114,7 @@
                          JR   Z, bit_evalexpr
                               LD   A, ERR_not_defined
                               CALL ReportError_STD                    ; reporterror(*, *, 2)
-                              JP   bit_end                        ; else
+                              JP   RemovePfixlist                ; else
 .bit_evalexpr                 PUSH BC
                               PUSH HL                                 ; {preserve postfixexpr pointer}
                               CALL EvalPfixExpr                       ; bitno = EvalPfixExpr(postfixexpr) {returned in HLhlC}
@@ -206,8 +148,7 @@
                                                   LD   B,A
                                                   LD   C,$CB                                   ; *codeptr++ = 203
                                                   CALL WriteWord                               ; *codeptr++ = opcode + bitno*8 + 6
-                                                  LD   HL,asm_pc
-                                                  CALL Add16bit_2                              ; PC += 2
+                                                  CALL asm_pc_p2                               ; PC += 2
                                                   JR   bit_remv_pfixexpr
 
                .bit_case_5                   CP   5                                       ; case 5:
@@ -233,8 +174,7 @@
                                                   ADD  A,C
                                                   LD   C,A
                                                   CALL WriteByte                               ; *codeptr++ = opcode + bitno*8 + 6
-                                                  LD   HL, asm_pc
-                                                  CALL Add16bit_4                              ; PC += 4
+                                                  CALL asm_pc_p4                               ; PC += 4
                                                   JR   bit_remv_pfixexpr
                .bit_default1                 CALL STDerr_syntax                           ; default:
                                              JR   bit_remv_pfixexpr                            ; reporterror(*, *, 1)
@@ -262,8 +202,7 @@
                                              LD   C,$CB
                                              LD   B,A
                                              CALL WriteWord                               ; *codeptr++ = opcode + bitno*8 + reg
-                                             LD   HL, asm_pc
-                                             CALL Add16bit_2                              ; PC += 2
+                                             CALL asm_pc_p2                               ; PC += 2
                                              JR   bit_remv_pfixexpr
                                                                            ; else
 .bit_syntax_err                    CALL STDerr_syntax
@@ -274,9 +213,55 @@
 
 .bit_remv_pfixexpr       POP  HL
                          POP  BC                                 ; {restore postfixexpr pointer}
-.bit_end                 CALL RemovePfixlist                     ; RemovePfixlist(postfixexpr)
-                    RET
+                         JP   RemovePfixlist                     ; RemovePfixlist(postfixexpr)
 
+
+
+; ******************************************************************************
+;
+.RL_fn              LD   C,2                      ; standard instruction opcode
+                    JR   Rotshift_instr
+
+
+; ******************************************************************************
+;
+.RLC_fn             LD   C,0                      ; standard instruction opcode
+                    JR   Rotshift_instr
+
+
+; ******************************************************************************
+;
+.RR_fn              LD   C,3                      ; standard instruction opcode
+                    JR   Rotshift_instr
+
+
+; ******************************************************************************
+;
+.RRC_fn             LD   C,1                      ; standard instruction opcode
+                    JR   Rotshift_instr
+
+
+; ******************************************************************************
+;
+.SLA_fn             LD   C,4                      ; standard instruction opcode
+                    JR   Rotshift_instr
+
+
+; ******************************************************************************
+;
+.SRA_fn             LD   C,5                      ; standard instruction opcode
+                    JR   Rotshift_instr
+
+
+; ******************************************************************************
+;
+.SLL_fn             LD   C,6                      ; standard instruction opcode
+                    JR   Rotshift_instr
+
+
+; ******************************************************************************
+;
+.SRL_fn             LD   C,7                      ; standard instruction opcode
 
 
 ; **************************************************************************************************
@@ -301,9 +286,7 @@
                               LD   B,A
                               LD   C,$CB                                   ; *codeptr++ = 203
                               CALL WriteWord                               ; *codeptr++ = opcode * 8 + 6
-                              LD   HL,asm_pc
-                              CALL Add16bit_2                              ; PC += 2
-                              RET
+                              JP   asm_pc_p2                               ; PC += 2
 
 .rot_case_5              CP   5                                       ; case 5:
                          JR   NZ, rot_case_6
@@ -325,9 +308,7 @@
                               ADD  A,6                                     ; + 6
                               LD   C,A
                               CALL WriteByte                               ; *codeptr++ = opcode * 8 + 6
-                              LD   HL, asm_pc
-                              CALL Add16bit_4                              ; PC += 4
-                              RET
+                              JP   asm_pc_p4                               ; PC += 4
                                                             ; else
 .rot_reg                 CALL CheckRegister8                     ; reg = CheckRegister8
                          CP   6                                  ; switch(reg)
@@ -348,6 +329,4 @@
                          LD   C,$CB
                          LD   B,A
                          CALL WriteWord                               ; *codeptr++ = opcode * 8 + reg
-                         LD   HL, asm_pc
-                         CALL Add16bit_2                              ; PC += 2
-                         RET
+                         JP   asm_pc_p2                               ; PC += 2

@@ -32,7 +32,7 @@
 
      XREF z80asm_windows, Display_status                    ; windows.asm
 
-     XREF Close_files                                       ; fileio.asm
+     XREF Close_files                                       ; asmsrcfiles.asm
      XREF Delete_bufferfiles                                ;
 
      XDEF z80asm_ERH
@@ -52,7 +52,7 @@
                     CP   RC_DRAW                        ; application screen corrupted
                     JR   Z,corrupt_scr
                     CP   RC_QUIT
-                    JR   Z,Zprom_suicide
+                    JR   Z,z80asm_suicide
                     CP   RC_ESC
                     JR   Z, ackn_esc
                     JR   return_ERH
@@ -75,7 +75,7 @@
 .return_ERH         OR   A                              ; Fc = 0, Fz = 0
                     RET
 
-.Zprom_suicide      CALL Close_files                    ; close any open files...
+.z80asm_suicide     CALL Close_files                    ; close any open files...
                     CALL Delete_bufferfiles
                     CALL Release_pools                  ; free any open memory pools back to OZ...
                     XOR  A

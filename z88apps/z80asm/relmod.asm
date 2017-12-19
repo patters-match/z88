@@ -28,7 +28,8 @@
 
      MODULE ReleaseModules
 
-     Lib deleteall
+     LIB deleteall
+     LIB GetVarPointer
 
 ; **************************************************************************************************
 ;
@@ -53,8 +54,8 @@
                          PUSH HL
                          LD   A, module_cfile
                          CALL Read_pointer
-                         XOR  A
-                         CP   B
+                         INC  B
+                         DEC  B
                          JR   Z, rel_localroot              ;    if ( curptr->cfile != NULL )
                               CALL ReleaseFile              ;         ReleaseFile(curptr->cfile)
 .rel_localroot           POP  HL
@@ -63,8 +64,8 @@
                          PUSH HL
                          LD   A,module_localroot
                          CALL Read_pointer
-                         XOR  A
-                         CP   B
+                         INC  B
+                         DEC  B
                          JR   Z, rel_mexpr                  ;    if ( curptr->localroot != NULL )
                               CALL ReleaseSymbol            ;         ReleaseSymbol(curptr->localroot)
 .rel_mexpr               POP  HL
@@ -73,8 +74,8 @@
                          PUSH HL
                          LD   A,module_mexpr
                          CALL Read_pointer
-                         XOR  A
-                         CP   B
+                         INC  B
+                         DEC  B
                          JR   Z, rel_mname                  ;    if ( curptr->mexpr != NULL )
                               CALL ReleaseExpressions                 ReleaseExprns(curptr->mexpr)
 .rel_mname               POP  HL
@@ -83,8 +84,8 @@
                          PUSH HL
                          LD   A,module_mname
                          CALL Read_pointer
-                         XOR  A
-                         CP   B
+                         INC  B
+                         DEC  B
                          JR   Z, rel_module                 ;    if ( curptr->mname != NULL )
                               CALL mfree                              free(curptr->mname)
 
@@ -101,7 +102,8 @@
                          CALL mfree                         ;    free(curptr)
                          LD   B,A
                          EX   DE,HL                         ;    curptr = tmpptr
-                         CP   0
+                         INC  B
+                         DEC  B
                     JR   NZ, releasemodule_loop        ; while (curptr != NULL)
 
                     POP  HL
@@ -112,5 +114,4 @@
                     LD   HL,modulehdr
                     CALL GetPointer                    ; &modulehdr
                     XOR  A
-                    CALL Set_pointer                   ; modulehdr = NULL
-                    RET
+                    JP   Set_pointer                   ; modulehdr = NULL

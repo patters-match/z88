@@ -129,15 +129,13 @@
                          LD   HL, binfilename
                          CALL GetVarPointer
                          INC  HL
-                         CALL Delete_file         ; remove(binfilename)
-                         RET
+                         JP   Delete_file         ; remove(binfilename)
 
 .err_codefile            POP  BC                  ; remove redundant codeblock variable
                          POP  BC                  ; remove redundant codeblocknum variable
                          CALL ReportError_NULL
                          LD   HL, cdefilehandle
-                         CALL Close_file
-                         RET
+                         JP   Close_file
 
 .Use16K                  LD   H,B
                          LD   L,C

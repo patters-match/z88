@@ -76,7 +76,8 @@
                     PUSH HL
 
                     LD   (ASSEMBLE_ERROR),A            ; save current error code
-                    SET  ASMERROR,(IY + RtmFlags3)     ; indicate error
+                    LD   HL,RuntimeFlags3
+                    SET  ASMERROR,(HL)                 ; indicate error (use HL, since IY might used by stdlib)
 
                     LD   HL,(errfilehandle)
                     PUSH HL
@@ -147,7 +148,6 @@
 .Display_error      BIT  7,A
                     JR   NZ, z80asm_error
                                                        ; write system error message
-                    CP   A                             ; Fc = 0
                     CALL_OZ(Gn_Esp)                    ; get pointer to system error message
                     LD   A,B
                     CALL Bind_bank_s1                  ; bind error message into segment 1
@@ -179,8 +179,7 @@
                     CALL_OZ(Gn_Pdn)
                     POP  AF
 .write_errmsg       CALL z80asm_errmsg
-                    CALL Write_stdmessage              ; write z80asm errors message to file...
-                    RET
+                    JP   Write_stdmessage              ; write z80asm errors message to file...
 
 
 ; ==================================================================================================
@@ -205,9 +204,6 @@
 .Write_stdmessage   LD   B,0
                     LD   C,(HL)
                     INC  HL
-                    CALL Write_message
-                    RET
-
 
 ; ==================================================================================================
 ;
@@ -318,5 +314,5 @@
 .errmsg26           DEFM errmsg27 - $PC - 1, "Not an object file"
 .errmsg27           DEFM errmsg28 - $PC - 1, "Reserved name"
 .errmsg28           DEFM errmsg29 - $PC - 1, "Not a library file"
-.errmsg29           DEFM errmsg30 - $PC - 1, "Assembly aborted from keyboard"
+.errmsg29           DEFM errmsg30 - $PC - 1, "ORG not defined"
 .errmsg30

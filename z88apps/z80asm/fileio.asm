@@ -32,15 +32,15 @@
 ; external procedures:
      LIB Bind_bank_s1
 
-     XREF FlushBuffer                                       ; bytesio.asm
      XREF ReportError_NULL                                  ; errors.asm
-     XREF reloctablefile, bufferfile                        ; reloc.asm
-     XREF cdefile                                           ; z80asm.asm
+
+; global constants
+     XDEF bufferfile, cdefile
 
 ; global procedures in this module:
-     XDEF Read_fptr, Write_fptr, Read_string, Write_string
-     XDEF ftell, fsize, fseek
-     XDEF Open_file, Close_file, Close_files, Copy_file
+     XDEF Read_fptr, read_longint, Write_fptr, Read_string, Write_string
+     XDEF ftell, fsize, fseekptr, fseekfwm, fseek0, fseek64k
+     XDEF Open_file, Close_file
      XDEF Delete_file
      XDEF Delete_bufferfiles
 
@@ -85,11 +85,11 @@
 
 ; ****************************************************************************************
 ;
-; Set file pointer
+; Set file pointer via ext.address
 ;
 ;    IN:    IX = file handle
-;          BHL = pointer to vektor (B=0 is local pointer)
-;           DE = offset, if extended pointer
+;          BHL = pointer to 32bit file position
+;           DE = offset
 ;
 ;   OUT:   None.
 ;
@@ -97,28 +97,80 @@
 ;    ..BCDEHL/IXIY  same
 ;    AF....../....  different
 ;
-.fseek              XOR  A
-                    CP   B
-                    JR   Z, set_fpointer
-                         PUSH BC
-                         PUSH HL
-                         ADD  HL,DE               ; add offset to extended pointer
-                         LD   A,B
-                         CALL Bind_bank_s1        ; bind in file pointer information
-                         LD   B,A                 ; old bank binding in B
-                         CALL Set_fpointer
-                         PUSH AF                  ; preserve error flag from OS_FWM
-                         LD   A,B
-                         CALL Bind_bank_s1        ; restore prev. bank binding
-                         POP  AF
-                         POP  HL
-                         POP  BC
-                         RET
+.fseekptr           PUSH BC
+                    PUSH HL
+                    ADD  HL,DE               ; add offset to extended pointer
+                    LD   A,B
+                    CALL Bind_bank_s1        ; bind in file pointer information
+                    LD   B,A                 ; old bank binding in B
+                    CALL fseekfwm
+                    PUSH AF                  ; preserve error flag from OS_FWM
+                    LD   A,B
+                    CALL Bind_bank_s1        ; restore prev. bank binding
+                    POP  AF
+                    POP  HL
+                    POP  BC
+                    RET
 
-.set_fpointer       LD   A, FA_PTR
+; ****************************************************************************************
+;
+; Set file pointer
+;
+;    IN:    IX = file handle
+;           HL = local pointer to 32bit file position
+;
+; Registers changed after return:
+;    ..BCDEHL/IXIY  same
+;    AF....../....  different
+;
+.fseekfwm           LD   A, FA_PTR
                     CALL_OZ(Os_Fwm)
                     RET
 
+
+; ****************************************************************************************
+;
+; Reset file pointer to beginning of file
+;
+;    IN:
+;           IX = file handle
+;   OUT:
+;           HL = 0 (always)
+;           Fc = 0 (success)
+;           Fc = 1, A = RC_xxx (I/O error related)
+;
+; Registers changed after return:
+;    ..BCDE../IXIY  same
+;    AF....HL/....  different
+;
+.fseek0             LD   HL,0
+
+
+; ****************************************************************************************
+;
+; Set file pointer within 64K (16bit) range
+;
+;    IN:    IX = file handle
+;           HL = file pointer (16bit)
+;
+;   OUT:    Fc = 0 (success)
+;           Fc = 1, A = RC_xxx (I/O error related)
+;
+; Registers changed after return:
+;    ..BCDEHL/IXIY  same
+;    AF....../....  different
+;
+.fseek64k           PUSH HL
+                    LD   HL,0
+                    EX   (SP),HL
+                    PUSH HL                       ; 16bit file on stack is XXXX0000
+                    LD   HL,0
+                    ADD  HL,SP                    ; HL points to XXXX0000 on system stack
+                    CALL fseekfwm                 ; reset file pointer to XXXX0000
+                    POP  HL
+                    INC  SP
+                    INC  SP                       ; ignore $0000 on stack
+                    RET
 
 
 ; **************************************************************************************************
@@ -133,9 +185,10 @@
 ;         ..BCDEHL/IXIY  same
 ;         AF....../....  different
 ;
-.Write_fptr         LD   A,B
-                    CP   0
+.Write_fptr         INC  B
+                    DEC  B
                     JR   Z, write_longint
+                    LD   A,B
                     CALL Bind_bank_s1
                     PUSH AF
                     PUSH HL
@@ -143,14 +196,13 @@
                     CALL write_longint
                     POP  HL
                     POP  AF
-                    CALL Bind_bank_s1
-                    RET
+                    JP   Bind_bank_s1
 
 .write_longint      PUSH BC
                     PUSH HL
                     LD   B,4
 .write_long         LD   A,(HL)
-                    CALL_OZ(Os_Pb)
+                    CALL_OZ(Os_Pb)                ; write file pointer with OS_Pb, not OS_Mv
                     INC  HL
                     DJNZ write_long
                     POP  HL
@@ -170,9 +222,10 @@
 ;         ..BCDEHL/IXIY  same
 ;         AF....../....  different
 ;
-.Read_fptr          LD   A,B
-                    CP   0
+.Read_fptr          INC  B
+                    DEC  B
                     JR   Z, read_longint
+                    LD   A,B
                     CALL Bind_bank_s1
                     PUSH AF
                     PUSH HL
@@ -180,13 +233,14 @@
                     CALL read_longint
                     POP  HL
                     POP  AF
-                    CALL Bind_bank_s1
-                    RET
+                    JP   Bind_bank_s1
+
 .read_longint       PUSH BC
                     PUSH DE
                     PUSH HL
                     LD   BC,4
-                    LD   DE,0
+                    LD   D,B
+                    LD   E,B                      ; DE = 0
                     EX   DE,HL
                     CALL_OZ(Os_Mv)                ; read long int...
                     CALL C, ReportError_NULL
@@ -203,29 +257,39 @@
 ;    IN:  IX   = handle of file
 ;         BHL  = pointer to string (B=0 means local pointer)
 ;         C    = length of string
-;         DE   = offset (if extended pointer)
+;         DE   = offset (if extended pointer, otherwise not used)
+;
+;    OUT:
+;         Fc   = 0, successfully written string to file
+;         Fc   = 1, I/O error
 ;
 ;    Registers changed after return
 ;         ..BCDEHL/IXIY  same
 ;         AF....../....  different
 ;
-.Write_string       LD   A,B
-                    CP   0
-                    JR   Z, write_str
+.Write_string       INC  B
+                    DEC  B
+                    JR   Z, write_str             ; local address
+                    LD   A,B
                     CALL Bind_bank_s1
-                    PUSH AF
+                    LD   B,A                      ; B = old bank binding
                     PUSH HL
                     ADD  HL,DE                    ; add offset to pointer
                     CALL write_str
                     POP  HL
-                    POP  AF
+                    PUSH AF                       ; preserve errors status
+                    LD   A,B
                     CALL Bind_bank_s1
+                    LD   B,A                      ; restored original B from pointer
+                    POP  AF
                     RET
+
 .write_str          PUSH BC
                     PUSH DE
                     PUSH HL
                     LD   B,0                      ; BC = length of string
-                    LD   DE,0
+                    LD   D,B
+                    LD   E,B                      ; DE = 0
                     CALL_OZ(Os_Mv)                ; write string...
                     CALL C, ReportError_NULL
                     POP  HL
@@ -247,20 +311,22 @@
 ;         ..BCDE../IXIY  same
 ;         AF....HL/....  different
 ;
-.Read_string        LD   A,B
-                    CP   0
+.Read_string        INC  B
+                    DEC  B
                     JR   Z, read_str
+                    LD   A,B
                     CALL Bind_bank_s1
                     PUSH AF
                     ADD  HL,DE                    ; add offset to pointer
                     CALL read_str
                     POP  AF
-                    CALL Bind_bank_s1
-                    RET
+                    JP   Bind_bank_s1
+
 .read_str           PUSH BC
                     PUSH DE
                     LD   B,0                      ; BC = length of string
-                    LD   DE,0
+                    LD   D,B
+                    LD   E,B                      ; DE = 0
                     EX   DE,HL                    ; HL = 0...
                     CALL_OZ(Os_Mv)                ; read string into memory...
                     CALL C, ReportError_NULL
@@ -268,9 +334,6 @@
                     POP  DE
                     POP  BC
                     RET
-
-
-
 
 
 ; ****************************************************************************************
@@ -297,7 +360,7 @@
 
 ; ****************************************************************************************
 ;
-; IN HL * local pointer to file handle
+; IN HL = local pointer to file handle
 ;
 ; OUT: (HL) = 0, no handle available
 ;
@@ -327,141 +390,12 @@
 
 
 ; ****************************************************************************************
-;
-.Close_files        LD   HL,srcfilehandle
-                    CALL Close_file
-                    LD   HL,cdefilehandle
-                    CALL Close_file
-                    LD   HL,objfilehandle
-                    CALL Close_file
-                    LD   HL,errfilehandle
-                    CALL Close_file
-                    LD   HL,symfilehandle
-                    CALL Close_file
-                    LD   HL,deffilehandle
-                    CALL Close_file
-                    LD   HL,relocfilehandle
-                    CALL Close_file
-                    RET
-
-
-; ****************************************************************************************
 ; Delete any temporary buffer files, before z80asm is completed.
 .Delete_bufferfiles LD   B,0
-                    LD   HL, reloctablefile
-                    CALL Delete_file         ; delete ":RAM.-/reloctable", if it exists...
                     LD   HL, bufferfile
                     CALL Delete_file         ; delete ":RAM.-/buf", if it exists...
                     LD   HL, cdefile
                     JP   Delete_file         ; delete ":RAM.-/temp.buf", if it exists...
-
-
-; ****************************************************************************************
-;
-; IN:     HL = srcfile, local pointer to input file handle
-;         DE = dstfile, local pointer to output file handle
-;         ABC = no. of bytes to copy (24bit file size ~ 1.67MB)
-;
-; OUT:    Fc = 1, file IO error occurred during copy
-;         Fc = 0, file copied successfully
-;
-; Local variables on stack:
-;    (IX+0,IX+1)    = handle of sourcefile
-;    (IX+2,IX+3)    = handle of destfile
-;    (IX+4,IX+6)    = remaining bytes to copy
-;
-; Registers changed after return:
-;    ......../IXIY  same
-;    AFBCDEHL/....  different
-;
-.Copy_file          PUSH IY
-                    PUSH IX
-                    LD   IX,0
-                    ADD  IX,SP
-                    LD   IY, -7
-                    ADD  IY,SP               ; allocate 7 bytes room on stack
-                    LD   SP,IY               ; IY points at base...
-                    PUSH IX                  ; preserve pointer to original IY below variable area
-
-                    PUSH AF                  ; preserve high byte of file copy size
-                    LD   A,(HL)
-                    LD   (IY+0),A
-                    INC  HL
-                    LD   A,(HL)
-                    LD   (IY+1),A            ; handle for srcfile...
-                    EX   DE,HL
-                    LD   A,(HL)
-                    LD   (IY+2),A
-                    INC  HL
-                    LD   A,(HL)
-                    LD   (IY+3),A            ; handle for dstfile...
-                    LD   (IY+4),C
-                    LD   (IY+5),B
-                    POP  AF
-                    LD   (IY+6),A            ; bytes to copy is saved...
-
-                    CALL CpyFile_64K         ; cpyfile(remainbytes MOD 65536)
-
-.copy_loop          XOR  A
-                    CP   (IY+6)              ; while(remainbytes DIV 65536)
-                    JR   Z, end_copyfile
-                         DEC  (IY+6)
-                         LD   (IY+5),$80
-                         CALL CpyFile_64K         ; cpyfile(32768)
-                         JR   C, err_copyfile
-                         LD   (IY+5),$80
-                         CALL CpyFile_64K         ; cpyfile(32768)
-                    JR   NC, copy_loop
-
-.err_copyfile       CALL ReportError_NULL         ; reporterror(NULL; 0, ERR)
-.end_copyfile       POP  HL                       ; get pointer to original IY
-                    LD   SP,HL                    ; restore stack pointer
-                    POP  IX                       ; restore original IX
-                    POP  IY                       ; restore original IY
-                    RET
-
-; ****************************************************************************************************
-;
-; Copy file in 64K boundary blocks
-;
-.CpyFile_64K
-.cpy_loop           LD   A,(IY+4)
-                    OR   (IY+5)                   ; while (remainbytes != 0)
-                    RET  Z
-                         LD   L,(IY+0)
-                         LD   H,(IY+1)                 ; {srcfile}
-                         PUSH HL
-                         POP  IX
-                         LD   HL,lineptr-linebuffer    ; bufsize
-                         LD   C,(IY+4)
-                         LD   B,(IY+5)
-                         CP   A                        ; if ( bufsize > remainbytes )
-                         SBC  HL,BC                         ; bufsize = remainbytes
-                         JR   NC, copy_chunk
-                              LD   BC,lineptr-linebuffer
-.copy_chunk              LD   HL,0
-                         LD   DE,linebuffer            ; bufferstart
-                         PUSH BC
-                         CALL_OZ(Os_Mv)                ; bytesread = read(srcfile, linebuffer, bufsize)
-                         POP  HL
-                         CP   A                        ; ignore EOF, if encountered (Fc = 1)
-                         SBC  HL,BC
-                         LD   B,H
-                         LD   C,L                      ; {BC = bytesread}
-                         LD   L,(IY+4)
-                         LD   H,(IY+5)
-                         SBC  HL,BC
-                         LD   (IY+4),L
-                         LD   (IY+5),H                 ; remainbytes -= bytesread
-                         LD   L,(IY+2)
-                         LD   H,(IY+3)
-                         PUSH HL
-                         POP  IX                       ; {dstfile}
-                         LD   DE,0
-                         LD   HL,linebuffer
-                         CALL_OZ(Os_Mv)                ; byteswritten = write(dstfile, linebuffer, bufsize)
-                         RET  C
-                    JR   cpy_loop
 
 
 ; ****************************************************************************************************
@@ -472,4 +406,7 @@
 ;
 .Delete_file        CALL_OZ(Gn_Del)
                     RET
+
+.bufferfile         DEFM ":RAM.-/buf", 0
+.cdefile            DEFM ":RAM.-/temp.buf", 0
 
