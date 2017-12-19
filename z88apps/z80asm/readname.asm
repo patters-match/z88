@@ -39,7 +39,7 @@
      XREF GetSym                                            ; prsline.asm
      XREF CurrentFile                                       ; srcfile.asm
      XREF CurrentModule                                     ; module.asm
-     XREF ftell, Read_fptr                                  ; fileio.asm
+     XREF ftell, read_longint                               ; fileio.asm
      XREF ModuleBaseAddr                                    ; modlink.asm
      XREF LoadName                                          ; loadname.asm
      XREF Add32bit                                          ; add32bit.asm
@@ -101,9 +101,8 @@
                     LD   D,A                           ; scope = fgetc(objfile)
                     CALL_OZ(Os_Gb)
                     LD   E,A                           ; symtype = fgetc(objfile)
-                    LD   B,0
                     LD   HL, longint
-                    CALL Read_fptr                     ; value = ReadLong(objfile)
+                    CALL read_longint                  ; value = ReadLong(objfile)
                     CALL LoadName                      ; LoadName(objfile)
                     POP  IX
 
