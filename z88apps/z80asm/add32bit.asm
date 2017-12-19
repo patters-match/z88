@@ -46,8 +46,7 @@
 ;
 .Add32bit           PUSH HL
                     LD   A,C
-                    OR   A                   ; Fc = 0
-                    ADC  A,(HL)
+                    ADD  A,(HL)
                     LD   (HL),A
                     INC  HL
                     LD   A,B
