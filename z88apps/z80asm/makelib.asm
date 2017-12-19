@@ -38,7 +38,7 @@
      XREF Add32bit                                     ; add32bit.asm
 
      XREF fseek0, ftell, fsize                         ; fileio.asm
-     XREF Open_file, Close_file, Copy_file, Delete_file 
+     XREF Open_file, Close_file, Copy_file, Delete_file
      XREF Write_fptr, Write_String
 
      XREF AllocVarPointer, GetPointer   ; varptr.asm
@@ -144,8 +144,9 @@
                               CALL fsize                    ; DEBC = sizeof(objfile)
                               LD   HL,longint
                               CALL Add32bit                 ; (longint) = sizeof(objfile) + ftell(libfile)
-                              LD   DE,0
                               LD   BC,8
+                              LD   D,B
+                              LD   E,B
                               CALL Add32bit                 ; (longint): fptr_nextmodule = ftell(libfile) + sizeof(objfile) + 8
 
 .write_nextmodptr        LD   IX,(libfilehandle)

@@ -349,9 +349,10 @@
                     PUSH IX                                      ; preserve pointer to local variables
                     CALL Open_file
                     LD   (objfilehandle),IX                      ; objfile = fopen(filename, "r")
-                    LD   HL,longint
                     LD   BC,10
-                    LD   DE,0
+                    LD   D,B
+                    LD   E,B
+                    LD   HL,longint
                     CALL Add32bit
                     CALL fseekfwm                                ; fseek(objfile, fptr_base+10, SEEK_SET)
                     LD   HL, fptr_modname

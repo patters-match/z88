@@ -44,20 +44,24 @@
 ;         ..BCDEHL/IXIY  same
 ;         AF....../....  different
 ;
-.Add32bit           PUSH IX
-                    PUSH HL
-                    POP  IX                  ; IX points at 32bit integer
-                    LD   L,(IX+0)
-                    LD   H,(IX+1)
-                    ADD  HL,BC
-                    LD   (IX+0),L
-                    LD   (IX+1),H
-                    LD   L,(IX+2)
-                    LD   H,(IX+3)
-                    ADC  HL,DE
-                    LD   (IX+2),L
-                    LD   (IX+3),H
-.exit_add32bit      PUSH IX
-                    POP  HL                  ; HL points at 32bit result
-                    POP  IX                  ; restore original IX
+.Add32bit           PUSH HL
+                    LD   A,C
+                    OR   A                   ; Fc = 0
+                    ADC  A,(HL)
+                    LD   (HL),A
+                    INC  HL
+                    LD   A,B
+                    ADC  A,(HL)
+                    LD   (HL),A
+                    INC  HL
+                    LD   A,E
+                    ADC  A,(HL)
+                    LD   (HL),A
+                    INC  HL
+                    LD   A,D
+                    ADC  A,(HL)
+                    LD   (HL),A
+                    POP  HL
                     RET
+
+

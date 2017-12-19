@@ -358,7 +358,8 @@
                               LD   BC,(longint)
                               PUSH BC                                      ; {preserve currentlibmodule}
                               LD   BC, 4+4+8+2
-                              LD   DE,0
+                              LD   D,B
+                              LD   E,B
                               LD   HL, longint
                               CALL Add32bit
                               LD   IX,(objfilehandle)
@@ -370,7 +371,8 @@
                               PUSH BC                                      ; {preserve currentlibmodule}
                               CALL Add32bit                                ; {fptr_mname += currentlibmodule}
                               LD   BC,4+4
-                              LD   DE,0
+                              LD   D,B
+                              LD   E,B
                               CALL Add32bit                                ; {fptr_mname += 4+4}
                               CALL fseekfwm                                ; fseek(objfile, fptr_mname, SEEK_SET)
                               CALL LoadName                                ; mname = Loadname(objfile)
@@ -399,7 +401,8 @@
                                    LD   HL, objfilehandle
                                    CALL Close_file                              ; fclose(objfile)
                                    LD   BC,4+4
-                                   LD   DE,0
+                                   LD   D,B
+                                   LD   E,B
                                    LD   HL, longint
                                    CALL Add32bit                                ; {currentlibmodule+4+4}
                                    LD   HL,(longint)
