@@ -80,8 +80,6 @@
                     ADD  IX,SP
                     LD   SP,IX
                     PUSH HL                                 ; preserve pointer to RETurn address
-                    LD   (IX+6),0
-                    LD   (IX+7),0                           ; evaluated expressions counter
 
                     LD   HL,linkhdr
                     CALL GetVarPointer
@@ -163,10 +161,6 @@
                          LD   IX,(objfilehandle)                      ; {filepointer at beginning of expressions}
                          CALL fseekfwm                                ; fseek(objfile, longint, SEEK_SET)
                          POP  IX                                      ; {restore pointer to local variables}
-                         EXX
-                         LD   C,(IX+6)
-                         LD   B,(IX+7)                                ; set up counter parameter for .ReadExpression call
-                         EXX
                          LD   HL,(fptr_exprdecl)
                          LD   A,(fptr_exprdecl+2)
                          LD   B,A                                     ; BHL = fptr_exprdecl
@@ -177,7 +171,7 @@
                               LD   A,(fptr_namedecl+2)
                               LD   C,A
                               CALL ReadExpressions                         ; ReadExpr(fptr_exprdecl, fptr_namedecl, exprcounter)
-                              JR   continue_next_link                 ; else
+                              JR   get_next_link                 ; else
 .check_libnameptr             LD   A,(fptr_libnames+3)
                               CP   -1
                               JR   Z, read_until_modname                   ; if ( fptr_libnames != -1 )
@@ -185,14 +179,11 @@
                                    LD   A,(fptr_libnames+2)
                                    LD   C,A
                                    CALL ReadExpressions                         ; ReadExpressions(fptr_exprdecl, fptr_libnames, exprcounter)
-                                   JR   continue_next_link                 ; else
+                                   JR   get_next_link                      ; else
 .read_until_modname                LD   DE,(fptr_modname)
                                    LD   A,(fptr_modname+2)
                                    LD   C,A
                                    CALL ReadExpressions                         ; ReadExpressions(fptr_exprdecl, fptr_modname, exprcounter)
-.continue_next_link LD   (IX+6),C
-                    LD   (IX+7),B                                ; updated expression counter from .ReadExpression
-
 .get_next_link      LD   HL, objfilehandle
                     CALL Close_file                              ; fclose(objfile)
 
@@ -222,8 +213,7 @@
 ;
 ;    IN:  BHL = nextexpr, relative file pointer to start of object module names
 ;         CDE = endexprs, relative file pointer to end of object module names
-;         bc  = current expression counter
-;    OUT: BC  = updated expression counter
+;    OUT: None.
 ;
 ;    Local variables on stack, defined by IX:
 ;         (IX+0,2) = nextexpr
@@ -242,8 +232,6 @@
                     ADD  IX,SP
                     LD   SP,IX
                     PUSH HL                       ; preserve pointer to original IX
-                    LD   (IX+6),C
-                    LD   (IX+7),B                 ; store current expression counter
                     EXX
                     LD   (IX+0),L
                     LD   (IX+1),H
@@ -425,13 +413,6 @@
 .exprmsg_err                  CALL ExprMsg
 
 .evalexpr_endwhile       POP  IX                            ; {restore pointer to local variables}
-
-                         LD   C,(IX+6)
-                         LD   B,(IX+7)
-                         INC  BC
-                         LD   (IX+6),C
-                         LD   (IX+7),B                      ; total no. of expressions evaluated
-
                          LD   A,(IX+5)
                          CP   (IX+2)
                          JR   C, exit_evalexpr
@@ -444,8 +425,7 @@
                          JR   Z, exit_evalexpr
                          JP   while_evalexpr                ; while ( nextexpr < endexprs )
 
-.exit_evalexpr      LD   C,(IX+6)
-                    LD   B,(IX+7)
+.exit_evalexpr
                     POP  HL
                     LD   SP,HL                              ; restore pointer to original IX
                     POP  IX                                 ; return BC = expression counter
