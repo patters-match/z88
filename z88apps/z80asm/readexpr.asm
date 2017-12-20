@@ -127,9 +127,9 @@
                          LD   C,(IX+5)
                          LD   B,0
                          LD   (longint+2),BC                     ; fptr_base at (longint)
-                         LD   BC,10
                          LD   D,B
                          LD   E,B
+                         LD   C,10
                          LD   HL, longint
                          CALL Add32bit                           ; longint = fptr_base+10
                          PUSH IX                                 ; {preserve pointer to local variables}

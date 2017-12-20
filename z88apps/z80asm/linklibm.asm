@@ -244,7 +244,8 @@
                          EX   DE,HL                              ; {BHL = CURRENTLIB}
                          EXX
                          LD   BC,8
-                         LD   DE,0
+                         LD   D,B
+                         LD   E,B
                          EXX
                          LD   A, libfile_nextobjfile
                          CALL Set_long                           ; CURRENTLIB->nextobjfile = 8

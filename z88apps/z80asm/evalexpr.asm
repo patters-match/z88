@@ -188,8 +188,8 @@
                                                                                 ; return 0
 .sym_not_defined                                                 ; else
                                              CALL GetSymPtr           ; symptr = GetSymPtr(pfixexpr->id)
-                                             XOR  A
-                                             CP   B                   ; if ( symptr != NULL && symptr->type SYMDEFINED )
+                                             INC  B
+                                             DEC  B                   ; if ( symptr != NULL && symptr->type SYMDEFINED )
                                              JR   Z, sym_not_found
                                              LD   A,symtree_type
                                              CALL Read_byte
@@ -278,8 +278,8 @@
                          LD   A,pfixlist_nextopr
                          CALL Read_pointer        ; pfixexpr = pfixexpr->nextoperand
 
-.evalexpr_while     XOR  A
-                    CP   B
+.evalexpr_while     INC  B
+                    DEC  B
                     JP   NZ, evalexpr_loop   ; while ( pfixexpr != NULL )
 
                     LD   L,(IX+6)

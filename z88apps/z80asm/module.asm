@@ -216,8 +216,8 @@
 ;
 .NewModule          LD   HL, modulehdr
                     CALL GetVarPointer                 ; get pointer to modulehdr pointer
-                    XOR  A
-                    CP   B
+                    INC  B
+                    DEC  B
                     JR   NZ, modulehdr_exists          ; if ( modulehdr == NULL ) {
                          CALL AllocModuleHdr           ;    if ( (modulehdr = AllocModuleHdr()) == NULL )
                          JP   C, newm_nullptr          ;         return (no room)...

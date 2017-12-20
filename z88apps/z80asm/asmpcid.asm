@@ -56,7 +56,7 @@ XDEF CreateasmPC_ident
                     EXX
                     LD   HL, globalroot
                     CALL GetPointer                         ; &globalroot in BHL
-                    LD   A,0
+                    XOR  A                                  ; A=0
                     CALL DefineDefSym                       ; DefineDefSym(asmpc_tmpident, 0, 0, &globalroot)
                     JR   C, err_create_asmpc
                     POP  DE

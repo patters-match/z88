@@ -413,7 +413,8 @@
                     CALL_OZ(Os_Pb)                               ; fputc(origin/256, objfile)
 
                     LD   BC,30
-                    LD   DE,0                                    ; fptr_exprdecl = 30
+                    LD   D,B                                    ; fptr_exprdecl = 30
+                    LD   E,B
                     LD   (fptr_exprdecl),BC
                     LD   (fptr_exprdecl+2),DE
 
