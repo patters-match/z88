@@ -408,7 +408,8 @@
 
 ; ****************************************************************************************
 ;
-.CreateSymFileName  LD   HL, symfilename
+.CreateSymFileName
+                    LD   HL, symfilename
                     LD   DE, symext
                     CALL CreateFilename
                     JP   C, ReportError_NULL

@@ -55,7 +55,7 @@
                     OR   A
                     RET  NZ                            ; if ( TOTALERRORS == 0 )
 
-                    LD   HL, deffilename
+                    LD   HL, symfilename
                     CALL GetVarPointer
                     INC  HL                            ; point at first char in filename
                     LD   A, OP_OUT
