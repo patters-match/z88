@@ -55,8 +55,8 @@
 ;
 .FreeVarPointer     PUSH HL
                     CALL GetVarPointer                 ; *pointer
-                    XOR  A
-                    CP   B
+                    INC  B
+                    DEC  B
                     PUSH AF
                     CALL NZ, Mfree                     ; free(*pointer)
                     POP  AF
@@ -64,11 +64,14 @@
                     RET  Z                             ; if ( *POINTER == NULL ) return
                     PUSH HL
                     CALL GetPointer
-                    CALL Mfree                         ; free(pointer)
+                    INC  B
+                    DEC  B
+                    CALL NZ,Mfree                      ; free(pointer)
                     POP  HL
-                    LD   (HL),0
+                    XOR  A
+                    LD   (HL),A
                     INC  HL
-                    LD   (HL),0
+                    LD   (HL),A
                     INC  HL
-                    LD   (HL),0                        ; pointer = NULL
+                    LD   (HL),A                        ; pointer = NULL
                     RET

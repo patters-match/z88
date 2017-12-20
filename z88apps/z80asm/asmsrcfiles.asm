@@ -247,14 +247,14 @@
                     BIT  ASMERROR, (IY + RtmFlags3)
                     LD   HL, errfilename
                     CALL Z, DeleteFile                 ; delete error file, if no assembler errors
-                    LD   HL, symfilename
-                    CALL NZ, DeleteFile                ; delete symbol file
                     LD   HL, objfilename
                     CALL NZ, DeleteFile                ; delete object file, if assembler errors
 
                     LD   HL, errfilename
                     CALL FreeVarPointer                ; release pointer variable back to OZ memory
                     LD   HL, symfilename
+                    CALL FreeVarPointer                ; release pointer variable back to OZ memory
+                    LD   HL, deffilename
                     JP   FreeVarPointer                ; release pointer variable back to OZ memory
 
 
