@@ -80,7 +80,13 @@
 ; This function is called on each node of the AVL-tree by ascorder library routine.
 ; IN: BHL points to node of AVL-tree
 ;
-.WriteGlobal        LD   A, symtree_type
+.WriteGlobal
+                    LD   DE,RuntimeFlags3              ; HL & IY are used, so DE is our best friend...
+                    LD   A,(DE)
+                    BIT  ASMERROR,A
+                    RET  NZ                            ; abort mission, error condition is enabled..
+
+                    LD   A, symtree_type
                     CALL Read_byte
                     BIT  SYMDEF,A                 ; if ( !(symnode->type & SYMDEF) )
                     RET  NZ
@@ -96,6 +102,7 @@
                               CALL Write_string                  ; fwrite( "DEFC ", deffile)
                               POP  HL
                               POP  BC
+                              RET  C                             ; abort, if I/O error
 
                               PUSH BC                            ; not library routines...
                               PUSH HL
@@ -107,11 +114,13 @@
                               LD   DE,0
                               INC  HL
                               CALL Write_string                  ; fwrite( node->symname, deffile)
+                              JR   C,popioerr
                               LD   BC,4
                               LD   HL, separator
                               CALL Write_string                  ; fwrite( "\t= $", deffile)
                               POP  HL
                               POP  BC
+                              RET  C                             ; abort, if I/O error
 
                               PUSH BC
                               PUSH HL
@@ -142,11 +151,13 @@
                               LD   BC,4
                               EX   DE,HL                         ; {HL points at HEX string}
                               CALL Write_string                  ; fwrite( node->symvalue, deffile)
+                              JR   C,popioerr
                               LD   BC,2
                               LD   HL, separator2
                               CALL Write_string                  ; fwrite( "; ", deffile)
-                              POP  HL
+.popioerr                     POP  HL
                               POP  BC
+                              RET  C
 
                               LD   A, symtree_modowner
                               CALL Read_pointer
@@ -158,7 +169,7 @@
                               LD   DE,0
                               INC  HL
                               CALL Write_string                  ; fwrite( node->owner->mname, deffile)
-
+                              RET  C
                               LD   A, 13
                               CALL_OZ(Os_Pb)                     ; fputc( deffile, '\n')
                     RET
