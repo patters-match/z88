@@ -185,32 +185,7 @@
                                    OR   L                                  ; foundsym->type |= symtype
                                    EXX
                                    OR   2**SYMLOCAL                        ; foundsym->type |= SYMLOCAL
-
-                                   PUSH DE
-                                   PUSH BC                                 ; {preserve pointer to identifier}
-                                   PUSH BC
-                                   PUSH HL                                 ; {preserve pointer to found symbol}
-                                   LD   C,A
-                                   LD   A,symtree_type
-                                   CALL Set_byte
-                                   EXX
-                                   LD   BC,(longint)
-                                   LD   DE,(longint+2)
-                                   EXX
-                                   LD   A, symtree_symvalue
-                                   CALL Set_long                           ; foundsym->symvalue = value
-
-                                   CALL CurrentModule
-                                   EX   DE,HL
-                                   POP  HL
-                                   LD   A,B
-                                   POP  BC
-                                   LD   C,A                                ; {BHL=foundsym, CDE=CURRENTMODULE}
-                                   LD   A, symtree_modowner
-                                   CALL Set_pointer                        ; foundsym->owner = CURRENTMODULE
-                                   POP  BC
-                                   POP  DE
-                                   CALL Redefined_msg
+                                   CALL SymbolRefined
                                    JP   end_symcreate
 
 .symscope_global    CP   'X'                                ; case 'G':
@@ -257,32 +232,7 @@
                                    OR   L                                  ; foundsym->type |= symtype
                                    EXX
                                    OR   2**SYMXDEF                              ; foundsym->type |= SYMXDEF
-
-                                   PUSH DE
-                                   PUSH BC
-                                   PUSH BC
-                                   PUSH HL
-                                   LD   C,A
-                                   LD   A,symtree_type
-                                   CALL Set_byte
-                                   EXX
-                                   LD   BC,(longint)
-                                   LD   DE,(longint+2)
-                                   EXX
-                                   LD   A, symtree_symvalue
-                                   CALL Set_long                           ; foundsym->symvalue = value
-
-                                   CALL CurrentModule
-                                   EX   DE,HL
-                                   POP  HL
-                                   LD   A,B
-                                   POP  BC
-                                   LD   C,A                                ; {BHL=foundsym, CDE=CURRENTMODULE}
-                                   LD   A, symtree_modowner
-                                   CALL Set_pointer                        ; foundsym->owner = CURRENTMODULE
-                                   POP  BC
-                                   POP  DE
-                                   CALL Redefined_msg
+                                   CALL SymbolRefined
 
 .symscope_xlib           LD   HL, globalroot                ; case 'X':
                          CALL GetVarPointer                      ; {BHL=globalroot, CDE=identifier}
@@ -325,33 +275,8 @@
                                    POP  HL
                                    OR   L                                  ; foundsym->type |= symtype
                                    EXX
-                                   OR   2**SYMXDEF     | 2**SYMDEF              ; foundsym->type |= SYMXDEF | SYMDEF
-
-                                   PUSH DE
-                                   PUSH BC
-                                   PUSH BC
-                                   PUSH HL
-                                   LD   C,A
-                                   LD   A,symtree_type
-                                   CALL Set_byte
-                                   EXX
-                                   LD   BC,(longint)
-                                   LD   DE,(longint+2)
-                                   EXX
-                                   LD   A, symtree_symvalue
-                                   CALL Set_long                           ; foundsym->symvalue = value
-
-                                   CALL CurrentModule
-                                   EX   DE,HL
-                                   POP  HL
-                                   LD   A,B
-                                   POP  BC
-                                   LD   C,A                                ; {BHL=foundsym, CDE=CURRENTMODULE}
-                                   LD   A, symtree_modowner
-                                   CALL Set_pointer                        ; foundsym->owner = CURRENTMODULE
-                                   POP  BC
-                                   POP  DE
-                                   CALL Redefined_msg
+                                   OR   2**SYMXDEF | 2**SYMDEF             ; foundsym->type |= SYMXDEF | SYMDEF
+                                   CALL SymbolRefined
 .end_symcreate
                     LD   A,(IX+5)
                     CP   (IX+2)
@@ -373,7 +298,32 @@
 
 ; **************************************************************************************************
 ;
-.Redefined_msg      LD   HL, redef1_msg
+.SymbolRefined      PUSH DE
+                    PUSH BC
+                    PUSH BC
+                    PUSH HL
+                    LD   C,A
+                    LD   A,symtree_type
+                    CALL Set_byte
+                    EXX
+                    LD   BC,(longint)
+                    LD   DE,(longint+2)
+                    EXX
+                    LD   A, symtree_symvalue
+                    CALL Set_long                           ; foundsym->symvalue = value
+
+                    CALL CurrentModule
+                    EX   DE,HL
+                    POP  HL
+                    LD   A,B
+                    POP  BC
+                    LD   C,A                                ; {BHL=foundsym, CDE=CURRENTMODULE}
+                    LD   A, symtree_modowner
+                    CALL Set_pointer                        ; foundsym->owner = CURRENTMODULE
+                    POP  BC
+                    POP  DE
+
+                    LD   HL, redef1_msg
                     CALL_OZ(Gn_Sop)
                     LD   HL, linebuffer+1              ; {skip length identifier}
                     CALL_OZ(Gn_Sop)                    ; display symbol name
