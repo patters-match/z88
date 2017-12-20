@@ -187,8 +187,8 @@
                     JP   C, ReportError_NULL
 
                     BIT  symtable, (IY + RTMflags)
-                    CALL NZ, CreateSymFile             ; create symbol file...
-                    RET  C
+                    CALL NZ, CreateSymFileName         ; create symbol file name now, based on current source file name...
+                    RET  C                             ; (symbol file will be created at end of assembly if no errors)
 
                     LD   A, OP_OUT
                     LD   B,0
@@ -409,15 +409,10 @@
 
 ; ****************************************************************************************
 ;
-.CreateSymFile      LD   HL, symfilename
+.CreateSymFileName  LD   HL, symfilename
                     LD   DE, symext
                     CALL CreateFilename
                     JP   C, ReportError_NULL
-                    INC  HL                            ; point at first char in filename
-                    LD   A, OP_OUT
-                    CALL Open_file
-                    JP   C, ReportError_NULL
-                    LD   (symfilehandle),IX            ; symbol file created...
                     RET
 
 
@@ -495,8 +490,6 @@
                     LD   HL,objfilehandle
                     CALL Close_file
                     LD   HL,errfilehandle
-                    CALL Close_file
-                    LD   HL,symfilehandle
                     CALL Close_file
                     LD   HL,relocfilehandle
                     JP   Close_file

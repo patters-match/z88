@@ -39,10 +39,11 @@
 
 ; external procedures:
      LIB CmpPtr
-     LIB Read_word, Read_long, Read_byte, Read_pointer
+     LIB Read_byte, Read_pointer
 
      XREF CurrentModule                                     ; currmod.asm
-     XREF Write_string                                      ; fileio.asm
+     XREF Open_file, Close_file, Write_string               ; fileio.asm
+     XREF ReportError_NULL                                  ; asmerror.asm
 
 ; global procedures:
      XDEF WriteSymbols
@@ -53,56 +54,46 @@
 .WriteSymbols       LD   A, (TOTALERRORS)
                     OR   A
                     RET  NZ                            ; if ( TOTALERRORS == 0 )
-                         LD   IX,(symfilehandle)
-                         LD   HL, sym1_msg
-                         LD   B,A
-                         LD   C,(HL)
-                         INC  HL
-                         CALL Write_string                  ; "Local Module symbols:"
-                         CALL CurrentModule
-                         LD   A, module_localroot
-                         CALL Read_pointer
-                         LD   IX,0                          ; counter = 0
-                         PUSH IY
-                         LD   IY, WriteSymbol               ; ascorder(CURRENTMODULE->localroot, WriteSymbol)
-                         CALL ascorder
-                         POP  IY
-                         CALL Write_endmsg                  ; if ( counter == 0 ) fputs("None.", symbolfile)
 
-                         LD   IX,(symfilehandle)
-                         LD   HL, sym2_msg
-                         LD   B,0
-                         LD   C,(HL)
-                         INC  HL
-                         CALL Write_string                  ; "Global Module symbols:"
-                         LD   HL, globalroot
-                         CALL GetVarPointer
-                         LD   IX,0                          ; counter = 0
-                         PUSH IY
-                         LD   IY, WriteSymbol
-                         CALL ascorder                      ; ascorder(globalroot, WriteSymbol)
-                         POP  IY
-                         JP   Write_endmsg                  ; if ( counter == 0 ) fputs("None.", symbolfile)
+                    LD   HL, deffilename
+                    CALL GetVarPointer
+                    INC  HL                            ; point at first char in filename
+                    LD   A, OP_OUT
+                    CALL Open_file
+                    JP   C, ReportError_NULL
+                    LD   (symfilehandle),IX            ; symbol file created...
 
-.sym1_msg           DEFM msg1_end-sym1_msg-1, 13, "Local Module Symbols:", 13
-.msg1_end
-.sym2_msg           DEFM msg2_end-sym2_msg-1, 13, 13, "Global Module Symbols:", 13
-.msg2_end
+                    LD   HL, sym1_msg
+                    LD   B,0
+                    LD   C,(HL)
+                    INC  HL
+                    CALL Write_string                  ; "Local Module symbols:"
+                    CALL CurrentModule
+                    LD   A, module_localroot
+                    CALL Read_pointer
+                    LD   IX,0                          ; counter = 0
+                    PUSH IY
+                    LD   IY, WriteSymbol               ; ascorder(CURRENTMODULE->localroot, WriteSymbol)
+                    CALL ascorder
+                    POP  IY
+                    CALL Write_endmsg                  ; if ( counter == 0 ) fputs("None.", symbolfile)
 
-
-; **************************************************************************************************
-;
-.Write_endmsg       PUSH IX
-                    POP  BC
-                    LD   A,B
-                    OR   C
-                    RET  NZ
                     LD   IX,(symfilehandle)
-                    LD   HL, sym3_msg
-                    LD   BC,6
-                    JP   Write_string
-.sym3_msg           DEFM "None.", 13
-
+                    LD   HL, sym2_msg
+                    LD   B,0
+                    LD   C,(HL)
+                    INC  HL
+                    CALL Write_string                  ; "Global Module symbols:"
+                    LD   HL, globalroot
+                    CALL GetVarPointer
+                    LD   IX,0                          ; counter = 0
+                    PUSH IY
+                    LD   IY, WriteSymbol
+                    CALL ascorder                      ; ascorder(globalroot, WriteSymbol)
+                    POP  IY
+                    CALL Write_endmsg                  ; if ( counter == 0 ) fputs("None.", symbolfile)
+                    LD   HL,symfilehandle
+                    JP   Close_file
 
 
 ; **************************************************************************************************
@@ -113,7 +104,13 @@
 ;         IX  = counter
 ;    OUT: IX = total amount of symbols written to symbol file.
 ;
-.WriteSymbol        PUSH BC
+.WriteSymbol
+                    LD   DE,RuntimeFlags3              ; HL & IY are used, so DE is our best friend...
+                    LD   A,(DE)
+                    BIT  ASMERROR,A
+                    RET  NZ                            ; abort mission, error condition is enabled..
+
+                    PUSH BC
                     PUSH HL
                     LD   A, symtree_modowner
                     CALL Read_pointer
@@ -144,11 +141,14 @@
                                    LD   DE,0
                                    INC  HL
                                    CALL Write_string                  ; fwrite( symnode->symname, symbolfile)
+                                   JR   C,popwrioerr
                                    LD   BC,3
                                    LD   HL, separator
                                    CALL Write_string                  ; fwrite( "\t= ", symbolfile)
+                                   JR   C,popwrioerr
                                    POP  HL
                                    POP  BC
+
                                    LD   DE, symtree_symvalue
                                    ADD  HL,DE                         ; point at symbol value (long word)
                                    LD   DE, stringconst
@@ -162,4 +162,28 @@
                                    POP  IX
                                    INC  IX                            ; ++counter
                     RET
+
+.popwrioerr         POP  HL
+                    POP  BC
+                    POP  IX
+                    RET
+
+
+; **************************************************************************************************
+;
+.Write_endmsg       LD   A,IXH
+                    OR   IXL
+                    RET  NZ
+                    LD   IX,(symfilehandle)
+                    LD   HL, sym3_msg
+                    LD   BC,6
+                    JP   Write_string
+
+
+.sym1_msg           DEFM msg1_end-sym1_msg-1, 13, "Local Module Symbols:", 13
+.msg1_end
+.sym2_msg           DEFM msg2_end-sym2_msg-1, 13, 13, "Global Module Symbols:", 13
+.msg2_end
+.sym3_msg           DEFM "None.", 13
+
 .separator          DEFM 9, "= "
