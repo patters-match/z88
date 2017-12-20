@@ -254,7 +254,6 @@
 
                     LD   HL, errfilename
                     CALL FreeVarPointer                ; release pointer variable back to OZ memory
-
                     LD   HL, symfilename
                     JP   FreeVarPointer                ; release pointer variable back to OZ memory
 
@@ -490,8 +489,6 @@
                     LD   HL,objfilehandle
                     CALL Close_file
                     LD   HL,errfilehandle
-                    CALL Close_file
-                    LD   HL,relocfilehandle
                     JP   Close_file
 
 

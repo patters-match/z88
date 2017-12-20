@@ -255,6 +255,8 @@
                     CALL Close_file                         ; fclose(binfile)
                     LD   HL, errfilehandle
                     CALL Close_file                         ; fclose(errfile)
+                    LD   HL,relocfilehandle
+                    CALL Close_file
 
                     LD   HL, errfilename
                     PUSH HL
@@ -277,6 +279,8 @@
                     CALL Close_file                         ; fclose(errfile)
                     LD   HL, cdefilehandle
                     CALL Close_file                         ; fclose(binfile)
+                    LD   HL,relocfilehandle
+                    CALL Close_file
                     LD   HL, binfilename
                     CALL GetVarPointer
                     INC  HL
