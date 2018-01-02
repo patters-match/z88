@@ -33,6 +33,7 @@
      LIB Read_word, Read_pointer, Read_byte
      LIB Set_pointer, Read_long, Set_long, Set_byte
      LIB GetPointer, GetVarPointer
+     LIB fseek
 
      XREF ReportError, ReportError_NULL                     ; errors.asm
      XREF GetSym                                            ; prsline.asm
@@ -44,7 +45,7 @@
      XREF ModuleBaseAddr                                    ; modlink.asm
      XREF Add32bit                                          ; add32bit.asm
 
-     XREF ftell, fseekfwm, Read_fptr, Write_fptr            ; fileio.asm
+     XREF ftell, Read_fptr, Write_fptr                      ; fileio.asm
      XREF Open_file, Close_file, Read_string
 
      XREF Test_32bit_range, Test_16bit_range                ; exprs.asm
@@ -134,7 +135,7 @@
                          CALL Add32bit                           ; longint = fptr_base+10
                          PUSH IX                                 ; {preserve pointer to local variables}
                          LD   IX,(objfilehandle)
-                         CALL fseekfwm                           ; fseek(objfile, longint, SEEK_SET)
+                         CALL fseek                              ; fseek(objfile, longint, SEEK_SET)
                          LD   HL, fptr_modname
                          CALL Read_fptr
                          LD   HL, fptr_exprdecl
@@ -160,7 +161,7 @@
                          CALL Add32bit                                ; longint = fptr_base + fptr_exprdecl
                          PUSH IX
                          LD   IX,(objfilehandle)                      ; {filepointer at beginning of expressions}
-                         CALL fseekfwm                                ; fseek(objfile, longint, SEEK_SET)
+                         CALL fseek                                   ; fseek(objfile, longint, SEEK_SET)
                          POP  IX                                      ; {restore pointer to local variables}
                          LD   HL,(fptr_exprdecl)
                          LD   A,(fptr_exprdecl+2)
@@ -350,7 +351,7 @@
                                         PUSH HL                            ; {preserve const}
                                         EXX
                                         LD   HL,longint
-                                        CALL fseekfwm                      ; fseek(binfile, patchptr, SEEK_SET)
+                                        CALL fseek                         ; fseek(binfile, patchptr, SEEK_SET)
                                         POP  HL
                                         LD   A,L
                                         CALL_OZ(Os_Pb)                     ; fputc(binfile, const)
@@ -364,7 +365,7 @@
                                         PUSH HL                            ; {preserve const}
                                         EXX
                                         LD   HL,longint
-                                        CALL fseekfwm                      ; fseek(binfile, patchptr, SEEK_SET)
+                                        CALL fseek                         ; fseek(binfile, patchptr, SEEK_SET)
                                         POP  HL
                                         LD   A,L
                                         CALL_OZ(Os_Pb)                     ; fputc(binfile, const)
@@ -378,7 +379,7 @@
                                         PUSH HL                            ; {preserve const}
                                         EXX
                                         LD   HL,longint
-                                        CALL fseekfwm                      ; fseek(binfile, patchptr, SEEK_SET)
+                                        CALL fseek                         ; fseek(binfile, patchptr, SEEK_SET)
                                         POP  HL
                                         LD   A,L                           ; fputc(binfile, const%256)
                                         CALL_OZ(Os_Pb)
@@ -397,7 +398,7 @@
                                    PUSH HL                                 ; {preserve const}
                                    EXX
                                    LD   HL,longint
-                                   CALL fseekfwm                           ; fseek(binfile, patchptr, SEEK_SET)
+                                   CALL fseek                              ; fseek(binfile, patchptr, SEEK_SET)
                                    POP  HL
                                    LD   (longint),HL
                                    POP  HL

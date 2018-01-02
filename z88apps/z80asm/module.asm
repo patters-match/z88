@@ -32,10 +32,11 @@
      LIB malloc, mfree
      LIB GetPointer, GetVarPointer
      LIB Set_pointer, Read_pointer, Set_word, Set_long
+     LIB fseek64k
 
      XREF RemovePfixList                               ; rmpfixlist.asm
      XREF Display_filename                             ; dispflnm.asm
-     XREF Open_file, ftell, fseek64k                   ; fileio.asm
+     XREF Open_file, ftell                             ; fileio.asm
      XREF CurrentFile, CurrentFileName                 ; currfile.asm
      XREF CurrentModule                                ; currmodule.asm
      XREF NewFile                                      ; srcfile.asm

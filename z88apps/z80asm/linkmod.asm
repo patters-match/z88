@@ -35,6 +35,7 @@
      LIB malloc
      LIB CmpPtr
      LIB IntHex
+     LIB fseek
 
      XREF ReportError, ReportError_NULL                     ; errors.asm
      XREF GetSym                                            ; prsline.asm
@@ -58,7 +59,7 @@
 
      XREF Test_32bit_range, Test_16bit_range                ; exprs.asm
 
-     XREF Open_file, ftell, fseekptr, fseekfwm, Read_fptr  ; fileio.asm
+     XREF Open_file, ftell, fseekptr, Read_fptr             ; fileio.asm
      XREF Close_file, Copy_file, Delete_file                ;
 
 ; routines accessible in this module:
@@ -358,7 +359,7 @@
                     LD   E,B
                     LD   HL,longint
                     CALL Add32bit
-                    CALL fseekfwm                                ; fseek(objfile, fptr_base+10, SEEK_SET)
+                    CALL fseek                                   ; fseek(objfile, fptr_base+10, SEEK_SET)
                     LD   HL, fptr_modname
                     CALL Read_fptr                               ; fptr_modname = ReadLong(objfile)
                     LD   HL, fptr_exprdecl
@@ -382,7 +383,7 @@
                          CALL Add32bit                                ; fptr_modcode += fptr_base
                          PUSH IX
                          LD   IX,(objfilehandle)
-                         CALL fseekfwm                               ; fseek( objfile, fptr_modcode+fptr_base, SEEK_SET)
+                         CALL fseek                                   ; fseek( objfile, fptr_modcode+fptr_base, SEEK_SET)
                          CALL_OZ(OS_Gb)
                          LD   C,A                                     ; lowbyte = fgetc(objfile)
                          CALL_OZ(OS_Gb)
@@ -462,7 +463,7 @@
                          CALL Add32bit
                          PUSH IX                                      ; {preserve pointer to local variables}
                          LD   IX,(objfilehandle)
-                         CALL fseekfwm                                ; fseek( fptr_base + fptr_namedecl, objfile, SEEK_SET)
+                         CALL fseek                                   ; fseek( fptr_base + fptr_namedecl, objfile, SEEK_SET)
                          POP  IX
 
                          LD   A,(fptr_libnames+3)

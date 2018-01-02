@@ -30,6 +30,7 @@
 
      LIB IntHex, Read_pointer, Set_pointer
      LIB GetVarPointer
+     LIB fseek0
 
      XREF ReportError_NULL                             ; ASMERROR.asm
      XREF CreateFilename                               ; crtflnm.asm
@@ -37,7 +38,7 @@
      XREF CheckObjFile                                 ; Chckfhdr.asm
      XREF Add32bit                                     ; add32bit.asm
 
-     XREF fseek0, ftell, fsize                         ; fileio.asm
+     XREF ftell, fsize                                 ; fileio.asm
      XREF Open_file, Close_file, Copy_file, Delete_file
      XREF Write_fptr, Write_String
 

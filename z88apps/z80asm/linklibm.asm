@@ -35,6 +35,7 @@
      LIB Read_word, Read_pointer, Read_byte
      LIB Set_pointer, Read_long, Set_long, Set_byte
      LIB GetVarPointer
+     LIB fseek
 
      XREF LinkModule                                        ; linkmod.asm
      XREF CurrentModule, NewModule                          ; module.asm
@@ -51,7 +52,7 @@
 
      XREF Test_32bit_range, Test_16bit_range                ; exprs.asm
 
-     XREF Open_file, fseekptr, fseekfwm, Read_fptr          ; fileio.asm
+     XREF Open_file, fseekptr, Read_fptr                    ; fileio.asm
      XREF Close_file
 
 ; routines accessible in this module:
@@ -106,7 +107,7 @@
                          CALL Add32bit                                ; longint = fptr_base + nextlibname
                          PUSH IX
                          LD   IX,(objfilehandle)
-                         CALL fseekfwm                                ; fseek( fptr_base + nextlibname, objfile, SEEK_SET)
+                         CALL fseek                                   ; fseek( fptr_base + nextlibname, objfile, SEEK_SET)
                          CALL LoadName                                ; LoadName(objfile)
                          POP  IX                                      ; restore pointer to parameter block
                          PUSH HL
@@ -363,7 +364,7 @@
                               LD   HL, longint
                               CALL Add32bit
                               LD   IX,(objfilehandle)
-                              CALL fseekfwm                                ; fseek(objfile, currentlibmodule+4+4+8+2, SEEK_SET)
+                              CALL fseek                                   ; fseek(objfile, currentlibmodule+4+4+8+2, SEEK_SET)
                               CALL Read_fptr                               ; fptr_mname = ReadLong(objfile), fileptr. at  (longint)
                               POP  BC
                               POP  DE
@@ -374,7 +375,7 @@
                               LD   D,B
                               LD   E,B
                               CALL Add32bit                                ; {fptr_mname += 4+4}
-                              CALL fseekfwm                                ; fseek(objfile, fptr_mname, SEEK_SET)
+                              CALL fseek                                   ; fseek(objfile, fptr_mname, SEEK_SET)
                               CALL LoadName                                ; mname = Loadname(objfile)
                               POP  BC
                               POP  DE

@@ -31,6 +31,7 @@
 
 ; external procedures:
      LIB Bind_bank_s1
+     LIB fseek
 
      XREF ReportError_NULL                                  ; errors.asm
 
@@ -39,7 +40,7 @@
 
 ; global procedures in this module:
      XDEF Read_fptr, read_longint, Write_fptr, Read_string, Write_string
-     XDEF ftell, fsize, fseekptr, fseekfwm, fseek0, fseek64k
+     XDEF ftell, fsize, fseekptr 
      XDEF Open_file, Close_file
      XDEF Delete_file
      XDEF Delete_bufferfiles
@@ -103,73 +104,13 @@
                     LD   A,B
                     CALL Bind_bank_s1        ; bind in file pointer information
                     LD   B,A                 ; old bank binding in B
-                    CALL fseekfwm
+                    CALL fseek 
                     PUSH AF                  ; preserve error flag from OS_FWM
                     LD   A,B
                     CALL Bind_bank_s1        ; restore prev. bank binding
                     POP  AF
                     POP  HL
                     POP  BC
-                    RET
-
-; ****************************************************************************************
-;
-; Set file pointer
-;
-;    IN:    IX = file handle
-;           HL = local pointer to 32bit file position
-;
-; Registers changed after return:
-;    ..BCDEHL/IXIY  same
-;    AF....../....  different
-;
-.fseekfwm           LD   A, FA_PTR
-                    CALL_OZ(Os_Fwm)
-                    RET
-
-
-; ****************************************************************************************
-;
-; Reset file pointer to beginning of file
-;
-;    IN:
-;           IX = file handle
-;   OUT:
-;           HL = 0 (always)
-;           Fc = 0 (success)
-;           Fc = 1, A = RC_xxx (I/O error related)
-;
-; Registers changed after return:
-;    ..BCDE../IXIY  same
-;    AF....HL/....  different
-;
-.fseek0             LD   HL,0
-
-
-; ****************************************************************************************
-;
-; Set file pointer within 64K (16bit) range
-;
-;    IN:    IX = file handle
-;           HL = file pointer (16bit)
-;
-;   OUT:    Fc = 0 (success)
-;           Fc = 1, A = RC_xxx (I/O error related)
-;
-; Registers changed after return:
-;    ..BCDEHL/IXIY  same
-;    AF....../....  different
-;
-.fseek64k           PUSH HL
-                    LD   HL,0
-                    EX   (SP),HL
-                    PUSH HL                       ; 16bit file on stack is XXXX0000
-                    LD   HL,0
-                    ADD  HL,SP                    ; HL points to XXXX0000 on system stack
-                    CALL fseekfwm                 ; reset file pointer to XXXX0000
-                    POP  HL
-                    INC  SP
-                    INC  SP                       ; ignore $0000 on stack
                     RET
 
 

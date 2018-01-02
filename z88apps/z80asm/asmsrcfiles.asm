@@ -38,6 +38,7 @@
      LIB Read_pointer, Set_pointer
      LIB Read_word, Set_word
      LIB delete_all
+     LIB fseek, fseek64k
 
      XREF ReportError, ReportError_NULL, ReportError_STD    ; asmerror.asm
      XREF FreeSym, DefineDefSym                             ; symbols.asm
@@ -45,8 +46,8 @@
      XREF FindSymbol, CopyStaticLocal                       ; symbols.asm
      XREF CurrentModule, ReleaseExpressions                 ; module.asm
      XREF CreateFilename                                    ; crtflnm.asm
-     XREF Open_file, Close_file, fseekfwm, fseek64k         ; fileIO.asm
-     XREF read_longint, Read_string, Write_string, Delete_file ; fileIO.asm
+     XREF Open_file, Close_file, Delete_file                ; fileIO.asm
+     XREF read_longint, Read_string, Write_string           ; fileIO.asm
      XREF FreeVarPointer                                    ; varptr.asm
      XREF Init_CDEbuffer, FlushBuffer                       ; bytesIO.asm
      XREF Z80pass1                                          ; Z80pass1.asm
@@ -349,7 +350,7 @@
                          LD   A,(fptr_modcode+3)
                          CP   -1
                          JR   Z, end_moduleinfo             ; if ( fptr_modcode != -1 )
-                              CALL fseekfwm                      ; fseek(objfile, fptr_modcode, SEEK_SET)
+                              CALL fseek                         ; fseek(objfile, fptr_modcode, SEEK_SET)
                               CALL_OZ(Os_Gb)
                               LD   E,A
                               CALL_OZ(Os_Gb)
@@ -376,7 +377,7 @@
                          CALL fseek64k                      ; fseek(objfile, 10, SEEK_SET)
                          LD   HL, fptr_modname
                          CALL read_longint                  ; fptr_modname = ReadLong(objfile)
-                         CALL fseekfwm                      ; fseek(objfile, fptr_modname, SEEK_SET)
+                         CALL fseek                         ; fseek(objfile, fptr_modname, SEEK_SET)
                          CALL LoadName                      ; Loadname(objfile)
                          CALL AllocIdentifier               ; if ( (m = AllocIdentifier(size+1)) == NULL )
                          JR   NC, define_modname

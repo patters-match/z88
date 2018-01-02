@@ -36,6 +36,7 @@
      LIB Set_word, Set_pointer
      LIB GetVarPointer
      LIB ascorder
+     LIB fseek0, fseek64k
 
      XREF Open_file                                         ; fileio.asm
      XREF ReportError, ReportError_NULL                     ; errors.asm
@@ -47,7 +48,7 @@
      XREF Test_7bit_range, Test_8bit_range                  ; tstrange.asm
      XREF Test_16bit_range, Test_32bit_Range                ;
 
-     XREF Write_fptr, ftell, fseekptr, fseek0, fseek64k, Write_string    ; fileio.asm
+     XREF Write_fptr, ftell, fseekptr, Write_string         ; fileio.asm
      XREF Copy_file                                         ; copyfile.asm
 
 

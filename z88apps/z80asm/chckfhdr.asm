@@ -29,9 +29,10 @@
 
      MODULE Check_objfile
 
+     LIB fseek0
      LIB memcompare, GetVarPointer
 
-     XREF fseek0, Read_string                   ; fileio.asm
+     XREF Read_string                           ; fileio.asm
      XREF ReportError                           ; asmerror.asm
 
      XDEF CheckFileHeader, CheckObjfile, CheckLibfile
