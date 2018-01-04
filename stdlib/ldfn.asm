@@ -33,15 +33,21 @@ defvars 0
     sfsgm      ds.b 1                           ; safe segment specifier
     filehandle ds.w 1
     filesize   ds.w 1
-    relocfn    ds.p 1                           ; pointer to memory of loaded (and relocated) function
+    rlctblmhdl ds.w 1                           ; OS_Mop memory handle for relocation table in S0
+    s0bnd      ds.b 1                           ; original S0 binding (before this function call)
+    rlctblptr  ds.w 1                           ; pointer to memory of allocated/loaded relocation table (temporary) in S0
+    rlctbltle  ds.w 1                           ; total elements in relocation table
+    rlctblsz   ds.w 1                           ; size of relocation table
+    rlcfnptr   ds.p 1                           ; pointer to memory of loaded (and relocated) function
     sz_ws
 enddef
 
 
 ; ********************************************************************************************************************
-; Load relocatable function into RAM memory and return pointer to it. Only works for OZ V5.0 and later.
+; Load relocatable function into RAM memory and return pointer to it.
 ; Function is then executed via RST 28H (EXTCALL) by applicatiom.
 ; If relocatable function is not identified, Fc = 1, A = RC_Ftm (file type mismatch) is returned.
+; Only works for OZ V5.0 and later. If this library is executed on OZ v4.x or earlier, Fc = 1, A = RC_Na is returned
 ;
 ; (relocation header is temporarily loaded - only function code is allocated, relocated and ext.pointer returned to it for S3)
 ;
@@ -66,6 +72,22 @@ enddef
         add     iy,sp                           ;
         ld      sp,iy                           ; make temporary workspace on stack
 
+        xor     a
+        ld      (iy + rlcfnptr+2),a             ; indicate no pointer to allocated function code
+
+        ld      ix,$ffff
+        ld      a,FA_PTR
+        oz      OS_Frm
+        jr      c,ldfn_ret
+        ld      a,$50
+        cp      c
+        jr      z,cont_ldfn
+        jr      c,cont_ldfn
+        scf
+        ld      a,RC_Na                         ; this functionality is not available for OZ V4.x and earlier
+        jr      ldfn_ret
+
+.cont_ldfn                                      ; functionality allowed to be executed, we're running in OZ V5.0 or later..
         push    ix
         pop     de
         ld      (iy+memhandle),e
@@ -85,7 +107,7 @@ enddef
         jr      ldfn_abort                      ; Fz = 0, relocatable file not identified (close file and abort)
 
 .ldreloctbl
-        call    alloc_reltbl                    ; allocate and load relocation table
+        call    alloc_rlctbl                    ; allocate and load relocation table
         jr      c,ldfn_abort                    ; no room, abort function loading..
 
         call    alloc_fnc                       ; allocate and load function code
@@ -93,9 +115,9 @@ enddef
 
         call    reloc_fnc                       ; relocate addresses in load function code
         cp      a
-        ld      l,(iy + relocfn)
-        ld      h,(iy + relocfn+1)
-        ld      b,(iy + relocfn+2)              ; return BHL = pointer to loaded function code
+        ld      l,(iy + rlcfnptr)
+        ld      h,(iy + rlcfnptr+1)
+        ld      b,(iy + rlcfnptr+2)             ; return BHL = pointer to loaded function code
         jr      ldfn_ret
 
 .ldfn_abort
@@ -169,7 +191,60 @@ enddef
 ;    ....                        |
 ;    patchpointer_n    ds.b 1  --+
 ;
-.alloc_reltbl
+;
+; IN:
+;    IX = file handle
+;
+; OUT:
+;    Fc = 0,
+;       HL = pointer to area in S0 (bound) containing relocation table
+;    Fc = 1,
+;       A = RC_Room, no space in memory to load relocation table
+;       A = I/O error, problem reading from file
+;
+.alloc_rlctbl
+        ld      hl,sz_relocfn
+        call    fseek64k                        ; position file pointer at low byte of total_elements variable in file
+
+        push    iy
+        pop     hl
+        ld      bc,rlctbltle
+        add     hl,bc                           ; HL points to first low byte of 16bit variable [rlctblttl]
+        ex      de,hl                           ; load total_elements and sizeof_table
+        ld      c,4                             ; (4 bytes)
+        call    ldblock                         ; installed into stack variables (IX file pointer is now 1st byte of relocation table)
+        ret     c                               ; I/O error occurred
+
+        push    ix                              ; preserve file handle
+        ld      b,0
+        ld      a, MM_MUL | MM_S0
+        oz      OS_Mop                          ; get special memory handle for relocation table in S0
+        jr      c,rlctbl_nohdl
+        push    ix
+        pop     bc
+        ld      (iy + rlctblmhdl),c
+        ld      (iy + rlctblmhdl+1),b           ; preserve temp. memory handle (will be released on exit
+
+        ld      c,(iy + rlctblsz)
+        ld      b,(iy + rlctblsz+1)             ; size of relocation table
+        push    bc
+        oz      OS_Mal                          ; allocate space for relocation table in S0
+        jr      c,rlctbl_no_room
+        ld      (iy + rlctblptr),l
+        ld      (iy + rlctblptr+1),h
+        rst     OZ_MPB                          ; bind allocated memory in HL of bank B into C = MS_S0 segment
+        ld      (iy + s0bnd),b                  ; remember old S0 binding for exit of this routine
+
+        pop     bc                              ; length / size of relocation table to
+        ex      de,hl                           ; load at DE
+        pop     ix                              ; from file of function code
+        call    ldblock
+        ex      de,hl                           ; hl points to start of relocation table (if Fc = 0)
+        ret
+.rlctbl_no_room
+        pop     bc
+.rlctbl_nohdl
+        pop     ix
         ret
 
 
