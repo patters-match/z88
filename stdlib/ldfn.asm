@@ -72,8 +72,9 @@ enddef
         add     iy,sp                           ;
         ld      sp,iy                           ; make temporary workspace on stack
 
-        xor     a
-        ld      (iy + rlcfnptr+2),a             ; indicate no pointer to allocated function code
+        ld      a,($04D0)
+        ld      (iy + s0bnd),a                  ; remember current S0 bank binding
+        ld      (iy + rlcfnptr+2),0             ; indicate no pointer to allocated function code
 
         ld      ix,$ffff
         ld      a,FA_PTR
@@ -124,6 +125,12 @@ enddef
         call    close_fnfile                    ; close handle of original function file
 .ldfn_ret
         ex      af,af'
+        push    bc
+        ld      b,(iy + s0bnd)
+        ld      c,MS_S0
+        rst     OZ_MPB                          ; restore original S0 bank binding
+        pop     bc
+
         ld      iy,sz_ws
         add     iy,sp                           ;
         ld      sp,iy                           ; restore original stack
@@ -233,8 +240,7 @@ enddef
         ld      (iy + rlctblptr),l
         ld      (iy + rlctblptr+1),h
         rst     OZ_MPB                          ; bind allocated memory in HL of bank B into C = MS_S0 segment
-        ld      (iy + s0bnd),b                  ; remember old S0 binding for exit of this routine
-
+                                                ; (old S0 binding is already registered)
         pop     bc                              ; length / size of relocation table to
         ex      de,hl                           ; load at DE
         pop     ix                              ; from file of function code
