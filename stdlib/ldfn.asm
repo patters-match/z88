@@ -15,7 +15,7 @@
 
 XLIB ldfn
 
-LIB memcompare, fseek64k
+LIB memcompare, fseek64k, SafeBHLSegment
 
 include "memory.def"
 include "fileio.def"
@@ -111,11 +111,9 @@ enddef
         call    alloc_rlctbl                    ; allocate and load relocation table
         jr      c,ldfn_abort                    ; no room, abort function loading..
 
-        call    alloc_fnc                       ; allocate and load function code
+        call    alloc_fnc                       ; allocate, load & relocate function code
         jr      c,ldfn_abort
 
-        call    reloc_fnc                       ; relocate addresses in load function code
-        cp      a
         ld      l,(iy + rlcfnptr)
         ld      h,(iy + rlcfnptr+1)
         ld      b,(iy + rlcfnptr+2)             ; return BHL = pointer to loaded function code
@@ -232,21 +230,20 @@ enddef
         ld      (iy + rlctblmhdl),c
         ld      (iy + rlctblmhdl+1),b           ; preserve temp. memory handle (will be released on exit
 
+        xor     a
         ld      c,(iy + rlctblsz)
         ld      b,(iy + rlctblsz+1)             ; size of relocation table
         push    bc
         oz      OS_Mal                          ; allocate space for relocation table in S0
         jr      c,rlctbl_no_room
         ld      (iy + rlctblptr),l
-        ld      (iy + rlctblptr+1),h
+        ld      (iy + rlctblptr+1),h            ; hl points to start of relocation table
         rst     OZ_MPB                          ; bind allocated memory in HL of bank B into C = MS_S0 segment
                                                 ; (old S0 binding is already registered)
         pop     bc                              ; length / size of relocation table to
         ex      de,hl                           ; load at DE
         pop     ix                              ; from file of function code
-        call    ldblock
-        ex      de,hl                           ; hl points to start of relocation table (if Fc = 0)
-        ret
+        jp      ldblock                         ; relocation table now ready for processing
 .rlctbl_no_room
         pop     bc
 .rlctbl_nohdl
@@ -255,15 +252,56 @@ enddef
 
 
 ; ********************************************************************************************************************
-; Allocate memory and load code of function file.
+; Allocate memory, load & relocated function code
+;
+; IN:
+;    IX = file handle
 ;
 .alloc_fnc
+        ld      l,(iy + filesize)
+        ld      h,(iy + filesize+1)             ; get total file size
+        ld      bc,sz_relocfn + 4
+        sbc     hl,bc                           ; without relocation code size and [total_elements], [sizeof_table] variables
+        ld      c,(iy + rlctblsz)
+        ld      b,(iy + rlctblsz+1)
+        sbc     hl,bc                           ; without size of relocation table
+        push    ix                              ; preserve file handle
+
+        ld      e,(iy+memhandle)
+        ld      d,(iy+memhandle+1)              ; get memory handle as specified from application
+        push    de
+        pop     ix
+        ex      de,hl
+        ld      c,e
+        ld      b,d                             ; BC = size of function code to allocate, preserve copy of size in DE
+        xor     a
+        oz      OS_Mal                          ; allocate memory for function code
+        jr      c,rlctbl_nohdl                  ; No Room, abort mission...
+        pop     ix                              ; restore file handle
+        ld      (iy + rlcfnptr),l
+        ld      a,h
+        set     7,a
+        res     6,a
+        ld      (iy + rlcfnptr+1),a
+        ld      (iy + rlcfnptr+2),b             ; BHL = pointer to function code to be executed in S3
+
+        call    SafeBHLSegment                  ; C = safe segment specifier, HL edited to point into it..
+        rst     OZ_MPB                          ; bind allocated memory in HL of bank B into safe segment
+        push    bc                              ; preserve old binding...
+        ld      c,d
+        ld      b,e
+        ex      de,hl                           ; load at DE
+
+        call    ldblock                         ; load function code of BC length into allocated RAM area at DE
+        jr      c,end_alloc_fnc
+
+        ; relocate addresses in load function code
+
+.end_alloc_fnc
+        pop     bc
+        rst     OZ_MPB                          ; restore binding of safe segment
         ret
 
-
-; ********************************************************************************************************************
-.reloc_fnc
-        ret
 
 
 ; ********************************************************************************************************************
