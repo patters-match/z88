@@ -252,7 +252,7 @@ enddef
 
 
 ; ********************************************************************************************************************
-; Allocate memory, load & relocated function code
+; Allocate memory, load & relocate function code
 ;
 ; IN:
 ;    IX = file handle
@@ -295,7 +295,55 @@ enddef
         call    ldblock                         ; load function code of BC length into allocated RAM area at DE
         jr      c,end_alloc_fnc
 
-        ; relocate addresses in load function code
+        ld      e,(iy + rlctbltle)
+        ld      d,(iy + rlctbltle+1)
+        push    de                              ; total of relocation offset elements on stack
+        ld      e,(iy + rlctblptr)
+        ld      d,(iy + rlctblptr+1)
+        push    de                              ; preserve pointer to first relocation offset element
+        ex      de,hl                           ; HL points at beginning of function code
+        ld      b,(iy + rlcfnptr+1)
+        ld      c,l                             ; BC = ORG (for S3) of executing code
+
+.relocate_loop
+        ex      (sp),hl                         ; HL = pointer to relocation offset element
+        ld      a,(hl)
+        inc     hl                              ; ready for next relocation offset pointer
+        or      a
+        jr      nz, byte_offset
+.extended_offset
+        ld      e,(hl)
+        inc     hl
+        ld      d,(hl)                          ; DE = extended offset pointer to next relocation address
+        inc     hl                              ; ready for next relocation offset pointer
+        jr      relocate_address
+
+.byte_offset
+        ld      d,0
+        ld      e,a                             ; offset pointer to next relocation address
+.relocate_address
+        ex      (sp),hl                         ; HL = pointer to current relocation address
+        add     hl,de                           ; new pointer at memory that contains relocation address
+        ld      e,(hl)
+        inc     hl
+        ld      d,(hl)
+        ex      de,hl
+        add     hl,bc                           ; HL = address relocated to program ORG in BC
+        ex      de,hl
+        ld      (hl),d
+        dec     hl
+        ld      (hl),e                          ; update relocated address back to memory
+
+        pop     de                              ; DE = pointer to relocation offset
+        ex      (sp),hl                         ; HL = index counter
+        dec     hl                              ; update index counter
+        ld      a,h
+        or      l                               ; all addresses relocated?
+        ex      (sp),hl                         ; index counter back on stack
+        push    de                              ; pointer to relocation offset back on stack
+        jr      nz, relocate_loop
+        pop     bc                              ; Fc = 0, Fz = 1
+        pop     bc                              ; remove redundant variables
 
 .end_alloc_fnc
         pop     bc
