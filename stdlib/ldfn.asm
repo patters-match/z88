@@ -74,7 +74,10 @@ enddef
 
         ld      a,($04D0)
         ld      (iy + s0bnd),a                  ; remember current S0 bank binding
-        ld      (iy + rlcfnptr+2),0             ; indicate no pointer to allocated function code
+        xor     a
+        ld      (iy + rlcfnptr+2),a             ; indicate no pointer to allocated function code
+        ld      (iy + rlctblmhdl),a
+        ld      (iy + rlctblmhdl+1),a           ; indicate no OS_Mop handle for S0
 
         ld      ix,$ffff
         ld      a,FA_PTR
@@ -121,6 +124,7 @@ enddef
 
 .ldfn_abort
         call    close_fnfile                    ; close handle of original function file
+        call    close_s0mhndl                   ; free temp. allocated S0 memory
 .ldfn_ret
         ex      af,af'
         push    bc
@@ -386,6 +390,22 @@ enddef
         push    de
         pop     ix
         oz      GN_Cl
+        pop     af
+        ret
+
+
+; ********************************************************************************************************************
+.close_s0mhndl
+        push    af
+        ld      e,(iy+rlctblmhdl)
+        ld      d,(iy+rlctblmhdl+1)
+        ld      a,e
+        or      d
+        jr      z,end_close_s0mhndl
+        push    de
+        pop     ix
+        oz      OS_Mcl                          ; release OS_Mop handle
+.end_close_s0mhndl
         pop     af
         ret
 
