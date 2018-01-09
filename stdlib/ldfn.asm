@@ -79,9 +79,16 @@ enddef
         ld      (iy + rlctblmhdl),a
         ld      (iy + rlctblmhdl+1),a           ; indicate no OS_Mop handle for S0
 
+        push    ix
+        pop     de
+        ld      (iy+memhandle),e
+        ld      (iy+memhandle+1),d              ; preserve memory handle for later
+
+        push    ix
         ld      ix,$ffff
         ld      a,FA_PTR
-        oz      OS_Frm
+        call    filemisc
+        pop     ix
         jr      c,ldfn_ret
         ld      a,$50
         cp      c
@@ -92,11 +99,6 @@ enddef
         jr      ldfn_ret
 
 .cont_ldfn                                      ; functionality allowed to be executed, we're running in OZ V5.0 or later..
-        push    ix
-        pop     de
-        ld      (iy+memhandle),e
-        ld      (iy+memhandle+1),d              ; preserve memory handle for later
-
         call    open_fnfile
         jr      c,ldfn_ret                      ; file of function not found, abort...
 
@@ -373,12 +375,18 @@ enddef
 
 ; ********************************************************************************************************************
 .getsz_fnfile
-        ld      de,0
         ld      a, FA_EXT
-        oz      OS_Frm
+        call    filemisc
         ret     c
         ld      (iy+filesize),c
         ld      (iy+filesize+1),b               ; preserve total file size (always less than 16K, DE discarded)
+        ret
+
+
+; ********************************************************************************************************************
+.filemisc
+        ld      de,0
+        oz      OS_Frm
         ret
 
 
