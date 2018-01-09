@@ -87,7 +87,7 @@ enddef
         push    ix
         ld      ix,$ffff
         ld      a,FA_PTR
-        call    filemisc
+        call    getfilemisc
         pop     ix
         jr      c,ldfn_ret
         ld      a,$50
@@ -122,8 +122,6 @@ enddef
         ld      l,(iy + rlcfnptr)
         ld      h,(iy + rlcfnptr+1)
         ld      b,(iy + rlcfnptr+2)             ; return BHL = pointer to loaded function code
-        jr      ldfn_ret
-
 .ldfn_abort
         call    close_fnfile                    ; close handle of original function file
         call    close_s0mhndl                   ; free temp. allocated S0 memory
@@ -287,27 +285,26 @@ enddef
         ld      (iy + rlcfnptr),l
         ld      a,h
         set     7,a
-        res     6,a
+        set     6,a                             ; S3 mask
         ld      (iy + rlcfnptr+1),a
         ld      (iy + rlcfnptr+2),b             ; BHL = pointer to function code to be executed in S3
 
         call    SafeBHLSegment                  ; C = safe segment specifier, HL edited to point into it..
         rst     OZ_MPB                          ; bind allocated memory in HL of bank B into safe segment
         push    bc                              ; preserve old binding...
-        ld      c,d
-        ld      b,e
+        ld      c,e
+        ld      b,d
         ex      de,hl                           ; load at DE
 
         call    ldblock                         ; load function code of BC length into allocated RAM area at DE
-        jr      c,end_alloc_fnc
-
+        jr      c,end_alloc_fnc                 ; abort, I/O error...
+        ex      de,hl                           ; HL points at beginning of function code
         ld      e,(iy + rlctbltle)
         ld      d,(iy + rlctbltle+1)
         push    de                              ; total of relocation offset elements on stack
         ld      e,(iy + rlctblptr)
         ld      d,(iy + rlctblptr+1)
         push    de                              ; preserve pointer to first relocation offset element
-        ex      de,hl                           ; HL points at beginning of function code
         ld      b,(iy + rlcfnptr+1)
         ld      c,l                             ; BC = ORG (for S3) of executing code
 
@@ -376,7 +373,7 @@ enddef
 ; ********************************************************************************************************************
 .getsz_fnfile
         ld      a, FA_EXT
-        call    filemisc
+        call    getfilemisc
         ret     c
         ld      (iy+filesize),c
         ld      (iy+filesize+1),b               ; preserve total file size (always less than 16K, DE discarded)
@@ -384,7 +381,7 @@ enddef
 
 
 ; ********************************************************************************************************************
-.filemisc
+.getfilemisc
         ld      de,0
         oz      OS_Frm
         ret
