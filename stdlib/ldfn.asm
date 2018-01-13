@@ -84,10 +84,8 @@ enddef
         ld      (iy + rlctblmhdl),a
         ld      (iy + rlctblmhdl+1),a           ; indicate no OS_Mop handle for S0
 
-        ld      a,ixl
-        ld      (iy+memhndl),a
-        ld      a,ixh
-        ld      (iy+memhndl+1),a                ; preserve memory handle for later
+        ld      a,memhndl
+        call    set_handle                      ; preserve IX memory handle in (iy + memhndl) for later
 
         ld      ix,$ffff
         ld      a,FA_PTR
@@ -136,7 +134,7 @@ enddef
         rst     OZ_MPB                          ; restore original S0 bank binding
         pop     bc
         ld      a,memhndl
-        call    get_handle                      ; return IX(in) memory handle or internally allocated (if IX(in) = 0)
+        call    get_handle                      ; return IX(in) memory handle or internally allocated, if IX(in) = 0
 
         ld      iy,sz_ws
         add     iy,sp                           ;
@@ -271,8 +269,6 @@ enddef
 
         ld      a,memhndl
         call    get_handle                      ; IX = memory handle as specified from application for OS_Mal
-        ld      a,ixh
-        or      ixl
         jr      nz,allc_fnc                     ; handle was specified by application..
         ld      a,MM_FIX | MM_MUL | MS_S3
         call    alloc_memhandle
@@ -428,6 +424,8 @@ enddef
 ;   A = offset from IY runtime workspace variable
 ; OUT:
 ;   IX = handle
+;   Fz = 1, if IX = 0
+;
 .get_handle
         push    de
         call    get_offsaddr
@@ -436,6 +434,7 @@ enddef
         inc     de
         ld      a,(de)
         ld      ixh,a
+        or      ixl
         pop     de
         ret
 
