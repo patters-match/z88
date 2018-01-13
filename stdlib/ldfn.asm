@@ -29,7 +29,7 @@ defc sz_wm = 8
 ; workspace on system stack
 defvars 0
     buf        ds.b sz_buf                      ; work buffer for various functionalities
-    memhandle  ds.w 1
+    memhndl    ds.w 1
     sfsgm      ds.b 1                           ; safe segment specifier
     filehandle ds.w 1
     filesize   ds.w 1
@@ -44,18 +44,25 @@ enddef
 
 
 ; ********************************************************************************************************************
-; Load relocatable function into RAM memory and return pointer to it.
-; Function is then executed via RST 28H (EXTCALL) by applicatiom.
+; Load relocatable function into RAM memory and return pointer to it, which then is executed via RST 28H (EXTCALL)
+; by applicatiom.
+;
 ; If relocatable function is not identified, Fc = 1, A = RC_Ftm (file type mismatch) is returned.
 ; Only works for OZ V5.0 and later. If this library is executed on OZ v4.x or earlier, Fc = 1, A = RC_Na is returned
 ;
-; (relocation header is temporarily loaded - only function code is allocated, relocated and ext.pointer returned to it for S3)
+; Relocation header is temporarily loaded - only function code is allocated, relocated and ext.pointer returned to
+; it for S3.
+;
+; Implementation by G.Strube, gstrube@gmail.com, Jan 2018
+;
+; --------------------------------------------------------------------------------------------------------------------
 ;
 ; IN:
 ;     BHL = ext.pointer to filename, null-terminated
-;     IX = (OS_Mop) memory handle
+;     IX = (OS_Mop) memory handle, or 0 to get one returned after allocation
 ; OUT:
 ;     Fc  = 0
+;        IX = allocated memory handle if IX(in) = 0
 ;       BHL = ext.pointer to loaded routine (HL = entry address of routine in S3)
 ;     Fc  = 1
 ;       A = RC_xxx error
@@ -65,7 +72,6 @@ enddef
 ;         AFB ..HL/.... different
 ;
 .ldfn   push    iy
-        push    ix
         push    de
         push    bc
         ld      iy,-sz_ws
@@ -75,20 +81,17 @@ enddef
         ld      a,($04D0)
         ld      (iy + s0bnd),a                  ; remember current S0 bank binding
         xor     a
-        ld      (iy + rlcfnptr+2),a             ; indicate no pointer to allocated function code
         ld      (iy + rlctblmhdl),a
         ld      (iy + rlctblmhdl+1),a           ; indicate no OS_Mop handle for S0
 
-        push    ix
-        pop     de
-        ld      (iy+memhandle),e
-        ld      (iy+memhandle+1),d              ; preserve memory handle for later
+        ld      a,ixl
+        ld      (iy+memhndl),a
+        ld      a,ixh
+        ld      (iy+memhndl+1),a                ; preserve memory handle for later
 
-        push    ix
         ld      ix,$ffff
         ld      a,FA_PTR
         call    getfilemisc
-        pop     ix
         jr      c,ldfn_ret
         ld      a,$50
         cp      c
@@ -132,6 +135,8 @@ enddef
         ld      c,MS_S0
         rst     OZ_MPB                          ; restore original S0 bank binding
         pop     bc
+        ld      a,memhndl
+        call    get_handle                      ; return IX(in) memory handle or internally allocated (if IX(in) = 0)
 
         ld      iy,sz_ws
         add     iy,sp                           ;
@@ -140,7 +145,6 @@ enddef
         pop     de
         ld      c,e                             ; restored original C
         pop     de
-        pop     ix
         pop     iy
         ret                                     ; return BHL = ext.address to loaded function.
 
@@ -215,24 +219,18 @@ enddef
         ld      hl,sz_relocfn
         call    fseek64k                        ; position file pointer at low byte of total_elements variable in file
 
-        push    iy
-        pop     hl
-        ld      bc,rlctbltle
-        add     hl,bc                           ; HL points to first low byte of 16bit variable [rlctblttl]
-        ex      de,hl                           ; load total_elements and sizeof_table
-        ld      c,4                             ; (4 bytes)
+        ld      a,rlctbltle
+        call    get_offsaddr                    ; DE points to first low byte of 16bit variable [rlctblttl]
+        ld      bc,4                            ; load total_elements and sizeof_table (4 bytes)
         call    ldblock                         ; installed into stack variables (IX file pointer is now 1st byte of relocation table)
         ret     c                               ; I/O error occurred
 
         push    ix                              ; preserve file handle
-        ld      b,0
-        ld      a, MM_MUL | MM_S0
-        oz      OS_Mop                          ; get special memory handle for relocation table in S0
+        ld      a, MM_FIX | MM_MUL | MM_S0
+        call    alloc_memhandle                 ; get memory handle for relocation table in S0
         jr      c,rlctbl_nohdl
-        push    ix
-        pop     bc
-        ld      (iy + rlctblmhdl),c
-        ld      (iy + rlctblmhdl+1),b           ; preserve temp. memory handle (will be released on exit
+        ld      a,rlctblmhdl
+        call    set_handle                      ; preserve IX temp. memory handle (will be released on exit)
 
         xor     a
         ld      c,(iy + rlctblsz)
@@ -271,10 +269,17 @@ enddef
         sbc     hl,bc                           ; without size of relocation table
         push    ix                              ; preserve file handle
 
-        ld      e,(iy+memhandle)
-        ld      d,(iy+memhandle+1)              ; get memory handle as specified from application
-        push    de
-        pop     ix
+        ld      a,memhndl
+        call    get_handle                      ; IX = memory handle as specified from application for OS_Mal
+        ld      a,ixh
+        or      ixl
+        jr      nz,allc_fnc                     ; handle was specified by application..
+        ld      a,MM_FIX | MM_MUL | MS_S3
+        call    alloc_memhandle
+        jr      c,rlctbl_nohdl                  ; failed to allocate memory handle
+        ld      a,memhndl
+        call    set_handle                      ; preserve memory handle for later in (iy + memhndl)
+.allc_fnc
         ex      de,hl
         ld      c,e
         ld      b,d                             ; BC = size of function code to allocate, preserve copy of size in DE
@@ -285,7 +290,7 @@ enddef
         ld      (iy + rlcfnptr),l
         ld      a,h
         set     7,a
-        set     6,a                             ; S3 mask
+        set     6,a                             ; S3 mask, always
         ld      (iy + rlcfnptr+1),a
         ld      (iy + rlcfnptr+2),b             ; BHL = pointer to function code to be executed in S3
 
@@ -354,7 +359,6 @@ enddef
         ret
 
 
-
 ; ********************************************************************************************************************
 .open_fnfile
         ld      c,sz_buf                        ; BHL points to filename
@@ -363,11 +367,8 @@ enddef
         ld      a,OP_IN
         oz      GN_Opf
         ret     c
-        push    ix
-        pop     de
-        ld      (iy+filehandle),e
-        ld      (iy+filehandle+1),d             ; preserve file handle
-        ret
+        ld      a,filehandle
+        jr      set_handle                      ; preserve IX file handle (iy + filehandle)
 
 
 ; ********************************************************************************************************************
@@ -381,6 +382,20 @@ enddef
 
 
 ; ********************************************************************************************************************
+; Get a Memory handle
+;
+; IN:
+;   A = memory flags & segment specifier
+; OUT:
+;   IX = memory handle for OS_Mal operations
+;
+.alloc_memhandle
+        ld      b,0
+        oz      OS_Mop                          ; get special memory handle for relocation table in S0
+        ret
+
+
+; ********************************************************************************************************************
 .getfilemisc
         ld      de,0
         oz      OS_Frm
@@ -390,10 +405,8 @@ enddef
 ; ********************************************************************************************************************
 .close_fnfile
         push    af
-        ld      e,(iy+filehandle)
-        ld      d,(iy+filehandle+1)
-        push    de
-        pop     ix
+        ld      a,filehandle
+        call    get_handle
         oz      GN_Cl
         pop     af
         ret
@@ -402,16 +415,58 @@ enddef
 ; ********************************************************************************************************************
 .close_s0mhndl
         push    af
-        ld      e,(iy+rlctblmhdl)
-        ld      d,(iy+rlctblmhdl+1)
-        ld      a,e
-        or      d
-        jr      z,end_close_s0mhndl
-        push    de
-        pop     ix
-        oz      OS_Mcl                          ; release OS_Mop handle
+        ld      a,rlctblmhdl
+        call    get_handle
+        oz      OS_Mcl                          ; release OS_Mop handle (ignor error if IX = 0)
 .end_close_s0mhndl
         pop     af
+        ret
+
+
+; ********************************************************************************************************************
+; IN:
+;   A = offset from IY runtime workspace variable
+; OUT:
+;   IX = handle
+.get_handle
+        push    de
+        call    get_offsaddr
+        ld      a,(de)
+        ld      ixl,a
+        inc     de
+        ld      a,(de)
+        ld      ixh,a
+        pop     de
+        ret
+
+
+; ********************************************************************************************************************
+; IN:
+;   A = offset from IY runtime workspace variable
+;   IX = handle
+.set_handle
+        push    de
+        call    get_offsaddr
+        ld      a,ixl
+        ld      (de),a
+        inc     de
+        ld      a,ixh
+        ld      (de),a
+        pop     de
+        ret
+
+; ********************************************************************************************************************
+; IN:
+;   A = offset from IY runtime workspace variable
+; OUT:
+;   DE = address on stack
+.get_offsaddr
+        push    iy
+        pop     de
+        add     a,e
+        ld      e,a
+        ret     nc
+        inc     d
         ret
 
 
