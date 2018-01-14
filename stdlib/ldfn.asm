@@ -108,7 +108,7 @@ enddef
 
         call    chkrelocwm
         jr      c,ldfn_abort                    ; I/O error, abort...
-        jr      z, ldreloctbl                   ; Fz = 1, relocatable function accepted...
+        jr      z,ldreloctbl                    ; Fz = 1, relocatable function accepted...
         scf
         ld      a,RC_Ftm
         jr      ldfn_abort                      ; Fz = 0, relocatable file not identified (close file and abort)
@@ -208,7 +208,7 @@ enddef
 ;
 ; OUT:
 ;    Fc = 0,
-;       HL = pointer to area in S0 (bound) containing relocation table
+;       DE = pointer to area in S0 (bound) containing relocation table
 ;    Fc = 1,
 ;       A = RC_Room, no space in memory to load relocation table
 ;       A = I/O error, problem reading from file
@@ -218,7 +218,7 @@ enddef
         call    fseek64k                        ; position file pointer at low byte of total_elements variable in file
 
         ld      a,rlctbltle
-        call    get_offsaddr                    ; DE points to first low byte of 16bit variable [rlctblttl]
+        call    get_iyoffsaddr                  ; DE points to first low byte of 16bit variable [rlctblttl]
         ld      bc,4                            ; load total_elements and sizeof_table (4 bytes)
         call    ldblock                         ; installed into stack variables (IX file pointer is now 1st byte of relocation table)
         ret     c                               ; I/O error occurred
@@ -419,6 +419,22 @@ enddef
         ret
 
 
+
+; ********************************************************************************************************************
+; IN:
+;   A = offset from IY runtime workspace variable
+; OUT:
+;   DE = address on stack
+.get_iyoffsaddr
+        push    iy
+        pop     de
+        add     a,e
+        ld      e,a
+        ret     nc
+        inc     d
+        ret
+
+
 ; ********************************************************************************************************************
 ; IN:
 ;   A = offset from IY runtime workspace variable
@@ -428,7 +444,7 @@ enddef
 ;
 .get_handle
         push    de
-        call    get_offsaddr
+        call    get_iyoffsaddr
         ld      a,(de)
         ld      ixl,a
         inc     de
@@ -445,27 +461,13 @@ enddef
 ;   IX = handle
 .set_handle
         push    de
-        call    get_offsaddr
+        call    get_iyoffsaddr
         ld      a,ixl
         ld      (de),a
         inc     de
         ld      a,ixh
         ld      (de),a
         pop     de
-        ret
-
-; ********************************************************************************************************************
-; IN:
-;   A = offset from IY runtime workspace variable
-; OUT:
-;   DE = address on stack
-.get_offsaddr
-        push    iy
-        pop     de
-        add     a,e
-        ld      e,a
-        ret     nc
-        inc     d
         ret
 
 

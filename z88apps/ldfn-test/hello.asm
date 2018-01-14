@@ -20,27 +20,27 @@ org EXEC_ORG
 
 
 .entry
-        ld      b,0
-        ld      a, MM_MUL | MM_S3
-        oz      OS_Mop                          ; get memory handle supplied to ldfn
-        jr      c,err_hello
-
         ld      b,0                             ; B = 0, local filename
+        ld      ix,0                            ; ldfn returns memory handle
         ld      hl,fnfln
         call    ldfn                            ; return BHL = pointer to loaded relocatable function
         jr      c,ldfn_failed
 
         ld      a,b
         ld      (dsphello + 1),hl
-        ld      (dsphello + 3),a                ; patch address of loaded function after RST 28H
+        ld      (dsphello + 3),a                ; patch address of loaded function after RST 28H instruction
         call    dsphello                        ; local -> far call
 .ldfn_failed
         push    af
+        ld      a,ixh
+        or      ixl
+        jr      z,skip_mcl                      ; no handle to release
         oz      OS_Mcl                          ; release allocated function code memory
+.skip_mcl
         pop     af
 .err_hello
-        jr      nc,exit_hello
-        oz      Gn_Esp                          ; report RC error to Shell window, then exit command
+        jr      nc,exit_hello                   ; no system error occurred, return to shell
+        oz      Gn_Esp                          ; report system error message to Shell window
         oz      OS_Bout
         oz      OS_Nln
 .exit_hello
