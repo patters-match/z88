@@ -781,7 +781,7 @@
 ;
 .change_hiscoreflag ld   hl, blockflags      ; timeout is only used in ZetriZ menu...
                     ld   a,(hl)
-                    xor  2^disphiscore
+                    xor  2**disphiscore
                     ld   (hl),a              ; invert flag to display highscore...
                     ret
 
