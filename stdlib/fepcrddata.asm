@@ -44,22 +44,23 @@
                     LD   HL, DeviceCodeTable
                     LD   B,(HL)                   ; no. of Flash Memory ID's in table
                     INC  HL
+.find_loop                    
                     LD   A,E
-.find_loop          CP   (HL)                     ; Device Code found?
+                    CP   (HL)                     ; Device Code found?
                     INC  HL                       ; points at Manufacturer Code
                     JR   NZ, get_next0
-                         LD   A,D
-                         CP   (HL)                ; Manufacturer Code found?
-                         INC  HL                  ; points at no of banks of Flash Memory
-                         JR   NZ, get_next1
-                         LD   B,(HL)              ; B = total of 16K banks on Flash Eprom
-                         INC  HL
-                         LD   A,(HL)              ; A = chip generation
-                         INC  HL
-                         LD   E,(HL)
-                         INC  HL
-                         LD   D,(HL)              ; DE points at chip description string
-                         JR   verified_id         ; Fc = 0, Flash Eprom data returned...
+                    LD   A,D
+                    CP   (HL)                     ; Manufacturer Code found?
+                    INC  HL                       ; points at no of banks of Flash Memory
+                    JR   NZ, get_next1
+                    LD   B,(HL)                   ; B = total of 16K banks on Flash Eprom
+                    INC  HL
+                    LD   A,(HL)                   ; A = chip generation
+                    INC  HL
+                    LD   E,(HL)
+                    INC  HL
+                    LD   D,(HL)                   ; DE points at chip description string
+                    JR   verified_id              ; Fc = 0, Flash Eprom data returned...
 .get_next0          INC  HL                       ; points at no of banks
 .get_next1          INC  HL                       ; points at chip generation
                     INC  HL                       ; point mnemonic low byte
@@ -72,7 +73,7 @@
                     RET
 
 .DeviceCodeTable
-                    DEFB 9
+                    DEFB 10
 
                     DEFW FE_I28F004S5             ; Intel flash
                     DEFB 32, FE_28F               ; 8 x 64K sectors / 32 x 16K banks (512Kb)
@@ -110,11 +111,16 @@
                     DEFB 64, FE_29F               ; 16 x 64K sectors / 64 x 16K banks (1024Kb)
                     DEFW mnem_st080d
 
+                    DEFW FE_MX29F040C             ; Macronix flash
+                    DEFB 32, FE_29F               ; 8 x 64K sectors / 32 x 16K banks (512Kb)
+                    DEFW mnem_mx040c
+
 .mnem_i004          DEFM "I28F004S5 (512K)", 0
-.mnem_i8S5          DEFM "I28F008S5 (1Mb)", 0
+.mnem_i8S5          DEFM "I28F008S5 (1MB)", 0
 .mnem_am010b        DEFM "AM29F010B (128K)", 0
 .mnem_am040b        DEFM "AM29F040B (512K)", 0
-.mnem_am080b        DEFM "AM29F080B (1Mb)", 0
+.mnem_am080b        DEFM "AM29F080B (1MB)", 0
 .mnem_amc040b       DEFM "AMIC29F040B (512K)", 0
 .mnem_st040b        DEFM "ST29F040B (512K)", 0
-.mnem_st080d        DEFM "ST29F080D (1Mb)", 0
+.mnem_st080d        DEFM "ST29F080D (1MB)", 0
+.mnem_mx040c        DEFM "MX29F040C (512K)", 0

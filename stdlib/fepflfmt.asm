@@ -304,6 +304,8 @@
 .SaveNullFile
                     LD   A,$89               ; Check for Intel Manufacturer code
                     CP   H
+                    SCF                      ; clear carry to prevent error if h > FE_INTEL_MFCD
+                    CCF
                     RET  NZ                  ; it was not an Intel chip - the null file is not necessary...
 
                     PUSH BC                  ; preserve top of file area bank in B
