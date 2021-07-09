@@ -1,6 +1,6 @@
 :: *************************************************************************************
 :: Z88 Standard Library Makefile for DOS/Windows
-:: (C) Gunther Strube (gstrube@gmail.com) 1991-2014
+:: (C) Gunther Strube (hello@bits4fun.net) 1991-2014
 ::
 :: This is free software; you can redistribute it and/or modify it under the terms of the
 :: GNU General Public License as published by the Free Software Foundation;

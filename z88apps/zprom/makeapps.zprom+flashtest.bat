@@ -1,6 +1,6 @@
 :: *************************************************************************************
 :: Zprom + FlashTest make script
-:: (C) Gunther Strube (gstrube@gmail.com) 2006-2014
+:: (C) Gunther Strube (hello@bits4fun.net) 2006-2014
 ::
 :: Zprom & FlashTest is free software; you can redistribute it and/or modify it under
 :: the terms of theGNU General Public License as published by the Free Software Foundation;

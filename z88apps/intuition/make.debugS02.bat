@@ -1,6 +1,6 @@
 :: *************************************************************************************
 :: Intuition make script (DOS/Windows) to build executable for segment 2 address space
-:: (C) Gunther Strube (gstrube@gmail.com) 1991-2014
+:: (C) Gunther Strube (hello@bits4fun.net) 1991-2014
 ::
 :: Intuition is free software; you can redistribute it and/or modify it under the terms of the
 :: GNU General Public License as published by the Free Software Foundation;

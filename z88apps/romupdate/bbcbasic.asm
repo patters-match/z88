@@ -1,6 +1,6 @@
 ; *************************************************************************************
 ; RomUpdate BBC BASIC program
-; (C) Gunther Strube (gstrube@gmail.com) 2005-2011
+; (C) Gunther Strube (hello@bits4fun.net) 2005-2011
 ;
 ; RomUpdate is free software; you can redistribute it and/or modify it under the terms of the
 ; GNU General Public License as published by the Free Software Foundation;

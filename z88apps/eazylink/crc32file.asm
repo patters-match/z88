@@ -1,6 +1,6 @@
 ; *************************************************************************************
 ; EazyLink - Fast Client/Server File Management, including support for PCLINK II protocol
-; (C) Gunther Strube (gstrube@gmail.com) 1990-2012
+; (C) Gunther Strube (hello@bits4fun.net) 1990-2012
 ;
 ; 32bit Cyclic Redundancy Checksum Management for EazyLink
 ; CRC algorithm from UnZip, by Garry Lancaster, Copyright 1999, released as GPL.

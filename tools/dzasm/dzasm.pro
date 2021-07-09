@@ -15,7 +15,7 @@
 # Use qmake mpm.pro, then make. Executable binary will be generated in
 #   <Project Home>/bin
 #
-# Copyright (C) 1996-2012, Gunther Strube, gstrube@gmail.com
+# Copyright (C) 1996-2012, Gunther Strube, hello@bits4fun.net
 #
 # DZasm is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by the Free Software Foundation;

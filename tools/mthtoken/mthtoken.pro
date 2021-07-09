@@ -2,7 +2,7 @@
 #
 # Qt-Creator Project for the MthToken.
 #
-# Copyright (C) 2016, Gunther Strube, gstrube@gmail.com
+# Copyright (C) 2016, Gunther Strube, hello@bits4fun.net
 #
 # Use qmake mthtoken.pro, then just make.
 #

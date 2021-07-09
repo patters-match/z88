@@ -1,7 +1,7 @@
 /* -------------------------------------------------------------------------------------------------
 
     MthToken - Tokenize Z80 Assembler DEFM Ascii text using default or specified token table
-    Copyright (C) 2016, Gunther Strube, gstrube@gmail.com
+    Copyright (C) 2016, Gunther Strube, hello@bits4fun.net
 
     MthToken is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by the Free Software Foundation;

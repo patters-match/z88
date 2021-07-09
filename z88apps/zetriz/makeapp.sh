@@ -2,7 +2,7 @@
 
 # *************************************************************************************
 # ZetriZ
-# (C) Gunther Strube (gstrube@gmail.com) 1995-2006
+# (C) Gunther Strube (hello@bits4fun.net) 1995-2006
 #
 # ZetriZ is free software; you can redistribute it and/or modify it under the terms of the
 # GNU General Public License as published by the Free Software Foundation;

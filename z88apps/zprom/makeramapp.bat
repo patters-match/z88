@@ -1,6 +1,6 @@
 :: *************************************************************************************
 :: Zprom - RAM Application
-:: (C) Gunther Strube (gstrube@gmail.com) 1993-2014
+:: (C) Gunther Strube (hello@bits4fun.net) 1993-2014
 ::
 :: Zprom is free software; you can redistribute it and/or modify it under the terms of the
 :: GNU General Public License as published by the Free Software Foundation;

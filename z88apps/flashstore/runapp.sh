@@ -2,7 +2,7 @@
 
 # *************************************************************************************
 # FlashStore
-# (C) Gunther Strube (gstrube@gmail.com) & Thierry Peycru (pek@users.sf.net), 1997-2012
+# (C) Gunther Strube (hello@bits4fun.net) & Thierry Peycru (pek@users.sf.net), 1997-2012
 #
 # FlashStore is free software; you can redistribute it and/or modify it under the terms of the
 # GNU General Public License as published by the Free Software Foundation;
