@@ -44,10 +44,10 @@ The main repository, z88.git, contains mostly Z88 Application source code.
 Our other repositories refer to specific projects:
 
 https://bitbucket.org/cambridge/oz (OZ - Z88 ROM)
-https://bitbucket.org/cambridge/mpm (Mpm - Z80 Assember utility)
-https://bitbucket.org/cambridge/z88card (Z88Card - Z88 AppCard Manager)
-https://bitbucket.org/cambridge/ozvm (OZvm - Z88 Emulator)
-https://bitbucket.org/cambridge/eazylink2 (Desktop Appl. to transfer files to Z88)
+https://gitlab.com/b4works/mpm (Mpm - Z80 Assember utility)
+https://gitlab.com/b4works//z88card (Z88Card - Z88 AppCard Manager)
+https://gitlab.com/b4works//ozvm (OZvm - Z88 Emulator)
+https://gitlab.com/b4works//eazylink2 (Desktop Appl. to transfer files to Z88)
 
 If you need write access to the repositories, drop us an email with
 your user account name on bitbucket: cambridgez88@gmail.com
