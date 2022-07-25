@@ -100,7 +100,7 @@ IF !DEBUG
 
 .FlashTest_Help     DEFM $7F
                     DEFM "Flash Card Testing Tool for",$7F
-                    DEFM "Intel I28F00xS5, Amd compatible 29F0xxB devices", $7F
+                    DEFM "Intel I28F00xS5 and AMD 29F0xxB compatible devices", $7F
                     DEFM $7F
 endif
 .progversion_msg
@@ -1184,4 +1184,4 @@ endif
 
 .Release_msg
                     DEFM "Flash Card Testing Tool for", 13, 10
-                    DEFM "Intel I28F00xS5 and Amd compatible 29F0xxB devices", 13, 10, 0
+                    DEFM "Intel I28F00xS5 and AMD 29F0xxB compatible devices", 13, 10, 0

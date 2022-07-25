@@ -18,6 +18,7 @@
 
      LIB FlashEprCardId         ; Identify Flash Memory Chip in slot C
      LIB FlashEprBlockErase     ; Erase sector defined in B (00h-0Fh), on Flash Card inserted in slot C
+     LIB FlashEprPollSectorSize
 
      INCLUDE "flashepr.def"
      INCLUDE "memory.def"
@@ -60,11 +61,13 @@
 ;    ..BCDEHL/IXIY ........ same
 ;    AF....../.... afbcdehl different
 ;
-; ---------------------------------------------------------------
+; --------------------------------------------------------------------------------------------
 ; Design & programming by:
+;    Martin Roberts (mailmartinroberts@yahoo.co.uk), Jan 2018
 ;    Gunther Strube, Dec 1997-Apr 1998, Aug 2004, Aug 2006
 ;    Thierry Peycru, Zlab, Dec 1997
-; ---------------------------------------------------------------
+;    patters backported improvements from OZ 4.7.1RC and OZ 5.0 to standard library, July 2022
+; --------------------------------------------------------------------------------------------
 ;
 .FlashEprCardErase
                     PUSH BC
@@ -72,9 +75,11 @@
 
                     CALL FlashEprCardId                 ; poll for card information in slot C (returns B = total banks of card)
                     JR   C, exit_FlashEprCardErase
-
-                    RRC  B                              ; Erase the individual sectors, one at a time
-                    RRC  B                              ; total of 16K banks on card -> total of 64K sectors on card.
+                    CALL FlashEprPollSectorSize         ; 16K sector device in slot C?
+                    JR   Z, erase_blocks_start          ; yes, erase all 16K banks
+                    SRL  B                              ; Erase the individual sectors, one at a time
+                    SRL  B                              ; total of 16K banks on card -> total of 64K sectors on card.
+.erase_blocks_start
                     DEC  B                              ; sectors, from (total sectors-1) downwards and including 0
 .erase_2xF_card_blocks
                     CALL FlashEprBlockErase             ; erase top sector of card, and downwards...

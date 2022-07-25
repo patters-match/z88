@@ -33,11 +33,11 @@
      include "../romupdate/crctable.asm"
 
 ; Jump sub routine table (to define nice, static CALL addresses in BBC BASIC)
-     jp   blowbank      ; $B900
-     jp   checkbank     ; $B903
-     jp   readbank      ; $B906
-     jp   eraseflash    ; $B909
-     jp   crc32bank     ; $B90C
+     jp   blowbank      ; $B90F
+     jp   checkbank     ; $B97E
+     jp   readbank      ; $B9A0
+     jp   eraseflash    ; $B9B4
+     jp   crc32bank     ; $B9D4
 
 ; The BLOWBANK routine blows bank B (00-ff) to standard EPROM type C,
 ; with data stored at DE. On exit, HL=0 if successful, or address

@@ -42,7 +42,7 @@ DEFC FE_CON = $D0           ; confirm erasure
 
 ;***************************************************************************************************
 ;
-; Erase sector (block) defined in B (00h-0Fh), on Flash Memory Card inserted in slot C.
+; Erase sector (block) defined in B (00h-1Fh), on Flash Memory Card inserted in slot C.
 ;
 ; The routine will internally ask the Flash Memory for identification and intelligently
 ; use the correct erasing algorithm. All known Flash Memory chips from Intel and Amd
@@ -58,7 +58,7 @@ DEFC FE_CON = $D0           ; confirm erasure
 ; requires the Z88 slot 3 hardware, so this type of unnecessary error can be avoided.
 ;
 ; IN:
-;         B = block/sector number on chip to be erased (00h - 0Fh)
+;         B = block/sector number on chip to be erased (00h - 1Fh)
 ;             (available sector size and count depend on chip type)
 ;         C = slot number (0, 1, 2 or 3) of Flash Memory Card
 ; OUT:
@@ -74,12 +74,15 @@ DEFC FE_CON = $D0           ; confirm erasure
 ;    ..BCDEHL/IXIY ........ same
 ;    AF....../.... afbcdehl different
 ;
-; ---------------------------------------------------------------
+; --------------------------------------------------------------------------------------------
 ; Design & programming by:
 ;    Gunther Strube, Dec 1997-Apr 1998, Aug 2004, Aug 2006, Oct 2007
 ;    Thierry Peycru, Zlab, Dec 1997
-; ---------------------------------------------------------------
+;    patters backported improvements from OZ 4.7.1RC and OZ 5.0 to standard library, July 2022
+; --------------------------------------------------------------------------------------------
 ;
+; now allows sectors in range 00-1F for 512K device with 32 16K sectors
+
 .FlashEprBlockErase
                     PUSH BC
                     PUSH DE
@@ -87,12 +90,18 @@ DEFC FE_CON = $D0           ; confirm erasure
                     PUSH IX
 
                     LD   A,B
-                    AND  @00001111           ; sector number range is only 0 - 15...
+                    AND  @00011111           ; sector number range is only 0 - 31...
                     LD   D,A                 ; preserve sector in D (not destroyed by FlashEprCardId)
                     LD   E,C                 ; preserve slot no in E (not destroyed by FlashEprCardId)
                     CALL FlashEprCardId      ; poll for card information in slot C (returns B = total banks of card)
                     JR   C, exit_FlashEprBlockErase
                     EX   AF,AF'              ; preserve FE Programming type in A'
+                    LD   A,H                 ; get manufacturer ID
+                    CP   FE_SST_MFCD         ; test for SST device
+                    JR   NZ,poll_sector_size
+                    LD   A,FE_39F            ; change FE programming type
+                    EX   AF,AF'              ; preserve FE Programming type in A'
+.poll_sector_size
                     CALL FlashEprPollSectorSize
                     JR   Z, _16K_block_fe    ; yes, it's a 16K sector architecture (same as Z88 bank architecture!)
                     LD   A,D                 ; no, it's a 64K sector architecture
@@ -155,7 +164,7 @@ DEFC FE_CON = $D0           ; confirm erasure
 ; This routine will clone itself on the stack and execute there.
 ;
 ; In:
-;    A = FE_28F or FE_29F (depending on Flash Memory type in slot)
+;    A = FE_28F or FE_29F or FE_39F (depending on Flash Memory type in slot)
 ;    E = slot number (1, 2 or 3) of Flash Memory Card
 ;    HL = points into bound bank of Flash Memory
 ;
@@ -172,12 +181,21 @@ DEFC FE_CON = $D0           ; confirm erasure
 ;    AFBCDEHL/.... different
 ;
 .FEP_EraseBlock
+                    CP   FE_39F
+                    JR   Z, erase_39F_block           ; execute SST sector erasure on stack, return error in AF...
+
                     CP   FE_28F
-                    JR   Z, erase_28F_block
+                    JR   Z, erase_28F_block           ; execute SST sector erasure on stack, return error in AF...
 .erase_29F_block
                     LD   IX, FEP_EraseBlock_29F
                     EXX
                     LD   BC, end_FEP_EraseBlock_29F - FEP_EraseBlock_29F
+                    EXX
+                    JP   ExecRoutineOnStack
+.erase_39F_block
+                    LD   IX, FEP_EraseBlock_39F
+                    EXX
+                    LD   BC, end_FEP_EraseBlock_39F - FEP_EraseBlock_39F
                     EXX
                     JP   ExecRoutineOnStack
 .erase_28F_block
@@ -185,7 +203,7 @@ DEFC FE_CON = $D0           ; confirm erasure
                     CP   E                   ; when chip is FE_28F series, we need to be in slot 3
                     JR   Z,_erase_28F_block  ; to make a successful sector erase
                     SCF
-                    LD   A, RC_BER           ; Ups, not in slot 3, signal error!
+                    LD   A, RC_BER           ; Oops, not in slot 3, signal error!
                     RET
 ._erase_28F_block
                     LD   IX, FEP_EraseBlock_28F
@@ -259,6 +277,252 @@ DEFC FE_CON = $D0           ; confirm erasure
 
 
 ; ***************************************************************
+; Erases 16K block in 4 x 4K sectors
+;
+; Erase block on an SST 39Fxxxx Flash Memory, which is bound
+; into segment x that HL points into.
+;
+; In:
+;    HL = points into bound Flash Memory sector
+; Out:
+;    Success:
+;        Fc = 0
+;        A = undefined
+;    Failure:
+;        Fc = 1
+;        A = RC_BER (error occurred when erasing block/sector)
+;
+; -----------------------------------------------------------------------------------------------
+; Design & programming by:
+;       (C) Martin Roberts (mailmartinroberts@yahoo.co.uk), Jan 2018
+;       patters backported improvements from OZ 4.7.1RC and OZ 5.0 to standard library, July 2022
+; -----------------------------------------------------------------------------------------------
+;
+; Registers changed after return:
+;    ......../IXIY same
+;    AFBCDEHL/.... different
+;
+.FEP_EraseBlock_39F
+                    ; AM29Fx_InitCmdMode
+                    ;     from the OZ 4.7.1 code (in os/osfep/osfep.asm)
+                    ;     we can't use a CALL to another function since .FEP_EraseBlock_39F to .end_FEP_EraseBlock_39F
+                    ;     will be copied to the stack for execution, so the whole routine has been inserted
+                    ;
+                    ; ***************************************************************************************************
+                    ; Prepare AMD Command Mode sequense addresses.
+                    ;
+                    ; In:
+                    ;       HL points into bound bank of Flash Memory
+                    ; Out:
+                    ;       BC = bank select sw copy address
+                    ;       DE = address $2AAA + segment  (derived from HL)
+                    ;       HL = address $1555 + segment  (derived from HL)
+                    ;
+                    ; Registers changed on return:
+                    ;    AF....../IXIY same
+                    ;    ..BCDEHL/.... different
+                    ;
+                    PUSH AF
+                    LD   A,H
+                    AND  @11000000
+                    LD   D,A
+                    LD   BC,BLSC_SR0
+                    RLCA
+                    RLCA
+                    OR   C
+                    LD   C,A                    ; BC = bank select sw copy address
+                    LD   A,D
+                    OR   $15
+                    LD   H,A
+                    LD   L,$55                  ; HL = address $1555 + segment
+                    LD   A,D
+                    OR   $2A
+                    LD   D,A
+                    LD   E,$AA                  ; DE = address $2AAA + segment
+                    POP  AF
+                    ; end AM29Fx_InitCmdMode
+                    XOR  A                      ; start with sector 0
+.erase_block_39f_loop
+                    PUSH AF
+                    ; AM29Fx_EraseSector
+                    ;     from the OZ 4.7.1 code (in os/lowram/flash.asm)
+                    ;     we can't use a CALL to another function since .FEP_EraseBlock_39F to .end_FEP_EraseBlock_39F
+                    ;     will be copied to the stack for execution, so the whole routine has been inserted
+                    ;
+                    ; ***************************************************************************************************
+                    ; Erase block on an AMD 29Fxxxx (or compatible) Flash Memory, which is bound into segment x
+                    ; that HL points into.
+                    ;
+                    ; In:
+                    ;        A = sector address upper byte (for devices with 4K sectors, don't care for 64K sectors)
+                    ;       BC = bank select sw copy address
+                    ;       DE = address $2AAA + segment  (points into bound Flash Memory sector)
+                    ;       HL = address $1555 + segment
+                    ; Out:
+                    ;    Success:
+                    ;        Fz = 1
+                    ;        A = undefined
+                    ;    Failure:
+                    ;        Fz = 0 (sector not erased)
+                    ;
+                    ; Registers changed after return:
+                    ;    ......../IXIY same
+                    ;    AFBCDEHL/.... different
+                    ;
+                    PUSH HL
+                    PUSH AF
+                    LD   A,$80                  ; Execute main Erase Mode
+
+                              ; AM29Fx_CmdMode
+                              ;     from the OZ 4.7.1 code (in os/lowram/flash.asm)
+                              ;     we can't use a CALL to another function since .FEP_EraseBlock_39F to .end_FEP_EraseBlock_39F
+                              ;     will be copied to the stack for execution, so the whole routine has been inserted
+                              ;
+                              ; ***************************************************************************************************
+                              ; Execute AMD 29Fxxxx (or compatible) Flash Memory Chip Command
+                              ; Maskable interrupts are disabled while chip is in command mode.
+                              ;
+                              ; In:
+                              ;       A = AMD/STM Command code, if A=0 command is not sent
+                              ;       BC = bank select sw copy address
+                              ;       DE = address $2AAA + segment
+                              ;       HL = address $1555 + segment
+                              ; Out:
+                              ;       -
+                              ;
+                              ; Registers changed on return:
+                              ;    ..BCDEHL/IXIY same
+                              ;    AF....../.... different
+                              ;
+                                   PUSH AF
+                                   LD   A,(BC)                          ; get current bank
+                                   OR   $01                             ; A14=1 for 5555 address
+                                   OUT  (C),A                           ; select it
+                                   LD   (HL),E                          ; AA -> (5555), First Unlock Cycle
+                                   EX   DE,HL
+                                   AND  $FE                             ; A14=0
+                                   OUT  (C),A                           ; select it
+                                   LD   (HL),E                          ; 55 -> (2AAA), Second Unlock Cycle
+                                   EX   DE,HL
+                                   OR   $01                             ; A14=1
+                                   OUT  (C),A                           ; select it
+                                   POP  AF                              ; get command
+                                   OR   A                               ; is it 0?
+                                   JR   Z,cmdmode_exit                  ; don't write it if it is
+                                   LD   (HL),A                          ; A -> (5555), send command
+                              .cmdmode_exit
+                                   LD   A,(BC)                          ; restore original bank
+                                   OUT  (C),A                           ; select it
+                              ; end AM29Fx_CmdMode
+
+                    XOR  A                              ; A=0, just write unlock sequence
+
+                              ; AM29Fx_CmdMode
+                              ;     in the OZ 4.7.1 code (from os/lowram/flash.asm)
+                              ;     we can't use a CALL to another function since .FEP_EraseBlock_39F to .end_FEP_EraseBlock_39F
+                              ;     will be copied to the stack for execution, so the whole routine has been inserted
+                              ; 
+                              ; ***************************************************************************************************
+                              ; Execute AMD 29Fxxxx (or compatible) Flash Memory Chip Command
+                              ; Maskable interrupts are disabled while chip is in command mode.
+                              ;
+                              ; In:
+                              ;       A = AMD/STM Command code, if A=0 command is not sent
+                              ;       BC = bank select sw copy address
+                              ;       DE = address $2AAA + segment
+                              ;       HL = address $1555 + segment
+                              ; Out:
+                              ;       -
+                              ;
+                              ; Registers changed on return:
+                              ;    ..BCDEHL/IXIY same
+                              ;    AF....../.... different
+                              ;
+                                   PUSH AF
+                                   LD   A,(BC)                          ; get current bank
+                                   OR   $01                             ; A14=1 for 5555 address
+                                   OUT  (C),A                           ; select it
+                                   LD   (HL),E                          ; AA -> (5555), First Unlock Cycle
+                                   EX   DE,HL
+                                   AND  $FE                             ; A14=0
+                                   OUT  (C),A                           ; select it
+                                   LD   (HL),E                          ; 55 -> (2AAA), Second Unlock Cycle
+                                   EX   DE,HL
+                                   OR   $01                             ; A14=1
+                                   OUT  (C),A                           ; select it
+                                   POP  AF                              ; get command
+                                   OR   A                               ; is it 0?
+                                   JR   Z,cmdmodeb_exit                 ; don't write it if it is
+                                   LD   (HL),A                          ; A -> (5555), send command
+                              .cmdmodeb_exit
+                                   LD   A,(BC)                          ; restore original bank
+                                   OUT  (C),A                           ; select it
+                              ; end AM29Fx_CmdMode
+
+                    RES  4,H                             ; HL -> 4K sector 0
+                    POP  AF
+                    AND  $30                             ; isolate 4K sector (don't care for 16/64K sector)
+                    OR   H
+                    LD   H,A                             ; HL -> required 4K sector
+                    LD   (HL),$30                        ; write sub command
+                    POP  HL
+                    ; end AM29Fx_EraseSector
+
+                    ; AM29Fx_ExeCommand, follows AM29Fx_EraseSector
+                    ;     in the OZ 4.7.1 code (in os/lowram/flash.asm)
+                    ;     we can't use a CALL to another function since .FEP_EraseBlock_39F to .end_FEP_EraseBlock_39F
+                    ;     will be copied to the stack for execution, so the whole routine has been inserted
+                    ; 
+                    ; ***************************************************************************************************
+                    ; Wait for AMD 29Fxxxx (or compatible) Flash Memory Chip command to finish.
+                    ; (Internal service routine in LOWRAM for OS_Fep system call)
+                    ;
+                    ; In:
+                    ;       HL points into bound bank of potential Flash Memory
+                    ; Out:
+                    ;       A = undefined
+                    ;       Fz = 1, Command has been executed successfully
+                    ;       Fz = 0, Command execution failed
+                    ;
+                    ; Registers changed on return:
+                    ;    ..BCDEHL/IXIY same
+                    ;    AF....../.... different
+                    ;
+                         PUSH BC
+                    .exe_command_loop
+                         LD   A,(HL)                          ; get first DQ6 programming status
+                         LD   C,A                             ; get a copy programming status (that is not XOR'ed)...
+                         XOR  (HL)                            ; get second DQ6 programming status
+                         BIT  6,A                             ; toggling?
+                         JR   Z,exe_command_ret               ; no, command completed successfully (Read Array Mode active)!
+                         BIT  5,C                             ;
+                         JR   Z, exe_command_loop             ; we're toggling with no error signal and waiting to complete...
+                         LD   A,(HL)                          ; DQ5 went high, we need to get two successive status
+                         XOR  (HL)                            ; toggling reads to determine if we're still toggling
+                         BIT  6,A                             ; which then indicates a command error...
+                         JR   Z,exe_command_ret               ; we're back in Read Array Mode, command completed successfully!
+                         LD   (HL),$F0                        ; command failed! F0 -> (XXXXX), force Flash Memory to Read Array Mode
+
+                         SCF
+                         LD   A, RC_BER                       ; signal sector erase error to application
+
+                    .exe_command_ret
+                         POP  BC
+                    ; end AM29Fx_ExeCommand
+
+                    JR   C,erase_block_39f_exit ; exit on failure
+                    POP  AF
+                    ADD  A,$10                  ; next sector
+                    BIT  6,A
+                    JR   Z,erase_block_39f_loop
+                    RET                         ; carry flag is 0
+.erase_block_39f_exit
+                    POP  HL                     ; remove AF from stack
+                    RET
+.end_FEP_EraseBlock_39F
+
+
+; ***************************************************************
 ;
 ; Erase block on an AMD 29Fxxxx (or compatible) Flash Memory,
 ; which is bound into segment x that HL points into.
@@ -278,40 +542,208 @@ DEFC FE_CON = $D0           ; confirm erasure
 ;    AFBCDEHL/.... different
 ;
 .FEP_EraseBlock_29F
-                    LD   BC,$AA55            ; B = Unlock cycle #1, C = Unlock cycle #2
+                    ; AM29Fx_InitCmdMode
+                    ;     from the OZ 4.7.1 code (in os/osfep/osfep.asm)
+                    ;     we can't use a CALL to another function since .FEP_EraseBlock_29F to .end_FEP_EraseBlock_29F
+                    ;     will be copied to the stack for execution, so the whole routine has been inserted in full
+                    ;
+                    ; ***************************************************************************************************
+                    ; Prepare AMD Command Mode sequense addresses.
+                    ;
+                    ; In:
+                    ;       HL points into bound bank of Flash Memory
+                    ; Out:
+                    ;       BC = bank select sw copy address
+                    ;       DE = address $2AAA + segment  (derived from HL)
+                    ;       HL = address $1555 + segment  (derived from HL)
+                    ;
+                    ; Registers changed on return:
+                    ;    AF....../IXIY same
+                    ;    ..BCDEHL/.... different
+                    ;
+                    PUSH AF
                     LD   A,H
                     AND  @11000000
                     LD   D,A
-                    OR   $05
+                    LD   BC,BLSC_SR0
+                    RLCA
+                    RLCA
+                    OR   C
+                    LD   C,A                    ; BC = bank select sw copy address
+                    LD   A,D
+                    OR   $15
                     LD   H,A
-                    LD   L,C                 ; HL = address $x555
-                    SET  1,D
-                    LD   E,B                 ; DE = address $x2AA
+                    LD   L,$55                  ; HL = address $1555 + segment
+                    LD   A,D
+                    OR   $2A
+                    LD   D,A
+                    LD   E,$AA                  ; DE = address $2AAA + segment
+                    POP  AF
+                    ; end AM29Fx_InitCmdMode
 
-                    LD   A,C
-                    LD   (HL),B              ; AA -> (XX555), First Unlock Cycle
-                    LD   (DE),A              ; 55 -> (XX2AA), Second Unlock Cycle
-                    LD   (HL),$80            ; 80 -> (XX555), Erase Mode
-                                             ; sub command...
-                    LD   (HL),B              ; AA -> (XX555), First Unlock Cycle
-                    LD   (DE),A              ; 55 -> (XX2AA), Second Unlock Cycle
-                    LD   (HL),$30            ; 30 -> (XXXXX), begin format of sector...
-.toggle_wait_loop
-                    LD   A,(HL)              ; get first DQ6 programming status
-                    LD   C,A                 ; get a copy programming status (that is not XOR'ed)...
-                    XOR  (HL)                ; get second DQ6 programming status
-                    BIT  6,A                 ; toggling?
-                    RET  Z                   ; no, erasing the sector completed successfully (also back in Read Array Mode)!
-                    BIT  5,C                 ;
-                    JR   Z, toggle_wait_loop ; we're toggling with no error signal and waiting to complete...
+                    ; AM29Fx_EraseSector
+                    ;     from the OZ 4.7.1 code (in os/lowram/flash.asm)
+                    ;     we can't use a CALL to another function since .FEP_EraseBlock_29F to .end_FEP_EraseBlock_29F
+                    ;     will be copied to the stack for execution, so the whole routine has been inserted
+                    ;
+                    ; ***************************************************************************************************
+                    ; Erase block on an AMD 29Fxxxx (or compatible) Flash Memory, which is bound into segment x
+                    ; that HL points into.
+                    ;
+                    ; In:
+                    ;        A = sector address upper byte (for devices with 4K sectors, don't care for 64K sectors)
+                    ;       BC = bank select sw copy address
+                    ;       DE = address $2AAA + segment  (points into bound Flash Memory sector)
+                    ;       HL = address $1555 + segment
+                    ; Out:
+                    ;    Success:
+                    ;        Fz = 1
+                    ;        A = undefined
+                    ;    Failure:
+                    ;        Fz = 0 (sector not erased)
+                    ;
+                    ; Registers changed after return:
+                    ;    ......../IXIY same
+                    ;    AFBCDEHL/.... different
+                    ;
+                    PUSH HL
+                    PUSH AF
+                    LD   A,$80                  ; Execute main Erase Mode
 
-                    LD   A,(HL)              ; DQ5 went high, we need to get two successive status
-                    XOR  (HL)                ; toggling reads to determine if we're still toggling
-                    BIT  6,A                 ; which then indicates a sector erase error...
-                    RET  Z                   ; we're back in Read Array Mode, sector successfully erased!
-.erase_err_29f                               ; damn, sector was NOT erased!
-                    LD   (HL),$F0            ; F0 -> (XXXXX), force Flash Memory to Read Array Mode
-                    SCF
-                    LD   A, RC_BER           ; signal sector erase error to application
-                    RET
+                              ; AM29Fx_CmdMode
+                              ;     from the OZ 4.7.1 code (in os/lowram/flash.asm)
+                              ;     we can't use a CALL to another function since .FEP_EraseBlock_29F to .end_FEP_EraseBlock_29F
+                              ;     will be copied to the stack for execution, so the whole routine has been inserted
+                              ;
+                              ; ***************************************************************************************************
+                              ; Execute AMD 29Fxxxx (or compatible) Flash Memory Chip Command
+                              ; Maskable interrupts should be disabled while chip is in command mode.
+                              ;
+                              ; In:
+                              ;       A = AMD/STM Command code, if A=0 command is not sent
+                              ;       BC = bank select sw copy address
+                              ;       DE = address $2AAA + segment
+                              ;       HL = address $1555 + segment
+                              ; Out:
+                              ;       -
+                              ;
+                              ; Registers changed on return:
+                              ;    ..BCDEHL/IXIY same
+                              ;    AF....../.... different
+                              ;
+                                   PUSH AF
+                                   LD   A,(BC)                          ; get current bank
+                                   OR   $01                             ; A14=1 for 5555 address
+                                   OUT  (C),A                           ; select it
+                                   LD   (HL),E                          ; AA -> (5555), First Unlock Cycle
+                                   EX   DE,HL
+                                   AND  $FE                             ; A14=0
+                                   OUT  (C),A                           ; select it
+                                   LD   (HL),E                          ; 55 -> (2AAA), Second Unlock Cycle
+                                   EX   DE,HL
+                                   OR   $01                             ; A14=1
+                                   OUT  (C),A                           ; select it
+                                   POP  AF                              ; get command
+                                   OR   A                               ; is it 0?
+                                   JR   Z,cmdmodec_exit                  ; don't write it if it is
+                                   LD   (HL),A                          ; A -> (5555), send command
+                              .cmdmodec_exit
+                                   LD   A,(BC)                          ; restore original bank
+                                   OUT  (C),A                           ; select it
+                              ; end AM29Fx_CmdMode
+
+                    XOR  A                              ; A=0, just write unlock sequence
+
+                              ; AM29Fx_CmdMode
+                              ;     in the OZ 4.7.1 code (from os/lowram/flash.asm)
+                              ;     we can't use a CALL to another function since .FEP_EraseBlock_29F to .end_FEP_EraseBlock_29F
+                              ;     will be copied to the stack for execution, so the whole routine has been inserted
+                              ; 
+                              ; ***************************************************************************************************
+                              ; Execute AMD 29Fxxxx (or compatible) Flash Memory Chip Command
+                              ; Maskable interrupts should be disabled while chip is in command mode.
+                              ;
+                              ; In:
+                              ;       A = AMD/STM Command code, if A=0 command is not sent
+                              ;       BC = bank select sw copy address
+                              ;       DE = address $2AAA + segment
+                              ;       HL = address $1555 + segment
+                              ; Out:
+                              ;       -
+                              ;
+                              ; Registers changed on return:
+                              ;    ..BCDEHL/IXIY same
+                              ;    AF....../.... different
+                              ;
+                                   PUSH AF
+                                   LD   A,(BC)                          ; get current bank
+                                   OR   $01                             ; A14=1 for 5555 address
+                                   OUT  (C),A                           ; select it
+                                   LD   (HL),E                          ; AA -> (5555), First Unlock Cycle
+                                   EX   DE,HL
+                                   AND  $FE                             ; A14=0
+                                   OUT  (C),A                           ; select it
+                                   LD   (HL),E                          ; 55 -> (2AAA), Second Unlock Cycle
+                                   EX   DE,HL
+                                   OR   $01                             ; A14=1
+                                   OUT  (C),A                           ; select it
+                                   POP  AF                              ; get command
+                                   OR   A                               ; is it 0?
+                                   JR   Z,cmdmoded_exit                 ; don't write it if it is
+                                   LD   (HL),A                          ; A -> (5555), send command
+                              .cmdmoded_exit
+                                   LD   A,(BC)                          ; restore original bank
+                                   OUT  (C),A                           ; select it
+                              ; end AM29Fx_CmdMode
+
+                    RES  4,H                             ; HL -> 4K sector 0
+                    POP  AF
+                    AND  $30                             ; isolate 4K sector (don't care for 16/64K sector)
+                    OR   H
+                    LD   H,A                             ; HL -> required 4K sector
+                    LD   (HL),$30                        ; write sub command
+                    POP  HL
+                    ; end AM29Fx_EraseSector
+
+                    ; AM29Fx_ExeCommand, follows AM29Fx_EraseSector
+                    ;     in the OZ 4.7.1 code (in os/lowram/flash.asm)
+                    ;     we can't use a CALL to another function since .FEP_EraseBlock_29F to .end_FEP_EraseBlock_29F
+                    ;     will be copied to the stack for execution, so the whole routine has been inserted
+                    ; 
+                    ; ***************************************************************************************************
+                    ; Wait for AMD 29Fxxxx (or compatible) Flash Memory Chip command to finish.
+                    ;
+                    ; In:
+                    ;       HL points into bound bank of potential Flash Memory
+                    ; Out:
+                    ;       A = undefined
+                    ;       Fz = 1, Command has been executed successfully
+                    ;       Fz = 0, Command execution failed
+                    ;
+                    ; Registers changed on return:
+                    ;    ..BCDEHL/IXIY same
+                    ;    AF....../.... different
+                    ;
+                         PUSH BC
+                    .exe_command_loopb
+                         LD   A,(HL)                          ; get first DQ6 programming status
+                         LD   C,A                             ; get a copy programming status (that is not XOR'ed)...
+                         XOR  (HL)                            ; get second DQ6 programming status
+                         BIT  6,A                             ; toggling?
+                         JR   Z,exe_command_retb              ; no, command completed successfully (Read Array Mode active)!
+                         BIT  5,C                             ;
+                         JR   Z, exe_command_loopb            ; we're toggling with no error signal and waiting to complete...
+                         LD   A,(HL)                          ; DQ5 went high, we need to get two successive status
+                         XOR  (HL)                            ; toggling reads to determine if we're still toggling
+                         BIT  6,A                             ; which then indicates a command error...
+                         JR   Z,exe_command_retb              ; we're back in Read Array Mode, command completed successfully!
+                         LD   (HL),$F0                        ; command failed! F0 -> (XXXXX), force Flash Memory to Read Array Mode
+
+                         SCF
+                         LD   A, RC_BER                       ; signal sector erase error to application
+
+                    .exe_command_retb
+                         POP  BC
+                         RET                                  ; get back to caller (https://bitbucket.org/cambridge/oz/commits/6d5ca7b4473efc2caecca379f82ff5fb572971cb#Los/osfep/fepsecera.asmT291)
+                    ; end AM29Fx_ExeCommand
 .end_FEP_EraseBlock_29F

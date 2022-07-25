@@ -87,11 +87,12 @@ DEFC FE_WRI = $40           ; byte write command
 ;    ..BCDEHL/IXIY ........ same
 ;    AF....../.... afbcdehl different
 ;
-; --------------------------------------------------------------------------
+; --------------------------------------------------------------------------------------------
 ; Design & programming by
 ;    Gunther Strube, Dec 1997, Jan-Apr 98, Aug 2004, Sep 2005, Aug 2006
 ;    Thierry Peycru, Zlab, Dec 1997
-; --------------------------------------------------------------------------
+;    patters backported improvements from OZ 4.7.1RC and OZ 5.0 to standard library, July 2022
+; --------------------------------------------------------------------------------------------
 ;
 .FlashEprWriteByte
                     PUSH BC
@@ -104,7 +105,9 @@ DEFC FE_WRI = $40           ; byte write command
                     LD   D,B                 ; copy of bank number
                     CALL MemDefBank          ; bind bank B into segment...
                     PUSH BC
+                    DI
                     CALL FEP_BlowByte        ; blow byte in A to (BHL) address
+                    EI
                     POP  BC
                     CALL MemDefBank          ; restore original bank binding
 
@@ -256,9 +259,8 @@ DEFC FE_WRI = $40           ; byte write command
                     RET
 .end_FEP_ExecBlowbyte_28F
 
-
 ; ***************************************************************
-; Program byte in A at (HL) on an AMD AM29Fxxxx Flash Memory
+; Program byte in A at (HL) on an AMD 29Fxxxx (or compatible) Flash Memory
 ;
 ; In:
 ;    A = byte to blow
@@ -270,47 +272,140 @@ DEFC FE_WRI = $40           ; byte write command
 ;        A = RC_BWR, byte not blown
 ;
 .FEP_ExecBlowbyte_29F
-                    PUSH AF
                     PUSH HL                  ; preserve byte program address
 
-                    LD   BC,$AA55            ; B = Unlock cycle #1 code, C = Unlock cycle #2 code
+                    ; AM29Fx_InitCmdMode
+                    ;     from the OZ 4.7.1 code (in os/osfep/osfep.asm)
+                    ;     we can't use a CALL to another function since .FEP_ExecBlowbyte_29F to .end_FEP_ExecBlowbyte_29F
+                    ;     will be copied to the stack for execution, so the whole routine has been inserted
+                    ;
+                    ; ***************************************************************************************************
+                    ; Prepare AMD Command Mode sequense addresses.
+                    ;
+                    ; In:
+                    ;       HL points into bound bank of Flash Memory
+                    ; Out:
+                    ;       BC = bank select sw copy address
+                    ;       DE = address $2AAA + segment  (derived from HL)
+                    ;       HL = address $1555 + segment  (derived from HL)
+                    ;
+                    ; Registers changed on return:
+                    ;    AF....../IXIY same
+                    ;    ..BCDEHL/.... different
+                    ;
+                    PUSH AF
                     LD   A,H
                     AND  @11000000
                     LD   D,A
-                    OR   $05
+                    LD   BC,BLSC_SR0
+                    RLCA
+                    RLCA
+                    OR   C
+                    LD   C,A                    ; BC = bank select sw copy address
+                    LD   A,D
+                    OR   $15
                     LD   H,A
-                    LD   L,C                 ; HL = address $x555
-                    SET  1,D
-                    LD   E,B                 ; DE = address $x2AA
-
-                    LD   A,C
-                    LD   (HL),B              ; AA -> (XX555), First Unlock Cycle
-                    LD   (DE),A              ; 55 -> (XX2AA), Second Unlock Cycle
-                    LD   (HL),$A0            ; A0 -> (XX555), Byte Program Mode
-                    POP  HL
+                    LD   L,$55                  ; HL = address $1555 + segment
+                    LD   A,D
+                    OR   $2A
+                    LD   D,A
+                    LD   E,$AA                  ; DE = address $2AAA + segment
                     POP  AF
-                    LD   (HL),A              ; program byte to Flash Memory Address
-                    LD   B,A                 ; preserve a copy of byte for later verification
-.toggle_wait_loop
-                    LD   A,(HL)              ; get first DQ6 programming status
-                    LD   C,A                 ; get a copy programming status (that is not XOR'ed)...
-                    XOR  (HL)                ; get second DQ6 programming status
-                    BIT  6,A                 ; toggling?
-                    JR   Z,toggling_done     ; no, programming completed successfully!
-                    BIT  5,C                 ;
-                    JR   Z, toggle_wait_loop ; we're toggling with no error signal and waiting to complete...
+                    ; end AM29Fx_InitCmdMode
 
-                    LD   A,(HL)              ; DQ5 went high, we need to get two successive status
-                    XOR  (HL)                ; toggling reads to determine if we're still toggling
-                    BIT  6,A                 ; which then indicates a programming error...
-                    JR   NZ,program_err_29f  ; damn, byte NOT programmed successfully!
-.toggling_done
-                    LD   A,(HL)              ; we're back in Read Array Mode
-                    CP   B                   ; verify programmed byte (just in case!)
-                    RET  Z                   ; byte was successfully programmed!
-.program_err_29f
-                    LD   (HL),$F0            ; F0 -> (XXXXX), force Flash Memory to Read Array Mode
-                    SCF
-                    LD   A, RC_BWR           ; signal byte write error to application
-                    RET
+                    PUSH AF                     ; preserve byte to blow
+                    LD   A,$A0                  ; Byte Program Mode
+
+                    ; AM29Fx_CmdMode
+                    ;     from the OZ 4.7.1 code (in os/lowram/flash.asm)
+                    ;     we can't use a CALL to another function since .FEP_ExecBlowbyte_29F to .end_FEP_ExecBlowbyte_29F
+                    ;     will be copied to the stack for execution, so the whole routine has been inserted
+                    ;
+                    ; ***************************************************************************************************
+                    ; Execute AMD 29Fxxxx (or compatible) Flash Memory Chip Command
+                    ; Maskable interrupts are disabled while chip is in command mode.
+                    ;
+                    ; In:
+                    ;       A = AMD/STM Command code, if A=0 command is not sent
+                    ;       BC = bank select sw copy address
+                    ;       DE = address $2AAA + segment
+                    ;       HL = address $1555 + segment
+                    ; Out:
+                    ;       -
+                    ;
+                    ; Registers changed on return:
+                    ;    ..BCDEHL/IXIY same
+                    ;    AF....../.... different
+                    ;
+                         PUSH AF
+                         LD   A,(BC)                          ; get current bank
+                         OR   $01                             ; A14=1 for 5555 address
+                         OUT  (C),A                           ; select it
+                         LD   (HL),E                          ; AA -> (5555), First Unlock Cycle
+                         EX   DE,HL
+                         AND  $FE                             ; A14=0
+                         OUT  (C),A                           ; select it
+                         LD   (HL),E                          ; 55 -> (2AAA), Second Unlock Cycle
+                         EX   DE,HL
+                         OR   $01                             ; A14=1
+                         OUT  (C),A                           ; select it
+                         POP  AF                              ; get command
+                         OR   A                               ; is it 0?
+                         JR   Z,cmdmode_exit                  ; don't write it if it is
+                         LD   (HL),A                          ; A -> (5555), send command
+                    .cmdmode_exit
+                         LD   A,(BC)                          ; restore original bank
+                         OUT  (C),A                           ; select it
+                    ; end AM29Fx_CmdMode
+
+                    POP  AF                     ; retrieve byte to blow
+                    POP  HL                     ; retrieve byte program address
+                    LD   (HL),A                 ; program byte to flash memory address
+
+                    ; Adapted from AM29Fx_ExeCommand mixed with the original stdlib code
+                    ;     in the OZ 4.7.1 code (in os/lowram/flash.asm)
+                    ;     we can't use a CALL to another function since .FEP_ExecBlowbyte_29F to .end_FEP_ExecBlowbyte_29F
+                    ;     will be copied to the stack for execution, so the whole routine has been inserted
+                    ; 
+                    ; ***************************************************************************************************
+                    ; Wait for AMD 29Fxxxx (or compatible) Flash Memory Chip command to finish.
+                    ;
+                    ; In:
+                    ;       HL points into bound bank of potential Flash Memory
+                    ; Out:
+                    ;       A = undefined
+                    ;       Fz = 1, Command has been executed successfully
+                    ;       Fz = 0, Command execution failed
+                    ;
+                    ; Registers changed on return:
+                    ;    ..BCDEHL/IXIY same
+                    ;    AF....../.... different
+                    ;
+                         PUSH BC
+                         LD   B,A                             ; preserve a copy of blown byte for later verification
+                    .exe_command_loop
+                         LD   A,(HL)                          ; get first DQ6 programming status
+                         LD   C,A                             ; get a copy programming status (that is not XOR'ed)...
+                         XOR  (HL)                            ; get second DQ6 programming status
+                         BIT  6,A                             ; toggling?
+                    ; this part has been changed to add a check of the written byte
+                         JR   Z,toggling_done                 ; no, command completed successfully (Read Array Mode active)!
+                         BIT  5,C                             ;
+                         JR   Z,exe_command_loop              ; we're toggling with no error signal and waiting to complete...
+                         LD   A,(HL)                          ; DQ5 went high, we need to get two successive status
+                         XOR  (HL)                            ; toggling reads to determine if we're still toggling
+                         BIT  6,A                             ; which then indicates a command error...
+                         JR   NZ,program_err_29f              ; damn, byte NOT programmed successfully!
+                    .toggling_done
+                         LD   A,(HL)                          ; we're back in Read Array Mode
+                         CP   B                               ; verify programmed byte (just in case!)
+                         POP  BC
+                         RET  Z                               ; byte was successfully programmed! Back to caller
+                    .program_err_29f
+                         LD   (HL),$F0                        ; command failed! F0 -> (XXXXX), force Flash Memory to Read Array Mode
+                         SCF
+                         LD   A, RC_BWR                       ; signal byte write error to application
+                         POP  BC
+                         RET                                  ; get back to caller
+                    ; end AM29Fx_ExeCommand
 .end_FEP_ExecBlowbyte_29F

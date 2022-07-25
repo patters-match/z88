@@ -25,6 +25,7 @@
      INCLUDE "flashepr.def"
      INCLUDE "error.def"
      INCLUDE "memory.def"
+     INCLUDE "blink.def"
 
 ; ==========================================================================================
 ; Flash Eprom Commands for 28Fxxxx series (equal to all chips, regardless of manufacturer)
@@ -35,7 +36,7 @@ DEFC FE_IID = $90           ; get INTELligent identification code (manufacturer 
 
 
 
-; ***************************************************************************************
+; ******************************************************************************************
 ;
 ; Identify Flash Memory Chip in slot C.
 ;
@@ -58,11 +59,12 @@ DEFC FE_IID = $90           ; get INTELligent identification code (manufacturer 
 ;    ...CDE../IXIY af...... same
 ;    AFB...HL/.... ..bcdehl different
 ;
-; ---------------------------------------------------------------------------------------
+; --------------------------------------------------------------------------------------------
 ; Design & programming by
 ;    Gunther Strube, Dec 1997-Apr 1998, Jul-Sep 2004, Sep 2005, Aug 2006, Oct 2007
 ;    Thierry Peycru, Zlab, Dec 1997
-; ---------------------------------------------------------------------------------------
+;    patters backported improvements from OZ 4.7.1RC and OZ 5.0 to standard library, July 2022
+; --------------------------------------------------------------------------------------------
 ;
 .FlashEprCardId
                     PUSH IY
@@ -178,8 +180,8 @@ DEFC FE_IID = $90           ; get INTELligent identification code (manufacturer 
 
                     CALL MemGetCurrentSlot        ; get specified slot number in C for this executing library routine
                     CP   C                        ; and compare it with the slot number of this executing library
-                    CALL Z,Fetch_I28F0xxxx_ID_RAM ; this code runs on same Flash chip to be polled, run INTEL card ID routine in RAM...
-                    CALL NZ,Fetch_I28F0xxxx_ID    ; this code runs in another slot, just execute card ID poll normally...
+                    CALL Z,I28Fx_PollChipId_RAM ; this code runs on same Flash chip to be polled, run INTEL card ID routine in RAM...
+                    CALL NZ,I28Fx_PollChipId    ; this code runs in another slot, just execute card ID poll normally...
 
                     PUSH HL
                     CP   A                        ; Fc = 0
@@ -190,8 +192,8 @@ DEFC FE_IID = $90           ; get INTELligent identification code (manufacturer 
                     PUSH IY
                     POP  HL                       ; pointer to Flash Memory segment
                     CP   C
-                    CALL Z,Fetch_AM29F0xxx_ID_RAM ; this code runs on same Flash chip to be polled, run AMD card ID routine in RAM...
-                    CALL NZ,Fetch_AM29F0xxx_ID    ; this code runs in another slot, just execute card ID poll normally...
+                    CALL Z,AM29Fx_PollChipId_RAM ; this code runs on same Flash chip to be polled, run AMD card ID routine in RAM...
+                    CALL NZ,AM29Fx_PollChipId    ; this code runs in another slot, just execute card ID poll normally...
 
                     PUSH HL
                     CP   A                        ; Fc = 0
@@ -216,10 +218,10 @@ DEFC FE_IID = $90           ; get INTELligent identification code (manufacturer 
 ; ***************************************************************
 ; Execute Card ID polling for Intel Flash on system stack
 ;
-.Fetch_I28F0xxxx_ID_RAM
-                    LD   IX, Fetch_I28F0xxxx_ID
+.I28Fx_PollChipId_RAM
+                    LD   IX, I28Fx_PollChipId
                     EXX
-                    LD   BC, end_Fetch_I28F0xxxx_ID - Fetch_I28F0xxxx_ID
+                    LD   BC, end_I28Fx_PollChipId - I28Fx_PollChipId
                     EXX
                     JP   ExecRoutineOnStack    ; run card ID routine in RAM...
 
@@ -238,8 +240,9 @@ DEFC FE_IID = $90           ; get INTELligent identification code (manufacturer 
 ;    AFBCDE../IXIY same
 ;    ......HL/.... different
 ;
-.Fetch_I28F0xxxx_ID
+.I28Fx_PollChipId
                     PUSH DE
+                    DI                       ; no maskable interrupts allowed while doing flash hardware commands
 
                     LD   (HL), FE_IID        ; FlashFile Memory Card ID command
                     LD   D,(HL)              ; D = Manufacturer Code (at $00 0000)
@@ -248,25 +251,26 @@ DEFC FE_IID = $90           ; get INTELligent identification code (manufacturer 
                     LD   (HL), FE_RST        ; Reset Flash Memory Chip to read array mode
                     EX   DE,HL
 
+                    EI                       ; allow Blink interrupts, Intel chip is in Read Array Mode again
                     POP  DE
                     RET
-.end_Fetch_I28F0xxxx_ID
+.end_I28Fx_PollChipId
 
 
 ; ***************************************************************
 ; Execute Card ID polling for AMD Flash on system stack
 ;
-.Fetch_AM29F0xxx_ID_RAM
-                    LD   IX, Fetch_AM29F0xxx_ID
+.AM29Fx_PollChipId_RAM
+                    LD   IX, AM29Fx_PollChipId
                     EXX
-                    LD   BC, end_Fetch_AM29F0xxx_ID - Fetch_AM29F0xxx_ID
+                    LD   BC, end_AM29Fx_PollChipId - AM29Fx_PollChipId
                     EXX
                     JP   ExecRoutineOnStack  ; run card ID routine in RAM...
 
 ; ***************************************************************
 ;
-; Polling code for AM29F0xxx (AMD) Flash Memory Chip ID
-;
+; Polling code for AM29F0xxx / ST29F0xxx (AMD/STM) Flash Memory Chip ID
+; adapted from the OZ 4.7.1 code (os/lowram/flash.asm)
 ; In:
 ;    HL = points into bound bank of potential Flash Memory
 ;
@@ -278,38 +282,109 @@ DEFC FE_IID = $90           ; get INTELligent identification code (manufacturer 
 ;    AF..DE../IXIY same
 ;    ..BC..HL/.... different
 ;
-.Fetch_AM29F0xxx_ID
+.AM29Fx_PollChipId
                     PUSH AF
                     PUSH DE
 
-                    LD   BC,$AA55            ; B = Unlock cycle #1 code, C = Unlock cycle #2 code
+                    ; AM29Fx_InitCmdMode
+                    ;     from the OZ 4.7.1 code (in os/osfep/osfep.asm)
+                    ;     we can't use a CALL to another function since .AM29Fx_PollChipId to .end_AM29Fx_PollChipId
+                    ;     will be copied to the stack for execution, so the whole routine has been inserted in full
+
+                    ; ***************************************************************************************************
+                    ; Prepare AMD Command Mode sequence addresses.
+                    ;
+                    ; In:
+                    ;       HL points into bound bank of Flash Memory
+                    ; Out:
+                    ;       BC = bank select sw copy address
+                    ;       DE = address $2AAA + segment  (derived from HL)
+                    ;       HL = address $1555 + segment  (derived from HL)
+                    ;
+                    ; Registers changed on return:
+                    ;    AF....../IXIY same
+                    ;    ..BCDEHL/.... different
+                    ;
+                    PUSH AF
                     LD   A,H
                     AND  @11000000
                     LD   D,A
-                    OR   $05
+                    LD   BC,BLSC_SR0
+                    RLCA
+                    RLCA
+                    OR   C
+                    LD   C,A                             ; BC = bank select sw copy address
+                    LD   A,D
+                    OR   $15
                     LD   H,A
-                    LD   L,C                 ; HL = address $x555
-                    SET  1,D
-                    LD   E,B                 ; DE = address $x2AA
+                    LD   L,$55                           ; HL = address $1555 + segment
+                    LD   A,D
+                    OR   $2A
+                    LD   D,A
+                    LD   E,$AA                           ; DE = address $2AAA + segment
+                    POP  AF
+                    ; end AM29Fx_InitCmdMode
 
-                    LD   A,C
-                    LD   (HL),B              ; AA -> (X555), First Unlock Cycle
-                    LD   (DE),A              ; 55 -> (X2AA), Second Unlock Cycle
-                    LD   (HL),$90            ; 90 -> (X555), autoselect mode
+                    LD   A,$90                           ; autoselect mode (to get ID)
+                    DI                                   ; no maskable interrupts allowed while doing flash hardware commands                          
+
+                    ; AM29Fx_CmdMode
+                    ;     from the OZ 4.7.1 code (in os/lowram/flash.asm)
+                    ;     we can't use a CALL to another function since .AM29Fx_PollChipId to .end_AM29Fx_PollChipId
+                    ;     will be copied to the stack for execution, so the whole routine has been inserted in full
+
+                    ; ***************************************************************************************************
+                    ; Execute AM29F0xxx / ST29F0xxx (AMD/STM) Flash Memory Chip Command
+                    ; Maskable interrupts should be disabled while chip is in command mode.
+                    ;
+                    ; In:
+                    ;       A = AMD/STM Command code, if A=0 command is not sent
+                    ;       BC = bank select sw copy address
+                    ;       DE = address $2AAA + segment
+                    ;       HL = address $1555 + segment
+                    ; Out:
+                    ;       -
+                    ;
+                    ; Registers changed on return:
+                    ;    ..BCDEHL/IXIY same
+                    ;    AF....../.... different
+                    ;
+                          PUSH AF
+                          LD   A,(BC)                          ; get current bank
+                          OR   $01                             ; A14=1 for 5555 address
+                          OUT  (C),A                           ; select it
+                          LD   (HL),E                          ; AA -> (5555), First Unlock Cycle
+                          EX   DE,HL
+                          AND  $FE                             ; A14=0
+                          OUT  (C),A                           ; select it
+                          LD   (HL),E                          ; 55 -> (2AAA), Second Unlock Cycle
+                          EX   DE,HL
+                          OR   $01                             ; A14=1
+                          OUT  (C),A                           ; select it
+                          POP  AF                              ; get command
+                          OR   A                               ; is it 0?
+                          JR   Z,cmdmodec_exit                 ; don't write it if it is
+                          LD   (HL),A                          ; A -> (5555), send command
+                    .cmdmodec_exit
+                          LD   A,(BC)                          ; restore original bank
+                          OUT  (C),A                           ; select it
+                    ; end AM29Fx_CmdMode
 
                     LD   L,0
-                    LD   D,(HL)              ; Manufacturer Code (at XX00)
+                    LD   A,H
+                    AND  @11000000
+                    LD   H,A
+                    LD   D,(HL)                          ; get Manufacturer Code (at X000)
                     INC  HL
-                    LD   E,(HL)              ; Device Code (at XX01)
-                    LD   (HL),$F0            ; F0 -> (XXXXX), set Flash Memory to Read Array Mode
-                    EX   DE,HL               ; H = Manufacturer Code, L = Device Code
-
+                    LD   E,(HL)                          ; get Device Code (at X001)
+                    LD   (HL),$F0                        ; F0 -> (XXXXX), set Flash Memory to Read Array Mode
+                    EX   DE,HL                           ; H = Manufacturer Code, L = Device Code
                     POP  DE
                     POP  AF
+                    EI                                   ; allow Blink interrupts again
                     RET
-.end_Fetch_AM29F0xxx_ID
-
-
+.end_AM29Fx_PollChipId
+                    
 ; ***************************************************************
 ;
 ; Investigate if a RAM card is inserted in slot C

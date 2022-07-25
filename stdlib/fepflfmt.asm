@@ -118,6 +118,7 @@
 ; --------------------------------------------------------------------------------------------------
 ; Design & programming by Gunther Strube,
 ;       Dec 1997-Apr 1998, Aug 2004, July 2005, July 2006, Aug-Oct 2006
+; patters backported improvements from OZ 4.7.1RC and OZ 5.0 to standard library, July 2022
 ; --------------------------------------------------------------------------------------------------
 ;
 .FlashEprFileFormat

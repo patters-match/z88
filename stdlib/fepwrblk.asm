@@ -102,11 +102,12 @@ DEFC FE_WRI = $40           ; byte write command
 ;    ...CDE../IXIY ........ same
 ;    AFB...HL/.... afbcdehl different
 ;
-; --------------------------------------------------------------------------
+; --------------------------------------------------------------------------------------------
 ; Design & programming by
 ;    Gunther Strube, Dec 1997, Jan-Apr 1998, Aug 2004, Oct 2005, Aug-Oct 2006
 ;    Thierry Peycru, Zlab, Dec 1997
-; --------------------------------------------------------------------------
+;    patters backported improvements from OZ 4.7.1RC and OZ 5.0 to standard library, July 2022
+; --------------------------------------------------------------------------------------------
 ;
 .FlashEprWriteBlock
                     PUSH IX
@@ -132,7 +133,9 @@ DEFC FE_WRI = $40           ; byte write command
                     PUSH BC                            ; preserve old bank binding of segment C
                     LD   B,A                           ; but use current bank as reference...
 
+                    DI
                     CALL FEP_WriteBlock
+                    EI
 
                     LD   D,B                           ; preserve current Bank number of pointer...
                     POP  BC
@@ -366,36 +369,114 @@ DEFC FE_WRI = $40           ; byte write command
                     EXX
                     PUSH IY
                     POP  BC                  ; install block size.
-                    EXX
+                    EXX                      ; (now in BC')
 
 .WriteBlockLoop_29F EXX
                     LD   A,B
                     OR   C
                     DEC  BC
                     EXX
-                    RET  Z                   ; block written successfully (Fc = 0)
+                    RET  Z                   ; block written successfully (Fc = 0), return to caller
                     PUSH BC                  ; preserve bank and MS_Sx while programming byte to card
 
                     LD   A,(DE)              ; get byte to blow from source block
                     LD   B,A                 ; preserve a copy of byte for later verification
 
+                    ; Adapted from AM29Fx_InitCmdMode mixed with the original stdlib code
+                    ;     from the OZ 4.7.1 code (in os/osfep/osfep.asm)
+                    ;     we can't use a CALL to another function since .FEP_ExecWriteBlock_29F to .end_FEP_ExecWriteBlock_29F
+                    ;     will be copied to the stack for execution, so the whole routine has been inserted
+                    ;
+                    ; ***************************************************************************************************
+                    ; Prepare AMD Command Mode sequense addresses.
+                    ;
+                    ; In:
+                    ;       HL points into bound bank of Flash Memory
+                    ; Out:
+                    ;       BC = bank select sw copy address
+                    ;       DE = address $2AAA + segment  (derived from HL)
+                    ;       HL = address $1555 + segment  (derived from HL)
+                    ;
+                    ; Registers changed on return:
+                    ;    AF....../IXIY same
+                    ;    ..BCDEHL/.... different
+                    ;
+                    ; PUSH AF                   ; the original code didn't need to preserve AF here
                     LD   A,H
                     AND  @11000000
-                    EXX
-                    PUSH BC                  ; preserve block size of data to blow
-                    LD   BC,$AA55            ; B = Unlock cycle #1 code, C = Unlock cycle #2 code
-                    LD   D,A
-                    OR   $05
-                    LD   H,A
-                    LD   L,C                 ; HL = address $x555
-                    SET  1,D
-                    LD   E,B                 ; DE = address $x2AA
+                    
+                    ; CHANGED SECTION to match original code behaviour
+                    EXX                         ; use alternate registers now to avoid overwriting the inputs
+                    PUSH BC                     ; preserve block size of data to blow
+                    ; END CHANGED SECTION
 
-                    LD   A,C
-                    LD   (HL),B              ; AA -> (XX555), First Unlock Cycle
-                    LD   (DE),A              ; 55 -> (XX2AA), Second Unlock Cycle
-                    LD   (HL),$A0            ; A0 -> (XX555), Byte Program Mode
-                    POP  BC
+                    LD   D,A
+                    LD   BC,BLSC_SR0
+                    RLCA
+                    RLCA
+                    OR   C
+                    LD   C,A                    ; BC = bank select sw copy address
+                    LD   A,D
+                    OR   $15
+                    LD   H,A
+                    LD   L,$55                  ; HL = address $1555 + segment
+                    LD   A,D
+                    OR   $2A
+                    LD   D,A
+                    LD   E,$AA                  ; DE = address $2AAA + segment
+                    ; POP  AF
+                    ; end AM29Fx_InitCmdMode
+
+                    LD   A,$A0                  ; Execute Byte Program Mode
+
+                    ; AM29Fx_CmdMode
+                    ;     from the OZ 4.7.1 code (in os/lowram/flash.asm)
+                    ;     we can't use a CALL to another function since .FEP_ExecWriteBlock_29F to .end_FEP_ExecWriteBlock_29F
+                    ;     will be copied to the stack for execution, so the whole routine has been inserted
+                    ;
+                    ; ***************************************************************************************************
+                    ; Execute AMD 29Fxxxx (or compatible) Flash Memory Chip Command
+                    ; Maskable interrupts should be disabled while chip is in command mode.
+                    ;
+                    ; In:
+                    ;       A = AMD/STM Command code, if A=0 command is not sent
+                    ;       BC = bank select sw copy address
+                    ;       DE = address $2AAA + segment
+                    ;       HL = address $1555 + segment
+                    ; Out:
+                    ;       -
+                    ;
+                    ; Registers changed on return:
+                    ;    ..BCDEHL/IXIY same
+                    ;    AF....../.... different
+                    ;
+                         PUSH AF
+                         LD   A,(BC)                          ; get current bank
+                         OR   $01                             ; A14=1 for 5555 address
+                         OUT  (C),A                           ; select it
+                         LD   (HL),E                          ; AA -> (5555), First Unlock Cycle
+                         EX   DE,HL
+                         AND  $FE                             ; A14=0
+                         OUT  (C),A                           ; select it
+                         LD   (HL),E                          ; 55 -> (2AAA), Second Unlock Cycle
+                         EX   DE,HL
+                         OR   $01                             ; A14=1
+                         OUT  (C),A                           ; select it
+                         POP  AF                              ; get command
+                         OR   A                               ; is it 0?
+                         JR   Z,cmdmode_exit                  ; don't write it if it is
+                         LD   (HL),A                          ; A -> (5555), send command
+                    .cmdmode_exit
+                         LD   A,(BC)                          ; restore original bank
+                         OUT  (C),A                           ; select it
+                    ; end AM29Fx_CmdMode
+
+                    JR continue              ; .FEP_ExecWriteBlock_29F to .end_FEP_ExecWriteBlock_29F is longer than 128 bytes
+                                             ; too far for a single JR instruction to jump all the way back to the top for the loop 
+.jr_staging_to_routine_top
+                    JR WriteBlockLoop_29F
+.continue
+                    POP  BC                  ; retrieve block size counter
                     EXX
                     LD   (HL),B              ; program byte to Flash Memory Address
 .toggle_wait_loop
@@ -456,5 +537,5 @@ DEFC FE_WRI = $40           ; byte write command
                     OUT  (C),B               ; bind new bank...
                     POP  HL
                     POP  BC
-                    JR   WriteBlockLoop_29F
+                    JR   jr_staging_to_routine_top   ; JR WriteBlockLoop_29F (but it's more than 128 bytes away so we need 2 jumps) 
 .end_FEP_ExecWriteBlock_29F

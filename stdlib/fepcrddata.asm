@@ -38,6 +38,15 @@
 ;   ...C..HL/IXIY same
 ;   AFB.DE../.... different
 ;
+; ---------------------------------------------------------------------------------------------
+; Design & programming by
+;    Gunther Strube, Aug 2006, Nov 2006
+; New flash chips added (Macronix, SST & STM)
+;    Paul Roberts (paul.m.roberts@gmail.com), Jan 2018
+;    Martin Roberts (mailmartinroberts@yahoo.co.uk), Jan 2018
+;    patters backported improvements from OZ 4.7.1RC and OZ 5.0 to standard library, July 2022
+; ---------------------------------------------------------------------------------------------
+
 .FlashEprCardData   PUSH HL
 
                     EX   DE,HL
@@ -73,54 +82,71 @@
                     RET
 
 .DeviceCodeTable
-                    DEFB 10
+                    DEFB 13
 
                     DEFW FE_I28F004S5             ; Intel flash
-                    DEFB 32, FE_28F               ; 8 x 64K sectors / 32 x 16K banks (512Kb)
+                    DEFB 32, FE_28F               ; 8 x 64K sectors / 32 x 16K banks (512KB)
                     DEFW mnem_i004
 
                     DEFW FE_I28F008SA             ; Intel flash
-                    DEFB 64, FE_28F               ; 16 x 64K sectors / 64 x 16K banks (1024Kb)
-                    DEFW mnem_i8s5                ; appear like I28F008S5
+                    DEFB 64, FE_28F               ; 16 x 64K sectors / 64 x 16K banks (1024KB)
+                    DEFW mnem_i8sa
 
                     DEFW FE_I28F008S5             ; Intel flash
-                    DEFB 64, FE_28F               ; 16 x 64K sectors / 64 x 16K banks (1024Kb)
+                    DEFB 64, FE_28F               ; 16 x 64K sectors / 64 x 16K banks (1024KB)
                     DEFW mnem_i8s5
 
-                    DEFW FE_AM29F010B             ; Amd flash
-                    DEFB 8, FE_29F                ; 8 x 16K sectors / 8 x 16K banks (128Kb)
+                    DEFW FE_AM29F010B             ; AMD flash
+                    DEFB 8, FE_29F                ; 8 x 16K sectors / 8 x 16K banks (128KB)
                     DEFW mnem_am010b
 
-                    DEFW FE_AM29F040B             ; Amd flash
-                    DEFB 32, FE_29F               ; 8 x 64K sectors / 32 x 16K banks (512Kb)
+                    DEFW FE_AM29F040B             ; AMD flash
+                    DEFB 32, FE_29F               ; 8 x 64K sectors / 32 x 16K banks (512KB)
                     DEFW mnem_am040b
 
-                    DEFW FE_AM29F080B             ; Amd flash
-                    DEFB 64, FE_29F               ; 16 x 64K sectors / 64 x 16K banks (1024Kb)
+                    DEFW FE_AM29F080B             ; AMD flash
+                    DEFB 64, FE_29F               ; 16 x 64K sectors / 64 x 16K banks (1024KB)
                     DEFW mnem_am080b
 
-                    DEFW FE_AMIC29F040B           ; Amic flash
-                    DEFB 32, FE_29F               ; 8 x 64K sectors / 32 x 16K banks (512Kb)
+                    DEFW FE_AMIC29F040B           ; AMIC flash
+                    DEFB 32, FE_29F               ; 8 x 64K sectors / 32 x 16K banks (512KB)
                     DEFW mnem_amc040b
 
-                    DEFW FE_ST29F040B             ; STMicroelectronics flash (Amd compatible)
-                    DEFB 32, FE_29F               ; 8 x 64K sectors / 32 x 16K banks (512Kb)
+                    DEFW FE_AMIC29L040            ; AMIC flash
+                    DEFB 32, FE_29F               ; 8 x 64K sectors / 32 x 16K banks (512KB)
+                    DEFW mnem_amc040l
+
+                    DEFW FE_ST29F040B             ; STMicroelectronics flash (AMD compatible)
+                    DEFB 32, FE_29F               ; 8 x 64K sectors / 32 x 16K banks (512KB)
                     DEFW mnem_st040b
 
-                    DEFW FE_ST29F080D             ; STMicroelectronics flash (Amd compatible)
-                    DEFB 64, FE_29F               ; 16 x 64K sectors / 64 x 16K banks (1024Kb)
+                    DEFW FE_ST29F080D             ; STMicroelectronics flash (AMD compatible)
+                    DEFB 64, FE_29F               ; 16 x 64K sectors / 64 x 16K banks (1024KB)
                     DEFW mnem_st080d
 
                     DEFW FE_MX29F040C             ; Macronix flash
-                    DEFB 32, FE_29F               ; 8 x 64K sectors / 32 x 16K banks (512Kb)
+                    DEFB 32, FE_29F               ; 8 x 64K sectors / 32 x 16K banks (512KB)
                     DEFW mnem_mx040c
 
+                    DEFW FE_SST39SF040            ; SST flash
+                    DEFB 32, FE_29F               ; 128 x 4K sectors / 32 x 16K banks (512KB)
+                    DEFW mnem_sst040b
+
+                    DEFW FE_EN29LV040A            ; EON flash
+                    DEFB 32, FE_29F               ; 8 x 64K sectors / 32 x 16K banks (512KB)
+                    DEFW mnem_en29l
+
+
 .mnem_i004          DEFM "I28F004S5 (512K)", 0
+.mnem_i8sa          DEFM "I28F008SA (1MB)", 0
 .mnem_i8S5          DEFM "I28F008S5 (1MB)", 0
 .mnem_am010b        DEFM "AM29F010B (128K)", 0
 .mnem_am040b        DEFM "AM29F040B (512K)", 0
 .mnem_am080b        DEFM "AM29F080B (1MB)", 0
 .mnem_amc040b       DEFM "AMIC29F040B (512K)", 0
+.mnem_amc040l       DEFM "AMIC29L040 (512K)", 0
 .mnem_st040b        DEFM "ST29F040B (512K)", 0
 .mnem_st080d        DEFM "ST29F080D (1MB)", 0
 .mnem_mx040c        DEFM "MX29F040C (512K)", 0
+.mnem_sst040b       DEFM "SST39SF040 (512K)", 0
+.mnem_en29l         DEFM "EN29LV040A (512K)", 0
