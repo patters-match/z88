@@ -82,7 +82,7 @@
                     RET
 
 .DeviceCodeTable
-                    DEFB 13
+                    DEFB 12
 
                     DEFW FE_I28F004S5             ; Intel flash
                     DEFB 32, FE_28F               ; 8 x 64K sectors / 32 x 16K banks (512KB)
@@ -95,10 +95,6 @@
                     DEFW FE_I28F008S5             ; Intel flash
                     DEFB 64, FE_28F               ; 16 x 64K sectors / 64 x 16K banks (1024KB)
                     DEFW mnem_i8s5
-
-                    DEFW FE_AM29F010B             ; AMD flash
-                    DEFB 8, FE_29F                ; 8 x 16K sectors / 8 x 16K banks (128KB)
-                    DEFW mnem_am010b
 
                     DEFW FE_AM29F040B             ; AMD flash
                     DEFB 32, FE_29F               ; 8 x 64K sectors / 32 x 16K banks (512KB)
@@ -140,7 +136,6 @@
 .mnem_i004          DEFM "I28F004S5 (512K)", 0
 .mnem_i8sa          DEFM "I28F008SA (1MB)", 0
 .mnem_i8S5          DEFM "I28F008S5 (1MB)", 0
-.mnem_am010b        DEFM "AM29F010B (128K)", 0
 .mnem_am040b        DEFM "AM29F040B (512K)", 0
 .mnem_am080b        DEFM "AM29F080B (1MB)", 0
 .mnem_amc040b       DEFM "AMIC29F040B (512K)", 0

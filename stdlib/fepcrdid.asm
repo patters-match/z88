@@ -305,7 +305,7 @@ DEFC FE_IID = $90           ; get INTELligent identification code (manufacturer 
                     ;    AF....../IXIY same
                     ;    ..BCDEHL/.... different
                     ;
-                    PUSH AF
+                    ;PUSH AF
                     LD   A,H
                     AND  @11000000
                     LD   D,A
@@ -322,7 +322,7 @@ DEFC FE_IID = $90           ; get INTELligent identification code (manufacturer 
                     OR   $2A
                     LD   D,A
                     LD   E,$AA                           ; DE = address $2AAA + segment
-                    POP  AF
+                    ;POP  AF
                     ; end AM29Fx_InitCmdMode
 
                     LD   A,$90                           ; autoselect mode (to get ID)
@@ -363,9 +363,9 @@ DEFC FE_IID = $90           ; get INTELligent identification code (manufacturer 
                           OUT  (C),A                           ; select it
                           POP  AF                              ; get command
                           OR   A                               ; is it 0?
-                          JR   Z,cmdmodec_exit                 ; don't write it if it is
+                          JR   Z,cmdmode_exit                  ; don't write it if it is
                           LD   (HL),A                          ; A -> (5555), send command
-                    .cmdmodec_exit
+                    .cmdmode_exit
                           LD   A,(BC)                          ; restore original bank
                           OUT  (C),A                           ; select it
                     ; end AM29Fx_CmdMode

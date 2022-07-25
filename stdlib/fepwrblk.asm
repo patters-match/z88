@@ -388,7 +388,7 @@ DEFC FE_WRI = $40           ; byte write command
                     ;     will be copied to the stack for execution, so the whole routine has been inserted
                     ;
                     ; ***************************************************************************************************
-                    ; Prepare AMD Command Mode sequense addresses.
+                    ; Prepare AMD Command Mode sequence addresses.
                     ;
                     ; In:
                     ;       HL points into bound bank of Flash Memory

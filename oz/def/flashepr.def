@@ -32,7 +32,7 @@ lstoff
 
 
 ; ==========================================================================================
-; New OZ system call interface (introduced in 4.2) to Handle Intel, AMD & Stm Flash memory
+; New OZ system call interface (introduced in 4.2) to Handle Intel, AMD & STM Flash memory
 
 IF !__FLASHEPR_DEF__
 DEFINE __FLASHEPR_DEF__
@@ -83,7 +83,6 @@ DEFC FE_STM_MFCD = $20      ; STMicroelectronics Manufacturer code
 
 ; Unique Flash Memory ID, 29Fxxx series, Uniform 64K Sectors (combination of Manufacturer Code and Device Code):
 ; These 3rd generation Flash chips only require 5V for programming and erasure (in all z88 slots!)
-DEFC FE_AM29F010B = $0120   ; 128KB memory, 8 x 16K erasable sectors, 8 x 16K banks (z88 memory model)
 DEFC FE_AM29F040B = $01A4   ; 512KB memory, 8 x 64K erasable sectors, 32 x 16K banks (z88 memory model)
 DEFC FE_ST29F040B = $20E2   ; 512KB memory, 8 x 64K erasable sectors, 32 x 16K banks (z88 memory model)
 DEFC FE_AM29F080B = $01D5   ; 1MB memory, 16 x 64K erasable sectors, 64 x 16K banks (z88 memory model)
