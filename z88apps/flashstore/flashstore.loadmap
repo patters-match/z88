@@ -1,6 +1,6 @@
 ; *************************************************************************************
 ; Loadmap for FlashStore popdown
-; (C) Gunther Strube (gbs@users.sf.net) 2005
+; (C) Gunther Strube (gbs@users.sf.net) 2005-2022
 ;
 ; FlashStore is free software; you can redistribute it and/or modify it under the terms of the
 ; GNU General Public License as published by the Free Software Foundation;
@@ -14,15 +14,16 @@
 ;
 ; *************************************************************************************
 
-; generate a 16K Eprom image
+; generate a 32K Eprom image
 outputfile flashstore.epr
-size 16
+save16k
+size 32
 
 ; automatically generate a card ID based on the CRC32 of the images
 generateCardId
 
-; auto-generate a 'romupdate.cfg' file for BBC BASIC RomUpdate program
-romupdate app
+; load the MTH in bank $3E, located at $0000 offset
+mth.bin 3e0000
 
 ; load the popdown program at top bank $3F. DOR is located at $0000 offset
 fsapp.bin 3f0000

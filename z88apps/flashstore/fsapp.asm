@@ -80,10 +80,6 @@
      xref DeleteFileCommand        ; deletefile.asm
      xref QuickDeleteFile          ; deletefile.asm
 
-     xref FlashStoreTopics         ; mth.asm
-     xref FlashStoreCommands       ; mth.asm
-     xref FlashStoreHelp           ; mth.asm
-
      include "error.def"
      include "syspar.def"
      include "director.def"
@@ -96,6 +92,7 @@
 
      ; FlashStore variables
      include "fsapp.inc"
+     include "mth.def"
 
      ORG $C000
 
@@ -127,11 +124,11 @@
 .InfoEnd0           DEFB 'H'                      ; Key to help section
                     DEFB 12                       ; total length of help
                     DEFW FlashStoreTopics
-                    DEFB $3F                      ; point to topics (none)
+                    DEFB $3E                      ; point to topics (none)
                     DEFW FlashStoreCommands
-                    DEFB $3F                      ; point to commands (none)
+                    DEFB $3E                      ; point to commands (none)
                     DEFW FlashStoreHelp
-                    DEFB $3F                      ; point to help (none)
+                    DEFB $3E                      ; point to help (none)
                     DEFW FS_Dor
                     DEFB $3F                      ; point to token base (none)
                     DEFB 'N'                      ; Key to name section
