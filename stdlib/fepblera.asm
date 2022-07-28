@@ -338,7 +338,7 @@ DEFC FE_CON = $D0           ; confirm erasure
                     ; AM29Fx_CmdMode
                     ;     from the OZ 5.0 code (in os/lowram/flash.asm)
                     ;     we can't use a CALL to another function since .FEP_EraseBlock_29F to .end_FEP_EraseBlock_29F
-                    ;     will be copied to the stack for execution, so the whole routine has been inserted in full
+                    ;     will be copied to the stack for execution, so the whole routine has been inserted
                     ;
                     ; ***************************************************************************************************
                     ; Execute AMD 29F/39F (or compatible) Flash Memory Chip Command
@@ -384,7 +384,7 @@ DEFC FE_CON = $D0           ; confirm erasure
                     ; AM29Fx_CmdMode
                     ;     from the OZ 5.0 code (in os/lowram/flash.asm)
                     ;     we can't use a CALL to another function since .FEP_EraseBlock_29F to .end_FEP_EraseBlock_29F
-                    ;     will be copied to the stack for execution, so the whole routine has been inserted in full
+                    ;     will be copied to the stack for execution, so the whole routine has been inserted
                     ;
                     ; ***************************************************************************************************
                     ; Execute AMD 29F/39F (or compatible) Flash Memory Chip Command

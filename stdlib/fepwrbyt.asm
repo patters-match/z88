@@ -202,7 +202,7 @@ DEFC FE_WRI = $40           ; byte write command
                     CALL AM29Fx_InitCmdMode                 ; prepare AMD Command Mode sequence addresses - doesn't need to run from RAM
                     PUSH BC                                 ; preserve bank select sw copy address from AM29Fx_InitCmdMode
                     CALL MemGetCurrentSlot                  ; return in C the card slot number this code is running from
-                    CP   C                                  ; compare with flash memory card slot, in A
+                    CP   C                                  ; compare with target flash memory card slot, in A
                     POP  BC                                 ; restore bank select sw copy address
                     JR   NZ, FEP_ExecBlowbyte_29F           ; byte to be programmed in another slot than this library
 
@@ -318,7 +318,6 @@ DEFC FE_WRI = $40           ; byte write command
                     ;    AF....../.... different
                     ;
                     ;DI                                     ; not needed here because interrupts are disabled for the whole FEP_Blowbyte call
-                                                            ; (re-enable maskable interrupts when AM29Fx_ExeCommand completes)
                     PUSH AF
                     LD   A,(BC)                             ; get current bank
                     OR   $01                                ; A14=1 for 5555 address
