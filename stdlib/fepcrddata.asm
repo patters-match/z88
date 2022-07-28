@@ -44,7 +44,7 @@
 ; New flash chips added (Macronix, SST & STM)
 ;    Paul Roberts (paul.m.roberts@gmail.com), Jan 2018
 ;    Martin Roberts (mailmartinroberts@yahoo.co.uk), Jan 2018
-;    patters backported improvements from OZ 4.7.1RC and OZ 5.0 to standard library, July 2022
+;    patters backported improvements from OZ 5.0 to standard library, July 2022
 ; ---------------------------------------------------------------------------------------------
 
 .FlashEprCardData   PUSH HL

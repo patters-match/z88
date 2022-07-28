@@ -35,5 +35,7 @@ if test $? -lt 15; then
   exit 1
 fi
 
+rm -f *.obj *.lib
+
 # compile only updated source files and build the standard.lib file
 mpm -I../oz/def -d -xstandard.lib @standard
