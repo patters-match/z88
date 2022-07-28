@@ -15,7 +15,7 @@
 ;
 ; (C) Gunther Strube (gstrube@gmail.com), 1997-2007
 ; (C) Martin Roberts (mailmartinroberts@yahoo.co.uk), 2018
-; patters backported improvements from OZ 4.7.1RC and OZ 5.0 to standard library, July 2022
+; Patrick Moore backported improvements from OZ 5.0 to standard library, July 2022
 ;
 ;***************************************************************************************************
 

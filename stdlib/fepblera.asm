@@ -78,7 +78,7 @@ DEFC FE_CON = $D0           ; confirm erasure
 ; Design & programming by:
 ;    Gunther Strube, Dec 1997-Apr 1998, Aug 2004, Aug 2006, Oct 2007
 ;    Thierry Peycru, Zlab, Dec 1997
-;    patters backported improvements from OZ 4.7.1RC and OZ 5.0 to standard library, July 2022
+;    Patrick Moore backported improvements from OZ 5.0 to standard library, July 2022
 ; --------------------------------------------------------------------------------------------
 ;
 ; now allows sectors in range 00-1F for 512K device with 32 16K sectors
@@ -292,7 +292,8 @@ DEFC FE_CON = $D0           ; confirm erasure
 ; -----------------------------------------------------------------------------------------------
 ; Design & programming by:
 ;       (C) Martin Roberts (mailmartinroberts@yahoo.co.uk), Jan 2018
-;       patters backported improvements from OZ 5.0 to standard library, July 2022
+;       Patrick Moore backported improvements from OZ 5.0 to standard library,  July 2022
+;              and unified this routine for both 29F and 39F flash types
 ; -----------------------------------------------------------------------------------------------
 ;
 ; Registers changed after return:

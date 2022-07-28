@@ -106,7 +106,7 @@ DEFC FE_WRI = $40           ; byte write command
 ; Design & programming by
 ;    Gunther Strube, Dec 1997, Jan-Apr 1998, Aug 2004, Oct 2005, Aug-Oct 2006
 ;    Thierry Peycru, Zlab, Dec 1997
-;    patters backported improvements from OZ 5.0 to standard library, July 2022
+;    Patrick Moore backported improvements from OZ 5.0 to standard library, July 2022
 ; --------------------------------------------------------------------------------------------
 ;
 .FlashEprWriteBlock

@@ -82,7 +82,7 @@
 ;
 ; -----------------------------------------------------------------------------------------
 ; Design & programming by Gunther Strube, Feb 2006, July-Aug 2006, Feb 2009
-; patters backported improvements from OZ 4.7.1RC and OZ 5.0 to standard library, July 2022
+; Patrick Moore backported improvements from OZ 5.0 to standard library, July 2022
 ; -----------------------------------------------------------------------------------------
 ;
 .FlashEprReduceFileArea

@@ -41,10 +41,10 @@
 ; ---------------------------------------------------------------------------------------------
 ; Design & programming by
 ;    Gunther Strube, Aug 2006, Nov 2006
-; New flash chips added (Macronix, SST & STM)
+; New flash chips added to OZ 4.7.1 (Macronix, SST & STM)
 ;    Paul Roberts (paul.m.roberts@gmail.com), Jan 2018
 ;    Martin Roberts (mailmartinroberts@yahoo.co.uk), Jan 2018
-;    patters backported improvements from OZ 5.0 to standard library, July 2022
+;    Patrick Moore backported these flash additions from OZ 5.0 to standard library, July 2022
 ; ---------------------------------------------------------------------------------------------
 
 .FlashEprCardData   PUSH HL

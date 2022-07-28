@@ -35,6 +35,11 @@
 ;    AF....../IXIY same
 ;    ..BCDEHL/.... different
 ;
+; -----------------------------------------------------------------------------------------------
+; Design & programming by:
+;       (C) Martin Roberts (mailmartinroberts@yahoo.co.uk), Jan 2018
+;       Patrick Moore backported improvements from OZ 5.0 to standard library,  July 2022
+; -----------------------------------------------------------------------------------------------
 .AM29Fx_InitCmdMode
                     PUSH AF
                     LD   A,H

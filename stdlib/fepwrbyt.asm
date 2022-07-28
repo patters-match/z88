@@ -92,7 +92,7 @@ DEFC FE_WRI = $40           ; byte write command
 ; Design & programming by
 ;    Gunther Strube, Dec 1997, Jan-Apr 98, Aug 2004, Sep 2005, Aug 2006
 ;    Thierry Peycru, Zlab, Dec 1997
-;    patters backported improvements from OZ 5.0 to standard library, July 2022
+;    Patrick Moore backported improvements from OZ 5.0 to standard library, July 2022
 ; --------------------------------------------------------------------------------------------
 ;
 .FlashEprWriteByte
@@ -292,7 +292,6 @@ DEFC FE_WRI = $40           ; byte write command
 ;    AFBCDEHL/.... different
 ;
 .FEP_ExecBlowbyte_29F
-
                     PUSH AF                                 ; preserve byte to blow
                     LD   A,$A0                              ; Byte Program Mode
 
