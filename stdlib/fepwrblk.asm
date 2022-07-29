@@ -212,13 +212,7 @@ DEFC FE_WRI = $40           ; byte write command
                     LD   A, RC_BWR                          ; Oops, not in slot 3, signal error!
                     RET
 .write_28F_block
-                    CALL MemGetCurrentSlot                  ; get specified slot number in C for this executing library routine
-                    CP   C
                     EXX
-                    JR   Z, FEP_ExecWriteBlock_28F_RAM      ; block to be programmed in same slot as this library
-                    CALL FEP_ExecWriteBlock_28F
-                    JR   exit_blowblock
-.FEP_ExecWriteBlock_28F_RAM
                     LD   IX, FEP_ExecWriteBlock_28F
                     EXX
                     LD   BC, end_FEP_ExecWriteBlock_28F - FEP_ExecWriteBlock_28F
@@ -236,13 +230,7 @@ DEFC FE_WRI = $40           ; byte write command
                     PUSH AF                                 ; remember FE_29F chip type
                     EXX
                     LD   A,C
-                    CALL MemGetCurrentSlot                  ; get specified slot number in C for this executing library routine
-                    CP   C
                     EXX
-                    JR   Z, FEP_ExecWriteBlock_29F_RAM      ; block to be programmed in same slot as this executing library
-                    CALL FEP_ExecWriteBlock_29F
-                    JR   exit_blowblock
-.FEP_ExecWriteBlock_29F_RAM
                     LD   IX, FEP_ExecWriteBlock_29F
                     EXX
                     LD   BC, end_FEP_ExecWriteBlock_29F - FEP_ExecWriteBlock_29F
@@ -357,7 +345,7 @@ DEFC FE_WRI = $40           ; byte write command
 
 ; ***************************************************************
 ; Program block of data on an AMD Flash Memory
-; (this routine is optionally copied on the stack and executed there)
+; (this routine is copied on the stack and executed there)
 ;
 ; IN:
 ;       BHL = pointer to blow data

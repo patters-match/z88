@@ -55,7 +55,7 @@
 ; Design & programming by
 ;    Gunther Strube, Dec 1997-Apr 1998, Jul-Sep 2004, Sep 2005, Aug 2006, Oct 2007
 ;    Thierry Peycru, Zlab, Dec 1997
-;    patters backported improvements from OZ 5.0 to standard library, July 2022
+;    Patrick Moore backported improvements from OZ 5.0 to standard library, July 2022
 ; --------------------------------------------------------------------------------------------
 ;
 .FlashEprCardId
@@ -171,10 +171,7 @@
                     DEC  HL                                 ; back at $00 0000
 
                     PUSH DE
-                    CALL MemGetCurrentSlot                  ; get specified slot number in C for this executing library routine
-                    CP   C                                  ; and compare it with the slot number of this executing library
-                    CALL Z,I28Fx_PollChipId_RAM             ; this code runs on same Flash chip to be polled, run INTEL card ID routine in RAM...
-                    CALL NZ,I28Fx_PollChipId                ; this code runs in another slot, just execute card ID poll normally...
+                    CALL I28Fx_PollChipId_RAM               ; run INTEL card ID routine in RAM...
                     EX   DE,HL                              ; H = Manufacturer Code, L = Device Code
                     POP  DE
 
@@ -190,12 +187,7 @@
                     PUSH AF
                     PUSH DE
                     CALL AM29Fx_InitCmdMode                 ; prepare AMD Command Mode sequence addresses - doesn't need to run from RAM
-                    PUSH BC                                 ; preserve bank select sw copy address from AM29Fx_InitCmdMode
-                    CALL MemGetCurrentSlot                  ; return in C the slot number this code is running from
-                    CP   C                                  ; compare with the slot number whose flash memory we're identifying, in A
-                    POP  BC                                 ; retrieve bank select sw copy address from AM29Fx_InitCmdMode
-                    CALL Z,AM29Fx_PollChipId_RAM            ; this code runs on same Flash chip to be polled, run AMD card ID routine in RAM...
-                    CALL NZ,AM29Fx_PollChipId               ; this code runs in another slot, just execute card ID poll normally...
+                    CALL AM29Fx_PollChipId_RAM              ; run AMD card ID routine in RAM...
                     EX   DE,HL                              ; H = Manufacturer Code, L = Device Code
                     POP  DE
                     POP  AF

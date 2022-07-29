@@ -293,7 +293,7 @@ DEFC FE_CON = $D0           ; confirm erasure
 ; Design & programming by:
 ;       (C) Martin Roberts (mailmartinroberts@yahoo.co.uk), Jan 2018
 ;       Patrick Moore backported improvements from OZ 5.0 to standard library,  July 2022
-;              and unified this routine for both 29F and 39F flash types
+;     & modularised AM29Fx_InitCmdMode and unified this routine for both 29F and 39F flash types
 ; -----------------------------------------------------------------------------------------------
 ;
 ; Registers changed after return:

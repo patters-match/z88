@@ -176,14 +176,8 @@ DEFC FE_WRI = $40           ; byte write command
                     RET
 
 .use_28F_programming
-                    EX   AF,AF'                             ; byte to be blown...
-                    LD   B,A
-                    LD   A,C                                ; flash memory card slot
-                    CALL MemGetCurrentSlot                  ; get current slot (in C) of this executing library
-                    CP   C                                  ; library executing in same slot as byte to be blown?
-                    LD   A,B                                ; A = byte to blow...
-                    JR   NZ, FEP_ExecBlowbyte_28F           ; byte to be programmed in another slot than this library
-
+                    EX   AF,AF'                             ; now A = byte to be blown...
+                    
                     LD   IX, FEP_ExecBlowbyte_28F
                     EXX
                     LD   BC, end_FEP_ExecBlowbyte_28F - FEP_ExecBlowbyte_28F
@@ -191,20 +185,12 @@ DEFC FE_WRI = $40           ; byte write command
                     JP   ExecRoutineOnStack                 ; execute the blow routine in System Stack RAM...
 
 .use_29F_programming
-                    EX   AF,AF'                             ; byte to be blown...
-                    LD   B,A
-                    LD   A,C                                ; flash memory card slot
+                    EX   AF,AF'                             ; now A = byte to be blown...
                     PUSH HL                                 ; preserve byte program address for later...                   
                     EXX
                     POP  HL
                     EXX                                     ; ...by storing it in HL'
-                    LD   A,B                                ; A = byte to blow...
                     CALL AM29Fx_InitCmdMode                 ; prepare AMD Command Mode sequence addresses - doesn't need to run from RAM
-                    PUSH BC                                 ; preserve bank select sw copy address from AM29Fx_InitCmdMode
-                    CALL MemGetCurrentSlot                  ; return in C the card slot number this code is running from
-                    CP   C                                  ; compare with target flash memory card slot, in A
-                    POP  BC                                 ; restore bank select sw copy address
-                    JR   NZ, FEP_ExecBlowbyte_29F           ; byte to be programmed in another slot than this library
 
                     LD   IX, FEP_ExecBlowbyte_29F           ; executing library in same slot as byte to be blown..
                     EXX
