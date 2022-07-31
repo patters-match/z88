@@ -171,7 +171,13 @@
                     DEC  HL                                 ; back at $00 0000
 
                     PUSH DE
-                    CALL I28Fx_PollChipId_RAM               ; run INTEL card ID routine in RAM...
+
+                    LD   IX, I28Fx_PollChipId
+                    EXX
+                    LD   BC, end_I28Fx_PollChipId - I28Fx_PollChipId
+                    EXX
+                    CALL ExecRoutineOnStack                 ; run card ID routine in RAM...
+
                     EX   DE,HL                              ; H = Manufacturer Code, L = Device Code
                     POP  DE
 
@@ -187,7 +193,13 @@
                     PUSH AF
                     PUSH DE
                     CALL AM29Fx_InitCmdMode                 ; prepare AMD Command Mode sequence addresses - doesn't need to run from RAM
-                    CALL AM29Fx_PollChipId_RAM              ; run AMD card ID routine in RAM...
+
+                    LD   IX, AM29Fx_PollChipId
+                    EXX
+                    LD   BC, end_AM29Fx_PollChipId - AM29Fx_PollChipId
+                    EXX
+                    CALL ExecRoutineOnStack                 ; run card ID routine in RAM...
+
                     EX   DE,HL                              ; H = Manufacturer Code, L = Device Code
                     POP  DE
                     POP  AF
@@ -211,16 +223,6 @@
                     LD   A,B                                ; restore original A
                     RET
 
-
-; ***************************************************************
-; Execute Card ID polling for Intel Flash on system stack
-;
-.I28Fx_PollChipId_RAM
-                    LD   IX, I28Fx_PollChipId
-                    EXX
-                    LD   BC, end_I28Fx_PollChipId - I28Fx_PollChipId
-                    EXX
-                    JP   ExecRoutineOnStack    ; run card ID routine in RAM...
 
 ; ***************************************************************************************************
 ;
@@ -249,18 +251,6 @@
                     RET
                     ; end I28Fx_PollChipId
 .end_I28Fx_PollChipId
-
-
-
-; ***************************************************************
-; Execute Card ID polling for AMD Flash on system stack
-;
-.AM29Fx_PollChipId_RAM
-                    LD   IX, AM29Fx_PollChipId
-                    EXX
-                    LD   BC, end_AM29Fx_PollChipId - AM29Fx_PollChipId
-                    EXX
-                    JP   ExecRoutineOnStack  ; run card ID routine in RAM...
 
 
 ; ***************************************************************************************************

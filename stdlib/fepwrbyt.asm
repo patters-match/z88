@@ -100,6 +100,7 @@ DEFC FE_WRI = $40           ; byte write command
                     PUSH DE
                     PUSH HL                                 ; preserve original pointer
                     PUSH IX
+                    PUSH IY
 
                     CALL SafeBHLSegment                     ; get a safe segment (not this executing segment!)
                                                             ; C = Safe MS_Sx segment, HL points into segment C
@@ -112,6 +113,7 @@ DEFC FE_WRI = $40           ; byte write command
                     POP  BC
                     CALL MemDefBank                         ; restore original bank binding
 
+                    POP  IY
                     POP  IX
                     POP  HL
                     POP  DE
@@ -177,7 +179,7 @@ DEFC FE_WRI = $40           ; byte write command
 
 .use_28F_programming
                     EX   AF,AF'                             ; now A = byte to be blown...
-                    
+
                     LD   IX, FEP_ExecBlowbyte_28F
                     EXX
                     LD   BC, end_FEP_ExecBlowbyte_28F - FEP_ExecBlowbyte_28F
@@ -186,19 +188,19 @@ DEFC FE_WRI = $40           ; byte write command
 
 .use_29F_programming
                     EX   AF,AF'                             ; now A = byte to be blown...
-                    PUSH HL                                 ; preserve byte program address for later...                   
-                    EXX
-                    POP  HL
-                    EXX                                     ; ...by storing it in HL'
+                    PUSH HL                                 ; preserve byte program address - it's needed by AM29Fx_InitCmdMode...
+                    POP  IY                                 ;    whose outputs will overwrite it, but it's also needed later
+                                                            ;    so store it in IY which is a safe register to use with ExecRoutineOnStack
                     CALL AM29Fx_InitCmdMode                 ; prepare AMD Command Mode sequence addresses - doesn't need to run from RAM
-
-                    LD   IX, FEP_ExecBlowbyte_29F           ; executing library in same slot as byte to be blown..
+                    
+                    LD   IX, FEP_ExecBlowbyte_29F
                     EXX
                     LD   BC, end_FEP_ExecBlowbyte_29F - FEP_ExecBlowbyte_29F
                     EXX
                     JP   ExecRoutineOnStack                 ; execute the blow routine in System Stack RAM...
 
-; ***************************************************************
+
+; ***************************************************************************************************
 ; Program byte in A at (HL) on an INTEL I28Fxxxx Flash Memory
 ; 
 ; In:
@@ -266,7 +268,7 @@ DEFC FE_WRI = $40           ; byte write command
 ;       BC = bank select sw copy address
 ;       DE = address $x2AA
 ;       HL = address $x555
-;       hl' = points into bound bank of Flash Memory sector to blow byte
+;       IY = points into bound bank of Flash Memory sector to blow byte
 ; Out:
 ;    Fc = 0 & Fz = 0,
 ;        byte successfully blown to Flash Memory
@@ -326,7 +328,8 @@ DEFC FE_WRI = $40           ; byte write command
 
 
                     POP  AF                                 ; retrieve byte to blow
-                    EXX                                     ; retrieve byte program address from HL'
+                    PUSH IY                                 ; retrieve byte program address...
+                    POP  HL                                 ; ...into HL
                     LD   (HL),A                             ; program byte to flash memory address
                     LD   B,A                                ; preserve a copy of blown byte for later verification
 .toggle_wait_loop
@@ -336,7 +339,7 @@ DEFC FE_WRI = $40           ; byte write command
                     BIT  6,A                                ; toggling?
                     JR   Z,toggling_done                    ; no, programming completed successfully!
                     BIT  5,C
-                    JR   Z, toggle_wait_loop                ; we're toggling with no error signal and waiting to complete...
+                    JR   Z,toggle_wait_loop                 ; we're toggling with no error signal and waiting to complete...
 
                     LD   A,(HL)                             ; DQ5 went high, we need to get two successive status
                     XOR  (HL)                               ; toggling reads to determine if we're still toggling
