@@ -100,7 +100,7 @@ DEFC FE_CON = $D0           ; confirm erasure
                     CP   FE_SST_MFCD                        ; test for SST device
                     JR   NZ,poll_sector_size
                     LD   A,FE_39F                           ; change FE programming type
-                    EX   AF,AF'                             ; preserve FE Programming type in A'
+                    EX   AF,AF'                             ; overwrite FE Programming type in A'
 .poll_sector_size
                     CALL FlashEprPollSectorSize
                     JR   Z, _16K_block_fe                   ; yes, it's a 16K sector architecture (same as Z88 bank architecture!)
@@ -305,7 +305,7 @@ DEFC FE_CON = $D0           ; confirm erasure
                     XOR  A                                  ; start with sector 0
 
 .erase_block_29f_loop
-                    PUSH AF
+                    PUSH AF                                 ; preserve sector
 
                     ; AM29Fx_EraseSector
                     ;     from the OZ 5.0 code (in os/lowram/flash.asm)
@@ -332,8 +332,8 @@ DEFC FE_CON = $D0           ; confirm erasure
                     ;    ......../IXIY same
                     ;    AFBCDEHL/.... different
                     ;
-                    PUSH HL
-                    PUSH AF
+                    PUSH HL                                 ; preserve address $1555 + segment
+                    PUSH AF                                 ; preserve sector again since we'll need to retrieve it twice
                     LD   A,$80                              ; Execute main Erase Mode
 
                     ; AM29Fx_CmdMode
@@ -427,12 +427,12 @@ DEFC FE_CON = $D0           ; confirm erasure
 
 
                     RES  4,H                                ; HL -> 4K sector 0
-                    POP  AF
+                    POP  AF                                 ; retrieve sector address upper byte
                     AND  $30                                ; isolate 4K sector (don't care for 16/64K sector)
                     OR   H
                     LD   H,A                                ; HL -> required 4K sector
                     LD   (HL),$30                           ; write sub command
-                    POP  HL
+                    POP  HL                                 ; retrieve address $1555 + segment
                     ; end AM29Fx_EraseSector
 
 
@@ -484,12 +484,13 @@ DEFC FE_CON = $D0           ; confirm erasure
                     EX   AF,AF'                             ; retrieve chip type (29F/39F)
                     CP   FE_29F                             ; is it a 29F chip?
                     JR   Z,erase_block_29f_exit             ; if so - finished, single 16K/64K sector has been erased
-                    POP  AF
+                    EX   AF,AF'                             ; preserve chip type for next erase_block_29f_loop
+                    POP  AF                                 ; retrieve sector
                     ADD  A,$10                              ; next 4K sector for 39F chip
                     BIT  6,A
                     JR   Z,erase_block_29f_loop
                     RET                                     ; carry flag is 0
 .erase_block_29f_exit
-                    POP  HL                                 ; remove AF from stack
+                    POP  HL                                 ; remove AF from stack without changes to flags
                     RET
 .end_FEP_EraseBlock_29F
