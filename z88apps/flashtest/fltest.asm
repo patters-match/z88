@@ -13,6 +13,7 @@
 ;
 ;
 ;***************************************************************************************************
+; Updated by Patrick Moore in August 2022 to add support for SST flash memory
 
      MODULE FlashTest
 
@@ -24,8 +25,9 @@
      lib CreateWindow, GreyApplWindow
      lib IntHex
 
-     lib FlashEprCardId, FlashEprCardData, FlashEprBlockErase
+     lib FlashEprCardId, FlashEprCardData, FlashEprBlockErase, FlashEprPollSectorSize
      xref RamTest
+
 
      xdef FlashTest_DOR
 
@@ -53,6 +55,7 @@ DEFVARS $1800
      ErrorFlag           ds.b 1                   ; Global Error Condition Flag
      ExtAddr             ds.p 1
      testtime            ds.b 4
+     flashid             ds.w 1
      flashtype           ds.b 1
      totbanks            ds.b 1
      Buffer              ds.b 32
@@ -100,11 +103,11 @@ IF !DEBUG
 
 .FlashTest_Help     DEFM $7F
                     DEFM "Flash Card Testing Tool for",$7F
-                    DEFM "Intel I28F00xS5 and AMD 29F0xxB compatible devices", $7F
+                    DEFM "Intel I28F00xS5 and AMD 29F/39F compatible devices", $7F
                     DEFM $7F
 endif
 .progversion_msg
-                    DEFM "Release V1.4.2, (C) G. Strube, Aug 2015", 0
+                    DEFM "Release V1.4.3, (C) G. Strube, Aug 2022", 0
 
 ; ******************************************************************************
 ;
@@ -229,6 +232,7 @@ endif
 
 ; finally, reset the card again...
                     LD   A,(totbanks)
+                    LD   HL,(flashid)
                     LD   B,A
                     CALL FormatCard
                     RET  C
@@ -670,8 +674,11 @@ endif
                     PUSH DE
                     PUSH HL
 
-                    SRL  B
-                    SRL  B                   ; B = returned number of sectors on card
+                    CALL FlashEprPollSectorSize         ; 16K sector device in slot C?
+                    JR   Z, format_loop                 ; yes, erase all 16K banks
+
+                    SRL  B                              ; Erase the individual sectors, one at a time
+                    SRL  B                              ; total of 16K banks on card -> total of 64K sectors on card.
 .format_loop
 
                     PUSH BC
@@ -775,7 +782,8 @@ endif
                     CALL FlashEprCardId
                     RET  C
                     PUSH BC
-                    LD   (flashtype),A            ; remember Flash Card type...
+                    LD   (flashid),HL             ; remember Flash Memory ID
+                    LD   (flashtype),A            ; remember Flash Card type
                     LD   A,B
                     LD   (totbanks),A
 
@@ -1184,4 +1192,4 @@ endif
 
 .Release_msg
                     DEFM "Flash Card Testing Tool for", 13, 10
-                    DEFM "Intel I28F00xS5 and AMD 29F0xxB compatible devices", 13, 10, 0
+                    DEFM "Intel I28F00xS5 and AMD 29F/39F compatible devices", 13, 10, 0

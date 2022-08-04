@@ -431,7 +431,7 @@ DEFC FE_CON = $D0           ; confirm erasure
                     AND  $30                                ; isolate 4K sector (don't care for 16/64K sector)
                     OR   H
                     LD   H,A                                ; HL -> required 4K sector
-                    LD   (HL),$30                           ; write sub command
+                    LD   (HL),$30                           ; write sub command (Block Erase)
                     POP  HL                                 ; retrieve address $1555 + segment
                     ; end AM29Fx_EraseSector
 
