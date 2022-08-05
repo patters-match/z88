@@ -57,6 +57,7 @@ DEFVARS $1800
      testtime            ds.b 4
      flashid             ds.w 1
      flashtype           ds.b 1
+     flashname           ds.w 1
      totbanks            ds.b 1
      Buffer              ds.b 32
 }
@@ -103,11 +104,11 @@ IF !DEBUG
 
 .FlashTest_Help     DEFM $7F
                     DEFM "Flash Card Testing Tool for",$7F
-                    DEFM "Intel I28F00xS5 and AMD 29F/39F compatible devices", $7F
+                    DEFM "Intel I28F00xS5 and AMD AM29F/39F compatible devices", $7F
                     DEFM $7F
 endif
 .progversion_msg
-                    DEFM "Release V1.4.3, (C) G. Strube, Aug 2022", 0
+                    DEFM "Release V1.4.4, (C) G. Strube, Aug 2022", 0
 
 ; ******************************************************************************
 ;
@@ -115,6 +116,9 @@ endif
 
                     CALL CheckFlashCard
                     JP   C, exit_application ; no Eprom in slot 3...
+
+                    CALL FlashEprCardData
+                    LD   (flashname),DE
 
                     CALL EprTestWindow       ; Create Window with banner
 
@@ -125,9 +129,14 @@ endif
                     CALL_OZ(Gn_Nln)
                     CALL_OZ(Gn_Nln)
 
-                    LD   HL, check_msg
-                    CALL_OZ(Gn_Sop)          ; user must enter 'asdf' or press ESC to abort
-                    LD   HL,Buffer
+                    LD   HL, check_msg1
+                    CALL_OZ(Gn_Sop)
+                    LD   HL,(flashname)
+                    CALL_OZ(Gn_sop)          ; display chip information
+                    LD   HL, check_msg2
+                    CALL_OZ(Gn_Sop)
+
+                    LD   HL,Buffer           ; user must enter 'asdf' or press ESC to abort
                     LD   (HL),0
                     EX   DE,HL
 
@@ -183,7 +192,8 @@ endif
 ; *************************************************************************************
 
 .inputvalidate      DEFM "asdf", 0
-.check_msg          DEFM "This will erase your flash chip in slot 3.", 13, 10
+.check_msg1         DEFM "This will erase the ",0
+.check_msg2         DEFM " flash chip in slot 3.", 13, 10
                     DEFM "Type ESC to QUIT, or enter ", 1, "Basdf", 1, "B ", 1, SD_ENT
                     DEFM " to acknowledge the test.", 13, 10, 0
 
@@ -782,7 +792,6 @@ endif
                     CALL FlashEprCardId
                     RET  C
                     PUSH BC
-                    LD   (flashid),HL             ; remember Flash Memory ID
                     LD   (flashtype),A            ; remember Flash Card type
                     LD   A,B
                     LD   (totbanks),A
@@ -823,6 +832,8 @@ endif
 ;
 .CheckFlashCard     LD   C,3
                     CALL FlashEprCardId
+                    LD   (flashid),HL             ; remember Flash Memory ID
+
                     RET  NC
 
                     LD   A,3                      ; FE not available
@@ -1192,4 +1203,4 @@ endif
 
 .Release_msg
                     DEFM "Flash Card Testing Tool for", 13, 10
-                    DEFM "Intel I28F00xS5 and AMD 29F/39F compatible devices", 13, 10, 0
+                    DEFM "Intel I28F00xS5 and AMD AM29F/39F compatible devices", 13, 10, 0
