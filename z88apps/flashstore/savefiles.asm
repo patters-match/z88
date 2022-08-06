@@ -472,15 +472,15 @@ Module SaveFiles
 
 ; *************************************************************************************
 ; constants
-.bckp_bnr           DEFM "BACKUP FROM RAM TO FILE CARD AREA",0
+.bckp_bnr           DEFM "BACKUP FROM RAM TO FILE AREA",0
 .bckp_wildcard      DEFM "//*",0
 .filewindow         DEFM 1,"2H2",0
-.fsv1_bnr           DEFM "SAVE FILES TO FILE CARD AREA",0
+.fsv1_bnr           DEFM "SAVE FILES TO FILE AREA",0
 .wcrd_msg           DEFM 13, 10, " (Wildcards allowed).",0
 .fnam_msg           DEFM 1,"2+C Filename: ",0
 .disp_flcovwrite_msg DEFM 13, 10, " Overwrite all files?",13, 10, 0
 .curdir             DEFM ".",0
-.fsv2_bnr           DEFM "SAVING TO FILE CARD AREA ...",0
+.fsv2_bnr           DEFM "SAVING TO FILE AREA ...",0
 .ends0_msg          DEFM " file",0
 .ends1_msg          DEFM " saved.",$0D,$0A,0
 

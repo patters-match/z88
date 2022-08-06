@@ -530,8 +530,6 @@
                     ld   c,-1
                     call SelectDefaultSlot
                     ld   (curslot),a
-                    push af
-                    pop  af
                     ret
 .select_area
                     ld   hl, selslot_banner

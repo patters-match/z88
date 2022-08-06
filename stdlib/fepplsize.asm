@@ -13,6 +13,9 @@
 ; Z88 Standard Library; see the file COPYING. If not, write to the
 ; Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 ;
+; (C) Gunther Strube (gstrube@gmail.com), 1997-2007
+; (C) Martin Roberts (mailmartinroberts@yahoo.co.uk), 2018
+; Patrick Moore backported improvements from OZ 5.0 to standard library, July 2022
 ;
 ;***************************************************************************************************
 
@@ -38,15 +41,13 @@
 ;    A.BCDEHL/IXIY same
 ;    .F....../.... different
 ;
+
 .FlashEprPollSectorSize
                     PUSH DE
-                    LD   DE,FE_AM29F010B     ; AM29F010B Flash Memory?
-                    CALL cmp_fid
-                    POP  DE
-                    RET
-.cmp_fid
-                    CP   A                   ; Fc = 0...
                     PUSH HL
+                    LD   DE,FE_SST39SF040               ; SST39FS040 Flash Memory?
+                    CP   A
                     SBC  HL,DE
                     POP  HL
+                    POP  DE
                     RET

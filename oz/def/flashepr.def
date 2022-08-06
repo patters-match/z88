@@ -28,10 +28,11 @@ lstoff
 
 ; Implemented by Zlab (Thierry Peycru) 1995-97, 2004
 ;                Gunther Strube, Aug 2004, Mar 2006, Nov 2006, Feb 2007
+; patters backported improvements from OZ 4.7.1RC and OZ 5.0 to standard library, July 2022
 
 
 ; ==========================================================================================
-; New OZ system call interface (introduced in 4.2) to Handle Intel, Amd & Stm Flash memory
+; New OZ system call interface (introduced in 4.2) to Handle Intel, AMD & STM Flash memory
 
 IF !__FLASHEPR_DEF__
 DEFINE __FLASHEPR_DEF__
@@ -57,7 +58,9 @@ DEFC  OS_Fep  = $C806
 ; Flash Memory types
 
 DEFC FE_28F = $02           ; second generation Flash chips (available Z88 Flash Cards are using the Intel I28Fxxx chip)
-DEFC FE_29F = $03           ; third generation Flash chips (available Z88 Flash Cards are using the Amd/Amic/STM 29Fxxx chip)
+DEFC FE_29F = $03           ; third generation Flash chips (available Z88 Flash Cards are using the AMD/AMIC/STM 29Fxxx chip)
+DEFC FE_39F = $04           ; fourth generation Flash chips (only used for block erase)
+
 
 ; ==========================================================================================
 ; INTEL Flash Memory constants:
@@ -66,9 +69,9 @@ DEFC FE_INTEL_MFCD = $89    ; INTEL Manufacturer code
 
 ; Unique Flash Memory ID, 28Fxxx series, Uniform 64K Sectors (combination of Manufacturer Code and Device Code):
 ; These 2nd generation Flash chips require 12V for programming and erasure (in z88 slot 3 only)
-DEFC FE_I28F004S5 = $89A7   ; 512Kb memory, 8 x 64K erasable sectors, 32 x 16K banks (z88 memory model)
-DEFC FE_I28F008SA = $89A2   ; 1Mb memory, 16 x 64K erasable sectors, 64 x 16K banks (z88 memory model)
-DEFC FE_I28F008S5 = $89A6   ; 1Mb memory, 16 x 64K erasable sectors, 64 x 16K banks (z88 memory model)
+DEFC FE_I28F004S5 = $89A7   ; 512KB memory, 8 x 64K erasable sectors, 32 x 16K banks (z88 memory model)
+DEFC FE_I28F008SA = $89A2   ; 1MB memory, 16 x 64K erasable sectors, 64 x 16K banks (z88 memory model)
+DEFC FE_I28F008S5 = $89A6   ; 1MB memory, 16 x 64K erasable sectors, 64 x 16K banks (z88 memory model)
 ; ==========================================================================================
 
 
@@ -80,23 +83,58 @@ DEFC FE_STM_MFCD = $20      ; STMicroelectronics Manufacturer code
 
 ; Unique Flash Memory ID, 29Fxxx series, Uniform 64K Sectors (combination of Manufacturer Code and Device Code):
 ; These 3rd generation Flash chips only require 5V for programming and erasure (in all z88 slots!)
-DEFC FE_AM29F010B = $0120   ; 128Kb memory, 8 x 16K erasable sectors, 8 x 16K banks (z88 memory model)
-DEFC FE_AM29F040B = $01A4   ; 512Kb memory, 8 x 64K erasable sectors, 32 x 16K banks (z88 memory model)
-DEFC FE_ST29F040B = $20E2   ; 512Kb memory, 8 x 64K erasable sectors, 32 x 16K banks (z88 memory model)
-DEFC FE_AM29F080B = $01D5   ; 1Mb memory, 16 x 64K erasable sectors, 64 x 16K banks (z88 memory model)
-DEFC FE_ST29F080D = $20F1   ; 1Mb memory, 16 x 64K erasable sectors, 64 x 16K banks (z88 memory model)
+DEFC FE_AM29F040B = $01A4   ; 512KB memory, 8 x 64K erasable sectors, 32 x 16K banks (z88 memory model)
+DEFC FE_ST29F040B = $20E2   ; 512KB memory, 8 x 64K erasable sectors, 32 x 16K banks (z88 memory model)
+DEFC FE_AM29F080B = $01D5   ; 1MB memory, 16 x 64K erasable sectors, 64 x 16K banks (z88 memory model)
+DEFC FE_ST29F080D = $20F1   ; 1MB memory, 16 x 64K erasable sectors, 64 x 16K banks (z88 memory model)
+DEFC FE_AM29F032D = $01F9   ; 4MB memory, model 04, seen as 4 x 1MB (3V)
 ; ==========================================================================================
 
 
 ; ==========================================================================================
 ; AMIC Flash Memory constants:
 
-DEFC FE_AMIC_MFCD = $37      ; AMIC Manufacturer code
+DEFC FE_AMIC_MFCD = $37     ; AMIC Manufacturer code
 
 ; Unique Flash Memory ID, 29Fxxx series, Uniform 64K Sectors (combination of Manufacturer Code and Device Code):
 ; These 3rd generation Flash chips only require 5V for programming and erasure (in all z88 slots!)
-DEFC FE_AMIC29F040B = $3786   ; 512Kb memory, 8 x 64K erasable sectors, 32 x 16K banks (z88 memory model)
+DEFC FE_AMIC29F040B = $3786 ; 512KB memory, 8 x 64K erasable sectors, 32 x 16K banks (z88 memory model)
+DEFC FE_AMIC29L040  = $3792 ; 512KB memory, 8 x 64K erasable sectors, 32 x 16K banks (3V)
 ; ==========================================================================================
+
+
+; ==========================================================================================
+; Macronix Flash Memory constants:
+
+DEFC FE_MACRONIX_MFCD = $C2 ; Macronix Manufacturer code
+
+; Unique Flash Memory ID, 29Fxxx series, Uniform 64K Sectors (combination of Manufacturer Code and Device Code):
+; These 3rd generation Flash chips only require 5V for programming and erasure (in all z88 slots!)
+DEFC FE_MX29F040C = $C2A4   ; 512KB memory, 8 x 64K erasable sectors, 32 x 16K banks (z88 memory model)
+; ==========================================================================================
+
+
+; ==========================================================================================
+; SST Flash Memory constants:
+
+DEFC FE_SST_MFCD = $BF      ; SST Manufacturer code
+
+; Unique Flash Memory ID, 39SFxxx series, Uniform 4K Sectors (combination of Manufacturer Code and Device Code):
+; These 4th generation Flash chips only require 5V for programming and erasure (in all z88 slots!)
+DEFC FE_SST39SF040 = $BFB7  ; 512KB memory, 128 x 4K erasable sectors, 32 x 16K banks (z88 memory model)
+; ==========================================================================================
+
+
+; ==========================================================================================
+; EON Flash Memory constants:
+
+DEFC FE_EON_MFCD = $1C       ; SST Manufacturer code
+
+; Unique Flash Memory ID, 39Fxxx series, Uniform 4K Sectors (combination of Manufacturer Code and Device Code):
+; Flash chip only require 3V for programming and erasure (in all z88 slots!)
+DEFC FE_EN29LV040A = $1C4F   ; 512KB memory, 8 x 64K erasable sectors, 32 x 16K banks (3V)
+; ==========================================================================================
+
 
 ENDIF
 

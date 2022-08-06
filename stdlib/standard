@@ -91,6 +91,7 @@ disblnkint
 setblscr
 getblscr
 execstck
+fepamd
 fepblera
 fepplsize
 feprdcfla

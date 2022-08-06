@@ -23,21 +23,23 @@
      LIB OZSlotPoll, SetBlinkScreen
 
      XREF SetBlinkScreenOn
+     LIB FlashEprPollSectorSize
+
 
      include "flashepr.def"
      include "error.def"
 
-; ************************************************************************
+; ******************************************************************************************
 ;
 ; Flash Eprom File Area Shrinking.
 ;
 ; Reduce an existing "oz" File Area below application Rom Area, or on sole
 ; Flash Card by one or several 64K sectors.
 ;
-; -------------------------------------------------------------------------
+; ------------------------------------------------------------------------------------------
 ; This routine will signal failure ("file area not found") if an
 ; application wants to reduce a file area that is part of the OZ ROM in slot 0
-; -------------------------------------------------------------------------
+; ------------------------------------------------------------------------------------------
 
 ; Important:
 ; Third generation AMD Flash Memory chips may be erased/programmed in all
@@ -78,9 +80,10 @@
 ;    ....DE../IXIY same
 ;    AFBC..HL/.... different
 ;
-; ----------------------------------------------------------------------
+; -----------------------------------------------------------------------------------------
 ; Design & programming by Gunther Strube, Feb 2006, July-Aug 2006, Feb 2009
-; ----------------------------------------------------------------------
+; Patrick Moore backported improvements from OZ 5.0 to standard library, July 2022
+; -----------------------------------------------------------------------------------------
 ;
 .FlashEprReduceFileArea
                     PUSH DE
@@ -118,10 +121,18 @@
                     CALL FileEprRequest           ; get bank B(HL) of current "oz" file header in slot C
                     LD   C,E                      ; (slot no. in C restored)
                     PUSH BC                       ; (remember bank no of. file header)
+                    PUSH HL
+                    PUSH BC
+                    CALL FlashEprCardId           ; get Flash ID
+                    CALL FlashEprPollSectorSize   ; 16K sector device in slot C?
+                    POP  BC
+                    POP  HL
                     LD   A,B
-                    RRCA
-                    RRCA                          ; bankNo/4
-                    AND  @00001111
+                    JR   Z, erase_sector          ; for 16K sectors bank number is sector number
+                    SRL  A                        ; 64K sectors
+                    SRL  A                        ; bankNo/4
+.erase_sector
+                    AND  @00011111                ; max sector is 31
                     LD   B,A                      ; (bank no. -> sector no.)
                     CALL FlashEprBlockErase       ; erase sector B in slot C (containg the file area header)
                     POP  BC                       ; (restore bank no. of old header, and slot no. in C)

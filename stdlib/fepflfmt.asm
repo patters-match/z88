@@ -118,6 +118,7 @@
 ; --------------------------------------------------------------------------------------------------
 ; Design & programming by Gunther Strube,
 ;       Dec 1997-Apr 1998, Aug 2004, July 2005, July 2006, Aug-Oct 2006
+; Patrick Moore backported improvements from OZ 5.0 to standard library, July 2022
 ; --------------------------------------------------------------------------------------------------
 ;
 .FlashEprFileFormat
@@ -304,6 +305,8 @@
 .SaveNullFile
                     LD   A,$89               ; Check for Intel Manufacturer code
                     CP   H
+                    SCF                      ; clear carry to prevent error if h > FE_INTEL_MFCD
+                    CCF
                     RET  NZ                  ; it was not an Intel chip - the null file is not necessary...
 
                     PUSH BC                  ; preserve top of file area bank in B
