@@ -276,7 +276,7 @@ DEFC FE_CON = $D0           ; confirm erasure
 ; into segment x that HL points into.
 ;
 ; erases in 4 x 4K sectors for 39Fxxxx
-; or a single 16K/64K sector for 29Fxxxx
+; or a single 16K sector for 29Fxxxx
 ;
 ; In:
 ;    A = AMD chip type (FE_29F or FE_39F)
