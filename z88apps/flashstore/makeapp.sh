@@ -32,7 +32,6 @@ if test $? -lt 15; then
 fi
 
 rm -f fsapp.bin flashstore.63 flashstore.epr
-mpm -bg -I../../oz/def mth
 mpm -b -I../../oz/def -l../../stdlib/standard.lib @flashstore
 mpm -b romhdr
 

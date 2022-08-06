@@ -34,7 +34,6 @@ goto END
 :COMPILE_FLASHSTORE
 
 del flashstore.63 flashstore.epr
-mpm -bg -I..\..\oz\def mth
 mpm -b -I..\..\oz\def -l..\..\stdlib\standard.lib @flashstore
 mpm -b romhdr
 

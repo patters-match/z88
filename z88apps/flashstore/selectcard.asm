@@ -685,8 +685,8 @@ Module SelectCard
                     LD   C,E
                     LD   HL,2
                     CALL IntAscii
-                    CALL CacheVduString
-                    RET
+                    ; continue with CacheVduString routine
+
 ; *************************************************************************************
 
 
@@ -784,7 +784,7 @@ Module SelectCard
 ; *************************************************************************************
 ; Text constants
 
-.selslot_banner     DEFM "SELECT FILE CARD AREA",0
+.selslot_banner     DEFM "SELECT FILE CARD",0
 .noflash_msg        DEFM 1,"BNo Flash Cards found in slots 1-3.",1,"B",0
 
 .xypos              DEFM 1,"3@",0
